@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  act,
   render,
   screen,
   userEvent,
@@ -1369,6 +1370,106 @@ describe('AssistantChat', function () {
       // Give the effect a chance to run
       await waitFor(() => {
         expect(setConnectionIdSpy).to.not.have.been.called;
+      });
+    });
+
+    it('registers connection IDs for tool calls that arrive after mount', async function () {
+      const chat = createMockChat({ messages: [] });
+      renderWithChat(chat);
+
+      act(() => {
+        chat.messages = [
+          {
+            id: 'assistant-with-tool',
+            role: 'assistant',
+            parts: [
+              {
+                type: 'tool-input-available',
+                toolCallId: 'tool-call-1',
+                toolName: 'list-databases',
+                input: {},
+                state: 'approval-requested',
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              } as any,
+            ],
+            metadata: {
+              connectionInfo: { id: 'conn-1', name: 'My Connection' },
+            },
+          },
+        ];
+      });
+
+      await waitFor(() => {
+        expect(setConnectionIdSpy).to.have.been.calledWith({
+          toolCallId: 'tool-call-1',
+          connectionId: 'conn-1',
+        });
+      });
+    });
+  });
+
+  describe('message identity', function () {
+    // AssistantChatMessage is memoized on message identity, so rebuilding the
+    // array re-renders the whole conversation per chunk.
+    it('leaves earlier messages untouched while a response streams', async function () {
+      const existingMessages: AssistantMessage[] = [
+        {
+          id: 'user-1',
+          role: 'user',
+          parts: [{ type: 'text', text: 'Which databases do I have?' }],
+        },
+        {
+          id: 'assistant-1',
+          role: 'assistant',
+          parts: [
+            { type: 'text', text: 'Let me check.' },
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-1',
+              toolName: 'list-databases',
+              input: {},
+              state: 'approval-requested',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+          metadata: {
+            connectionInfo: { id: 'conn-1', name: 'My Connection' },
+            registeredToolCallIds: ['tool-call-1'],
+          },
+        },
+      ];
+      const chat = createMockChat({ messages: existingMessages });
+      renderWithChat(chat);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('assistant-message-assistant-1')).to.exist;
+      });
+
+      const settled = chat.messages.slice(0, existingMessages.length);
+
+      for (const text of ['You', 'You have', 'You have three']) {
+        act(() => {
+          chat.messages = [
+            ...settled,
+            {
+              id: 'streaming',
+              role: 'assistant',
+              parts: [{ type: 'text', text }],
+            },
+          ];
+        });
+      }
+
+      await waitFor(() => {
+        expect(
+          within(screen.getByTestId('assistant-message-streaming')).getByText(
+            'You have three'
+          )
+        ).to.exist;
+      });
+
+      chat.messages.slice(0, settled.length).forEach((message, index) => {
+        expect(message).to.equal(settled[index]);
       });
     });
   });
