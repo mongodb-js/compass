@@ -105,7 +105,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
 export const ClearChatButton: React.FunctionComponent<{
   chat: Chat<AssistantMessage>;
 }> = ({ chat }) => {
-  const { clearError } = useChat({ chat });
+  const { messages, clearError } = useChat({ chat });
 
   const handleClearChat = useCallback(async () => {
     const confirmed = await showConfirmation({
@@ -136,9 +136,9 @@ export const ClearChatButton: React.FunctionComponent<{
     }
   }, [clearError, chat]);
 
-  const isChatEmpty =
-    chat.messages.filter((message) => !message.metadata?.isPermanent).length ===
-    0;
+  const isChatEmpty = messages.every(
+    (message) => message.metadata?.isPermanent
+  );
 
   if (isChatEmpty) {
     return null;

@@ -1092,8 +1092,11 @@ describe('CompassAssistantProvider', function () {
         });
 
         expect(mockChat.messages).to.be.empty;
-        expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
-        expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
+        // Message updates are throttled, so the UI lags the chat state.
+        await waitFor(() => {
+          expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
+          expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
+        });
       });
 
       it('does not clear the chat when the user clicks the button and cancels', async function () {
@@ -1161,12 +1164,14 @@ describe('CompassAssistantProvider', function () {
           ).to.not.exist;
         });
 
+        // The user messages go once the throttled UI catches up.
+        await waitFor(() => {
+          expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
+          expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
+        });
         // The non-genuine warning message should still be in the chat
         expect(screen.getByTestId('assistant-message-non-genuine-warning')).to
           .exist;
-        // The user messages should be gone
-        expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
-        expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
       });
     });
   });

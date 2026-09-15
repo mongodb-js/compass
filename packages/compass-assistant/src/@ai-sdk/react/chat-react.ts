@@ -18,7 +18,7 @@ import {
   type ChatStatus,
   type UIMessage,
 } from 'ai';
-import { throttle } from './throttle';
+import { throttle, type ThrottleWait } from './throttle';
 
 class ReactChatState<UI_MESSAGE extends UIMessage>
   implements ChatState<UI_MESSAGE>
@@ -86,13 +86,12 @@ class ReactChatState<UI_MESSAGE extends UIMessage>
 
   '~registerMessagesCallback' = (
     onChange: () => void,
-    throttleWaitMs?: number
+    throttleWaitMs?: ThrottleWait
   ): (() => void) => {
-    const callback = throttleWaitMs
-      ? throttle(onChange, throttleWaitMs)
-      : onChange;
+    const callback = throttle(onChange, throttleWaitMs);
     this.#messagesCallbacks.add(callback);
     return () => {
+      callback.cancel();
       this.#messagesCallbacks.delete(callback);
     };
   };
@@ -137,7 +136,7 @@ export class Chat<
 
   '~registerMessagesCallback' = (
     onChange: () => void,
-    throttleWaitMs?: number
+    throttleWaitMs?: ThrottleWait
   ): (() => void) =>
     this.#state['~registerMessagesCallback'](onChange, throttleWaitMs);
 
