@@ -14,16 +14,10 @@ import {
   createDummyCollections,
   createNumbersCollection,
 } from '../helpers/mongo-clients.ts';
-import { isTestingWebAtlasCloud } from '../helpers/test-runner-context.ts';
 
-const INITIAL_DATABASE_NAMES = [
-  'admin',
-  ...(isTestingWebAtlasCloud()
-    ? [] // No config database in free tier Atlas Cloud.
-    : ['config']),
-  'local',
-  'test',
-];
+// admin, config, and local are hidden namespaces,
+// so they are not displayed by default in the databases tab.
+const INITIAL_DATABASE_NAMES = ['test'];
 
 describe('Instance databases tab', function () {
   let compass: Compass;
