@@ -2,7 +2,20 @@ import { expect } from 'chai';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import { EJSON, Int32, Long, UUID } from 'bson';
+import {
+  Binary,
+  BSONRegExp,
+  Decimal128,
+  Double,
+  EJSON,
+  Int32,
+  Long,
+  MaxKey,
+  MinKey,
+  ObjectId,
+  Timestamp,
+  UUID,
+} from 'bson';
 import Sinon from 'sinon';
 import { recentQueries, favoriteQueries } from '../test/fixtures/index';
 import {
@@ -256,15 +269,49 @@ describe('CompassFavoriteQueryStorage', function () {
     expect(query.update).to.deep.equal({ $set: { a: new Int32(2) } });
   });
 
-  it('preserves BSON numeric types across a save / load round-trip', async function () {
+  it('keeps a query that has skip / limit', async function () {
+    await queryFavoriteStorage.saveQuery({
+      _ns: 'test.test',
+      _name: 'q',
+      filter: {},
+      limit: 10,
+      skip: 5,
+    });
+
+    const loaded = await queryFavoriteStorage.loadAll();
+    expect(loaded).to.have.lengthOf(1);
+    expect(loaded[0].limit).to.equal(10);
+    expect(loaded[0].skip).to.equal(5);
+  });
+
+  it('preserves BSON types across a save / load round-trip', async function () {
+    const filter = {
+      longNum: Long.fromString('123456789123456789'),
+      int: new Int32(42),
+      double: new Double(1),
+      decimal: Decimal128.fromString('1.5'),
+      objectId: new ObjectId(),
+      uuid: new UUID(),
+      binary: new Binary(Buffer.from('hello'), Binary.SUBTYPE_BYTE_ARRAY),
+      date: new Date('2020-01-01T00:00:00.000Z'),
+      regex: new BSONRegExp('^a', 'i'),
+      timestamp: new Timestamp({ t: 1, i: 2 }),
+      minKey: new MinKey(),
+      maxKey: new MaxKey(),
+      nested: { arr: [new Int32(1), Long.fromString('9223372036854775807')] },
+    };
+
     await queryFavoriteStorage.saveQuery({
       _ns: 'test.test',
       _name: 'my-query',
-      filter: { a: Long.fromString('123') },
+      filter,
     });
 
     const [query] = await queryFavoriteStorage.loadAll();
-    expect(query.filter).to.deep.equal({ a: Long.fromString('123') });
+    expect(query.filter).to.deep.equal(filter);
+    expect((query.filter as typeof filter).longNum.toString()).to.equal(
+      '123456789123456789'
+    );
   });
 
   it('should retrieve saved queries only for a specific namespace', async function () {

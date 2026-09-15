@@ -1,4 +1,4 @@
-import { EJSON } from 'bson';
+import { Double, EJSON, Int32, Long } from 'bson';
 import { AtlasUserData, FileUserData } from '@mongodb-js/compass-user-data';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
@@ -14,6 +14,23 @@ const serialize = (content: unknown, space?: number) =>
 const deserialize = (content: string) =>
   EJSON.parse(content, { relaxed: false });
 
+// skip / limit are plain numbers in the query schema, but canonical EJSON round
+// trips them as BSON numeric types, so bring them back to numbers.
+const deserializeQuery = (content: string) => {
+  const query = deserialize(content) as Record<string, unknown>;
+  for (const key of ['skip', 'limit']) {
+    const value = query[key];
+    if (
+      value instanceof Int32 ||
+      value instanceof Long ||
+      value instanceof Double
+    ) {
+      query[key] = Number(value);
+    }
+  }
+  return query;
+};
+
 // Web-specific factory functions
 export type WebStorageOptions = {
   orgId: string;
@@ -27,7 +44,7 @@ export function createWebRecentQueryStorage(options: WebStorageOptions) {
     projectId: options.projectId,
     atlasService: options.atlasService,
     serialize: (content) => serialize(content),
-    deserialize,
+    deserialize: deserializeQuery,
   });
   return new BaseCompassRecentQueryStorage(userData);
 }
@@ -38,7 +55,7 @@ export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
     projectId: options.projectId,
     atlasService: options.atlasService,
     serialize: (content) => serialize(content),
-    deserialize,
+    deserialize: deserializeQuery,
   });
   return new BaseCompassFavoriteQueryStorage(userData);
 }
@@ -65,7 +82,7 @@ export function createElectronRecentQueryStorage(
   const userData = new FileUserData(RecentQuerySchema, 'RecentQueries', {
     basePath: options.basepath,
     serialize: (content) => serialize(content, 2),
-    deserialize,
+    deserialize: deserializeQuery,
   });
   return new BaseCompassRecentQueryStorage(userData);
 }
@@ -76,7 +93,7 @@ export function createElectronFavoriteQueryStorage(
   const userData = new FileUserData(FavoriteQuerySchema, 'FavoriteQueries', {
     basePath: options.basepath,
     serialize: (content) => serialize(content, 2),
-    deserialize,
+    deserialize: deserializeQuery,
   });
   return new BaseCompassFavoriteQueryStorage(userData);
 }
