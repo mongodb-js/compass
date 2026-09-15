@@ -1,4 +1,5 @@
 import {
+  AtlasPreferencesStorage,
   CompassWebPreferencesAccess,
   featureFlags as FEATURE_FLAG_DEFINITIONS,
   isPreferenceNameValid,
@@ -7,7 +8,13 @@ import {
   type FeatureFlags,
 } from 'compass-preferences-model/provider';
 import { useEffect, useState } from 'react';
-import { defaultHeaders } from './url-builder';
+import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
+
+// Minimal AtlasService surface used by the preferences bootstrap. A real
+// AtlasService satisfies this structurally.
+type PreferencesAtlasService = AtlasServiceLike & {
+  cloudEndpoint(path?: string): string;
+};
 
 export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableExplainPlan: true,
@@ -35,19 +42,13 @@ export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   maxTimeMSEnvLimit: 300_000, // 5 minutes limit for Data Explorer}
 };
 
-const compassWebPreferencesCache = new Map<
-  string, // Project id.
-  CompassWebPreferencesAccess | Promise<CompassWebPreferencesAccess>
->();
-
-function getCachedPreferences(
-  projectId: string
-): CompassWebPreferencesAccess | null {
-  const cached = compassWebPreferencesCache.get(projectId);
-  // When we're still loading preferences this will be a promise, so we return
-  // null to indicate we should be in a loading state.
-  return cached instanceof CompassWebPreferencesAccess ? cached : null;
-}
+// Module-level handles for the preferences access. They are not part of the
+// loading path (which lives in useCompassWebPreferences): injected is set
+// externally (sandbox override, tests) and consulted instead of loading;
+// lastLoaded is written by the hook so the sandbox can expose the current
+// access to e2e in Atlas Cloud mode without affecting subsequent loads.
+let injectedPreferencesAccess: CompassWebPreferencesAccess | null = null;
+let lastLoadedPreferencesAccess: CompassWebPreferencesAccess | null = null;
 
 // These are resolved from the mms API getDataExplorerPreferences endpoint.
 // See DataExplorerPreferencesView for parity.
@@ -86,20 +87,14 @@ export function getAtlasServiceBackendPreset(
   return 'atlas';
 }
 
-// We fetch here and not in atlas-service because atlas-service depends on these
-// preferences; the request has to happen before atlas-service can be set up.
 async function _fetchPreferencesFromCloudApi(
-  projectId: string
+  projectId: string,
+  atlasService: PreferencesAtlasService
 ): Promise<CloudPreferencesApiResponse> {
-  const res = await fetch(`/explorer/v1/groups/${projectId}/preferences`, {
-    headers: defaultHeaders,
-    credentials: 'include',
-  });
-  if (!res.ok) {
-    throw new Error(
-      `Failed to fetch preferences: ${res.status} ${res.statusText}`
-    );
-  }
+  const url = atlasService.cloudEndpoint(
+    `/explorer/v1/groups/${projectId}/preferences`
+  );
+  const res = await atlasService.authenticatedFetch(url);
   return res.json();
 }
 
@@ -134,14 +129,17 @@ const getPermissionsFromUserRoles = (userRoles: {
 /**
  * @internal Exported for testing.
  */
-export async function getPreferencesFromCloudApi(projectId: string) {
+export async function getPreferencesFromCloudApi(
+  projectId: string,
+  atlasService: PreferencesAtlasService
+) {
   const {
     featureFlags: featureFlagsAndPreferences,
     userAuid,
     appUser,
     currentOrganization,
     userRoles,
-  } = await _fetchPreferencesFromCloudApi(projectId);
+  } = await _fetchPreferencesFromCloudApi(projectId, atlasService);
 
   const atlasCloudUserPreferences: Partial<AllPreferences> = {
     atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
@@ -185,82 +183,73 @@ export async function getPreferencesFromCloudApi(projectId: string) {
   };
 }
 
-async function _fetchAndCachePreferences(
-  projectId: string
-): Promise<CompassWebPreferencesAccess> {
-  try {
-    const {
-      atlasCloudUserPreferences,
-      atlasCloudProjectPreferences,
-      atlasCloudOrgPreferences,
-    } = await getPreferencesFromCloudApi(projectId);
-    const preferencesAccess = new CompassWebPreferencesAccess(
-      {
-        ...DEFAULT_COMPASS_WEB_PREFERENCES,
-        ...atlasCloudUserPreferences,
-        ...atlasCloudProjectPreferences,
-        ...atlasCloudOrgPreferences,
-      },
-      {
-        atlasCloudUser: atlasCloudUserPreferences,
-        atlasCloudProject: atlasCloudProjectPreferences,
-        atlasCloudOrg: atlasCloudOrgPreferences,
-      }
-    );
-    // Replace the pending promise with the resolved access so a remount can
-    // pick it up synchronously without a loading state.
-    compassWebPreferencesCache.set(projectId, preferencesAccess);
-    return preferencesAccess;
-  } catch (err) {
-    // Drop the failed entry so a remount can retry the fetch.
-    compassWebPreferencesCache.delete(projectId);
-    throw err;
-  }
-}
-
 async function loadCompassWebPreferences(
-  projectId: string
+  projectId: string,
+  atlasService: PreferencesAtlasService
 ): Promise<CompassWebPreferencesAccess> {
-  const cached = compassWebPreferencesCache.get(projectId);
-  if (cached) {
-    return cached;
-  }
   if (!projectId) {
     throw new Error('Cannot load preferences without an Atlas project id');
   }
-  // Cache the in-flight promise so concurrent callers share one request.
-  const preferences = _fetchAndCachePreferences(projectId);
-  compassWebPreferencesCache.set(projectId, preferences);
-  return preferences;
+  const [cloudPrefs, atlasStorage] = await Promise.all([
+    getPreferencesFromCloudApi(projectId, atlasService),
+    (async () => {
+      const storage = new AtlasPreferencesStorage(atlasService);
+      await storage.setup();
+      return storage;
+    })(),
+  ]);
+  const {
+    atlasCloudUserPreferences,
+    atlasCloudProjectPreferences,
+    atlasCloudOrgPreferences,
+  } = cloudPrefs;
+  return new CompassWebPreferencesAccess(
+    {
+      ...DEFAULT_COMPASS_WEB_PREFERENCES,
+      ...atlasStorage.getPreferences(),
+      ...atlasCloudUserPreferences,
+      ...atlasCloudProjectPreferences,
+      ...atlasCloudOrgPreferences,
+    },
+    {
+      atlasCloudUser: atlasCloudUserPreferences,
+      atlasCloudProject: atlasCloudProjectPreferences,
+      atlasCloudOrg: atlasCloudOrgPreferences,
+    },
+    'atlas',
+    atlasStorage
+  );
 }
 
-// Start fetching as early as possible, before Compass is rendered, so the
-// preferences are ready or in flight by the time it mounts.
-export function prefetchCompassWebPreferences(): void {
-  const projectId = getProjectIdFromUrl();
-  if (projectId) {
-    void loadCompassWebPreferences(projectId);
-  }
-}
-
-export function useCompassWebPreferences(projectId: string): {
+export function useCompassWebPreferences(
+  projectId: string,
+  atlasService: PreferencesAtlasService
+): {
   preferencesAccess: CompassWebPreferencesAccess | null;
   isLoading: boolean;
   error: Error | null;
 } {
   const [preferencesAccess, setPreferencesAccess] =
-    useState<CompassWebPreferencesAccess | null>(() =>
-      getCachedPreferences(projectId)
+    useState<CompassWebPreferencesAccess | null>(
+      () => injectedPreferencesAccess
     );
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (injectedPreferencesAccess) {
+      // An access was injected externally (sandbox override, tests); there is
+      // nothing for the loader to fetch.
+      return;
+    }
     let mounted = true;
-    // On a cache hit this resolves immediately with the same instance the
-    // state was initialized with so it won't trigger a re-render.
-    void loadCompassWebPreferences(projectId).then(
+    void loadCompassWebPreferences(projectId, atlasService).then(
       (preferencesAccess) => {
-        if (mounted) setPreferencesAccess(preferencesAccess);
+        if (mounted) {
+          setPreferencesAccess(preferencesAccess);
+          // Expose the loaded access to the sandbox so e2e can read and toggle
+          // preferences in Atlas Cloud mode.
+          lastLoadedPreferencesAccess = preferencesAccess;
+        }
       },
       (err) => {
         if (mounted) setError(err as Error);
@@ -269,7 +258,7 @@ export function useCompassWebPreferences(projectId: string): {
     return () => {
       mounted = false;
     };
-  }, [projectId]);
+  }, [projectId, atlasService]);
 
   return {
     preferencesAccess,
@@ -279,24 +268,18 @@ export function useCompassWebPreferences(projectId: string): {
 }
 
 /**
- * @internal Exported for sandbox and testing purposes.
+ * @internal Exported for sandbox and testing purposes. Injects a preferences
+ * access that useCompassWebPreferences will render with instead of loading.
  */
 export function setCompassWebPreferencesAccess(
-  preferencesAccess: CompassWebPreferencesAccess,
-  projectId = ''
+  preferencesAccess: CompassWebPreferencesAccess | null
 ) {
-  compassWebPreferencesCache.set(projectId, preferencesAccess);
+  injectedPreferencesAccess = preferencesAccess;
 }
 
 /**
  * @internal Exported for the sandbox to expose preferences in Atlas Cloud mode.
- * Returns the first resolved CompassWebPreferencesAccess from any cached entry.
  */
 export function getAnyCompassWebPreferencesAccess(): CompassWebPreferencesAccess | null {
-  for (const cached of compassWebPreferencesCache.values()) {
-    if (cached instanceof CompassWebPreferencesAccess) {
-      return cached;
-    }
-  }
-  return null;
+  return lastLoadedPreferencesAccess ?? injectedPreferencesAccess;
 }

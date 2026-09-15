@@ -47,9 +47,9 @@ import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import {
-  type CompassWebPreferencesAccess,
   PreferencesProvider,
   usePreferences,
+  usePreferencesContext,
 } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
@@ -81,8 +81,8 @@ import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import {
-  prefetchCompassWebPreferences,
   useCompassWebPreferences,
+  getAtlasServiceBackendPreset,
 } from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderWeb } from '@mongodb-js/compass-data-modeling/web';
@@ -108,10 +108,6 @@ import { useSyncHistory } from './use-sync-history';
 import type { History } from './use-sync-history';
 import { defaultHeaders } from './url-builder';
 
-// Kick off the preferences request as the entrypoint loads, before React
-// renders, so the data is ready by the time Compass mounts.
-setTimeout(prefetchCompassWebPreferences);
-
 const preferencesLoadingContainerStyles = css({
   width: '100%',
   height: '100%',
@@ -126,17 +122,11 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasClusterConnectionsOnlyProvider value={true}>
-        <AtlasServiceProvider
-          options={{
-            defaultHeaders,
-          }}
-        >
-          <AtlasAdminApiServiceProvider>
-            <AtlasAiServiceProvider apiURLPreset="cloud">
-              {children}
-            </AtlasAiServiceProvider>
-          </AtlasAdminApiServiceProvider>
-        </AtlasServiceProvider>
+        <AtlasAdminApiServiceProvider>
+          <AtlasAiServiceProvider apiURLPreset="cloud">
+            {children}
+          </AtlasAiServiceProvider>
+        </AtlasAdminApiServiceProvider>
       </AtlasClusterConnectionsOnlyProvider>
     </AtlasCloudAuthServiceProvider>
   );
@@ -506,10 +496,51 @@ const CompassSettingsPluginWithPreferences = () => {
   return enableCompassWebSettings ? <CompassSettingsPlugin /> : null;
 };
 
+const CompassWebPreferencesProvider = createServiceProvider(
+  function CompassWebPreferencesProvider({
+    projectId,
+    children,
+  }: {
+    projectId: string;
+    children: React.ReactNode;
+  }) {
+    const atlasService = atlasServiceLocator();
+    const { preferencesAccess, isLoading, error } = useCompassWebPreferences(
+      projectId,
+      atlasService
+    );
+
+    if (isLoading) {
+      return (
+        <div className={preferencesLoadingContainerStyles}>
+          <SpinLoaderWithLabel
+            data-testid="compass-web-preferences-loader"
+            progressText="Loading Data Explorer…"
+          />
+        </div>
+      );
+    }
+
+    if (error) {
+      // When we can't fetch the preferences, we let mms handle the error state.
+      throw error;
+    }
+
+    if (!preferencesAccess) {
+      throw new Error('Failed to load data explorer preferences');
+    }
+
+    return (
+      <PreferencesProvider value={preferencesAccess}>
+        {children}
+      </PreferencesProvider>
+    );
+  }
+);
+
 const CompassWebWithPreferences = ({
   appName,
   orgId,
-  preferences,
   projectId,
   darkMode,
   onLog,
@@ -518,10 +549,9 @@ const CompassWebWithPreferences = ({
   onOpenConnectViaModal,
   history,
   historyRoutePrefix,
-}: CompassWebProps & {
-  preferences: CompassWebPreferencesAccess;
-}) => {
+}: CompassWebProps) => {
   const appRegistry = useInitialValue(new AppRegistry());
+  const preferences = usePreferencesContext();
   const { logger, telemetry: telemetryOptions } =
     useCompassWebLoggerAndTelemetry({
       onLog,
@@ -540,99 +570,95 @@ const CompassWebWithPreferences = ({
   return (
     <GlobalAppRegistryProvider value={appRegistry}>
       <AppRegistryProvider scopeName="Compass Web Root">
-        <PreferencesProvider value={preferences}>
-          <LoggerProvider value={logger}>
-            <TelemetryProvider options={telemetryOptions}>
-              <CompassComponentsProviderWeb darkMode={darkMode}>
-                <WithAtlasProviders>
-                  <WithMultiplexTransport projectId={projectId}>
-                    <WithStorageProviders orgId={orgId} projectId={projectId}>
-                      <DataModelStorageServiceProviderWeb
+        <LoggerProvider value={logger}>
+          <TelemetryProvider options={telemetryOptions}>
+            <CompassComponentsProviderWeb darkMode={darkMode}>
+              <WithAtlasProviders>
+                <WithMultiplexTransport projectId={projectId}>
+                  <WithStorageProviders orgId={orgId} projectId={projectId}>
+                    <DataModelStorageServiceProviderWeb
+                      orgId={orgId}
+                      projectId={projectId}
+                    >
+                      <AtlasCloudConnectionStorageProvider
                         orgId={orgId}
                         projectId={projectId}
                       >
-                        <AtlasCloudConnectionStorageProvider
-                          orgId={orgId}
-                          projectId={projectId}
-                        >
-                          <ToolsControllerProvider>
-                            <CompassAssistantProvider
-                              originForPrompt="atlas-data-explorer"
-                              appNameForPrompt={
-                                APP_NAMES_FOR_PROMPT.DataExplorer
-                              }
-                              projectId={projectId}
+                        <ToolsControllerProvider>
+                          <CompassAssistantProvider
+                            originForPrompt="atlas-data-explorer"
+                            appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
+                            projectId={projectId}
+                          >
+                            <CompassConnections
+                              appName={appName ?? 'Compass Web'}
+                              showErrorStateOnConnectionLoadError
+                              onExtraConnectionDataRequest={() => {
+                                return Promise.resolve([{}, null] as [
+                                  Record<string, unknown>,
+                                  null
+                                ]);
+                              }}
+                              onAutoconnectInfoRequest={(connectionStore) => {
+                                if (autoconnectId) {
+                                  return connectionStore.loadAll().then(
+                                    (connections) => {
+                                      return connections.find(
+                                        (connectionInfo) =>
+                                          connectionInfo.id === autoconnectId
+                                      );
+                                    },
+                                    (err) => {
+                                      const { log, mongoLogId } = logger;
+                                      log.warn(
+                                        mongoLogId(1_001_000_329),
+                                        'Compass Web',
+                                        'Could not load connections when trying to autoconnect',
+                                        { err: err.message }
+                                      );
+                                      return undefined;
+                                    }
+                                  );
+                                }
+                                return Promise.resolve(undefined);
+                              }}
                             >
-                              <CompassConnections
-                                appName={appName ?? 'Compass Web'}
-                                showErrorStateOnConnectionLoadError
-                                onExtraConnectionDataRequest={() => {
-                                  return Promise.resolve([{}, null] as [
-                                    Record<string, unknown>,
-                                    null
-                                  ]);
-                                }}
-                                onAutoconnectInfoRequest={(connectionStore) => {
-                                  if (autoconnectId) {
-                                    return connectionStore.loadAll().then(
-                                      (connections) => {
-                                        return connections.find(
-                                          (connectionInfo) =>
-                                            connectionInfo.id === autoconnectId
-                                        );
-                                      },
-                                      (err) => {
-                                        const { log, mongoLogId } = logger;
-                                        log.warn(
-                                          mongoLogId(1_001_000_329),
-                                          'Compass Web',
-                                          'Could not load connections when trying to autoconnect',
-                                          { err: err.message }
-                                        );
-                                        return undefined;
+                              <CompassInstanceStorePlugin>
+                                <FieldStorePlugin>
+                                  <WithConnectionsStore>
+                                    <CompassWorkspace
+                                      initialWorkspaceTabs={
+                                        initialWorkspaceTabs
                                       }
-                                    );
-                                  }
-                                  return Promise.resolve(undefined);
-                                }}
-                              >
-                                <CompassInstanceStorePlugin>
-                                  <FieldStorePlugin>
-                                    <WithConnectionsStore>
-                                      <CompassWorkspace
-                                        initialWorkspaceTabs={
-                                          initialWorkspaceTabs
-                                        }
-                                        onActiveWorkspaceTabChange={
-                                          onActiveWorkspaceTabChange
-                                        }
-                                        onOpenConnectViaModal={
-                                          onOpenConnectViaModal
-                                        }
-                                        onBeforeUnloadCallbackRequest={
-                                          onBeforeUnloadCallbackRequest
-                                        }
-                                      ></CompassWorkspace>
-                                    </WithConnectionsStore>
-                                  </FieldStorePlugin>
-                                  <CompassGenerativeAIPlugin
-                                    projectId={projectId}
-                                    isCloudOptIn={true}
-                                  />
-                                  <CompassSettingsPluginWithPreferences />
-                                </CompassInstanceStorePlugin>
-                              </CompassConnections>
-                            </CompassAssistantProvider>
-                          </ToolsControllerProvider>
-                        </AtlasCloudConnectionStorageProvider>
-                      </DataModelStorageServiceProviderWeb>
-                    </WithStorageProviders>
-                  </WithMultiplexTransport>
-                </WithAtlasProviders>
-              </CompassComponentsProviderWeb>
-            </TelemetryProvider>
-          </LoggerProvider>
-        </PreferencesProvider>
+                                      onActiveWorkspaceTabChange={
+                                        onActiveWorkspaceTabChange
+                                      }
+                                      onOpenConnectViaModal={
+                                        onOpenConnectViaModal
+                                      }
+                                      onBeforeUnloadCallbackRequest={
+                                        onBeforeUnloadCallbackRequest
+                                      }
+                                    ></CompassWorkspace>
+                                  </WithConnectionsStore>
+                                </FieldStorePlugin>
+                                <CompassGenerativeAIPlugin
+                                  projectId={projectId}
+                                  isCloudOptIn={true}
+                                />
+                                <CompassSettingsPluginWithPreferences />
+                              </CompassInstanceStorePlugin>
+                            </CompassConnections>
+                          </CompassAssistantProvider>
+                        </ToolsControllerProvider>
+                      </AtlasCloudConnectionStorageProvider>
+                    </DataModelStorageServiceProviderWeb>
+                  </WithStorageProviders>
+                </WithMultiplexTransport>
+              </WithAtlasProviders>
+            </CompassComponentsProviderWeb>
+          </TelemetryProvider>
+        </LoggerProvider>
       </AppRegistryProvider>
     </GlobalAppRegistryProvider>
   );
@@ -640,33 +666,17 @@ const CompassWebWithPreferences = ({
 
 /** @public */
 const CompassWeb = (props: CompassWebProps) => {
-  const { preferencesAccess, isLoading, error } = useCompassWebPreferences(
-    props.projectId
-  );
-
-  if (isLoading) {
-    return (
-      <div className={preferencesLoadingContainerStyles}>
-        <SpinLoaderWithLabel
-          darkMode={props.darkMode}
-          data-testid="compass-web-preferences-loader"
-          progressText="Loading Data Explorer…"
-        />
-      </div>
-    );
-  }
-
-  if (error) {
-    // When we can't fetch the preferences, we let mms handle the error state.
-    throw error;
-  }
-
-  if (!preferencesAccess) {
-    throw new Error('Failed to load data explorer preferences');
-  }
-
   return (
-    <CompassWebWithPreferences {...props} preferences={preferencesAccess} />
+    <AtlasServiceProvider
+      options={{
+        defaultHeaders,
+        atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
+      }}
+    >
+      <CompassWebPreferencesProvider projectId={props.projectId}>
+        <CompassWebWithPreferences {...props} />
+      </CompassWebPreferencesProvider>
+    </AtlasServiceProvider>
   );
 };
 
