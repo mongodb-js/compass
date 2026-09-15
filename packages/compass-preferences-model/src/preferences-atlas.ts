@@ -14,7 +14,10 @@ import type { PreferencesStorage } from './preferences-storage';
 export class AtlasPreferencesStorage implements PreferencesStorage {
   private readonly file = 'General';
   private readonly defaultPreferences = getDefaultsForStoredPreferences();
-  private readonly userData: AtlasUserData<StoredPreferencesValidator>;
+  private readonly userData: AtlasUserData<
+    StoredPreferencesValidator,
+    'AppPreferences'
+  >;
   private preferences: StoredPreferences = getDefaultsForStoredPreferences();
 
   constructor(atlasService: AtlasServiceLike) {

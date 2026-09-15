@@ -500,11 +500,11 @@ describe('AtlasUserData', function () {
     sandbox.restore();
   });
 
-  const getAtlasUserData = (
+  const getAtlasUserData = <Type extends UserDataType = 'FavoriteQueries'>(
     validatorOpts: ValidatorOptions = {},
     orgId = 'test-org',
     projectId = 'test-proj',
-    type: UserDataType = 'FavoriteQueries'
+    type: Type = 'FavoriteQueries' as Type
   ) => {
     return new AtlasUserData(getTestSchema(validatorOpts), type, {
       orgId,
