@@ -1127,7 +1127,7 @@ describe('MockDataGeneratorModal', () => {
             )
           ).to.equal(promptsForPassword);
           expect(section.textContent).to.include(
-            "If you can't connect, see the mongosh connection guide."
+            'If you have trouble connecting, see the mongosh connection guide.'
           );
           userEvent.click(within(section).getByTestId('lg-code-copy_button'));
           await waitFor(() =>

@@ -227,8 +227,7 @@ const ScriptScreen = ({
         </Code>
         {!connectionInfo.atlasMetadata && (
           <Body className={sectionInstructionStyles}>
-            This command doesn&apos;t reuse connection settings stored
-            separately in Compass. If you can&apos;t connect, see the{' '}
+            If you have trouble connecting, see the{' '}
             <Link href="https://www.mongodb.com/docs/mongodb-shell/connect/">
               mongosh connection guide
             </Link>
