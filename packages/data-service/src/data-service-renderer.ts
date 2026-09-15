@@ -16,7 +16,7 @@
 import { omit } from 'lodash';
 import { DataServiceImpl, type DataService } from './data-service';
 import type { Message, OperationName } from './data-service-utility';
-import { unmarkBSON } from './transfer';
+import { markBSON, unmarkBSON } from './transfer';
 
 let reqId = 0;
 
@@ -50,10 +50,12 @@ export class DataServiceRenderer
 
   private send(msgInit: Pick<Message, 'operation' | 'args'>): number {
     const requestId = reqId++;
+    const { bsonValues } = markBSON(msgInit.args);
     const message = {
       requestId,
       operation: msgInit.operation,
       args: msgInit.args,
+      bsonValues,
     };
     console.log('render-send', message);
     this.portToUtility.postMessage(message);
@@ -64,11 +66,14 @@ export class DataServiceRenderer
   private onMessage({
     data,
   }: MessageEvent<
-    { responseTo: number } & ({ ok: 0; error: any } | { ok: 1; res: any })
+    { responseTo: number } & (
+      | { ok: 0; error: any }
+      | { ok: 1; res: any; bsonValues: Map<object, string> }
+    )
   >) {
     console.log('render-message', data);
     const resolvers = this.pending.get(data.responseTo);
-    if (data.ok) resolvers?.resolve(unmarkBSON(data.res));
+    if (data.ok) resolvers?.resolve(unmarkBSON(data.res, data.bsonValues));
     else resolvers?.reject(data.error);
   }
 
