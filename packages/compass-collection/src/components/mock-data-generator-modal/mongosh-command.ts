@@ -26,10 +26,9 @@ export function getMongoshCommand(connectionInfo: ConnectionInfo) {
       'PLAIN',
     ].includes(mechanism);
     needsUsername =
-      isAtlas ||
       !!parsed.username ||
       !!parsed.password ||
-      (passwordAuthentication && mechanism !== 'DEFAULT');
+      (passwordAuthentication && (isAtlas || mechanism !== 'DEFAULT'));
     promptsForPassword =
       needsUsername &&
       (passwordAuthentication ||

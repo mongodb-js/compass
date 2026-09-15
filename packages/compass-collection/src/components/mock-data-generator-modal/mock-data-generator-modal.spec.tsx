@@ -972,53 +972,75 @@ describe('MockDataGeneratorModal', () => {
       });
     });
 
-    it('shows userConnectionString in the mongosh command when available', async () => {
-      const atlasConnectionInfo: ConnectionInfo = {
-        id: 'test-atlas-connection',
-        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
-        atlasMetadata: {
-          orgId: 'test-org',
-          projectId: 'test-project-123',
-          clusterName: 'test-cluster',
-          clusterUniqueId: 'test-cluster-unique-id',
-          clusterType: 'REPLICASET' as const,
-          clusterState: 'IDLE' as const,
-          metricsId: 'test-metrics-id',
-          metricsType: 'replicaSet' as const,
-          regionalBaseUrl: null,
-          instanceSize: 'M10',
-          supports: {
-            globalWrites: false,
-            rollingIndexes: true,
+    for (const mechanism of [
+      undefined,
+      'MONGODB-OIDC',
+      'MONGODB-X509',
+      'MONGODB-AWS',
+    ]) {
+      it(`uses the Atlas user URI with ${
+        mechanism ?? 'default'
+      } authentication`, async () => {
+        const userConnectionString = mechanism
+          ? `${mockUserConnectionString}?authMechanism=${mechanism}`
+          : mockUserConnectionString;
+        const atlasConnectionInfo: ConnectionInfo = {
+          id: 'test-atlas-connection',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org',
+            projectId: 'test-project-123',
+            clusterName: 'test-cluster',
+            clusterUniqueId: 'test-cluster-unique-id',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString,
           },
-          userConnectionString: mockUserConnectionString,
-        },
-      };
+        };
 
-      await renderModal({
-        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
-        connectionInfo: atlasConnectionInfo,
-        fakerSchemaGeneration: createCompletedFakerSchema({
-          name: {
-            fakerMethod: 'person.firstName',
-            fakerArgs: [],
-            probability: 1.0,
-            mongoType: 'String',
-          },
-        }),
+        await renderModal({
+          currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+          connectionInfo: atlasConnectionInfo,
+          fakerSchemaGeneration: createCompletedFakerSchema({
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          }),
+        });
+
+        expect(screen.getByText(userConnectionString, { exact: false })).to
+          .exist;
+        expect(
+          screen.getByTestId('mock-data-run-command').textContent
+        ).to.include(
+          mechanism
+            ? `mongosh '${userConnectionString}' --file mockdatascript.js`
+            : `mongosh '${userConnectionString}' --username '<your-username>' --file mockdatascript.js --password`
+        );
+        expect(
+          screen.getByTestId('mock-data-run-command').textContent
+        ).not.to.include('localhost');
+        if (mechanism) {
+          expect(
+            screen.getByTestId('mock-data-run-command').textContent
+          ).not.to.include('--username');
+          expect(
+            screen.getByTestId('mock-data-run-command').textContent
+          ).not.to.include('--password');
+        }
       });
-
-      expect(screen.getByText(mockUserConnectionString, { exact: false })).to
-        .exist;
-      expect(
-        screen.getByTestId('mock-data-run-command').textContent
-      ).to.include(
-        `mongosh '${mockUserConnectionString}' --username '<your-username>' --file mockdatascript.js --password`
-      );
-      expect(
-        screen.getByTestId('mock-data-run-command').textContent
-      ).not.to.include('localhost');
-    });
+    }
 
     const commandCases = [
       {
