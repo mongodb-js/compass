@@ -1270,7 +1270,7 @@ const connectionAttemptError = (
   return (
     dispatch,
     _getState,
-    { track, getExtraConnectionData, compassAssistant }
+    { track, getExtraConnectionData, compassAssistant, preferences }
   ) => {
     const { openConnectionFailedToast } = getNotificationTriggers();
 
@@ -1286,7 +1286,9 @@ const connectionAttemptError = (
           }
         : undefined,
       onDebugClick:
-        compassAssistant.getIsAssistantEnabled() && connectionInfo
+        compassAssistant.getIsAssistantEnabled() &&
+        preferences.getPreferences().enableAssistantConnectionDebugging &&
+        connectionInfo
           ? () => {
               compassAssistant.interpretConnectionError({
                 connectionInfo,
