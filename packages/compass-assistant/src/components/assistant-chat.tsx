@@ -402,7 +402,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     if (hasChanges) {
       setMessages(() => newMessages);
     }
-  }, [activeConnection, chat, setMessages, toolsController]);
+    // `messages` triggers this; the body reads live state off `chat` so a
+    // throttled render can't overwrite newer messages.
+  }, [activeConnection, chat, messages, setMessages, toolsController]);
 
   const prevToolCallingEnabled = useRef(areToolCallsEnabled);
   useEffect(() => {
