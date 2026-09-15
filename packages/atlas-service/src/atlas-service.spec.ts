@@ -1,8 +1,6 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { AtlasService } from './atlas-service';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { AtlasService, type AtlasServiceOptions } from './atlas-service';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasServiceConfig } from './util';
 
@@ -21,11 +19,10 @@ const ATLAS_CONFIG: AtlasServiceConfig = {
   userDataBaseUrl: 'http://example.com/ui/userData',
 };
 
-function getAtlasService(preferences: PreferencesAccess) {
+function getAtlasService(options?: AtlasServiceOptions) {
   const atlasService = new AtlasService(
-    preferences,
     createNoopLogger(),
-    undefined,
+    options,
     ATLAS_CONFIG
   );
   return atlasService;
@@ -33,14 +30,12 @@ function getAtlasService(preferences: PreferencesAccess) {
 
 describe('AtlasService', function () {
   let atlasService: AtlasService;
-  let preferences: PreferencesAccess;
   let sandbox: Sinon.SinonSandbox;
   const initialFetch = global.fetch;
 
-  beforeEach(async function () {
+  beforeEach(function () {
     sandbox = Sinon.createSandbox();
-    preferences = await createSandboxFromDefaultPreferences();
-    atlasService = getAtlasService(preferences);
+    atlasService = getAtlasService();
   });
 
   afterEach(function () {
@@ -49,9 +44,9 @@ describe('AtlasService', function () {
   });
 
   it('should throw when network traffic is disabled', async function () {
-    await preferences.savePreferences({ networkTraffic: false });
+    const disabledService = getAtlasService({ networkTraffic: false });
     try {
-      await atlasService.fetch('https://example.com');
+      await disabledService.fetch('https://example.com');
       expect.fail('Expected to throw when network traffic is disabled');
     } catch (err) {
       expect(err).to.have.property('message', 'Network traffic is not allowed');
@@ -112,7 +107,7 @@ describe('AtlasService', function () {
       json: () => Promise.resolve(expectedData),
     });
     global.fetch = fetchStub;
-    const atlasService = getAtlasService(preferences);
+    const atlasService = getAtlasService();
     const response = await atlasService.authenticatedFetch(
       'https://example.com'
     );

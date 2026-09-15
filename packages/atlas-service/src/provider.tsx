@@ -42,8 +42,18 @@ export const AtlasServiceProvider: React.FC<{
   const initialValueOptions = useInitialValue(options);
 
   const atlasService = useMemo(() => {
-    return new AtlasService(preferences, logger, initialValueOptions);
-  }, [preferences, logger, initialValueOptions]);
+    const preset =
+      initialValueOptions?.atlasServiceBackendPreset ??
+      preferences.getPreferences().atlasServiceBackendPreset;
+    const networkTraffic =
+      initialValueOptions?.networkTraffic ??
+      preferences.getPreferences().networkTraffic;
+    return new AtlasService(logger, {
+      ...initialValueOptions,
+      atlasServiceBackendPreset: preset,
+      networkTraffic,
+    });
+  }, [logger, initialValueOptions, preferences]);
 
   return (
     <AtlasServiceContext.Provider value={atlasService}>

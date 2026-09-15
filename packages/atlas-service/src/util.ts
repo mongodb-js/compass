@@ -230,10 +230,16 @@ const config = Object.create({
   },
 });
 
-export function getAtlasConfig(
-  preferences: Pick<PreferencesAccess, 'getPreferences'>
+export type AtlasServiceBackendPreset =
+  | 'atlas-local'
+  | 'atlas-dev'
+  | 'atlas-qa'
+  | 'atlas-staging'
+  | 'atlas';
+
+export function getAtlasConfigForPreset(
+  atlasServiceBackendPreset: AtlasServiceBackendPreset
 ) {
-  const { atlasServiceBackendPreset } = preferences.getPreferences();
   const envConfig = {
     atlasPrivateApiBaseUrl:
       process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
@@ -250,6 +256,14 @@ export function getAtlasConfig(
     envConfig,
     config[atlasServiceBackendPreset]
   ) as AtlasServiceConfig;
+}
+
+export function getAtlasConfig(
+  preferences: Pick<PreferencesAccess, 'getPreferences'>
+) {
+  return getAtlasConfigForPreset(
+    preferences.getPreferences().atlasServiceBackendPreset
+  );
 }
 
 export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
