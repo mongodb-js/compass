@@ -129,6 +129,7 @@ const ValidationCodeEditor = ({
   return (
     <CodemirrorMultilineEditor
       id="validation-code-editor"
+      language="javascript-expression"
       text={text}
       onChangeText={onChangeText}
       readOnly={readOnly}

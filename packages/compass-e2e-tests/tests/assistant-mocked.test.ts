@@ -20,6 +20,7 @@ import type { MockAssistantResponse } from '../helpers/assistant-service.ts';
 
 import {
   context,
+  isTestingWeb,
   isTestingWebAtlasCloud,
 } from '../helpers/test-runner-context.ts';
 
@@ -242,8 +243,7 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
     describe('entry points', function () {
       it('should display opt-in modal for connection error entry point', async function () {
-        if (isTestingWebAtlasCloud()) {
-          // We don't show connection debugging on Atlas web.
+        if (isTestingWeb()) {
           return this.skip();
         }
 
@@ -507,8 +507,7 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
       describe('error message entry point', function () {
         before(function () {
-          if (isTestingWebAtlasCloud()) {
-            // We don't show connection debugging on Atlas web.
+          if (isTestingWeb()) {
             return this.skip();
           }
 
