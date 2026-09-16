@@ -151,8 +151,8 @@ export type PluginHeaderProps<T extends AnyWorkspace['type']> =
 export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;
   provider: CompassPluginComponent<any, any, any>;
-  content: (props: WorkspacePluginProps<T>) => React.ReactElement | null;
-  header: (props: PluginHeaderProps<T>) => React.ReactElement | null;
+  content: (props: WorkspacePluginProps<T>) => React.ReactNode;
+  header: (props: PluginHeaderProps<T>) => React.ReactNode;
 };
 
 export type CollectionTabInfo = {
