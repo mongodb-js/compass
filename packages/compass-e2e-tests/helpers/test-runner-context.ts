@@ -112,9 +112,9 @@ function buildDesktopArgs(yargs: Argv) {
       type: 'boolean',
       default: false,
       description:
-        'Run desktop tests that need Atlas Cloud resources. Creates an Atlas ' +
-        'Cloud user (and with it an org) once for the whole run; test suites ' +
-        'create projects and clusters as they need them',
+        'Run desktop tests that need Atlas Cloud resources. These tests ' +
+        'create an Atlas Cloud user (and with it an org), projects and ' +
+        'clusters as they need them',
     })
     .implies('test-with-atlas-cloud', 'atlas-cloud-environment')
     .epilogue(
@@ -269,14 +269,6 @@ type AtlasCloudParsedArgs = WebParsedArgs & {
   [K in AtlasCloudSandboxArgs]: NonNullable<WebParsedArgs[K]>;
 };
 
-// Populated by the global fixture when running desktop tests with
-// `--test-with-atlas-cloud`
-type DesktopAtlasCloudParsedArgs = DesktopParsedArgs & {
-  atlasCloudUsername: string;
-  atlasCloudPassword: string;
-  atlasCloudOrgId: string;
-};
-
 if (!testEnv) {
   throw new Error('Test env was not selected');
 }
@@ -286,7 +278,7 @@ if ('then' in parsedArgs && typeof parsedArgs.then === 'function') {
 }
 
 export const context = parsedArgs as CommonParsedArgs &
-  Partial<DesktopParsedArgs & WebParsedArgs & { atlasCloudOrgId: string }>;
+  Partial<DesktopParsedArgs & WebParsedArgs>;
 
 if (context.browserVersion === undefined) {
   context.browserVersion = context['browser-version'] =
@@ -319,24 +311,24 @@ export function assertTestingDesktop(
 }
 
 /**
- * Returns true if tests are running against Compass desktop with an Atlas Cloud
- * user created for the run (`--test-with-atlas-cloud`)
+ * Returns true if tests are running against Compass desktop with Atlas Cloud
+ * resources enabled (`--test-with-atlas-cloud`)
  */
 export function isTestingDesktopWithAtlasCloud(
   ctx = context
-): ctx is DesktopAtlasCloudParsedArgs {
+): ctx is DesktopParsedArgs {
   return isTestingDesktop(ctx) && !!ctx.testWithAtlasCloud;
 }
 
 /**
- * Returns if tests are running against Compass desktop with an Atlas Cloud user. Throws otherwise
+ * Returns if tests are running against Compass desktop with Atlas Cloud resources enabled. Throws otherwise
  */
 export function assertTestingDesktopWithAtlasCloud(
   ctx = context
-): asserts ctx is DesktopAtlasCloudParsedArgs {
+): asserts ctx is DesktopParsedArgs {
   if (!isTestingDesktopWithAtlasCloud(ctx)) {
     throw new Error(
-      'Expected tested runtime to be desktop w/ Atlas Cloud user (--test-with-atlas-cloud)'
+      'Expected tested runtime to be desktop w/ Atlas Cloud (--test-with-atlas-cloud)'
     );
   }
 }

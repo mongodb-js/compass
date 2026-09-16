@@ -1,4 +1,3 @@
-import type { CompassBrowser } from '../../helpers/compass-browser.ts';
 import { cleanup, screenshotIfFailed } from '../../helpers/compass.ts';
 import type { Compass } from '../../helpers/compass.ts';
 import {
@@ -6,9 +5,11 @@ import {
   isTestingDesktopWithAtlasCloud,
 } from '../../helpers/test-runner-context.ts';
 import {
-  createAtlasCloudSession,
+  createAtlasCloudTestUser,
   createTestProject,
+  deleteAtlasCloudTestUser,
 } from '../../helpers/test-with-atlas-cloud.ts';
+import type { AtlasCloudTestUser } from '../../helpers/test-with-atlas-cloud.ts';
 import {
   expectDebuggerToReport,
   initCompassWithDebugger,
@@ -19,7 +20,7 @@ import {
 // to set up, so in CI it runs in a separate daily task
 describe('Atlas connection error debugger: paused cluster', function () {
   let compass: Compass;
-  let session: CompassBrowser | undefined;
+  let user: AtlasCloudTestUser | undefined;
   let connectionString: string;
 
   before(async function () {
@@ -29,20 +30,26 @@ describe('Atlas connection error debugger: paused cluster', function () {
     this.timeout(PROVISIONING_TIMEOUT);
 
     const env = getAtlasCloudEnvironmentFromContext();
-    session = await createAtlasCloudSession();
-    const projectId = await createTestProject(session, 'paused');
+    user = await createAtlasCloudTestUser();
+    const projectId = await createTestProject(user, 'paused');
 
-    connectionString = await session.createAtlasCluster({
+    connectionString = await user.session.createAtlasCluster({
       env,
       projectId,
       clusterName: 'paused',
       clusterType: 'Dedicated',
     });
-    await session.pauseAtlasCluster({ env, projectId, clusterName: 'paused' });
+    await user.session.pauseAtlasCluster({
+      env,
+      projectId,
+      clusterName: 'paused',
+    });
   });
 
   after(async function () {
-    await session?.deleteSession().catch(() => {});
+    if (user) {
+      await deleteAtlasCloudTestUser(user);
+    }
   });
 
   beforeEach(async function () {
@@ -57,6 +64,11 @@ describe('Atlas connection error debugger: paused cluster', function () {
   });
 
   it('reports that the cluster is paused', async function () {
-    await expectDebuggerToReport(compass.browser, connectionString, 'PAUSED');
+    await expectDebuggerToReport(
+      compass.browser,
+      user!,
+      connectionString,
+      'PAUSED'
+    );
   });
 });

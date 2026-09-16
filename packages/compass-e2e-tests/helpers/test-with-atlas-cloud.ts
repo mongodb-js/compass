@@ -7,34 +7,51 @@ import {
 } from './test-runner-context.ts';
 
 /**
- * Helpers for desktop tests running with `--test-with-atlas-cloud`: the global
- * fixture creates one Atlas Cloud user (and org) for the run, tests provision
- * whatever else they need through these
+ * Helpers for desktop tests running with `--test-with-atlas-cloud`. Suites that
+ * need Atlas Cloud resources create their own user with these and provision
+ * whatever else they need through the returned signed in session
  */
 
-/**
- * Opens a browser signed in as the Atlas Cloud user created for this run, to
- * be used for provisioning resources through the Atlas Cloud API
- */
-export async function createAtlasCloudSession(): Promise<CompassBrowser> {
+export type AtlasCloudTestUser = {
+  username: string;
+  password: string;
+  orgId: string;
+  /** External browser signed in as the user, for Atlas Cloud API calls */
+  session: CompassBrowser;
+};
+
+export async function createAtlasCloudTestUser(): Promise<AtlasCloudTestUser> {
   assertTestingDesktopWithAtlasCloud(context);
   const session = await createExternalBrowser(false);
-  await session.signInToAtlas(
-    context.atlasCloudUsername,
-    context.atlasCloudPassword,
-    getAtlasCloudEnvironmentFromContext()
-  );
-  return session;
+  try {
+    const { username, password, orgId } = await session.createAtlasLoginUser(
+      getAtlasCloudEnvironmentFromContext()
+    );
+    return { username, password, orgId, session };
+  } catch (err) {
+    // The caller never gets the session if we throw, so it can't clean it up
+    await session.deleteSession().catch(() => {});
+    throw err;
+  }
+}
+
+export async function deleteAtlasCloudTestUser({
+  username,
+  session,
+}: AtlasCloudTestUser) {
+  await session
+    .deleteAtlasUser(username, getAtlasCloudEnvironmentFromContext())
+    .catch(() => {});
+  await session.deleteSession().catch(() => {});
 }
 
 export async function createTestProject(
-  session: CompassBrowser,
+  { session, orgId }: AtlasCloudTestUser,
   name: string
 ): Promise<string> {
-  assertTestingDesktopWithAtlasCloud(context);
   return await session.createAtlasProject({
     env: getAtlasCloudEnvironmentFromContext(),
-    orgId: context.atlasCloudOrgId,
+    orgId,
     name,
   });
 }

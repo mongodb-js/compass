@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import type { CompassBrowser } from '../../helpers/compass-browser.ts';
 import { cleanup, screenshotIfFailed } from '../../helpers/compass.ts';
 import type { Compass } from '../../helpers/compass.ts';
 import {
@@ -7,9 +6,11 @@ import {
   isTestingDesktopWithAtlasCloud,
 } from '../../helpers/test-runner-context.ts';
 import {
-  createAtlasCloudSession,
+  createAtlasCloudTestUser,
   createTestProject,
+  deleteAtlasCloudTestUser,
 } from '../../helpers/test-with-atlas-cloud.ts';
+import type { AtlasCloudTestUser } from '../../helpers/test-with-atlas-cloud.ts';
 import {
   expectDebuggerToReport,
   initCompassWithDebugger,
@@ -18,7 +19,7 @@ import {
 
 describe.only('Atlas connection error debugger: network access', function () {
   let compass: Compass;
-  let session: CompassBrowser | undefined;
+  let user: AtlasCloudTestUser | undefined;
   let connectionString: string;
 
   before(async function () {
@@ -28,14 +29,16 @@ describe.only('Atlas connection error debugger: network access', function () {
     this.timeout(PROVISIONING_TIMEOUT);
 
     const env = getAtlasCloudEnvironmentFromContext();
-    session = await createAtlasCloudSession();
-    const projectId = await createTestProject(session, 'network-access');
+    user = await createAtlasCloudTestUser();
+    const projectId = await createTestProject(user, 'network-access');
 
     // The test runner IP is deliberately not added to the access list: a new
     // project starts with an empty one and we need it to stay that way
-    expect(await session.getProjectAccessList({ env, projectId })).to.be.empty;
+    expect(
+      await user.session.getProjectAccessList({ env, projectId })
+    ).to.be.empty;
 
-    connectionString = await session.createAtlasCluster({
+    connectionString = await user.session.createAtlasCluster({
       env,
       projectId,
       clusterName: 'network-access',
@@ -44,7 +47,9 @@ describe.only('Atlas connection error debugger: network access', function () {
   });
 
   after(async function () {
-    await session?.deleteSession().catch(() => {});
+    if (user) {
+      await deleteAtlasCloudTestUser(user);
+    }
   });
 
   beforeEach(async function () {
@@ -61,6 +66,7 @@ describe.only('Atlas connection error debugger: network access', function () {
   it('reports ip access not allowed', async function () {
     await expectDebuggerToReport(
       compass.browser,
+      user!,
       connectionString,
       'Client IP Not Allowed'
     );

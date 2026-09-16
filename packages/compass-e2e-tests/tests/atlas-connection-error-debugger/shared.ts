@@ -3,11 +3,8 @@ import type { CompassBrowser } from '../../helpers/compass-browser.ts';
 import { init, screenshotPathName } from '../../helpers/compass.ts';
 import type { Compass } from '../../helpers/compass.ts';
 import * as Selectors from '../../helpers/selectors.ts';
-import {
-  assertTestingDesktopWithAtlasCloud,
-  context,
-  getAtlasCloudEnvironmentFromContext,
-} from '../../helpers/test-runner-context.ts';
+import { getAtlasCloudEnvironmentFromContext } from '../../helpers/test-runner-context.ts';
+import type { AtlasCloudTestUser } from '../../helpers/test-with-atlas-cloud.ts';
 
 export const PROVISIONING_TIMEOUT = 35 * 60_000;
 
@@ -77,11 +74,10 @@ async function isSignedIn(browser: CompassBrowser): Promise<boolean> {
  */
 export async function expectDebuggerToReport(
   browser: CompassBrowser,
+  { username, password }: AtlasCloudTestUser,
   connectionString: string,
   expectedText: string
 ) {
-  assertTestingDesktopWithAtlasCloud(context);
-
   await browser.connectWithConnectionString(connectionString, {
     connectionStatus: 'failure',
   });
@@ -97,8 +93,8 @@ export async function expectDebuggerToReport(
   await connectToAtlasButton.waitForDisplayed({ timeout: 2 * 60_000 });
 
   await browser.signInToAtlasDesktop({
-    username: context.atlasCloudUsername,
-    password: context.atlasCloudPassword,
+    username,
+    password,
     env: getAtlasCloudEnvironmentFromContext(),
     triggerSignIn: () => browser.clickVisible(connectToAtlasButton),
     waitForSignedIn: () => isSignedIn(browser),
