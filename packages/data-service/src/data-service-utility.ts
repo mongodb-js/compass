@@ -11,7 +11,7 @@
 import type { MessagePortMain } from 'electron';
 import { DataServiceImpl } from './data-service';
 import util from 'node:util';
-import { markBSON, unmarkBSON } from './transfer';
+import { prepareForTransfer, readTransfer } from './transfer';
 
 util.inspect.defaultOptions.compact = true;
 util.inspect.defaultOptions.breakLength = 100000;
@@ -43,6 +43,7 @@ export class Message {
 
 export class DataServiceUtility extends DataServiceImpl {
   readonly utilityOptions: UtilityOptions;
+  private abortControllers = new Map<number, AbortController>();
   constructor(
     utilityOptions: UtilityOptions,
     ...args: ConstructorParameters<typeof DataServiceImpl>
@@ -60,31 +61,67 @@ export class DataServiceUtility extends DataServiceImpl {
   }
 
   private onMessage({ data }: Electron.MessageEvent) {
-    const req = new Message(data);
-    console.log('utility-message', data);
-    if (data.bsonValues) {
-      unmarkBSON(req.args, data.bsonValues);
+    // Special out-of-band message: the renderer's signal aborted, so abort
+    // the matching controller created during readTransfer.
+    if (data.type === 'abort') {
+      this.abortControllers.get(data.requestId)?.abort();
+      return;
     }
-    // @ts-expect-error: I am not sure why
-    this[req.operation](...req.args).then(
-      this.onResult.bind(this, req),
-      this.onError.bind(this, req)
-    );
+
+    const req = new Message(data);
+    let args: unknown[];
+    let controllers: AbortController[];
+    try {
+      const result = data.bsonValues
+        ? readTransfer(req.args, data.bsonValues, data.placeholders)
+        : { data: req.args, controllers: [] };
+      args = result.data as unknown[];
+      controllers = result.controllers;
+    } catch (err) {
+      // Never leave the renderer awaiting a response — surface the failure
+      // as an error reply instead so the caller rejects rather than hangs.
+      this.utilityOptions.port.postMessage({
+        responseTo: req.requestId,
+        ok: 0,
+        error: err,
+      });
+      return;
+    }
+
+    if (controllers.length > 0) {
+      this.abortControllers.set(req.requestId, controllers[0]);
+    }
+
+    try {
+      // @ts-expect-error: I am not sure why
+      this[req.operation](...args).then(
+        (res: any) => {
+          this.abortControllers.delete(req.requestId);
+          this.onResult(req, res);
+        },
+        (error: any) => {
+          this.abortControllers.delete(req.requestId);
+          this.onError(req, error);
+        }
+      );
+    } catch (err) {
+      this.abortControllers.delete(req.requestId);
+      this.onError(req, err);
+    }
   }
 
   private onResult(req: Message, res: any) {
-    console.log('utility-result', req.requestId, res);
-    const { bsonValues } = markBSON(res);
+    const { bsonValues, placeholders } = prepareForTransfer(res);
     this.utilityOptions.port.postMessage({
       responseTo: req.requestId,
       ok: 1,
       res,
       bsonValues,
+      placeholders,
     });
   }
 
   private onError(req: Message, error: any) {
-    console.log('utility-error', req.requestId, error);
     this.utilityOptions.port.postMessage({
       responseTo: req.requestId,
       ok: 0,

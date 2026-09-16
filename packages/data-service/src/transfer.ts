@@ -14,11 +14,12 @@ import {
   BSONRegExp,
   BSONSymbol,
   bsonType,
+  type BSONValue,
 } from 'bson';
 
-// Keyed by the exact string `markBSON` records for each BSON class (the
-// BSON class's own `_bsontype` tag), used to find the right prototype to
-// re-attach with `Reflect.setPrototypeOf`.
+// Keyed by the exact string `prepareForTransfer` records for each BSON class
+// (the BSON class's own `_bsontype` tag), used to find the right prototype to
+// re-attach with `Object.setPrototypeOf`.
 const bsonClassesByTag: Record<string, { prototype: object }> = {
   //@ts-expect-error: null proto
   __proto__: null,
@@ -56,43 +57,92 @@ function isMap(m: unknown): m is Map<unknown, unknown> {
   );
 }
 
+const BASE_PROTO = Object.prototype;
+
+/** Assign `value` into `parent` at `key`, inspecting the parent's type to
+ * pick the right mechanism (index, property, Map.set, or Set delete+add). */
+function assignTo(parent: object, key: unknown, value: unknown): void {
+  if (isMap(parent)) {
+    parent.set(key, value);
+  } else if (isSet(parent)) {
+    // Set members are identified by value, so `key` is the original member
+    // we need to delete before adding the replacement.
+    parent.delete(key);
+    parent.add(value);
+  } else {
+    // Arrays and plain objects both use bracket assignment
+    (parent as Record<PropertyKey, unknown>)[key as PropertyKey] = value;
+  }
+}
+
+/** Stack entry: the value being visited, plus enough context to write a
+ * replacement back into whatever container it came from. No closures. */
+type StackEntry = { value: unknown; parent: object; key: unknown };
+
+function pushChild(stack: StackEntry[], parent: object, key: unknown): void {
+  stack.push({
+    value: (parent as Record<PropertyKey, unknown>)[key as PropertyKey],
+    parent,
+    key,
+  });
+}
+
 /**
  * `Code.scope` and `DBRef.oid`/`fields` are themselves ordinary values that
- * might contain further BSON (e.g. an `ObjectId` inside a `DBRef`'s `oid` or
- * a `Code`'s `scope`). The outer `Code`/`DBRef` is otherwise treated as an
- * opaque leaf by the walk, so without this they'd never get visited.
- * Pushes onto `stack` in place.
+ * might contain further BSON. The outer `Code`/`DBRef` is otherwise treated
+ * as an opaque leaf by the walk, so without this they'd never get visited.
+ * Pushes `StackEntry` objects onto `stack` in place.
  */
 function pushNestedBsonDocuments(
   tag: string,
   item: object,
-  stack: unknown[]
+  stack: StackEntry[]
 ): void {
   if (tag === 'Code') {
-    stack.push(Reflect.get(item, 'scope'));
+    pushChild(stack, item, 'scope');
   } else if (tag === 'DBRef') {
-    stack.push(Reflect.get(item, 'oid'), Reflect.get(item, 'fields'));
+    pushChild(stack, item, 'oid');
+    pushChild(stack, item, 'fields');
   }
 }
 
 /**
- * Walks `data` and collects every BSON class instance into a `Map` keyed by
- * the instance itself, valued with its type tag string. Does NOT mutate
- * `data`. The caller must send `data` and `bsonValues` together in a single
- * `postMessage` call so that `structuredClone` preserves reference sharing
- * — after clone, objects in `data` that were BSON instances will be `===`
- * to their degraded counterpart in the cloned `bsonValues` Map.
+ * Walks `data` and:
+ *  - Collects every BSON class instance (including those nested inside
+ *    `Code.scope` / `DBRef.oid` / `DBRef.fields`) into a `Map` keyed by the
+ *    instance, valued with its type tag string.
+ *  - Replaces every uncloneable value (`AbortSignal`, which makes
+ *    `structuredClone` throw `DataCloneError`) with a freshly allocated
+ *    placeholder object, collecting the placeholder and the original value
+ *    side-by-side.
+ *
+ * Does NOT mutate `data` for BSON values (they degrade naturally during
+ * clone). DOES mutate `data` for AbortSignals (replaces them with
+ * placeholders, which is required because clone throws on them).
+ *
+ * The caller must send `data`, `bsonValues`, and `placeholders` together in a
+ * single `postMessage` call so that `structuredClone` preserves reference
+ * sharing — after clone, BSON instances in `data` are `===` to their key in
+ * `bsonValues`, and placeholder objects in `data` are `===` to their entry in
+ * `placeholders`. The `signals` array stays local.
  */
-export function markBSON(data: unknown): {
+export function prepareForTransfer(data: unknown): {
   data: unknown;
   bsonValues: Map<object, string>;
+  signals: AbortSignal[];
+  placeholders: object[];
 } {
   const bsonValues = new Map<object, string>();
-  const stack: unknown[] = [data];
+  const signals: AbortSignal[] = [];
+  const placeholders: object[] = [];
+  // Wrap the root so a top-level uncloneable can be replaced via `assignTo`
+  // without a special case.
+  const root = { root: data };
+  const stack: StackEntry[] = [{ value: data, parent: root, key: 'root' }];
   const visited = new Set<object>();
 
   while (stack.length > 0) {
-    const item = stack.pop();
+    const { value: item, parent, key } = stack.pop()!;
 
     if (item === null || typeof item !== 'object') {
       continue;
@@ -103,12 +153,10 @@ export function markBSON(data: unknown): {
     }
     visited.add(item);
 
-    if (Reflect.has(item, bsonType)) {
-      const tag = Reflect.get(item, bsonType) as string;
-      // `UUID` reports the same `_bsontype: 'Binary'` tag as plain `Binary`;
-      // record it as 'UUID' so the unmark side restores the right prototype.
+    if (bsonType in item) {
+      const tag = (item as BSONValue)[bsonType];
       const recordedTag =
-        tag === 'Binary' && Reflect.get(item, 'sub_type') === 4 ? 'UUID' : tag;
+        tag === 'Binary' && (item as Binary).sub_type === 4 ? 'UUID' : tag;
 
       if (!bsonValues.has(item)) {
         bsonValues.set(item, recordedTag);
@@ -118,54 +166,91 @@ export function markBSON(data: unknown): {
       continue;
     }
 
+    if (item instanceof AbortSignal) {
+      const placeholder = {};
+      assignTo(parent, key, placeholder);
+      signals.push(item);
+      placeholders.push(placeholder);
+      continue;
+    }
+
     if (Array.isArray(item)) {
-      for (const value of item) {
-        stack.push(value);
+      for (let i = 0; i < item.length; i++) {
+        stack.push({ value: item[i], parent: item, key: i });
       }
       continue;
     }
 
     if (isMap(item)) {
-      for (const [key, value] of item) {
-        stack.push(key, value);
+      for (const [k, v] of item) {
+        // Push the key as a value so BSON types in keys are collected;
+        // uncloneable Map keys are not supported (would need replace of the
+        // key itself, not the value).
+        stack.push({ value: k, parent: item, key: k });
+        stack.push({ value: v, parent: item, key: k });
       }
       continue;
     }
 
     if (isSet(item)) {
-      for (const value of item) {
-        stack.push(value);
+      for (const member of item) {
+        stack.push({ value: member, parent: item, key: member });
       }
       continue;
     }
 
-    const proto = Reflect.getPrototypeOf(item);
-    if (proto === Object.prototype || proto === null) {
-      for (const value of Object.values(item)) {
-        stack.push(value);
+    const proto = Object.getPrototypeOf(item);
+    if (proto === BASE_PROTO || proto === null) {
+      for (const k of Object.keys(item)) {
+        stack.push({
+          value: (item as Record<string, unknown>)[k],
+          parent: item,
+          key: k,
+        });
       }
     }
   }
 
-  return { data, bsonValues };
+  return { data: root.root, bsonValues, signals, placeholders };
 }
 
 /**
- * Walks `data` and restores BSON class prototypes in-place using the type
- * information in `bsonValues`. The Map must have traveled through the same
- * `structuredClone` call as `data` so that reference identity is preserved
- * — objects in `data` that were BSON instances will be `===` to their
- * degraded counterpart key in the Map.
+ * Restores everything that `prepareForTransfer` extracted:
+ *  - BSON: loops the `bsonValues` Map keys and re-attaches prototypes — no
+ *    tree walk needed, the keys *are* the instances in `data`.
+ *  - Uncloneables: finds the placeholder objects in `data` via instance
+ *    equality (identity with the shipped `placeholders` array), swaps in a
+ *    freshly created `AbortController().signal`, and returns the controllers
+ *    so the caller can wire up abort propagation.
+ *
+ * BSON instances that have been restored are treated as leaves by the
+ * placeholder walk — nothing inside them could be a shipped placeholder.
  */
-export function unmarkBSON(
+export function readTransfer(
   data: unknown,
-  bsonValues: Map<object, string>
-): unknown {
-  const stack: unknown[] = [data];
+  bsonValues: Map<object, string>,
+  placeholders: readonly object[]
+): { data: unknown; controllers: AbortController[] } {
+  // Restore BSON prototypes by identity — iterate the Map keys directly.
+  for (const [item, tag] of bsonValues) {
+    const bsonClass = bsonClassesByTag[tag];
+    if (bsonClass) {
+      Object.setPrototypeOf(item, bsonClass.prototype);
+    }
+  }
+
+  const controllers: AbortController[] = [];
+  if (placeholders.length === 0) {
+    return { data, controllers };
+  }
+
+  const placeholderSet = new Set<object>(placeholders);
+  const root = { root: data };
+  const stack: StackEntry[] = [{ value: data, parent: root, key: 'root' }];
   const visited = new Set<object>();
 
   while (stack.length > 0) {
-    const item = stack.pop();
+    const { value: item, parent, key } = stack.pop()!;
 
     if (item === null || typeof item !== 'object') {
       continue;
@@ -176,47 +261,46 @@ export function unmarkBSON(
     }
     visited.add(item);
 
-    const tag = bsonValues.get(item);
-    if (tag !== undefined) {
-      const bsonClass = bsonClassesByTag[tag];
-      if (bsonClass) {
-        Reflect.setPrototypeOf(item, bsonClass.prototype);
-      }
-      // Whether or not we recognized the tag, this was a BSON instance's
-      // own internal fields, not a tree to enumerate further, except for
-      // the handful of BSON types that nest further documents.
-      pushNestedBsonDocuments(tag, item, stack);
+    if (placeholderSet.has(item)) {
+      const controller = new AbortController();
+      assignTo(parent, key, controller.signal);
+      controllers.push(controller);
       continue;
     }
 
     if (Array.isArray(item)) {
-      for (const value of item) {
-        stack.push(value);
+      for (let i = 0; i < item.length; i++) {
+        stack.push({ value: item[i], parent: item, key: i });
       }
       continue;
     }
 
     if (isMap(item)) {
-      for (const [key, value] of item) {
-        stack.push(key, value);
+      for (const [k, v] of item) {
+        stack.push({ value: k, parent: item, key: k });
+        stack.push({ value: v, parent: item, key: k });
       }
       continue;
     }
 
     if (isSet(item)) {
-      for (const value of item) {
-        stack.push(value);
+      for (const member of item) {
+        stack.push({ value: member, parent: item, key: member });
       }
       continue;
     }
 
-    const proto = Reflect.getPrototypeOf(item);
-    if (proto === Object.prototype || proto === null) {
-      for (const value of Object.values(item)) {
-        stack.push(value);
+    const proto = Object.getPrototypeOf(item);
+    if (proto === BASE_PROTO || proto === null) {
+      for (const k of Object.keys(item)) {
+        stack.push({
+          value: (item as Record<string, unknown>)[k],
+          parent: item,
+          key: k,
+        });
       }
     }
   }
 
-  return data;
+  return { data: root.root, controllers };
 }

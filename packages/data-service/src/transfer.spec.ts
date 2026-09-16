@@ -15,23 +15,29 @@ import {
   BSONRegExp,
   BSONSymbol,
 } from 'bson';
-import { markBSON, unmarkBSON } from './transfer';
+import { prepareForTransfer, readTransfer } from './transfer';
 
 const { expect } = chai;
 
 /**
  * Simulates the full trip a value takes across the renderer <-> utility
- * MessagePort: `markBSON` collects BSON values + type tags (without
- * mutating the data), then `structuredClone` degrades BSON class instances
- * to plain objects (preserving reference sharing between `data` and
- * `bsonValues` since they're cloned in a single call), then `unmarkBSON`
- * walks the cloned data and restores prototypes in-place using the
- * identity map.
+ * MessagePort: `prepareForTransfer` collects BSON values + type tags and
+ * extracts AbortSignals (replacing them with sentinels), then
+ * `structuredClone` degrades BSON class instances to plain objects
+ * (preserving reference sharing between `data` and `bsonValues` since
+ * they're cloned in a single call), then `readTransfer` walks the cloned
+ * data and restores prototypes in-place using the identity map, and
+ * replaces sentinels with fresh `AbortController().signal` instances.
  */
 function roundTrip(value: unknown): unknown {
-  const { data, bsonValues } = markBSON(value);
-  const cloned = structuredClone({ data, bsonValues });
-  return unmarkBSON(cloned.data, cloned.bsonValues);
+  const { data, bsonValues, placeholders } = prepareForTransfer(value);
+  const cloned = structuredClone({ data, bsonValues, placeholders });
+  const { data: result } = readTransfer(
+    cloned.data,
+    cloned.bsonValues,
+    cloned.placeholders
+  );
+  return result;
 }
 
 describe('transfer', function () {
@@ -209,13 +215,15 @@ describe('transfer', function () {
       // (structuredClone): Node's own structuredClone is itself recursive
       // internally and overflows on plain nesting around ~2,379 levels on
       // this machine, well below what we want to prove about our own
-      // traversal, so we call markBSON/unmarkBSON directly instead.
+      // traversal, so we call prepareForTransfer/readTransfer directly
+      // instead.
       for (let i = 0; i < 100_000; i++) {
         deep = { child: deep };
       }
 
-      const { bsonValues } = markBSON(deep);
-      let node = unmarkBSON(deep, bsonValues) as Deep;
+      const { bsonValues } = prepareForTransfer(deep);
+      const { data: result } = readTransfer(deep, bsonValues, []);
+      let node = result as Deep;
       for (let i = 0; i < 100_000; i++) {
         node = node.child as Deep;
       }
@@ -309,35 +317,142 @@ describe('transfer', function () {
     });
   });
 
-  describe('markBSON return value', function () {
+  describe('prepareForTransfer return value', function () {
     it('collects BSON values into a Map keyed by the instance', function () {
       const id = new ObjectId();
-      const { bsonValues } = markBSON({ _id: id, a: 1 });
+      const { bsonValues } = prepareForTransfer({ _id: id, a: 1 });
       expect(bsonValues.size).to.equal(1);
       expect(bsonValues.get(id)).to.equal('ObjectId');
     });
 
     it('does not collect non-BSON values', function () {
-      const { bsonValues } = markBSON({ a: 1, b: [1, 2, 3] });
+      const { bsonValues } = prepareForTransfer({ a: 1, b: [1, 2, 3] });
       expect(bsonValues.size).to.equal(0);
     });
 
     it('records UUID sub_type 4 as UUID, not Binary', function () {
       const uuid = new UUID();
-      const { bsonValues } = markBSON({ u: uuid });
+      const { bsonValues } = prepareForTransfer({ u: uuid });
       expect(bsonValues.get(uuid)).to.equal('UUID');
     });
 
     it('records plain Binary (non-sub_type 4) as Binary', function () {
       const bin = new Binary(Buffer.from([1, 2, 3]), 0);
-      const { bsonValues } = markBSON({ b: bin });
+      const { bsonValues } = prepareForTransfer({ b: bin });
       expect(bsonValues.get(bin)).to.equal('Binary');
     });
 
     it('collects shared references only once', function () {
       const id = new ObjectId();
-      const { bsonValues } = markBSON({ a: id, b: id });
+      const { bsonValues } = prepareForTransfer({ a: id, b: id });
       expect(bsonValues.size).to.equal(1);
+    });
+  });
+
+  describe('AbortSignal extraction and restoration', function () {
+    it('extracts an AbortSignal and replaces it with a placeholder object', function () {
+      const controller = new AbortController();
+      const input = { signal: controller.signal, a: 1 };
+      const { data, signals, placeholders } = prepareForTransfer(input);
+
+      // The signal should be replaced with a placeholder in the data —
+      // instance-identical to the placeholder collected in the array.
+      expect(data).to.have.property('a').that.equals(1);
+      const placeholder = (data as any).signal;
+      expect(placeholder).to.be.an('object');
+      expect(placeholders).to.have.lengthOf(1);
+      expect(placeholders[0]).to.equal(placeholder);
+
+      // The original signal should be returned in the signals array
+      expect(signals).to.have.lengthOf(1);
+      expect(signals[0]).to.equal(controller.signal);
+    });
+
+    it('does not extract non-AbortSignal values', function () {
+      const { signals, placeholders } = prepareForTransfer({
+        a: 1,
+        b: new ObjectId(),
+      });
+      expect(signals).to.have.lengthOf(0);
+      expect(placeholders).to.have.lengthOf(0);
+    });
+
+    it('replaces a placeholder with a fresh AbortController.signal on readTransfer', function () {
+      const controller = new AbortController();
+      const input = { signal: controller.signal, a: 1 };
+      const { data, bsonValues, placeholders } = prepareForTransfer(input);
+      const cloned = structuredClone({ data, bsonValues, placeholders });
+      const { data: result, controllers } = readTransfer(
+        cloned.data,
+        cloned.bsonValues,
+        cloned.placeholders
+      );
+
+      // The placeholder should be replaced with a real AbortSignal
+      const restored = result as { signal: AbortSignal; a: number };
+      expect(restored.a).to.equal(1);
+      expect(restored.signal).to.be.instanceOf(AbortSignal);
+
+      // A controller should be returned so the caller can abort it
+      expect(controllers).to.have.lengthOf(1);
+      expect(controllers[0].signal).to.equal(restored.signal);
+    });
+
+    it('extracts an AbortSignal nested inside an options object', function () {
+      const controller = new AbortController();
+      const input = {
+        filter: { x: 1 },
+        options: { signal: controller.signal },
+      };
+      const { data, bsonValues, placeholders, signals } =
+        prepareForTransfer(input);
+      const cloned = structuredClone({ data, bsonValues, placeholders });
+      const { data: result, controllers } = readTransfer(
+        cloned.data,
+        cloned.bsonValues,
+        cloned.placeholders
+      );
+
+      expect(signals).to.have.lengthOf(1);
+      expect(controllers).to.have.lengthOf(1);
+      const restored = result as {
+        filter: { x: number };
+        options: { signal: AbortSignal };
+      };
+      expect(restored.options.signal).to.be.instanceOf(AbortSignal);
+      expect(restored.filter.x).to.equal(1);
+    });
+
+    it('round-trips both BSON and AbortSignal in the same tree', function () {
+      const controller = new AbortController();
+      const id = new ObjectId();
+      const input = { _id: id, signal: controller.signal };
+
+      const { data, bsonValues, placeholders, signals } =
+        prepareForTransfer(input);
+      const cloned = structuredClone({ data, bsonValues, placeholders });
+      const { data: result, controllers } = readTransfer(
+        cloned.data,
+        cloned.bsonValues,
+        cloned.placeholders
+      );
+
+      const restored = result as { _id: ObjectId; signal: AbortSignal };
+      expect(restored._id).to.be.instanceOf(ObjectId);
+      expect(restored._id.toHexString()).to.equal(id.toHexString());
+      expect(restored.signal).to.be.instanceOf(AbortSignal);
+      expect(signals).to.have.lengthOf(1);
+      expect(controllers).to.have.lengthOf(1);
+    });
+
+    it('does not hang when the tree contains no AbortSignals', function () {
+      // Ensures the placeholder check doesn't false-positive on plain objects
+      const { signals, placeholders } = prepareForTransfer({
+        a: 1,
+        b: { c: 2 },
+      });
+      expect(signals).to.have.lengthOf(0);
+      expect(placeholders).to.have.lengthOf(0);
     });
   });
 });

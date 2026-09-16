@@ -16,7 +16,7 @@
 import { omit } from 'lodash';
 import { DataServiceImpl, type DataService } from './data-service';
 import type { Message, OperationName } from './data-service-utility';
-import { markBSON, unmarkBSON } from './transfer';
+import { prepareForTransfer, readTransfer } from './transfer';
 
 let reqId = 0;
 
@@ -27,6 +27,14 @@ export class DataServiceRenderer
   /** */
   private portToUtility: MessagePort;
   private pending: Map<number, PromiseWithResolvers<any>> = new Map();
+  private abortCleanup: Map<number, () => void> = new Map();
+  /**
+   * Connection state as known from the utility process. The renderer's own
+   * `DataServiceImpl` never connects (connect is proxied), so `super.isConnected()`
+   * would always be false — gate callers like the CRUD query runner rely on
+   * this reporting the real connection status.
+   */
+  private connected = false;
 
   constructor(...args: ConstructorParameters<typeof DataServiceImpl>) {
     super(...args);
@@ -50,14 +58,33 @@ export class DataServiceRenderer
 
   private send(msgInit: Pick<Message, 'operation' | 'args'>): number {
     const requestId = reqId++;
-    const { bsonValues } = markBSON(msgInit.args);
+    const { bsonValues, signals, placeholders } = prepareForTransfer(
+      msgInit.args
+    );
     const message = {
       requestId,
       operation: msgInit.operation,
       args: msgInit.args,
       bsonValues,
+      placeholders,
     };
-    console.log('render-send', message);
+
+    // Wire up abort propagation: when the caller's signal fires, tell the
+    // utility to abort its controller for this request. `{ once: true }`
+    // auto-removes the listener after firing; we also store a cleanup
+    // function so the listener can be removed if the response arrives
+    // before the signal fires.
+    if (signals.length > 0) {
+      const signal = signals[0];
+      const handler = () => {
+        this.portToUtility.postMessage({ type: 'abort', requestId });
+      };
+      signal.addEventListener('abort', handler, { once: true });
+      this.abortCleanup.set(requestId, () =>
+        signal.removeEventListener('abort', handler)
+      );
+    }
+
     this.portToUtility.postMessage(message);
     this.pending.set(requestId, Promise.withResolvers());
     return requestId;
@@ -68,20 +95,37 @@ export class DataServiceRenderer
   }: MessageEvent<
     { responseTo: number } & (
       | { ok: 0; error: any }
-      | { ok: 1; res: any; bsonValues: Map<object, string> }
+      | {
+          ok: 1;
+          res: any;
+          bsonValues: Map<object, string>;
+          placeholders: object[];
+        }
     )
   >) {
-    console.log('render-message', data);
     const resolvers = this.pending.get(data.responseTo);
-    if (data.ok) resolvers?.resolve(unmarkBSON(data.res, data.bsonValues));
-    else resolvers?.reject(data.error);
+    // Clean up abort listener (no-op if none was registered).
+    this.abortCleanup.get(data.responseTo)?.();
+    this.abortCleanup.delete(data.responseTo);
+    this.pending.delete(data.responseTo);
+    if (data.ok) {
+      const { data: res } = readTransfer(
+        data.res,
+        data.bsonValues,
+        data.placeholders
+      );
+      resolvers?.resolve(res);
+    } else {
+      resolvers?.reject(data.error);
+    }
   }
 
   private async do(operation: OperationName, args: unknown[]) {
-    console.log('render doing', operation, args);
-    const res = await this.pending.get(this.send({ operation, args }))?.promise;
-    console.log('render done ', operation, res);
-    return res;
+    return await this.pending.get(this.send({ operation, args }))?.promise;
+  }
+
+  isConnected(): boolean {
+    return this.connected;
   }
 
   async connect(options?: {
@@ -89,8 +133,8 @@ export class DataServiceRenderer
     productName?: string;
     productDocsLink?: string;
   }) {
-    delete options?.signal;
     await this.do('connect', [options]);
+    this.connected = true;
   }
   async currentOp(...args: Parameters<DataService['currentOp']>) {
     return await this.do('currentOp', args);
@@ -132,7 +176,11 @@ export class DataServiceRenderer
     return await this.do('updateMany', args);
   }
   async disconnect(...args: Parameters<DataService['disconnect']>) {
-    return await this.do('disconnect', args);
+    try {
+      return await this.do('disconnect', args);
+    } finally {
+      this.connected = false;
+    }
   }
   async dropCollection(...args: Parameters<DataService['dropCollection']>) {
     return await this.do('dropCollection', args);
