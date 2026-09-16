@@ -468,7 +468,7 @@ This document was automatically generated on Wed Sep 16 2026.
 | **[prom-client](#cd280c3376897f5665894197da7c3e71b17736a810cd80845050255d53628fcd)**                                        | 15.1.3       | Apache-2.0                          |
 | **[prop-types](#e4dd0bb5b6f98fbf52f0ad7062b8514aadc56a47a692bf6d8aab369786b6039f)**                                         | 15.8.1       | MIT                                 |
 | **[property-information](#3ff1c665e0311c4c5f5e6f7fdfeb631057a52d2659fd2bd268015afc1bf54394)**                               | 6.5.0        | MIT                                 |
-| **[proxy-addr](#7b128e3d41d39ecb1a405a490a53ae86f70ef45f01079333ed3ca49939f5fba8)**                                         | 2.0.7        | MIT                                 |
+| **[proxy-addr](#b94cf93d9a9b565b45709d6348836b83655ae5e0ad3bc5dd6ea24ef661b3be24)**                                         | 2.0.8        | MIT                                 |
 | **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**                                               | 3.0.0        | MIT                                 |
 | **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**                                           | 2.3.1        | MIT                                 |
 | **[pupa](#b05b7cc4c1bc01acd063dc811b9b1b0a1a4b3e0f17be77deaeaabade7dfeb095)**                                               | 2.1.1        | MIT                                 |
@@ -38097,9 +38097,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="7b128e3d41d39ecb1a405a490a53ae86f70ef45f01079333ed3ca49939f5fba8"></a>
+<a id="b94cf93d9a9b565b45709d6348836b83655ae5e0ad3bc5dd6ea24ef661b3be24"></a>
 
-### [proxy-addr](https://www.npmjs.com/package/proxy-addr) (version 2.0.7)
+### [proxy-addr](https://www.npmjs.com/package/proxy-addr) (version 2.0.8)
 
 License tags: MIT
 
