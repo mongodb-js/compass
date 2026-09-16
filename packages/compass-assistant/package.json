@@ -50,8 +50,6 @@
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
     "convert-eval-cases": "ts-node scripts/convert-csv-to-eval-cases.ts && npm run reformat",
-    "benchmark-chat": "mocha scripts/benchmark-chat-render.tsx",
-    "benchmark-chat-electron": "xvfb-maybe electron-mocha --no-sandbox --spec scripts/benchmark-chat-render.tsx",
     "eval": "npx tsx test/assistant.eval.ts",
     "eval:tool-calls": "npx tsx test/tool-calls.eval.ts"
   },
