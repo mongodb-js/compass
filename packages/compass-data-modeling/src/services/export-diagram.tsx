@@ -90,7 +90,7 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
 
     const { nodes, edges } = getDiagramNodesAndEdges(diagram);
 
-    // This code also ships in compass-web.
+    // When embedded in mms, compass-web currently only has access to `react` and `react-dom` modules, not the new `react-dom/client`, adding a dependency on the react-dom/client will be a breaking change in contract that would require more unnecessary coordination in the rollout. For now we can keep using the deprecated `ReactDOM.render` here without any issues
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.render(
       <DiagramProvider>
