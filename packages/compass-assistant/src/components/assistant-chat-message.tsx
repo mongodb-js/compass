@@ -59,6 +59,21 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
   }) {
     const { id, role, metadata, parts } = message;
 
+    if (metadata?.confirmation) {
+      const { description, state } = metadata.confirmation;
+
+      return (
+        <ConfirmationMessage
+          // Show as rejected if it's not the last message
+          state={!isLastMessage && state === 'pending' ? 'rejected' : state}
+          title="Please confirm your request"
+          description={description}
+          onConfirm={() => onConfirmation(message, 'confirmed')}
+          onReject={() => onConfirmation(message, 'rejected')}
+        />
+      );
+    }
+
     const seenTitles = new Set<string>();
     const sources = [];
     const toolCalls: ToolUIPart[] = [];
@@ -97,21 +112,6 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
             isResponseComplete,
           })
         : null;
-
-    if (metadata?.confirmation) {
-      const { description, state } = metadata.confirmation;
-
-      return (
-        <ConfirmationMessage
-          // Show as rejected if it's not the last message
-          state={!isLastMessage && state === 'pending' ? 'rejected' : state}
-          title="Please confirm your request"
-          description={description}
-          onConfirm={() => onConfirmation(message, 'confirmed')}
-          onReject={() => onConfirmation(message, 'rejected')}
-        />
-      );
-    }
 
     const displayText = parsedMessage
       ? parsedMessage.strippedText
