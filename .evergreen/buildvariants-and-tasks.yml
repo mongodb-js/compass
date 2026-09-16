@@ -297,6 +297,10 @@ buildvariants:
       - name: e2e-coverage-1
       - name: e2e-coverage-2
       - name: e2e-coverage-3
+  - name: e2e-atlas-cloud-dedicated
+    display_name: E2E Atlas Cloud Dedicated Cluster
+    run_on: ubuntu2404-latest-large
+    tasks:
       - name: e2e-atlas-cloud-dedicated
         cron: '@daily'
   - name: csfle-tests

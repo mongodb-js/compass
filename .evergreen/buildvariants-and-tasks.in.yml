@@ -349,10 +349,15 @@ buildvariants:
     <% for(const group of E2E_TEST_GROUPS) { %>
     - name: e2e-coverage-<%= group.number %>
     <% } %>
-    - name: e2e-atlas-cloud-dedicated
-      # Only run once per day: needs a dedicated (M10) cluster which is slow,
-      # and can be expensive, to provision
-      cron: '@daily'
+
+  - name: e2e-atlas-cloud-dedicated
+    display_name: E2E Atlas Cloud Dedicated Cluster
+    run_on: ubuntu2404-latest-large
+    tasks:
+      - name: e2e-atlas-cloud-dedicated
+        # Only run once per day: needs a dedicated (M10) cluster which is slow,
+        # and can be expensive, to provision
+        cron: '@daily'
 
   - name: csfle-tests
     tags:
