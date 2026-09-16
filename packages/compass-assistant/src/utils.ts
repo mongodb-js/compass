@@ -11,7 +11,7 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 
-const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
+export const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';
 
 export type ToolState = 'idle' | 'running' | 'success' | 'error' | 'canceled';
