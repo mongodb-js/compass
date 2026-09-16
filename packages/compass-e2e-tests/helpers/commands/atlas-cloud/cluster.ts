@@ -18,6 +18,7 @@ type AtlasClusterListItem = {
   state: string;
   srvAddress: string;
   isPaused?: boolean;
+  pausedDate?: string | null;
 };
 
 async function navigateToProject(
@@ -298,11 +299,12 @@ async function waitForCluster(
       // Keeps CI output flowing: Evergreen kills tasks idle for 10 minutes and
       // dedicated clusters take about that long to provision
       debug(
-        'Waiting for cluster %s to be %s (state: %s, isPaused: %s)',
+        'Waiting for cluster %s to be %s (state: %s, isPaused: %s, pausedDate: %s)',
         clusterName,
         waitingFor,
         cluster?.state,
-        cluster?.isPaused
+        cluster?.isPaused,
+        cluster?.pausedDate
       );
       return cluster && predicate(cluster) ? cluster : undefined;
     },
@@ -335,30 +337,16 @@ export async function pauseAtlasCluster(
     { json: { ...clusterDescription, isPaused: true } }
   );
 
-  // isPaused flips immediately, the cluster leaves IDLE while the plan is
-  // being applied and comes back to IDLE when the pause is done
-  await browser
-    .waitUntil(
-      async () => {
-        const clusters = await doCloudFetch<AtlasClusterListItem[]>(
-          browser,
-          `/nds/clusters/${projectId}`
-        );
-        return clusters.some(
-          (cluster) => cluster.name === clusterName && cluster.state !== 'IDLE'
-        );
-      },
-      { timeout: 1000 * 60 * 2, interval: 5 * 1000 }
-    )
-    // ponytail: if the planner picked the change up between polls we never see
-    // the non-IDLE state; fall through and rely on the paused + IDLE check
-    .catch(() => {});
-
+  // Pausing is asynchronous: the PATCH only records the request (isPaused
+  // flips right away while the cluster goes through UPDATING and back to
+  // IDLE), so neither isPaused nor state tells us the hosts are actually down.
+  // The internal cluster description exposes pausedDate for exactly this: it
+  // is only set once the pause has been applied (and cleared on resume).
   await waitForCluster(
     browser,
     projectId,
     clusterName,
-    (cluster) => cluster.isPaused === true && cluster.state === 'IDLE',
+    (cluster) => !!cluster.pausedDate,
     'paused'
   );
 }
