@@ -141,15 +141,6 @@ ignore:
           invoked which Compass does not use.
         expires: 2026-10-21T00:00:00.000Z
         created: 2026-07-23T00:00:00.000Z
-  SNYK-JS-PROXYADDR-19812342:
-    - '*':
-        reason: >-
-          Not applicable: proxyaddr's trust proxy setting is only
-          exploitable when express 'trust proxy' is enabled, which
-          we don't use anywhere. Not exploitable either, the only
-          server using it (OIDC) is bound to localhost.
-        expires: 2026-12-16T00:00:00.000Z
-        created: 2026-09-16T00:00:00.000Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
