@@ -11,6 +11,8 @@ import * as Selectors from '../helpers/selectors.ts';
 import {
   createNumbersCollection,
   createConstraintValidationCollection,
+  createBsonValidationCollection,
+  BSON_VALIDATION_UUID,
 } from '../helpers/mongo-clients.ts';
 import { expect } from 'chai';
 
@@ -19,6 +21,7 @@ const PASSING_VALIDATOR = '{ $jsonSchema: {} }';
 const FAILING_VALIDATOR =
   '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
 const CONSTRAINT_COLLECTION = 'constraint-validation';
+const BSON_COLLECTION = 'bson-validation';
 const PREPARED_COLLECTION = 'prepared-validation';
 
 describe('Collection validation tab', function () {
@@ -33,6 +36,7 @@ describe('Collection validation tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await createBsonValidationCollection(BSON_COLLECTION);
     // Has to happen before connecting, otherwise the collections are missing
     // from the sidebar. The "constraint" validation level is MongoDB 9.0+ and
     // requires FCV 9.0.
@@ -173,6 +177,40 @@ describe('Collection validation tab', function () {
           console.log({ matchText, notMatchingText });
         }
         return result;
+      });
+    });
+  });
+
+  context('when the stored rules contain BSON types', function () {
+    beforeEach(async function () {
+      await browser.navigateToCollectionTab(
+        getDefaultConnectionNames(0),
+        'test',
+        BSON_COLLECTION,
+        'Validation'
+      );
+    });
+
+    it('renders them as shell syntax and keeps them queryable', async function () {
+      const rules = await browser.getCodemirrorEditorText(
+        Selectors.ValidationEditor
+      );
+      expect(rules).to.include(`UUID('${BSON_VALIDATION_UUID.toString()}')`);
+      expect(rules).to.not.include('$binary');
+
+      await browser.clickVisible(Selectors.ValidationLoadSampleDocumentsBtn);
+
+      await browser.waitUntil(async () => {
+        const matchText = await browser
+          .$(Selectors.ValidationMatchingDocumentsPreview)
+          .getText();
+        const notMatchingText = await browser
+          .$(Selectors.ValidationNotMatchingDocumentsPreview)
+          .getText();
+        return (
+          matchText !== NO_PREVIEW_DOCUMENTS &&
+          notMatchingText === NO_PREVIEW_DOCUMENTS
+        );
       });
     });
   });

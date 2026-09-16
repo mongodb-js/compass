@@ -69,7 +69,7 @@
   "devDependencies": {
     "@mongodb-js/diagramming": "^2.4.1",
     "@mongodb-js/eslint-config-devtools": "^0.11.5",
-    "@mongodb-js/monorepo-tools": "^1.5.12",
+    "@mongodb-js/monorepo-tools": "^1.6.0",
     "@mongodb-js/sbom-tools": "^0.10.23",
     "@mongodb-js/tracking-plan": "^0.3.2",
     "@testing-library/dom": "^9.3.4",
