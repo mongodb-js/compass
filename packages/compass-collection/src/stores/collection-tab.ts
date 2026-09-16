@@ -202,6 +202,7 @@ export function activatePlugin(
         atlasAiService,
         workspaces,
         localAppRegistry,
+        globalAppRegistry,
         experimentationServices,
         connectionInfoRef,
         logger,
