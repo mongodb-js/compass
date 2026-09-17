@@ -28,9 +28,6 @@ ignores:
   - '@mongodb-js/eslint-config-devtools'
   - ag-grid-react
   - braintrust
-  # TODO: we removed all enzyme tests, remove this from the shared mocha config
-  # so that it doesn't end up in our transitive deps at all
-  - chai-enzyme
   - express
   - react-leaflet
   - react-leaflet-draw

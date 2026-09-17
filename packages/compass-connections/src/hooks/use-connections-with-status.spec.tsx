@@ -2,7 +2,10 @@ import { useConnectionsWithStatus } from './use-connections-with-status';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { renderHookWithConnections } from '@mongodb-js/testing-library-compass';
+import {
+  renderHookWithConnections,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -71,39 +74,49 @@ describe('useConnectionsWithStatus', function () {
 
     // Now switching to connecting state
     const connectPromise = connectionsStore.actions.connect(mockConnections[0]);
-    expect(getConnectionById(mockConnections[0].id)).to.have.property(
-      'connectionStatus',
-      'connecting'
-    );
+    await waitFor(() => {
+      expect(getConnectionById(mockConnections[0].id)).to.have.property(
+        'connectionStatus',
+        'connecting'
+      );
+    });
 
     // Now cancelling the connection
     connectionsStore.actions.disconnect(mockConnections[0].id);
     // Wait for connection process to fully resolve
     await connectPromise;
-    expect(getConnectionById(mockConnections[0].id)).to.have.property(
-      'connectionStatus',
-      'disconnected'
-    );
+    await waitFor(() => {
+      expect(getConnectionById(mockConnections[0].id)).to.have.property(
+        'connectionStatus',
+        'disconnected'
+      );
+    });
 
     // Now connecting again but to fail
     await connectionsStore.actions.connect(mockConnections[0]);
-    expect(getConnectionById(mockConnections[0].id)).to.have.property(
-      'connectionStatus',
-      'failed'
-    );
+    await waitFor(() => {
+      expect(getConnectionById(mockConnections[0].id)).to.have.property(
+        'connectionStatus',
+        'failed'
+      );
+    });
 
     // Now connecting again but to succeed
     await connectionsStore.actions.connect(mockConnections[0]);
-    expect(getConnectionById(mockConnections[0].id)).to.have.property(
-      'connectionStatus',
-      'connected'
-    );
+    await waitFor(() => {
+      expect(getConnectionById(mockConnections[0].id)).to.have.property(
+        'connectionStatus',
+        'connected'
+      );
+    });
 
     // Now close the connection
     connectionsStore.actions.disconnect(mockConnections[0].id);
-    expect(getConnectionById(mockConnections[0].id)).to.have.property(
-      'connectionStatus',
-      'disconnected'
-    );
+    await waitFor(() => {
+      expect(getConnectionById(mockConnections[0].id)).to.have.property(
+        'connectionStatus',
+        'disconnected'
+      );
+    });
   });
 });

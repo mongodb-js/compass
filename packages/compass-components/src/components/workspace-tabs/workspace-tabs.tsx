@@ -241,7 +241,13 @@ const SortableList = ({
   );
 
   const onSortEnd = useCallback(
-    ({ oldIndex, newIndex }) => {
+    ({
+      oldIndex,
+      newIndex,
+    }: {
+      oldIndex: UniqueIdentifier;
+      newIndex: UniqueIdentifier;
+    }) => {
       const from = tabs.findIndex((tab) => tab.id === oldIndex);
       const to = tabs.findIndex((tab) => tab.id === newIndex);
       onMove(from, to);

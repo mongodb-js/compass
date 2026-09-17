@@ -130,8 +130,7 @@ describe('ConnectionStringInput Component', function () {
 
     describe('clicking on edit connection string toggle', function () {
       beforeEach(function () {
-        const toggle = screen.getByRole('switch');
-        toggle.click();
+        userEvent.click(screen.getByRole('switch'));
       });
 
       it('should call setEnableEditingConnectionString', function () {
@@ -221,12 +220,12 @@ describe('ConnectionStringInput Component', function () {
 
     describe('clicking confirm to edit', function () {
       beforeEach(async function () {
-        screen.getByRole('switch').click();
+        userEvent.click(screen.getByRole('switch'));
 
         // Click confirm on the modal that opens.
-        const confirmButton = screen
-          .getByText('Confirm')
-          .closest('button') as HTMLButtonElement;
+        const confirmButton = (await screen.findByText('Confirm')).closest(
+          'button'
+        ) as HTMLButtonElement;
         fireEvent(
           confirmButton,
           new MouseEvent('click', {
@@ -248,13 +247,13 @@ describe('ConnectionStringInput Component', function () {
     });
 
     describe('clicking cancel on confirmation to edit', function () {
-      beforeEach(function () {
-        screen.getByRole('switch').click();
+      beforeEach(async function () {
+        userEvent.click(screen.getByRole('switch'));
 
         // Click cancel on the modal that opens.
-        const cancelButton = screen
-          .getByText('Cancel')
-          .closest('button') as HTMLButtonElement;
+        const cancelButton = (await screen.findByText('Cancel')).closest(
+          'button'
+        ) as HTMLButtonElement;
         fireEvent(
           cancelButton,
           new MouseEvent('click', {

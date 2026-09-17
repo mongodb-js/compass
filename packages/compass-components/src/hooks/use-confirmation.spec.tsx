@@ -77,7 +77,7 @@ describe('use-confirmation', function () {
           });
 
           expect(
-            screen.getByRole('button', { name: 'Confirm' })
+            await screen.findByRole('button', { name: 'Confirm' })
           ).to.have.attribute('aria-disabled', 'true');
 
           const textInputElement = screen.getByRole('textbox', {

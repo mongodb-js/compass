@@ -159,7 +159,7 @@ describe('Document', function () {
       expect(doc.get('date')?.currentType).to.eq('Date');
     });
 
-    it('should change element date value with the native date picker', function () {
+    it('should change element date value with the native date picker', async function () {
       const newDate = new Date('2000-01-01T01:02:03.004Z');
       render(<Document value={doc} editable editing></Document>);
       doc.get('date')?.edit(newDate);
@@ -175,7 +175,9 @@ describe('Document', function () {
         'hadron-document-date-picker'
       );
 
-      expect(picker.value).to.eq('2000-01-01T01:02:03.004');
+      await waitFor(() => {
+        expect(picker.value).to.eq('2000-01-01T01:02:03.004');
+      });
 
       fireEvent.change(picker, {
         target: { value: '2024-06-05T12:34:56.789' },
@@ -300,7 +302,7 @@ describe('Document', function () {
     expect(editor).to.eq(document.activeElement);
   });
 
-  it('should render doc in expanded/collapsed mode when the entire doc is expanded/collapsed', function () {
+  it('should render doc in expanded/collapsed mode when the entire doc is expanded/collapsed', async function () {
     const hadronDoc = new HadronDocument({
       names: {
         firstName: 'A',
@@ -315,8 +317,10 @@ describe('Document', function () {
     expect(screen.getByText('lastName')).to.exist;
 
     hadronDoc.collapse();
-    expect(() => screen.getByText('firstName')).to.throw();
-    expect(() => screen.getByText('lastName')).to.throw();
+    await waitFor(() => {
+      expect(screen.queryByText('firstName')).to.not.exist;
+      expect(screen.queryByText('lastName')).to.not.exist;
+    });
   });
 
   it('should render "Show more" toggle when number of fields are more than allowed visible fields', async function () {
