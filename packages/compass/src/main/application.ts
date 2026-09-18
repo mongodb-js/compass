@@ -4,6 +4,7 @@ import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
 import { app, safeStorage, session, utilityProcess } from 'electron';
 import { ipcMain } from 'hadron-ipc';
+import { DATA_SERVICE_PORT_CHANNEL } from 'mongodb-data-service';
 import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -215,7 +216,7 @@ class CompassApplication {
   private static launchUtilities(): void {
     // data-service
     const child = utilityProcess.fork(path.join(__dirname, 'data-service.mjs'));
-    ipcMain?.on('compass:data-service:port', (event, message) => {
+    ipcMain?.on(DATA_SERVICE_PORT_CHANNEL, (event, message) => {
       child.postMessage(message, event.ports);
     });
   }

@@ -10,8 +10,13 @@
 
 import type { MessagePortMain } from 'electron';
 import { DataServiceImpl } from './data-service';
+import type { ConnectionOptions } from './connection-options';
+import type { TopologyDescriptionChangedEvent } from 'mongodb';
 import util from 'node:util';
 import { prepareForTransfer, readTransfer } from './transfer';
+import type { DataServiceRequest, UtilityBoundMessage } from './protocol';
+
+export type { OperationName, DataServiceRequest } from './protocol';
 
 util.inspect.defaultOptions.compact = true;
 util.inspect.defaultOptions.breakLength = 100000;
@@ -21,29 +26,22 @@ export type UtilityOptions = {
   id: number;
   port: MessagePortMain;
   onClose: () => void;
+  /**
+   * Whether the renderer holds a real `oidc.notifyDeviceFlow` callback (the
+   * device-auth modal). If so the utility installs a shim in its place that
+   * forwards the driver's device-flow notification back over the port.
+   */
+  hasDeviceFlowNotify?: boolean;
 };
-
-type PromiseMethodKeys<T> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => Promise<any> ? K : never;
-}[keyof T];
-
-export type OperationName = PromiseMethodKeys<DataServiceImpl>;
-
-export class Message {
-  requestId: number;
-  operation: OperationName;
-  args: any[];
-
-  constructor(data: any) {
-    this.requestId = data.requestId;
-    this.operation = data.operation;
-    this.args = data.args;
-  }
-}
 
 export class DataServiceUtility extends DataServiceImpl {
   readonly utilityOptions: UtilityOptions;
   private abortControllers = new Map<number, AbortController>();
+  private deviceFlowCallbacks = new Map<
+    number,
+    { resolve: () => void; reject: (err: unknown) => void }
+  >();
+  private nextDeviceFlowId = 0;
   constructor(
     utilityOptions: UtilityOptions,
     ...args: ConstructorParameters<typeof DataServiceImpl>
@@ -51,29 +49,88 @@ export class DataServiceUtility extends DataServiceImpl {
     super(...args);
     this._id = utilityOptions.id;
     this.utilityOptions = utilityOptions;
+
+    // Where the renderer registered a real `oidc.notifyDeviceFlow`, install a
+    // shim that forwards the driver's device-flow notification over the port
+    // and waits for the renderer to run the real (UI) function. They share the
+    // same `connectionOptions` object (this is `args[0]`), so the driver's
+    // OIDC plugin picks the shim up when `connectMongoClient` reads it.
+    const oidc = (args[0] as ConnectionOptions | undefined)?.oidc;
+    if (utilityOptions.hasDeviceFlowNotify && oidc) {
+      (oidc as { notifyDeviceFlow?: unknown }).notifyDeviceFlow = (info: {
+        verificationUrl: string;
+        userCode: string;
+      }) => this.forwardDeviceFlowNotify(info);
+    }
+
     this.utilityOptions.port.addListener('message', this.onMessage.bind(this));
     this.utilityOptions.port.addListener('close', this.onClose.bind(this));
     this.utilityOptions.port.start();
+
+    // Forward the driver's topology changes so the renderer keeps its derived
+    // sync state fresh and can re-emit to its own listeners. Only this event
+    // makes the journey today; expand as more are needed.
+    this.on(
+      'topologyDescriptionChanged',
+      (evt: TopologyDescriptionChangedEvent) => {
+        const prepared = prepareForTransfer(evt);
+        this.utilityOptions.port.postMessage({
+          kind: 'event',
+          event: 'topologyDescriptionChanged',
+          data: prepared.data,
+          bsonValues: prepared.bsonValues,
+          placeholders: prepared.placeholders,
+        });
+      }
+    );
   }
 
   private onClose() {
     this.utilityOptions.onClose();
   }
 
-  private onMessage({ data }: Electron.MessageEvent) {
+  private forwardDeviceFlowNotify(info: {
+    verificationUrl: string;
+    userCode: string;
+  }): Promise<void> {
+    const id = this.nextDeviceFlowId++;
+    return new Promise<void>((resolve, reject) => {
+      this.deviceFlowCallbacks.set(id, { resolve, reject });
+      this.utilityOptions.port.postMessage({
+        kind: 'deviceFlow',
+        id,
+        info,
+      });
+    });
+  }
+
+  private onMessage({ data }: { data: UtilityBoundMessage }) {
+    // Result of a forwarded callback invocation (the renderer ran the real
+    // notifyDeviceFlow function and is reporting how it went).
+    if (data.kind === 'deviceFlow:result') {
+      const cb = this.deviceFlowCallbacks.get(data.id);
+      if (cb) {
+        this.deviceFlowCallbacks.delete(data.id);
+        if (data.ok) cb.resolve();
+        else cb.reject(data.error);
+      }
+      return;
+    }
+
     // Special out-of-band message: the renderer's signal aborted, so abort
     // the matching controller created during readTransfer.
-    if (data.type === 'abort') {
+    if (data.kind === 'abort') {
       this.abortControllers.get(data.requestId)?.abort();
       return;
     }
 
-    const req = new Message(data);
+    // The remaining kind is a request to dispatch.
+    const req: DataServiceRequest = data;
     let args: unknown[];
     let controllers: AbortController[];
     try {
-      const result = data.bsonValues
-        ? readTransfer(req.args, data.bsonValues, data.placeholders)
+      const result = req.bsonValues
+        ? readTransfer(req.args, req.bsonValues, req.placeholders)
         : { data: req.args, controllers: [] };
       args = result.data as unknown[];
       controllers = result.controllers;
@@ -81,8 +138,9 @@ export class DataServiceUtility extends DataServiceImpl {
       // Never leave the renderer awaiting a response — surface the failure
       // as an error reply instead so the caller rejects rather than hangs.
       this.utilityOptions.port.postMessage({
+        kind: 'result',
         responseTo: req.requestId,
-        ok: 0,
+        ok: false,
         error: err,
       });
       return;
@@ -110,21 +168,23 @@ export class DataServiceUtility extends DataServiceImpl {
     }
   }
 
-  private onResult(req: Message, res: any) {
+  private onResult(req: DataServiceRequest, res: any) {
     const { bsonValues, placeholders } = prepareForTransfer(res);
     this.utilityOptions.port.postMessage({
+      kind: 'result',
       responseTo: req.requestId,
-      ok: 1,
+      ok: true,
       res,
       bsonValues,
       placeholders,
     });
   }
 
-  private onError(req: Message, error: any) {
+  private onError(req: DataServiceRequest, error: any) {
     this.utilityOptions.port.postMessage({
+      kind: 'result',
       responseTo: req.requestId,
-      ok: 0,
+      ok: false,
       error,
     });
   }

@@ -34,3 +34,13 @@ export type {
 } from './search-index-detail-helper';
 export type { InstanceDetails } from './instance-detail-helper';
 export { DataServiceUtility } from './data-service-utility';
+export { DATA_SERVICE_PORT_CHANNEL } from './protocol';
+export type {
+  DataServiceBoot,
+  DataServiceRequest,
+  DataServiceResult,
+  DeviceFlowInvocation,
+  OperationName,
+  RendererBoundMessage,
+  UtilityBoundMessage,
+} from './protocol';

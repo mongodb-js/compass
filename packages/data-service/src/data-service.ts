@@ -340,7 +340,9 @@ export interface DataService {
   /**
    * Connect the service
    */
-  connect(options?: ConnectOptions): Promise<void>;
+  connect(
+    options?: ConnectOptions
+  ): Promise<MongoClientConnectionOptions | undefined>;
 
   /**
    * Disconnect the service
@@ -1704,15 +1706,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
     signal,
     productName,
     productDocsLink,
-  }: ConnectOptions = {}): Promise<void> {
+  }: ConnectOptions = {}): Promise<MongoClientConnectionOptions | undefined> {
     if (this._metadataClient) {
       debug('already connected');
-      return;
+      return this.getMongoClientConnectionOptions();
     }
 
     if (this._isConnecting) {
       debug('connect method called more than once');
-      return;
+      return this.getMongoClientConnectionOptions();
     }
 
     debug('connecting...');
@@ -1770,6 +1772,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this,
         this._crudClient
       );
+
+      // Surface the (oidc-omitted, clone-safe) client options as the connect
+      // result so proxy hosts like DataServiceRenderer can capture them for
+      // `getMongoClientConnectionOptions()`.
+      return this.getMongoClientConnectionOptions();
     } catch (error) {
       this._logger.info(mongoLogId(1_001_000_359), 'Connecting Failed', {
         connectionId: this._id,

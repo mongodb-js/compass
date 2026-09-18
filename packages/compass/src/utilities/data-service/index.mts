@@ -3,15 +3,8 @@ import { DataServiceUtility } from 'mongodb-data-service';
 import { on } from 'node:events';
 import process from 'node:process';
 
-declare global {
-  interface ImportMeta {
-    /**
-     * `true` when this module is the entry point of the process. Available
-     * since Node.js 24.2 but not yet declared by `@types/node`.
-     */
-    readonly main: boolean;
-  }
-}
+// `import.meta.main` is declared by `@types/node` (Node 24.2+); no local
+// augmentation needed.
 
 type MainArgs = {
   parentPort: MessagePortMain;
@@ -36,11 +29,16 @@ export async function main({ parentPort }: MainArgs): Promise<void> {
       data,
       ports: [port],
     } = message as Electron.MessageEvent;
-    const { connectionOptions, id } = data;
+    const { connectionOptions, id, hasDeviceFlowNotify } = data;
     dataServices.set(
       port,
       new DataServiceUtility(
-        { id, port, onClose: () => void dataServices.delete(port) },
+        {
+          id,
+          port,
+          hasDeviceFlowNotify,
+          onClose: () => void dataServices.delete(port),
+        },
         connectionOptions
       )
     );

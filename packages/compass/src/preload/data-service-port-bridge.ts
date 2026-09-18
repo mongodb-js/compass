@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import { DATA_SERVICE_PORT_CHANNEL } from 'mongodb-data-service';
 
 /**
  * Forwards the MessagePort that a DataServiceRenderer posts on the window to
@@ -15,9 +16,9 @@ export function setupDataServicePortBridge(): void {
     console.log('message', event);
     if (
       event.source === window &&
-      event.data?.type === 'compass:data-service:port'
+      event.data?.type === DATA_SERVICE_PORT_CHANNEL
     ) {
-      ipcRenderer.postMessage('compass:data-service:port', event.data, [
+      ipcRenderer.postMessage(DATA_SERVICE_PORT_CHANNEL, event.data, [
         ...event.ports,
       ]);
     }
