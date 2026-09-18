@@ -2,138 +2,12 @@
 version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-JS-AGGRIDCOMMUNITY-1932011:
-    - '*':
-        reason: >-
-          Not applicable as we do not use a valueFormatter or cellRenderer
-          function
-        created: 2024-01-18T18:27:24.353Z
   SNYK-JS-AGGRIDCOMMUNITY-7414157:
     - '*':
         reason: >-
           Not applicable as we don't use ag-grid utils and the library never
           passes user input directly to the merge function
         created: 2024-09-17T13:05:57.071Z
-  SNYK-JS-ELECTRON-8642944:
-    - '*':
-        reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.0'
-        expires: 2025-03-26T09:48:32.235Z
-        created: 2025-01-27T09:48:32.246Z
-  SNYK-JS-ELECTRON-8642948:
-    - '*':
-        reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.0'
-        expires: 2025-03-26T09:49:13.962Z
-        created: 2025-01-27T09:49:13.968Z
-  SNYK-JS-ELECTRON-8097217:
-    - '*':
-        reason: >-
-          Not applicable: requires attacker to inject and execute custom
-          javascript on the page AND experimental api to be enabled (see
-          https://issues.chromium.org/issues/365376497)
-        expires: 2025-03-26T09:49:21.587Z
-        created: 2025-01-27T09:49:21.596Z
-  SNYK-JS-ELECTRON-8604283:
-    - '*':
-        reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.0'
-        expires: 2025-03-26T09:49:31.423Z
-        created: 2025-01-27T09:49:31.431Z
-  SNYK-JS-ELECTRON-8642946:
-    - '*':
-        reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.0'
-        expires: 2025-02-26T09:49:38.738Z
-        created: 2025-01-27T09:49:38.746Z
-  SNYK-JS-ELECTRON-8738830:
-    - '*':
-        reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.2'
-        expires: 2025-03-30T12:35:57.970Z
-        created: 2025-02-28T12:35:57.978Z
-  SNYK-JS-ELECTRON-8738832:
-    - '*':
-        reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.2'
-        expires: 2025-03-30T12:36:22.672Z
-        created: 2025-02-28T12:36:22.681Z
-  SNYK-JS-ELECTRON-8738839:
-    - '*':
-        reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.2'
-        expires: 2025-03-30T12:36:40.477Z
-        created: 2025-02-28T12:36:40.484Z
-  SNYK-JS-ELECTRON-8738834:
-    - '*':
-        reason: >-
-          Not applicable: requires attacker to render hand crafted HTML snippet
-          inside the application. Putting on a short expiration time as we're
-          expecting to be able to update to electron v33 (or later) soon
-        expires: 2025-06-16T15:23:35.601Z
-        created: 2025-03-17T15:23:35.608Z
-  SNYK-JS-ELECTRON-9486047:
-    - '*':
-        reason: >-
-          Not applicable: requires attacker to render hand crafted HTML snippet
-          inside the application. Putting on a short expiration time as we're
-          expecting to be able to update to electron v33 (or later) soon
-        expires: 2025-06-20T04:40:36.098Z
-        created: 2025-03-21T04:40:36.107Z
-  SNYK-JS-ELECTRON-10245168:
-    - '*':
-        reason: >-
-          Not applicable: this requires attacker to load hand crafted html
-          inside the app. Putting on a short expiration time as we're
-          expecting to be able to update to electron v36 soon
-        expires: 2025-06-27T10:50:52.405Z
-        created: 2025-05-28T10:50:52.409Z
-  SNYK-JS-ELECTRON-15875869:
-    - '*':
-        reason: >-
-          Not applicable: requires offscreen rendering to be enabled
-          (webPreferences.offscreen: true) which Compass does not use.
-          Putting on a short expiration time as we're expecting to
-          update Electron soon.
-        expires: 2026-07-06T00:00:00.000Z
-        created: 2026-04-06T00:00:00.000Z
-  SNYK-JS-ELECTRON-15875853:
-    - '*':
-        reason: >-
-          Not applicable: requires untrusted input to be spread into
-          webPreferences. Compass hardcodes all webPreferences values
-          and no external input flows into them.
-        expires: 2026-07-06T00:00:00.000Z
-        created: 2026-04-06T00:00:00.000Z
-  SNYK-JS-ELECTRON-15876398:
-    - '*':
-        reason: >-
-          Not applicable: requires session.setPermissionRequestHandler
-          to be registered which Compass does not use.
-        expires: 2026-07-06T00:00:00.000Z
-        created: 2026-04-06T00:00:00.000Z
-  SNYK-JS-ELECTRON-15876334:
-    - '*':
-        reason: >-
-          Not applicable: requires child windows with differing
-          webPreferences. Compass denies all child windows via
-          setWindowOpenHandler returning { action: 'deny' }.
-        expires: 2026-07-06T00:00:00.000Z
-        created: 2026-04-06T00:00:00.000Z
-  SNYK-JS-ELECTRON-15876712:
-    - '*':
-        reason: >-
-          Not applicable: requires the powerMonitor module which
-          Compass does not import or use.
-        expires: 2026-07-06T00:00:00.000Z
-        created: 2026-04-06T00:00:00.000Z
-  SNYK-JS-ELECTRON-15876716:
-    - '*':
-        reason: >-
-          Not applicable: requires app.moveToApplicationsFolder()
-          which Compass does not call.
-        expires: 2026-07-06T00:00:00.000Z
-        created: 2026-04-06T00:00:00.000Z
-  SNYK-JS-ELECTRON-15876117:
-    - '*':
-        reason: >-
-          Not applicable: requires app.setLoginItemSettings()
-          which Compass does not call.
-        expires: 2026-07-13T00:00:00.000Z
-        created: 2026-04-13T00:00:00.000Z
   SNYK-JS-HONONODESERVER-18170326:
     - '*':
         reason: >-
@@ -150,8 +24,3 @@ ignore:
           server using it (OIDC) is bound to localhost.
         expires: 2026-12-16T00:00:00.000Z
         created: 2026-09-16T00:00:00.000Z
-# patches apply the minimum changes required to fix a vulnerability
-patch:
-  'npm:ms:20170412':
-    - debug > ms:
-        patched: '2018-08-10T04:22:22.836Z'
