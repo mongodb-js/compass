@@ -1458,7 +1458,10 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
         showAnnotationsGutter={Boolean(showAnnotationsGutter)}
         showScroll={false}
         highlightActiveLine={false}
-        className={cx(!darkMode && inlineStylesLightMode, className)}
+        className={cx(
+          !darkMode && !props.disabled && inlineStylesLightMode,
+          className
+        )}
         language="javascript-expression"
         {...props}
       ></BaseEditor>
