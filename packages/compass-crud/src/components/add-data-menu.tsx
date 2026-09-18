@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Icon,
   Tooltip,
@@ -8,12 +8,6 @@ import {
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useLocalAppRegistry } from '@mongodb-js/compass-app-registry';
-import {
-  ExperimentTestGroups,
-  ExperimentTestNames,
-  useAssignment,
-  useTrackInSample,
-} from '@mongodb-js/compass-telemetry/provider';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
 const tooltipContainerStyles = css({
@@ -23,10 +17,6 @@ const tooltipContainerStyles = css({
 
 const addDataMenuButtonStyles = css({
   whiteSpace: 'nowrap',
-});
-
-const addDataMenuWrapperStyles = css({
-  display: 'contents',
 });
 
 type AddDataMenuProps = {
@@ -48,30 +38,6 @@ function AddDataMenuButton({
   const isImportExportEnabled = usePreference('enableImportExport');
   const localAppRegistry = useLocalAppRegistry();
 
-  const mockDataGeneratorAssignment = useAssignment(
-    ExperimentTestNames.mockDataGenerator,
-    false // "Experiment Viewed" is fired below on menu open
-  );
-  const mockDataGeneratorAssignmentData =
-    mockDataGeneratorAssignment?.assignment?.assignmentData;
-  const isInMockDataExperiment =
-    mockDataGeneratorAssignmentData?.isInSample === true;
-  const isInMockDataTreatmentVariant =
-    mockDataGeneratorAssignmentData?.variant ===
-    ExperimentTestGroups.mockDataGeneratorVariant;
-
-  const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
-
-  // Fire experiment-viewed when the user opens the menu and the Mock Data
-  // Generator feature is displayed or would be displayed if the user were in
-  // the treatment variant group.
-  useTrackInSample(
-    ExperimentTestNames.mockDataGenerator,
-    hasOpenedMenu &&
-      isMockDataGeneratorEligibleAndSchemaReady &&
-      isInMockDataExperiment
-  );
-
   const addDataActions = useMemo(() => {
     const actions: MenuAction<AddDataOption>[] = [
       { action: 'insert-document' as const, label: 'Insert document' },
@@ -84,11 +50,7 @@ function AddDataMenuButton({
       });
     }
 
-    // The menu item only renders for users in treatment variant group
-    if (
-      isMockDataGeneratorEligibleAndSchemaReady &&
-      isInMockDataTreatmentVariant
-    ) {
+    if (isMockDataGeneratorEligibleAndSchemaReady) {
       actions.push({
         action: 'generate-mock-data' as const,
         label: 'Generate mock data script',
@@ -96,11 +58,7 @@ function AddDataMenuButton({
     }
 
     return actions;
-  }, [
-    isImportExportEnabled,
-    isMockDataGeneratorEligibleAndSchemaReady,
-    isInMockDataTreatmentVariant,
-  ]);
+  }, [isImportExportEnabled, isMockDataGeneratorEligibleAndSchemaReady]);
 
   const handleAction = useCallback(
     (action: AddDataOption) => {
@@ -113,30 +71,21 @@ function AddDataMenuButton({
     [localAppRegistry, insertDataHandler]
   );
 
-  const handleClickCapture = useCallback(() => {
-    setHasOpenedMenu(true);
-  }, []);
-
   return (
-    <span
-      onClickCapture={handleClickCapture}
-      className={addDataMenuWrapperStyles}
-    >
-      <DropdownMenuButton<AddDataOption>
-        data-testid="crud-add-data"
-        actions={addDataActions}
-        onAction={handleAction}
-        buttonText="Add data"
-        buttonProps={{
-          size: 'xsmall',
-          variant: 'primary',
-          leftGlyph: <Icon glyph="PlusWithCircle" />,
-          disabled: isDisabled,
-          className: addDataMenuButtonStyles,
-        }}
-        narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
-      ></DropdownMenuButton>
-    </span>
+    <DropdownMenuButton<AddDataOption>
+      data-testid="crud-add-data"
+      actions={addDataActions}
+      onAction={handleAction}
+      buttonText="Add data"
+      buttonProps={{
+        size: 'xsmall',
+        variant: 'primary',
+        leftGlyph: <Icon glyph="PlusWithCircle" />,
+        disabled: isDisabled,
+        className: addDataMenuButtonStyles,
+      }}
+      narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
+    ></DropdownMenuButton>
   );
 }
 

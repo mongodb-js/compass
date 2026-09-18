@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
@@ -29,6 +29,7 @@ import {
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../schema-analysis-types';
 import { MAX_COLLECTION_NESTING_DEPTH } from './mock-data-generator-modal/utils';
+import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -201,7 +202,6 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 }) => {
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
-  const connectionInfo = useConnectionInfo();
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)
@@ -219,32 +219,19 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   }, [currentTab, track, connectionInfoRef]);
   const pluginModals = useCollectionScopedModals();
 
-  // Compute Mock Data Generator eligibility
-  const { isReadonly, isTimeSeries, sourceName } = collectionMetadata;
-  const atlasMetadata = connectionInfo.atlasMetadata;
-  const isMockDataGeneratorEligible = Boolean(
-    atlasMetadata && // Only show in Atlas
-      !isReadonly && // Don't show for readonly collections (views)
-      !isTimeSeries && // Don't show for time series collections
-      !sourceName // sourceName indicates it's a view
+  const enableGenAIFeatures = usePreference('enableGenAIFeatures');
+  const enableGenAIFeaturesAtlasOrg = usePreference(
+    'enableGenAIFeaturesAtlasOrg'
   );
-
-  const exceedsMaxNestingDepth =
-    analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
-
-  // True when prerequisites for the Mock Data Generator menu item are met
-  // Independent of experiment variant assignment
-  const isMockDataGeneratorEligibleAndSchemaReady = useMemo(() => {
-    return (
-      isMockDataGeneratorEligible &&
-      hasSchemaAnalysisData &&
-      !exceedsMaxNestingDepth
-    );
-  }, [
-    isMockDataGeneratorEligible,
-    hasSchemaAnalysisData,
-    exceedsMaxNestingDepth,
-  ]);
+  const readOnly = usePreference('readOnly');
+  const isMockDataGeneratorEligibleAndSchemaReady =
+    isMockDataGeneratorEligible(collectionMetadata, {
+      enableGenAIFeatures,
+      enableGenAIFeaturesAtlasOrg,
+      readOnly,
+    }) &&
+    hasSchemaAnalysisData &&
+    analyzedSchemaDepth <= MAX_COLLECTION_NESTING_DEPTH;
 
   const pluginProps = {
     ...collectionMetadata,

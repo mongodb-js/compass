@@ -9,6 +9,7 @@ import reducer, {
   analyzeCollectionSchema,
   cancelSchemaAnalysis,
   openMockDataGeneratorModal,
+  mockDataGeneratorModalClosed,
 } from '../modules/collection-tab';
 import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
@@ -20,10 +21,8 @@ import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/prov
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import {
-  isAIFeatureEnabled,
-  type PreferencesAccess,
-} from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
 import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
@@ -84,35 +83,6 @@ export function selectShouldRetriggerSchemaAnalysis(
 
   // Re-trigger if no valid schema data
   return !selectHasSchemaAnalysisData(state);
-}
-
-/**
- * Checks if user is in the Mock Data Generator experiment (either
- * control or treatment). Schema analysis runs for both arms so that the
- * "Experiment Viewed" exposure event can fire for control and treatment
- * under the same conditions.
- * Returns false on error to default to not running schema analysis.
- */
-async function shouldRunSchemaAnalysis(
-  experimentationServices: ExperimentationServices,
-  logger: Logger,
-  namespace: string
-): Promise<boolean> {
-  try {
-    const assignment = await experimentationServices.getAssignment(
-      ExperimentTestNames.mockDataGenerator,
-      false // Don't track "Experiment Viewed" event here
-    );
-    return !!assignment?.assignmentData?.variant;
-  } catch (error) {
-    // On error, default to not running schema analysis
-    logger.debug('Failed to get Mock Data Generator experiment assignment', {
-      experiment: ExperimentTestNames.mockDataGenerator,
-      namespace: namespace,
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return false;
-  }
 }
 
 export type CollectionTabOptions = {
@@ -176,6 +146,7 @@ export function activatePlugin(
   const schemaAnalysisAbortControllerRef = {
     current: undefined,
   };
+  let isActive = true;
   const store = createStore(
     reducer,
     {
@@ -233,25 +204,17 @@ export function activatePlugin(
     void store.dispatch(openMockDataGeneratorModal());
   });
 
-  const handleSchemaAnalysisRetrigger = (eventType: string) => {
+  const handleSchemaAnalysisRetrigger = () => {
     const currentState = store.getState();
-    if (selectShouldRetriggerSchemaAnalysis(currentState)) {
-      // Re-trigger schema analysis only for users in the Mock Data Generator experiment
-      shouldRunSchemaAnalysis(experimentationServices, logger, namespace)
-        .then((shouldRun) => {
-          if (shouldRun) {
-            logger.debug(`Re-triggering schema analysis after ${eventType}`, {
-              namespace,
-            });
-            void store.dispatch(analyzeCollectionSchema());
-          }
-        })
-        .catch((error) => {
-          logger.debug('Error checking schema analysis experiment', {
-            namespace: namespace,
-            error: error instanceof Error ? error.message : String(error),
-          });
-        });
+    if (
+      isActive &&
+      isMockDataGeneratorEligible(
+        currentState.metadata,
+        preferences.getPreferences()
+      ) &&
+      selectShouldRetriggerSchemaAnalysis(currentState)
+    ) {
+      void store.dispatch(analyzeCollectionSchema());
     }
   };
 
@@ -274,7 +237,7 @@ export function activatePlugin(
         connectionId === connectionInfoRef.current.id &&
         payload.ns === namespace
       ) {
-        handleSchemaAnalysisRetrigger('document insertion');
+        handleSchemaAnalysisRetrigger();
       }
     }
   );
@@ -295,49 +258,43 @@ export function activatePlugin(
         connectionId === connectionInfoRef.current.id &&
         payload.ns === namespace
       ) {
-        handleSchemaAnalysisRetrigger('import finished');
+        handleSchemaAnalysisRetrigger();
       }
     }
   );
 
-  void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
-    store.dispatch(collectionMetadataFetched(metadata));
-
-    // Assign experiment for Mock Data Generator
-    // Only assign when we're connected to Atlas, the org-level setting for AI features is enabled,
-    // and the collection supports the Mock Data Generator feature (not readonly/timeseries)
-    if (
-      !metadata.isReadonly &&
-      !metadata.isTimeSeries &&
-      connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
-      isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
-    ) {
-      void experimentationServices
-        .assignExperiment(ExperimentTestNames.mockDataGenerator, {
-          team: 'Atlas Growth',
-        })
-        .catch((error) => {
-          logger.debug('Mock Data Generator experiment assignment failed', {
-            experiment: ExperimentTestNames.mockDataGenerator,
-            namespace: namespace,
-            error: error instanceof Error ? error.message : String(error),
-          });
-        });
-    }
-
-    if (!metadata.isReadonly && !metadata.isTimeSeries) {
-      // Run schema analysis for users in the Mock Data Generator experiment
-      void shouldRunSchemaAnalysis(
-        experimentationServices,
-        logger,
-        namespace
-      ).then((shouldRun) => {
-        if (shouldRun) {
-          void store.dispatch(analyzeCollectionSchema());
+  for (const preference of [
+    'enableGenAIFeatures',
+    'enableGenAIFeaturesAtlasOrg',
+    'readOnly',
+  ] as const) {
+    addCleanup(
+      preferences.onPreferenceValueChanged(preference, () => {
+        if (
+          !isMockDataGeneratorEligible(
+            store.getState().metadata,
+            preferences.getPreferences()
+          )
+        ) {
+          store.dispatch(cancelSchemaAnalysis());
+          store.dispatch(mockDataGeneratorModalClosed());
+        } else {
+          handleSchemaAnalysisRetrigger();
         }
-      });
-    }
-  });
+      })
+    );
+  }
+
+  void collectionModel
+    .fetchMetadata({ dataService })
+    .then((metadata) => {
+      if (!isActive) return;
+      store.dispatch(collectionMetadataFetched(metadata));
+      handleSchemaAnalysisRetrigger();
+    })
+    .catch((error) => {
+      logger.debug('Failed to fetch collection metadata', { namespace, error });
+    });
 
   // Assign experiment for Search Activation Program P1
   // Only assign when we're connected to Atlas
@@ -373,8 +330,11 @@ export function activatePlugin(
       });
   }
 
-  // Cancel schema analysis when plugin is deactivated
-  addCleanup(() => store.dispatch(cancelSchemaAnalysis()));
+  addCleanup(() => {
+    isActive = false;
+    store.dispatch(cancelSchemaAnalysis());
+    store.dispatch(mockDataGeneratorModalClosed());
+  });
 
   return {
     store,

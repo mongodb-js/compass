@@ -598,6 +598,18 @@ export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError = '[data-testid="document-list-error-summary"]';
 export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
+export const GenerateMockDataOption = '[data-action="generate-mock-data"]';
+export const MockDataGeneratorModal =
+  '[data-testid="generate-mock-data-modal"]';
+export const MockDataGeneratorNext = `${MockDataGeneratorModal} [data-testid="next-step-button"]`;
+export const MockDataGeneratorSchema = `${MockDataGeneratorModal} [data-testid="raw-schema-confirmation"]`;
+export const MockDataGeneratorPreview = `${MockDataGeneratorModal} [data-testid="preview-documents"]`;
+export const MockDataGeneratorCount = `${MockDataGeneratorModal} [data-testid="document-count-input"]`;
+export const MockDataGeneratorError = `${MockDataGeneratorModal} [data-testid="error-banner"]`;
+export const MockDataGeneratorSettings = `${MockDataGeneratorModal} [data-testid="sample-values-banner-settings-button"]`;
+export const MockDataGeneratorSampleValuesBanner = `${MockDataGeneratorModal} [data-testid="sample-values-banner"]`;
+export const MockDataGeneratorScript = `${MockDataGeneratorModal} [data-testid="mock-data-script"]`;
+export const MockDataGeneratorRunCommand = `${MockDataGeneratorModal} [data-testid="mock-data-run-command"]`;
 export const EditDocumentButton = '[data-testid="edit-document-button"]';
 export const InsertDocumentOption =
   '[data-testid="crud-add-data-insert-document-action"]';
