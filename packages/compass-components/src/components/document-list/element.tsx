@@ -26,6 +26,7 @@ import { hasDistinctValue } from 'mongodb-query-util';
 import { useContextMenuGroups } from '../context-menu';
 import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 import { useBSONDisplayOptions } from './bson-display-options-context';
+import { setDraggedDocumentField } from './field-drag';
 
 function useElementEditor(
   el: HadronElementType,
@@ -330,6 +331,13 @@ const elementKeyInline = css({
   textOverflow: 'ellipsis',
 });
 
+const elementKeyDraggable = css({
+  cursor: 'grab',
+  '&:active': {
+    cursor: 'grabbing',
+  },
+});
+
 const elementKeyInternal = css({
   color: palette.gray.base,
 });
@@ -585,6 +593,31 @@ export const HadronElement: React.FunctionComponent<{
     [element, key.value, value.value, type.value, onUpdateQuery, isFieldInQuery]
   );
 
+  // Dragging a field name puts "field: value" on the drag data, so it can be
+  // dropped into an aggregation stage or any editor outside Compass. The
+  // text/plain payload is deliberately identical to the "Copy field & value"
+  // context menu action, which remains the keyboard accessible way to do this.
+  //
+  // The same field also goes on the event in structured form, so that drop
+  // targets inside Compass (the query bar) can use the BSON value rather than
+  // parsing the display string back.
+  const onKeyDragStart = useCallback(
+    (evt: React.DragEvent<HTMLDivElement>) => {
+      // The row toggles expansion on click; dragging a field is not that.
+      evt.stopPropagation();
+      evt.dataTransfer.effectAllowed = 'copy';
+      evt.dataTransfer.setData(
+        'text/plain',
+        `${key.value}: ${element.toShellSyntax()}`
+      );
+      setDraggedDocumentField(evt.dataTransfer, {
+        field: getNestedKeyPathForElement(element),
+        value: element.generateObject(),
+      });
+    },
+    [element, key.value]
+  );
+
   const toggleExpanded = () => {
     if (expanded) {
       collapse();
@@ -650,12 +683,17 @@ export const HadronElement: React.FunctionComponent<{
     onClick: toggleExpanded,
   };
 
+  // While editing, the key is a text input and dragging it would fight with
+  // selecting the text inside it.
+  const keyDraggable = !editingEnabled;
+
   const keyProps = {
     className: cx(
       elementKey,
       !editingEnabled && elementKeyInline,
       internal && elementKeyInternal,
-      darkMode && elementKeyDarkMode
+      darkMode && elementKeyDarkMode,
+      keyDraggable && elementKeyDraggable
     ),
   };
 
@@ -763,7 +801,12 @@ export const HadronElement: React.FunctionComponent<{
           )}
         </div>
         <div className={editingEnabled ? elementContent : elementContentInline}>
-          <div {...keyProps} data-testid="hadron-document-element-key">
+          <div
+            {...keyProps}
+            data-testid="hadron-document-element-key"
+            draggable={keyDraggable}
+            onDragStart={keyDraggable ? onKeyDragStart : undefined}
+          >
             {key.editable ? (
               <KeyEditor
                 value={key.value}
