@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Sep 17 2026.
+This document was automatically generated on Fri Sep 18 2026.
 
 ## List of dependencies
 
@@ -184,8 +184,8 @@ This document was automatically generated on Thu Sep 17 2026.
 | **[@vscode/l10n](#435710ffc6551ec7bb19d73e562bde009c42386216297ec28d3ad42820bff7e5)**                                       | 0.0.18       | MIT                                 |
 | **[accepts](#f95b7a83c78ce214a33c8f8ef681fb76acf619e685469f394034d5d5ea1cfb23)**                                            | 2.0.0        | MIT                                 |
 | **[acorn](#34ea02690f67b51f9d38d769ae6d5296dcf481732c233dcd39d4a8854e42fdc3)**                                              | 8.16.0       | MIT                                 |
-| **[ag-grid-community](#f3a0879bf804a8156c501942869cb2b3f5c2770fe5ae768eacebf9c4856a3e6e)**                                  | 20.2.0       | MIT                                 |
-| **[ag-grid-react](#266b3ad41f62fe9d8b3388c7e3e56532f1081dfc35c8b513d746105d0f7ef2d5)**                                      | 20.2.0       | MIT                                 |
+| **[ag-grid-community](#ef40a178b31a9a6572662916db0550c73884edc5ad5381b11ae6e42bd2a28338)**                                  | 28.2.1       | MIT                                 |
+| **[ag-grid-react](#f06679163de144687e576293cc2c1732421bee7bf5634241fd99fbd5be5c2b09)**                                      | 28.2.1       | MIT                                 |
 | **[agent-base](#10202012ce77e7c6013605c6e813d5020905b1ae895084d48ca047fcfc47cdcb)**                                         | 7.1.3        | MIT                                 |
 | **[ai](#b73425d75d9008fb54dbf2b39d5746e641348434236baddeceb64951e303ce34)**                                                 | 6.0.86       | Apache-2.0                          |
 | **[ajv-formats](#3081140538322aaf684c239fd5c532b47691d82b42e6cc4a5e60df5eaaab538a)**                                        | 3.0.1        | MIT                                 |
@@ -20219,9 +20219,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="f3a0879bf804a8156c501942869cb2b3f5c2770fe5ae768eacebf9c4856a3e6e"></a>
+<a id="ef40a178b31a9a6572662916db0550c73884edc5ad5381b11ae6e42bd2a28338"></a>
 
-### [ag-grid-community](https://www.npmjs.com/package/ag-grid-community) (version 20.2.0)
+### [ag-grid-community](https://www.npmjs.com/package/ag-grid-community) (version 28.2.1)
 
 License tags: MIT
 
@@ -20231,7 +20231,7 @@ License files:
 
       The MIT License
 
-      Copyright (c) 2015-2016 AG GRID LTD
+      Copyright (c) 2015-2019 AG GRID LTD
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -20251,9 +20251,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="266b3ad41f62fe9d8b3388c7e3e56532f1081dfc35c8b513d746105d0f7ef2d5"></a>
+<a id="f06679163de144687e576293cc2c1732421bee7bf5634241fd99fbd5be5c2b09"></a>
 
-### [ag-grid-react](https://www.npmjs.com/package/ag-grid-react) (version 20.2.0)
+### [ag-grid-react](https://www.npmjs.com/package/ag-grid-react) (version 28.2.1)
 
 License tags: MIT
 
@@ -20263,7 +20263,7 @@ License files:
 
       The MIT License
 
-      Copyright (c) 2015-2016 AG GRID LTD
+      Copyright (c) 2015-2019 AG GRID LTD
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
