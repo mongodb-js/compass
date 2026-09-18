@@ -83,15 +83,6 @@ const editorStyle = css({
   fontFamily: fontFamilies.code,
 });
 
-const disabledContainerStyles = css({
-  borderRadius: spacing[100],
-  boxShadow: `0 0 0 1px ${palette.gray.light1}`,
-});
-
-const disabledContainerDarkModeStyles = css({
-  boxShadow: `0 0 0 1px ${palette.gray.dark2}`,
-});
-
 const readOnlyStyle = css({
   // We hide the blinking cursor in read only mode
   // as it can appear to users like the editor is editable.
@@ -217,6 +208,21 @@ const cmFontStyles = {
   fontFamily: fontFamilies.code,
 };
 
+const disabledContainerStyles = css({
+  borderRadius: spacing[100],
+  overflow: 'hidden',
+  boxShadow: `0 0 0 1px ${palette.gray.light1}`,
+  backgroundColor: editorPalette.light.disabledBackgroundColor,
+  '& .cm-editor, & .cm-gutters, & .cm-content[contenteditable="false"]': {
+    backgroundColor: 'transparent',
+  },
+});
+
+const disabledContainerDarkModeStyles = css({
+  boxShadow: `0 0 0 1px ${palette.gray.dark2}`,
+  backgroundColor: editorPalette.dark.disabledBackgroundColor,
+});
+
 function getStylesForTheme(theme: CodemirrorThemeType) {
   return EditorView.theme(
     {
@@ -234,13 +240,9 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         paddingBottom: `${spacing[100]}px`,
         caretColor: editorPalette[theme].cursorColor,
       },
-      '[contenteditable="false"] ': {
-        borderRadius: `${spacing[100]}px`,
-      },
       '.cm-content[contenteditable="false"] ': {
         cursor: 'not-allowed',
         color: editorPalette[theme].disabledColor,
-        backgroundColor: editorPalette[theme].disabledBackgroundColor,
       },
       '& .cm-activeLine': {
         background: 'none',
