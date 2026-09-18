@@ -85,8 +85,12 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
             targets: web
               ? cloudSupportedBrowserslistConfig
               : browserslistElectronVersion,
-            useBuiltIns: 'usage',
-            corejs: { version: '3.49', proposals: true },
+            // The electron main/utility bundles run on Node 24 / Electron 44,
+            // which has every ES feature natively — core-js polyfills are
+            // dead weight that only patch (and conflict with frozen)
+            // built-in prototypes. Only the web (renderer) build polyfills.
+            useBuiltIns: web ? 'usage' : false,
+            corejs: web ? { version: '3.49', proposals: true } : false,
           },
         ],
         require.resolve('@babel/preset-react'),

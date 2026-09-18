@@ -227,7 +227,7 @@ function showConnectWindow(
     webPreferences: {
       'subpixel-font-scaling': true,
       'direct-write': true,
-      nodeIntegration: true,
+      nodeIntegration: false,
       contextIsolation: false,
       enableRemoteModule: true,
       nodeIntegrationInWorker: true,

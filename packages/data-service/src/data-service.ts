@@ -118,6 +118,21 @@ import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import type { DatabaseDetails } from './instance-detail-helper';
 
 import { omit } from 'lodash';
+import type { Schema } from '@mongodb-js/mongodb-schema';
+import {
+  analyzeSchema as runAnalyzeSchema,
+  type AnalyzeSchemaArgs,
+} from './cursor/analyze-schema';
+import {
+  exportToFile as runExportToFile,
+  type ExportToFileArgs,
+  type ExportToFileResult,
+} from './cursor/export-to-file';
+import {
+  gatherFields as runGatherFields,
+  type GatherFieldsArgs,
+  type GatherFieldsResult,
+} from './cursor/gather-fields';
 
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
@@ -789,6 +804,24 @@ export interface DataService {
     options?: AggregateOptions,
     executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): Promise<Document[]>;
+
+  /**
+   * Runs the cursor-returning sample through mongodb-schema's analyzer and
+   * resolves with the schema — or `undefined` when aborted.
+   */
+  analyzeSchema(args: AnalyzeSchemaArgs): Promise<Schema | undefined>;
+
+  /**
+   * Drains an aggregate/find cursor to a file in the Node/utility process.
+   * Resolves with the count of documents written, or `aborted: true`.
+   */
+  exportToFile(args: ExportToFileArgs): Promise<ExportToFileResult>;
+
+  /**
+   * Runs a find cursor through the schema analyzer and resolves with the
+   * unique schema paths (and documents processed).
+   */
+  gatherFields(args: GatherFieldsArgs): Promise<GatherFieldsResult>;
 
   /**
    * Fetch shard keys for the collection from the collections config.
@@ -2658,6 +2691,18 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // secondaryPreferred to avoid using the primary for analyzing documents.
       ...this._getOptionsWithFallbackReadPreference(options, executionOptions),
     });
+  }
+
+  async analyzeSchema(args: AnalyzeSchemaArgs): Promise<Schema | undefined> {
+    return runAnalyzeSchema(this, args);
+  }
+
+  async exportToFile(args: ExportToFileArgs): Promise<ExportToFileResult> {
+    return runExportToFile(this, args);
+  }
+
+  async gatherFields(args: GatherFieldsArgs): Promise<GatherFieldsResult> {
+    return runGatherFields(this, args);
   }
 
   sample(

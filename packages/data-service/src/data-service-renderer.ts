@@ -34,6 +34,16 @@ import {
   type RendererBoundMessage,
 } from './protocol';
 import { prepareForTransfer, readTransfer } from './transfer';
+import type { AnalyzeSchemaArgs } from './cursor/analyze-schema';
+import type {
+  ExportToFileArgs,
+  ExportToFileResult,
+} from './cursor/export-to-file';
+import type {
+  GatherFieldsArgs,
+  GatherFieldsResult,
+} from './cursor/gather-fields';
+import type { Schema } from '@mongodb-js/mongodb-schema';
 import type { Document } from 'bson';
 import type {
   TopologyType,
@@ -478,6 +488,15 @@ export class DataServiceRenderer
     ...args: Parameters<DataService['previewUpdate']>
   ): Promise<UpdatePreview> {
     return await this.do('previewUpdate', args);
+  }
+  async analyzeSchema(args: AnalyzeSchemaArgs): Promise<Schema | undefined> {
+    return await this.do('analyzeSchema', [args]);
+  }
+  async exportToFile(args: ExportToFileArgs): Promise<ExportToFileResult> {
+    return await this.do('exportToFile', [args]);
+  }
+  async gatherFields(args: GatherFieldsArgs): Promise<GatherFieldsResult> {
+    return await this.do('gatherFields', [args]);
   }
 
   private target = new EventTarget();

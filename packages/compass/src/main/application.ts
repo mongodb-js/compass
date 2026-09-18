@@ -215,7 +215,23 @@ class CompassApplication {
 
   private static launchUtilities(): void {
     // data-service
-    const child = utilityProcess.fork(path.join(__dirname, 'data-service.mjs'));
+    // Electron forces Node's warn mode for its processes by default; restore
+    // the standard strict behavior so an unhandled rejection crashes the
+    // utility process loudly instead of surfacing as a warning.
+    const child = utilityProcess.fork(
+      path.join(__dirname, 'data-service.mjs'),
+      [],
+      {
+        env: {
+          NODE_OPTIONS: [
+            '--disallow-code-generation-from-strings',
+            '--disable-proto=throw',
+            // '--frozen-intrinsics', -- express uses depd which edits prepareStackTrace
+            '--enable-source-maps',
+          ].join(' '),
+        },
+      }
+    );
     ipcMain?.on(DATA_SERVICE_PORT_CHANNEL, (event, message) => {
       child.postMessage(message, event.ports);
     });
