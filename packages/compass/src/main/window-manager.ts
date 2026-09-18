@@ -231,6 +231,7 @@ function showConnectWindow(
       contextIsolation: false,
       enableRemoteModule: true,
       nodeIntegrationInWorker: true,
+      preload: path.join(__dirname, 'preload.js'),
       // For local dev, electron can not load @mongosh/node-runtime-worker-thread
       // worker (file:///) from the filesystem due to same-origin policy. For this
       // reason we disable the webSecurity.

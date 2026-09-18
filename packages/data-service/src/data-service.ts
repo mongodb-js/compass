@@ -1091,7 +1091,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _lastSeenTopology: TopologyDescription | null = null;
 
   private _isWritable = false;
-  private _id: number;
+  protected _id: number;
 
   private _emitter = new EventEmitter();
 

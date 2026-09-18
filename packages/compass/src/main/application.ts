@@ -2,7 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
-import { app, safeStorage, session } from 'electron';
+import { app, safeStorage, session, utilityProcess } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
@@ -165,6 +165,7 @@ class CompassApplication {
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
+    this.launchUtilities();
     this.setupWindowManager();
     this.setupAutoUpdate();
     this.trackApplicationLaunched(globalPreferences);
@@ -193,6 +194,14 @@ class CompassApplication {
       // Force GTK 3 on Linux (Workaround for https://github.com/electron/electron/issues/46538)
       app.commandLine.appendSwitch('gtk-version', '3');
     }
+  }
+
+  private static launchUtilities(): void {
+    // data-service
+    const child = utilityProcess.fork(path.join(__dirname, 'data-service.mjs'));
+    ipcMain?.on('compass:data-service:port', (event, message) => {
+      child.postMessage(message, event.ports);
+    });
   }
 
   private static setupAutoUpdate(): void {
