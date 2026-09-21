@@ -362,7 +362,7 @@ class CellEditor
   }
 
   isDuplicateKey(value: string) {
-    const cols = this.props.columnApi.getAllColumns();
+    const cols = this.props.columnApi.getAllColumns() ?? [];
     for (let i = 0; i < cols.length; i++) {
       if (cols[i].getColDef().colId === value) {
         return true;
