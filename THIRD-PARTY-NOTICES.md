@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Sep 13 2026.
+This document was automatically generated on Sun Sep 20 2026.
 
 ## List of dependencies
 
@@ -184,8 +184,8 @@ This document was automatically generated on Sun Sep 13 2026.
 | **[@vscode/l10n](#435710ffc6551ec7bb19d73e562bde009c42386216297ec28d3ad42820bff7e5)**                                       | 0.0.18       | MIT                                 |
 | **[accepts](#f95b7a83c78ce214a33c8f8ef681fb76acf619e685469f394034d5d5ea1cfb23)**                                            | 2.0.0        | MIT                                 |
 | **[acorn](#34ea02690f67b51f9d38d769ae6d5296dcf481732c233dcd39d4a8854e42fdc3)**                                              | 8.16.0       | MIT                                 |
-| **[ag-grid-community](#f3a0879bf804a8156c501942869cb2b3f5c2770fe5ae768eacebf9c4856a3e6e)**                                  | 20.2.0       | MIT                                 |
-| **[ag-grid-react](#266b3ad41f62fe9d8b3388c7e3e56532f1081dfc35c8b513d746105d0f7ef2d5)**                                      | 20.2.0       | MIT                                 |
+| **[ag-grid-community](#ef40a178b31a9a6572662916db0550c73884edc5ad5381b11ae6e42bd2a28338)**                                  | 28.2.1       | MIT                                 |
+| **[ag-grid-react](#f06679163de144687e576293cc2c1732421bee7bf5634241fd99fbd5be5c2b09)**                                      | 28.2.1       | MIT                                 |
 | **[agent-base](#10202012ce77e7c6013605c6e813d5020905b1ae895084d48ca047fcfc47cdcb)**                                         | 7.1.3        | MIT                                 |
 | **[ai](#b73425d75d9008fb54dbf2b39d5746e641348434236baddeceb64951e303ce34)**                                                 | 6.0.86       | Apache-2.0                          |
 | **[ajv-formats](#3081140538322aaf684c239fd5c532b47691d82b42e6cc4a5e60df5eaaab538a)**                                        | 3.0.1        | MIT                                 |
@@ -266,7 +266,7 @@ This document was automatically generated on Sun Sep 13 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#8713c6babffb8178f4cf841a39add7930f1d6fea34933ecb59538a0cdc252ef5)**                                           | 43.4.1       | MIT                                 |
+| **[electron](#5e63c73f5273109d30b7fabefe15e6efe0457c5c4feb7019c3a3c4e60d3768b2)**                                           | 44.4.3       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -446,7 +446,6 @@ This document was automatically generated on Sun Sep 13 2026.
 | **[numeral](#b3c90be596160f7dccbd1ff771ddbffb9a1b19d0bb9456553d8822903386573e)**                                            | 1.5.6        | MIT                                 |
 | **[numeral](#d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1)**                                            | 2.0.6        | MIT                                 |
 | **[oauth4webapi](#049995747cf68e607b5ca197e44829b4a77c53aa86255f8af0c8b6cdb335f2d3)**                                       | 3.8.5        | MIT                                 |
-| **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**                                      | 4.1.1        | MIT                                 |
 | **[object-inspect](#ecbef7226b7af9b6efde6c61e71aaefa8a0bf57a726689d055c866298db9886e)**                                     | 1.13.4       | MIT                                 |
 | **[object-keys](#e9aac5890f5f1c6f8d56c08ce91012ba530b586511a89d1fa99ae2d7c39d8b2e)**                                        | 1.1.1        | MIT                                 |
 | **[on-finished](#d3c391e10faad1d82190a06f5be315d94a9194cff75aa389940432ef15cf45de)**                                        | 2.4.1        | MIT                                 |
@@ -469,7 +468,7 @@ This document was automatically generated on Sun Sep 13 2026.
 | **[prom-client](#cd280c3376897f5665894197da7c3e71b17736a810cd80845050255d53628fcd)**                                        | 15.1.3       | Apache-2.0                          |
 | **[prop-types](#e4dd0bb5b6f98fbf52f0ad7062b8514aadc56a47a692bf6d8aab369786b6039f)**                                         | 15.8.1       | MIT                                 |
 | **[property-information](#3ff1c665e0311c4c5f5e6f7fdfeb631057a52d2659fd2bd268015afc1bf54394)**                               | 6.5.0        | MIT                                 |
-| **[proxy-addr](#7b128e3d41d39ecb1a405a490a53ae86f70ef45f01079333ed3ca49939f5fba8)**                                         | 2.0.7        | MIT                                 |
+| **[proxy-addr](#b94cf93d9a9b565b45709d6348836b83655ae5e0ad3bc5dd6ea24ef661b3be24)**                                         | 2.0.8        | MIT                                 |
 | **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**                                               | 3.0.0        | MIT                                 |
 | **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**                                           | 2.3.1        | MIT                                 |
 | **[pupa](#b05b7cc4c1bc01acd063dc811b9b1b0a1a4b3e0f17be77deaeaabade7dfeb095)**                                               | 2.1.1        | MIT                                 |
@@ -478,7 +477,7 @@ This document was automatically generated on Sun Sep 13 2026.
 | **[raw-body](#6c791d6d9ec7a011e573514432e037b3a1a50a921c494c45b57d79af7f2a3d7b)**                                           | 3.0.2        | MIT                                 |
 | **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**                                                 | 1.2.8        | (BSD-2-Clause OR MIT OR Apache-2.0) |
 | **[re-resizable](#ba463da4fb82093fffa407b9083835a23c9d44c84cd988f2536312f7e78f863d)**                                       | 6.9.0        | MIT                                 |
-| **[react-dom](#6f313dd207f71f3d56121132c87ef27cba1beab9e5e349ac81c740cee6fd0774)**                                          | 17.0.2       | MIT                                 |
+| **[react-dom](#d9f4605d037c5c1845fffb0d2c13501739f3624568e9fdc5d4060e2496701681)**                                          | 18.3.1       | MIT                                 |
 | **[react-fast-compare](#2ee400f5cba36e361feaee57cf12a3c77b2f55ae8fdcab58c3af376e6700d51b)**                                 | 3.2.2        | MIT                                 |
 | **[react-hotkeys-hook](#6ce07fe9653ad69a76354e2d71137c70ab9a838377fe5a8f8e45c559cfbf41cc)**                                 | 4.3.7        | MIT                                 |
 | **[react-intersection-observer](#84f998bdb33a5f9330d81ef063f7ad0897f1b004661fbf131725697b847a5b6a)**                        | 8.34.0       | MIT                                 |
@@ -496,7 +495,7 @@ This document was automatically generated on Sun Sep 13 2026.
 | **[react-transition-group](#f8a526737bf3e6cc7928ce77b3fa8e6a880da418fd9363a0dae1122922f92b72)**                             | 4.4.5        | BSD-3-Clause                        |
 | **[react-virtualized-auto-sizer](#6c2551e5d023f4aa01efbb54d394f7cebd0627e78ca3b24a00a4364e3e7a3129)**                       | 1.0.24       | MIT                                 |
 | **[react-window](#1241166cdcf24220683cbe7d1460897436f3982e7795fc504323ba66f06e53f9)**                                       | 1.8.10       | MIT                                 |
-| **[react](#2f31f78715f56093f4bb569e2e2ea931c518db6f4ee690482a0a2a1cd4d18b4c)**                                              | 17.0.2       | MIT                                 |
+| **[react](#c5be7301bb3ce420275c2bc81a002802dbd61b7c59997464b3c9639d944dae2f)**                                              | 18.3.1       | MIT                                 |
 | **[readable-stream](#fc0849dcbb2c65cee81c4b3de6b4be1d47ef419568569cb048ffa7fe7ab270c6)**                                    | 3.6.2        | MIT                                 |
 | **[redux-thunk](#7eabcce4f7274e0c876829cb939804a9704770a9a60419d514c11e3e97c01623)**                                        | 2.4.2        | MIT                                 |
 | **[redux](#98b5d53f97fab4eea98fb5f423cad33400855b69ac662f1fdf55f0fb9e33f2ab)**                                              | 4.2.1        | MIT                                 |
@@ -515,7 +514,7 @@ This document was automatically generated on Sun Sep 13 2026.
 | **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**                                        | 5.2.1        | MIT                                 |
 | **[safe-regex-test](#1edeb558d8507fe8b6b46b09e3163c49dbc84c8cda49fdf48b4f4f391d2da6e4)**                                    | 1.1.0        | MIT                                 |
 | **[safer-buffer](#2fb14d3728e4ebf313be4634b146bd90cd3ad3559157baec03b64eec0878a0ba)**                                       | 2.1.2        | MIT                                 |
-| **[scheduler](#950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f)**                                          | 0.20.2       | MIT                                 |
+| **[scheduler](#c37719b1d20720b1746f6a67302c724ccccefd9fe1e78baed2cf721d9bec48c0)**                                          | 0.23.2       | MIT                                 |
 | **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**                                             | 1.1.2        | MIT                                 |
 | **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**                                             | 6.3.1        | ISC                                 |
 | **[semver](#d9c6b334356e58749b10fc9c55cfcd213136c1b0e6d57b2e9a61afd8ded48637)**                                             | 7.8.0        | ISC                                 |
@@ -20220,9 +20219,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="f3a0879bf804a8156c501942869cb2b3f5c2770fe5ae768eacebf9c4856a3e6e"></a>
+<a id="ef40a178b31a9a6572662916db0550c73884edc5ad5381b11ae6e42bd2a28338"></a>
 
-### [ag-grid-community](https://www.npmjs.com/package/ag-grid-community) (version 20.2.0)
+### [ag-grid-community](https://www.npmjs.com/package/ag-grid-community) (version 28.2.1)
 
 License tags: MIT
 
@@ -20232,7 +20231,7 @@ License files:
 
       The MIT License
 
-      Copyright (c) 2015-2016 AG GRID LTD
+      Copyright (c) 2015-2019 AG GRID LTD
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -20252,9 +20251,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="266b3ad41f62fe9d8b3388c7e3e56532f1081dfc35c8b513d746105d0f7ef2d5"></a>
+<a id="f06679163de144687e576293cc2c1732421bee7bf5634241fd99fbd5be5c2b09"></a>
 
-### [ag-grid-react](https://www.npmjs.com/package/ag-grid-react) (version 20.2.0)
+### [ag-grid-react](https://www.npmjs.com/package/ag-grid-react) (version 28.2.1)
 
 License tags: MIT
 
@@ -20264,7 +20263,7 @@ License files:
 
       The MIT License
 
-      Copyright (c) 2015-2016 AG GRID LTD
+      Copyright (c) 2015-2019 AG GRID LTD
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -22987,9 +22986,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="8713c6babffb8178f4cf841a39add7930f1d6fea34933ecb59538a0cdc252ef5"></a>
+<a id="5e63c73f5273109d30b7fabefe15e6efe0457c5c4feb7019c3a3c4e60d3768b2"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 43.4.1)
+### [electron](https://www.npmjs.com/package/electron) (version 44.4.3)
 
 License tags: MIT
 
@@ -31203,38 +31202,6 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95"></a>
-
-### [object-assign](https://www.npmjs.com/package/object-assign) (version 4.1.1)
-
-License tags: MIT
-
-License files:
-
-- license:
-
-      The MIT License (MIT)
-
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
 <a id="ecbef7226b7af9b6efde6c61e71aaefa8a0bf57a726689d055c866298db9886e"></a>
 
 ### [object-inspect](https://www.npmjs.com/package/object-inspect) (version 1.13.4)
@@ -38130,9 +38097,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="7b128e3d41d39ecb1a405a490a53ae86f70ef45f01079333ed3ca49939f5fba8"></a>
+<a id="b94cf93d9a9b565b45709d6348836b83655ae5e0ad3bc5dd6ea24ef661b3be24"></a>
 
-### [proxy-addr](https://www.npmjs.com/package/proxy-addr) (version 2.0.7)
+### [proxy-addr](https://www.npmjs.com/package/proxy-addr) (version 2.0.8)
 
 License tags: MIT
 
@@ -38467,9 +38434,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="6f313dd207f71f3d56121132c87ef27cba1beab9e5e349ac81c740cee6fd0774"></a>
+<a id="d9f4605d037c5c1845fffb0d2c13501739f3624568e9fdc5d4060e2496701681"></a>
 
-### [react-dom](https://www.npmjs.com/package/react-dom) (version 17.0.2)
+### [react-dom](https://www.npmjs.com/package/react-dom) (version 18.3.1)
 
 License tags: MIT
 
@@ -39046,9 +39013,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="2f31f78715f56093f4bb569e2e2ea931c518db6f4ee690482a0a2a1cd4d18b4c"></a>
+<a id="c5be7301bb3ce420275c2bc81a002802dbd61b7c59997464b3c9639d944dae2f"></a>
 
-### [react](https://www.npmjs.com/package/react) (version 17.0.2)
+### [react](https://www.npmjs.com/package/react) (version 18.3.1)
 
 License tags: MIT
 
@@ -39786,9 +39753,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f"></a>
+<a id="c37719b1d20720b1746f6a67302c724ccccefd9fe1e78baed2cf721d9bec48c0"></a>
 
-### [scheduler](https://www.npmjs.com/package/scheduler) (version 0.20.2)
+### [scheduler](https://www.npmjs.com/package/scheduler) (version 0.23.2)
 
 License tags: MIT
 

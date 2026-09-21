@@ -59,15 +59,15 @@ describe('TextSearch', function () {
   });
 
   context('calls onChange', function () {
-    it('for text search with fields', () => {
-      setSelectValue(/select search type/i, 'text search');
-      setSelectValue(/select search path/i, 'field names');
-      setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+    it('for text search with fields', async () => {
+      await setSelectValue(/select search type/i, 'text search');
+      await setSelectValue(/select search path/i, 'field names');
+      await setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
         'a',
         'c',
       ]);
       setInputElementValueByTestId('text-search-contains-input', 'abc');
-      setComboboxValue(/select or type a search index/i, 'index1');
+      await setComboboxValue(/select or type a search index/i, 'index1');
 
       expect(onChangeSpy.lastCall.firstArg).to.equal(
         JSON.stringify({
@@ -81,12 +81,12 @@ describe('TextSearch', function () {
       expect(onChangeSpy.lastCall.lastArg).to.be.null;
     });
 
-    it('for text search with any fields', () => {
-      setSelectValue(/select search type/i, 'text search');
-      setSelectValue(/select search path/i, 'any fields');
+    it('for text search with any fields', async () => {
+      await setSelectValue(/select search type/i, 'text search');
+      await setSelectValue(/select search path/i, 'any fields');
 
       setInputElementValueByTestId('text-search-contains-input', 'abc');
-      setComboboxValue(/select or type a search index/i, 'index1');
+      await setComboboxValue(/select or type a search index/i, 'index1');
 
       expect(onChangeSpy.lastCall.firstArg).to.equal(
         JSON.stringify({
@@ -102,18 +102,18 @@ describe('TextSearch', function () {
       expect(onChangeSpy.lastCall.lastArg).to.be.null;
     });
 
-    it('for fuzzy search with fields', () => {
-      setSelectValue(/select search type/i, 'fuzzy search');
+    it('for fuzzy search with fields', async () => {
+      await setSelectValue(/select search type/i, 'fuzzy search');
       setInputElementValueByTestId('maxEdits-input', '1');
 
-      setSelectValue(/select search path/i, 'field names');
-      setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+      await setSelectValue(/select search path/i, 'field names');
+      await setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
         'a',
         'b',
       ]);
 
       setInputElementValueByTestId('text-search-contains-input', 'def');
-      setComboboxValue(/select or type a search index/i, 'index2');
+      await setComboboxValue(/select or type a search index/i, 'index2');
 
       expect(onChangeSpy.lastCall.firstArg).to.equal(
         JSON.stringify({
@@ -130,14 +130,14 @@ describe('TextSearch', function () {
       expect(onChangeSpy.lastCall.lastArg).to.be.null;
     });
 
-    it('for fuzzy search with any fields', () => {
-      setSelectValue(/select search type/i, 'fuzzy search');
+    it('for fuzzy search with any fields', async () => {
+      await setSelectValue(/select search type/i, 'fuzzy search');
       setInputElementValueByTestId('maxEdits-input', '2');
 
-      setSelectValue(/select search path/i, 'any fields');
+      await setSelectValue(/select search path/i, 'any fields');
 
       setInputElementValueByTestId('text-search-contains-input', 'xyz');
-      setComboboxValue(/select or type a search index/i, 'index2');
+      await setComboboxValue(/select or type a search index/i, 'index2');
 
       expect(onChangeSpy.lastCall.firstArg).to.equal(
         JSON.stringify({
@@ -158,8 +158,8 @@ describe('TextSearch', function () {
   });
 
   context('validation', function () {
-    it('should validate maxEdits', function () {
-      setSelectValue(/select search type/i, 'fuzzy search');
+    it('should validate maxEdits', async function () {
+      await setSelectValue(/select search type/i, 'fuzzy search');
       {
         setInputElementValueByTestId('maxEdits-input', '0');
         expect(onChangeSpy.lastCall.lastArg).to.be.an.instanceOf(Error);
@@ -170,8 +170,8 @@ describe('TextSearch', function () {
       }
     });
 
-    it('should validate fields', function () {
-      setSelectValue(/select search path/i, 'field names');
+    it('should validate fields', async function () {
+      await setSelectValue(/select search path/i, 'field names');
       expect(onChangeSpy.lastCall.lastArg).to.be.an.instanceOf(Error);
     });
 

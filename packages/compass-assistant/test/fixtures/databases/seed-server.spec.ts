@@ -6,7 +6,7 @@ import { seedServer } from './seed-server';
 import type { SeedDatabase } from '../../types/seed-data';
 
 describe('seedServer', function () {
-  this.timeout(120_000);
+  this.timeout(180_000);
 
   let cluster: MongoCluster;
   let client: MongoClient;

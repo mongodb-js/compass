@@ -291,9 +291,9 @@ export class ToolsController {
       }
     }
 
-    const { enableAtlasConnectionErrorDebugger } =
+    const { enableAtlasConnectionErrorDebuggerTool } =
       this.preferences.getPreferences();
-    if (enableAtlasConnectionErrorDebugger) {
+    if (enableAtlasConnectionErrorDebuggerTool) {
       tools['atlas-connection-error-debugger'] = {
         description: debugConnectionDescription,
         inputSchema: z.object({

@@ -1,5 +1,10 @@
 import React from 'react';
-import { cleanup, render, screen } from '@mongodb-js/testing-library-compass';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { AllPreferences } from './';
 import { createSandboxFromDefaultPreferences } from './index';
@@ -68,10 +73,12 @@ describe('React integration', function () {
     expect(callbacks.trackUsageStatistics).to.have.lengthOf(1);
     callbacks.trackUsageStatistics[0](false);
 
-    expect(JSON.parse(String(contents.textContent))).to.deep.equal({
-      outerProp: 42,
-      enableMaps: true,
-      trackUsageStatistics: false,
+    await waitFor(() => {
+      expect(JSON.parse(String(contents.textContent))).to.deep.equal({
+        outerProp: 42,
+        enableMaps: true,
+        trackUsageStatistics: false,
+      });
     });
 
     cleanup();

@@ -1,5 +1,10 @@
 import React from 'react';
-import { cleanup, screen } from '@mongodb-js/testing-library-compass';
+import {
+  cleanup,
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { renderWithStore } from '../../../../test/configure-store';
 import PipelineBuilderUIWorkspace, { getPipelineTextFromStages } from '.';
@@ -42,41 +47,44 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
     it('adds a stage to the start of pipeline when first icon button is clicked', async function () {
       await renderPipelineBuilderUIWorkspace();
       const buttons = screen.getAllByTestId('add-stage-icon-button');
-      buttons[0].click();
+      userEvent.click(buttons[0]);
 
-      expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
-
-      const stageNames = screen
-        .getAllByLabelText('Select a stage operator')
-        .map((el) => el.getAttribute('value'));
-
-      expect(stageNames).to.deep.equal(['', '$match', '$limit', '$out']);
+      await waitFor(() => {
+        expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
+        const stageNames = screen
+          .getAllByLabelText('Select a stage operator')
+          .map((el) => el.getAttribute('value'));
+        expect(stageNames).to.deep.equal(['', '$match', '$limit', '$out']);
+      });
     });
 
     it('adds a stage at the correct position of pipeline when last icon button is clicked', async function () {
       await renderPipelineBuilderUIWorkspace();
       const buttons = screen.getAllByTestId('add-stage-icon-button');
-      buttons[2].click();
-      expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
+      userEvent.click(buttons[2]);
 
-      const stageNames = screen
-        .getAllByLabelText('Select a stage operator')
-        .map((el) => el.getAttribute('value'));
-
-      // last icon button appears between last two stages and when clicked
-      // it adds a stage between those 2 stages
-      expect(stageNames).to.deep.equal(['$match', '$limit', '', '$out']);
+      await waitFor(() => {
+        expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
+        const stageNames = screen
+          .getAllByLabelText('Select a stage operator')
+          .map((el) => el.getAttribute('value'));
+        // last icon button appears between last two stages and when clicked
+        // it adds a stage between those 2 stages
+        expect(stageNames).to.deep.equal(['$match', '$limit', '', '$out']);
+      });
     });
 
     it('adds a stage at the end when (text) add stage button is clicked', async function () {
       await renderPipelineBuilderUIWorkspace();
       const button = screen.getByTestId('add-stage');
-      button.click();
+      userEvent.click(button);
 
-      const stageNames = screen
-        .getAllByLabelText('Select a stage operator')
-        .map((el) => el.getAttribute('value'));
-      expect(stageNames).to.deep.equal(['$match', '$limit', '$out', '']);
+      await waitFor(() => {
+        const stageNames = screen
+          .getAllByLabelText('Select a stage operator')
+          .map((el) => el.getAttribute('value'));
+        expect(stageNames).to.deep.equal(['$match', '$limit', '$out', '']);
+      });
     });
   });
 
@@ -101,8 +109,10 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
     it('adds a stage when (text) button is clicked', async function () {
       await renderPipelineBuilderUIWorkspace({}, { pipeline: [] });
       const button = screen.getByTestId('add-stage');
-      button.click();
-      expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(1);
+      userEvent.click(button);
+      await waitFor(() => {
+        expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(1);
+      });
     });
   });
 

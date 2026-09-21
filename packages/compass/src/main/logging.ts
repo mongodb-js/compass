@@ -234,7 +234,9 @@ async function showLogFileDialog(logFilePath: string) {
 
   switch (response) {
     case 1:
-      clipboard.writeText(logFilePath);
+      clipboard.writeText(logFilePath).catch(() => {
+        // Ignore if it failed for some reason
+      });
       break;
     case 2:
       shell.showItemInFolder(logFilePath);

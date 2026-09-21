@@ -242,7 +242,7 @@ describe('IndexesToolbar Component', function () {
     });
 
     context('when search indexes is supported', function () {
-      it('calls onCreateRegularIndexClick when index button is clicked', function () {
+      it('calls onCreateRegularIndexClick when index button is clicked', async function () {
         const onCreateRegularIndexClickSpy = sinon.spy();
         renderIndexesToolbar({
           isSearchIndexesSupported: true,
@@ -250,22 +250,24 @@ describe('IndexesToolbar Component', function () {
         });
 
         // open the dropdown
-        screen
-          .getByTestId('multiple-index-types-creation-dropdown-show-actions')
-          .click();
+        userEvent.click(
+          screen.getByTestId(
+            'multiple-index-types-creation-dropdown-show-actions'
+          )
+        );
 
         expect(onCreateRegularIndexClickSpy).to.not.have.been.called;
 
-        // click the button
-        screen
-          .getByTestId(
+        // click the button, waiting for the menu to be rendered first
+        userEvent.click(
+          await screen.findByTestId(
             'multiple-index-types-creation-dropdown-createRegularIndex-action'
           )
-          .click();
+        );
 
         expect(onCreateRegularIndexClickSpy).to.have.been.calledOnce;
       });
-      it('calls onCreateSearchIndexClick when index button is clicked', function () {
+      it('calls onCreateSearchIndexClick when index button is clicked', async function () {
         const onCreateSearchIndexClickSpy = sinon.spy();
         renderIndexesToolbar({
           isSearchIndexesSupported: true,
@@ -273,18 +275,20 @@ describe('IndexesToolbar Component', function () {
         });
 
         // open the dropdown
-        screen
-          .getByTestId('multiple-index-types-creation-dropdown-show-actions')
-          .click();
+        userEvent.click(
+          screen.getByTestId(
+            'multiple-index-types-creation-dropdown-show-actions'
+          )
+        );
 
         expect(onCreateSearchIndexClickSpy).to.not.have.been.called;
 
-        // click the button
-        screen
-          .getByTestId(
+        // click the button, waiting for the menu to be rendered first
+        userEvent.click(
+          await screen.findByTestId(
             'multiple-index-types-creation-dropdown-createSearchIndex-action'
           )
-          .click();
+        );
 
         expect(onCreateSearchIndexClickSpy).to.have.been.calledOnce;
       });

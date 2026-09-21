@@ -226,10 +226,19 @@ describe('BulkUpdateModal Component', function () {
 
     userEvent.click(screen.getByTestId('inline-save-query-modal-opener'));
     const inputElement = screen.getByTestId('inline-save-query-modal-input');
-    await waitFor(() => expect(inputElement).to.be.visible);
+    await waitFor(() =>
+      expect(window.getComputedStyle(inputElement).pointerEvents).to.not.equal(
+        'none'
+      )
+    );
     userEvent.type(inputElement, 'MySavedQuery');
 
-    userEvent.click(screen.getByTestId('inline-save-query-modal-submit'));
+    const submitButton = screen.getByTestId('inline-save-query-modal-submit');
+    await waitFor(() =>
+      expect(submitButton).to.have.attribute('aria-disabled', 'false')
+    );
+
+    userEvent.click(submitButton);
     expect(saveUpdateQuerySpy).to.have.been.calledOnceWith('MySavedQuery');
   });
 

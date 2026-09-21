@@ -10,6 +10,7 @@ export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
   orgId: string;
   projectId: string;
   atlasService: AtlasService;
+  children?: React.ReactNode;
 }> = ({ orgId, projectId, atlasService, children }) => {
   const storageRef = useInitialValue<IUserData<typeof WorkspacesStateSchema>>(
     new AtlasUserData(WorkspacesStateSchema, 'WorkspacesState', {
