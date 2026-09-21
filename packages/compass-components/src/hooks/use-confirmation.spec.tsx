@@ -63,6 +63,48 @@ describe('use-confirmation', function () {
     });
   });
 
+  context('when the confirmation area is not rendered yet', function () {
+    it('shows the confirmation as soon as the area mounts', async function () {
+      const response = showConfirmation({ title: 'Are you sure?' });
+
+      render(<ConfirmationModalArea></ConfirmationModalArea>);
+
+      const modal = await screen.findByTestId('confirmation-modal');
+      expect(within(modal).getByText('Are you sure?')).to.exist;
+
+      userEvent.click(within(modal).getByRole('button', { name: 'Confirm' }));
+      expect(await response).to.eq(true);
+    });
+
+    it('resolves the flushed confirmation as false when the area unmounts', async function () {
+      const response = showConfirmation({ title: 'Are you sure?' });
+
+      const { unmount } = render(
+        <ConfirmationModalArea></ConfirmationModalArea>
+      );
+      await screen.findByTestId('confirmation-modal');
+      unmount();
+
+      expect(await response).to.eq(false);
+    });
+  });
+
+  context('when the area is unmounted and mounted again', function () {
+    it('shows confirmations requested against the new area', async function () {
+      const { unmount } = render(
+        <ConfirmationModalArea></ConfirmationModalArea>
+      );
+      unmount();
+
+      render(<ConfirmationModalArea></ConfirmationModalArea>);
+      const response = showConfirmation({ title: 'Are you sure?' });
+
+      expect(await screen.findByText('Are you sure?')).to.exist;
+      userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+      expect(await response).to.eq(true);
+    });
+  });
+
   context(
     'when asking for confirmation multiple times with the same required input',
     function () {

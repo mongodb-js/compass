@@ -11,7 +11,6 @@ import { css } from '@leafygreen-ui/emotion';
 import FormFieldContainer from '../components/form-field-container';
 import { Banner, TextInput } from '../components/leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
-import { useInitialValue } from './use-initial-value';
 import { useId } from '@react-aria/utils';
 
 export { ConfirmationModalVariant };
@@ -46,20 +45,55 @@ type OnShowConfirmationProperties = {
   confirmationId: number;
 };
 
+type OnShowCallback = (props: OnShowConfirmationProperties) => void;
+
 interface ConfirmationModalActions {
   showConfirmation: (props: ConfirmationProperties) => Promise<boolean>;
 }
 class GlobalConfirmationModalState implements ConfirmationModalActions {
   private confirmationId = 0;
-  onShowCallback: ((props: OnShowConfirmationProperties) => void) | null = null;
+  private onShowCallback: OnShowCallback | null = null;
+  // Requests made before a handler is rendered, flushed as soon as one
+  // registers so that showConfirmation can be called while mounting
+  private pendingRequests: OnShowConfirmationProperties[] = [];
+
+  registerHandler(callback: OnShowCallback) {
+    this.onShowCallback = callback;
+    const pendingRequests = this.pendingRequests;
+    this.pendingRequests = [];
+    for (const request of pendingRequests) {
+      callback(request);
+    }
+    return () => {
+      if (this.onShowCallback !== callback) {
+        return;
+      }
+      this.onShowCallback = null;
+      const pendingRequests = this.pendingRequests;
+      this.pendingRequests = [];
+      for (const request of pendingRequests) {
+        request.reject(
+          new Error(
+            'Confirmation modal was unmounted before the confirmation could be shown'
+          )
+        );
+      }
+    };
+  }
+
   showConfirmation(props: ConfirmationProperties) {
     return new Promise<boolean>((resolve, reject) => {
-      this.onShowCallback?.({
+      const request = {
         props,
         resolve,
         reject,
         confirmationId: ++this.confirmationId,
-      });
+      };
+      if (this.onShowCallback) {
+        this.onShowCallback(request);
+      } else {
+        this.pendingRequests.push(request);
+      }
     });
   }
 }
@@ -125,14 +159,10 @@ const ConfirmationModalStateHandler: React.FunctionComponent<{
     confirmationId: -1,
   });
   const callbackRef = useRef<ConfirmationCallback>();
-  const _confirmationModalState = useInitialValue<GlobalConfirmationModalState>(
-    () => {
-      confirmationModalState.onShowCallback = ({
-        props,
-        resolve,
-        reject,
-        confirmationId,
-      }) => {
+
+  useEffect(() => {
+    const unregister = confirmationModalState.registerHandler(
+      ({ props, resolve, reject, confirmationId }) => {
         setConfirmationProps({ open: true, confirmationId, ...props });
         const onAbort = () => {
           setConfirmationProps((state) => {
@@ -145,19 +175,14 @@ const ConfirmationModalStateHandler: React.FunctionComponent<{
           resolve(confirmed);
         };
         props.signal?.addEventListener('abort', onAbort);
-      };
-      return confirmationModalState;
-    }
-  );
-
-  useEffect(() => {
+      }
+    );
     return () => {
       callbackRef.current?.(false);
-      if (_confirmationModalState) {
-        _confirmationModalState.onShowCallback = null;
-      }
+      callbackRef.current = undefined;
+      unregister();
     };
-  }, [_confirmationModalState]);
+  }, []);
 
   const onUserAction = useCallback((value: boolean) => {
     setConfirmationProps((state) => {
