@@ -127,6 +127,10 @@ export function ImportConnectionsModal({
           onChange={onChangeFilename}
           value={filename}
         />
+        <Banner variant="warning">
+          Only import connection files from trusted sources. Imported files may
+          contain sensitive connection details and network configurations.
+        </Banner>
       </FormFieldContainer>
       <FormFieldContainer>
         <Passphrase
