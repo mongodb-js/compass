@@ -76,7 +76,7 @@ function getReadonlyAtlasTools({
   return [
     ...(enableAtlasConnectionErrorDebuggerTool
       ? [
-           {
+          {
             name: 'atlas-connection-error-debugger',
             readonly: true,
             description:
@@ -124,8 +124,8 @@ export function isReadOnlyTool(toolName: string): boolean {
 
 export function isAtlasTool(toolName: string): boolean {
   return (
-    getReadonlyAtlasTools({ enableAtlasConnectionErrorDebugger: true }).find(
-      (tool) => tool.name === toolName
-    ) !== undefined
+    getReadonlyAtlasTools({
+      enableAtlasConnectionErrorDebuggerTool: true,
+    }).find((tool) => tool.name === toolName) !== undefined
   );
 }
