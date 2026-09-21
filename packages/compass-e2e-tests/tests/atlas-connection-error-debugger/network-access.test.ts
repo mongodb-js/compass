@@ -17,7 +17,7 @@ import {
   PROVISIONING_TIMEOUT,
 } from './shared.ts';
 
-describe.only('Atlas connection error debugger: network access', function () {
+describe('Atlas connection error debugger: network access', function () {
   let compass: Compass;
   let user: AtlasCloudTestUser | undefined;
   let connectionString: string;

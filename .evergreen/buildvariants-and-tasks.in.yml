@@ -493,8 +493,6 @@ tasks:
           e2e_coverage_test_args: '--test-filter="!atlas-connection-error-debugger/paused"'
 <% } %>
 
-  % } %>
-
   # The paused cluster test needs a dedicated (M10) cluster + pausing it takes a bit,
   # that's why it runs on a daily cron
   - name: e2e-atlas-cloud-dedicated
