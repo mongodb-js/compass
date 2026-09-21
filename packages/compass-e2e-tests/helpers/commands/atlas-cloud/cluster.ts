@@ -309,8 +309,8 @@ async function waitForCluster(
       return cluster && predicate(cluster) ? cluster : undefined;
     },
     {
-      timeout: 1000 * 60 * 30, // cluster provisioning is a very slow process sometimes
-      interval: 30 * 1000, // no need to check very often
+      timeout: 1000 * 60 * 30, // cluster provisioning takes a while
+      interval: 30 * 1000,
     }
   );
 }
@@ -324,8 +324,6 @@ export async function pauseAtlasCluster(
 ) {
   await navigateToProject(browser, { env, projectId });
 
-  // Same as the Atlas UI: there is no dedicated pause route, isPaused is part
-  // of the cluster description
   const clusterDescription = await doCloudFetch(
     browser,
     `/nds/clusters/${projectId}/${clusterName}`
@@ -337,11 +335,10 @@ export async function pauseAtlasCluster(
     { json: { ...clusterDescription, isPaused: true } }
   );
 
-  // Pausing is asynchronous: the PATCH only records the request (isPaused
-  // flips right away while the cluster goes through UPDATING and back to
-  // IDLE), so neither isPaused nor state tells us the hosts are actually down.
-  // The internal cluster description exposes pausedDate for exactly this: it
-  // is only set once the pause has been applied (and cleared on resume).
+  // Pausing is asynchronous: isPaused flips right away while the cluster
+  // goes through UPDATING and back to IDLE
+  // The internal cluster description exposes pausedDate for exactly this:
+  // it is only set once the pause has been applied (and cleared on resume).
   await waitForCluster(
     browser,
     projectId,
