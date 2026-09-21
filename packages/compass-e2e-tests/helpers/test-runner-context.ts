@@ -87,7 +87,7 @@ function buildCommonArgs(yargs: Argv) {
       })
       .option('atlas-cloud-environment', {
         choices: ['dev', 'qa', 'staging', 'prod'] as const,
-        default: 'qa',
+        default: 'qa' as const,
         description:
           'Atlas Cloud environment to test against (used with --test-in-atlas-cloud for web and --test-with-atlas-cloud for desktop)',
       })
@@ -512,7 +512,7 @@ export function getCloudUrlsForEnvironment(env: AtlasEnvironment) {
 export function getAtlasCloudEnvironmentFromContext(
   ctx = context
 ): AtlasEnvironment {
-  return (ctx.atlasCloudEnvironment ?? 'qa') as AtlasEnvironment;
+  return ctx.atlasCloudEnvironment;
 }
 
 /**

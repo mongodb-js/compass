@@ -62,7 +62,7 @@ export async function getClusterConnectionStringsFromNames(
 export async function getProjectAccessList(
   browser: CompassBrowser,
   project: AtlasProject
-): Promise<{ value: string; comment: string }[]> {
+): Promise<{ value: string }[]> {
   await navigateToProject(browser, project);
   return await doCloudFetch(browser, `/nds/${project.projectId}/ipWhitelist`);
 }
