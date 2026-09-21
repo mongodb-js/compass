@@ -79,6 +79,38 @@ module.exports = (_env, args) => {
     plugins: [new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })],
   });
 
+  // Atlas auth (OIDC) utility process — same pattern as data-service but
+  // skeleton-only for now (no BSON/AbortSignal handling, no full API mirror).
+  const atlasServiceUtilityBaseConfig = createElectronMainConfig({
+    ...opts,
+    entry: {
+      'atlas-service': path.resolve(
+        __dirname,
+        'src',
+        'utilities',
+        'atlas-service',
+        'index.mts'
+      ),
+    },
+    outputFilename: '[name].mjs',
+  });
+  atlasServiceUtilityBaseConfig.plugins = (
+    atlasServiceUtilityBaseConfig.plugins ?? []
+  ).filter(
+    (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+  );
+  const atlasServiceUtilityConfig = merge(atlasServiceUtilityBaseConfig, {
+    name: 'atlas-service',
+    experiments: { outputModule: true },
+    output: { module: true },
+    devtool: 'source-map',
+    module: { parser: { javascript: { importMeta: false } } },
+    externals: Object.fromEntries(
+      sharedExternals.map((name) => [name, `node-commonjs ${name}`])
+    ),
+    plugins: [new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })],
+  });
+
   const rendererConfig = createElectronRendererConfig({
     ...opts,
     entry: path.resolve(__dirname, 'src', 'app', 'index.ts'),
@@ -226,10 +258,46 @@ module.exports = (_env, args) => {
       },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // Fail the renderer build if any node: stdlib import sneaks in.
+        // These are externalized by the electron-renderer target preset
+        // (they become ExternalModule, not NormalModule), so we scan
+        // compilation modules after chunks are built.
+        new (class FailOnNodeStdlib {
+          apply(compiler) {
+            compiler.hooks.compilation.tap(
+              'FailOnNodeStdlib',
+              (compilation) => {
+                compilation.hooks.afterChunks.tap(
+                  'FailOnNodeStdlib',
+                  () => {
+                    for (const module of compilation.modules) {
+                      const req =
+                        module.userRequest ||
+                        module.request ||
+                        '';
+                      if (/^node:/.test(req)) {
+                        compilation.errors.push(
+                          new Error(
+                            `node: stdlib import in renderer bundle: ${req}`
+                          )
+                        );
+                      }
+                    }
+                  }
+                );
+              }
+            );
+          }
+        })(),
         ...compileOnlyPlugins,
       ],
     }),
     merge(dataServiceUtilityConfig, {
+      cache,
+      snapshot,
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
+    }),
+    merge(atlasServiceUtilityConfig, {
       cache,
       snapshot,
       plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],

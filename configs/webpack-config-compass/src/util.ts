@@ -48,6 +48,7 @@ export function entriesToHtml(
         filename: `${name}.html`,
         template,
         chunks: [name],
+        scriptLoading: 'module',
       });
     })
   );

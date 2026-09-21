@@ -5,7 +5,6 @@ import {
   ToastBody,
   showErrorDetails,
 } from '@mongodb-js/compass-components';
-import { MongoNetworkError } from 'mongodb';
 import type { MongoServerError } from 'mongodb';
 
 type BulkDeleteSuccessToastProps = {
@@ -81,7 +80,7 @@ type BulkOperationFailureToastProps = {
   type: 'delete' | 'update';
 };
 
-const isNetworkError = (error: Error) => error instanceof MongoNetworkError;
+const isNetworkError = (error: Error) => error.name === 'MongoNetworkError';
 
 export function openBulkOperationFailureToast({
   affectedDocuments,

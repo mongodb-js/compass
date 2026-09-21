@@ -20,7 +20,7 @@ import {
   proxyPreferenceToProxyOptions,
   setupPreferencesAndUser,
 } from 'compass-preferences-model';
-import { CompassAuthService } from '@mongodb-js/atlas-service/main';
+// import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
@@ -159,7 +159,7 @@ class CompassApplication {
       return;
     }
 
-    void this.setupCompassAuthService();
+    // void this.setupCompassAuthService();
     await this.setupCloudRequestHeaders();
     await setupCSFLELibrary();
     setupTheme(this);
@@ -235,6 +235,25 @@ class CompassApplication {
     ipcMain?.on(DATA_SERVICE_PORT_CHANNEL, (event, message) => {
       child.postMessage(message, event.ports);
     });
+
+    // atlas-service (OIDC/Atlas auth) — skeleton utility process.
+    // Same Node hardening flags as data-service. MessageChannel wiring
+    // and OIDC logic move here later.
+    const atlasChild = utilityProcess.fork(
+      path.join(__dirname, 'atlas-service.mjs'),
+      [],
+      {
+        env: {
+          ...process.env,
+          NODE_OPTIONS: [
+            '--disallow-code-generation-from-strings',
+            '--disable-proto=throw',
+            '--enable-source-maps',
+          ].join(' '),
+        },
+      }
+    );
+    void atlasChild;
   }
 
   private static setupAutoUpdate(): void {
@@ -538,7 +557,7 @@ class CompassApplication {
       allowedCloudEndpoints,
       (details, callback) => {
         void (async () => {
-          let headers;
+          const headers: Record<string, string> = Object.create(null);
           try {
             const filteredHeaders = Object.fromEntries(
               Object.entries(details.requestHeaders).filter(([name]) => {
@@ -546,10 +565,12 @@ class CompassApplication {
               })
             );
 
-            headers = await CompassAuthService.handleAuthHeaders({
-              requestHeaders: filteredHeaders,
-              url: details.url,
-            });
+            void filteredHeaders;
+
+            // headers = await CompassAuthService.handleAuthHeaders({
+            //   requestHeaders: filteredHeaders,
+            //   url: details.url,
+            // });
           } catch (err) {
             log.warn(
               mongoLogId(1_001_000_249),
