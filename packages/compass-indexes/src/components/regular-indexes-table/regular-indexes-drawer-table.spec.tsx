@@ -4,6 +4,7 @@ import {
   cleanup,
   render,
   screen,
+  userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
@@ -221,6 +222,23 @@ describe('RegularIndexesDrawerTable Component', function () {
 
     it('preserves leading spaces for short names', function () {
       expect(renderNameOverride('  short')).to.equal(`${NBSP}${NBSP}short`);
+    });
+
+    it('preserves spaces in the expanded Index Name detail', function () {
+      const index = mockRegularIndex({ name: '  abcd  ' });
+      renderIndexList({ indexes: [index] }, { isWritable: true });
+
+      const indexRow = screen
+        .getByTestId('indexes-name-field')
+        .closest('tr') as HTMLTableRowElement;
+      userEvent.click(within(indexRow).getByLabelText('Expand row'));
+
+      const detail = screen
+        .getByText((c) => c.startsWith('Index Name'))
+        .closest('div');
+      expect(detail?.textContent).to.equal(
+        `Index Name: ${NBSP}${NBSP}abcd${NBSP}${NBSP}`
+      );
     });
   });
 });

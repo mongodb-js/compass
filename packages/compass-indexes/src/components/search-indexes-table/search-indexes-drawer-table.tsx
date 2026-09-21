@@ -73,7 +73,7 @@ function renderExpandedContentOverride(
     <Body className={searchIndexDetailsForDrawerStyles}>
       <div>
         <b>Index Name: </b>
-        {index.name}
+        {nbsp(index.name)}
       </div>
       <div>
         <b>Status: </b>

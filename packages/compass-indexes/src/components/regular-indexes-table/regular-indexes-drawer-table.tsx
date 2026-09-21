@@ -84,7 +84,7 @@ function renderExpandedContentOverride(
     <Body className={indexDetailsForDrawerStyles}>
       <div>
         <b>Index Name: </b>
-        {indexData.name}
+        {nbsp(indexData.name)}
       </div>
       <IndexKeysBadge
         keys={index.fields}

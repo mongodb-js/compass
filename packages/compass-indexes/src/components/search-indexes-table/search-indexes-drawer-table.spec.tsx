@@ -19,6 +19,8 @@ import {
 import { mockSearchIndex } from '../../../test/helpers';
 import { setupStore } from '../../../test/setup-store';
 
+const NBSP = '\u00A0';
+
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesDrawerTable>> = {}
 ) => {
@@ -170,6 +172,23 @@ describe('SearchIndexesDrawerTable Component', function () {
       renderIndexList({ indexes: [shortNameIndex] });
 
       expect(screen.getByText('short')).to.exist;
+    });
+  });
+
+  context('whitespace preservation in drawer names', function () {
+    it('preserves spaces in the expanded Index Name detail', function () {
+      const index = mockSearchIndex({ name: 'name  with  spaces' });
+      renderIndexList({
+        indexes: [index],
+        expandedRows: { 'name  with  spaces': true },
+      });
+
+      const detail = screen
+        .getByText((c) => c.startsWith('Index Name'))
+        .closest('div');
+      expect(detail?.textContent).to.equal(
+        `Index Name: name${NBSP}${NBSP}with${NBSP}${NBSP}spaces`
+      );
     });
   });
 
