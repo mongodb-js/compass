@@ -12,6 +12,7 @@ import {
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import AppRegistry from '@mongodb-js/compass-app-registry';
 import MockDataGeneratorModal from './mock-data-generator-modal';
 import type { FakerSchema, MockDataGeneratorStep } from './types';
 import { DataGenerationSteps, MockDataGeneratorSteps } from './types';
@@ -125,6 +126,7 @@ describe('MockDataGeneratorModal', () => {
       },
       workspaces: {},
       localAppRegistry: {},
+      globalAppRegistry: new AppRegistry(),
       experimentationServices: {},
       connectionInfoRef: { current: {} },
       logger: {
@@ -443,6 +445,48 @@ describe('MockDataGeneratorModal', () => {
         );
       } finally {
         windowOpenStub.restore();
+      }
+    });
+
+    it('shows desktop notice and opens settings through the store action when clicked', async () => {
+      const mockServices = createMockServices();
+      const emitSpy = sinon.spy(mockServices.globalAppRegistry, 'emit');
+
+      try {
+        await renderModal({
+          mockServices,
+          enableGenAISampleDocumentPassing: false,
+          connectionInfo: {
+            id: 'test-desktop-connection-id',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          },
+        });
+
+        expect(screen.getByTestId('sample-values-banner')).to.exist;
+        expect(
+          screen.getByText(
+            /enable sending sample field values in Settings → Artificial Intelligence/
+          )
+        ).to.exist;
+        expect(screen.queryByText(/Project Owners/)).to.not.exist;
+
+        userEvent.click(
+          screen.getByTestId('sample-values-banner-settings-button')
+        );
+
+        expect(emitSpy).to.have.been.calledOnceWith(
+          'open-compass-settings',
+          'ai'
+        );
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('generate-mock-data-modal').getAttribute('open')
+          ).to.not.exist;
+        });
+      } finally {
+        emitSpy.restore();
       }
     });
   });
