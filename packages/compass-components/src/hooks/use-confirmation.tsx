@@ -53,31 +53,22 @@ interface ConfirmationModalActions {
 class GlobalConfirmationModalState implements ConfirmationModalActions {
   private confirmationId = 0;
   private onShowCallback: OnShowCallback | null = null;
-  // Requests made before a handler is rendered, flushed as soon as one
-  // registers so that showConfirmation can be called while mounting
-  private pendingRequests: OnShowConfirmationProperties[] = [];
+  // Request made before a handler is rendered, flushed when we register
+  // a handler so that showConfirmation can be called while mounting.
+  private pendingRequest: OnShowConfirmationProperties | null = null;
 
   registerHandler(callback: OnShowCallback) {
     this.onShowCallback = callback;
-    const pendingRequests = this.pendingRequests;
-    this.pendingRequests = [];
-    for (const request of pendingRequests) {
-      callback(request);
+    const pendingRequest = this.pendingRequest;
+    this.pendingRequest = null;
+    if (pendingRequest) {
+      callback(pendingRequest);
     }
     return () => {
       if (this.onShowCallback !== callback) {
         return;
       }
       this.onShowCallback = null;
-      const pendingRequests = this.pendingRequests;
-      this.pendingRequests = [];
-      for (const request of pendingRequests) {
-        request.reject(
-          new Error(
-            'Confirmation modal was unmounted before the confirmation could be shown'
-          )
-        );
-      }
     };
   }
 
@@ -92,7 +83,10 @@ class GlobalConfirmationModalState implements ConfirmationModalActions {
       if (this.onShowCallback) {
         this.onShowCallback(request);
       } else {
-        this.pendingRequests.push(request);
+        this.pendingRequest?.reject(
+          new Error('Confirmation modal was superseded by another confirmation')
+        );
+        this.pendingRequest = request;
       }
     });
   }

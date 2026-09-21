@@ -87,6 +87,25 @@ describe('use-confirmation', function () {
 
       expect(await response).to.eq(false);
     });
+
+    it('rejects an earlier request superseded by a later one', async function () {
+      const superseded = showConfirmation({ title: 'First confirmation' });
+      const supersededError = superseded.catch((err: Error) => err);
+      const response = showConfirmation({ title: 'Second confirmation' });
+
+      expect(((await supersededError) as Error).message).to.eq(
+        'Confirmation modal was superseded by another confirmation'
+      );
+
+      render(<ConfirmationModalArea></ConfirmationModalArea>);
+
+      const modal = await screen.findByTestId('confirmation-modal');
+      expect(within(modal).getByText('Second confirmation')).to.exist;
+      expect(within(modal).queryByText('First confirmation')).to.not.exist;
+
+      userEvent.click(within(modal).getByRole('button', { name: 'Confirm' }));
+      expect(await response).to.eq(true);
+    });
   });
 
   context('when the area is unmounted and mounted again', function () {
