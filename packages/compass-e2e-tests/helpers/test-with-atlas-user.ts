@@ -1,15 +1,15 @@
 import type { CompassBrowser } from './compass-browser.ts';
 import { createExternalBrowser } from './compass.ts';
 import {
-  assertTestingDesktopWithAtlasCloud,
+  assertTestingWithAtlasCloud,
   context,
   getAtlasCloudEnvironmentFromContext,
 } from './test-runner-context.ts';
 
 /**
- * Helpers for desktop tests running with `--test-with-atlas-cloud`. Suites that
- * need Atlas Cloud resources create their own user with these and provision
- * whatever else they need through the returned signed in session
+ * Helpers for suites that need their own Atlas Cloud user (and with it an org)
+ * rather than the shared one: they create it with these and provision whatever
+ * else they need through the returned signed in session.
  */
 
 export type AtlasCloudTestUser = {
@@ -21,7 +21,7 @@ export type AtlasCloudTestUser = {
 };
 
 export async function createAtlasCloudTestUser(): Promise<AtlasCloudTestUser> {
-  assertTestingDesktopWithAtlasCloud(context);
+  assertTestingWithAtlasCloud(context);
   const session = await createExternalBrowser(false);
   try {
     const { username, password, orgId } = await session.createAtlasLoginUser(

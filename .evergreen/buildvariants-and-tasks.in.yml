@@ -489,7 +489,7 @@ tasks:
           e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
           mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
-          test_with_atlas_cloud: true
+          test_with_atlas_user: true
           e2e_coverage_test_args: '--test-filter="!atlas-connection-error-debugger/paused"'
 <% } %>
 
@@ -509,7 +509,7 @@ tasks:
           e2e_test_group: 1
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
           mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
-          test_with_atlas_cloud: true
+          test_with_atlas_user: true
           e2e_coverage_test_args: '--test-filter="atlas-connection-error-debugger/paused"'
 
   - name: generate-vulnerability-report

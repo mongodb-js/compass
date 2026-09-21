@@ -2,14 +2,14 @@ import { cleanup, screenshotIfFailed } from '../../helpers/compass.ts';
 import type { Compass } from '../../helpers/compass.ts';
 import {
   getAtlasCloudEnvironmentFromContext,
-  isTestingDesktopWithAtlasCloud,
+  isTestingDesktopWithAtlasUser,
 } from '../../helpers/test-runner-context.ts';
 import {
   createAtlasCloudTestUser,
   createTestProject,
   deleteAtlasCloudTestUser,
-} from '../../helpers/test-with-atlas-cloud.ts';
-import type { AtlasCloudTestUser } from '../../helpers/test-with-atlas-cloud.ts';
+} from '../../helpers/test-with-atlas-user.ts';
+import type { AtlasCloudTestUser } from '../../helpers/test-with-atlas-user.ts';
 import {
   expectDebuggerToReport,
   initCompassWithDebugger,
@@ -24,7 +24,7 @@ describe('Atlas connection error debugger: paused cluster', function () {
   let connectionString: string;
 
   before(async function () {
-    if (!isTestingDesktopWithAtlasCloud()) {
+    if (!isTestingDesktopWithAtlasUser()) {
       return this.skip();
     }
     this.timeout(PROVISIONING_TIMEOUT);

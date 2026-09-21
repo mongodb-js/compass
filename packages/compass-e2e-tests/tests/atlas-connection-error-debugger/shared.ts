@@ -4,7 +4,7 @@ import { init, screenshotPathName } from '../../helpers/compass.ts';
 import type { Compass } from '../../helpers/compass.ts';
 import * as Selectors from '../../helpers/selectors.ts';
 import { getAtlasCloudEnvironmentFromContext } from '../../helpers/test-runner-context.ts';
-import type { AtlasCloudTestUser } from '../../helpers/test-with-atlas-cloud.ts';
+import type { AtlasCloudTestUser } from '../../helpers/test-with-atlas-user.ts';
 
 export const PROVISIONING_TIMEOUT = 35 * 60_000;
 

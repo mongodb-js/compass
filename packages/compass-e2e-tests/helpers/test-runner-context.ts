@@ -89,7 +89,7 @@ function buildCommonArgs(yargs: Argv) {
         choices: ['dev', 'qa', 'staging', 'prod'] as const,
         default: 'qa' as const,
         description:
-          'Atlas Cloud environment to test against (used with --test-in-atlas-cloud for web and --test-with-atlas-cloud for desktop)',
+          'Atlas Cloud environment to test against (used with --test-in-atlas-cloud for web and --test-with-atlas-user for desktop)',
       })
   );
 }
@@ -108,7 +108,7 @@ function buildDesktopArgs(yargs: Argv) {
         'When not testing a packaaged app, re-compile native modules before running tests',
       default: true,
     })
-    .option('test-with-atlas-cloud', {
+    .option('test-with-atlas-user', {
       type: 'boolean',
       default: false,
       description:
@@ -116,7 +116,7 @@ function buildDesktopArgs(yargs: Argv) {
         'create an Atlas Cloud user (and with it an org), projects and ' +
         'clusters as they need them',
     })
-    .implies('test-with-atlas-cloud', 'atlas-cloud-environment')
+    .implies('test-with-atlas-user', 'atlas-cloud-environment')
     .epilogue(
       'All command line arguments can be also provided as env vars with `COMPASS_E2E_` prefix:\n\n  COMPASS_E2E_TEST_PACKAGED_APP=true compass-e2e-tests desktop'
     );
@@ -312,23 +312,23 @@ export function assertTestingDesktop(
 
 /**
  * Returns true if tests are running against Compass desktop with Atlas Cloud
- * resources enabled (`--test-with-atlas-cloud`)
+ * resources enabled (`--test-with-atlas-user`)
  */
-export function isTestingDesktopWithAtlasCloud(
+export function isTestingDesktopWithAtlasUser(
   ctx = context
 ): ctx is DesktopParsedArgs {
-  return isTestingDesktop(ctx) && !!ctx.testWithAtlasCloud;
+  return isTestingDesktop(ctx) && !!ctx.testWithAtlasUser;
 }
 
 /**
  * Returns if tests are running against Compass desktop with Atlas Cloud resources enabled. Throws otherwise
  */
-export function assertTestingDesktopWithAtlasCloud(
+export function assertTestingDesktopWithAtlasUser(
   ctx = context
 ): asserts ctx is DesktopParsedArgs {
-  if (!isTestingDesktopWithAtlasCloud(ctx)) {
+  if (!isTestingDesktopWithAtlasUser(ctx)) {
     throw new Error(
-      'Expected tested runtime to be desktop w/ Atlas Cloud (--test-with-atlas-cloud)'
+      'Expected tested runtime to be desktop w/ Atlas Cloud (--test-with-atlas-user)'
     );
   }
 }
@@ -507,7 +507,7 @@ export function getCloudUrlsForEnvironment(env: AtlasEnvironment) {
 /**
  * The `atlasCloudEnvironment` context option, narrowed to `AtlasEnvironment`.
  * Only meaningful when testing with Atlas Cloud (`--test-in-atlas-cloud` for
- * web, `--test-with-atlas-cloud` for desktop).
+ * web, `--test-with-atlas-user` for desktop).
  */
 export function getAtlasCloudEnvironmentFromContext(
   ctx = context
@@ -520,12 +520,28 @@ export function getAtlasCloudEnvironmentFromContext(
  * Only valid when testing with Atlas Cloud.
  */
 export function getCloudUrlsFromContext(ctx = context) {
-  if (!isTestingWebAtlasCloud(ctx) && !isTestingDesktopWithAtlasCloud(ctx)) {
+  assertTestingWithAtlasCloud(ctx);
+  return CLOUD_URLS[getAtlasCloudEnvironmentFromContext(ctx)];
+}
+
+/**
+ * Returns true if tests can use Atlas Cloud resources: compass-web in Atlas
+ * Cloud (`--test-in-atlas-cloud`) or desktop with an Atlas Cloud user
+ * (`--test-with-atlas-user`)
+ */
+export function isTestingWithAtlasCloud(ctx = context): boolean {
+  return isTestingWebAtlasCloud(ctx) || isTestingDesktopWithAtlasUser(ctx);
+}
+
+/**
+ * Returns if tests can use Atlas Cloud resources. Throws otherwise
+ */
+export function assertTestingWithAtlasCloud(ctx = context) {
+  if (!isTestingWithAtlasCloud(ctx)) {
     throw new Error(
-      'Expected tests to run with Atlas Cloud (--test-in-atlas-cloud or --test-with-atlas-cloud)'
+      'Expected tests to run with Atlas Cloud (--test-in-atlas-cloud or --test-with-atlas-user)'
     );
   }
-  return CLOUD_URLS[getAtlasCloudEnvironmentFromContext(ctx)];
 }
 
 export const ATLAS_CLOUD_TEST_UTILS: {
@@ -548,7 +564,7 @@ export const ATLAS_CLOUD_TEST_UTILS: {
 );
 
 if (
-  (isTestingWebAtlasCloud() || isTestingDesktopWithAtlasCloud()) &&
+  (isTestingWebAtlasCloud() || isTestingDesktopWithAtlasUser()) &&
   !ATLAS_CLOUD_TEST_UTILS
 ) {
   throw new Error(

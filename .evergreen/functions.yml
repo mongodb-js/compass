@@ -724,7 +724,7 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
           COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
-          COMPASS_E2E_TEST_WITH_ATLAS_CLOUD: ${test_with_atlas_cloud|false}
+          COMPASS_E2E_TEST_WITH_ATLAS_USER: ${test_with_atlas_user|false}
           E2E_COVERAGE_TEST_ARGS: '${e2e_coverage_test_args|}'
           ATLAS_LOCAL_VERSION: latest
         script: |
