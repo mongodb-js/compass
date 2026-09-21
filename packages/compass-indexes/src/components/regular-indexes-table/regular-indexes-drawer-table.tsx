@@ -33,6 +33,7 @@ import {
   EmptyContent,
   IndexKeysBadge,
   InlineDefinition,
+  nbsp,
   spacing,
 } from '@mongodb-js/compass-components';
 import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
@@ -46,17 +47,18 @@ const indexDetailsForDrawerStyles = css({
   padding: spacing[200],
 });
 
-function renderNameOverride(name: string): React.ReactNode {
-  if (name.length > 8) {
+export function renderNameOverride(name: string): React.ReactNode {
+  const preserved = nbsp(name);
+  if (preserved.length > 8) {
     return (
-      <InlineDefinition definition={name}>{`${name.slice(
+      <InlineDefinition definition={preserved}>{`${preserved.slice(
         0,
         8
       )}…`}</InlineDefinition>
     );
   }
 
-  return name;
+  return preserved;
 }
 
 function renderTypeOverride(index: MergedIndex): React.ReactNode {

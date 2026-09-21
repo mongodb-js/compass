@@ -8,6 +8,7 @@ import {
   EmptyContent,
   InlineDefinition,
   Link,
+  nbsp,
   spacing,
 } from '@mongodb-js/compass-components';
 
@@ -46,17 +47,18 @@ const searchIndexDetailsForDrawerStyles = css({
   padding: spacing[200],
 });
 
-function renderNameOverride(name: string): React.ReactNode {
-  if (name.length > 10) {
+export function renderNameOverride(name: string): React.ReactNode {
+  const preserved = nbsp(name);
+  if (preserved.length > 10) {
     return (
-      <InlineDefinition definition={name}>{`${name.slice(
+      <InlineDefinition definition={preserved}>{`${preserved.slice(
         0,
         10
       )}…`}</InlineDefinition>
     );
   }
 
-  return name;
+  return preserved;
 }
 
 function renderTypeOverride(index: SearchIndex): React.ReactNode {
