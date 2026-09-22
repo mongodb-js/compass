@@ -471,9 +471,6 @@ describe('Connection string', function () {
   });
 
   it('can connect to an Atlas Infinite (disaggregated) cluster', async function () {
-    // The disagg cluster lives in the same project as the other Atlas test
-    // clusters, but it is feature flag gated, so it can be missing even when
-    // the rest of the Atlas test setup is available.
     if (!hasAtlasEnvironmentVariables() || !process.env.E2E_TESTS_DISAGG_HOST) {
       return this.skip();
     }
@@ -494,8 +491,6 @@ describe('Connection string', function () {
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
 
-      // Listing databases goes through the disaggregated storage layer, which
-      // the connection handshake alone doesn't exercise.
       const listDatabasesOk = await browser.shellEval(
         connectionName,
         'db.getSiblingDB("admin").runCommand({ listDatabases: 1 }).ok',
