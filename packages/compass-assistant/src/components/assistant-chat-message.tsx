@@ -6,13 +6,8 @@ import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
 import type { ToolUIPart } from 'ai';
-import {
-  partIsToolUI,
-  getToolDisplayName,
-} from '../utils';
-import {
-  isAtlasTool,
-} from '@mongodb-js/compass-generative-ai/provider';
+import { partIsToolUI, getToolDisplayName } from '../utils';
+import { isAtlasTool } from '@mongodb-js/compass-generative-ai/provider';
 
 const { Message } = LgChatMessage;
 
