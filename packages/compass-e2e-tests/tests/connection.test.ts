@@ -470,6 +470,41 @@ describe('Connection string', function () {
     }
   });
 
+  it('can connect to an Atlas Infinite (disaggregated) cluster', async function () {
+    // The disagg cluster lives in the same project as the other Atlas test
+    // clusters, but it is feature flag gated, so it can be missing even when
+    // the rest of the Atlas test setup is available.
+    if (!hasAtlasEnvironmentVariables() || !process.env.E2E_TESTS_DISAGG_HOST) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_DISAGG_HOST;
+    const connectionString = `mongodb+srv://${username}:${password}@${host}`;
+    const connectionName = connectionNameFromString(connectionString);
+
+    await browser.connectWithConnectionString(connectionString);
+    if (!TEST_COMPASS_WEB) {
+      const result = await browser.shellEval(
+        connectionName,
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
+
+      // Listing databases goes through the disaggregated storage layer, which
+      // the connection handshake alone doesn't exercise.
+      const listDatabasesOk = await browser.shellEval(
+        connectionName,
+        'db.getSiblingDB("admin").runCommand({ listDatabases: 1 }).ok',
+        true
+      );
+      expect(listDatabasesOk).to.equal(1);
+    }
+  });
+
   it('can connect with readWriteAnyDatabase builtin role', async function () {
     if (!hasAtlasEnvironmentVariables()) {
       return this.skip();
@@ -924,6 +959,28 @@ describe('Connection form', function () {
 
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_FREE_TIER_HOST ?? ''
+    );
+    const connectionName = this.test?.fullTitle() ?? '';
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName,
+    });
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect to an Atlas Infinite (disaggregated) cluster', async function () {
+    if (!hasAtlasEnvironmentVariables() || !process.env.E2E_TESTS_DISAGG_HOST) {
+      return this.skip();
+    }
+
+    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
+      process.env.E2E_TESTS_DISAGG_HOST
     );
     const connectionName = this.test?.fullTitle() ?? '';
     await browser.connectWithConnectionForm({
