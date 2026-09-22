@@ -53,17 +53,9 @@ interface ConfirmationModalActions {
 class GlobalConfirmationModalState implements ConfirmationModalActions {
   private confirmationId = 0;
   private onShowCallback: OnShowCallback | null = null;
-  // Request made before a handler is rendered, flushed when we register
-  // a handler so that showConfirmation can be called while mounting.
-  private pendingRequest: OnShowConfirmationProperties | null = null;
 
   registerHandler(callback: OnShowCallback) {
     this.onShowCallback = callback;
-    const pendingRequest = this.pendingRequest;
-    this.pendingRequest = null;
-    if (pendingRequest) {
-      callback(pendingRequest);
-    }
     return () => {
       if (this.onShowCallback !== callback) {
         return;
@@ -83,10 +75,9 @@ class GlobalConfirmationModalState implements ConfirmationModalActions {
       if (this.onShowCallback) {
         this.onShowCallback(request);
       } else {
-        this.pendingRequest?.reject(
-          new Error('Confirmation modal was superseded by another confirmation')
+        request?.reject(
+          new Error('Confirmation modal is not registered to show confirmation')
         );
-        this.pendingRequest = request;
       }
     });
   }

@@ -64,47 +64,27 @@ describe('use-confirmation', function () {
   });
 
   context('when the confirmation area is not rendered yet', function () {
-    it('shows the confirmation as soon as the area mounts', async function () {
+    it('errors when attempting to show a confirmation', async function () {
       const response = showConfirmation({ title: 'Are you sure?' });
+      const responseError = response.catch((err: Error) => err);
 
-      render(<ConfirmationModalArea></ConfirmationModalArea>);
-
-      const modal = await screen.findByTestId('confirmation-modal');
-      expect(within(modal).getByText('Are you sure?')).to.exist;
-
-      userEvent.click(within(modal).getByRole('button', { name: 'Confirm' }));
-      expect(await response).to.eq(true);
+      expect(await responseError).to.be.an('error');
+      expect(await responseError).to.have.property(
+        'message',
+        'Confirmation modal is not registered to show confirmation'
+      );
     });
 
     it('resolves the flushed confirmation as false when the area unmounts', async function () {
-      const response = showConfirmation({ title: 'Are you sure?' });
-
       const { unmount } = render(
         <ConfirmationModalArea></ConfirmationModalArea>
       );
+      const response = showConfirmation({ title: 'Are you sure?' });
+
       await screen.findByTestId('confirmation-modal');
       unmount();
 
       expect(await response).to.eq(false);
-    });
-
-    it('rejects an earlier request superseded by a later one', async function () {
-      const superseded = showConfirmation({ title: 'First confirmation' });
-      const supersededError = superseded.catch((err: Error) => err);
-      const response = showConfirmation({ title: 'Second confirmation' });
-
-      expect(((await supersededError) as Error).message).to.eq(
-        'Confirmation modal was superseded by another confirmation'
-      );
-
-      render(<ConfirmationModalArea></ConfirmationModalArea>);
-
-      const modal = await screen.findByTestId('confirmation-modal');
-      expect(within(modal).getByText('Second confirmation')).to.exist;
-      expect(within(modal).queryByText('First confirmation')).to.not.exist;
-
-      userEvent.click(within(modal).getByRole('button', { name: 'Confirm' }));
-      expect(await response).to.eq(true);
     });
   });
 
