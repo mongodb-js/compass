@@ -14,6 +14,7 @@ import {
   compactBytes,
   compactNumber,
   InlineDefinition,
+  nbsp,
 } from '@mongodb-js/compass-components';
 import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { CollectionProps } from 'mongodb-collection-model';
@@ -238,7 +239,7 @@ function collectionColumns({
       minSize: 250,
       cell: (info) => {
         const collection = info.row.original;
-        const name = collection.name;
+        const name = nbsp(collection.name);
 
         return (
           <div className={collectionNameWrapStyles}>

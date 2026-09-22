@@ -39,6 +39,7 @@ interface AssistantChatMessageProps {
     type: string;
     approvalId: string;
     approved: boolean;
+    reason?: string;
   }) => void;
   onFollowUpSend: (text: string) => void;
 }
@@ -130,20 +131,21 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
               <AtlasToolCallMessage
                 key={`${toolCallId}-${index}`}
                 toolCall={toolCall}
-                onApprove={(approvalId, approved) =>
+                onApprove={(approvalId) =>
                   onToolApproval({
                     message,
                     type: toolCall.type,
                     approvalId,
-                    approved,
+                    approved: true,
                   })
                 }
-                onDeny={(approvalId) =>
+                onDeny={(approvalId, reason) =>
                   onToolApproval({
                     message,
                     type: toolCall.type,
                     approvalId,
                     approved: false,
+                    reason,
                   })
                 }
               />
@@ -163,12 +165,13 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
                   approved: true,
                 })
               }
-              onDeny={(approvalId) =>
+              onDeny={(approvalId, reason) =>
                 onToolApproval({
                   message,
                   type: toolCall.type,
                   approvalId,
                   approved: false,
+                  reason,
                 })
               }
             />
