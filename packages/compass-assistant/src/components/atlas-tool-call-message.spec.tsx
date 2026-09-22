@@ -14,6 +14,7 @@ import type {
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 import { containsText } from './test-helpers';
 
 class FakeAtlasAuthService {
@@ -158,17 +159,20 @@ describe('AtlasToolCallMessage', function () {
         expect(atlasAuthService.signIn).to.have.been.calledOnce;
       });
       await waitFor(() => {
-        expect(onApprove).to.have.been.calledOnceWith('approval-1', true);
+        expect(onApprove).to.have.been.calledOnceWith('approval-1');
       });
     });
 
     it('denies when sign-in fails', async function () {
-      const { onApprove } = renderMessage({}, { signInSucceeds: false });
+      const { onDeny } = renderMessage({}, { signInSucceeds: false });
 
       userEvent.click(screen.getByText('Connect to Atlas'));
 
       await waitFor(() => {
-        expect(onApprove).to.have.been.calledOnceWith('approval-1', false);
+        expect(onDeny).to.have.been.calledOnceWith(
+          'approval-1',
+          TOOL_DENIAL_REASONS.atlasSignInFailed
+        );
       });
     });
 
@@ -223,7 +227,10 @@ describe('AtlasToolCallMessage', function () {
 
       userEvent.click(screen.getByText('Skip'));
 
-      expect(onDeny).to.have.been.calledOnceWith('approval-1');
+      expect(onDeny).to.have.been.calledOnceWith(
+        'approval-1',
+        TOOL_DENIAL_REASONS.userDenied
+      );
       expect(atlasAuthService.signIn).to.not.have.been.called;
     });
 
@@ -283,7 +290,7 @@ describe('AtlasToolCallMessage', function () {
       userEvent.click(screen.getByText('Run'));
 
       await waitFor(() => {
-        expect(onApprove).to.have.been.calledOnceWith('approval-1', true);
+        expect(onApprove).to.have.been.calledOnceWith('approval-1');
       });
     });
   });
@@ -346,7 +353,7 @@ describe('AtlasToolCallMessage', function () {
       atlasAuthService.resolveSignIn();
 
       await waitFor(() => {
-        expect(onApprove).to.have.been.calledOnceWith('approval-1', true);
+        expect(onApprove).to.have.been.calledOnceWith('approval-1');
       });
     });
   });
