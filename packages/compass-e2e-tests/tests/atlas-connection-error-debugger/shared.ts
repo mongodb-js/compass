@@ -18,15 +18,7 @@ export async function initCompassWithDebugger(
 ): Promise<Compass> {
   const backendPreset = getAtlasServiceBackendPreset();
   const compass = await init(testTitle, {
-    extraSpawnArgs: [
-      // Windows transforms --atlasServiceBackendPreset to
-      // --atlasservicebackendpreset, which then fails the test
-      // as the env is not loaded properly. In order to avoid this,
-      // we need to use kebab-case when passing arguments to Windows
-      process.platform === 'win32'
-        ? `--atlas-service-backend-preset=${backendPreset}`
-        : `--atlasServiceBackendPreset=${backendPreset}`,
-    ],
+    extraSpawnArgs: [`--atlas-service-backend-preset=${backendPreset}`],
   });
   const { browser } = compass;
 
@@ -58,16 +50,6 @@ export async function initCompassWithDebugger(
   return compass;
 }
 
-async function isSignedIn(browser: CompassBrowser): Promise<boolean> {
-  return await browser.execute(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return await require('electron').ipcRenderer.invoke(
-      'AtlasService.isAuthenticated',
-      {}
-    );
-  });
-}
-
 /**
  * Connects (and fails), opens the debugger from the error toast, signs in to
  * Atlas and waits for the debugger's response to include the expected text
@@ -97,7 +79,8 @@ export async function expectDebuggerToReport(
     password,
     env: getAtlasCloudEnvironmentFromContext(),
     triggerSignIn: () => browser.clickVisible(connectToAtlasButton),
-    waitForSignedIn: () => isSignedIn(browser),
+    waitForSignedIn: () =>
+      browser.$(Selectors.AtlasSignInSuccessToast).isDisplayed(),
   });
 
   await browser.waitUntil(
