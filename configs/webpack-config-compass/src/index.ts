@@ -51,9 +51,6 @@ const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
   /the request of a dependency is an expression/,
   // Optional, platform-specific dependencies (mostly from driver)
   /Module not found.+?(mongo_crypt_v1.(dll|so|dylib)|@mongodb-js\/zstd|aws-crt|gcp-metadata)/,
-  // Optional, comes from emotion trying to (safely) use react apis that we
-  // don't have in React 17
-  /export 'useInsertionEffect'/,
   // Source map format that webpack can't resolve
   /Failed to parse source map: 'umd:/,
 ];
@@ -224,7 +221,7 @@ export function createElectronMainConfig(
             new BundleAnalyzerPlugin({
               logLevel: 'silent',
               analyzerPort: 'auto',
-            }) as unknown as WebpackPluginInstance,
+            }),
 
             new DuplicatePackageCheckerPlugin(),
           ],
@@ -351,7 +348,7 @@ export function createElectronRendererConfig(
                   // Plugin types are not matching Webpack 5, but they work
                   new ReactRefreshWebpackPlugin({
                     overlay: process.env.DISABLE_DEVSERVER_OVERLAY !== 'true',
-                  }) as unknown as WebpackPluginInstance,
+                  }),
                 ]
               : []
           ),
@@ -364,7 +361,7 @@ export function createElectronRendererConfig(
             new BundleAnalyzerPlugin({
               logLevel: 'silent',
               analyzerPort: 'auto',
-            }) as unknown as WebpackPluginInstance,
+            }),
 
             new DuplicatePackageCheckerPlugin(),
           ],

@@ -4,7 +4,6 @@ import { activatePlugin } from './stores/query-bar-store';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
-  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import {
   mongoDBInstanceLocator,
@@ -48,7 +47,7 @@ const QueryBarPlugin = registerCompassPlugin(
     activate: activatePlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
+    dataService: dataServiceLocator<
       | 'sample'
       | 'getConnectionString'
       | 'collectionStats'

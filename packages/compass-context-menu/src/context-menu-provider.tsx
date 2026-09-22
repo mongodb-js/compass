@@ -13,10 +13,7 @@ import type {
   ContextMenuItemGroup,
   ContextMenuState,
 } from './types';
-import {
-  getContextMenuContent,
-  type EnhancedMouseEvent,
-} from './context-menu-content';
+import { getContextMenuContent } from './context-menu-content';
 import { contextMenuClassName } from './consts';
 
 export const ContextMenuContext = createContext<ContextMenuContextType | null>(
@@ -74,7 +71,7 @@ export function ContextMenuProvider({
     if (parentContext || !container) return;
 
     function handleContextMenu(event: MouseEvent) {
-      const itemGroups = getContextMenuContent(event as EnhancedMouseEvent);
+      const itemGroups = getContextMenuContent(event);
       if (itemGroups.length === 0 || event.shiftKey) {
         return;
       }

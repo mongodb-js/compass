@@ -279,7 +279,7 @@ export class Preferences {
             exposedInSettingsUI.includes(this._runningEnvironment))
         );
       })
-    ) as Partial<UserConfigurablePreferences>;
+    );
   }
 
   /**

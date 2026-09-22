@@ -143,8 +143,10 @@ describe('Collections [Plugin]', function () {
         topologyDescription: { type: 'Unknown' },
       });
 
-      expect(screen.queryByRole('button', { name: /Create collection/ })).to.not
-        .exist;
+      await waitFor(() => {
+        expect(screen.queryByRole('button', { name: /Create collection/ })).to
+          .not.exist;
+      });
     });
   });
 });

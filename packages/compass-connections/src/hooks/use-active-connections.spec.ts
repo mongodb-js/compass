@@ -2,6 +2,7 @@ import { useActiveConnections } from './use-active-connections';
 import {
   cleanup,
   renderHookWithConnections,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
@@ -83,6 +84,11 @@ describe('useActiveConnections', function () {
       mockConnections[0].id
     );
 
-    expect(result.current[0]).to.have.property('savedConnectionType', 'recent');
+    await waitFor(() => {
+      expect(result.current[0]).to.have.property(
+        'savedConnectionType',
+        'recent'
+      );
+    });
   });
 });

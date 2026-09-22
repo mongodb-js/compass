@@ -138,9 +138,7 @@ export function handleUpdateCsfleKmsParam<T extends KMSProviderType>({
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const kms: any = {
-    ...(autoEncryption.kmsProviders?.[
-      action.kmsProviderName as keyof KMSProviders
-    ] ?? {}),
+    ...(autoEncryption.kmsProviders?.[action.kmsProviderName] ?? {}),
   };
   if (!action.value) {
     delete kms[action.key];
@@ -149,9 +147,9 @@ export function handleUpdateCsfleKmsParam<T extends KMSProviderType>({
   }
   const kmsProviders = autoEncryption.kmsProviders ?? {};
   if (Object.keys(kms).length === 0) {
-    delete kmsProviders[action.kmsProviderName as keyof KMSProviders];
+    delete kmsProviders[action.kmsProviderName];
   } else {
-    kmsProviders[action.kmsProviderName as keyof KMSProviders] = kms;
+    kmsProviders[action.kmsProviderName] = kms;
   }
   return {
     connectionOptions: {
@@ -369,7 +367,7 @@ export function handleAddKmsProvider<T extends KMSProviderType>({
 
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   const kmsProviders = autoEncryption.kmsProviders ?? {};
-  kmsProviders[action.name as keyof KMSProviders] = {} as any;
+  kmsProviders[action.name] = {} as any;
 
   return {
     connectionOptions: {
@@ -454,9 +452,9 @@ export function handleRemoveKmsProvider<T extends KMSProviderType>({
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   const kmsProviders = autoEncryption.kmsProviders ?? {};
-  delete kmsProviders[action.name as keyof KMSProviders];
+  delete kmsProviders[action.name];
   const tlsOptions = autoEncryption.tlsOptions ?? {};
-  delete tlsOptions[action.name as keyof KMSProviders];
+  delete tlsOptions[action.name];
   return {
     connectionOptions: {
       ...connectionOptions,

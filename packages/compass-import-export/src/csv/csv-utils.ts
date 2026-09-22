@@ -130,7 +130,7 @@ export function stringifyCSVValue(
     });
   }
 
-  if (['Long', 'Int32', 'Double'].includes(bsonType as string)) {
+  if (['Long', 'Int32', 'Double'].includes(bsonType)) {
     return value.toString();
   }
 

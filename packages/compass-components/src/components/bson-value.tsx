@@ -12,49 +12,91 @@ import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import {
+  bsonValueDisplayVar,
   useBsonThemeStyles,
   wrapValueWithBsonLabel,
 } from './document-list/bson-utils';
 import { useBSONDisplayOptions } from './document-list/bson-display-options-context';
 import { DateWithTimezoneHint } from './document-list/date-with-timezone-hint';
 
-type ValueProps =
-  | {
-      [type in keyof TypeCastMap]: { type: type; value: TypeCastMap[type] };
-    }[keyof TypeCastMap]
-  | { type: 'DBRef'; value: DBRef };
+type ValueTypeMap = TypeCastMap & { DBRef: DBRef };
+
+type ValueTypes = keyof ValueTypeMap;
+
+/**
+ * ValueProps external interface is meant to provide a correlation between type
+ * and the type of value.
+ *
+ * So `T` is used to capture the type name and pick the corresponding type
+ * out of ValueTypeMap.
+ *
+ * @example
+ * ```ts
+ * function x<T extends ValueTypes>(props: ValueProps<T>) {}
+ * x({ type: 'String', value: 'example' });
+ * x({ type: 'Decimal128', value: 'test' }); // Error
+ * ```
+ */
+type ValueProps<T extends ValueTypes = ValueTypes> = {
+  type: T;
+  value: ValueTypeMap[T];
+};
+
+/**
+ * Once the props are inside the component, `type` should
+ * be able to provide narrowing to select the type of value.
+ * This requires a discriminated union of each possible combination of
+ * type name and value type.
+ *
+ * ex.
+ * DiscriminatedValueProps =
+ *   | { type: 'String', value: string }
+ *   | { type: 'Date', value: Date } ... etc.
+ */
+type DiscriminatedValueProps = { [T in ValueTypes]: ValueProps<T> }[ValueTypes];
+
+type PropsByValueType<V extends ValueTypes> = Omit<
+  Extract<DiscriminatedValueProps, { type: V }>,
+  'type'
+>;
 
 function truncate(str: string, length = 70): string {
   const truncated = str.slice(0, length);
   return length < str.length ? `${truncated}…` : str;
 }
 
-type ValueTypes = ValueProps['type'];
-
-type PropsByValueType<V extends ValueTypes> = Omit<
-  Extract<ValueProps, { type: V }>,
-  'type'
->;
+function truncateLines(str: string, lines = 3): string {
+  let index = -1;
+  for (let i = 0; i < lines; i++) {
+    const next = str.indexOf('\n', index + 1);
+    if (next === -1) return str;
+    index = next;
+  }
+  return `${str.slice(0, index)}…`;
+}
 
 const bsonValue = css({
+  display: `var(${bsonValueDisplayVar}, block)`,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 });
 
 const bsonValuePrewrap = css({
-  whiteSpace: 'pre-wrap',
+  whiteSpace: 'pre',
 });
 
+// A span so that it stays valid markup whatever `bsonValueDisplayVar` resolves
+// the display to, including inside the inline document list layout.
 export const BSONValueContainer: React.FunctionComponent<
-  React.HTMLProps<HTMLDivElement> & {
+  React.HTMLProps<HTMLSpanElement> & {
     type?: ValueTypes;
   }
 > = ({ type, children, className, ...props }) => {
   const bsonStyles = useBsonThemeStyles(type);
 
   return (
-    <div
+    <span
       {...props}
       className={cx(
         className,
@@ -67,7 +109,7 @@ export const BSONValueContainer: React.FunctionComponent<
       style={bsonStyles}
     >
       {children}
-    </div>
+    </span>
   );
 };
 
@@ -342,10 +384,6 @@ const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   );
 };
 
-const dateBsonValueStyles = css({
-  display: 'inline',
-});
-
 const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   value,
 }) => {
@@ -359,11 +397,7 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
 
   return (
     <DateWithTimezoneHint value={value}>
-      <BSONValueContainer
-        className={dateBsonValueStyles}
-        type="Date"
-        title={stringifiedValue}
-      >
+      <BSONValueContainer type="Date" title={stringifiedValue}>
         {wrapValueWithBsonLabel('Date', stringifiedValue)}
       </BSONValueContainer>
     </DateWithTimezoneHint>
@@ -390,15 +424,11 @@ const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
   value,
 }) => {
   const truncatedValue = useMemo(() => {
-    return truncate(value, 70);
-  }, [value]);
-
-  const truncatedValueForTitle = useMemo(() => {
-    return truncate(value, 1000);
+    return truncateLines(truncate(value, 1000));
   }, [value]);
 
   return (
-    <BSONValueContainer type="String" title={truncatedValueForTitle}>
+    <BSONValueContainer type="String" title={truncatedValue}>
       &quot;{truncatedValue}&quot;
     </BSONValueContainer>
   );
@@ -518,7 +548,8 @@ const ObjectValue: React.FunctionComponent<PropsByValueType<'Object'>> = ({
   );
 };
 
-const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
+function BSONValue<T extends ValueTypes>(genericProps: ValueProps<T>) {
+  const props = genericProps as DiscriminatedValueProps;
   switch (props.type) {
     case 'ObjectId':
       return <ObjectIdValue value={props.value}></ObjectIdValue>;
@@ -570,6 +601,6 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
         <UnknownValue type={props.type} value={props.value}></UnknownValue>
       );
   }
-};
+}
 
 export default BSONValue;

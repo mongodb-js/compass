@@ -112,14 +112,14 @@ describe('ToolsController', function () {
 
       it('is not registered when Atlas sign in is not allowed', async function () {
         await preferences.savePreferences({
-          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasConnectionErrorDebuggerTool: true,
           enableAtlasSignIn: false,
         });
 
         // The preference is derived from enableAtlasSignIn, so the tool is never
         // offered to the model when sign in is disabled for the organization
         expect(
-          preferences.getPreferences().enableAtlasConnectionErrorDebugger
+          preferences.getPreferences().enableAtlasConnectionErrorDebuggerTool
         ).to.eq(false);
         expect(toolsController.getActiveTools()).to.not.have.property(
           'atlas-connection-error-debugger'

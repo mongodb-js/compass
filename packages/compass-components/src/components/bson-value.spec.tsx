@@ -156,10 +156,8 @@ describe('BSONValue', function () {
     },
     {
       type: 'String',
-      value:
-        'this is a string of test that is less than is more than 70 symbols for the purpose of showing truncated text',
-      expected:
-        '"this is a string of test that is less than is more than 70 symbols for…"',
+      value: `long string ${'a'.repeat(2000)}`,
+      expected: `"long string ${'a'.repeat(988)}…"`,
     },
     { type: 'Undefined', value: undefined, expected: 'undefined' },
     { type: 'Null', value: null, expected: 'null' },

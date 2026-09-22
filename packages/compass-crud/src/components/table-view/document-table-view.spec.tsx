@@ -58,20 +58,18 @@ describe('<DocumentTableView />', function () {
         // Validate that the columnWidths prop was applied:
         // - the 'name' column should have the configured width
         // - the '_id' column should not share that explicit width (keeps default)
-        const nameHeader = document.querySelector(
-          '.ag-header-cell[col-id="name"]'
-        ) as HTMLElement | null;
-        const idHeader = document.querySelector(
-          '.ag-header-cell[col-id="_id"]'
-        ) as HTMLElement | null;
-        expect(nameHeader, 'name column header should exist').to.exist;
-        expect(idHeader, '_id column header should exist').to.exist;
-        if (nameHeader) {
-          expect(nameHeader.style.width).to.equal('1337px');
-        }
-        if (idHeader) {
-          expect(idHeader.style.width).to.not.equal('1337px');
-        }
+        await waitFor(() => {
+          const nameHeader = document.querySelector(
+            '.ag-header-cell[col-id="name"]'
+          ) as HTMLElement | null;
+          const idHeader = document.querySelector(
+            '.ag-header-cell[col-id="_id"]'
+          ) as HTMLElement | null;
+          expect(nameHeader, 'name column header should exist').to.exist;
+          expect(idHeader, '_id column header should exist').to.exist;
+          expect(nameHeader?.style.width).to.equal('1337px');
+          expect(idHeader?.style.width).to.not.equal('1337px');
+        });
       });
 
       it('renders the breadcrumb component', function () {

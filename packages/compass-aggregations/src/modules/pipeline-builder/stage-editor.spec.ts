@@ -136,7 +136,7 @@ function createPreferencesWithAutoEmbedPreview(
         enableAutoEmbeddingPublicPreview,
       };
     },
-  } as PreferencesAccess;
+  };
 }
 
 function createExperimentationServicesWithSearchActivationProgramP2(

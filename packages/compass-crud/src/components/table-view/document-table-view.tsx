@@ -33,9 +33,7 @@ import type {
   ColDef,
   ColumnApi,
   GridApi,
-  GridCellDef,
   GridReadyEvent,
-  RowNode,
   ValueGetterParams,
   ColumnResizedEvent,
 } from 'ag-grid-community';
@@ -127,13 +125,14 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         suppressRowTransform: true,
         tabToNextCell: (params) => {
           if (
-            !params.previousCellDef ||
-            !params.nextCellDef ||
-            params.previousCellDef.rowIndex !== params.nextCellDef.rowIndex
+            !params.previousCellPosition ||
+            !params.nextCellPosition ||
+            params.previousCellPosition.rowIndex !==
+              params.nextCellPosition.rowIndex
           ) {
-            return null as unknown as GridCellDef;
+            return null;
           }
-          return params.nextCellDef;
+          return params.nextCellPosition;
         },
       },
       onGridReady: this.onGridReady.bind(this),
@@ -257,7 +256,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     node.data.hasFooter = true;
     node.data.state = state;
     this.gridApi?.refreshCells({
-      rowNodes: [node as RowNode],
+      rowNodes: [node],
       columns: ['$rowActions'],
       force: true,
     });
@@ -270,7 +269,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     };
     this.gridApi?.updateRowData({
       add: [newData],
-      addIndex: +node.rowIndex + 1,
+      addIndex: (node.rowIndex ?? 0) + 1,
     });
   };
 
@@ -285,6 +284,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     /* rowId is the document row */
     const rowId = (node.data.hadronDocument.getStringId() as string) + '0';
     const dataNode = this.gridApi.getRowNode(rowId);
+    if (!dataNode) return;
 
     dataNode.data.hasFooter = false;
     dataNode.data.state = null;
@@ -335,6 +335,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     if (!this.gridApi) return;
     const rowId = String(data._id) + '0';
     const dataNode = this.gridApi.getRowNode(rowId);
+    if (!dataNode) return;
     const rowNumber = dataNode.data.rowNumber;
 
     const newData = {
@@ -360,7 +361,9 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
 
     const footerRowId = String(data._id) + '1';
     const footerNode = this.gridApi.getRowNode(footerRowId);
-    this.removeFooter(footerNode);
+    if (footerNode) {
+      this.removeFooter(footerNode);
+    }
 
     this.props.cleanCols();
   };
@@ -529,7 +532,9 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     }
     if (params.refresh) {
       const node = this.gridApi.getRowNode(String(params.refresh.oid) + '0');
-      this.gridApi.refreshCells({ rowNodes: [node], force: true });
+      if (node) {
+        this.gridApi.refreshCells({ rowNodes: [node], force: true });
+      }
     }
     if (params.edit) {
       this.gridApi.setFocusedCell(params.edit.rowIndex, params.edit.colId);
@@ -692,7 +697,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   updateWidth = (params: { node: DocumentTableRowNode }) => {
     if (!this.columnApi) return;
-    const allColumns = this.columnApi.getAllColumns();
+    const allColumns = this.columnApi.getAllColumns() ?? [];
     const rootPanel = document.querySelector('.ag-root-wrapper');
     const tableWidth = rootPanel ? (rootPanel as any).offsetWidth : 0;
     if (
@@ -787,7 +792,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         if (path.length <= 1) {
           return child;
         }
-        const parent = params.node.data.hadronDocument.getChild(
+        const parent = params.node?.data.hadronDocument.getChild(
           path.slice(0, path.length - 1)
         );
         if (parent === undefined) {
@@ -872,7 +877,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
       resizable: true,
-      width: this.props.columnWidths[String(path[path.length - 1])],
+      width: this.props.columnWidths?.[String(path[path.length - 1])],
     };
   };
 

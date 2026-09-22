@@ -101,6 +101,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   CollectionState,
   {
     localAppRegistry: AppRegistry;
+    globalAppRegistry: AppRegistry;
     dataService: DataService;
     atlasAiService: AtlasAiService;
     workspaces: ReturnType<typeof workspacesServiceLocator>;
@@ -553,6 +554,16 @@ export const mockDataGeneratorNextButtonClicked =
     return { type: CollectionActions.MockDataGeneratorNextButtonClicked };
   };
 
+// The settings modal and the generator modal are both focus-trapping, so the
+// generator has to close before settings opens rather than stacking the two.
+export const openMockDataGeneratorSettings =
+  (): CollectionThunkAction<void> => {
+    return (dispatch, _getState, { globalAppRegistry }) => {
+      dispatch(mockDataGeneratorModalClosed());
+      globalAppRegistry.emit('open-compass-settings', 'ai');
+    };
+  };
+
 export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
   void,
   MockDataGeneratorPreviousButtonClickedAction
@@ -865,7 +876,6 @@ export const generateFakerMappings = (): CollectionThunkAction<
       logger,
       atlasAiService,
       preferences,
-      connectionInfoRef,
       fakerSchemaGenerationAbortControllerRef,
     }
   ) => {
@@ -917,8 +927,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
       };
 
       const response = await atlasAiService.getMockDataSchema(
-        mockDataSchemaRequest,
-        connectionInfoRef.current
+        mockDataSchemaRequest
       );
 
       // Transform to keyed object structure

@@ -100,7 +100,7 @@ describe('CompassConnections store', function () {
 
       await connectPromise;
 
-      expect(screen.getByText('Connected to localhost:27017')).to.exist;
+      expect(await screen.findByText('Connected to localhost:27017')).to.exist;
 
       // Saved after connect
       const storedConnectionAfterConnect = await connectionStorage.load({
@@ -500,7 +500,9 @@ describe('CompassConnections store', function () {
       ).to.have.property('savedConnectionType', 'recent');
 
       expect(
-        screen.getByText(`Connected to ${mockConnections[0].favorite.name}`)
+        await screen.findByText(
+          `Connected to ${mockConnections[0].favorite.name}`
+        )
       ).to.exist;
     });
 

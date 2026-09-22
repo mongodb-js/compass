@@ -452,7 +452,7 @@ export function buildContextPrompt({
   activeCollectionMetadata,
   activeCollectionSubTab,
   enableGenAIToolCalling = false,
-  enableAtlasConnectionErrorDebugger = false,
+  enableAtlasConnectionErrorDebuggerTool = false,
 }: {
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
@@ -469,12 +469,12 @@ export function buildContextPrompt({
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
   enableGenAIToolCalling?: boolean;
-  enableAtlasConnectionErrorDebugger?: boolean;
+  enableAtlasConnectionErrorDebuggerTool?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
 
   const availableTools = getAvailableTools({
-    enableAtlasConnectionErrorDebugger,
+    enableAtlasConnectionErrorDebuggerTool,
   });
 
   if (activeConnection) {
