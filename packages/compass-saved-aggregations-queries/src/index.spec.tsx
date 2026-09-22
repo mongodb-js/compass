@@ -113,17 +113,16 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
     itemId: string,
     item: 'open-in' | 'rename' | 'copy' | 'delete'
   ) => {
-    const queryCard = document.querySelector<HTMLElement>(
-      `[data-id="${itemId}"]`
-    );
-    if (!queryCard) {
-      throw new Error('Query card not yet rendered');
-    }
-
-    userEvent.hover(queryCard);
-    userEvent.click(
-      await screen.findByTestId('saved-item-actions-show-actions')
-    );
+    const queryCard = await waitFor(() => {
+      const card = document.querySelector<HTMLElement>(`[data-id="${itemId}"]`);
+      if (!card) {
+        throw new Error('Query card not yet rendered');
+      }
+      userEvent.hover(card);
+      expect(screen.getByTestId('saved-item-actions-show-actions')).to.exist;
+      return card;
+    });
+    userEvent.click(screen.getByTestId('saved-item-actions-show-actions'));
     userEvent.click(
       await screen.findByTestId(`saved-item-actions-${item}-action`)
     );
@@ -295,10 +294,10 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
 
       await selectContextMenuItem(item.id, 'rename');
 
-      const modal = screen.getByTestId('edit-item-modal');
+      const modal = await screen.findByTestId('edit-item-modal');
 
       const title = new RegExp('rename query', 'i');
-      expect(within(modal).getByText(title), 'show title').to.exist;
+      expect(await within(modal).findByText(title), 'show title').to.exist;
 
       const nameInput = within(modal).getByRole('textbox', {
         name: /name/i,
@@ -348,7 +347,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
 
       const modal = await screen.findByTestId('edit-item-modal');
 
-      userEvent.click(within(modal).getByText('Cancel'), undefined, {
+      userEvent.click(await within(modal).findByText('Cancel'), undefined, {
         skipPointerEventsCheck: true,
       });
 
