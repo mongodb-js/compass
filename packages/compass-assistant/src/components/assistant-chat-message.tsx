@@ -59,6 +59,61 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
   }) {
     const { id, role, metadata, parts } = message;
 
+    const isSender = role === 'user';
+
+    const { sources, toolCalls } = React.useMemo(() => {
+      const seenTitles = new Set<string>();
+      const sources: { children: string; href: string; variant: string }[] = [];
+      const toolCalls: ToolUIPart[] = [];
+
+      for (const part of parts) {
+        // file_citation sources have no url or title, so are not renderable.
+        if (part.type === 'source-url' && part.url && part.title) {
+          if (!seenTitles.has(part.title)) {
+            seenTitles.add(part.title);
+            sources.push({
+              children: part.title,
+              href: part.url,
+              variant: 'Docs',
+            });
+          }
+        }
+
+        if (partIsToolUI(part)) {
+          toolCalls.push(part);
+        }
+      }
+
+      return { sources, toolCalls };
+    }, [parts]);
+
+    const rawDisplayText = React.useMemo(
+      () =>
+        metadata?.displayText ||
+        parts
+          ?.filter((part) => part.type === 'text')
+          .map((part) => part.text)
+          .join(''),
+      [metadata?.displayText, parts]
+    );
+
+    const parsedMessage = React.useMemo(
+      () =>
+        !isSender && rawDisplayText && enableSearchActivationProgramP2
+          ? parseFollowUpQuestions(rawDisplayText, {
+              isLastMessage,
+              isResponseComplete,
+            })
+          : null,
+      [
+        isSender,
+        rawDisplayText,
+        enableSearchActivationProgramP2,
+        isLastMessage,
+        isResponseComplete,
+      ]
+    );
+
     if (metadata?.confirmation) {
       const { description, state } = metadata.confirmation;
 
@@ -74,51 +129,14 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
       );
     }
 
-    const seenTitles = new Set<string>();
-    const sources = [];
-    const toolCalls: ToolUIPart[] = [];
-
-    for (const part of parts) {
-      // file_citation sources have no url or title, so are not renderable.
-      if (part.type === 'source-url' && part.url && part.title) {
-        if (!seenTitles.has(part.title)) {
-          seenTitles.add(part.title);
-          sources.push({
-            children: part.title,
-            href: part.url,
-            variant: 'Docs',
-          });
-        }
-      }
-
-      if (partIsToolUI(part)) {
-        toolCalls.push(part);
-      }
-    }
-
-    const rawDisplayText =
-      metadata?.displayText ||
-      parts
-        ?.filter((part) => part.type === 'text')
-        .map((part) => part.text)
-        .join('');
-
-    const isSender = role === 'user';
-
-    const parsedMessage =
-      !isSender && rawDisplayText && enableSearchActivationProgramP2
-        ? parseFollowUpQuestions(rawDisplayText, {
-            isLastMessage,
-            isResponseComplete,
-          })
-        : null;
-
     const displayText = parsedMessage
       ? parsedMessage.strippedText
       : rawDisplayText;
     const followUpQuestions = parsedMessage?.questions ?? [];
 
     const messageConnection = metadata?.connectionInfo ?? null;
+
+    const isMessageComplete = !isLastMessage || isResponseComplete;
 
     return (
       <>
@@ -182,7 +200,7 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
             data-role={role}
             data-testid={`assistant-message-${id}`}
           >
-            {!isSender && (
+            {!isSender && isMessageComplete && (
               <Message.Actions
                 onRatingChange={(event, state) =>
                   onFeedback({ message, state })
@@ -193,7 +211,7 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
                 className={noWrapFixesStyles}
               />
             )}
-            {sources.length > 0 && (
+            {sources.length > 0 && isMessageComplete && (
               <Message.Links className={noWrapFixesStyles} links={sources} />
             )}
           </Message>
