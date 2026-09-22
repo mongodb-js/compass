@@ -29,16 +29,12 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
-import {
-  useToolsController,
-  isAtlasTool,
-} from '@mongodb-js/compass-generative-ai/provider';
+import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
 import {
   isAssistantThinking,
   partIsApprovalRequest,
   partIsToolUI,
   stopChat,
-  getToolDisplayName,
 } from '../utils';
 import { AtlasConnectionStatus } from './atlas-connection-status';
 import { TOOL_DENIAL_REASONS } from '../prompts';
