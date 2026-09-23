@@ -18,13 +18,16 @@ if [[ "${EVERGREEN_PROJECT}" == "10gen-compass-main" ]]; then
     # based on the created_at (when evergreen was triggered - formatted as 24_05_16_14_52_37).
     if [[ "${EVERGREEN_BRANCH_NAME}" == "main" ]]; then
         ts=($(echo "$EVERGREEN_CREATED_AT" | tr "_" " "))
+        # The major.minor.patch components are numeric semver fields, so they
+        # must not carry leading zeros.
         year=$(escapeLeadingZero "${ts[0]}")
         month=$(escapeLeadingZero "${ts[1]}")
         day=$(escapeLeadingZero "${ts[2]}")
-        hour=$(escapeLeadingZero "${ts[3]}")
-        minute=$(escapeLeadingZero "${ts[4]}")
-        second=$(escapeLeadingZero "${ts[5]}")
-        export DEV_VERSION_IDENTIFIER="${year}.${month}.${day}-dev.${hour}${minute}${second}"
+        # 10# forces base 10, otherwise "08" and "09" are read as octal.
+        # Convert the time portion of the timestamp into a single number of seconds
+        # so that the resulting dev version identifier sorts chronologically as an opaque string.
+        secondsOfDay=$(( 10#${ts[3]} * 3600 + 10#${ts[4]} * 60 + 10#${ts[5]} ))
+        export DEV_VERSION_IDENTIFIER="${year}.${month}.${day}-dev.$(( 100000 + secondsOfDay ))"
     fi
 fi
 

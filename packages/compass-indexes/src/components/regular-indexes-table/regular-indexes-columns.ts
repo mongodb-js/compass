@@ -1,6 +1,7 @@
-import type {
-  LGColumnDef,
-  LeafyGreenTableRow,
+import {
+  nbsp,
+  type LGColumnDef,
+  type LeafyGreenTableRow,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -120,7 +121,10 @@ export const COLUMNS: LGColumnDef<IndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name & Definition',
-    cell: (info) => info.row.original.displayName,
+    cell: (info) => {
+      const { displayName } = info.row.original;
+      return typeof displayName === 'string' ? nbsp(displayName) : displayName;
+    },
     enableSorting: true,
   },
   {
@@ -177,7 +181,10 @@ export const COLUMNS_FOR_DRAWER: LGColumnDef<IndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
-    cell: (info) => info.row.original.displayName,
+    cell: (info) => {
+      const { displayName } = info.row.original;
+      return typeof displayName === 'string' ? nbsp(displayName) : displayName;
+    },
     enableSorting: true,
   },
   {
