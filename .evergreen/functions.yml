@@ -64,6 +64,7 @@ variables:
     E2E_TESTS_DATA_LAKE_HOST: ${e2e_tests_data_lake_host}
     E2E_TESTS_ANALYTICS_NODE_HOST: ${e2e_tests_analytics_node_host}
     E2E_TESTS_FREE_TIER_HOST: ${e2e_tests_free_tier_host}
+    E2E_TESTS_DISAGG_HOST: ${e2e_tests_disagg_host}
     E2E_TESTS_ATLAS_USERNAME: ${e2e_tests_atlas_username}
     E2E_TESTS_ATLAS_PASSWORD: ${e2e_tests_atlas_password}
     E2E_TESTS_ATLAS_X509_PEM_BASE64: ${e2e_tests_atlas_x509_pem_base64}
