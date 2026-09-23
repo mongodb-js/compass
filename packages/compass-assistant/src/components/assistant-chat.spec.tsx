@@ -34,6 +34,7 @@ import {
 } from '@mongodb-js/compass-telemetry';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { containsText } from './test-helpers';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 
 const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
@@ -1427,10 +1428,12 @@ describe('AssistantChat', function () {
         expect(addToolApprovalResponseSpy).to.have.been.calledWith({
           id: 'approval-1',
           approved: false,
+          reason: TOOL_DENIAL_REASONS.toolCallingDisabled,
         });
         expect(addToolApprovalResponseSpy).to.have.been.calledWith({
           id: 'approval-2',
           approved: false,
+          reason: TOOL_DENIAL_REASONS.toolCallingDisabled,
         });
       });
     });
@@ -1478,6 +1481,7 @@ describe('AssistantChat', function () {
         expect(addToolApprovalResponseSpy).to.have.been.calledWith({
           id: 'approval-1',
           approved: false,
+          reason: TOOL_DENIAL_REASONS.toolCallingDisabled,
         });
       });
     });

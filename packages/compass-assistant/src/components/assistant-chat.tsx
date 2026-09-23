@@ -37,6 +37,7 @@ import {
   stopChat,
 } from '../utils';
 import { AtlasConnectionStatus } from './atlas-connection-status';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 import { AssistantChatMessage } from './assistant-chat-message';
 
 const { ChatWindow } = LgChatChatWindow;
@@ -400,6 +401,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             void addToolApprovalResponse({
               id: part.approval.id,
               approved: false,
+              reason: TOOL_DENIAL_REASONS.toolCallingDisabled,
             });
           }
         }
@@ -544,15 +546,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       type,
       approvalId,
       approved,
+      reason,
     }: {
       message: AssistantMessage;
       type: string;
       approvalId: string;
       approved: boolean;
+      reason?: string;
     }) => {
       void addToolApprovalResponse({
         id: approvalId,
         approved,
+        reason,
       });
 
       track(
