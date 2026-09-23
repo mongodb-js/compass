@@ -10,6 +10,7 @@ import {
   Tooltip,
   useDarkMode,
   Body,
+  nbsp,
 } from '@mongodb-js/compass-components';
 import { type Actions, ROW_HEIGHT } from './constants';
 import { ExpandButton } from './tree-item';
@@ -203,7 +204,7 @@ export const NavigationBaseItem = React.forwardRef<
         )}
         <div className={labelAndIconWrapperStyles}>
           {icon}
-          <span title={name}>{name}</span>
+          <span title={name}>{nbsp(name)}</span>
         </div>
         {item.type === 'connection' && (
           <ClusterStateBadgeWithTooltip item={item} />
