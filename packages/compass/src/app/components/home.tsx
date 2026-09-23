@@ -22,7 +22,7 @@ import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
-import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provider';
+// import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provider';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -107,7 +107,7 @@ function HomeWithConnections({
   return (
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-        <ToolsControllerProvider>
+        {/* <ToolsControllerProvider> */}
           <AtlasAuthPlugin>
               <CompassConnections
                 appName={props.appName}
@@ -118,7 +118,7 @@ function HomeWithConnections({
                 <Home {...props}></Home>
               </CompassConnections>
           </AtlasAuthPlugin>
-        </ToolsControllerProvider>
+        {/* </ToolsControllerProvider> */}
       </FileInputBackendProvider>
     </ConnectionStorageProvider>
   );

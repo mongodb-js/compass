@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { AtlasAiService } from './atlas-ai-service';
-import { ToolsController } from './tools-controller';
+// import { ToolsController } from './tools-controller';
+type ToolsController = any;
 import {
   preferencesLocator,
   usePreference,
@@ -107,8 +108,9 @@ export const toolsControllerLocator = createServiceLocator(
   useToolsControllerContext,
   'toolsControllerLocator'
 );
-export { ToolsController } from './tools-controller';
-export type { ToolGroup } from './tools-controller';
+// export { ToolsController } from './tools-controller';
+// export type { ToolGroup } from './tools-controller';
+export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 // Export the hook for direct use in components
 export const useToolsController = useToolsControllerContext;

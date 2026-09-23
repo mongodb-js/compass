@@ -1,0 +1,190 @@
+Node stdlib imports in renderer bundle
+======================================
+50 violations across 50 distinct builtins.
+
+BUILTINS
+  assert, async_hooks, buffer, child_process, constants, crypto, dns, events, fs, fs/promises, http, https, module, net, node:async_hooks, node:buffer, node:child_process, node:crypto, node:diagnostics_channel, node:events, node:fs, node:fs/promises, node:http, node:http2, node:https, node:net, node:os, node:path, node:process, node:querystring, node:stream, node:url, node:util, node:zlib, os, path, process, stream, stream/promises, string_decoder, timers, timers/promises, tls, tty, url, util, v8, vm, worker_threads, zlib
+
+BY PACKAGE
+    7  mongodb
+    4  @smithy/core
+    3  @smithy/node-http-handler
+    3  compass
+    3  express
+    3  open
+    2  compass-import-export
+    2  compass-preferences-model
+    2  mongodb-log-writer
+    1  @aws-sdk/credential-provider-http
+    1  @aws-sdk/credential-provider-process
+    1  @aws-sdk/credential-provider-web-identity
+    1  @aws/lambda-invoke-store
+    1  @mongodb-js/devtools-proxy-support
+    1  @smithy/credential-provider-imds
+    1  @vscode/l10n
+    1  atlas-service
+    1  body-parser
+    1  bson-transpilers
+    1  data-service
+    1  debug
+    1  ensure-error
+    1  gaxios
+    1  graceful-fs
+    1  lru-cache
+    1  on-finished
+    1  stream-json
+    1  supports-color
+    1  vfile
+    1  write-file-atomic
+
+BY IMPORTING MODULE
+    4  @smithy/core/dist-cjs/submodules/config/index.js
+    3  @mongodb-js/oidc-plugin/node_modules/open/index.js
+    2  ./src/app/index.ts
+    2  mongodb-log-writer/dist/mongo-log-writer.js
+    1  ./src/setup-hadron-distribution.ts
+    1  @aws-sdk/credential-provider-http/dist-es/fromHttp/fromHttp.js
+    1  @aws-sdk/credential-provider-http/node_modules/@smithy/node-http-handler/dist-es/node-http-handler.js
+    1  @aws-sdk/credential-provider-http/node_modules/@smithy/node-http-handler/dist-es/node-http2-handler.js
+    1  @aws-sdk/credential-provider-http/node_modules/@smithy/node-http-handler/dist-es/write-request-body.js
+    1  @aws-sdk/credential-provider-process/dist-es/resolveProcessCredentials.js
+    1  @aws-sdk/credential-provider-web-identity/dist-es/fromTokenFile.js
+    1  @aws/lambda-invoke-store/dist-es/invoke-store.js
+    1  @mongodb-js/devtools-proxy-support/dist/proxy-agent.js
+    1  @mongodb-js/devtools-proxy-support/node_modules/lru-cache/dist/commonjs/index.min.js
+    1  @mongodb-js/oidc-plugin/node_modules/body-parser/lib/read.js
+    1  @mongodb-js/oidc-plugin/node_modules/express/lib/express.js
+    1  @mongodb-js/oidc-plugin/node_modules/express/lib/request.js
+    1  @mongodb-js/oidc-plugin/node_modules/express/lib/utils.js
+    1  @smithy/credential-provider-imds/dist-es/remoteProvider/httpRequest.js
+    1  @vscode/l10n/dist/main.js
+    1  atlas-service/src/util.ts
+    1  bson-transpilers/codegeneration/javascript/Visitor.js
+    1  compass-import-export/src/csv/csv-utils.ts
+    1  compass-import-export/src/import/analyze-csv-fields.ts
+    1  compass-preferences-model/src/global-config.ts
+    1  compass-preferences-model/src/parse-record.ts
+    1  compass-user-data:write-file-atomic/lib/index.js
+    1  data-service/src/data-service-utility.ts
+    1  debug/src/node.js
+    1  ensure-error/index.js
+    1  gaxios/build/cjs/src/gaxios.js
+    1  graceful-fs/polyfills.js
+    1  mongodb/lib/client-side-encryption/auto_encrypter.js
+    1  mongodb/lib/client-side-encryption/mongocryptd_manager.js
+    1  mongodb/lib/client-side-encryption/state_machine.js
+    1  mongodb/lib/cmap/wire_protocol/compression.js
+    1  mongodb/lib/sdam/srv_polling.js
+    1  mongodb/lib/sessions.js
+    1  mongodb/lib/utils.js
+    1  on-finished/index.js
+    1  stream-json/utils/Utf8Stream.js
+    1  supports-color/index.js
+    1  vfile/lib/index.js
+
+IMPORT TREE
+./src/app/index.ts  (50)
+  |- ./src/app/application.tsx  (47)
+  |  |- ./src/app/components/entrypoint.tsx  (39)
+  |  |  |- ./src/app/components/home.tsx  (36)
+  |  |  |  |- ./src/app/utils/telemetry.ts > data-service/src/index.ts  (32)
+  |  |  |  |  |- data-service/src/instance-detail-helper.ts > data-service/src/run-command.ts > mongodb/lib/index.js  (20)
+  |  |  |  |  |  |- mongodb/lib/client-side-encryption/client_encryption.js  (14)
+  |  |  |  |  |  |  |- mongodb/lib/deps.js  (13)
+  |  |  |  |  |  |  |  |- @aws-sdk/credential-providers/dist-es/index.js  (12)
+  |  |  |  |  |  |  |  |  |- @aws-sdk/credential-provider-http/dist-es/fromHttp/fromHttp.js  (8)
+  |  |  |  |  |  |  |  |  |  |- @smithy/core/dist-cjs/submodules/config/index.js  (4)
+  |  |  |  |  |  |  |  |  |  |  |- external "node:crypto"
+  |  |  |  |  |  |  |  |  |  |  |- external "node:http"
+  |  |  |  |  |  |  |  |  |  |  |- external "node:os"
+  |  |  |  |  |  |  |  |  |  |  `- external "node:path"
+  |  |  |  |  |  |  |  |  |  |- @aws-sdk/credential-provider-http/node_modules/@smithy/node-http-handler/dist-es/node-http-handler.js  (2)
+  |  |  |  |  |  |  |  |  |  |  |- @aws-sdk/credential-provider-http/node_modules/@smithy/node-http-handler/dist-es/write-request-body.js
+  |  |  |  |  |  |  |  |  |  |  |  `- external "node:stream"
+  |  |  |  |  |  |  |  |  |  |  `- external "node:https"
+  |  |  |  |  |  |  |  |  |  |- @aws-sdk/credential-provider-http/node_modules/@smithy/node-http-handler/dist-es/index.js > @aws-sdk/credential-provider-http/node_modules/@smithy/node-http-handler/dist-es/node-http2-handler.js
+  |  |  |  |  |  |  |  |  |  |  `- external "node:http2"
+  |  |  |  |  |  |  |  |  |  `- external "node:fs/promises"
+  |  |  |  |  |  |  |  |  |- @aws-sdk/credential-providers/dist-es/fromContainerMetadata.js > @smithy/credential-provider-imds/dist-es/index.js > @smithy/credential-provider-imds/dist-es/remoteProvider/httpRequest.js
+  |  |  |  |  |  |  |  |  |  `- external "buffer"
+  |  |  |  |  |  |  |  |  |- @aws-sdk/credential-providers/dist-es/fromProcess.js > @aws-sdk/credential-provider-process/dist-es/fromProcess.js > @aws-sdk/credential-provider-process/dist-es/resolveProcessCredentials.js
+  |  |  |  |  |  |  |  |  |  `- external "node:child_process"
+  |  |  |  |  |  |  |  |  |- @aws-sdk/credential-providers/dist-es/fromTokenFile.js > @aws-sdk/credential-provider-web-identity/dist-es/fromTokenFile.js
+  |  |  |  |  |  |  |  |  |  `- external "node:fs"
+  |  |  |  |  |  |  |  |  `- @aws-sdk/credential-providers/dist-es/fromWebToken.js > @aws-sdk/credential-provider-web-identity/dist-es/fromWebToken.js > @aws-sdk/nested-clients/dist-es/submodules/sts/index.js > @aws-sdk/nested-clients/dist-es/submodules/sts/STSClient.js > @aws-sdk/middleware-recursion-detection/dist-es/index.js > @aws-sdk/middleware-recursion-detection/dist-es/recursionDetectionMiddleware.js > @aws/lambda-invoke-store/dist-es/invoke-store.js
+  |  |  |  |  |  |  |  |     `- external "node:async_hooks"
+  |  |  |  |  |  |  |  `- gcp-metadata/build/src/index.js > gaxios/build/cjs/src/index.js > gaxios/build/cjs/src/gaxios.js
+  |  |  |  |  |  |  |     `- external "https"
+  |  |  |  |  |  |  `- mongodb/lib/client-side-encryption/state_machine.js
+  |  |  |  |  |  |     `- external "tls"
+  |  |  |  |  |  |- mongodb/lib/client-side-encryption/auto_encrypter.js  (2)
+  |  |  |  |  |  |  |- mongodb/lib/client-side-encryption/mongocryptd_manager.js
+  |  |  |  |  |  |  |  `- external "child_process"
+  |  |  |  |  |  |  `- external "net"
+  |  |  |  |  |  |- mongodb/lib/admin.js > mongodb/lib/utils.js
+  |  |  |  |  |  |  `- external "http"
+  |  |  |  |  |  |- mongodb/lib/cmap/wire_protocol/compression.js
+  |  |  |  |  |  |  `- external "zlib"
+  |  |  |  |  |  |- mongodb/lib/sdam/srv_polling.js
+  |  |  |  |  |  |  `- external "timers"
+  |  |  |  |  |  `- mongodb/lib/sessions.js
+  |  |  |  |  |     `- external "timers/promises"
+  |  |  |  |  `- data-service/src/data-service-utility.ts  (12)
+  |  |  |  |     |- data-service/src/data-service.ts > data-service/src/connect-mongo-client.ts > @mongodb-js/devtools-connect/.esm-wrapper.mjs > @mongodb-js/devtools-connect/dist/index.js > @mongodb-js/devtools-connect/dist/connect.js  (11)
+  |  |  |  |     |  |- @mongodb-js/oidc-plugin/dist/index.js > @mongodb-js/oidc-plugin/dist/api.js > @mongodb-js/oidc-plugin/dist/plugin.js  (8)
+  |  |  |  |     |  |  |- @mongodb-js/oidc-plugin/dist/rfc-8252-http-server.js > @mongodb-js/oidc-plugin/node_modules/express/index.js > @mongodb-js/oidc-plugin/node_modules/express/lib/express.js  (5)
+  |  |  |  |     |  |  |  |- @mongodb-js/oidc-plugin/node_modules/body-parser/index.js > @mongodb-js/oidc-plugin/node_modules/body-parser/lib/types/json.js > @mongodb-js/oidc-plugin/node_modules/body-parser/lib/read.js
+  |  |  |  |     |  |  |  |  `- external "node:zlib"
+  |  |  |  |     |  |  |  |- @mongodb-js/oidc-plugin/node_modules/express/lib/application.js > @mongodb-js/oidc-plugin/node_modules/express/lib/utils.js
+  |  |  |  |     |  |  |  |  `- external "node:querystring"
+  |  |  |  |     |  |  |  |- @mongodb-js/oidc-plugin/node_modules/express/lib/request.js
+  |  |  |  |     |  |  |  |  `- external "node:net"
+  |  |  |  |     |  |  |  |- @mongodb-js/oidc-plugin/node_modules/express/lib/response.js > on-finished/index.js
+  |  |  |  |     |  |  |  |  `- external "async_hooks"
+  |  |  |  |     |  |  |  `- external "node:events"
+  |  |  |  |     |  |  `- @mongodb-js/oidc-plugin/node_modules/open/index.js  (3)
+  |  |  |  |     |  |     |- external "node:buffer"
+  |  |  |  |     |  |     |- external "node:process"
+  |  |  |  |     |  |     `- external "node:url"
+  |  |  |  |     |  `- @mongodb-js/devtools-proxy-support/dist/index.js > @mongodb-js/devtools-proxy-support/dist/agent.js > @mongodb-js/devtools-proxy-support/dist/proxy-agent.js  (3)
+  |  |  |  |     |     |- @mongodb-js/devtools-proxy-support/node_modules/lru-cache/dist/commonjs/index.min.js
+  |  |  |  |     |     |  `- external "node:diagnostics_channel"
+  |  |  |  |     |     |- pac-proxy-agent/dist/index.js > get-uri/dist/index.js > get-uri/dist/file.js > get-uri/node_modules/fs-extra/lib/index.js > get-uri/node_modules/fs-extra/lib/fs/index.js > graceful-fs/graceful-fs.js > graceful-fs/polyfills.js
+  |  |  |  |     |     |  `- external "constants"
+  |  |  |  |     |     `- external "module"
+  |  |  |  |     `- external "node:util"
+  |  |  |  `- ./src/app/components/workspace.tsx  (4)
+  |  |  |     |- compass-import-export/src/index.ts > compass-import-export/src/stores/import-store.ts > compass-import-export/src/modules/import.ts  (3)
+  |  |  |     |  |- compass-import-export/src/csv/csv-utils.ts
+  |  |  |     |  |  `- external "assert"
+  |  |  |     |  |- compass-import-export/src/import/analyze-csv-fields.ts
+  |  |  |     |  |  `- external "stream/promises"
+  |  |  |     |  `- compass-import-export/src/import/import-json.ts > stream-json/Parser.js > stream-json/utils/Utf8Stream.js
+  |  |  |     |     `- external "string_decoder"
+  |  |  |     `- compass-export-to-language/src/index.ts > compass-export-to-language/src/components/modal.tsx > compass-export-to-language/src/modules/transpiler.ts > bson-transpilers/index.js > bson-transpilers/codegeneration/javascript/Visitor.js
+  |  |  |        `- external "vm"
+  |  |  |- atlas-service/src/renderer.tsx > atlas-service/src/util.ts
+  |  |  |  `- external "crypto"
+  |  |  |- compass-data-modeling/src/services/data-model-storage-electron.tsx > compass-user-data/src/index.ts > compass-user-data/src/user-data.ts > compass-user-data:write-file-atomic/lib/index.js
+  |  |  |  `- external "worker_threads"
+  |  |  `- my-queries-storage/src/electron-exports.ts > my-queries-storage/src/storage-factories.ts > my-queries-storage/src/pipeline-storage-schema.ts > compass-editor/src/index.ts > compass-editor/src/use-json-schema-autocompleter.ts > vscode-json-languageservice/lib/esm/jsonLanguageService.js > vscode-json-languageservice/lib/esm/services/jsonCompletion.js > @vscode/l10n/dist/main.js
+  |  |     `- external "fs/promises"
+  |  |- debug/src/index.js > debug/src/node.js  (2)
+  |  |  |- supports-color/index.js
+  |  |  |  `- external "os"
+  |  |  `- external "tty"
+  |  |- compass-logging/src/index.ts > mongodb-log-writer/dist/mongo-log-writer.js  (2)
+  |  |  |- external "stream"
+  |  |  `- external "v8"
+  |  |- compass-preferences-model/src/index.ts > compass-preferences-model/src/global-config.ts  (2)
+  |  |  |- compass-preferences-model/src/preferences-schema.tsx > compass-preferences-model/src/parse-record.ts
+  |  |  |  `- external "url"
+  |  |  `- external "fs"
+  |  |- ensure-error/index.js
+  |  |  `- external "util"
+  |  `- compass-components/src/index.ts > compass-components/src/components/leafygreen.tsx > @lg-chat/message/dist/esm/index.js > @lg-chat/lg-markdown/dist/esm/index.js > react-markdown/lib/react-markdown.js > vfile/lib/index.js
+  |     `- external "process"
+  |- ./src/setup-hadron-distribution.ts
+  |  `- external "path"
+  |- external "dns"
+  `- external "events"

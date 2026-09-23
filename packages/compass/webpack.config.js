@@ -4,6 +4,7 @@ const path = require('path');
 // @ts-ignore
 const { Target: HadronBuildTarget } = require('hadron-build');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
+const { FailOnNodeStdlib } = require('./scripts/fail-on-node-stdlib');
 
 const {
   createElectronMainConfig,
@@ -258,35 +259,9 @@ module.exports = (_env, args) => {
       },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // Fail the renderer build if any Node stdlib import sneaks in.
-        // Catches both `node:` prefixed and bare (unprefixed) builtins.
-        // These are externalized by the electron-renderer target preset
-        // (they become ExternalModule, not NormalModule), so we scan
-        // compilation modules after chunks are built.
-        new (class FailOnNodeStdlib {
-          apply(compiler) {
-            const builtins = new Set(
-              require('module').builtinModules.flatMap((m) => [m, `node:${m}`])
-            );
-            compiler.hooks.compilation.tap(
-              'FailOnNodeStdlib',
-              (compilation) => {
-                compilation.hooks.afterChunks.tap('FailOnNodeStdlib', () => {
-                  for (const module of compilation.modules) {
-                    const req = module.userRequest || module.request || '';
-                    if (builtins.has(req)) {
-                      compilation.errors.push(
-                        new Error(
-                          `Node stdlib import in renderer bundle: ${req}`
-                        )
-                      );
-                    }
-                  }
-                });
-              }
-            );
-          }
-        })(),
+        new FailOnNodeStdlib({
+          reportPath: path.resolve(__dirname, 'node-stdlib-report.txt'),
+        }),
         ...compileOnlyPlugins,
       ],
     }),
