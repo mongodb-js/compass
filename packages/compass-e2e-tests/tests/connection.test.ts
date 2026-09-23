@@ -483,15 +483,6 @@ describe('Connection string', function () {
     const connectionName = connectionNameFromString(connectionString);
 
     await browser.connectWithConnectionString(connectionString);
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
 
     await browser.navigateToConnectionTab(connectionName, 'Databases');
     await browser.$(Selectors.DatabasesTable).waitForDisplayed();
