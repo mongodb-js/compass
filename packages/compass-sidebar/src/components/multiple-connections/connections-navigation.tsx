@@ -533,6 +533,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     (action: ConnectionListTitleActions) => {
       if (action === 'collapse-all-connections') {
         onCollapseAll();
+        track('Sidebar Connections Collapsed All', {});
       } else if (action === 'add-new-connection') {
         onNewConnection();
       } else if (

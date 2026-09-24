@@ -1,4 +1,5 @@
 import React, { useCallback, useState, type PropsWithChildren } from 'react';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import {
   css,
@@ -53,12 +54,16 @@ export default function ConnectionsFilterPopover({
   onFilterChange,
   disabled = false,
 }: ConnectionsFilterPopoverProps) {
+  const track = useTelemetry();
   const onExcludeInactiveChange = useCallback(
     (excludeInactive: boolean) => {
       onFilterChange((filter) => ({
         ...filter,
         excludeInactive,
       }));
+      track('Sidebar Connections Active Connections Filter Toggled', {
+        active_only: excludeInactive,
+      });
     },
     [onFilterChange]
   );
