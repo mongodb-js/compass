@@ -130,23 +130,26 @@ const RawSchemaConfirmationScreen = ({
           variant={BannerVariant.Danger}
           data-testid="schema-analysis-error-banner"
         >
-          <strong>Schema Analysis Failed:</strong>{' '}
-          {schemaAnalysis.error.errorMessage}
+          <div className={bannerContentStyles}>
+            <div className={bannerTextStyles}>
+              <Body weight="medium">Schema Analysis Failed</Body>
+              <Body>{schemaAnalysis.error.errorMessage}</Body>
+              {schemaAnalysis.error.errorType === 'empty' && (
+                <Body>
+                  Insert or import some documents into this collection, then
+                  retry.
+                </Body>
+              )}
+            </div>
+            <Button
+              size="xsmall"
+              onClick={onRetryAnalysis}
+              data-testid="retry-analysis-button"
+            >
+              Retry
+            </Button>
+          </div>
         </Banner>
-        <div className={bannerContentStyles}>
-          {schemaAnalysis.error.errorType === 'empty' && (
-            <Body>
-              Insert or import some documents into this collection, then retry.
-            </Body>
-          )}
-          <Button
-            size="small"
-            onClick={onRetryAnalysis}
-            data-testid="retry-analysis-button"
-          >
-            Retry
-          </Button>
-        </div>
       </div>
     );
   }

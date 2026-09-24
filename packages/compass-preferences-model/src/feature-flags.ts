@@ -84,6 +84,17 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
+  // Replaced the MOCK_DATA_GENERATOR_ITERATION_20260507 experiment as the
+  // rollout control for the mock data generator.
+  {
+    name: 'enableMockDataGenerator',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable generating mock data scripts with AI',
+    },
+  },
+
   {
     name: 'enableRerank',
     stage: 'released',
