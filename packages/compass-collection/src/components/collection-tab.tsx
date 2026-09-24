@@ -26,6 +26,7 @@ import {
   useLocalAppRegistry,
 } from '@mongodb-js/compass-app-registry';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import { isMockDataGeneratorEligible as isMockDataGeneratorEligiblePredicate } from '../mock-data-generator-eligibility';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -194,7 +195,6 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 }) => {
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
-  const connectionInfo = useConnectionInfo();
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)
@@ -213,13 +213,20 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   const pluginModals = useCollectionScopedModals();
 
   // Compute Mock Data Generator eligibility
-  const { isReadonly, isTimeSeries, sourceName } = collectionMetadata;
-  const atlasMetadata = connectionInfo.atlasMetadata;
-  const isMockDataGeneratorEligible = Boolean(
-    atlasMetadata && // Only show in Atlas
-      !isReadonly && // Don't show for readonly collections (views)
-      !isTimeSeries && // Don't show for time series collections
-      !sourceName // sourceName indicates it's a view
+  const enableGenAIFeatures = usePreference('enableGenAIFeatures');
+  const enableGenAIFeaturesAtlasOrg = usePreference(
+    'enableGenAIFeaturesAtlasOrg'
+  );
+  const readOnly = usePreference('readOnly');
+  const enableMockDataGenerator = usePreference('enableMockDataGenerator');
+  const isMockDataGeneratorEligible = isMockDataGeneratorEligiblePredicate(
+    collectionMetadata,
+    {
+      enableGenAIFeatures,
+      enableGenAIFeaturesAtlasOrg,
+      readOnly,
+      enableMockDataGenerator,
+    }
   );
 
   const pluginProps = {
