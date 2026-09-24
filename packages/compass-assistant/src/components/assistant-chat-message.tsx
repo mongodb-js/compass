@@ -6,10 +6,8 @@ import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
 import type { ToolUIPart } from 'ai';
-import {
-  partIsToolUI,
-  ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE,
-} from '../utils';
+import { partIsToolUI, getToolDisplayName } from '../utils';
+import { isAtlasTool } from '@mongodb-js/compass-generative-ai/provider';
 
 const { Message } = LgChatMessage;
 
@@ -126,11 +124,12 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
         {toolCalls.map((toolCall, index) => {
           const toolCallId = toolCall.toolCallId || `${id}-${toolCall.type}`;
 
-          if (toolCall.type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE) {
+          if (isAtlasTool(getToolDisplayName(toolCall.type))) {
             return (
               <AtlasToolCallMessage
                 key={`${toolCallId}-${index}`}
                 toolCall={toolCall}
+                connection={messageConnection}
                 onApprove={(approvalId) =>
                   onToolApproval({
                     message,
