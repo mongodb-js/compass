@@ -44,7 +44,10 @@ import type {
 } from '../components/mock-data-generator-modal/types';
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
-import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
+import {
+  isValidFakerMethod,
+  MAX_COLLECTION_NESTING_DEPTH,
+} from '../components/mock-data-generator-modal/utils';
 import { getDefaultFakerMethod } from '../components/mock-data-generator-modal/script-generation-utils';
 
 const DEFAULT_SAMPLE_SIZE = 100;
@@ -599,12 +602,23 @@ export const selectTab = (
 export const openMockDataGeneratorModal = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, _getState, { atlasAiService, logger }) => {
+  return async (dispatch, getState, { atlasAiService, logger }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();
       }
       dispatch(mockDataGeneratorModalOpened());
+
+      const { schemaAnalysis } = getState();
+      const hasValidAnalysis =
+        schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
+        Object.keys(schemaAnalysis.processedSchema).length > 0;
+      if (
+        schemaAnalysis.status !== SCHEMA_ANALYSIS_STATE_ANALYZING &&
+        !hasValidAnalysis
+      ) {
+        void dispatch(analyzeCollectionSchema());
+      }
     } catch (error) {
       // if failed or user canceled we just don't show the modal
       logger.log.error(
@@ -651,12 +665,14 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         type: CollectionActions.SchemaAnalysisStarted,
       });
 
-      // Sample documents
+      // Sample documents. Stream the cursor into the analyzer instead of
+      // materializing the whole sample in memory; keep the first document
+      // around for sample-value passing.
       const samplingOptions = { size: DEFAULT_SAMPLE_SIZE };
       const driverOptions = {
         maxTimeMS: preferences.getPreferences().maxTimeMS,
       };
-      const sampleDocuments = await dataService.sample(
+      const sampleCursor = dataService.sampleCursor(
         namespace,
         samplingOptions,
         driverOptions,
@@ -666,12 +682,25 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         }
       );
 
+      let sampleDocument: Document | undefined;
+      const sampleDocuments = (async function* () {
+        for await (const document of sampleCursor) {
+          sampleDocument ??= document;
+          yield document;
+        }
+      })();
+
+      const schemaAccessor = await analyzeDocuments(sampleDocuments, {
+        signal: abortController.signal,
+        storedValuesLengthLimit: 100,
+      });
+
       // Check if analysis was aborted after sampling
       if (abortController.signal.aborted) {
         logger.debug('Schema analysis was aborted during sampling');
         return;
       }
-      if (sampleDocuments.length === 0) {
+      if (!sampleDocument) {
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
           type: CollectionActions.SchemaAnalysisFailed,
@@ -679,9 +708,6 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         });
         return;
       }
-
-      // Analyze sampled documents
-      const schemaAccessor = await analyzeDocuments(sampleDocuments);
 
       // Check if analysis was aborted after document analysis
       if (abortController.signal.aborted) {
@@ -700,12 +726,21 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       const processSchemaResult = processSchema(schema);
 
       const maxNestingDepth = await calculateSchemaDepth(schema);
-      const { database, collection } = toNS(namespace);
-      const collInfo = await dataService.collectionInfo(database, collection);
-      const validationRules = collInfo?.validation?.validator ?? null;
+      if (abortController.signal.aborted) return;
+      // Excessive nesting depth is handled inside the modal rather than
+      // hiding the menu item, since it's only known after analysis runs.
+      if (maxNestingDepth > MAX_COLLECTION_NESTING_DEPTH) {
+        throw new ProcessSchemaUnsupportedStateError(
+          `Schema nesting depth (${maxNestingDepth}) exceeds the maximum supported depth of ${MAX_COLLECTION_NESTING_DEPTH}.`
+        );
+      }
+      const validation = collectionModel.validation as
+        | { validator?: Document }
+        | null
+        | undefined;
       const schemaMetadata = {
         maxNestingDepth,
-        validationRules,
+        validationRules: validation?.validator ?? null,
         avgDocumentSize: collectionModel.avg_document_size,
       };
 
@@ -719,7 +754,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         type: CollectionActions.SchemaAnalysisFinished,
         processedSchema: processSchemaResult.fieldInfo,
         arrayLengthMap: processSchemaResult.arrayLengthMap,
-        sampleDocument: sampleDocuments[0],
+        sampleDocument: sampleDocument,
         schemaMetadata,
       });
     } catch (err: any) {

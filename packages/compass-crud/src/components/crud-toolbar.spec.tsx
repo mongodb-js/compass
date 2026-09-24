@@ -843,11 +843,11 @@ describe('CrudToolbar Component', function () {
 
   describe('Mock Data Generator menu item', function () {
     function renderCrudToolbarWithMockDataGenerator({
-      isMockDataGeneratorEligibleAndSchemaReady = false,
+      isMockDataGeneratorEligible = false,
       isInTreatment = false,
       isInExperiment = true,
     }: {
-      isMockDataGeneratorEligibleAndSchemaReady?: boolean;
+      isMockDataGeneratorEligible?: boolean;
       isInTreatment?: boolean;
       isInExperiment?: boolean;
     } = {}) {
@@ -913,9 +913,7 @@ describe('CrudToolbar Component', function () {
             updateMaxDocumentsPerPage={noop}
             queryLimit={0}
             querySkip={0}
-            isMockDataGeneratorEligibleAndSchemaReady={
-              isMockDataGeneratorEligibleAndSchemaReady
-            }
+            isMockDataGeneratorEligible={isMockDataGeneratorEligible}
           />
         </CompassExperimentationProvider>
       );
@@ -924,7 +922,7 @@ describe('CrudToolbar Component', function () {
 
     it('should show "Generate mock data script" menu item when enabled and user is in treatment', function () {
       renderCrudToolbarWithMockDataGenerator({
-        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isMockDataGeneratorEligible: true,
         isInTreatment: true,
       });
 
@@ -936,7 +934,7 @@ describe('CrudToolbar Component', function () {
 
     it('should not show "Generate mock data script" menu item when enabled but user is in control', function () {
       renderCrudToolbarWithMockDataGenerator({
-        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isMockDataGeneratorEligible: true,
         isInTreatment: false,
       });
 
@@ -947,7 +945,7 @@ describe('CrudToolbar Component', function () {
 
     it('should not show "Generate mock data script" menu item when not enabled', function () {
       renderCrudToolbarWithMockDataGenerator({
-        isMockDataGeneratorEligibleAndSchemaReady: false,
+        isMockDataGeneratorEligible: false,
         isInTreatment: true,
       });
 
@@ -958,7 +956,7 @@ describe('CrudToolbar Component', function () {
 
     it('should emit "open-mock-data-generator-modal" event when "Generate mock data script" is clicked', function () {
       const { localAppRegistry } = renderCrudToolbarWithMockDataGenerator({
-        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isMockDataGeneratorEligible: true,
         isInTreatment: true,
       });
       const emitSpy = sinon.spy(localAppRegistry, 'emit');
@@ -985,7 +983,7 @@ describe('CrudToolbar Component', function () {
       it('does not fire "Experiment Viewed" if the menu has not been opened', async function () {
         const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
           {
-            isMockDataGeneratorEligibleAndSchemaReady: true,
+            isMockDataGeneratorEligible: true,
             isInTreatment: true,
           }
         );
@@ -999,7 +997,7 @@ describe('CrudToolbar Component', function () {
       it('does not fire "Experiment Viewed" if the menu opens and the user is in treatment but the feature is not displayed', async function () {
         const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
           {
-            isMockDataGeneratorEligibleAndSchemaReady: false,
+            isMockDataGeneratorEligible: false,
             isInTreatment: true,
           }
         );
@@ -1015,7 +1013,7 @@ describe('CrudToolbar Component', function () {
       it('fires "Experiment Viewed" when the menu opens, user is in treatment variant group, and the feature is enabled', async function () {
         const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
           {
-            isMockDataGeneratorEligibleAndSchemaReady: true,
+            isMockDataGeneratorEligible: true,
             isInTreatment: true,
           }
         );
@@ -1032,7 +1030,7 @@ describe('CrudToolbar Component', function () {
       it('fires "Experiment Viewed" for control users in an eligible collection', async function () {
         const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
           {
-            isMockDataGeneratorEligibleAndSchemaReady: true,
+            isMockDataGeneratorEligible: true,
             isInTreatment: false,
           }
         );
@@ -1050,7 +1048,7 @@ describe('CrudToolbar Component', function () {
       it('does not fire "Experiment Viewed" if the user is not in an eligible collection', async function () {
         const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
           {
-            isMockDataGeneratorEligibleAndSchemaReady: false,
+            isMockDataGeneratorEligible: false,
             isInTreatment: true,
           }
         );
@@ -1066,7 +1064,7 @@ describe('CrudToolbar Component', function () {
       it('does not fire "Experiment Viewed" when the user is not in the experiment', async function () {
         const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
           {
-            isMockDataGeneratorEligibleAndSchemaReady: true,
+            isMockDataGeneratorEligible: true,
             isInExperiment: false,
           }
         );

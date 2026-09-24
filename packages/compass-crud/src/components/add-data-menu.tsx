@@ -33,17 +33,17 @@ type AddDataMenuProps = {
   instanceDescription: string;
   insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
   isWritable: boolean;
-  isMockDataGeneratorEligibleAndSchemaReady?: boolean;
+  isMockDataGeneratorEligible?: boolean;
 };
 
 function AddDataMenuButton({
   insertDataHandler,
   isDisabled = false,
-  isMockDataGeneratorEligibleAndSchemaReady = false,
+  isMockDataGeneratorEligible = false,
 }: {
   insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
   isDisabled?: boolean;
-  isMockDataGeneratorEligibleAndSchemaReady?: boolean;
+  isMockDataGeneratorEligible?: boolean;
 }) {
   const isImportExportEnabled = usePreference('enableImportExport');
   const localAppRegistry = useLocalAppRegistry();
@@ -67,9 +67,7 @@ function AddDataMenuButton({
   // the treatment variant group.
   useTrackInSample(
     ExperimentTestNames.mockDataGenerator,
-    hasOpenedMenu &&
-      isMockDataGeneratorEligibleAndSchemaReady &&
-      isInMockDataExperiment
+    hasOpenedMenu && isMockDataGeneratorEligible && isInMockDataExperiment
   );
 
   const addDataActions = useMemo(() => {
@@ -84,11 +82,7 @@ function AddDataMenuButton({
       });
     }
 
-    // The menu item only renders for users in treatment variant group
-    if (
-      isMockDataGeneratorEligibleAndSchemaReady &&
-      isInMockDataTreatmentVariant
-    ) {
+    if (isMockDataGeneratorEligible && isInMockDataTreatmentVariant) {
       actions.push({
         action: 'generate-mock-data' as const,
         label: 'Generate mock data script',
@@ -98,7 +92,7 @@ function AddDataMenuButton({
     return actions;
   }, [
     isImportExportEnabled,
-    isMockDataGeneratorEligibleAndSchemaReady,
+    isMockDataGeneratorEligible,
     isInMockDataTreatmentVariant,
   ]);
 
@@ -146,15 +140,13 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   instanceDescription,
   insertDataHandler,
   isWritable,
-  isMockDataGeneratorEligibleAndSchemaReady,
+  isMockDataGeneratorEligible,
 }) => {
   if (isWritable) {
     return (
       <AddDataMenuButton
         insertDataHandler={insertDataHandler}
-        isMockDataGeneratorEligibleAndSchemaReady={
-          isMockDataGeneratorEligibleAndSchemaReady
-        }
+        isMockDataGeneratorEligible={isMockDataGeneratorEligible}
       />
     );
   }
@@ -171,9 +163,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
           <AddDataMenuButton
             insertDataHandler={insertDataHandler}
             isDisabled={true}
-            isMockDataGeneratorEligibleAndSchemaReady={
-              isMockDataGeneratorEligibleAndSchemaReady
-            }
+            isMockDataGeneratorEligible={isMockDataGeneratorEligible}
           />
           {tooltipChildren}
         </div>
