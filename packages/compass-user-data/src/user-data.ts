@@ -23,6 +23,19 @@ const validUserDataTypes = [
 
 export type UserDataType = (typeof validUserDataTypes)[number];
 
+export type UserScopedUserDataType = 'AppPreferences';
+
+// The id of a user-scoped data type is always undefined (singleton document),
+// while project-scoped types require a document id.
+export type ScopedId<Type extends UserDataType> =
+  Type extends UserScopedUserDataType ? undefined : string;
+
+export function isUserScopedUserDataType(
+  type: UserDataType
+): type is UserScopedUserDataType {
+  return type === 'AppPreferences';
+}
+
 export function assertsUserDataType(
   value: unknown
 ): asserts value is UserDataType {
@@ -44,13 +57,13 @@ export type FileUserDataOptions<Input> = {
   deserialize?: DeserializeContent;
 };
 
-export type AtlasUserDataOptions<Input> = {
-  orgId: string;
-  projectId: string;
+export type AtlasUserDataOptions<Type extends UserDataType, Input> = {
   atlasService: AtlasServiceLike;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
-};
+} & (Type extends UserScopedUserDataType
+  ? unknown
+  : { orgId: string; projectId: string });
 
 type ReadOptions = {
   ignoreErrors: boolean;
@@ -84,15 +97,18 @@ export abstract class IUserData<T extends z.Schema> {
     this.deserialize = deserialize;
   }
 
-  abstract write(id: string, content: z.input<T>): Promise<boolean>;
-  abstract delete(id: string): Promise<boolean>;
+  // The concrete implementations constrain the id further: FileUserData
+  // requires a string, AtlasUserData requires undefined for user-scoped types
+  // (see ScopedId).
+  abstract write(id: string | undefined, content: z.input<T>): Promise<boolean>;
+  abstract delete(id: string | undefined): Promise<boolean>;
   abstract readAll(options?: ReadOptions): Promise<ReadAllResult<T>>;
   abstract readOne(
-    id: string,
+    id: string | undefined,
     options?: ReadOptions
   ): Promise<z.output<T> | undefined>;
   abstract updateAttributes(
-    id: string,
+    id: string | undefined,
     data: Partial<z.input<T>>
   ): Promise<boolean>;
 }
@@ -356,45 +372,54 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
 }
 
 // This type exists to avoid a circular dependency between user-data and atlas-service.
-type AtlasServiceLike = {
+export type AtlasServiceLike = {
   userDataEndpoint: (
     orgId: string,
     projectId: string,
     dataType: UserDataType,
     id?: string
   ) => string;
+  userScopedUserDataEndpoint: (dataType: UserDataType) => string;
   authenticatedFetch: AuthenticatedFetch;
 };
 
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
-export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
+export class AtlasUserData<
+  T extends z.Schema,
+  Type extends UserDataType = UserDataType
+> extends IUserData<T> {
   private readonly atlasService: AtlasServiceLike;
-  private orgId: string = '';
-  private projectId: string = '';
+  private orgId?: string;
+  private projectId?: string;
   constructor(
     validator: T,
-    dataType: UserDataType,
-    {
-      orgId,
-      projectId,
-      atlasService,
-      serialize,
-      deserialize,
-    }: AtlasUserDataOptions<z.input<T>>
+    dataType: Type,
+    options: AtlasUserDataOptions<Type, z.input<T>>
   ) {
+    const { atlasService, serialize, deserialize } = options;
+    const { orgId, projectId } = options as Partial<{
+      orgId: string;
+      projectId: string;
+    }>;
     super(validator, dataType, { serialize, deserialize });
     this.atlasService = atlasService;
     this.orgId = orgId;
     this.projectId = projectId;
   }
 
-  async write(id: string, content: z.input<T>): Promise<boolean> {
-    const url = this.atlasService.userDataEndpoint(
-      this.orgId,
-      this.projectId,
-      this.dataType,
-      id
-    );
+  private endpointFor(id?: string): string {
+    return isUserScopedUserDataType(this.dataType)
+      ? this.atlasService.userScopedUserDataEndpoint(this.dataType)
+      : this.atlasService.userDataEndpoint(
+          this.orgId ?? '',
+          this.projectId ?? '',
+          this.dataType,
+          id
+        );
+  }
+
+  async write(id: ScopedId<Type>, content: z.input<T>): Promise<boolean> {
+    const url = this.endpointFor(id);
     try {
       this.validator.parse(content);
       await this.atlasService.authenticatedFetch(url, {
@@ -423,13 +448,8 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
-    const url = this.atlasService.userDataEndpoint(
-      this.orgId,
-      this.projectId,
-      this.dataType,
-      id
-    );
+  async delete(id: ScopedId<Type>): Promise<boolean> {
+    const url = this.endpointFor(id);
     try {
       await this.atlasService.authenticatedFetch(url, {
         method: 'DELETE',
@@ -456,18 +476,16 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     };
     try {
       const response = await this.atlasService.authenticatedFetch(
-        this.atlasService.userDataEndpoint(
-          this.orgId,
-          this.projectId,
-          this.dataType,
-          undefined
-        ),
+        this.endpointFor(undefined),
         {
           method: 'GET',
         }
       );
       const json = await response.json();
-      for (const item of json) {
+      // The user-scoped route returns a single document; wrap it so the
+      // parsing loop below stays list-shaped for both scopes.
+      const docs = isUserScopedUserDataType(this.dataType) ? [json] : json;
+      for (const item of docs) {
         try {
           const parsedData = this.deserialize(item.data as string);
           result.data.push(this.validator.parse(parsedData) as z.output<T>);
@@ -483,15 +501,10 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async updateAttributes(
-    id: string,
+    id: ScopedId<Type>,
     data: Partial<z.input<T>>
   ): Promise<boolean> {
-    const url = this.atlasService.userDataEndpoint(
-      this.orgId,
-      this.projectId,
-      this.dataType,
-      id
-    );
+    const url = this.endpointFor(id);
     try {
       const prevData = await this.readOne(id);
       const newData: z.input<T> = {
@@ -525,13 +538,8 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   // TODO: change this depending on whether or not updateAttributes can provide all current data
-  async readOne(id: string): Promise<z.output<T> | undefined> {
-    const url = this.atlasService.userDataEndpoint(
-      this.orgId,
-      this.projectId,
-      this.dataType,
-      id
-    );
+  async readOne(id: ScopedId<Type>): Promise<z.output<T> | undefined> {
+    const url = this.endpointFor(id);
     try {
       const getResponse = await this.atlasService.authenticatedFetch(url, {
         method: 'GET',

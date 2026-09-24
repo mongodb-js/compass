@@ -7,7 +7,6 @@ import {
   getPreferencesFromCloudApi,
   getProjectIdFromUrl,
 } from './preferences';
-import { defaultHeaders } from './url-builder';
 
 const PROJECT_ID = '0123456789abcdef01234567';
 
@@ -78,38 +77,60 @@ describe('compass-web preferences', function () {
   });
 
   describe('getPreferencesFromCloudApi', function () {
-    let fetchStub: Sinon.SinonStub;
+    let cloudEndpointStub: Sinon.SinonStub;
+    let authenticatedFetchStub: Sinon.SinonStub;
+    let userDataEndpointStub: Sinon.SinonStub;
+    let userScopedUserDataEndpointStub: Sinon.SinonStub;
+    let atlasService: {
+      cloudEndpoint(path?: string): string;
+      authenticatedFetch(): Promise<Response>;
+      userDataEndpoint(): string;
+      userScopedUserDataEndpoint(): string;
+    };
 
     beforeEach(function () {
-      fetchStub = Sinon.stub(globalThis, 'fetch');
+      cloudEndpointStub = Sinon.stub().returns(
+        `/explorer/v1/groups/${PROJECT_ID}/preferences`
+      );
+      authenticatedFetchStub = Sinon.stub();
+      userDataEndpointStub = Sinon.stub();
+      userScopedUserDataEndpointStub = Sinon.stub();
+      atlasService = {
+        cloudEndpoint: cloudEndpointStub,
+        authenticatedFetch: authenticatedFetchStub,
+        userDataEndpoint: userDataEndpointStub,
+        userScopedUserDataEndpoint: userScopedUserDataEndpointStub,
+      };
     });
 
     afterEach(function () {
-      fetchStub.restore();
+      cloudEndpointStub.reset();
+      authenticatedFetchStub.reset();
+      userDataEndpointStub.reset();
+      userScopedUserDataEndpointStub.reset();
     });
 
     it('requests the cloud preferences endpoint with the expected options', async function () {
-      fetchStub.resolves(fakeResponse(apiResponse));
+      authenticatedFetchStub.resolves(fakeResponse(apiResponse));
 
-      await getPreferencesFromCloudApi(PROJECT_ID);
+      await getPreferencesFromCloudApi(PROJECT_ID, atlasService);
 
-      expect(fetchStub.calledOnce).to.equal(true);
-      const [url, init] = fetchStub.firstCall.args;
-      expect(url).to.equal(`/explorer/v1/groups/${PROJECT_ID}/preferences`);
-      expect(init).to.deep.equal({
-        headers: defaultHeaders,
-        credentials: 'include',
-      });
+      expect(cloudEndpointStub).to.have.been.calledWith(
+        `/explorer/v1/groups/${PROJECT_ID}/preferences`
+      );
+      expect(authenticatedFetchStub).to.have.been.calledOnceWith(
+        `/explorer/v1/groups/${PROJECT_ID}/preferences`
+      );
     });
 
     it('maps the cloud response to compass preferences', async function () {
-      fetchStub.resolves(fakeResponse(apiResponse));
+      authenticatedFetchStub.resolves(fakeResponse(apiResponse));
 
       const {
         atlasCloudUserPreferences,
         atlasCloudProjectPreferences,
         atlasCloudOrgPreferences,
-      } = await getPreferencesFromCloudApi(PROJECT_ID);
+      } = await getPreferencesFromCloudApi(PROJECT_ID, atlasService);
 
       expect(atlasCloudUserPreferences).to.include({
         telemetryAtlasUserId: 'auid-123',
@@ -137,12 +158,13 @@ describe('compass-web preferences', function () {
     });
 
     it('sets readWrite when userRoles.isDataAccessWrite is true', async function () {
-      fetchStub.resolves(
+      authenticatedFetchStub.resolves(
         fakeResponse({ ...apiResponse, userRoles: { isDataAccessWrite: true } })
       );
 
       const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
-        PROJECT_ID
+        PROJECT_ID,
+        atlasService
       );
 
       expect(atlasCloudUserPreferences).to.include({ readWrite: true });
@@ -150,10 +172,13 @@ describe('compass-web preferences', function () {
     });
 
     it('sets readOnly when the user has no elevated role', async function () {
-      fetchStub.resolves(fakeResponse({ ...apiResponse, userRoles: {} }));
+      authenticatedFetchStub.resolves(
+        fakeResponse({ ...apiResponse, userRoles: {} })
+      );
 
       const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
-        PROJECT_ID
+        PROJECT_ID,
+        atlasService
       );
 
       expect(atlasCloudUserPreferences).to.include({ readOnly: true });
@@ -161,12 +186,13 @@ describe('compass-web preferences', function () {
     });
 
     it('does not enable index management for a plain read-write user (no index-manager role)', async function () {
-      fetchStub.resolves(
+      authenticatedFetchStub.resolves(
         fakeResponse({ ...apiResponse, userRoles: { isDataAccessWrite: true } })
       );
 
       const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
-        PROJECT_ID
+        PROJECT_ID,
+        atlasService
       );
 
       expect(atlasCloudUserPreferences).to.include({
@@ -176,7 +202,7 @@ describe('compass-web preferences', function () {
     });
 
     it('enables index management for a read-write user with the index-manager role', async function () {
-      fetchStub.resolves(
+      authenticatedFetchStub.resolves(
         fakeResponse({
           ...apiResponse,
           userRoles: {
@@ -188,7 +214,8 @@ describe('compass-web preferences', function () {
       );
 
       const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
-        PROJECT_ID
+        PROJECT_ID,
+        atlasService
       );
 
       expect(atlasCloudUserPreferences).to.include({
@@ -198,7 +225,7 @@ describe('compass-web preferences', function () {
     });
 
     it('enables index management for a read-only user with the index-manager role', async function () {
-      fetchStub.resolves(
+      authenticatedFetchStub.resolves(
         fakeResponse({
           ...apiResponse,
           userRoles: {
@@ -209,7 +236,8 @@ describe('compass-web preferences', function () {
       );
 
       const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
-        PROJECT_ID
+        PROJECT_ID,
+        atlasService
       );
 
       expect(atlasCloudUserPreferences).to.include({
@@ -219,7 +247,7 @@ describe('compass-web preferences', function () {
     });
 
     it('does not enable index management for an index-manager without any data access', async function () {
-      fetchStub.resolves(
+      authenticatedFetchStub.resolves(
         fakeResponse({
           ...apiResponse,
           userRoles: { isGroupIndexManager: true },
@@ -227,7 +255,8 @@ describe('compass-web preferences', function () {
       );
 
       const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
-        PROJECT_ID
+        PROJECT_ID,
+        atlasService
       );
 
       expect(atlasCloudUserPreferences).to.include({
@@ -237,7 +266,7 @@ describe('compass-web preferences', function () {
     });
 
     it('does not set index-management preferences for an admin (full UI)', async function () {
-      fetchStub.resolves(
+      authenticatedFetchStub.resolves(
         fakeResponse({
           ...apiResponse,
           userRoles: { isDataAccessAdmin: true, isGroupIndexManager: true },
@@ -245,7 +274,8 @@ describe('compass-web preferences', function () {
       );
 
       const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
-        PROJECT_ID
+        PROJECT_ID,
+        atlasService
       );
 
       expect(atlasCloudUserPreferences).to.not.have.property('readOnly');
@@ -256,13 +286,13 @@ describe('compass-web preferences', function () {
     });
 
     it('makes cloud feature flags resolve to the cloud value instead of the hardcoded released default', async function () {
-      fetchStub.resolves(fakeResponse(apiResponse));
+      authenticatedFetchStub.resolves(fakeResponse(apiResponse));
 
       const {
         atlasCloudUserPreferences,
         atlasCloudProjectPreferences,
         atlasCloudOrgPreferences,
-      } = await getPreferencesFromCloudApi(PROJECT_ID);
+      } = await getPreferencesFromCloudApi(PROJECT_ID, atlasService);
 
       const preferences = new CompassWebPreferencesAccess(
         {
@@ -287,13 +317,13 @@ describe('compass-web preferences', function () {
     });
 
     it('ignores unknown feature flags', async function () {
-      fetchStub.resolves(fakeResponse(apiResponse));
+      authenticatedFetchStub.resolves(fakeResponse(apiResponse));
 
       const {
         atlasCloudUserPreferences,
         atlasCloudProjectPreferences,
         atlasCloudOrgPreferences,
-      } = await getPreferencesFromCloudApi(PROJECT_ID);
+      } = await getPreferencesFromCloudApi(PROJECT_ID, atlasService);
 
       expect(atlasCloudUserPreferences).to.not.have.property('nonExistentFlag');
       expect(atlasCloudProjectPreferences).to.not.have.property(
@@ -302,12 +332,12 @@ describe('compass-web preferences', function () {
       expect(atlasCloudOrgPreferences).to.not.have.property('nonExistentFlag');
     });
 
-    it('throws when the request is not ok', async function () {
-      fetchStub.resolves(fakeResponse({}, false));
+    it('throws when the request fails', async function () {
+      authenticatedFetchStub.rejects(new Error('boom'));
 
       let error: Error | undefined;
       try {
-        await getPreferencesFromCloudApi(PROJECT_ID);
+        await getPreferencesFromCloudApi(PROJECT_ID, atlasService);
       } catch (err) {
         error = err as Error;
       }

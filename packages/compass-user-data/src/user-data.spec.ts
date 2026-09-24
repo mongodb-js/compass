@@ -483,6 +483,7 @@ describe('AtlasUserData', function () {
   let sandbox: sinon.SinonSandbox;
   let atlasServiceStub: {
     userDataEndpoint: sinon.SinonStub;
+    userScopedUserDataEndpoint: sinon.SinonStub;
     authenticatedFetch: sinon.SinonStub;
   };
 
@@ -490,6 +491,7 @@ describe('AtlasUserData', function () {
     sandbox = sinon.createSandbox();
     atlasServiceStub = {
       userDataEndpoint: sandbox.stub(),
+      userScopedUserDataEndpoint: sandbox.stub(),
       authenticatedFetch: sandbox.stub(),
     };
   });
@@ -498,11 +500,11 @@ describe('AtlasUserData', function () {
     sandbox.restore();
   });
 
-  const getAtlasUserData = (
+  const getAtlasUserData = <Type extends UserDataType = 'FavoriteQueries'>(
     validatorOpts: ValidatorOptions = {},
     orgId = 'test-org',
     projectId = 'test-proj',
-    type: UserDataType = 'FavoriteQueries'
+    type: Type = 'FavoriteQueries' as Type
   ) => {
     return new AtlasUserData(getTestSchema(validatorOpts), type, {
       orgId,
@@ -791,6 +793,73 @@ describe('AtlasUserData', function () {
       });
       expect(result.data[0]).to.not.have.property('unknownProp');
       expect(result.errors).to.have.lengthOf(0);
+    });
+  });
+
+  context('AtlasUserData user-scoped types', function () {
+    const getUserScopedUserData = (type: UserDataType = 'AppPreferences') =>
+      new AtlasUserData(getTestSchema(), type, {
+        atlasService: atlasServiceStub,
+      });
+
+    it('writes to the user-scoped endpoint without org/project ids', async function () {
+      atlasServiceStub.authenticatedFetch.resolves(mockResponse({}));
+      atlasServiceStub.userScopedUserDataEndpoint.returns(
+        'cloud.mongodb.com/ui/userData/AppPreferences'
+      );
+
+      const userData = getUserScopedUserData();
+      const result = await userData.write(undefined, { name: 'VSCode' });
+
+      expect(result).to.be.true;
+      const [url, options] = atlasServiceStub.authenticatedFetch.firstCall.args;
+      expect(url).to.equal('cloud.mongodb.com/ui/userData/AppPreferences');
+      expect(options.method).to.equal('PUT');
+      expect(
+        atlasServiceStub.userScopedUserDataEndpoint
+      ).to.have.been.calledOnceWith('AppPreferences');
+    });
+
+    it('readAll returns a single-element list when the endpoint returns one document', async function () {
+      atlasServiceStub.authenticatedFetch.resolves(
+        mockResponse({ data: JSON.stringify({ name: 'VSCode' }) })
+      );
+      atlasServiceStub.userScopedUserDataEndpoint.returns(
+        'cloud.mongodb.com/ui/userData/AppPreferences'
+      );
+
+      const userData = getUserScopedUserData();
+      const result = await userData.readAll();
+
+      expect(result.errors).to.have.lengthOf(0);
+      expect(result.data).to.have.lengthOf(1);
+      expect(result.data[0]).to.deep.equal({
+        ...defaultValues(),
+        name: 'VSCode',
+      });
+      const [url, options] = atlasServiceStub.authenticatedFetch.firstCall.args;
+      expect(url).to.equal('cloud.mongodb.com/ui/userData/AppPreferences');
+      expect(options.method).to.equal('GET');
+    });
+
+    it('readOne reads the single document from the user-scoped endpoint', async function () {
+      atlasServiceStub.authenticatedFetch.resolves(
+        mockResponse({ data: JSON.stringify({ name: 'Mongosh' }) })
+      );
+      atlasServiceStub.userScopedUserDataEndpoint.returns(
+        'cloud.mongodb.com/ui/userData/AppPreferences'
+      );
+
+      const userData = getUserScopedUserData();
+      const result = await userData.readOne(undefined);
+
+      expect(result).to.deep.equal({
+        ...defaultValues(),
+        name: 'Mongosh',
+      });
+      const [url, options] = atlasServiceStub.authenticatedFetch.firstCall.args;
+      expect(url).to.equal('cloud.mongodb.com/ui/userData/AppPreferences');
+      expect(options.method).to.equal('GET');
     });
   });
 

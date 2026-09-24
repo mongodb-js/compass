@@ -1,17 +1,14 @@
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { AtlasServiceConfig } from './util';
-import {
-  getAtlasConfig,
-  throwIfNetworkTrafficDisabled,
-  throwIfNotOk,
-} from './util';
+import type { AtlasServiceBackendPreset, AtlasServiceConfig } from './util';
+import { getAtlasConfigForPreset, throwIfNotOk } from './util';
 import type { Logger } from '@mongodb-js/compass-logging';
-import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { type UserDataType } from '@mongodb-js/compass-user-data';
 
 export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
+  atlasServiceBackendPreset?: AtlasServiceBackendPreset;
+  networkTraffic?: boolean;
 };
 
 function normalizePath(path?: string) {
@@ -52,17 +49,14 @@ function getAutomationAgentClusterId(
 }
 
 export class AtlasService {
-  private readonly preferences: PreferencesAccess;
   private readonly logger: Logger;
   private readonly options?: AtlasServiceOptions;
   private readonly defaultConfigOverride?: AtlasServiceConfig;
   constructor(
-    preferences: PreferencesAccess,
     logger: Logger,
     options?: AtlasServiceOptions,
     defaultConfigOverride?: AtlasServiceConfig
   ) {
-    this.preferences = preferences;
     this.logger = logger;
     this.options = options;
     this.defaultConfigOverride = defaultConfigOverride;
@@ -70,7 +64,12 @@ export class AtlasService {
   // Config value is dynamic to make sure that process.env overrides are taken
   // into account in runtime
   get config(): AtlasServiceConfig {
-    return this.defaultConfigOverride ?? getAtlasConfig(this.preferences);
+    return (
+      this.defaultConfigOverride ??
+      getAtlasConfigForPreset(
+        this.options?.atlasServiceBackendPreset ?? 'atlas'
+      )
+    );
   }
   privateApiEndpoint(path?: string): string {
     return `${this.config.atlasPrivateApiBaseUrl}${normalizePath(path)}`;
@@ -108,6 +107,10 @@ export class AtlasService {
       : `/${encodedOrgId}/${encodedGroupId}/${encodedType}`;
     return `${baseUrl}${path}`;
   }
+  userScopedUserDataEndpoint(type: UserDataType): string {
+    const encodedType = encodeURIComponent(type);
+    return `${this.config.userDataBaseUrl}/${encodedType}`;
+  }
   driverProxyEndpoint(path?: string): string {
     return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
   }
@@ -117,7 +120,9 @@ export class AtlasService {
     );
   }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    throwIfNetworkTrafficDisabled(this.preferences);
+    if (this.options?.networkTraffic === false) {
+      throw new Error('Network traffic is not allowed');
+    }
     throwIfAborted(init?.signal as AbortSignal);
     this.logger.log.info(
       this.logger.mongoLogId(1_001_000_297),
