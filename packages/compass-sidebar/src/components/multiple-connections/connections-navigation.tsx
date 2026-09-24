@@ -543,7 +543,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         openConnectionImportExportModal(action);
       }
     },
-    [onCollapseAll, onNewConnection, openConnectionImportExportModal]
+    [onCollapseAll, onNewConnection, openConnectionImportExportModal, track]
   );
 
   const contextMenuRef = useContextMenuGroups(

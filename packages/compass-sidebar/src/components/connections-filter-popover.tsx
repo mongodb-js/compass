@@ -65,7 +65,7 @@ export default function ConnectionsFilterPopover({
         active_only: excludeInactive,
       });
     },
-    [onFilterChange]
+    [onFilterChange, track]
   );
 
   const excludeInactiveToggleId = useId();
