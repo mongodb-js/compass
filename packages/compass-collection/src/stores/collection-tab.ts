@@ -8,6 +8,7 @@ import reducer, {
   collectionMetadataFetched,
   cancelSchemaAnalysis,
   openMockDataGeneratorModal,
+  mockDataGeneratorModalClosed,
 } from '../modules/collection-tab';
 import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
@@ -19,10 +20,8 @@ import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/prov
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import {
-  isAIFeatureEnabled,
-  type PreferencesAccess,
-} from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
 import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
@@ -128,6 +127,7 @@ export function activatePlugin(
   const schemaAnalysisAbortControllerRef = {
     current: undefined,
   };
+  let isActive = true;
   const store = createStore(
     reducer,
     {
@@ -185,31 +185,41 @@ export function activatePlugin(
     void store.dispatch(openMockDataGeneratorModal());
   });
 
-  void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
-    store.dispatch(collectionMetadataFetched(metadata));
-
-    // Assign experiment for Mock Data Generator
-    // Only assign when we're connected to Atlas, the org-level setting for AI features is enabled,
-    // and the collection supports the Mock Data Generator feature (not readonly/timeseries)
+  const handleSchemaAnalysisInvalidated = () => {
     if (
-      !metadata.isReadonly &&
-      !metadata.isTimeSeries &&
-      connectionInfoRef.current?.atlasMetadata?.clusterName && // Ensures we only assign in Atlas
-      isAIFeatureEnabled(preferences.getPreferences()) // Ensures org-level AI features setting is enabled
+      !isMockDataGeneratorEligible(
+        store.getState().metadata,
+        preferences.getPreferences()
+      )
     ) {
-      void experimentationServices
-        .assignExperiment(ExperimentTestNames.mockDataGenerator, {
-          team: 'Atlas Growth',
-        })
-        .catch((error) => {
-          logger.debug('Mock Data Generator experiment assignment failed', {
-            experiment: ExperimentTestNames.mockDataGenerator,
-            namespace: namespace,
-            error: error instanceof Error ? error.message : String(error),
-          });
-        });
+      store.dispatch(cancelSchemaAnalysis());
+      store.dispatch(mockDataGeneratorModalClosed());
     }
-  });
+  };
+
+  for (const preference of [
+    'enableGenAIFeatures',
+    'enableGenAIFeaturesAtlasOrg',
+    'readOnly',
+    'enableMockDataGenerator',
+  ] as const) {
+    addCleanup(
+      preferences.onPreferenceValueChanged(
+        preference,
+        handleSchemaAnalysisInvalidated
+      )
+    );
+  }
+
+  void collectionModel
+    .fetchMetadata({ dataService })
+    .then((metadata) => {
+      if (!isActive) return;
+      store.dispatch(collectionMetadataFetched(metadata));
+    })
+    .catch((error) => {
+      logger.debug('Failed to fetch collection metadata', { namespace, error });
+    });
 
   // Assign experiment for Search Activation Program P1
   // Only assign when we're connected to Atlas
@@ -245,8 +255,11 @@ export function activatePlugin(
       });
   }
 
-  // Cancel schema analysis when plugin is deactivated
-  addCleanup(() => store.dispatch(cancelSchemaAnalysis()));
+  addCleanup(() => {
+    isActive = false;
+    store.dispatch(cancelSchemaAnalysis());
+    store.dispatch(mockDataGeneratorModalClosed());
+  });
 
   return {
     store,
