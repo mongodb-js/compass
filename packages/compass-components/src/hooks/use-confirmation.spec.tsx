@@ -63,6 +63,47 @@ describe('use-confirmation', function () {
     });
   });
 
+  context('when the confirmation area is not rendered yet', function () {
+    it('errors when attempting to show a confirmation', async function () {
+      const response = showConfirmation({ title: 'Are you sure?' });
+      const responseError = response.catch((err: Error) => err);
+
+      expect(await responseError).to.be.an('error');
+      expect(await responseError).to.have.property(
+        'message',
+        'Confirmation modal is not registered to show confirmation'
+      );
+    });
+
+    it('resolves the flushed confirmation as false when the area unmounts', async function () {
+      const { unmount } = render(
+        <ConfirmationModalArea></ConfirmationModalArea>
+      );
+      const response = showConfirmation({ title: 'Are you sure?' });
+
+      await screen.findByTestId('confirmation-modal');
+      unmount();
+
+      expect(await response).to.eq(false);
+    });
+  });
+
+  context('when the area is unmounted and mounted again', function () {
+    it('shows confirmations requested against the new area', async function () {
+      const { unmount } = render(
+        <ConfirmationModalArea></ConfirmationModalArea>
+      );
+      unmount();
+
+      render(<ConfirmationModalArea></ConfirmationModalArea>);
+      const response = showConfirmation({ title: 'Are you sure?' });
+
+      expect(await screen.findByText('Are you sure?')).to.exist;
+      userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+      expect(await response).to.eq(true);
+    });
+  });
+
   context(
     'when asking for confirmation multiple times with the same required input',
     function () {
