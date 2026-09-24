@@ -473,7 +473,7 @@ export const DEFAULT_CONNECTIONS_SERVER_INFO: {
  */
 export const COMPASS_WEB_ENTRYPOINT_HOST = 'downloads.mongodb.com';
 
-const CLOUD_URLS = {
+export const CLOUD_URLS = {
   dev: {
     accountUrl: 'https://account-dev.mongodb.com',
     cloudUrl: 'https://cloud-dev.mongodb.com',

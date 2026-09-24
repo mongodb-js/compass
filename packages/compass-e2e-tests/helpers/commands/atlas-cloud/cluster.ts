@@ -143,25 +143,22 @@ export async function createAtlasCluster(
     clusterType = 'Free',
   }: AtlasProject & { clusterName: string; clusterType?: ClusterTypes }
 ): Promise<string> {
-  const { cloudUrl } = getCloudUrlsForEnvironment(env);
-
   await navigateToProject(browser, { env, projectId });
 
   /**
    * Get a cluster description template for the cluster creation and start
    * creating a cluster
    */
-  const clusterTemplateUrl = new URL(
-    `/nds/clusters/${projectId}/template/${clusterTypeToTemplate[clusterType]}`,
-    cloudUrl
-  );
-  clusterTemplateUrl.searchParams.append('clusterName', clusterName);
-  clusterTemplateUrl.searchParams.append('cloudProvider', 'AWS');
-  clusterTemplateUrl.searchParams.append('regionKey', 'US_EAST_1');
-
+  const clusterTemplateParams = new URLSearchParams({
+    clusterName,
+    cloudProvider: 'AWS',
+    regionKey: 'US_EAST_1',
+  });
   const clusterDescription = await doCloudFetch(
     browser,
-    clusterTemplateUrl.toString()
+    `/nds/clusters/${projectId}/template/${
+      clusterTypeToTemplate[clusterType]
+    }?${clusterTemplateParams.toString()}`
   );
 
   // Geosharded is a bit of a special case: the template is useful to generate
@@ -269,8 +266,7 @@ export async function createAtlasCluster(
     browser,
     projectId,
     clusterName,
-    (cluster) => cluster.state === 'IDLE',
-    'ready'
+    (cluster) => cluster.state === 'IDLE'
   );
 
   if (!cluster.srvAddress) {
@@ -286,8 +282,7 @@ async function waitForCluster(
   browser: CompassBrowser,
   projectId: string,
   clusterName: string,
-  predicate: (cluster: AtlasClusterListItem) => boolean,
-  waitingFor: string
+  predicate: (cluster: AtlasClusterListItem) => boolean
 ): Promise<AtlasClusterListItem> {
   return await browser.waitUntil(
     async () => {
@@ -299,9 +294,8 @@ async function waitForCluster(
       // Keeps CI output flowing: Evergreen kills tasks idle for 10 minutes and
       // dedicated clusters take about that long to provision
       debug(
-        'Waiting for cluster %s to be %s (state: %s, isPaused: %s, pausedDate: %s)',
+        'Waiting for cluster %s (state: %s, isPaused: %s, pausedDate: %s)',
         clusterName,
-        waitingFor,
         cluster?.state,
         cluster?.isPaused,
         cluster?.pausedDate
@@ -343,7 +337,6 @@ export async function pauseAtlasCluster(
     browser,
     projectId,
     clusterName,
-    (cluster) => !!cluster.pausedDate,
-    'paused'
+    (cluster) => !!cluster.pausedDate
   );
 }

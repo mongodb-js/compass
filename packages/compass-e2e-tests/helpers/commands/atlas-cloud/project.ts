@@ -9,11 +9,8 @@ export async function createAtlasProject(
 ): Promise<string> {
   const { cloudUrl } = getCloudUrlsForEnvironment(env);
 
-  // doCloudFetch needs the CSRF tokens from a signed in Atlas Cloud page
-  if (!(await isAtlasCloudPage(browser, cloudUrl))) {
-    await browser.navigateTo(cloudUrl);
-    await browser.waitUntil(() => isAtlasCloudPage(browser, cloudUrl));
-  }
+  await browser.navigateTo(cloudUrl);
+  await browser.waitUntil(() => isAtlasCloudPage(browser, cloudUrl));
 
   const { id } = await doCloudFetch<{ id: string }>(
     browser,
@@ -21,6 +18,5 @@ export async function createAtlasProject(
     { method: 'POST' },
     { json: { name, tags: {} } }
   );
-
   return id;
 }
