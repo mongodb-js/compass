@@ -147,11 +147,19 @@ describe('ImportConnectionsModal', function () {
 
     expect(screen.getByTestId('existing-favorite-badge-id1')).to.exist;
     expect(screen.getByTestId('select-id1')).to.have.property('checked', false);
-    expect(screen.queryByText(/will be overwritten/)).to.equal(null);
+    expect(
+      screen.queryByText(
+        /Some selected connections already exist and will be overwritten during import./
+      )
+    ).to.equal(null);
 
     toggleConnection('id1');
 
-    expect(await screen.findByText(/will be overwritten/)).to.exist;
+    expect(
+      await screen.findByText(
+        /Some selected connections already exist and will be overwritten during import./
+      )
+    ).to.exist;
   });
 
   it('imports only the selected connections and reports success', async function () {

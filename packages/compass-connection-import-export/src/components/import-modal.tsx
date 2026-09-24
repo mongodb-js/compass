@@ -157,8 +157,8 @@ export function ImportConnectionsModal({
       )) ||
         (hasSelectedDuplicates && (
           <Banner variant="warning">
-            Some connections are already saved and will be overwritten by
-            importing them
+            Some selected connections already exist and will be overwritten
+            during import.
           </Banner>
         ))}
     </FormModal>
