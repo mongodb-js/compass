@@ -245,7 +245,7 @@ const IndexesListDrawerView: React.FunctionComponent<
       <Accordion
         text="Standard"
         open={isRegularIndexesAccordionOpen}
-        setOpen={onRegularIndexesAccordionOpen}
+        onOpenToggle={onRegularIndexesAccordionOpen}
       >
         {isRegularIndexesReadable ? (
           <RegularIndexesDrawerTable searchTerm={searchTerm} />

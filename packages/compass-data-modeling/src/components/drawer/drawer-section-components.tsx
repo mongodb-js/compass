@@ -44,7 +44,7 @@ export const DMDrawerSection: React.FC<{
         text={label}
         defaultOpen={true}
         textClassName={accordionTitleStyles}
-        buttonTextClassName={buttonStyles}
+        summaryTextClassName={buttonStyles}
         size="small"
       >
         {children}
