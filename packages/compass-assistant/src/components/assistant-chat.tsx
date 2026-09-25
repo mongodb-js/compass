@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useContext, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useContext,
+  useMemo,
+  useRef,
+} from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -581,8 +587,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     setDismissedAssistantToolsIntro(true);
   }, [setDismissedAssistantToolsIntro]);
 
-  const visibleMessages = messages.filter(
-    (message) => !message.metadata?.isSystemContext
+  const visibleMessages = useMemo(
+    () => messages.filter((message) => !message.metadata?.isSystemContext),
+    [messages]
   );
 
   return (
