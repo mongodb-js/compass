@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import semver from 'semver';
-import { Icon, DropdownMenuButton } from '@mongodb-js/compass-components';
+import { DropdownMenuButton } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
@@ -71,7 +71,6 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
       buttonProps={{
         size: 'xsmall',
         variant: 'primary',
-        leftGlyph: <Icon glyph="Save" />,
         disabled,
       }}
     ></DropdownMenuButton>

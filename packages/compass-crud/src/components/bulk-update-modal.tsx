@@ -19,7 +19,6 @@ import {
   Button,
   ModalHeader,
   ModalBody,
-  Icon,
   InteractivePopover,
   TextInput,
   useId,
@@ -204,7 +203,6 @@ const InlineSaveQueryModal: React.FunctionComponent<
             aria-expanded={open ? true : undefined}
             disabled={disabled}
           >
-            <Icon glyph="Favorite" />
             Save
             {children}
           </Button>
