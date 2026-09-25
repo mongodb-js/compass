@@ -438,8 +438,8 @@ describe('Collection documents tab', function () {
 
     expect(normalizedText).to
       .equal(`import static com.mongodb.client.model.Filters.eq;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.conversions.Bson;
@@ -451,10 +451,8 @@ import com.mongodb.client.FindIterable;
  * https://mongodb.github.io/mongo-java-driver
  */
 Bson filter = eq("i", 5L);
-MongoClient mongoClient = new MongoClient(
-    new MongoClientURI(
-        "${connectionString}"
-    )
+MongoClient mongoClient = MongoClients.create(
+    "${connectionString}"
 );
 MongoDatabase database = mongoClient.getDatabase("test");
 MongoCollection<Document> collection = database.getCollection("numbers");
