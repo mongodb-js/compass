@@ -78,6 +78,7 @@ interface AccordionProps
   hintText?: string;
   textClassName?: string;
   summaryTextClassName?: string;
+  open?: boolean;
   defaultOpen?: boolean;
   onOpenToggle?: (newValue: boolean) => void;
   size?: 'default' | 'small';
@@ -88,6 +89,7 @@ function Accordion({
   hintText,
   textClassName,
   summaryTextClassName,
+  open,
   defaultOpen = false,
   onOpenToggle,
   size = 'default',
@@ -103,7 +105,7 @@ function Accordion({
     [onOpenToggle]
   );
   return (
-    <details open={defaultOpen} onToggle={handleToggle}>
+    <details open={open ?? defaultOpen} onToggle={handleToggle}>
       <summary
         className={cx(
           darkMode ? summaryDarkThemeStyles : summaryLightThemeStyles,

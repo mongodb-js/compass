@@ -69,7 +69,7 @@ describe('Accordion Component', function () {
             data-testid="my-test-id"
             text="Accordion Test"
             open={open}
-            setOpen={setOpen}
+            onOpenToggle={setOpen}
           >
             <h1>Hello World</h1>
           </Accordion>
@@ -78,16 +78,17 @@ describe('Accordion Component', function () {
     }
 
     render(<ControlledAccordion />);
+    const summary = screen.getByText('Accordion Test');
 
     // Initially open
-    expect(screen.getByText('Hello World')).to.be.visible;
+    expect(summary.closest('details')).to.have.attribute('open');
 
     // Programmatically close
     userEvent.click(screen.getByTestId('close-button'));
-    expect(screen.queryByText('Hello World')).to.not.exist;
+    expect(summary.closest('details')).to.not.have.attribute('open');
 
     // Click once to re-open — should work on the first click
-    userEvent.click(screen.getByText('Accordion Test'));
-    expect(screen.getByText('Hello World')).to.be.visible;
+    userEvent.click(summary);
+    expect(summary.closest('details')).to.have.attribute('open');
   });
 });
