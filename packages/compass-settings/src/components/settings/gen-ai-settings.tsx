@@ -4,6 +4,12 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../stores';
 import SettingsList from './settings-list';
 
+export const genaiFields = [
+  'enableGenAIFeatures',
+  'enableGenAISampleDocumentPassing',
+  'enableGenAIToolCalling',
+] as const;
+
 export const GenAISettings: React.FunctionComponent<{
   isAIFeatureEnabled: boolean;
   isToolCallingEnabled: boolean;

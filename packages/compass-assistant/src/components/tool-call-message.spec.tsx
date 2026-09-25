@@ -11,6 +11,7 @@ import sinon from 'sinon';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { containsText } from './test-helpers';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 
 describe('ToolCallMessage', function () {
   const defaultConnection: BasicConnectionInfo = {
@@ -198,7 +199,11 @@ describe('ToolCallMessage', function () {
       const deniedToolCall: ToolUIPart = {
         ...baseToolCall,
         state: 'output-denied',
-        approval: { id: 'approval-1', approved: false },
+        approval: {
+          id: 'approval-1',
+          approved: false,
+          reason: TOOL_DENIAL_REASONS.userDenied,
+        },
       };
 
       render(
@@ -423,6 +428,24 @@ describe('ToolCallMessage', function () {
         <ToolCallMessage
           connection={defaultConnection}
           toolCall={runningTool}
+        />
+      );
+
+      expect(screen.queryByText('Run')).to.not.exist;
+      expect(screen.queryByText('Cancel')).to.not.exist;
+    });
+
+    it('does not show action buttons when there is no approval id', function () {
+      const approvalTool = {
+        ...baseToolCall,
+        state: 'approval-requested',
+        approval: undefined,
+      } as unknown as ToolUIPart;
+
+      render(
+        <ToolCallMessage
+          connection={defaultConnection}
+          toolCall={approvalTool}
         />
       );
 

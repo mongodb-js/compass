@@ -3,16 +3,12 @@ import {
   useConnectionInfo,
   useConnectionsListRef,
 } from '@mongodb-js/compass-connections/provider';
-import {
-  WorkspaceTab,
-  type WorkspaceTabCoreProps,
-} from '@mongodb-js/compass-components';
-import type { WorkspacePluginProps } from '@mongodb-js/workspace-info';
+import { WorkspaceTab } from '@mongodb-js/compass-components';
+import type { PluginHeaderProps } from '@mongodb-js/workspace-info';
 
 export const WorkspaceName = 'Performance' as const;
 
-type PluginTitleComponentProps = WorkspaceTabCoreProps &
-  WorkspacePluginProps<typeof WorkspaceName>;
+type PluginTitleComponentProps = PluginHeaderProps<typeof WorkspaceName>;
 
 export function ServerStatsPluginTitleComponent(
   props: PluginTitleComponentProps

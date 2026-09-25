@@ -42,6 +42,7 @@ describe('SettingsModal', function () {
             onSelectTab={onSelectTabSpy}
             selectedTab={undefined}
             hasChangedSettings={false}
+            userConfigurableSettings={{ autoUpdates: true }}
             {...props}
           />
         </Provider>
@@ -70,6 +71,22 @@ describe('SettingsModal', function () {
       userEvent.click(saveButton);
       expect(onSaveSpy.calledOnce).to.be.true;
     });
+  });
+
+  it('does not show empty categories', async function () {
+    renderSettingsModal({ isOpen: true, userConfigurableSettings: {} });
+
+    let sidebar!: HTMLElement;
+    await waitFor(() => {
+      const container = screen.getByTestId('settings-modal');
+      sidebar = within(container).getByTestId('settings-modal-sidebar');
+      expect(sidebar).to.exist;
+    });
+
+    for (const option of ['privacy']) {
+      const button = within(sidebar).queryByTestId(`sidebar-${option}-item`);
+      expect(button, `it renders ${option} button`).to.not.exist;
+    }
   });
 
   it('navigates between settings', async function () {

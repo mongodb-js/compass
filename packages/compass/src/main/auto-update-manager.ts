@@ -186,6 +186,7 @@ type UpdateInfo = {
 
 const FOUR_HOURS = 1000 * 60 * 60 * 4;
 const THIRTY_SECONDS = 30_000;
+const DOWNLOAD_HEARTBEAT_INTERVAL_MS = THIRTY_SECONDS;
 
 type StateEnterAction = (
   this: { maybeInterrupt(): void | never },
@@ -429,13 +430,22 @@ const STATE_UPDATE: Readonly<
 
       this.maybeInterrupt();
 
+      let settled = false;
+      let heartbeat: ReturnType<typeof setInterval> | undefined;
+      const stopHeartbeat = () => {
+        settled = true;
+        clearInterval(heartbeat);
+      };
+
       autoUpdater.once('error', (error) => {
+        stopHeartbeat();
         updateManager.setState(AutoUpdateManagerStates.DownloadingError, error);
       });
 
       this.maybeInterrupt();
 
       autoUpdater.once('update-downloaded', () => {
+        stopHeartbeat();
         updateManager.setState(
           AutoUpdateManagerStates.PromptForRestart,
           updateInfo
@@ -454,6 +464,23 @@ const STATE_UPDATE: Readonly<
       ipcMain?.broadcast('autoupdate:update-download-in-progress', {
         newVersion: updateInfo.to,
       });
+
+      if (!settled) {
+        const downloadStartedAt = Date.now();
+        heartbeat = setInterval(() => {
+          log.info(
+            mongoLogId(1_001_000_441),
+            'AutoUpdateManager',
+            'Still downloading update',
+            {
+              elapsedSeconds: Math.round(
+                (Date.now() - downloadStartedAt) / 1000
+              ),
+            }
+          );
+        }, DOWNLOAD_HEARTBEAT_INTERVAL_MS);
+        heartbeat.unref();
+      }
 
       autoUpdater.checkForUpdates();
     },

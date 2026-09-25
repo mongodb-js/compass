@@ -102,7 +102,7 @@ describe('ToolToggle', function () {
       await waitFor(() => {
         // Check that all tools from getAvailableTools are displayed
         const availableTools = getAvailableTools({
-          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasConnectionErrorDebuggerTool: true,
         });
         for (const tool of availableTools) {
           expect(screen.getByText(tool.name)).to.exist;
@@ -122,7 +122,7 @@ describe('ToolToggle', function () {
 
       await waitFor(() => {
         const availableTools = getAvailableTools({
-          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasConnectionErrorDebuggerTool: true,
         });
         const countText = screen.getByText(`(${availableTools.length})`, {
           exact: false,

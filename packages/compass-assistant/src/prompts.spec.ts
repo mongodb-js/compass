@@ -328,7 +328,7 @@ You SHOULD:
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableGenAIToolCalling: true,
-          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasConnectionErrorDebuggerTool: true,
         },
         expected: `${noConnectionInstructions(
           true
@@ -342,7 +342,7 @@ You SHOULD:
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
-          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasConnectionErrorDebuggerTool: true,
         },
         expected: `The user does not have any tabs open.\n\n${toolCallingOffInabilities(
           true
@@ -766,8 +766,8 @@ You SHOULD:
       } = {};
       summary.enableGenAIToolCalling =
         testCase.context.enableGenAIToolCalling ?? false;
-      summary.enableAtlasConnectionErrorDebugger =
-        testCase.context.enableAtlasConnectionErrorDebugger ?? false;
+      summary.enableAtlasConnectionErrorDebuggerTool =
+        testCase.context.enableAtlasConnectionErrorDebuggerTool ?? false;
       summary.type = testCase.context.activeWorkspace?.type || 'No active tab';
       if (testCase.context.activeCollectionMetadata?.isTimeSeries) {
         summary.isTimeSeries = true;
@@ -826,6 +826,17 @@ You SHOULD:
 
         expect(result.prompt).to.contain(
           'Use the "atlas-connection-error-debugger" tool'
+        );
+      });
+
+      it('instructs the assistant to pass the connection name to the tool', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: atlasConnectionInfo,
+          error: new Error('connection timed out'),
+        });
+
+        expect(result.prompt).to.contain(
+          'Always pass "Atlas Cluster" as its connectionName argument'
         );
       });
 
@@ -895,10 +906,8 @@ You SHOULD:
           error: new Error('connection refused'),
         });
 
-        expect(result.metadata?.connectionInfo).to.deep.equal({
-          id: 'conn-local',
-          name: 'Local',
-        });
+        expect(result.prompt).to.include('Local');
+        expect(result.prompt).to.include('mongodb://localhost:27017');
         expect(result.prompt).to.include('connection refused');
       });
     });

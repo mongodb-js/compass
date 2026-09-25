@@ -67,11 +67,31 @@ export const READ_ONLY_DATABASE_TOOLS: ToolDefinition[] = [
   },
 ];
 
-export const getAvailableTools = ({
-  enableAtlasConnectionErrorDebugger,
+function getReadonlyAtlasTools({
+  enableAtlasConnectionErrorDebuggerTool,
 }: Pick<
   AllPreferences,
-  'enableAtlasConnectionErrorDebugger'
+  'enableAtlasConnectionErrorDebuggerTool'
+>): ToolDefinition[] {
+  return [
+    ...(enableAtlasConnectionErrorDebuggerTool
+      ? [
+          {
+            name: 'atlas-connection-error-debugger',
+            readonly: true,
+            description:
+              'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
+          },
+        ]
+      : []),
+  ];
+}
+
+export const getAvailableTools = ({
+  enableAtlasConnectionErrorDebuggerTool,
+}: Pick<
+  AllPreferences,
+  'enableAtlasConnectionErrorDebuggerTool'
 >): ToolDefinition[] => {
   const tools = [
     ...READ_ONLY_DATABASE_TOOLS,
@@ -85,16 +105,7 @@ export const getAvailableTools = ({
       readonly: true,
       description: 'Get the current pipeline from the aggregation builder.',
     },
-    ...(enableAtlasConnectionErrorDebugger
-      ? [
-          {
-            name: 'atlas-connection-error-debugger',
-            readonly: true,
-            description:
-              'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
-          },
-        ]
-      : []),
+    ...getReadonlyAtlasTools({ enableAtlasConnectionErrorDebuggerTool }),
   ];
   return tools;
 };
@@ -105,8 +116,16 @@ export function doesToolUseConnection(toolName: string): boolean {
 
 export function isReadOnlyTool(toolName: string): boolean {
   return (
-    getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
+    getAvailableTools({ enableAtlasConnectionErrorDebuggerTool: true }).find(
       (tool) => tool.name === toolName
     )?.readonly || false
+  );
+}
+
+export function isAtlasTool(toolName: string): boolean {
+  return (
+    getReadonlyAtlasTools({
+      enableAtlasConnectionErrorDebuggerTool: true,
+    }).find((tool) => tool.name === toolName) !== undefined
   );
 }

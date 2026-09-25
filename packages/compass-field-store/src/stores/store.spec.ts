@@ -2,7 +2,6 @@ import schemaFixture from '../../test/fixtures/array_of_docs.fixture.json';
 import type { activatePlugin } from './store';
 import { expect } from 'chai';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
-import type { Schema } from '@mongodb-js/mongodb-schema';
 import {
   createPluginTestHelpers,
   cleanup,
@@ -86,7 +85,7 @@ describe('FieldStore', function () {
     ];
 
     it('on schema store trigger', function () {
-      updateFieldsFromSchema('test.test', schemaFixture as Schema);
+      updateFieldsFromSchema('test.test', schemaFixture);
       const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         '_id',
@@ -267,7 +266,7 @@ describe('FieldStore', function () {
     it('merges a schema with the existing state', async function () {
       const doc = { harry: 1, potter: true };
       await updateFieldsFromDocuments('test.test', [doc]);
-      updateFieldsFromSchema('test.test', schemaFixture as Schema);
+      updateFieldsFromSchema('test.test', schemaFixture);
       const state = store.getState()[connectionInfo.id]['test.test'];
       expect(Object.keys(state.fields)).to.have.all.members([
         'harry',

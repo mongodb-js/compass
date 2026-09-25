@@ -45,13 +45,14 @@ class DataModelStorageElectron implements DataModelStorage {
 
 const storage = new DataModelStorageElectron();
 
-export const DataModelStorageServiceProviderElectron: React.FunctionComponent =
-  ({ children }) => {
-    return (
-      <DataModelStorageServiceProvider storage={storage}>
-        {children}
-      </DataModelStorageServiceProvider>
-    );
-  };
+export const DataModelStorageServiceProviderElectron: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
+  return (
+    <DataModelStorageServiceProvider storage={storage}>
+      {children}
+    </DataModelStorageServiceProvider>
+  );
+};
 
 export default storage;

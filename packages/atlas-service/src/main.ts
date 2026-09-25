@@ -145,6 +145,12 @@ export class CompassAuthService {
   private static createMongoDBOIDCPlugin = createMongoDBOIDCPlugin;
 
   private static setupPlugin(serializedState?: string) {
+    // Allows tests to extend or disable (with `0`) the time the oidc-plugin
+    // waits for the opened browser to reach the auth URL. The default is 10s which
+    // may be too short for E2E tests, causing flaky failures.
+    const openBrowserTimeoutOverride =
+      process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE;
+
     this.plugin = this.createMongoDBOIDCPlugin({
       skipNonceInAuthCodeRequest: true,
       defaultScopes: ['offline_access'],
@@ -154,6 +160,9 @@ export class CompassAuthService {
       openBrowser: async ({ url }) => {
         await this.openExternal(url);
       },
+      ...(openBrowserTimeoutOverride !== undefined && {
+        openBrowserTimeout: Number(openBrowserTimeoutOverride),
+      }),
       allowedFlows: this.getAllowedAuthFlows.bind(this),
       logger: this.oidcPluginLogger,
       serializedState,
@@ -326,12 +335,12 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
+          await this.preferences.savePreferences({
+            telemetryAtlasUserId: auid,
+          });
           track('Atlas Sign In Success', {
             auid,
             duration: Date.now() - startedAt,
-          });
-          await this.preferences.savePreferences({
-            telemetryAtlasUserId: auid,
           });
           return this.currentUser;
         } catch (err) {

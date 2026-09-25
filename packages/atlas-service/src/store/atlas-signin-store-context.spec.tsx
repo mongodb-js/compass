@@ -16,7 +16,7 @@ function renderWithState(actions: AnyAction[]) {
   for (const action of actions) {
     store.dispatch(action);
   }
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
+  const wrapper = ({ children }: { children?: React.ReactNode }) => (
     <Provider store={store} context={AtlasSignInStoreContext}>
       {children}
     </Provider>

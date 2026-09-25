@@ -4,11 +4,13 @@
 
 ## Features
 
-#### Enzyme
+#### Testing
 
-The test environment is configured to test components with [Enzyme][enzyme]
-(including full `mount` mode through [jsdom][jsdom]) and [enzyme-chai][enzyme-chai].
-See the test folder for examples. Run `npm test` to execute the test suite.
+The test environment is configured to test components with
+[@mongodb-js/testing-library-compass][testing-library-compass], the repo's
+wrapper around [React Testing Library][react-testing-library], rendering into
+[jsdom][jsdom]. See the test folder for examples. Run `npm test` to execute the
+test suite.
 
 ## Developing
 
@@ -27,6 +29,6 @@ For completeness, below is a list of directories present in this module:
   place to implement your own components. `npm run compile` will use `./src` as input
   and create `./dist`.
 
-[enzyme]: http://airbnb.io/enzyme/
-[enzyme-chai]: https://github.com/producthunt/chai-enzyme
-[jsdom]: https://github.com/tmpvar/jsdom
+[testing-library-compass]: ../../configs/testing-library-compass
+[react-testing-library]: https://testing-library.com/docs/react-testing-library/intro/
+[jsdom]: https://github.com/jsdom/jsdom

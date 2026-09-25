@@ -145,7 +145,7 @@ export default class PipelineParser {
       root = PipelineParser._parseStringToRoot(source);
       root.elements.forEach((stage) => {
         try {
-          assertStageNode(stage as t.Expression);
+          assertStageNode(stage);
         } catch (e) {
           errors.push(e as PipelineParserError);
         }

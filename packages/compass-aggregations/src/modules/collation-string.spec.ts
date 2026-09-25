@@ -17,7 +17,7 @@ describe('collation string module', function () {
   describe('#reducer', function () {
     context('when the action is not collation string changed', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, { type: 'test' } as any)).to.deep.equal({
+        expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           text: '',
           value: null,
           isValid: true,

@@ -31,6 +31,7 @@ import {
   type ProactiveInsightsContext,
   type AnalyzeOutputContext,
   type DebugSearchErrorContext,
+  TOOL_DENIAL_REASONS,
 } from './prompts';
 import {
   type PreferencesAccess,
@@ -136,6 +137,7 @@ export type AssistantMessage = UIMessage & {
      *  to (if any).
      */
     connectionInfo?: BasicConnectionInfo | null;
+
     /** Whether to enable or disable storage of this message in chatapi. */
     disableStorage?: boolean;
     /** SHA-256 hashed User ID. */
@@ -389,8 +391,8 @@ export function ensureOptInAndSendThunk(
     const enableToolCalling = prefs.enableToolCalling;
     const enableGenAIToolCalling =
       prefs.enableGenAIToolCallingAtlasProject && prefs.enableGenAIToolCalling;
-    const enableAtlasConnectionErrorDebugger =
-      prefs.enableAtlasConnectionErrorDebugger;
+    const enableAtlasConnectionErrorDebuggerTool =
+      prefs.enableAtlasConnectionErrorDebuggerTool;
 
     if (enableToolCalling && enableGenAIToolCalling) {
       // Start the server once the first time both the feature flag and
@@ -414,6 +416,7 @@ export function ensureOptInAndSendThunk(
           await chat.addToolApprovalResponse({
             id: part.approval.id,
             approved: false,
+            reason: TOOL_DENIAL_REASONS.interrupted,
           });
         }
       }
@@ -437,7 +440,7 @@ export function ensureOptInAndSendThunk(
       activeCollectionMetadata,
       activeCollectionSubTab,
       enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
-      enableAtlasConnectionErrorDebugger,
+      enableAtlasConnectionErrorDebuggerTool,
     });
 
     // use just the text so we have a stable reference to compare against

@@ -6,7 +6,6 @@ ignores: [
     # native addons
     'kerberos',
     'os-dns-native',
-    'native-machine-id',
     'system-ca',
     'win-export-certificate-and-key',
     'macos-export-certificate-and-key',

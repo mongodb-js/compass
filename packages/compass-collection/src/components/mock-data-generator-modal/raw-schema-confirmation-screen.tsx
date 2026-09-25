@@ -19,6 +19,7 @@ import {
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toSimplifiedFieldInfo from './to-simplified-field-info';
+import { openMockDataGeneratorSettings } from '../../modules/collection-tab';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import type { MockDataGeneratorState } from './types';
@@ -28,6 +29,7 @@ import { FAKER_API_LINK } from './constants';
 interface RawSchemaConfirmationScreenProps {
   schemaAnalysis: SchemaAnalysisState;
   fakerSchemaGenerationStatus: MockDataGeneratorState['status'];
+  onOpenSettings: () => void;
 }
 
 const documentContainerStyles = css({
@@ -76,6 +78,7 @@ const loaderContainerStyles = css({
 const RawSchemaConfirmationScreen = ({
   schemaAnalysis,
   fakerSchemaGenerationStatus,
+  onOpenSettings,
 }: RawSchemaConfirmationScreenProps) => {
   const enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
@@ -84,6 +87,8 @@ const RawSchemaConfirmationScreen = ({
   const connectionInfo = useConnectionInfo();
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
 
+  // Atlas metadata is only present for compass-web connections
+  const isAtlas = !!connectionInfo.atlasMetadata;
   const projectId = connectionInfo.atlasMetadata?.projectId;
   const projectSettingsUrl = projectId
     ? `${window.location.origin}/v2/${projectId}#/settings/groupSettings`
@@ -91,10 +96,12 @@ const RawSchemaConfirmationScreen = ({
 
   // Show sample values banner when:
   // - Sample document passing is NOT enabled
-  // - Project ID is available (so we can link to settings)
+  // - Either it's Atlas with a project ID to link to settings, or desktop
   // - User hasn't dismissed the banner
   const shouldShowSampleValuesBanner =
-    !enableSampleDocumentPassing && projectId && !isBannerDismissed;
+    !enableSampleDocumentPassing &&
+    (isAtlas ? !!projectId : true) &&
+    !isBannerDismissed;
 
   // Show loading state when LLM request is in progress
   if (fakerSchemaGenerationStatus === 'in-progress') {
@@ -155,27 +162,44 @@ const RawSchemaConfirmationScreen = ({
                   <Body weight="medium">
                     Enable Sending Sample Field Values
                   </Body>
-                  <Body>
-                    To improve mock data quality, Project Owners can enable
-                    sending sample field values to the AI model. Refresh Data
-                    Explorer for changes to take effect.
-                  </Body>
+                  {isAtlas ? (
+                    <Body>
+                      To improve mock data quality, Project Owners can enable
+                      sending sample field values to the AI model. Refresh Data
+                      Explorer for changes to take effect.
+                    </Body>
+                  ) : (
+                    <Body>
+                      To improve mock data quality, enable sending sample field
+                      values in Settings → Artificial Intelligence.
+                    </Body>
+                  )}
                 </div>
-                <Button
-                  size="xsmall"
-                  onClick={() => {
-                    if (projectSettingsUrl) {
-                      window.open(
-                        projectSettingsUrl,
-                        '_blank',
-                        'noopener noreferrer'
-                      );
-                    }
-                  }}
-                  data-testid="sample-values-banner-settings-button"
-                >
-                  Project Settings
-                </Button>
+                {isAtlas ? (
+                  <Button
+                    size="xsmall"
+                    onClick={() => {
+                      if (projectSettingsUrl) {
+                        window.open(
+                          projectSettingsUrl,
+                          '_blank',
+                          'noopener noreferrer'
+                        );
+                      }
+                    }}
+                    data-testid="sample-values-banner-settings-button"
+                  >
+                    Project Settings
+                  </Button>
+                ) : (
+                  <Button
+                    size="xsmall"
+                    onClick={onOpenSettings}
+                    data-testid="sample-values-banner-settings-button"
+                  >
+                    Open Settings
+                  </Button>
+                )}
               </div>
             </Banner>
           )}
@@ -207,9 +231,8 @@ const mapStateToProps = (state: CollectionState) => {
   };
 };
 
-const ConnectedRawSchemaConfirmationScreen = connect(
-  mapStateToProps,
-  {}
-)(RawSchemaConfirmationScreen);
+const ConnectedRawSchemaConfirmationScreen = connect(mapStateToProps, {
+  onOpenSettings: openMockDataGeneratorSettings,
+})(RawSchemaConfirmationScreen);
 
 export default ConnectedRawSchemaConfirmationScreen;

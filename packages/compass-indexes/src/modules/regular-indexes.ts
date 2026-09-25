@@ -620,6 +620,8 @@ export function createRegularIndex(
       unique: options.unique,
       ttl: typeof options.expireAfterSeconds !== 'undefined',
       columnstore_index: hasColumnstoreIndex(fieldsFromSpec),
+      has_partial_filter_expression:
+        typeof options.partialFilterExpression !== 'undefined',
       has_columnstore_projection:
         // @ts-expect-error columnstoreProjection is not a part of
         // CreateIndexesOptions yet.

@@ -77,6 +77,10 @@ describe('CompassAuthServiceMain', function () {
   >;
 
   beforeEach(async function () {
+    mockFetch.resetHistory();
+    mockOidcPlugin.serialize.resetHistory();
+    mockOidcPlugin.destroy.resetHistory();
+
     getTrackingUserInfoStub = sandbox
       .stub(util, 'getTrackingUserInfo')
       .returns({ auid: atlasUid });
@@ -323,6 +327,49 @@ describe('CompassAuthServiceMain', function () {
       } catch (err) {
         expect(err).to.have.property('message', 'Aborted');
       }
+    });
+  });
+
+  describe('telemetryAtlasUserId', function () {
+    const telemetryAtlasUserId = () =>
+      preferences.getPreferences().telemetryAtlasUserId;
+
+    it('should be set after signing in', async function () {
+      getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
+
+      await CompassAuthService.signIn();
+
+      expect(telemetryAtlasUserId()).to.eq('hashed-auid');
+    });
+
+    // Signing in is the only thing that writes this preference: it is
+    // deliberately kept after sign out so that segment is never handed a
+    // nullish userId, which means telemetry stays attributed to the last user
+    // that signed in on this machine.
+    it('should be kept after signing out', async function () {
+      CompassAuthService['oidcPluginLogger'] = new EventEmitter();
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      await CompassAuthService.init(preferences, {} as any);
+      CompassAuthService['config'] = defaultConfig;
+      await preferences.savePreferences({
+        telemetryAtlasUserId: 'hashed-auid',
+      });
+
+      await CompassAuthService.signOut();
+
+      expect(telemetryAtlasUserId()).to.eq('hashed-auid');
+    });
+
+    it('should be kept when a previous session cannot be restored', async function () {
+      await preferences.savePreferences({
+        telemetryAtlasUserId: 'hashed-auid',
+      });
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      oidcCallback.resolves({ refreshToken });
+
+      await CompassAuthService['restoreCurrentUser']();
+
+      expect(telemetryAtlasUserId()).to.eq('hashed-auid');
     });
   });
 

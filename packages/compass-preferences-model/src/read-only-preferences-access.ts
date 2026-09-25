@@ -11,6 +11,7 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
     this._preferences = new Preferences({
       logger: createNoopLogger(),
       preferencesStorage: new InMemoryStorage(preferencesOverrides),
+      runningEnvironment: 'desktop',
     });
   }
 
@@ -28,8 +29,8 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
     return this._preferences.getPreferences();
   }
 
-  getConfigurableUserPreferences() {
-    return Promise.resolve(this._preferences.getConfigurableUserPreferences());
+  getSettingsUIPreferences() {
+    return Promise.resolve(this._preferences.getSettingsUIPreferences());
   }
 
   getPreferenceStates() {

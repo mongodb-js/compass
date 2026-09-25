@@ -30,6 +30,8 @@ interface ProxySettingsProps {
 
 type ProxyType = 'custom' | 'env' | 'no-proxy';
 
+export const proxyFields = ['proxy'] as const;
+
 const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
   onChange,
   proxy,

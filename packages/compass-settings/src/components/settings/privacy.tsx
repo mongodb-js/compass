@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from '@mongodb-js/compass-components';
 import SettingsList from './settings-list';
 
-const privacyFields = [
+export const privacyFields = [
   'autoUpdates',
   'enableMaps',
   'trackUsageStatistics',

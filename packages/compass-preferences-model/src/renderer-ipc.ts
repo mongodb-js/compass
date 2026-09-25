@@ -52,8 +52,8 @@ export const makePreferencesIpc = (
       return refreshCachedPreferences();
     },
     getPreferences,
-    getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
-      return ipcRenderer.invoke('compass:get-configurable-user-preferences');
+    getSettingsUIPreferences(): Promise<Partial<UserConfigurablePreferences>> {
+      return ipcRenderer.invoke('compass:get-settings-ui-preferences');
     },
     getPreferenceStates(): Promise<PreferenceStateInformation> {
       return ipcRenderer.invoke('compass:get-preference-states');

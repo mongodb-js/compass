@@ -19,6 +19,16 @@ export type EntryPointMessage = {
   metadata: AssistantMessage['metadata'];
 };
 
+const DO_NOT_RETRY =
+  'Do not call this tool again unless the user explicitly asks you to.';
+
+export const TOOL_DENIAL_REASONS = {
+  userDenied: `The user declined this tool call. ${DO_NOT_RETRY}`,
+  atlasSignInFailed: `Atlas sign in failed, so the tool could not run. ${DO_NOT_RETRY}`,
+  toolCallingDisabled: `Tool calling is disabled. ${DO_NOT_RETRY}`,
+  interrupted: `The tool call was interrupted by a new user message. Respond to the new message instead. ${DO_NOT_RETRY}`,
+} as const;
+
 export const APP_NAMES_FOR_PROMPT = {
   Compass: 'MongoDB Compass',
   DataExplorer: 'MongoDB Atlas Data Explorer',
@@ -48,6 +58,7 @@ You should:
    - Avoid encouraging users to perform destructive operations without qualification. Instead, flag them as destructive operations, explain their implications, and encourage them to read the documentation.
 4. Always call the 'search_content' tool.
 5. When writing aggregations, remember that stage operators start with '$' (e.g., '$match', '$group', etc.).
+6. If the user asks you to repeat a tool call you previously attempted, whether it was declined or failed, issue the tool call again. Do not retry on your own, but never deny a request from the user to run the tool again.
 </instructions>
 
 <abilities>
@@ -363,6 +374,8 @@ export const buildConnectionErrorPrompt = ({
     ? 'Data Explorer'
     : 'Compass';
 
+  const connectionName = getConnectionTitle(connectionInfo);
+
   const connectionDetailsSection = connectionInfo.atlasMetadata
     ? ''
     : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
@@ -375,7 +388,7 @@ ${connectionString}`;
   );
 
   return {
-    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
+    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt to "${connectionName}" from MongoDB ${productDisplayName}.${connectionDetailsSection}
 Error message:
 ${connectionError}
 
@@ -383,7 +396,7 @@ ${
   isAtlasConnection
     ? enableAtlasSignIn
       ? `
-1. Use the "atlas-connection-error-debugger" tool to check the connection and provide specific guidance on how to fix it.
+1. Use the "atlas-connection-error-debugger" tool to check the connection and provide specific guidance on how to fix it. Always pass "${connectionName}" as its connectionName argument.
 2. Do not use any previous results from the "atlas-connection-error-debugger" tool.
 3. Always recall the "atlas-connection-error-debugger" to get new results.`
       : `
@@ -396,10 +409,6 @@ This is an Atlas connection, but Atlas Login is not allowed in this user's organ
 }`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
-      connectionInfo: {
-        id: connectionInfo.id,
-        name: getConnectionTitle(connectionInfo),
-      },
     },
   };
 };
@@ -441,7 +450,7 @@ export function buildContextPrompt({
   activeCollectionMetadata,
   activeCollectionSubTab,
   enableGenAIToolCalling = false,
-  enableAtlasConnectionErrorDebugger = false,
+  enableAtlasConnectionErrorDebuggerTool = false,
 }: {
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
@@ -458,12 +467,12 @@ export function buildContextPrompt({
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
   enableGenAIToolCalling?: boolean;
-  enableAtlasConnectionErrorDebugger?: boolean;
+  enableAtlasConnectionErrorDebuggerTool?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
 
   const availableTools = getAvailableTools({
-    enableAtlasConnectionErrorDebugger,
+    enableAtlasConnectionErrorDebuggerTool,
   });
 
   if (activeConnection) {

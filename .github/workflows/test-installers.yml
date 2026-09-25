@@ -260,6 +260,31 @@ jobs:
         # Using --skipUninstalling --skipCleanup because the runners are ephemeral
         run: npm start -- --package ${{ matrix.package }} --tests ${{ matrix.test }} --skipUninstall --skipCleanup
 
+      # Squirrel.Windows writes its own download/apply log, which is the only
+      # place where a stalled auto-update leaves a trace. Collect it as well
+      - name: 'Collect Squirrel logs (Windows)'
+        if: always() && runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $destination = "packages/compass-e2e-tests/.log/squirrel"
+          New-Item -ItemType Directory -Force -Path $destination | Out-Null
+          $sources = @(
+            "packages/compass-smoke-tests/.sandboxes",
+            (Join-Path $env:LOCALAPPDATA "SquirrelTemp")
+          )
+          foreach ($source in $sources) {
+            if (-not (Test-Path $source)) { continue }
+            Get-ChildItem -Path $source -Filter "*.log" -Recurse -ErrorAction SilentlyContinue |
+              Where-Object { $_.Name -like "Squirrel*" } |
+              ForEach-Object {
+                # Flatten into a unique name, since every install location uses
+                # the same SquirrelSetup.log file name.
+                $name = ($_.FullName -replace '[:\\/]', '_').TrimStart('_')
+                Copy-Item $_.FullName (Join-Path $destination $name)
+              }
+          }
+          Get-ChildItem -Path $destination
+
       - name: 'Upload logs'
         uses: actions/upload-artifact@v4
         if: always()

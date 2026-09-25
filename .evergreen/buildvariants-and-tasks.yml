@@ -386,7 +386,6 @@ tasks:
       - func: test-connectivity
         vars:
           debug: compass*,electron*,hadron*,mongo*
-          mongodb_version: 8.0.x-enterprise
   - name: test-csfle
     tags:
       - required-for-publish-desktop

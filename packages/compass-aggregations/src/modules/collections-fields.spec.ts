@@ -78,10 +78,13 @@ describe('collections-fields module', function () {
       sampleStub = sandbox.stub();
       findStub = sandbox.stub();
       store = (
-        await configureStore({ pipeline: [] }, {
-          sample: sampleStub,
-          find: findStub,
-        } as any)
+        await configureStore(
+          { pipeline: [] },
+          {
+            sample: sampleStub,
+            find: findStub,
+          }
+        )
       ).plugin.store;
     });
 

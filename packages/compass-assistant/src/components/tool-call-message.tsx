@@ -18,12 +18,13 @@ import {
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
 import { getToolCallTitle } from './tool-call-title';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 
 interface ToolCallMessageProps {
   connection: BasicConnectionInfo | null;
   toolCall: ToolUIPart;
   onApprove?: (approvalId: string) => void;
-  onDeny?: (approvalId: string) => void;
+  onDeny?: (approvalId: string, reason: string) => void;
 }
 
 const expandableContentStyles = css({
@@ -58,8 +59,8 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 
   const hasOutput = toolHasOutput(toolCall, cleanedOutput);
 
-  const isAwaitingApproval =
-    toolCall.state === 'approval-requested' && !!toolCall.approval;
+  const approvalId = toolCall.approval?.id;
+  const isAwaitingApproval = toolCallState === 'idle' && !!approvalId;
 
   const expandableContentText = getExpandableContentText(
     toolCall,
@@ -93,20 +94,22 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
       chips={chips}
       contentClassName={expandableContentStyles}
       showActions={isAwaitingApproval}
-      focusPrimaryKey={toolCall.approval?.id}
-      buttons={[
-        {
-          label: 'Cancel',
-          variant: 'default',
-          onClick: () => toolCall.approval && onDeny?.(toolCall.approval.id),
-        },
-        {
-          label: 'Run',
-          variant: 'primary',
-          onClick: () => toolCall.approval && onApprove?.(toolCall.approval.id),
-          isPrimary: true,
-        },
-      ]}
+      focusPrimaryKey={approvalId}
+      {...(approvalId && {
+        buttons: [
+          {
+            label: 'Cancel',
+            variant: 'default',
+            onClick: () => onDeny?.(approvalId, TOOL_DENIAL_REASONS.userDenied),
+          },
+          {
+            label: 'Run',
+            variant: 'primary',
+            onClick: () => onApprove?.(approvalId),
+            isPrimary: true,
+          },
+        ],
+      })}
     >
       {expandableContentText}
     </ActionCardMessage>
