@@ -427,7 +427,13 @@ const ConnectionAttemptForConnection = new Map<
 
 const DataServiceForConnection = new Map<ConnectionId, DataService>();
 
-export function getDataServiceForConnection(connectionId: ConnectionId) {
+export type GetDataServiceForConnectionFn = (
+  connectionId: ConnectionId
+) => DataService;
+
+export const getDataServiceForConnection: GetDataServiceForConnectionFn = (
+  connectionId
+) => {
   const ds = DataServiceForConnection.get(connectionId);
   if (!ds) {
     throw new Error(
@@ -435,7 +441,7 @@ export function getDataServiceForConnection(connectionId: ConnectionId) {
     );
   }
   return ds;
-}
+};
 
 /**
  * Connection secrets are stored in-memory even after disconnecting (even if

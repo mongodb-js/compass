@@ -13,6 +13,7 @@ import {
 import type {
   configureStore,
   ConnectionId,
+  ConnectionsEventEmitter,
   ConnectionState,
   State,
 } from './connections-store-redux';
@@ -209,7 +210,12 @@ export function useConnectionsListRef(): {
   return ref;
 }
 
-function useConnections() {
+export type ConnectionsService = Omit<ConnectionsEventEmitter, 'emit'> & {
+  getDataServiceForConnection: typeof getDataServiceForConnection;
+} & ReturnType<typeof useConnectionsListRef> &
+  ReturnType<typeof useConnectionActions>;
+
+function useConnections(): ConnectionsService {
   const actions = useConnectionActions();
   const connectionsListRef = useConnectionsListRef();
   return useInitialValue({
@@ -218,16 +224,13 @@ function useConnections() {
     getDataServiceForConnection,
     on: connectionsEventEmitter.on,
     off: connectionsEventEmitter.off,
+    once: connectionsEventEmitter.once,
     removeListener: connectionsEventEmitter.removeListener,
   });
 }
 
-export type ConnectionsService = ReturnType<typeof useConnections>;
-
-export const connectionsLocator = createServiceLocator(
-  useConnections,
-  'connectionsLocator'
-);
+export const connectionsLocator: () => ConnectionsService =
+  createServiceLocator(useConnections, 'connectionsLocator');
 
 function isShallowEqual(
   a: Record<string, unknown> | null,
