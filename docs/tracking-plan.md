@@ -1,7 +1,7 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-09-24. Do not edit manually.
-> `npm run update-tracking-plan` runs automatically on main.
+> Auto-generated on 2026-09-25. Do not edit manually.
+> Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
 
