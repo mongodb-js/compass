@@ -13,3 +13,6 @@ export {
 } from './cluster-types';
 export { type AtlasSystemStatus } from './system-status-types';
 export { ATLAS_ADMIN_API_DEFAULT_VERSION } from './version';
+export type { paths, components, operations } from '../openapi/v2';
+export type { DefaultVersion } from '../openapi/default-version';
+export type { DefaultVersionOf, Response, Versions } from './openapi-helpers';

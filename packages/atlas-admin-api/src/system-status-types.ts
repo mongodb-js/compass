@@ -1,11 +1,15 @@
+import type { Response } from './openapi-helpers';
+
 /**
  * Subset of the Atlas Admin API system status object (`GET /api/atlas/v2`) that
  * we consume: the public IP address the request originated from (always
  * returned) and, when the request is authenticated as a user rather than an API
  * key, the user making it.
  */
-export type AtlasSystemStatus = {
-  ipAddress: string;
+export type AtlasSystemStatus = Pick<
+  Response<'getSystemStatus'>,
+  'ipAddress'
+> & {
   user?: { username: string };
 };
 

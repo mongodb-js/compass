@@ -3,6 +3,8 @@ import Sinon from 'sinon';
 
 import { AtlasAdminApiService } from './atlas-admin-api-service';
 import { ATLAS_ADMIN_API_DEFAULT_VERSION } from './version';
+import type { components } from '../openapi/v2';
+import type { Response } from './openapi-helpers';
 
 // Minimal error shape matching what AtlasService.authenticatedFetch throws on a
 // non-ok response; the cluster service only reads `statusCode`.
@@ -110,13 +112,13 @@ describe('AtlasAdminApiService', function () {
       stubSequentialJsonResponses([page([])]);
 
       await service.getProjectIPAccessList('abc123', {
-        version: '2024-08-05',
+        version: '2023-01-01',
       });
 
       expect(
         atlasServiceStub.authenticatedFetch.firstCall.args[1].headers
       ).to.deep.equal({
-        Accept: 'application/vnd.atlas.2024-08-05+json',
+        Accept: 'application/vnd.atlas.2023-01-01+json',
       });
     });
 
@@ -553,6 +555,20 @@ describe('AtlasAdminApiService', function () {
       expect(fetchUrl(0)).to.equal(
         'http://example.com/api/atlas/v2/groups/abc123/accessList?pageNum=1&itemsPerPage=100'
       );
+    });
+  });
+
+  describe('Response type helper', function () {
+    it('resolves the schema of an explicitly requested version', function () {
+      const cluster = {} as components['schemas']['AdvancedClusterDescription'];
+      const typed: Response<'getGroupCluster', '2023-02-01'> = cluster;
+      expect(typed).to.deep.equal({});
+    });
+
+    it('rejects a version the endpoint does not have', function () {
+      // @ts-expect-error 2024-05-30 is not a version of getGroupCluster
+      const typed: Response<'getGroupCluster', '2024-05-30'> = {};
+      expect(typed).to.deep.equal({});
     });
   });
 });

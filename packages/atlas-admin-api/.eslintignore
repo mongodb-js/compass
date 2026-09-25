@@ -1,2 +1,3 @@
 .nyc-output
 dist
+openapi/v2.d.ts

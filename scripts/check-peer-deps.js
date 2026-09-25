@@ -12,7 +12,7 @@ const execFileAsync = promisify(execFile);
 async function resolveFile(importPath) {
   const tried = [];
   for (const basepath of [importPath, path.join(importPath, 'index')]) {
-    for (const ext of ['.tsx', '.ts', '.jsx', '.js']) {
+    for (const ext of ['.tsx', '.ts', '.d.ts', '.jsx', '.js']) {
       try {
         const filepath = `${basepath}${ext}`;
         tried.push(filepath);

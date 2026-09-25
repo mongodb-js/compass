@@ -52,6 +52,7 @@
     "update-evergreen-config": "node .evergreen/template-yml.js",
     "postupdate-evergreen-config": "evergreen validate .evergreen.yml",
     "update-security-test-summary": "ts-node scripts/generate-security-test-summary.ts > docs/security-test-summary.md",
+    "update-openapi-types": "npm run update-openapi-types -w @mongodb-js/atlas-admin-api",
     "postupdate-security-test-summary": "npx prettier-compass docs/security-test-summary.md --write",
     "prepare": "husky install",
     "snyk-test": "node scripts/snyk-test.js",
@@ -124,7 +125,10 @@
     },
     "qs": "^6.14.1",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "openapi-typescript": {
+      "typescript": "^6.0.3"
+    }
   },
   "allowScripts": {
     "aws-sdk": false,

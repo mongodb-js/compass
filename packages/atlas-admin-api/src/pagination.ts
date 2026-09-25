@@ -1,3 +1,5 @@
+import type { components } from '../openapi/v2';
+
 export const ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE = 100;
 
 export type AtlasPaginationOptions = {
@@ -5,10 +7,9 @@ export type AtlasPaginationOptions = {
   itemsPerPage?: number;
 };
 
-export type AtlasPaginatedResponse<T> = {
-  results: T[];
-  totalCount: number;
-};
+export type AtlasPaginatedResponse<T> = Required<
+  Pick<components['schemas']['PaginatedNetworkAccessView'], 'totalCount'>
+> & { results: T[] };
 
 export function buildPaginationQuery(
   pagination?: AtlasPaginationOptions
