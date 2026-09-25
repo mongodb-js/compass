@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-09-23. Do not edit manually.
+> Auto-generated on 2026-09-25. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -257,6 +257,9 @@
 - [Shell](#shell)
   - [Open Shell](#open-shell)
   - [`Shell ${string}`](#shell-string)
+- [Sidebar](#sidebar)
+  - [Sidebar Connections Collapsed All](#sidebar-connections-collapsed-all)
+  - [Sidebar Connections Active Connections Filter Toggled](#sidebar-connections-active-connections-filter-toggled)
 - [Web Vitals](#web-vitals)
   - [First Contentful Paint](#first-contentful-paint)
   - [Largest Contentful Paint](#largest-contentful-paint)
@@ -2652,6 +2655,23 @@ tracking plan for details about single events.
 | `session_id`      | `string`              | Yes      | The shell session_id.                              |
 | `is_compass_web`  | `true \| undefined`   | No       |                                                    |
 | `connection_id`   | `string \| undefined` | No       | The id of the connection associated to this event. |
+
+## Sidebar
+
+### Sidebar Connections Collapsed All
+
+This event is fired when the user collapses all connections in the sidebar.
+
+_No additional properties._
+
+### Sidebar Connections Active Connections Filter Toggled
+
+This event is fired when the user toggles the 'active connections only' filter in the sidebar.
+
+| Property         | Type                | Required | Description |
+| ---------------- | ------------------- | -------- | ----------- |
+| `active_only`    | `boolean`           | Yes      |             |
+| `is_compass_web` | `true \| undefined` | No       |             |
 
 ## Web Vitals
 
