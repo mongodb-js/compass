@@ -253,6 +253,10 @@ export const ConenctionToastCancelConnectionButton =
 export const ConnectionToastErrorDebugButton =
   '[data-testid="connection-error-debug"]';
 
+// Atlas sign in toast
+export const AtlasSignInSuccessToast =
+  '[data-testid="toast-atlas-sign-in-success"]';
+
 // Connections sidebar
 export const ConnectionsTitle = '[data-testid="connections-header"]';
 export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';

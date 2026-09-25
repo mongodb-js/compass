@@ -31,6 +31,7 @@ import {
   serverSatisfies,
   startBrowser,
 } from './compass.ts';
+import { ConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   spawnCompassWebSandbox,
@@ -78,7 +79,7 @@ export function allowServerWarnings(...filters: WarningFilter[]): () => void {
   };
 }
 
-async function createAtlasCloudResources() {
+async function createWebAtlasCloudResources() {
   assertTestingWebAtlasCloud(context);
 
   debug('Creating Atlas Cloud resources...');
@@ -187,10 +188,12 @@ async function createAtlasCloudResources() {
   const atlasCloudDbuserUsername = `dbusr-${RUN_ID}`;
   const atlasCloudDbuserPassword = randomBytes(20).toString('hex');
 
-  await compass.browser.configureDefaultProjectDbAccess(
-    atlasCloudDbuserUsername,
-    atlasCloudDbuserPassword
-  );
+  await compass.browser.configureProjectDbAccess({
+    env: getAtlasCloudEnvironmentFromContext(context),
+    projectId: context.atlasCloudProjectId,
+    dbuserUsername: atlasCloudDbuserUsername,
+    dbuserPassword: atlasCloudDbuserPassword,
+  });
 
   throwIfAborted();
 
@@ -209,17 +212,20 @@ async function createAtlasCloudResources() {
       // resources are provisioned automatically
       const testClusterName = `e2e-${RUN_ID}`;
 
-      const connectionString =
-        await compass.browser.createAtlasClusterForDefaultProject(
-          atlasCloudDbuserUsername,
-          atlasCloudDbuserPassword,
-          testClusterName,
-          context.atlasCloudDefaultClusterType as ClusterTypes
-        );
+      const connectionString = new ConnectionString(
+        await compass.browser.createAtlasCluster({
+          env: getAtlasCloudEnvironmentFromContext(context),
+          projectId: context.atlasCloudProjectId,
+          clusterName: testClusterName,
+          clusterType: context.atlasCloudDefaultClusterType as ClusterTypes,
+        })
+      );
+      connectionString.username = atlasCloudDbuserUsername;
+      connectionString.password = atlasCloudDbuserPassword;
 
       DEFAULT_CONNECTIONS.push({
         id: testClusterName,
-        connectionOptions: { connectionString },
+        connectionOptions: { connectionString: connectionString.toString() },
         favorite: { name: testClusterName },
       });
     } else {
@@ -313,7 +319,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
           cleanupFns.push(cleanupServer);
         }
 
-        await createAtlasCloudResources();
+        await createWebAtlasCloudResources();
 
         debug('Waiting for the compass-web assets to be available ...');
         await waitForCompassWebStaticAssetsToBeReady(
