@@ -109,20 +109,23 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
     connectionsStore = result.connectionsStore;
   };
 
-  const selectContextMenuItem = (
+  const selectContextMenuItem = async (
     itemId: string,
     item: 'open-in' | 'rename' | 'copy' | 'delete'
   ) => {
-    const queryCard = document.querySelector<HTMLElement>(
-      `[data-id="${itemId}"]`
-    );
-    if (!queryCard) {
-      throw new Error('Query card not yet rendered');
-    }
-
-    userEvent.hover(queryCard);
+    const queryCard = await waitFor(() => {
+      const card = document.querySelector<HTMLElement>(`[data-id="${itemId}"]`);
+      if (!card) {
+        throw new Error('Query card not yet rendered');
+      }
+      userEvent.hover(card);
+      expect(screen.getByTestId('saved-item-actions-show-actions')).to.exist;
+      return card;
+    });
     userEvent.click(screen.getByTestId('saved-item-actions-show-actions'));
-    userEvent.click(screen.getByTestId(`saved-item-actions-${item}-action`));
+    userEvent.click(
+      await screen.findByTestId(`saved-item-actions-${item}-action`)
+    );
     return queryCard;
   };
 
@@ -192,7 +195,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
       renderPlugin();
       expect(await screen.findByText(query._name)).to.exist;
 
-      selectContextMenuItem(query._id, 'copy');
+      await selectContextMenuItem(query._id, 'copy');
 
       expect(await navigator.clipboard.readText()).to.eq(`{
   "collation": null,
@@ -213,7 +216,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
       renderPlugin();
       expect(await screen.findByText(aggregation.name)).to.exist;
 
-      selectContextMenuItem(aggregation.id, 'copy');
+      await selectContextMenuItem(aggregation.id, 'copy');
 
       expect(await navigator.clipboard.readText()).to.eq(`[
   {
@@ -289,12 +292,12 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
           return Promise.resolve(updatedQuery);
         });
 
-      selectContextMenuItem(item.id, 'rename');
+      await selectContextMenuItem(item.id, 'rename');
 
-      const modal = screen.getByTestId('edit-item-modal');
+      const modal = await screen.findByTestId('edit-item-modal');
 
       const title = new RegExp('rename query', 'i');
-      expect(within(modal).getByText(title), 'show title').to.exist;
+      expect(await within(modal).findByText(title), 'show title').to.exist;
 
       const nameInput = within(modal).getByRole('textbox', {
         name: /name/i,
@@ -340,11 +343,11 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
 
     it('should not update an item if rename was not confirmed', async function () {
       const item = queries[0];
-      selectContextMenuItem(item.id, 'rename');
+      await selectContextMenuItem(item.id, 'rename');
 
       const modal = await screen.findByTestId('edit-item-modal');
 
-      userEvent.click(within(modal).getByText('Cancel'), undefined, {
+      userEvent.click(await within(modal).findByText('Cancel'), undefined, {
         skipPointerEventsCheck: true,
       });
 
@@ -427,7 +430,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
         function () {
           it('should show not connected modal', async function () {
             await renderPluginWithWait();
-            selectContextMenuItem(query._id, 'open-in');
+            await selectContextMenuItem(query._id, 'open-in');
             await waitFor(() => {
               expect(screen.getByTestId('no-active-connection-modal')).to.exist;
             });
@@ -537,7 +540,7 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
             await connectionsStore.actions.connect(
               connectionOne.connectionInfo
             );
-            selectContextMenuItem(query._id, 'open-in');
+            await selectContextMenuItem(query._id, 'open-in');
 
             await waitFor(() => {
               expect(screen.getByTestId('open-item-modal')).to.exist;
