@@ -1,4 +1,4 @@
-import { EJSON } from 'bson';
+import { Double, EJSON, Int32, Long } from 'bson';
 import { AtlasUserData, FileUserData } from '@mongodb-js/compass-user-data';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
@@ -8,6 +8,28 @@ import {
   BaseCompassFavoriteQueryStorage,
 } from './base-query-storage';
 import { BaseCompassPipelineStorage } from './base-pipeline-storage';
+
+const serialize = (content: unknown, space?: number) =>
+  EJSON.stringify(content, undefined, space, { relaxed: false });
+const deserialize = (content: string) =>
+  EJSON.parse(content, { relaxed: false });
+
+// skip / limit are plain numbers in the query schema, but canonical EJSON round
+// trips them as BSON numeric types, so bring them back to numbers.
+const deserializeQuery = (content: string) => {
+  const query = deserialize(content) as Record<string, unknown>;
+  for (const key of ['skip', 'limit']) {
+    const value = query[key];
+    if (
+      value instanceof Int32 ||
+      value instanceof Long ||
+      value instanceof Double
+    ) {
+      query[key] = Number(value);
+    }
+  }
+  return query;
+};
 
 // Web-specific factory functions
 export type WebStorageOptions = {
@@ -21,8 +43,8 @@ export function createWebRecentQueryStorage(options: WebStorageOptions) {
     orgId: options.orgId,
     projectId: options.projectId,
     atlasService: options.atlasService,
-    serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
+    serialize: (content) => serialize(content),
+    deserialize: deserializeQuery,
   });
   return new BaseCompassRecentQueryStorage(userData);
 }
@@ -32,8 +54,8 @@ export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
     orgId: options.orgId,
     projectId: options.projectId,
     atlasService: options.atlasService,
-    serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
+    serialize: (content) => serialize(content),
+    deserialize: deserializeQuery,
   });
   return new BaseCompassFavoriteQueryStorage(userData);
 }
@@ -43,8 +65,8 @@ export function createWebPipelineStorage(options: WebStorageOptions) {
     orgId: options.orgId,
     projectId: options.projectId,
     atlasService: options.atlasService,
-    serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
+    serialize: (content) => serialize(content),
+    deserialize,
   });
   return new BaseCompassPipelineStorage<typeof PipelineSchema>(userData);
 }
@@ -59,8 +81,8 @@ export function createElectronRecentQueryStorage(
 ) {
   const userData = new FileUserData(RecentQuerySchema, 'RecentQueries', {
     basePath: options.basepath,
-    serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
+    serialize: (content) => serialize(content, 2),
+    deserialize: deserializeQuery,
   });
   return new BaseCompassRecentQueryStorage(userData);
 }
@@ -70,8 +92,8 @@ export function createElectronFavoriteQueryStorage(
 ) {
   const userData = new FileUserData(FavoriteQuerySchema, 'FavoriteQueries', {
     basePath: options.basepath,
-    serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
+    serialize: (content) => serialize(content, 2),
+    deserialize: deserializeQuery,
   });
   return new BaseCompassFavoriteQueryStorage(userData);
 }
