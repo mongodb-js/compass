@@ -565,6 +565,26 @@ describe('FileInput', function () {
       expect(listener).to.been.calledOnceWith([]);
     });
 
+    it('calls the listener with an empty array if the dialog rejects', async function () {
+      const { fakeElectron, fakeWebUtils } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
+      const listener = sinon.stub();
+      backend.onFilesChosen(listener);
+
+      fakeElectron.dialog.showOpenDialog.rejects(new Error('dialog failed'));
+      backend.openFileChooser({
+        mode: 'open',
+        multi: false,
+      });
+      expect(listener).to.not.have.been.called;
+      await tick();
+      expect(listener).to.been.calledOnceWith([]);
+    });
+
     it('handles autoOpen:true', async function () {
       const { fakeElectron, fakeWebUtils } = createFakeElectron();
       const backend = createElectronFileInputBackend(
