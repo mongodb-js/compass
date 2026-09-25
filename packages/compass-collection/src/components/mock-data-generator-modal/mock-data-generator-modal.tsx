@@ -15,6 +15,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { type MockDataGeneratorStep, MockDataGeneratorSteps } from './types';
+import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import {
   MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
   StepButtonLabelMap,
@@ -64,6 +65,7 @@ interface Props {
   onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
   namespace: string;
+  schemaAnalysisStatus: SchemaAnalysisState['status'];
   fakerSchemaGenerationStatus: 'idle' | 'in-progress' | 'completed' | 'error';
   documentCount: string;
 }
@@ -76,6 +78,7 @@ const MockDataGeneratorModal = ({
   onConfirmSchema,
   onPreviousStep,
   namespace,
+  schemaAnalysisStatus,
   fakerSchemaGenerationStatus,
   documentCount,
 }: Props) => {
@@ -109,7 +112,8 @@ const MockDataGeneratorModal = ({
 
   const isNextButtonDisabled =
     (currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION &&
-      fakerSchemaGenerationStatus === 'in-progress') ||
+      (schemaAnalysisStatus !== 'complete' ||
+        fakerSchemaGenerationStatus === 'in-progress')) ||
     (currentStep === MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT &&
       !validateDocumentCount(documentCount).isValid);
 
@@ -199,6 +203,7 @@ const mapStateToProps = (state: CollectionState) => ({
   isOpen: state.mockDataGenerator.isModalOpen,
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
+  schemaAnalysisStatus: state.schemaAnalysis?.status ?? 'initial',
   fakerSchemaGenerationStatus: state.fakerSchemaGeneration?.status ?? 'idle',
   documentCount: state.mockDataGenerator.documentCount,
 });

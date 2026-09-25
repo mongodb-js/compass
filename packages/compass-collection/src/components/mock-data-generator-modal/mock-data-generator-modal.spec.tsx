@@ -139,6 +139,7 @@ describe('MockDataGeneratorModal', () => {
       },
       preferences: { getPreferences: () => ({}) },
       fakerSchemaGenerationAbortControllerRef: { current: undefined },
+      schemaAnalysisAbortControllerRef: { current: undefined },
     };
   }
 
@@ -562,6 +563,63 @@ describe('MockDataGeneratorModal', () => {
 
       expect(screen.getByText('LLM Request failed. Please confirm again.')).to
         .exist;
+    });
+
+    it('shows the analyzing state while schema analysis is running', async () => {
+      await renderModal({
+        schemaAnalysis: { status: 'analyzing' } as any,
+      });
+
+      expect(screen.getByTestId('raw-schema-confirmation-loader')).to.exist;
+      expect(screen.getByText('Analyzing collection...')).to.exist;
+      expect(
+        screen
+          .getByRole('button', { name: 'Confirm' })
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('shows an error with retry when schema analysis fails', async () => {
+      const mockServices = createMockServices();
+      const sampleCursorStub = sinon.stub().returns({
+        [Symbol.asyncIterator]: async function* () {},
+      });
+      mockServices.dataService = { sampleCursor: sampleCursorStub };
+      await renderModal({
+        mockServices,
+        schemaAnalysis: {
+          status: 'error',
+          error: {
+            errorType: 'general',
+            errorMessage: 'Sampling failed',
+          },
+        } as any,
+      });
+
+      const banner = screen.getByTestId('schema-analysis-error-banner');
+      expect(banner.textContent).to.include('Sampling failed');
+      userEvent.click(screen.getByTestId('retry-analysis-button'));
+      await waitFor(() => {
+        expect(sampleCursorStub).to.have.been.calledOnce;
+        expect(screen.getByTestId('raw-schema-confirmation-loader')).to.exist;
+      });
+    });
+
+    it('shows an empty-collection error with retry when schema analysis finds no documents', async () => {
+      await renderModal({
+        schemaAnalysis: {
+          status: 'error',
+          error: {
+            errorType: 'empty',
+            errorMessage: 'No documents found in the collection to analyze.',
+          },
+        } as any,
+      });
+
+      const banner = screen.getByTestId('schema-analysis-error-banner');
+      expect(banner.textContent).to.include('No documents found');
+      expect(screen.getByTestId('retry-analysis-button')).to.exist;
+      expect(screen.getByText(/Insert or import some documents/)).to.exist;
     });
   });
 

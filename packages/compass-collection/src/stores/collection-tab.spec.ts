@@ -1,6 +1,6 @@
 import type { CollectionTabOptions } from './collection-tab';
 import { activatePlugin } from './collection-tab';
-import { selectTab, EmptyCollectionError } from '../modules/collection-tab';
+import { selectTab } from '../modules/collection-tab';
 import * as collectionTabModule from '../modules/collection-tab';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
@@ -343,8 +343,8 @@ describe('Collection Tab Content store', function () {
     });
   });
 
-  describe('schema analysis on collection load', function () {
-    it('should start schema analysis if collection is not read-only and not time-series', async function () {
+  describe('schema analysis on demand', function () {
+    it('does not start schema analysis when the collection loads', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
           createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
@@ -358,520 +358,45 @@ describe('Collection Tab Content store', function () {
       });
 
       await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-    });
-
-    it('should not start schema analysis if collection is read-only', async function () {
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { assignExperiment },
-        undefined,
-        undefined,
-        undefined,
-        { ...defaultMetadata, isReadonly: true }
-      );
-
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-    });
-
-    it('should not start schema analysis if collection is time-series', async function () {
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { assignExperiment },
-        undefined,
-        undefined,
-        undefined,
-        { ...defaultMetadata, isTimeSeries: true }
-      );
-
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-    });
-
-    it('should not start schema analysis in non-Atlas environments', async function () {
-      const getAssignment = sandbox.spy(() => Promise.resolve(null));
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-      const mockConnectionInfoRef = {
-        current: {
-          id: 'test-connection',
-          title: 'Test Connection',
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017',
-          },
-          // No atlasMetadata (non-Atlas environment)
-        },
-      };
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockConnectionInfoRef
-      );
-
-      await waitFor(() => {
-        expect(getAssignment).to.have.been.calledOnceWith(
-          ExperimentTestNames.mockDataGenerator,
-          false
-        );
-      });
-
-      // Wait a bit to ensure schema analysis would not have been called
-      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-    });
-
-    it('should start schema analysis in Atlas when user is in treatment variant', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo
-      );
-
-      await waitFor(() => {
-        expect(getAssignment).to.have.been.calledOnceWith(
-          ExperimentTestNames.mockDataGenerator,
-          false // Don't track "Experiment Viewed" event
-        );
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-    });
-
-    it('should start schema analysis in Atlas when user is in control variant', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorControl)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo
-      );
-
-      await waitFor(() => {
-        expect(getAssignment).to.have.been.calledOnceWith(
-          ExperimentTestNames.mockDataGenerator,
-          false
-        );
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-    });
-
-    it('should not start schema analysis in Atlas when user is in the experiment', async function () {
-      const getAssignment = sandbox.spy(() => Promise.resolve(null));
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo
-      );
-
-      await waitFor(() => {
-        expect(getAssignment).to.have.been.calledOnceWith(
-          ExperimentTestNames.mockDataGenerator,
-          false
-        );
+        expect(assignExperiment).to.have.been.called;
       });
 
       await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
+      expect(getAssignment).to.not.have.been.called;
     });
 
-    it('should not start schema analysis when getAssignment fails', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.reject(new Error('Assignment failed'))
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo
-      );
-
-      await waitFor(() => {
-        expect(getAssignment).to.have.been.calledOnce;
+    it('does not re-trigger analysis on document-inserted events', async function () {
+      await configureStore(undefined, undefined, {
+        getAssignment: sandbox.stub().resolves(null),
+        assignExperiment: sandbox.stub().resolves(null),
       });
 
-      // Wait a bit to ensure schema analysis would not have been called
-      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-    });
-  });
-
-  describe('schema analysis cancellation', function () {
-    it('should cancel schema analysis when cancelSchemaAnalysis is dispatched', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      const store = await configureStore(undefined, undefined, {
-        getAssignment,
-        assignExperiment,
-      });
-
-      // Dispatch cancel action
-      store.dispatch(collectionTabModule.cancelSchemaAnalysis() as any);
-
-      // Verify the state is reset to initial
-      expect(
-        (store.getState() as { schemaAnalysis: { status: string } })
-          .schemaAnalysis.status
-      ).to.equal('initial');
-    });
-  });
-
-  describe('document-inserted event listener', function () {
-    it('should re-trigger schema analysis when document is inserted into current collection', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      const store = await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo,
-        undefined,
-        undefined,
-        { ...defaultMetadata, isReadonly: false, isTimeSeries: false }
-      );
-
-      // Wait for initial schema analysis to complete
-      await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-
-      // Reset the stub to track new calls
-      analyzeCollectionSchemaStub.resetHistory();
-
-      // Simulate the empty collection
-      store.dispatch({
-        type: 'compass-collection/SchemaAnalysisFailed',
-        error: new EmptyCollectionError(),
-      } as any);
-
-      // Trigger the document-inserted event
       globalAppRegistry.emit(
         'document-inserted',
-        {
-          ns: defaultMetadata.namespace,
-          view: 'default',
-          mode: 'default',
-          multiple: false,
-          docs: [{ _id: 'test-doc-id', name: 'test' }],
-        },
+        { ns: defaultMetadata.namespace },
         { connectionId: mockAtlasConnectionInfo.current.id }
       );
 
-      // Wait for schema analysis to be re-triggered
-      await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-    });
-
-    it('should not re-trigger schema analysis for different collection', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo
-      );
-
-      // Wait for initial schema analysis to complete
-      await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-
-      // Reset the stub to track new calls
-      analyzeCollectionSchemaStub.resetHistory();
-
-      // Trigger the document-inserted event with different collection
-      globalAppRegistry.emit(
-        'document-inserted',
-        {
-          ns: 'different.collection',
-          view: 'default',
-          mode: 'default',
-          multiple: false,
-          docs: [{ _id: 'test-doc-id', name: 'test' }],
-        },
-        { connectionId: mockAtlasConnectionInfo.current.id }
-      );
-
-      // Wait a bit to ensure schema analysis is not called
       await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
 
-    it('should not re-trigger schema analysis for different connection', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo
-      );
-
-      // Wait for initial schema analysis to complete
-      await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+    it('does not re-trigger analysis on import-finished events', async function () {
+      await configureStore(undefined, undefined, {
+        getAssignment: sandbox.stub().resolves(null),
+        assignExperiment: sandbox.stub().resolves(null),
       });
 
-      // Reset the stub to track new calls
-      analyzeCollectionSchemaStub.resetHistory();
-
-      // Trigger the document-inserted event with different connection
-      globalAppRegistry.emit(
-        'document-inserted',
-        {
-          ns: defaultMetadata.namespace,
-          view: 'default',
-          mode: 'default',
-          multiple: false,
-          docs: [{ _id: 'test-doc-id', name: 'test' }],
-        },
-        { connectionId: 'different-connection-id' }
-      );
-
-      // Wait a bit to ensure schema analysis is not called
-      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-    });
-
-    it('should not re-trigger schema analysis when user is not in the experiment', async function () {
-      const getAssignment = sandbox.spy(() => Promise.resolve(null));
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo
-      );
-
-      // Wait for initial assignment check
-      await waitFor(() => {
-        expect(getAssignment).to.have.been.calledOnce;
-      });
-
-      // Schema analysis should not have been called initially
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-
-      // Verify the schema analysis state is INITIAL (as expected for users
-      // outside the experiment)
-      const initialState = store.getState() as {
-        schemaAnalysis: { status: string };
-      };
-      expect(initialState.schemaAnalysis.status).to.equal('initial');
-
-      // Trigger the document-inserted event
-      globalAppRegistry.emit(
-        'document-inserted',
-        {
-          ns: defaultMetadata.namespace,
-          view: 'default',
-          mode: 'default',
-          multiple: false,
-          docs: [{ _id: 'test-doc-id', name: 'test' }],
-        },
-        { connectionId: mockAtlasConnectionInfo.current.id }
-      );
-
-      // Wait a bit to ensure schema analysis is not called
-      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-    });
-  });
-
-  describe('import-finished event listener', function () {
-    it('should re-trigger schema analysis when import is completed for current collection', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      const store = await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo,
-        undefined,
-        undefined,
-        { ...defaultMetadata, isReadonly: false, isTimeSeries: false }
-      );
-
-      // Wait for initial schema analysis to complete
-      await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-
-      // Reset the stub to track new calls
-      analyzeCollectionSchemaStub.resetHistory();
-
-      // Simulate the empty collection
-      store.dispatch({
-        type: 'compass-collection/SchemaAnalysisFailed',
-        error: new EmptyCollectionError(),
-      });
-
-      // Emit import-finished event
       globalAppRegistry.emit(
         'import-finished',
-        {
-          ns: defaultMetadata.namespace,
-          connectionId: mockAtlasConnectionInfo.current.id,
-        },
+        { ns: defaultMetadata.namespace },
         { connectionId: mockAtlasConnectionInfo.current.id }
       );
 
-      // Wait for schema analysis to be re-triggered
-      await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-    });
-
-    it('should not re-trigger schema analysis for different collection', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      const store = await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo,
-        undefined,
-        undefined,
-        { ...defaultMetadata, isReadonly: false, isTimeSeries: false }
-      );
-
-      // Wait for initial schema analysis to complete
-      await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-
-      // Reset the stub to track new calls
-      analyzeCollectionSchemaStub.resetHistory();
-
-      // Simulate the empty collection
-      store.dispatch({
-        type: 'compass-collection/SchemaAnalysisFailed',
-        error: new EmptyCollectionError(),
-      });
-
-      // Emit import-finished event for different collection
-      globalAppRegistry.emit(
-        'import-finished',
-        {
-          ns: 'different.collection',
-          connectionId: mockAtlasConnectionInfo.current.id,
-        },
-        { connectionId: mockAtlasConnectionInfo.current.id }
-      );
-
-      // Wait a bit to ensure no action is taken
       await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
-
-    it('should not re-trigger schema analysis for different connection', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      const store = await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo,
-        undefined,
-        undefined,
-        { ...defaultMetadata, isReadonly: false, isTimeSeries: false }
-      );
-
-      // Wait for initial schema analysis to complete
-      await waitFor(() => {
-        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
-      });
-
-      // Reset the stub to track new calls
-      analyzeCollectionSchemaStub.resetHistory();
-
-      // Simulate the empty collection
-      store.dispatch({
-        type: 'compass-collection/SchemaAnalysisFailed',
-        error: new EmptyCollectionError(),
-      });
-
-      // Emit import-finished event for different connection
-      globalAppRegistry.emit(
-        'import-finished',
-        {
-          ns: defaultMetadata.namespace,
-          connectionId: 'different-connection-id',
-        },
-        { connectionId: 'different-connection-id' }
-      );
-
-      // Wait a bit to ensure no action is taken
-      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-    });
-
-    // Note: the "user not in the experiment" gate is shared by the
-    // document-inserted listener via shouldRunSchemaAnalysis, and is covered
-    // by the equivalent test in that describe block plus the standalone
-    // "should not start schema analysis in Atlas when user is not bucketed
-    // into the experiment" test above.
   });
 
   describe('open-mock-data-generator-modal event listener', function () {
@@ -941,6 +466,10 @@ describe('Collection Tab Content store', function () {
           mockDataGenerator: { isModalOpen: boolean };
         };
         expect(updatedState.mockDataGenerator.isModalOpen).to.be.true;
+      });
+
+      await waitFor(() => {
+        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
       });
     });
 
