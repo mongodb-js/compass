@@ -286,14 +286,13 @@ export function createInstancesStore(
     }
   );
 
-  preferences.onPreferenceValueChanged('inferNamespacesFromPrivileges', () => {
-    const connectedConnectionIds = Array.from(
-      instancesManager.listMongoDBInstances().keys()
-    );
-    for (const connectionId of connectedConnectionIds) {
+  function reload() {
+    for (const [connectionId] of instancesManager.listMongoDBInstances())
       void refreshDatabases({ connectionId });
-    }
-  });
+  }
+
+  preferences.onPreferenceValueChanged('inferNamespacesFromPrivileges', reload);
+  preferences.onPreferenceValueChanged('showHiddenNamespaces', reload);
 
   on(connections, 'disconnected', function (connectionInfoId: string) {
     try {
