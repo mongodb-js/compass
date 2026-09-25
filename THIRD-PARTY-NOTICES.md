@@ -268,7 +268,7 @@ This document was automatically generated on Fri Sep 25 2026.
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron](#8c6b415443d809ffeddfa2732958600150029a30c8cfa968a16d99b1daaad54f)**                                           | 44.4.5       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
-| **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
+| **[end-of-stream](#d4ec33708205e0aab97e631fb8d69c095cd87da7c10128dcdac6b5ba2cc1395d)**                                      | 1.4.5        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
 | **[es-abstract](#a3d33b205b22fc14d64bfe154cfbf4eb4e85eb742e680c94e70d793599df1bb2)**                                        | 1.23.9       | MIT                                 |
 | **[es-define-property](#6a37646cc624feb0059507df1fd0b2b961e28240b1990413b09706235dcdd94a)**                                 | 1.0.1        | MIT                                 |
@@ -23051,9 +23051,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563"></a>
+<a id="d4ec33708205e0aab97e631fb8d69c095cd87da7c10128dcdac6b5ba2cc1395d"></a>
 
-### [end-of-stream](https://www.npmjs.com/package/end-of-stream) (version 1.4.4)
+### [end-of-stream](https://www.npmjs.com/package/end-of-stream) (version 1.4.5)
 
 License tags: MIT
 
