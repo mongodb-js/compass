@@ -103,8 +103,10 @@ export default function ServerErrorBanner({
     );
   }
 
+  // Do not show this link for Phase 2, show the Debug button instead.
   const showEditSearchIndexLink =
     enableSearchActivationProgramP1 &&
+    !enableSearchActivationProgramP2 &&
     !!searchIndexName &&
     isSearchIndexDefinitionError(message) &&
     !!onEditSearchIndexClick;

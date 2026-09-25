@@ -12,6 +12,7 @@ import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider
 import {
   CompassExperimentationProvider,
   type ExperimentTestGroup,
+  type ExperimentTestName,
 } from '@mongodb-js/compass-telemetry';
 
 const noopAsyncResult = {
@@ -26,31 +27,49 @@ const noopAsyncResult = {
  * Wraps a React element with a mock experimentation provider.
  *
  * @param ui - The React element to wrap.
- * @param variant - The experiment variant group to assign, or `null` to simulate
- *   a user not assigned to any variant (control/default).
+ * @param variant - The experiment variant group to assign to every experiment
+ *   queried, `null` to simulate a user not assigned to any variant
+ *   (control/default), or a map of experiment test name to variant to assign
+ *   different variants per experiment (e.g. to simulate a user enrolled in
+ *   multiple experiments at once).
  */
 export function wrapWithExperimentProvider(
   ui: React.ReactElement,
-  variant: ExperimentTestGroup | null
+  variant:
+    | ExperimentTestGroup
+    | null
+    | Partial<Record<ExperimentTestName, ExperimentTestGroup>>
 ): React.ReactElement {
+  const getVariant = (
+    testName: ExperimentTestName
+  ): ExperimentTestGroup | null =>
+    variant && typeof variant === 'object'
+      ? variant[testName] ?? null
+      : variant;
+
   return React.createElement(
     CompassExperimentationProvider,
     {
-      useAssignment: () => ({
-        assignment: variant
-          ? {
-              assignmentData: {
-                variant,
-              },
-            }
-          : null,
-        ...noopAsyncResult,
-        asyncStatus: 'SUCCESS',
-      }),
+      useAssignment: (testName: ExperimentTestName) => {
+        const resolvedVariant = getVariant(testName);
+        return {
+          assignment: resolvedVariant
+            ? { assignmentData: { variant: resolvedVariant } }
+            : null,
+          ...noopAsyncResult,
+          asyncStatus: 'SUCCESS',
+        };
+      },
       useTrackInSample: () => noopAsyncResult,
       assignExperiment: () => Promise.resolve(null),
-      getAssignment: () =>
-        Promise.resolve(variant ? { assignmentData: { variant } } : null),
+      getAssignment: (testName: ExperimentTestName) => {
+        const resolvedVariant = getVariant(testName);
+        return Promise.resolve(
+          resolvedVariant
+            ? { assignmentData: { variant: resolvedVariant } }
+            : null
+        );
+      },
     } as any,
     ui
   );
