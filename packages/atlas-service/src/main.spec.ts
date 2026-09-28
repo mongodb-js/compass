@@ -1,16 +1,47 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { CompassAuthService } from './main';
+import type { CompassAuthServicePreferences } from './main';
 import { throwIfNotOk } from './util';
 import { EventEmitter } from 'events';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import type { PreferencesAccess } from 'compass-preferences-model';
 import * as util from './util';
 
 function getListenerCount(emitter: EventEmitter) {
   return emitter.eventNames().reduce((acc, name) => {
     return acc + emitter.listenerCount(name);
   }, 0);
+}
+
+type TestPreferencesState = {
+  atlasServiceBackendPreset: util.AtlasServiceBackendPreset;
+  networkTraffic: boolean;
+  enableAtlasSignIn: boolean;
+  browserCommandForOIDCAuth: string | undefined;
+  telemetryAtlasUserId: string | undefined;
+};
+
+function createTestPreferences(
+  overrides: Partial<TestPreferencesState> = {}
+): CompassAuthServicePreferences & { state: TestPreferencesState } {
+  const state: TestPreferencesState = {
+    atlasServiceBackendPreset: 'atlas',
+    networkTraffic: true,
+    enableAtlasSignIn: true,
+    browserCommandForOIDCAuth: undefined,
+    telemetryAtlasUserId: undefined,
+    ...overrides,
+  };
+  return {
+    state,
+    getAtlasServiceBackendPreset: () => state.atlasServiceBackendPreset,
+    getNetworkTraffic: () => state.networkTraffic,
+    getEnableAtlasSignIn: () => state.enableAtlasSignIn,
+    getBrowserCommandForOIDCAuth: () => state.browserCommandForOIDCAuth,
+    onSignIn: (auid: string) => {
+      state.telemetryAtlasUserId = auid;
+      return Promise.resolve();
+    },
+  };
 }
 
 /**
@@ -70,13 +101,13 @@ describe('CompassAuthServiceMain', function () {
   const ipcMain = CompassAuthService['ipcMain'];
   const createPlugin = CompassAuthService['createMongoDBOIDCPlugin'];
   const authConfig = CompassAuthService['config'];
-  let preferences: PreferencesAccess;
+  let preferences: ReturnType<typeof createTestPreferences>;
 
   let getTrackingUserInfoStub: Sinon.SinonStubbedMember<
     typeof util.getTrackingUserInfo
   >;
 
-  beforeEach(async function () {
+  beforeEach(function () {
     mockFetch.resetHistory();
     mockOidcPlugin.serialize.resetHistory();
     mockOidcPlugin.destroy.resetHistory();
@@ -111,7 +142,7 @@ describe('CompassAuthServiceMain', function () {
     CompassAuthService['setupPlugin']();
     CompassAuthService['attachOidcPluginLoggerEvents']();
 
-    preferences = await createSandboxFromDefaultPreferences();
+    preferences = createTestPreferences();
     CompassAuthService['preferences'] = preferences;
   });
 
@@ -144,9 +175,7 @@ describe('CompassAuthServiceMain', function () {
         timeoutContext: undefined,
       });
       expect(userInfo).to.have.property('sub', '1234');
-      expect(preferences.getPreferences().telemetryAtlasUserId).to.equal(
-        atlasUid
-      );
+      expect(preferences.state.telemetryAtlasUserId).to.equal(atlasUid);
     });
 
     it('should track the elapsed sign in time on success', async function () {
@@ -331,8 +360,7 @@ describe('CompassAuthServiceMain', function () {
   });
 
   describe('telemetryAtlasUserId', function () {
-    const telemetryAtlasUserId = () =>
-      preferences.getPreferences().telemetryAtlasUserId;
+    const telemetryAtlasUserId = () => preferences.state.telemetryAtlasUserId;
 
     it('should be set after signing in', async function () {
       getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
@@ -351,9 +379,7 @@ describe('CompassAuthServiceMain', function () {
       CompassAuthService['currentUser'] = { sub: atlasUid };
       await CompassAuthService.init(preferences, {} as any);
       CompassAuthService['config'] = defaultConfig;
-      await preferences.savePreferences({
-        telemetryAtlasUserId: 'hashed-auid',
-      });
+      preferences.state.telemetryAtlasUserId = 'hashed-auid';
 
       await CompassAuthService.signOut();
 
@@ -361,9 +387,7 @@ describe('CompassAuthServiceMain', function () {
     });
 
     it('should be kept when a previous session cannot be restored', async function () {
-      await preferences.savePreferences({
-        telemetryAtlasUserId: 'hashed-auid',
-      });
+      preferences.state.telemetryAtlasUserId = 'hashed-auid';
       CompassAuthService['currentUser'] = { sub: atlasUid };
       oidcCallback.resolves({ refreshToken });
 
@@ -524,8 +548,8 @@ describe('CompassAuthServiceMain', function () {
   });
 
   describe('with networkTraffic turned off', function () {
-    beforeEach(async function () {
-      await preferences.savePreferences({ networkTraffic: false });
+    beforeEach(function () {
+      preferences.state.networkTraffic = false;
     });
 
     for (const methodName of ['requestOAuthToken', 'signIn', 'revoke']) {
@@ -544,8 +568,8 @@ describe('CompassAuthServiceMain', function () {
   });
 
   describe('with enableAtlasSignIn turned off', function () {
-    beforeEach(async function () {
-      await preferences.savePreferences({ enableAtlasSignIn: false });
+    beforeEach(function () {
+      preferences.state.enableAtlasSignIn = false;
     });
 
     it('signIn should throw', async function () {
