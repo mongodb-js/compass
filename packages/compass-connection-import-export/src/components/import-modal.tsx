@@ -127,6 +127,10 @@ export function ImportConnectionsModal({
           onChange={onChangeFilename}
           value={filename}
         />
+        <Banner variant="warning">
+          Only import connection files from trusted sources. Imported files may
+          contain sensitive connection details and network configurations.
+        </Banner>
       </FormFieldContainer>
       <FormFieldContainer>
         <Passphrase
@@ -153,8 +157,8 @@ export function ImportConnectionsModal({
       )) ||
         (hasSelectedDuplicates && (
           <Banner variant="warning">
-            Some connections are already saved and will be overwritten by
-            importing them
+            Some selected connections already exist and will be overwritten
+            during import.
           </Banner>
         ))}
     </FormModal>

@@ -85,6 +85,12 @@ function buildCommonArgs(yargs: Argv) {
         description: 'Disable tests that are relying on clipboard',
         default: false,
       })
+      .option('atlas-cloud-environment', {
+        choices: ['dev', 'qa', 'staging', 'prod'] as const,
+        default: 'qa' as const,
+        description:
+          'Atlas Cloud environment to test against (used with --test-in-atlas-cloud for web and --test-with-atlas-user for desktop)',
+      })
   );
 }
 
@@ -102,6 +108,15 @@ function buildDesktopArgs(yargs: Argv) {
         'When not testing a packaaged app, re-compile native modules before running tests',
       default: true,
     })
+    .option('test-with-atlas-user', {
+      type: 'boolean',
+      default: false,
+      description:
+        'Run desktop tests that need Atlas Cloud resources. These tests ' +
+        'create an Atlas Cloud user (and with it an org), projects and ' +
+        'clusters as they need them',
+    })
+    .implies('test-with-atlas-user', 'atlas-cloud-environment')
     .epilogue(
       'All command line arguments can be also provided as env vars with `COMPASS_E2E_` prefix:\n\n  COMPASS_E2E_TEST_PACKAGED_APP=true compass-e2e-tests desktop'
     );
@@ -149,7 +164,7 @@ function buildWebArgs(yargs: Argv) {
         description: 'Set compass-web sandbox URL',
         default: 'http://localhost:7777',
       })
-      .option('test-atlas-cloud', {
+      .option('test-in-atlas-cloud', {
         type: 'boolean',
         default: false,
         description:
@@ -159,11 +174,6 @@ function buildWebArgs(yargs: Argv) {
           '(user, org, project, clusters, etc.) for the test as part of the test ' +
           'run. If you want to use existing ones, you can provide these via the ' +
           'optional `--atlas-cloud-*` arguments',
-      })
-      .options('atlas-cloud-environment', {
-        choices: ['dev', 'qa', 'staging', 'prod'] as const,
-        default: 'qa',
-        description: 'Atlas Cloud environment to test against',
       })
       .option('atlas-cloud-project-id', {
         type: 'string',
@@ -203,6 +213,7 @@ function buildWebArgs(yargs: Argv) {
         description: 'Cluster type to provision.',
       })
       .implies({
+        'test-in-atlas-cloud': 'atlas-cloud-environment',
         'atlas-cloud-project-id': [
           'atlas-cloud-username',
           'atlas-cloud-password',
@@ -217,7 +228,7 @@ function buildWebArgs(yargs: Argv) {
         ],
       })
       .epilogue(
-        'All command line arguments can be also provided as env vars with `COMPASS_E2E_` prefix:\n\n  COMPASS_E2E_TEST_ATLAS_CLOUD_EXTERNAL=true compass-e2e-tests web'
+        'All command line arguments can be also provided as env vars with `COMPASS_E2E_` prefix:\n\n  COMPASS_E2E_TEST_IN_ATLAS_CLOUD=true compass-e2e-tests web'
       )
   );
 }
@@ -300,6 +311,29 @@ export function assertTestingDesktop(
 }
 
 /**
+ * Returns true if tests are running against Compass desktop with Atlas Cloud
+ * resources enabled (`--test-with-atlas-user`)
+ */
+export function isTestingDesktopWithAtlasUser(
+  ctx = context
+): ctx is DesktopParsedArgs {
+  return isTestingDesktop(ctx) && !!ctx.testWithAtlasUser;
+}
+
+/**
+ * Returns if tests are running against Compass desktop with Atlas Cloud resources enabled. Throws otherwise
+ */
+export function assertTestingDesktopWithAtlasUser(
+  ctx = context
+): asserts ctx is DesktopParsedArgs {
+  if (!isTestingDesktopWithAtlasUser(ctx)) {
+    throw new Error(
+      'Expected tested runtime to be desktop w/ Atlas Cloud (--test-with-atlas-user)'
+    );
+  }
+}
+
+/**
  * Returns true if tests are running against compass-web in either local sandbox or integrated in Atlas Cloud
  */
 export function isTestingWeb(_ctx = context): _ctx is WebParsedArgs {
@@ -323,7 +357,7 @@ export function assertTestingWeb(ctx = context): asserts ctx is WebParsedArgs {
 export function isTestingWebAtlasCloud(
   ctx = context
 ): ctx is AtlasCloudParsedArgs {
-  return isTestingWeb(ctx) && !!ctx.testAtlasCloud;
+  return isTestingWeb(ctx) && !!ctx.testInAtlasCloud;
 }
 
 /**
@@ -353,8 +387,9 @@ debug('Running tests with the following arguments:', contextForPrinting);
 
 process.env.HADRON_DISTRIBUTION ??= context.hadronDistribution;
 
-process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ??=
-  context.atlasCloudEnvironment ?? 'dev';
+process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ??= isTestingWeb(context)
+  ? context.atlasCloudEnvironment
+  : 'dev';
 
 const testServerVersion =
   process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION;
@@ -438,7 +473,7 @@ export const DEFAULT_CONNECTIONS_SERVER_INFO: {
  */
 export const COMPASS_WEB_ENTRYPOINT_HOST = 'downloads.mongodb.com';
 
-const CLOUD_URLS = {
+export const CLOUD_URLS = {
   dev: {
     accountUrl: 'https://account-dev.mongodb.com',
     cloudUrl: 'https://cloud-dev.mongodb.com',
@@ -470,24 +505,43 @@ export function getCloudUrlsForEnvironment(env: AtlasEnvironment) {
 }
 
 /**
- * The web-only `atlasCloudEnvironment` context option, narrowed to
- * `AtlasEnvironment`. Only meaningful for the `web` command; use explicit
- * environments in desktop code paths.
+ * The `atlasCloudEnvironment` context option, narrowed to `AtlasEnvironment`.
+ * Only meaningful when testing with Atlas Cloud (`--test-in-atlas-cloud` for
+ * web, `--test-with-atlas-user` for desktop).
  */
 export function getAtlasCloudEnvironmentFromContext(
   ctx = context
 ): AtlasEnvironment {
-  return (ctx.atlasCloudEnvironment ?? 'qa') as AtlasEnvironment;
+  return ctx.atlasCloudEnvironment;
 }
 
 /**
- * Web (Atlas Cloud) accessor: resolves URLs from the web-only
- * `atlasCloudEnvironment` context option. Only valid when testing web Atlas
- * Cloud.
+ * Resolves Atlas Cloud URLs from the `atlasCloudEnvironment` context option.
+ * Only valid when testing with Atlas Cloud.
  */
 export function getCloudUrlsFromContext(ctx = context) {
-  assertTestingWebAtlasCloud(ctx);
-  return CLOUD_URLS[context.atlasCloudEnvironment as keyof typeof CLOUD_URLS];
+  assertTestingWithAtlasCloud(ctx);
+  return CLOUD_URLS[getAtlasCloudEnvironmentFromContext(ctx)];
+}
+
+/**
+ * Returns true if tests can use Atlas Cloud resources: compass-web in Atlas
+ * Cloud (`--test-in-atlas-cloud`) or desktop with an Atlas Cloud user
+ * (`--test-with-atlas-user`)
+ */
+export function isTestingWithAtlasCloud(ctx = context): boolean {
+  return isTestingWebAtlasCloud(ctx) || isTestingDesktopWithAtlasUser(ctx);
+}
+
+/**
+ * Returns if tests can use Atlas Cloud resources. Throws otherwise
+ */
+export function assertTestingWithAtlasCloud(ctx = context) {
+  if (!isTestingWithAtlasCloud(ctx)) {
+    throw new Error(
+      'Expected tests to run with Atlas Cloud (--test-in-atlas-cloud or --test-with-atlas-user)'
+    );
+  }
 }
 
 export const ATLAS_CLOUD_TEST_UTILS: {
@@ -509,7 +563,10 @@ export const ATLAS_CLOUD_TEST_UTILS: {
     : 'null'
 );
 
-if (isTestingWebAtlasCloud() && !ATLAS_CLOUD_TEST_UTILS) {
+if (
+  (isTestingWebAtlasCloud() || isTestingDesktopWithAtlasUser()) &&
+  !ATLAS_CLOUD_TEST_UTILS
+) {
   throw new Error(
     'Trying to test Atlas Cloud environment, but test utils config is not provided. Make sure that ATLAS_CLOUD_TEST_UTILS env variable is available'
   );
