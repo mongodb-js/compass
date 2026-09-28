@@ -1,6 +1,9 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
+import {
+  AtlasPreferencesStorage,
+  CompassWebPreferencesAccess,
+} from 'compass-preferences-model/provider';
 import {
   DEFAULT_COMPASS_WEB_PREFERENCES,
   getAtlasServiceBackendPreset,
@@ -294,18 +297,23 @@ describe('compass-web preferences', function () {
         atlasCloudOrgPreferences,
       } = await getPreferencesFromCloudApi(PROJECT_ID, atlasService);
 
-      const preferences = new CompassWebPreferencesAccess(
-        {
-          ...DEFAULT_COMPASS_WEB_PREFERENCES,
+      const storage = new AtlasPreferencesStorage(atlasService, {
+        defaults: DEFAULT_COMPASS_WEB_PREFERENCES,
+        overrides: {
           ...atlasCloudUserPreferences,
           ...atlasCloudProjectPreferences,
           ...atlasCloudOrgPreferences,
         },
+      });
+      const preferences = new CompassWebPreferencesAccess(
+        undefined,
         {
           atlasCloudUser: atlasCloudUserPreferences,
           atlasCloudProject: atlasCloudProjectPreferences,
           atlasCloudOrg: atlasCloudOrgPreferences,
-        }
+        },
+        'atlas',
+        storage
       ).getPreferences();
 
       // Cloud value wins over the "released" hardcoded `true`.

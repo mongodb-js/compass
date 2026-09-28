@@ -190,27 +190,23 @@ async function loadCompassWebPreferences(
   if (!projectId) {
     throw new Error('Cannot load preferences without an Atlas project id');
   }
-  const [cloudPrefs, atlasStorage] = await Promise.all([
-    getPreferencesFromCloudApi(projectId, atlasService),
-    (async () => {
-      const storage = new AtlasPreferencesStorage(atlasService);
-      await storage.setup();
-      return storage;
-    })(),
-  ]);
+  const cloudPreferences = getPreferencesFromCloudApi(projectId, atlasService);
+  const atlasStorage = new AtlasPreferencesStorage(atlasService, {
+    defaults: DEFAULT_COMPASS_WEB_PREFERENCES,
+  });
+  await atlasStorage.setup();
   const {
     atlasCloudUserPreferences,
     atlasCloudProjectPreferences,
     atlasCloudOrgPreferences,
-  } = cloudPrefs;
+  } = await cloudPreferences;
+  atlasStorage.setOverrides({
+    ...atlasCloudUserPreferences,
+    ...atlasCloudProjectPreferences,
+    ...atlasCloudOrgPreferences,
+  });
   return new CompassWebPreferencesAccess(
-    {
-      ...DEFAULT_COMPASS_WEB_PREFERENCES,
-      ...atlasStorage.getPreferences(),
-      ...atlasCloudUserPreferences,
-      ...atlasCloudProjectPreferences,
-      ...atlasCloudOrgPreferences,
-    },
+    undefined,
     {
       atlasCloudUser: atlasCloudUserPreferences,
       atlasCloudProject: atlasCloudProjectPreferences,

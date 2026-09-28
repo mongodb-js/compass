@@ -5,22 +5,32 @@ import {
   getPreferencesValidator,
 } from './preferences-schema';
 import type {
+  AllPreferences,
   StoredPreferences,
   StoredPreferencesValidator,
 } from './preferences-schema';
 
 import type { PreferencesStorage } from './preferences-storage';
 
+export type AtlasPreferencesStorageOptions = {
+  defaults?: Partial<AllPreferences>;
+  overrides?: Partial<AllPreferences>;
+};
+
 export class AtlasPreferencesStorage implements PreferencesStorage {
-  private readonly file = 'General';
   private readonly defaultPreferences = getDefaultsForStoredPreferences();
   private readonly userData: AtlasUserData<
     StoredPreferencesValidator,
     'AppPreferences'
   >;
   private preferences: StoredPreferences = getDefaultsForStoredPreferences();
+  private defaults: Partial<AllPreferences>;
+  private overrides: Partial<AllPreferences>;
 
-  constructor(atlasService: AtlasServiceLike) {
+  constructor(
+    atlasService: AtlasServiceLike,
+    { defaults = {}, overrides = {} }: AtlasPreferencesStorageOptions = {}
+  ) {
     this.userData = new AtlasUserData(
       getPreferencesValidator(),
       'AppPreferences',
@@ -28,6 +38,14 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
         atlasService,
       }
     );
+    this.defaults = defaults;
+    this.overrides = overrides;
+  }
+
+  // Cloud-derived values are only known once the preferences request resolves,
+  // so they are provided after setup has already started reading in parallel.
+  setOverrides(overrides: Partial<AllPreferences> = {}) {
+    this.overrides = overrides;
   }
 
   async setup() {
@@ -46,8 +64,10 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
 
   getPreferences(): StoredPreferences {
     return {
+      ...this.defaults,
       ...this.defaultPreferences,
       ...this.preferences,
+      ...this.overrides,
     };
   }
 
