@@ -1220,6 +1220,59 @@ describe('AssistantChat', function () {
     });
   });
 
+  describe('actions and links while streaming', function () {
+    const thumbsUp = '[aria-label="Thumbs Up Icon"]';
+    const thumbsDown = '[aria-label="Thumbs Down Icon"]';
+
+    it('hides feedback actions and links on the last message while it is streaming', function () {
+      renderWithChat(
+        createMockChat({ messages: mockMessages, status: 'streaming' })
+      );
+
+      const assistantMessage = screen.getByTestId(
+        'assistant-message-assistant'
+      );
+
+      expect(assistantMessage.querySelector(thumbsUp)).to.not.exist;
+      expect(assistantMessage.querySelector(thumbsDown)).to.not.exist;
+      expect(screen.queryByLabelText('Expand Related Resources')).to.not.exist;
+    });
+
+    it('keeps feedback actions and links on earlier messages while a new response streams', function () {
+      const messages: AssistantMessage[] = [
+        ...mockMessages,
+        {
+          id: 'user-follow-up',
+          role: 'user',
+          parts: [{ type: 'text', text: 'Tell me more.' }],
+        },
+      ];
+      renderWithChat(createMockChat({ messages, status: 'streaming' }));
+
+      const assistantMessage = screen.getByTestId(
+        'assistant-message-assistant'
+      );
+
+      expect(assistantMessage.querySelector(thumbsUp)).to.exist;
+      expect(assistantMessage.querySelector(thumbsDown)).to.exist;
+      expect(screen.getByLabelText('Expand Related Resources')).to.exist;
+    });
+
+    it('shows feedback actions and links on the last message once the response is complete', function () {
+      renderWithChat(
+        createMockChat({ messages: mockMessages, status: 'ready' })
+      );
+
+      const assistantMessage = screen.getByTestId(
+        'assistant-message-assistant'
+      );
+
+      expect(assistantMessage.querySelector(thumbsUp)).to.exist;
+      expect(assistantMessage.querySelector(thumbsDown)).to.exist;
+      expect(screen.getByLabelText('Expand Related Resources')).to.exist;
+    });
+  });
+
   describe('tool call connection ID registration', function () {
     let setConnectionIdSpy: sinon.SinonSpy;
 
