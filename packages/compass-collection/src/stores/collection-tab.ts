@@ -6,7 +6,6 @@ import thunk from 'redux-thunk';
 import reducer, {
   selectTab,
   collectionMetadataFetched,
-  analyzeCollectionSchema,
   cancelSchemaAnalysis,
   openMockDataGeneratorModal,
 } from '../modules/collection-tab';
@@ -29,7 +28,6 @@ import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
   SCHEMA_ANALYSIS_STATE_ERROR,
   SCHEMA_ANALYSIS_STATE_COMPLETE,
-  SCHEMA_ANALYSIS_STATE_ANALYZING,
 } from '../schema-analysis-types';
 import type { CollectionState } from '../modules/collection-tab';
 
@@ -67,52 +65,6 @@ export function selectIsCollectionEmpty(state: CollectionState): boolean {
     state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ERROR &&
     state.schemaAnalysis?.error?.errorType === 'empty'
   );
-}
-
-/**
- * Determines if schema analysis should be re-triggered after document insertion.
- * Re-triggers when collection has no valid schema analysis data (error states,
- * initial state, and completed analysis with empty schema).
- */
-export function selectShouldRetriggerSchemaAnalysis(
-  state: CollectionState
-): boolean {
-  // Don't retrigger if already analyzing
-  if (state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ANALYZING) {
-    return false;
-  }
-
-  // Re-trigger if no valid schema data
-  return !selectHasSchemaAnalysisData(state);
-}
-
-/**
- * Checks if user is in the Mock Data Generator experiment (either
- * control or treatment). Schema analysis runs for both arms so that the
- * "Experiment Viewed" exposure event can fire for control and treatment
- * under the same conditions.
- * Returns false on error to default to not running schema analysis.
- */
-async function shouldRunSchemaAnalysis(
-  experimentationServices: ExperimentationServices,
-  logger: Logger,
-  namespace: string
-): Promise<boolean> {
-  try {
-    const assignment = await experimentationServices.getAssignment(
-      ExperimentTestNames.mockDataGenerator,
-      false // Don't track "Experiment Viewed" event here
-    );
-    return !!assignment?.assignmentData?.variant;
-  } catch (error) {
-    // On error, default to not running schema analysis
-    logger.debug('Failed to get Mock Data Generator experiment assignment', {
-      experiment: ExperimentTestNames.mockDataGenerator,
-      namespace: namespace,
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return false;
-  }
 }
 
 export type CollectionTabOptions = {
@@ -233,73 +185,6 @@ export function activatePlugin(
     void store.dispatch(openMockDataGeneratorModal());
   });
 
-  const handleSchemaAnalysisRetrigger = (eventType: string) => {
-    const currentState = store.getState();
-    if (selectShouldRetriggerSchemaAnalysis(currentState)) {
-      // Re-trigger schema analysis only for users in the Mock Data Generator experiment
-      shouldRunSchemaAnalysis(experimentationServices, logger, namespace)
-        .then((shouldRun) => {
-          if (shouldRun) {
-            logger.debug(`Re-triggering schema analysis after ${eventType}`, {
-              namespace,
-            });
-            void store.dispatch(analyzeCollectionSchema());
-          }
-        })
-        .catch((error) => {
-          logger.debug('Error checking schema analysis experiment', {
-            namespace: namespace,
-            error: error instanceof Error ? error.message : String(error),
-          });
-        });
-    }
-  };
-
-  // Listen for document insertions to re-trigger schema analysis for previously empty collections
-  on(
-    globalAppRegistry,
-    'document-inserted',
-    (
-      payload: {
-        ns: string;
-        view?: string;
-        mode: string;
-        multiple: boolean;
-        docs: unknown[];
-      },
-      { connectionId }: { connectionId?: string } = {}
-    ) => {
-      // Ensure event is for the current connection and namespace
-      if (
-        connectionId === connectionInfoRef.current.id &&
-        payload.ns === namespace
-      ) {
-        handleSchemaAnalysisRetrigger('document insertion');
-      }
-    }
-  );
-
-  // Listen for import completion to re-trigger schema analysis for previously empty collections
-  on(
-    globalAppRegistry,
-    'import-finished',
-    (
-      payload: {
-        ns: string;
-        connectionId?: string;
-      },
-      { connectionId }: { connectionId?: string } = {}
-    ) => {
-      // Ensure event is for the current connection and namespace
-      if (
-        connectionId === connectionInfoRef.current.id &&
-        payload.ns === namespace
-      ) {
-        handleSchemaAnalysisRetrigger('import finished');
-      }
-    }
-  );
-
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
 
@@ -323,19 +208,6 @@ export function activatePlugin(
             error: error instanceof Error ? error.message : String(error),
           });
         });
-    }
-
-    if (!metadata.isReadonly && !metadata.isTimeSeries) {
-      // Run schema analysis for users in the Mock Data Generator experiment
-      void shouldRunSchemaAnalysis(
-        experimentationServices,
-        logger,
-        namespace
-      ).then((shouldRun) => {
-        if (shouldRun) {
-          void store.dispatch(analyzeCollectionSchema());
-        }
-      });
     }
   });
 
