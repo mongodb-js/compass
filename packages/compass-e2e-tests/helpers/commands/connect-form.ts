@@ -300,8 +300,10 @@ export async function getConnectFormState(
     await browser.clickVisible(Selectors.ConnectionFormAdvancedToggle);
 
     await browser.waitUntil(async () => {
-      const advancedButton = browser.$(Selectors.ConnectionFormAdvancedToggle);
-      return (await advancedButton.getAttribute('aria-expanded')) === 'false';
+      const advancedAccordion = browser.$(
+        Selectors.ConnectionFormAdvancedToggle
+      );
+      return (await advancedAccordion.getAttribute('open')) === null;
     });
   }
 
