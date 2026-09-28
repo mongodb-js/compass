@@ -670,7 +670,7 @@ const CompassWeb = (props: CompassWebProps) => {
     <AtlasServiceProvider
       options={{
         defaultHeaders,
-        atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
+        getAtlasServiceBackendPreset: () => getAtlasServiceBackendPreset(),
       }}
     >
       <CompassWebPreferencesProvider projectId={props.projectId}>

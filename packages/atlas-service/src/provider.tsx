@@ -42,16 +42,19 @@ export const AtlasServiceProvider: React.FC<{
   const initialValueOptions = useInitialValue(options);
 
   const atlasService = useMemo(() => {
-    const preset =
-      initialValueOptions?.atlasServiceBackendPreset ??
-      preferences.getPreferences().atlasServiceBackendPreset;
-    const networkTraffic =
-      initialValueOptions?.networkTraffic ??
-      preferences.getPreferences().networkTraffic;
+    const {
+      getAtlasServiceBackendPreset: getBackendPresetOverride,
+      getNetworkTraffic: getNetworkTrafficOverride,
+      ...rest
+    } = initialValueOptions ?? {};
     return new AtlasService(logger, {
-      ...initialValueOptions,
-      atlasServiceBackendPreset: preset,
-      networkTraffic,
+      ...rest,
+      getAtlasServiceBackendPreset: () =>
+        getBackendPresetOverride?.() ??
+        preferences.getPreferences().atlasServiceBackendPreset,
+      getNetworkTraffic: () =>
+        getNetworkTrafficOverride?.() ??
+        preferences.getPreferences().networkTraffic,
     });
   }, [logger, initialValueOptions, preferences]);
 

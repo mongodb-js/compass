@@ -44,7 +44,9 @@ describe('AtlasService', function () {
   });
 
   it('should throw when network traffic is disabled', async function () {
-    const disabledService = getAtlasService({ networkTraffic: false });
+    const disabledService = getAtlasService({
+      getNetworkTraffic: () => false,
+    });
     try {
       await disabledService.fetch('https://example.com');
       expect.fail('Expected to throw when network traffic is disabled');

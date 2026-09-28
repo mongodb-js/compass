@@ -7,8 +7,10 @@ import { type UserDataType } from '@mongodb-js/compass-user-data';
 
 export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
-  atlasServiceBackendPreset?: AtlasServiceBackendPreset;
-  networkTraffic?: boolean;
+  // These are resolved through accessors so runtime changes (preferences,
+  // process.env overrides) are taken into account on every use.
+  getAtlasServiceBackendPreset?: () => AtlasServiceBackendPreset | undefined;
+  getNetworkTraffic?: () => boolean | undefined;
 };
 
 function normalizePath(path?: string) {
@@ -67,7 +69,7 @@ export class AtlasService {
     return (
       this.defaultConfigOverride ??
       getAtlasConfigForPreset(
-        this.options?.atlasServiceBackendPreset ?? 'atlas'
+        this.options?.getAtlasServiceBackendPreset?.() ?? 'atlas'
       )
     );
   }
@@ -120,7 +122,7 @@ export class AtlasService {
     );
   }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    if (this.options?.networkTraffic === false) {
+    if (this.options?.getNetworkTraffic?.() === false) {
       throw new Error('Network traffic is not allowed');
     }
     throwIfAborted(init?.signal as AbortSignal);
