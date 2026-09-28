@@ -456,7 +456,8 @@ MongoClient mongoClient = MongoClients.create(
 );
 MongoDatabase database = mongoClient.getDatabase("test");
 MongoCollection<Document> collection = database.getCollection("numbers");
-FindIterable<Document> result = collection.find(filter);`);
+FindIterable<Document> result = collection.find(filter)
+    .maxTime(60000L, TimeUnit.MILLISECONDS);`);
   });
 
   it('supports view/edit via list view', async function () {
