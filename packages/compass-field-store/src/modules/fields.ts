@@ -116,7 +116,7 @@ export function mergeSchema(
   fields: Record<string, SchemaFieldSubset>,
   schemaFields: SchemaField[]
 ): { fields: Record<string, SchemaFieldSubset>; topLevelFields: string[] } {
-  fields = cloneDeep(fields);
+  fields = Object.assign(Object.create(null), cloneDeep(fields));
 
   const topLevelFields = [];
 
