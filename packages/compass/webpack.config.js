@@ -248,13 +248,50 @@ module.exports = (_env, args) => {
     merge(rendererConfig, {
       cache,
       snapshot,
+      // `target: 'electron-renderer'` turns on the node/electron externals
+      // presets, which claim every builtin as a CommonJS external before
+      // `resolve.fallback` is ever consulted. Turning them off lets the
+      // fallback below map builtins to empty modules instead.
+      externalsPresets: {
+        node: false,
+        electron: false,
+        electronRenderer: false,
+        electronPreload: false,
+      },
       // Chunk splitting makes sense only for renderer processes where the
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
       resolve: {
+        // The renderer has no `require`, so node builtins must not become
+        // CommonJS externals: with `output.module` webpack bridges those via
+        // `createRequire` from `node:module`, which is itself unresolvable in
+        // a browser and throws before any application code runs. Mapping them
+        // to empty modules keeps the bundle loadable; anything that actually
+        // calls into one still fails, which is what the stdlib report tracks.
+        fallback: Object.fromEntries(
+          require('module').builtinModules.flatMap((name) => [
+            [name, false],
+            [`node:${name}`, false],
+          ])
+        ),
         alias: {
+          // Browser-compatible replacements, same ones compass-web uses.
+          // Exact-match (`$`) so that the `stream` entry does not also claim
+          // `stream/promises`, which has no browser equivalent and stays
+          // mapped to an empty module by the fallback above.
+          stream$: require.resolve('readable-stream'),
+          events$: require.resolve('events/'),
+          // `util/types` must be listed before `util` so that the prefix match
+          // on `util` does not claim it first.
+          'util/types': path.resolve(__dirname, 'polyfills', 'util-types.js'),
+          util$: require.resolve('util/'),
+
           '@mongodb-js/atlas-local': false,
+          // `hadron-ipc`'s default entry pulls in its main-process half, which
+          // imports `electron` as a value. The renderer only ever needs the
+          // renderer half.
+          'hadron-ipc$': require.resolve('hadron-ipc/renderer'),
         },
       },
       plugins: [

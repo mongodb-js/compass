@@ -3,7 +3,6 @@ import type {
   MongoClient,
   Document,
   MongoClientOptions,
-  AutoEncryptionOptions,
 } from 'mongodb';
 import {
   isEnterprise,
@@ -13,7 +12,9 @@ import {
   isLocalAtlas as checkIsLocalAtlas,
 } from 'mongodb-build-info';
 import toNS from 'mongodb-ns';
+import { configuredKMSProviders } from './kms-providers';
 
+export { configuredKMSProviders };
 import type {
   BuildInfo,
   CollectionInfo,
@@ -190,18 +191,6 @@ export function checkIsCSFLEConnection(client: {
   options: MongoClientOptions;
 }): boolean {
   return configuredKMSProviders(client.options?.autoEncryption).length > 0;
-}
-
-export function configuredKMSProviders(
-  autoEncryption?: AutoEncryptionOptions
-): (keyof NonNullable<AutoEncryptionOptions['kmsProviders']>)[] {
-  const kmsProviders = autoEncryption?.kmsProviders ?? {};
-  return Object.entries(kmsProviders)
-    .filter(
-      ([, kmsOptions]) =>
-        Object.values(kmsOptions ?? {}).filter(Boolean).length > 0
-    )
-    .map(([kmsProviderName]) => kmsProviderName as any);
 }
 
 async function buildGenuineMongoDBInfo(

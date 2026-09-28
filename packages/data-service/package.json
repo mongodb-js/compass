@@ -19,10 +19,12 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./utility": "./dist/utility.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./utility": "./src/utility.ts"
   },
   "types": "./dist/index.d.ts",
   "files": [

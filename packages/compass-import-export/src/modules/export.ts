@@ -1,10 +1,7 @@
 import type { Action, AnyAction, Reducer } from 'redux';
-import fs from 'fs';
 import _ from 'lodash';
-import {
-  createProjectionFromSchemaFields,
-  gatherFieldsFromQuery,
-} from '../export/gather-fields';
+import { createProjectionFromSchemaFields } from 'mongodb-data-service';
+import type { GatherFieldsResult } from 'mongodb-data-service';
 import type { SchemaPath } from '../export/gather-fields';
 import type {
   ExportAggregation,
@@ -310,7 +307,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
       export: { query, namespace, connectionId },
     } = getState();
 
-    let gatherFieldsResult: Awaited<ReturnType<typeof gatherFieldsFromQuery>>;
+    let gatherFieldsResult: GatherFieldsResult;
 
     try {
       if (!connectionId) {

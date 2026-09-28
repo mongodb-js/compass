@@ -25,8 +25,8 @@ import { injectCSP } from './utils/csp';
 injectCSP();
 
 // Setup paths and environment variables for electron globals
-import { setupHadronDistribution } from '../setup-hadron-distribution';
-setupHadronDistribution();
+import { setupHadronDistributionForRenderer } from '../setup-hadron-distribution-renderer';
+setupHadronDistributionForRenderer();
 
 // DNS Configuration
 // Ensures IPv4 is preferred over IPv6 to avoid potential connection issues

@@ -256,6 +256,10 @@ function showConnectWindow(
 
   debug('creating new main window:', windowOpts);
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
+
+  // TODO(COMPASS-10808): temporary while the renderer runs without a storage
+  // path, so preferences (including `enableDevTools`) do not persist.
+  window.webContents.openDevTools({ mode: 'detach' });
   if (mongodbUrl) {
     registerMongoDbUrlForBrowserWindow(window, mongodbUrl);
   }

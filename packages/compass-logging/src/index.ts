@@ -1,5 +1,5 @@
 export { createLogger } from './ipc-logger';
 export type { Logger } from './logger';
-export { mongoLogId } from 'mongodb-log-writer/mongo-log-writer';
+export { mongoLogId } from './provider';
 import createDebug from 'debug';
 export const debug = createDebug('mongodb-compass');

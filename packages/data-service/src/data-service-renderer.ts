@@ -43,6 +43,18 @@ import type {
   GatherFieldsArgs,
   GatherFieldsResult,
 } from './cursor/gather-fields';
+import type {
+  AnalyzeCSVFieldsArgs,
+  AnalyzeCSVFieldsResult,
+  GetImportFileInfoArgs,
+  GetImportFileInfoResult,
+  GuessFileTypeArgs,
+  GuessFileTypeResult,
+  ImportFromFileArgs,
+  ImportFromFileResult,
+  ListCSVFieldsArgs,
+  ListCSVFieldsResult,
+} from './import/import-types';
 import type { Schema } from '@mongodb-js/mongodb-schema';
 import type { Document } from 'bson';
 import type {
@@ -63,7 +75,7 @@ import { isCancelError } from '@mongodb-js/compass-utils';
 import type { DataServiceImplLogger } from './logger';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import { configuredKMSProviders } from './instance-detail-helper';
+import { configuredKMSProviders } from './kms-providers';
 
 let reqId = 0;
 let nextId = 0;
@@ -497,6 +509,27 @@ export class DataServiceRenderer
   }
   async gatherFields(args: GatherFieldsArgs): Promise<GatherFieldsResult> {
     return await this.do('gatherFields', [args]);
+  }
+  async getImportFileInfo(
+    args: GetImportFileInfoArgs
+  ): Promise<GetImportFileInfoResult> {
+    return await this.do('getImportFileInfo', [args]);
+  }
+  async guessFileType(args: GuessFileTypeArgs): Promise<GuessFileTypeResult> {
+    return await this.do('guessFileType', [args]);
+  }
+  async listCSVFields(args: ListCSVFieldsArgs): Promise<ListCSVFieldsResult> {
+    return await this.do('listCSVFields', [args]);
+  }
+  async analyzeCSVFields(
+    args: AnalyzeCSVFieldsArgs
+  ): Promise<AnalyzeCSVFieldsResult> {
+    return await this.do('analyzeCSVFields', [args]);
+  }
+  async importFromFile(
+    args: ImportFromFileArgs
+  ): Promise<ImportFromFileResult> {
+    return await this.do('importFromFile', [args]);
   }
 
   private target = new EventTarget();

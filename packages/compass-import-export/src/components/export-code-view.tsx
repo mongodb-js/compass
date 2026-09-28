@@ -4,7 +4,7 @@ import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
 
 import type { FieldsToExportOption, FieldsToExport } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
-import { createProjectionFromSchemaFields } from '../export/gather-fields';
+import { createProjectionFromSchemaFields } from 'mongodb-data-service';
 import type { ExportAggregation, ExportQuery } from '../export/export-types';
 import {
   aggregationAsShellJSString,

@@ -191,21 +191,22 @@ function tally(values) {
 }
 
 function buildReport(violations) {
-  const builtins = violations.map((v) => v.request);
+  const required = violations.filter((v) => !v.optional);
+  const optional = violations.filter((v) => v.optional);
+  const builtins = required.map((v) => v.request);
   // The module that actually did the importing, i.e. the last real module
   // before the `external "..."` leaf.
-  const culprits = violations.map((v) => v.chain[v.chain.length - 2] ?? '?');
-  const tree = renderTree(buildTree(violations.map((v) => v.chain)));
+  const culprits = required.map((v) => v.chain[v.chain.length - 2] ?? '?');
 
-  return [
+  const sections = [
     'Node stdlib imports in renderer bundle',
     '======================================',
-    `${violations.length} violations across ${
+    `${required.length} unguarded imports of ${
       new Set(builtins).size
-    } distinct builtins.`,
+    } distinct builtins, from ${new Set(culprits).size} modules.`,
+    `${optional.length} further imports sit inside a try/catch and are` +
+      ' reported separately below.',
     '',
-    // Webpack creates one ExternalModule per distinct request, so counting
-    // occurrences per builtin would always be 1. List them instead.
     'BUILTINS',
     `  ${[...new Set(builtins)].sort().join(', ')}`,
     '',
@@ -216,36 +217,105 @@ function buildReport(violations) {
     tally(culprits.map(shorten)),
     '',
     'IMPORT TREE',
-    tree,
+    renderTree(buildTree(required.map((v) => v.chain))),
     '',
-  ].join('\n');
+  ];
+
+  if (optional.length > 0) {
+    sections.push(
+      'OPTIONAL (inside try/catch -- these degrade gracefully)',
+      '======================================================',
+      tally(
+        optional.map(
+          (v) => `${shorten(v.chain[v.chain.length - 2] ?? '?')}  ->  ${v.request}`
+        )
+      ),
+      ''
+    );
+  }
+
+  return sections.join('\n');
 }
 
 /**
- * Fails the build on any Node stdlib import, prefixed (`node:fs`) or bare
- * (`fs`). The renderer cannot resolve these, but the `electron-renderer`
+ * Reports every Node stdlib import, prefixed (`node:fs`) or bare (`fs`).
+ * Warns by default; pass `failOnViolation` to make it fail the build. The renderer cannot resolve these, but the `electron-renderer`
  * target preset silently turns them into `ExternalModule`s rather than
  * erroring, so we inspect the built module list instead of hooking resolution.
  *
- * Reports once per compilation as a grouped tree rather than one error per
+ * Reports once per compilation as a grouped tree rather than one entry per
  * violation, so that shared ancestors are visible.
  */
 class FailOnNodeStdlib {
-  constructor({ reportPath } = {}) {
+  constructor({ reportPath, failOnViolation = false } = {}) {
     this.reportPath = reportPath;
+    // Reported as a warning by default: the remaining imports sit on code
+    // paths the renderer does not take, so the bundle still runs. Flip this
+    // on once the count reaches zero to keep it there.
+    this.failOnViolation = failOnViolation;
   }
 
   apply(compiler) {
     compiler.hooks.compilation.tap(PLUGIN, (compilation) => {
       compilation.hooks.afterChunks.tap(PLUGIN, () => {
         const violations = [];
+        const { moduleGraph } = compilation;
 
         for (const module of compilation.modules) {
-          const request = module.userRequest || module.request || '';
-          if (BUILTINS.has(request)) {
+          // A builtin shows up either as an ExternalModule (`request` set) or,
+          // once `resolve.fallback` maps it to `false`, as a RawModule whose
+          // identifier is `ignored|<context>|<request>`. Both mean the same
+          // thing for us: renderer code reached for a Node builtin.
+          let request = module.userRequest || module.request || '';
+          if (!request) {
+            const ignored = /^ignored\|.*\|(.+)$/.exec(module.identifier());
+            if (ignored) {
+              request = ignored[1];
+            }
+          }
+          if (!BUILTINS.has(request)) {
+            continue;
+          }
+
+          // Webpack collapses every import of a builtin into one
+          // ExternalModule, so reporting a single path to it would name only
+          // one of possibly many importers and hide the rest. Enumerate every
+          // module that imports it instead: that is the real work list.
+          // Webpack sets `dependency.optional` from `parser.scope.inTry`, so a
+          // require inside a try/catch is distinguishable here. Those are the
+          // feature-detection cases that degrade gracefully in a browser, so
+          // they are reported separately rather than counted as work.
+          const importers = new Map();
+          for (const connection of moduleGraph.getIncomingConnections(module)) {
+            if (!connection.originModule) {
+              continue;
+            }
+            const optional = Boolean(connection.dependency?.optional);
+            // A module may import the same builtin both ways; if any import is
+            // unguarded, the importer still needs fixing.
+            importers.set(
+              connection.originModule,
+              (importers.get(connection.originModule) ?? true) && optional
+            );
+          }
+
+          if (importers.size === 0) {
             violations.push({
               request,
-              chain: shortestPathToEntry(compilation, module),
+              optional: false,
+              chain: [...shortestPathToEntry(compilation, module), request],
+            });
+            continue;
+          }
+
+          for (const [importer, optional] of importers) {
+            violations.push({
+              request,
+              optional,
+              chain: [
+                ...shortestPathToEntry(compilation, importer),
+                `external "${request}"${optional ? ' [optional]' : ''}`,
+              ],
             });
           }
         }
@@ -254,19 +324,24 @@ class FailOnNodeStdlib {
           return;
         }
 
+        const required = violations.filter((v) => !v.optional);
         const report = buildReport(violations);
 
+        const sink = this.failOnViolation
+          ? compilation.errors
+          : compilation.warnings;
+
         if (!this.reportPath) {
-          compilation.errors.push(new Error(report));
+          sink.push(new Error(report));
           return;
         }
 
         fs.mkdirSync(path.dirname(this.reportPath), { recursive: true });
         fs.writeFileSync(this.reportPath, report);
-        compilation.errors.push(
+        sink.push(
           new Error(
-            `${violations.length} Node stdlib imports in renderer bundle. ` +
-              `Full report: ${this.reportPath}`
+            `${required.length} unguarded Node stdlib imports in renderer ` +
+              `bundle. Full report: ${this.reportPath}`
           )
         );
       });

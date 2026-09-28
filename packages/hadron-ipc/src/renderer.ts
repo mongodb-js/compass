@@ -1,5 +1,4 @@
 import { getResponseChannel } from './common';
-import electron from 'electron';
 import type { IpcRenderer } from 'electron';
 import createDebug from 'debug';
 import { deserializeErrorFromIpc, isSerializedError } from './serialized-error';
@@ -38,19 +37,31 @@ export function call(
   });
 }
 
-const ipcRenderer = electron.ipcRenderer
-  ? Object.assign(electron.ipcRenderer, {
+/**
+ * The renderer cannot `import 'electron'` once `nodeIntegration` is off, so
+ * the preload script hands `ipcRenderer` over on the global instead. Absent
+ * (tests, compass-web, a renderer with no preload) this stays undefined, which
+ * every caller already has to handle.
+ */
+const providedIpcRenderer = (
+  globalThis as typeof globalThis & {
+    __COMPASS_IPC_RENDERER__?: IpcRenderer;
+  }
+).__COMPASS_IPC_RENDERER__;
+
+const ipcRenderer = providedIpcRenderer
+  ? Object.assign(providedIpcRenderer, {
       /**
        * Call a method in the main process set up with `ipcMain.respondTo`
        * helper
        */
-      call: call.bind(null, electron.ipcRenderer, debug),
+      call: call.bind(null, providedIpcRenderer, debug),
 
       /**
        * Same as `ipcRenderer.call`, but doesn't print any debug information
        * when called (`debug` is no-op)
        */
-      callQuiet: call.bind(null, electron.ipcRenderer, () => {
+      callQuiet: call.bind(null, providedIpcRenderer, () => {
         // noop for a quiet call
       }),
 

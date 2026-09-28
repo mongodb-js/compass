@@ -133,6 +133,26 @@ import {
   type GatherFieldsArgs,
   type GatherFieldsResult,
 } from './cursor/gather-fields';
+import {
+  analyzeCSVFields as runAnalyzeCSVFields,
+  getImportFileInfo as runGetImportFileInfo,
+  guessFileType as runGuessFileType,
+  importFromFile as runImportFromFile,
+  listCSVFields as runListCSVFields,
+} from './import/import-from-file';
+import type {
+  ImportProgress,
+  AnalyzeCSVFieldsArgs,
+  AnalyzeCSVFieldsResult,
+  GetImportFileInfoArgs,
+  GetImportFileInfoResult,
+  GuessFileTypeArgs,
+  GuessFileTypeResult,
+  ImportFromFileArgs,
+  ImportFromFileResult,
+  ListCSVFieldsArgs,
+  ListCSVFieldsResult,
+} from './import/import-types';
 
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
@@ -199,6 +219,11 @@ export interface DataServiceEventMap {
   connectionInfoSecretsChanged: () => void;
   close: () => void;
   oidcAuthFailed: (error: string) => void;
+  /**
+   * Replaces the `progressCallback` that the in-renderer import took: a
+   * function can't be structured-cloned, so progress comes back as an event.
+   */
+  importProgress: (progress: ImportProgress) => void;
 }
 
 export type UpdatePreviewChange = {
@@ -822,6 +847,39 @@ export interface DataService {
    * unique schema paths (and documents processed).
    */
   gatherFields(args: GatherFieldsArgs): Promise<GatherFieldsResult>;
+
+  /**
+   * Sniffs a file on disk and reports whether it looks like JSON, JSONL or
+   * CSV (and for CSV, which delimiter and line ending). Seeds the import
+   * wizard's initial guess.
+   */
+  /**
+   * Existence and size of a file the user picked for import.
+   */
+  getImportFileInfo(
+    args: GetImportFileInfoArgs
+  ): Promise<GetImportFileInfoResult>;
+
+  guessFileType(args: GuessFileTypeArgs): Promise<GuessFileTypeResult>;
+
+  /**
+   * Reads just the header row of a CSV plus a short preview, for the field
+   * selection table.
+   */
+  listCSVFields(args: ListCSVFieldsArgs): Promise<ListCSVFieldsResult>;
+
+  /**
+   * Scans a whole CSV to detect a BSON type per field. Long-running: reports
+   * via the `importProgress` event and honours `args.signal`.
+   */
+  analyzeCSVFields(args: AnalyzeCSVFieldsArgs): Promise<AnalyzeCSVFieldsResult>;
+
+  /**
+   * Reads `args.filePath` and writes its documents into `args.ns`, owning the
+   * file handles, the parsing and the error log. Long-running: reports via the
+   * `importProgress` event and honours `args.signal`.
+   */
+  importFromFile(args: ImportFromFileArgs): Promise<ImportFromFileResult>;
 
   /**
    * Fetch shard keys for the collection from the collections config.
@@ -2703,6 +2761,32 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   async gatherFields(args: GatherFieldsArgs): Promise<GatherFieldsResult> {
     return runGatherFields(this, args);
+  }
+
+  async getImportFileInfo(
+    args: GetImportFileInfoArgs
+  ): Promise<GetImportFileInfoResult> {
+    return runGetImportFileInfo(args);
+  }
+
+  async guessFileType(args: GuessFileTypeArgs): Promise<GuessFileTypeResult> {
+    return runGuessFileType(args);
+  }
+
+  async listCSVFields(args: ListCSVFieldsArgs): Promise<ListCSVFieldsResult> {
+    return runListCSVFields(args);
+  }
+
+  async analyzeCSVFields(
+    args: AnalyzeCSVFieldsArgs
+  ): Promise<AnalyzeCSVFieldsResult> {
+    return runAnalyzeCSVFields(args);
+  }
+
+  async importFromFile(
+    args: ImportFromFileArgs
+  ): Promise<ImportFromFileResult> {
+    return runImportFromFile(this, args);
   }
 
   sample(

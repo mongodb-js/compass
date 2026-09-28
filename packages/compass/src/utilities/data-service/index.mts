@@ -1,5 +1,5 @@
 import type { MessagePortMain } from 'electron';
-import { DataServiceUtility } from 'mongodb-data-service';
+import { DataServiceUtility } from 'mongodb-data-service/utility';
 import { on } from 'node:events';
 import process from 'node:process';
 

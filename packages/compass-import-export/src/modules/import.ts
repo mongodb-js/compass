@@ -1,7 +1,4 @@
 import _ from 'lodash';
-import { promisify } from 'util';
-import fs from 'fs';
-import path from 'path';
 import type { Reducer } from 'redux';
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
@@ -13,14 +10,8 @@ import type {
   CSVParsableFieldType,
   CSVField,
 } from '../csv/csv-types';
-import type { ErrorJSON, ImportResult } from '../import/import-types';
-import { csvHeaderNameToFieldName } from '../csv/csv-utils';
-import { guessFileType } from '../import/guess-filetype';
-import { listCSVFields } from '../import/list-csv-fields';
-import { analyzeCSVFields } from '../import/analyze-csv-fields';
-import type { AnalyzeCSVFieldsResult } from '../import/analyze-csv-fields';
-import { importCSV } from '../import/import-csv';
-import { importJSON } from '../import/import-json';
+import type { ErrorJSON } from '../import/import-types';
+import { csvHeaderNameToFieldName } from '../csv/csv-header-name';
 import { getStoragePath } from '@mongodb-js/compass-utils';
 import {
   showBloatedDocumentSignalToast,
@@ -34,11 +25,13 @@ import {
 } from '../components/import-toast';
 import type { ImportThunkAction } from '../stores/import-store';
 import { openFile } from '../utils/open-file';
-import type { DataService } from 'mongodb-data-service';
+import type {
+  AnalyzeCSVFieldsResult,
+  DataService,
+  ImportFromFileResult,
+} from 'mongodb-data-service';
 import { showErrorDetails } from '@mongodb-js/compass-components';
 
-const checkFileExists = promisify(fs.exists);
-const getFileStats = promisify(fs.stat);
 
 /**
  * ## Action names
@@ -94,7 +87,7 @@ type ImportState = {
   useHeaderLines: boolean;
   status: ProcessStatus;
 
-  fileStats: null | fs.Stats;
+  fileStats: null | { size: number };
   analyzeBytesProcessed: number;
   analyzeBytesTotal: number;
   delimiter: Delimiter;
@@ -185,16 +178,6 @@ export function getUserDataFolderPath() {
   return basepath;
 }
 
-async function getErrorLogPath(fileName: string) {
-  // Create the error log output file.
-  const userDataPath = getUserDataFolderPath();
-  const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
-  await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
-
-  const errorLogFileName = `import-${path.basename(fileName)}.log`;
-
-  return path.join(importErrorLogsPath, errorLogFileName);
-}
 
 export const startImport = (): ImportThunkAction<Promise<void>> => {
   return async (
@@ -236,24 +219,11 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       }
       fields[name] = type;
     }
-    const input = fs.createReadStream(fileName, 'utf8');
-
     const firstErrors: ErrorJSON[] = [];
 
+    // The utility process opens the source file and derives/creates the error
+    // log path itself, so the renderer only names the file.
     let errorLogFilePath: string | undefined;
-    let errorLogWriteStream: fs.WriteStream | undefined;
-    try {
-      errorLogFilePath = await getErrorLogPath(fileName);
-
-      errorLogWriteStream = errorLogFilePath
-        ? fs.createWriteStream(errorLogFilePath)
-        : undefined;
-    } catch (err: any) {
-      (err as Error).message = `unable to create import error log file: ${
-        (err as Error).message
-      }`;
-      firstErrors.push(err as Error);
-    }
 
     log.info(
       mongoLogId(1001000080),
@@ -319,7 +289,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     1000);
 
     let dataService: DataService | undefined;
-    let result: ImportResult;
+    let result: ImportFromFileResult;
     try {
       if (!connectionId) {
         throw new Error('ConnectionId not provided');
@@ -327,34 +297,26 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
       dataService = connections.getDataServiceForConnection(connectionId);
 
-      if (fileType === 'csv') {
-        result = await importCSV({
-          dataService,
-          ns,
-          input,
-          output: errorLogWriteStream,
-          delimiter,
-          newline,
-          fields,
-          abortSignal,
-          progressCallback,
-          errorCallback,
-          stopOnErrors,
-          ignoreEmptyStrings: ignoreBlanks,
-        });
-      } else {
-        result = await importJSON({
-          dataService,
-          ns,
-          input,
-          output: errorLogWriteStream,
-          abortSignal,
-          stopOnErrors,
-          jsonVariant: fileIsMultilineJSON ? 'jsonl' : 'json',
-          progressCallback,
-          errorCallback,
-        });
-      }
+      // TODO(COMPASS-10808): progress and per-document errors arrive as
+      // `importProgress` events once the utility-side implementation lands;
+      // the local progressCallback/errorCallback are no longer reachable.
+      result = await dataService.importFromFile({
+        ns,
+        filePath: fileName,
+        fileType:
+          fileType === 'csv'
+            ? 'csv'
+            : fileIsMultilineJSON
+            ? 'jsonl'
+            : 'json',
+        delimiter,
+        newline,
+        fields,
+        stopOnErrors,
+        ignoreEmptyStrings: ignoreBlanks,
+        signal: abortSignal,
+      });
+      errorLogFilePath = result.errorLogFilePath;
 
       progressCallback.flush();
     } catch (err: any) {
@@ -398,8 +360,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
       dispatch(onFailed(err as Error));
       return;
-    } finally {
-      errorLogWriteStream?.close();
     }
 
     track(
@@ -573,13 +533,18 @@ const loadTypes = (
   fields: FieldFromCSV[],
   values: string[][]
 ): ImportThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { logger: { log, mongoLogId } }) => {
+  return async (
+    dispatch,
+    getState,
+    { connections, logger: { log, mongoLogId } }
+  ) => {
     const {
       fileName,
       delimiter,
       newline,
       ignoreBlanks,
       analyzeAbortController,
+      connectionId,
     } = getState().import;
 
     // if there's already an analyzeCSVFields in flight, abort that first
@@ -590,15 +555,15 @@ const loadTypes = (
 
     const abortController = new AbortController();
     const abortSignal = abortController.signal;
-    const fileStats = await getFileStats(fileName);
-    const fileSize = fileStats?.size || 0;
+    const dataService = connections.getDataServiceForConnection(connectionId);
+    const { size: fileSize = 0 } = await dataService.getImportFileInfo({
+      filePath: fileName,
+    });
     dispatch({
       type: ANALYZE_STARTED,
       abortController,
       analyzeBytesTotal: fileSize,
     });
-
-    const input = fs.createReadStream(fileName);
 
     const progressCallback = _.throttle(function ({
       bytesProcessed,
@@ -613,13 +578,14 @@ const loadTypes = (
     1000);
 
     try {
-      const result = await analyzeCSVFields({
-        input,
+      // TODO(COMPASS-10808): progress arrives via the `importProgress` event
+      // once the utility-side implementation lands.
+      const result = await dataService.analyzeCSVFields({
+        filePath: fileName,
         delimiter,
         newline,
-        abortSignal,
+        signal: abortSignal,
         ignoreEmptyStrings: ignoreBlanks,
-        progressCallback,
       });
 
       for (const csvField of fields) {
@@ -654,13 +620,21 @@ const loadTypes = (
 };
 
 const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { logger: { log, mongoLogId } }) => {
-    const { fileName, delimiter, newline } = getState().import;
-
-    const input = fs.createReadStream(fileName);
+  return async (
+    dispatch,
+    getState,
+    { connections, logger: { log, mongoLogId } }
+  ) => {
+    const { fileName, delimiter, newline, connectionId } = getState().import;
 
     try {
-      const result = await listCSVFields({ input, delimiter, newline });
+      const dataService =
+        connections.getDataServiceForConnection(connectionId);
+      const result = await dataService.listCSVFields({
+        filePath: fileName,
+        delimiter,
+        newline,
+      });
 
       const fieldMap: Record<string, number[]> = Object.create(null);
       const fields: FieldFromCSV[] = [];
@@ -764,16 +738,26 @@ export const setFieldType = (path: string, bsonType: string) => {
 export const selectImportFileName = (
   fileName: string
 ): ImportThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { logger: { log, mongoLogId } }) => {
+  return async (
+    dispatch,
+    getState,
+    { connections, logger: { log, mongoLogId } }
+  ) => {
+    const { connectionId } = getState().import;
     try {
-      const exists = await checkFileExists(fileName);
+      const dataService =
+        connections.getDataServiceForConnection(connectionId);
+      const { exists, size } = await dataService.getImportFileInfo({
+        filePath: fileName,
+      });
       if (!exists) {
         throw new Error(`File ${fileName} not found`);
       }
-      const fileStats = await getFileStats(fileName);
+      const fileStats = { size: size ?? 0 };
 
-      const input = fs.createReadStream(fileName, 'utf8');
-      const detected = await guessFileType({ input });
+      const detected = await dataService.guessFileType({
+        filePath: fileName,
+      });
 
       if (detected.type === 'unknown') {
         throw new Error('Cannot determine the file type');

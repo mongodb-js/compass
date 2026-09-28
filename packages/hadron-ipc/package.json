@@ -22,11 +22,15 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./renderer": "./dist/renderer-entry.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./renderer": "./src/renderer-entry.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
