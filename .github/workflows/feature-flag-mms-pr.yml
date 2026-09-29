@@ -103,7 +103,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           path: mms
           show-progress: false
-          clean: true
+          persist-credentials: false
       - name: Setup PR info
         id: pull-request-info
         env:
