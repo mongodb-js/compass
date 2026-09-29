@@ -1220,8 +1220,19 @@ describe('CompassAssistantProvider', function () {
       const fetchStub = sandbox
         .stub(globalThis, 'fetch')
         .resolves(new Response(null));
+      const MockedProvider = createMockProvider();
 
-      render(<TestComponent autoOpen={true} />, {
+      const { result } = renderHook(() => useAssistantActions(), {
+        wrapper: ({ children }) => (
+          <DrawerContentProvider>
+            <MockedProvider
+              originForPrompt="mongodb-compass"
+              appNameForPrompt="MongoDB Compass"
+            >
+              {children}
+            </MockedProvider>
+          </DrawerContentProvider>
+        ),
         preferences: {
           enableAIAssistant: true,
           enableGenAIFeatures: true,
@@ -1230,11 +1241,15 @@ describe('CompassAssistantProvider', function () {
         },
       });
 
-      userEvent.type(
-        await screen.findByPlaceholderText('Ask a question'),
-        'hello'
-      );
-      userEvent.click(screen.getByLabelText('Send message'));
+      // Explain plan and analyze output prompts wait for user confirmation
+      // before sending, so we use one that sends right away.
+      result.current.interpretConnectionError?.({
+        connectionInfo: {
+          id: 'connection',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+        },
+        error: new Error('connection failed'),
+      });
 
       await waitFor(() => {
         expect(fetchStub).to.have.been.called;
