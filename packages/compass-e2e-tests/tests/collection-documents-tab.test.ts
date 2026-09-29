@@ -667,11 +667,12 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);
 
-    const document = browser.$('.ag-center-cols-clipper .ag-row-first');
-    const text = (await document.getText()).replace(/\s+/g, ' ');
-    expect(text).to.match(
-      /^ObjectId\('[a-f0-9]{24}('\))? 33 0$/ // ') now gets cut off. sometimes.
+    const document = browser.$('.ag-grid-scrolling-container .ag-row-first');
+    expect(await document.$('[col-id="_id"]').getText()).to.match(
+      /^ObjectId\('[a-f0-9]{24}('\))?$/ // ') now gets cut off. sometimes.
     );
+    expect(await document.$('[col-id="i"]').getText()).to.equal('33');
+    expect(await document.$('[col-id="j"]').getText()).to.equal('0');
 
     const value = document.$('[col-id="j"] .element-value');
     await value.doubleClick();
@@ -691,10 +692,11 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);
 
-    const modifiedDocument = browser.$('.ag-center-cols-clipper .ag-row-first');
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^ObjectId\('[a-f0-9]{24}('\))? 33 -100$/
+    const modifiedDocument = browser.$(
+      '.ag-grid-scrolling-container .ag-row-first'
     );
+    expect(await modifiedDocument.$('[col-id="i"]').getText()).to.equal('33');
+    expect(await modifiedDocument.$('[col-id="j"]').getText()).to.equal('-100');
   });
 
   it('can copy a document from the contextual toolbar', async function () {
@@ -1032,7 +1034,9 @@ FindIterable<Document> result = collection.find(filter);`);
         await browser.clickVisible(Selectors.SelectTableView);
         await browser.$(Selectors.DocumentTableContainer).waitForDisplayed();
 
-        const document = browser.$('.ag-center-cols-clipper .ag-row-first');
+        const document = browser.$(
+          '.ag-grid-scrolling-container .ag-row-first'
+        );
         await document.waitForDisplayed();
 
         // enter edit mode
