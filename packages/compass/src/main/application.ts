@@ -183,8 +183,9 @@ class CompassApplication {
       {
         getAtlasServiceBackendPreset: () =>
           preferences.getPreferences().atlasServiceBackendPreset,
-        getNetworkTraffic: () => preferences.getPreferences().networkTraffic,
-        getEnableAtlasSignIn: () =>
+        isNetworkTrafficAllowed: () =>
+          preferences.getPreferences().networkTraffic,
+        isAtlasSignInEnabled: () =>
           preferences.getPreferences().enableAtlasSignIn,
         getBrowserCommandForOIDCAuth: () =>
           preferences.getPreferences().browserCommandForOIDCAuth,

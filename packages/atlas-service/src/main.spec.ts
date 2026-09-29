@@ -1,7 +1,7 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { CompassAuthService } from './main';
-import type { CompassAuthServicePreferences } from './main';
+import type { CompassAuthServiceOptions } from './main';
 import { throwIfNotOk } from './util';
 import { EventEmitter } from 'events';
 import * as util from './util';
@@ -22,7 +22,7 @@ type TestPreferencesState = {
 
 function createTestPreferences(
   overrides: Partial<TestPreferencesState> = {}
-): CompassAuthServicePreferences & { state: TestPreferencesState } {
+): CompassAuthServiceOptions & { state: TestPreferencesState } {
   const state: TestPreferencesState = {
     atlasServiceBackendPreset: 'atlas',
     networkTraffic: true,
@@ -34,8 +34,8 @@ function createTestPreferences(
   return {
     state,
     getAtlasServiceBackendPreset: () => state.atlasServiceBackendPreset,
-    getNetworkTraffic: () => state.networkTraffic,
-    getEnableAtlasSignIn: () => state.enableAtlasSignIn,
+    isNetworkTrafficAllowed: () => state.networkTraffic,
+    isAtlasSignInEnabled: () => state.enableAtlasSignIn,
     getBrowserCommandForOIDCAuth: () => state.browserCommandForOIDCAuth,
     onSignIn: (auid: string) => {
       state.telemetryAtlasUserId = auid;
@@ -143,7 +143,7 @@ describe('CompassAuthServiceMain', function () {
     CompassAuthService['attachOidcPluginLoggerEvents']();
 
     preferences = createTestPreferences();
-    CompassAuthService['preferences'] = preferences;
+    CompassAuthService['options'] = preferences;
   });
 
   // eslint-disable-next-line @typescript-eslint/require-await

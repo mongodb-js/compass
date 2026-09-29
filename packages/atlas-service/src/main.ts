@@ -57,10 +57,10 @@ interface CompassAuthHTTPClient {
   fetch: (url: string, init: RequestInit) => Promise<Response>;
 }
 
-export type CompassAuthServicePreferences = {
+export type CompassAuthServiceOptions = {
   getAtlasServiceBackendPreset(): AtlasServiceBackendPreset | undefined;
-  getNetworkTraffic(): boolean;
-  getEnableAtlasSignIn(): boolean;
+  isNetworkTrafficAllowed(): boolean;
+  isAtlasSignInEnabled(): boolean;
   getBrowserCommandForOIDCAuth(): string | undefined;
   onSignIn(auid: string): Promise<void>;
 };
@@ -121,12 +121,12 @@ export class CompassAuthService {
     | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
     | undefined = ipcMain;
 
-  private static preferences: CompassAuthServicePreferences;
+  private static options: CompassAuthServiceOptions;
   private static config: AtlasServiceConfig;
 
   private static openExternal(url: string) {
     const browserCommandForOIDCAuth =
-      this.preferences.getBrowserCommandForOIDCAuth();
+      this.options.getBrowserCommandForOIDCAuth();
     if (browserCommandForOIDCAuth) {
       // NB: While it's possible to pass `openBrowser.command` option directly
       // to oidc-plugin properties, it's not possible to do dynamically. To
@@ -189,13 +189,13 @@ export class CompassAuthService {
   }
 
   static init(
-    preferences: CompassAuthServicePreferences,
+    options: CompassAuthServiceOptions,
     httpClient: CompassAuthHTTPClient
   ): Promise<void> {
     this.httpClient = httpClient;
-    this.preferences = preferences;
+    this.options = options;
     this.config = getAtlasConfigForPreset(
-      preferences.getAtlasServiceBackendPreset() ?? 'atlas'
+      options.getAtlasServiceBackendPreset() ?? 'atlas'
     );
     return (this.initPromise ??= (async () => {
       if (this.ipcMain) {
@@ -215,17 +215,17 @@ export class CompassAuthService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
-      if (serializedState && this.preferences.getEnableAtlasSignIn())
+      if (serializedState && this.options.isAtlasSignInEnabled())
         await this.restoreCurrentUser();
     })());
   }
 
   private static throwIfNetworkTrafficDisabled() {
-    throwIfNetworkTrafficDisabled(this.preferences.getNetworkTraffic());
+    throwIfNetworkTrafficDisabled(this.options.isNetworkTrafficAllowed());
   }
 
   private static throwIfAtlasSignInDisabled() {
-    throwIfAtlasSignInDisabled(this.preferences.getEnableAtlasSignIn());
+    throwIfAtlasSignInDisabled(this.options.isAtlasSignInEnabled());
   }
 
   private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
@@ -279,7 +279,7 @@ export class CompassAuthService {
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
     throwIfAborted(signal);
-    if (!this.preferences.getEnableAtlasSignIn()) {
+    if (!this.options.isAtlasSignInEnabled()) {
       return false;
     }
     await this.initPromise;
@@ -346,7 +346,7 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
-          await this.preferences.onSignIn(auid);
+          await this.options.onSignIn(auid);
           track('Atlas Sign In Success', {
             auid,
             duration: Date.now() - startedAt,
