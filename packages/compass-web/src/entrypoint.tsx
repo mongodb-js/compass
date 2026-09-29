@@ -671,6 +671,9 @@ const CompassWeb = (props: CompassWebProps) => {
       options={{
         defaultHeaders,
         getAtlasServiceBackendPreset: () => getAtlasServiceBackendPreset(),
+        // Data Explorer does not expose the networkTraffic preference; allow
+        // traffic explicitly rather than relying on an implicit default.
+        getNetworkTraffic: () => true,
       }}
     >
       <CompassWebPreferencesProvider projectId={props.projectId}>

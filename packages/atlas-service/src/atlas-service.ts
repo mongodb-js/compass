@@ -122,7 +122,7 @@ export class AtlasService {
     );
   }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    if (this.options?.getNetworkTraffic?.() === false) {
+    if (this.options?.getNetworkTraffic?.() !== true) {
       throw new Error('Network traffic is not allowed');
     }
     throwIfAborted(init?.signal as AbortSignal);

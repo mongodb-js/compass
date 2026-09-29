@@ -19,7 +19,9 @@ const ATLAS_CONFIG: AtlasServiceConfig = {
   userDataBaseUrl: 'http://example.com/ui/userData',
 };
 
-function getAtlasService(options?: AtlasServiceOptions) {
+function getAtlasService(
+  options: AtlasServiceOptions = { getNetworkTraffic: () => true }
+) {
   const atlasService = new AtlasService(
     createNoopLogger(),
     options,
@@ -50,6 +52,16 @@ describe('AtlasService', function () {
     try {
       await disabledService.fetch('https://example.com');
       expect.fail('Expected to throw when network traffic is disabled');
+    } catch (err) {
+      expect(err).to.have.property('message', 'Network traffic is not allowed');
+    }
+  });
+
+  it('should throw when network traffic is not explicitly enabled', async function () {
+    const service = new AtlasService(createNoopLogger(), {}, ATLAS_CONFIG);
+    try {
+      await service.fetch('https://example.com');
+      expect.fail('Expected to throw when network traffic is not allowed');
     } catch (err) {
       expect(err).to.have.property('message', 'Network traffic is not allowed');
     }
