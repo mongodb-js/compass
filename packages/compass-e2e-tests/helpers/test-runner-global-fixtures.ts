@@ -21,6 +21,11 @@ import {
   type WarningFilter,
 } from '@mongodb-js/compass-test-server';
 import { MongoClient } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
+// @ts-expect-error types exist but aren't reachable through the package "exports"
+import resolveMongodbSrv from 'resolve-mongodb-srv';
+// @ts-expect-error no types for this package
+import logRunning from 'why-is-node-running';
 import { isEnterprise } from 'mongodb-build-info';
 import {
   buildCompass,
@@ -426,20 +431,63 @@ export async function mochaGlobalTeardown() {
   );
 }
 
+/**
+ * Returns a connection string that talks to exactly one host with
+ * directConnection=true, taking SDAM out of the picture. SRV strings are
+ * resolved first because the driver rejects directConnection with SRV, and
+ * resolution also carries over the implied tls=true and TXT authSource.
+ * replicaSet is dropped: with directConnection it only acts as a setName check
+ * that marks the server Unknown on mismatch.
+ */
+async function toSingleHostDirectConnectionString(
+  connectionString: string
+): Promise<string> {
+  const url = new ConnectionString(
+    connectionString.startsWith('mongodb+srv://')
+      ? ((await resolveMongodbSrv(connectionString)) as string)
+      : connectionString
+  );
+  url.hosts = url.hosts.slice(0, 1);
+  const params = url.typedSearchParams<MongoClientOptions>();
+  params.delete('replicaSet');
+  params.set('directConnection', 'true');
+  return url.toString();
+}
+
 async function updateMongoDBServerInfo() {
-  for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
-    let client: MongoClient | undefined;
-    try {
-      client = new MongoClient(connectionOptions.connectionString, {
-        readPreference: 'primaryPreferred',
-      });
-      const info = await client.db('admin').command({ buildInfo: 1 });
-      DEFAULT_CONNECTIONS_SERVER_INFO.push({
-        version: info.version,
-        enterprise: isEnterprise(info),
-      });
-    } finally {
-      await client?.close();
+  try {
+    for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
+      let client: MongoClient | undefined;
+      try {
+        client = new MongoClient(
+          await toSingleHostDirectConnectionString(
+            connectionOptions.connectionString
+          ),
+          {
+            readPreference: 'primaryPreferred',
+            // Atlas applies IP access list changes asynchronously, so a freshly
+            // configured project can be unreachable for longer than the default 30s
+            serverSelectionTimeoutMS: 120_000,
+          }
+        );
+        const info = await client.db('admin').command({ buildInfo: 1 });
+        DEFAULT_CONNECTIONS_SERVER_INFO.push({
+          version: info.version,
+          enterprise: isEnterprise(info),
+        });
+      } finally {
+        await client?.close();
+      }
     }
+  } catch (err) {
+    // The runner has been seen hanging for an hour after this failure instead
+    // of exiting. Give the normal cleanup a chance, then report whatever is
+    // keeping the process alive and bail.
+    setTimeout(() => {
+      debug('Still running 30s after failing to get server info:');
+      logRunning(console);
+      process.exit(1);
+    }, 30_000).unref();
+    throw err;
   }
 }
