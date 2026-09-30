@@ -431,22 +431,15 @@ export async function mochaGlobalTeardown() {
   );
 }
 
-/**
- * Returns a connection string that talks to exactly one host with
- * directConnection=true, taking SDAM out of the picture. SRV strings are
- * resolved first because the driver rejects directConnection with SRV, and
- * resolution also carries over the implied tls=true and TXT authSource.
- * replicaSet is dropped: with directConnection it only acts as a setName check
- * that marks the server Unknown on mismatch.
- */
-async function toSingleHostDirectConnectionString(
+async function makeDirectConnectionString(
   connectionString: string
 ): Promise<string> {
-  const url = new ConnectionString(
-    connectionString.startsWith('mongodb+srv://')
-      ? ((await resolveMongodbSrv(connectionString)) as string)
-      : connectionString
-  );
+  let url = new ConnectionString(connectionString);
+  if (url.isSRV) {
+    url = new ConnectionString(
+      (await resolveMongodbSrv(url.toString())) as string
+    );
+  }
   url.hosts = url.hosts.slice(0, 1);
   const params = url.typedSearchParams<MongoClientOptions>();
   params.delete('replicaSet');
@@ -460,15 +453,7 @@ async function updateMongoDBServerInfo() {
       let client: MongoClient | undefined;
       try {
         client = new MongoClient(
-          await toSingleHostDirectConnectionString(
-            connectionOptions.connectionString
-          ),
-          {
-            readPreference: 'primaryPreferred',
-            // Atlas applies IP access list changes asynchronously, so a freshly
-            // configured project can be unreachable for longer than the default 30s
-            serverSelectionTimeoutMS: 120_000,
-          }
+          await makeDirectConnectionString(connectionOptions.connectionString)
         );
         const info = await client.db('admin').command({ buildInfo: 1 });
         DEFAULT_CONNECTIONS_SERVER_INFO.push({
