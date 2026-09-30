@@ -34,6 +34,15 @@ export type FeatureFlagDefinition = {
 
 export const FEATURE_FLAG_DEFINITIONS = [
   {
+    name: 'testFeatureFlagAutoCreation',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Testing if PR creation on mms side works',
+    },
+  },
+
+  {
     name: 'enableRollingIndexes',
     stage: 'released',
     atlasCloudFeatureScope: 'group',
