@@ -430,7 +430,9 @@ async function updateMongoDBServerInfo() {
   for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
     let client: MongoClient | undefined;
     try {
-      client = new MongoClient(connectionOptions.connectionString);
+      client = new MongoClient(connectionOptions.connectionString, {
+        readPreference: 'primaryPreferred',
+      });
       const info = await client.db('admin').command({ buildInfo: 1 });
       DEFAULT_CONNECTIONS_SERVER_INFO.push({
         version: info.version,
