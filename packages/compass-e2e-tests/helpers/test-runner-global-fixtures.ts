@@ -1,4 +1,5 @@
 import gunzip from './gunzip.ts';
+import delay from './delay.ts';
 import fs from 'fs';
 import {
   assertTestingWebAtlasCloud,
@@ -263,7 +264,35 @@ async function createWebAtlasCloudResources() {
 
   throwIfAborted();
 
+  for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
+    await waitForClusterToBeReachable(connectionOptions.connectionString);
+  }
+
   await compass.stop();
+}
+
+async function waitForClusterToBeReachable(connectionString: string) {
+  const directConnectionString = await makeDirectConnectionString(
+    connectionString
+  );
+  const deadline = Date.now() + 5 * 60_000;
+  for (let attempt = 1; ; attempt++) {
+    throwIfAborted();
+    const client = new MongoClient(directConnectionString);
+    try {
+      await client.db('admin').command({ ping: 1 });
+      debug('Cluster reachable after %d ping attempt(s)', attempt);
+      return;
+    } catch (err) {
+      if (Date.now() >= deadline) {
+        throw err;
+      }
+      debug('Ping attempt %d failed: %O', attempt, err);
+    } finally {
+      await client.close();
+    }
+    await delay(5_000);
+  }
 }
 
 /**
