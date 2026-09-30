@@ -33,3 +33,4 @@ export type {
   SearchIndexStatus,
 } from './search-index-detail-helper';
 export type { InstanceDetails } from './instance-detail-helper';
+export { DataServiceUtility } from './data-service-utility';
