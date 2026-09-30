@@ -200,11 +200,6 @@ async function loadCompassWebPreferences(
     atlasCloudProjectPreferences,
     atlasCloudOrgPreferences,
   } = await cloudPreferences;
-  atlasStorage.setOverrides({
-    ...atlasCloudUserPreferences,
-    ...atlasCloudProjectPreferences,
-    ...atlasCloudOrgPreferences,
-  });
   return new CompassWebPreferencesAccess(
     undefined,
     {

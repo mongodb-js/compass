@@ -201,6 +201,12 @@ export class Preferences {
       ...this._getUserPreferenceValues(),
       ...this._globalPreferences.cli,
       ...this._globalPreferences.global,
+      // Cloud (user, project and org) preferences are overrides: they take
+      // precedence over the user's own stored preferences and cannot be
+      // modified by the user.
+      ...this._globalPreferences.atlasCloudUser,
+      ...this._globalPreferences.atlasCloudProject,
+      ...this._globalPreferences.atlasCloudOrg,
       ...this._globalPreferences.hardcoded,
     };
   }

@@ -299,11 +299,6 @@ describe('compass-web preferences', function () {
 
       const storage = new AtlasPreferencesStorage(atlasService, {
         defaults: DEFAULT_COMPASS_WEB_PREFERENCES,
-        overrides: {
-          ...atlasCloudUserPreferences,
-          ...atlasCloudProjectPreferences,
-          ...atlasCloudOrgPreferences,
-        },
       });
       const preferences = new CompassWebPreferencesAccess(
         undefined,

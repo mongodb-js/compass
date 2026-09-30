@@ -14,7 +14,6 @@ import type { PreferencesStorage } from './preferences-storage';
 
 export type AtlasPreferencesStorageOptions = {
   defaults?: Partial<AllPreferences>;
-  overrides?: Partial<AllPreferences>;
 };
 
 export class AtlasPreferencesStorage implements PreferencesStorage {
@@ -25,11 +24,10 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
   >;
   private preferences: StoredPreferences = getDefaultsForStoredPreferences();
   private defaults: Partial<AllPreferences>;
-  private overrides: Partial<AllPreferences>;
 
   constructor(
     atlasService: AtlasServiceLike,
-    { defaults = {}, overrides = {} }: AtlasPreferencesStorageOptions = {}
+    { defaults = {} }: AtlasPreferencesStorageOptions = {}
   ) {
     this.userData = new AtlasUserData(
       getPreferencesValidator(),
@@ -39,13 +37,6 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
       }
     );
     this.defaults = defaults;
-    this.overrides = overrides;
-  }
-
-  // Cloud-derived values are only known once the preferences request resolves,
-  // so they are provided after setup has already started reading in parallel.
-  setOverrides(overrides: Partial<AllPreferences> = {}) {
-    this.overrides = overrides;
   }
 
   async setup() {
@@ -67,7 +58,6 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
       ...this.defaults,
       ...this.defaultPreferences,
       ...this.preferences,
-      ...this.overrides,
     };
   }
 
