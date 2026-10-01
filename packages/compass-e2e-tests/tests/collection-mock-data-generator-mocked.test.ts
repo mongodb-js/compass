@@ -243,7 +243,9 @@ describe('Collection mock data generator (with mocked backend)', function () {
     await event('Mock Data Generator Screen Proceeded');
     await event('Mock Data Document Count Changed');
     await event('Mock Data Script Generated');
-    await event('Mock Data Script Copied');
+    if (!context.disableClipboardUsage) {
+      await event('Mock Data Script Copied');
+    }
   });
 
   it('sends sample values only after enabling the preference', async function () {
