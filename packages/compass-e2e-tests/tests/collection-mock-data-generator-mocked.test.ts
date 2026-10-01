@@ -193,17 +193,24 @@ describe('Collection mock data generator (with mocked backend)', function () {
   async function copyCode(section: string) {
     const code = browser.$(`${section} [data-testid="lg-code"]`);
     await code.scrollIntoView();
-    await code.moveTo();
-    if (context.disableClipboardUsage) {
-      // Clipboard is unavailable in this mode; assert on the rendered code.
-      return await code.getText();
-    }
-    await clipboard.write('');
-    await browser.clickVisible(
+    const copyButton = browser.$(
       `${section} [data-testid="lg-code-copy_button"]`
     );
-    await browser.waitUntil(async () => (await clipboard.read()).length > 0);
-    return await clipboard.read();
+    if (!context.disableClipboardUsage) {
+      await clipboard.write('');
+      // The copy button is only revealed while hovering the code block, and
+      // the hover state can be lost between driver commands on slow hosts.
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await code.moveTo();
+        if (await copyButton.isDisplayed()) {
+          break;
+        }
+      }
+      await browser.clickVisible(copyButton);
+      await browser.waitUntil(async () => (await clipboard.read()).length > 0);
+      return await clipboard.read();
+    }
+    return await code.getText();
   }
 
   it('generates and copies a script and command through the normal collection menu', async function () {
@@ -220,6 +227,9 @@ describe('Collection mock data generator (with mocked backend)', function () {
       .getText();
     expect(preview).to.include('firstName');
     expect(preview).not.to.include('0-firstName');
+    // Focus the input first so leaving it fires the blur that emits the
+    // Document Count Changed event.
+    await browser.clickVisible(Selectors.MockDataGeneratorCount);
     await browser.setValueVisible(Selectors.MockDataGeneratorCount, '25');
     await browser.clickVisible(Selectors.MockDataGeneratorNext);
     await browser.$(Selectors.MockDataGeneratorScript).waitForDisplayed();
