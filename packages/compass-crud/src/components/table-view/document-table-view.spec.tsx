@@ -52,7 +52,7 @@ describe('<DocumentTableView />', function () {
         // Wait for AG-Grid to fully render and display the data
         await waitFor(() => {
           // Check that the grid body is present
-          expect(document.querySelector('.ag-body-viewport')).to.exist;
+          expect(document.querySelector('.ag-grid-viewport')).to.exist;
         });
 
         // Validate that the columnWidths prop was applied:

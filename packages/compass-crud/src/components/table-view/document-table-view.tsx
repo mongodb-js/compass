@@ -13,9 +13,9 @@ import RowActionsRenderer from './row-actions-renderer';
 import HeaderComponent from './header-cell-renderer';
 import type { DocumentTableRowNode } from './cell-editor';
 import CellEditor from './cell-editor';
+import { gridTheme } from './grid-theme';
 
 import './document-table-view.less';
-import './ag-grid-dist.css';
 import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
 import type {
   BSONObject,
@@ -31,15 +31,18 @@ import type {
 import type {
   CellDoubleClickedEvent,
   ColDef,
-  ColumnApi,
   GridApi,
   GridReadyEvent,
   ValueGetterParams,
+  RowClassParams,
   ColumnResizedEvent,
 } from 'ag-grid-community';
+import { AllCommunityModule } from 'ag-grid-community';
 import { withPreferences } from 'compass-preferences-model/provider';
 
 const MIXED = 'Mixed' as const;
+
+const gridModules = [AllCommunityModule];
 
 export type DocumentTableViewProps = {
   addColumn: GridActions['addColumn'];
@@ -98,7 +101,6 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   unsubscribeGridStore?: Function;
   gridApi?: GridApi;
-  columnApi?: ColumnApi;
 
   constructor(props: DocumentTableViewProps) {
     super(props);
@@ -111,6 +113,8 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       path: [],
     };
     const sharedGridProperties: AgGridReactProps = {
+      modules: gridModules,
+      theme: gridTheme,
       gridOptions: {
         context,
         suppressDragLeaveHidesColumns: true,
@@ -130,16 +134,16 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
             params.previousCellPosition.rowIndex !==
               params.nextCellPosition.rowIndex
           ) {
-            return null;
+            return false;
           }
           return params.nextCellPosition;
         },
       },
       onGridReady: this.onGridReady.bind(this),
-      isFullWidthCell: function (rowNode) {
+      isFullWidthRow: function ({ rowNode }) {
         return rowNode.data.isFooter;
       },
-      fullWidthCellRendererFramework: FullWidthCellRenderer,
+      fullWidthCellRenderer: FullWidthCellRenderer,
       fullWidthCellRendererParams: {
         replaceDoc: this.props.replaceDoc,
         cleanCols: this.props.cleanCols,
@@ -148,7 +152,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         updateDocument: this.props.updateDocument,
         darkMode: this.props.darkMode,
       },
-      getRowNodeId: function (data) {
+      getRowId: function ({ data }) {
         const fid = data.isFooter ? '1' : '0';
         return String(data.hadronDocument.getStringId()) + fid;
       },
@@ -200,7 +204,6 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
-    this.columnApi = params.columnApi;
 
     this.handleBreadcrumbChange();
   }
@@ -224,7 +227,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   onColumnResized(event: ColumnResizedEvent) {
     if (event.finished) {
-      const columnState = this.columnApi?.getColumnState() || [];
+      const columnState = this.gridApi?.getColumnState() || [];
       const currentColumnWidths: Record<string, number> = Object.create(null);
       for (const column of columnState) {
         if (column.width) currentColumnWidths[column.colId] = column.width;
@@ -267,7 +270,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       isFooter: true,
       state: state,
     };
-    this.gridApi?.updateRowData({
+    this.gridApi?.applyTransaction({
       add: [newData],
       addIndex: (node.rowIndex ?? 0) + 1,
     });
@@ -294,7 +297,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       force: true,
     });
     this.gridApi.clearFocusedCell();
-    this.gridApi.updateRowData({ remove: [node.data] });
+    this.gridApi.applyTransaction({ remove: [node.data] });
   };
 
   /**
@@ -322,7 +325,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     }
 
     /* Update the grid */
-    this.gridApi?.updateRowData({ remove: [dataNode.data] });
+    this.gridApi?.applyTransaction({ remove: [dataNode.data] });
   };
 
   /**
@@ -386,8 +389,8 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     path: (string | number)[],
     updateArray?: boolean
   ) {
-    if (!this.columnApi) return;
-    const columnHeaders = map(this.columnApi.getAllGridColumns(), (col) =>
+    if (!this.gridApi) return;
+    const columnHeaders = map(this.gridApi.getAllGridColumns(), (col) =>
       col.getColDef()
     );
 
@@ -412,7 +415,9 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
               const newId = String(columnHeaders[j].colId) + '1';
               columnHeaders[j].colId = newId;
               columnHeaders[j].headerName = newId;
-              columnHeaders[j].valueGetter = function (params) {
+              columnHeaders[j].valueGetter = function (
+                params: ValueGetterParams
+              ) {
                 return params.data.hadronDocument.getChild([...path, newId]);
               };
               /* The bsonType is updated from the GridStore */
@@ -436,7 +441,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     );
     columnHeaders.splice(i + 1, 0, newColDef);
 
-    this.gridApi?.setColumnDefs(columnHeaders);
+    this.gridApi?.setGridOption('columnDefs', columnHeaders);
     if (updateArray) {
       this.gridApi?.refreshCells({ force: true });
     }
@@ -448,8 +453,8 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    * @param {Array} colIds - The list of colIds that will be removed.
    */
   removeColumns(colIds: string[]) {
-    if (!this.columnApi) return;
-    const columnHeaders = map(this.columnApi.getAllGridColumns(), (col) =>
+    if (!this.gridApi) return;
+    const columnHeaders = map(this.gridApi.getAllGridColumns(), (col) =>
       col.getColDef()
     );
 
@@ -459,7 +464,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         newCols.push(columnHeaders[i]);
       }
     }
-    this.gridApi?.setColumnDefs(newCols);
+    this.gridApi?.setGridOption('columnDefs', newCols);
   }
 
   /**
@@ -468,8 +473,8 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    *
    * @param {Object} showing - A mapping of columnId to new displayed type.
    * @param {Object} columnHeaders - The column definitions. We get them from
-   * calling columnApi.getAllColumns(), except when we are initializing the
-   * grid (since columnApi doesn't exist until the grid is ready).
+   * calling gridApi.getColumns(), except when we are initializing the
+   * grid (since gridApi doesn't exist until the grid is ready).
    */
   updateHeaders = (
     showing: Record<string, TableHeaderType>,
@@ -509,7 +514,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    *    params.edit.colId - The colId of the cell to start editing.
    */
   modifyColumns = (params: GridStoreTriggerParams) => {
-    if (!this.columnApi || !this.gridApi) return;
+    if (!this.gridApi) return;
     if (params.add) {
       this.addGridColumn(
         params.add.colIdBefore,
@@ -523,7 +528,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       this.removeColumns(params.remove.colIds);
     }
     if (params.updateHeaders) {
-      const columnHeaders = map(this.columnApi.getAllGridColumns(), (col) =>
+      const columnHeaders = map(this.gridApi.getAllGridColumns(), (col) =>
         col.getColDef()
       );
 
@@ -585,7 +590,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       this.updateRowNumbers(lineNumber, true);
 
       /* Update grid API */
-      this.gridApi?.updateRowData({ add: [data], addIndex: index });
+      this.gridApi?.applyTransaction({ add: [data], addIndex: index });
 
       /* Update the headers */
       for (const element of data.hadronDocument.elements) {
@@ -631,9 +636,11 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
 
       const headers = this.createColumnHeaders([], []);
 
-      (this.gridApi as any).gridOptionsWrapper.gridOptions.context.path = [];
-      this.gridApi.setColumnDefs(headers);
-      this.gridApi.setRowData(
+      this.gridApi.getGridOption('context').path = [];
+      this.gridApi.setGridOption('columnDefs', headers);
+      this.gridApi.setGridOption(
+        'rowData',
+
         this.createRowData(this.props.docs, this.props.start)
       );
     } else if (
@@ -654,12 +661,13 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         );
       }
 
-      (this.gridApi as any).gridOptionsWrapper.gridOptions.context.path =
-        params.path;
-      this.gridApi.setRowData(
+      this.gridApi.getGridOption('context').path = params.path;
+      this.gridApi.setGridOption(
+        'rowData',
+
         this.createRowData(this.props.docs, this.props.start)
       );
-      this.gridApi.setColumnDefs(headers);
+      this.gridApi.setGridOption('columnDefs', headers);
     }
     this.gridApi.refreshCells({ force: true });
 
@@ -695,9 +703,9 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    *
    * @returns {Object} - A CSS style object containing the correct width.
    */
-  updateWidth = (params: { node: DocumentTableRowNode }) => {
-    if (!this.columnApi) return;
-    const allColumns = this.columnApi.getAllColumns() ?? [];
+  updateWidth = (params: RowClassParams) => {
+    if (!this.gridApi) return;
+    const allColumns = this.gridApi.getColumns() ?? [];
     const rootPanel = document.querySelector('.ag-root-wrapper');
     const tableWidth = rootPanel ? (rootPanel as any).offsetWidth : 0;
     if (
@@ -705,7 +713,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       params.node.data.state === 'deleting'
     ) {
       let width = 30;
-      const newColumn = this.columnApi.getColumn('$new');
+      const newColumn = this.gridApi.getColumn('$new');
       for (let i = 0; i < allColumns.length - 2; i++) {
         width = width + 200;
       }
@@ -742,13 +750,13 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       valueGetter: function (params: ValueGetterParams) {
         return params.data.hadronDocument.get('_id');
       },
-      headerComponentFramework: HeaderComponent,
+      headerComponent: HeaderComponent,
       headerComponentParams: {
         hide: false,
         bsonType: 'ObjectId',
         subtable: true,
       },
-      cellRendererFramework: CellRenderer,
+      cellRenderer: CellRenderer,
       cellRendererParams: {
         elementAdded: this.props.elementAdded,
         elementRemoved: this.props.elementRemoved,
@@ -760,7 +768,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
       editable: false,
-      cellEditorFramework: CellEditor,
+      cellEditor: CellEditor,
       pinned: 'left',
     };
   }
@@ -816,13 +824,13 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         );
       },
 
-      headerComponentFramework: HeaderComponent,
+      headerComponent: HeaderComponent,
       headerComponentParams: {
         hide: false,
         bsonType: type,
       },
 
-      cellRendererFramework: CellRenderer,
+      cellRenderer: CellRenderer,
       cellRendererParams: {
         elementAdded: this.props.elementAdded,
         elementRemoved: this.props.elementRemoved,
@@ -861,7 +869,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         return true;
       },
 
-      cellEditorFramework: CellEditor,
+      cellEditor: CellEditor,
       cellEditorParams: {
         addColumn: this.props.addColumn,
         removeColumn: this.props.removeColumn,
@@ -914,11 +922,11 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       colId: '$rowNumber',
       width: 30,
       pinned: 'left',
-      headerComponentFramework: HeaderComponent,
+      headerComponent: HeaderComponent,
       headerComponentParams: {
         hide: true,
       },
-      cellRendererFramework: RowNumberRenderer,
+      cellRenderer: RowNumberRenderer,
     };
 
     /* Make column definitions + track type for header components */
@@ -980,12 +988,12 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         return params.data;
       },
 
-      headerComponentFramework: HeaderComponent,
+      headerComponent: HeaderComponent,
       headerComponentParams: {
         hide: true,
       },
 
-      cellRendererFramework: RowActionsRenderer,
+      cellRenderer: RowActionsRenderer,
       cellRendererParams: {
         nested: path.length !== 0,
         isEditable: this.props.isEditable,
