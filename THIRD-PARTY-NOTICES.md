@@ -293,7 +293,7 @@ This document was automatically generated on Thu Oct 01 2026.
 | **[fast-deep-equal](#c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09)**                                    | 2.0.1        | MIT                                 |
 | **[fast-deep-equal](#60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6)**                                    | 3.1.3        | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2        | MIT                                 |
-| **[fast-uri](#f748c22747a9db4b9044d17b1a9849585f0b19db76638196fc338339c89267c9)**                                           | 3.1.7        | BSD-3-Clause                        |
+| **[fast-uri](#3c53381d9fa38c390aba117e7fd4a41d42f54ac5af7fa361bc3493a96c260305)**                                           | 3.1.8        | BSD-3-Clause                        |
 | **[fast-xml-builder](#37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a)**                                   | 1.1.4        | MIT                                 |
 | **[fast-xml-parser](#1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2)**                                    | 5.5.8        | MIT                                 |
 | **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**                                         | 3.2.0        | MIT                                 |
@@ -23725,9 +23725,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="f748c22747a9db4b9044d17b1a9849585f0b19db76638196fc338339c89267c9"></a>
+<a id="3c53381d9fa38c390aba117e7fd4a41d42f54ac5af7fa361bc3493a96c260305"></a>
 
-### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.1.7)
+### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.1.8)
 
 License tags: BSD-3-Clause
 
