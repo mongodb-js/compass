@@ -227,9 +227,6 @@ describe('Collection mock data generator (with mocked backend)', function () {
       .getText();
     expect(preview).to.include('firstName');
     expect(preview).not.to.include('0-firstName');
-    // Focus the input first so leaving it fires the blur that emits the
-    // Document Count Changed event.
-    await browser.clickVisible(Selectors.MockDataGeneratorCount);
     await browser.setValueVisible(Selectors.MockDataGeneratorCount, '25');
     await browser.clickVisible(Selectors.MockDataGeneratorNext);
     await browser.$(Selectors.MockDataGeneratorScript).waitForDisplayed();
