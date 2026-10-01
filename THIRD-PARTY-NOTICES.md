@@ -184,8 +184,9 @@ This document was automatically generated on Thu Oct 01 2026.
 | **[@vscode/l10n](#435710ffc6551ec7bb19d73e562bde009c42386216297ec28d3ad42820bff7e5)**                                       | 0.0.18       | MIT                                 |
 | **[accepts](#f95b7a83c78ce214a33c8f8ef681fb76acf619e685469f394034d5d5ea1cfb23)**                                            | 2.0.0        | MIT                                 |
 | **[acorn](#34ea02690f67b51f9d38d769ae6d5296dcf481732c233dcd39d4a8854e42fdc3)**                                              | 8.16.0       | MIT                                 |
-| **[ag-grid-community](#ef40a178b31a9a6572662916db0550c73884edc5ad5381b11ae6e42bd2a28338)**                                  | 28.2.1       | MIT                                 |
-| **[ag-grid-react](#f06679163de144687e576293cc2c1732421bee7bf5634241fd99fbd5be5c2b09)**                                      | 28.2.1       | MIT                                 |
+| **[ag-grid-community](#90ee280130881cf319cbd3153223f564bcde29fea4d9347cbc6eacd4f65ae104)**                                  | 36.2.0       | MIT                                 |
+| **[ag-grid-react](#ad3025cc8dd8cddc6aec81016c727a2c527ed140cb21448cf4763b6e11551948)**                                      | 36.2.0       | MIT                                 |
+| **[ag-stack](#9d6f066bf132282c652b15c21449b59c6a0673de5f31874a21b3ca1bae0f9e3d)**                                           | 36.2.0       | MIT                                 |
 | **[agent-base](#10202012ce77e7c6013605c6e813d5020905b1ae895084d48ca047fcfc47cdcb)**                                         | 7.1.3        | MIT                                 |
 | **[ai](#b73425d75d9008fb54dbf2b39d5746e641348434236baddeceb64951e303ce34)**                                                 | 6.0.86       | Apache-2.0                          |
 | **[ajv-formats](#3081140538322aaf684c239fd5c532b47691d82b42e6cc4a5e60df5eaaab538a)**                                        | 3.0.1        | MIT                                 |
@@ -20217,69 +20218,23 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="ef40a178b31a9a6572662916db0550c73884edc5ad5381b11ae6e42bd2a28338"></a>
+<a id="90ee280130881cf319cbd3153223f564bcde29fea4d9347cbc6eacd4f65ae104"></a>
 
-### [ag-grid-community](https://www.npmjs.com/package/ag-grid-community) (version 28.2.1)
-
-License tags: MIT
-
-License files:
-
-- LICENSE.txt:
-
-      The MIT License
-
-      Copyright (c) 2015-2019 AG GRID LTD
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
-<a id="f06679163de144687e576293cc2c1732421bee7bf5634241fd99fbd5be5c2b09"></a>
-
-### [ag-grid-react](https://www.npmjs.com/package/ag-grid-react) (version 28.2.1)
+### [ag-grid-community](https://www.npmjs.com/package/ag-grid-community) (version 36.2.0)
 
 License tags: MIT
 
-License files:
+<a id="ad3025cc8dd8cddc6aec81016c727a2c527ed140cb21448cf4763b6e11551948"></a>
 
-- LICENSE.txt:
+### [ag-grid-react](https://www.npmjs.com/package/ag-grid-react) (version 36.2.0)
 
-      The MIT License
+License tags: MIT
 
-      Copyright (c) 2015-2019 AG GRID LTD
+<a id="9d6f066bf132282c652b15c21449b59c6a0673de5f31874a21b3ca1bae0f9e3d"></a>
 
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
+### [ag-stack](https://www.npmjs.com/package/ag-stack) (version 36.2.0)
 
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
+License tags: MIT
 
 <a id="10202012ce77e7c6013605c6e813d5020905b1ae895084d48ca047fcfc47cdcb"></a>
 
