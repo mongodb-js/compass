@@ -7,8 +7,6 @@ import { type UserDataType } from '@mongodb-js/compass-user-data';
 
 export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
-  // These are resolved through accessors so runtime changes (preferences,
-  // process.env overrides) are taken into account on every use.
   getAtlasServiceBackendPreset?: () => AtlasServiceBackendPreset | undefined;
   getNetworkTraffic?: () => boolean | undefined;
 };
