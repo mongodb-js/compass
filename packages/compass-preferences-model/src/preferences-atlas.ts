@@ -46,11 +46,11 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
   private async writePreferences(
     preferences: z.input<StoredPreferencesValidator>
   ): Promise<void> {
-    await this.userData.write(undefined, preferences);
+    await this.userData.write(preferences);
   }
 
   private async readPreferences(): Promise<StoredPreferences> {
-    return (await this.userData.readOne(undefined)) ?? this.defaultPreferences;
+    return (await this.userData.readOne()) ?? this.defaultPreferences;
   }
 
   getPreferences(): StoredPreferences {

@@ -30,6 +30,11 @@ export type UserScopedUserDataType = 'AppPreferences';
 export type ScopedId<Type extends UserDataType> =
   Type extends UserScopedUserDataType ? undefined : string;
 
+type ScopedArgs<
+  Type extends UserDataType,
+  Rest extends unknown[]
+> = Type extends UserScopedUserDataType ? Rest : [id: string, ...Rest];
+
 export function isUserScopedUserDataType(
   type: UserDataType
 ): type is UserScopedUserDataType {
@@ -74,7 +79,10 @@ export interface ReadAllResult<T extends z.Schema> {
   errors: Error[];
 }
 
-export abstract class IUserData<T extends z.Schema> {
+export abstract class IUserData<
+  T extends z.Schema,
+  Type extends UserDataType = Exclude<UserDataType, UserScopedUserDataType>
+> {
   protected readonly validator: T;
   protected readonly dataType: UserDataType;
   protected readonly serialize: SerializeContent<z.input<T>>;
@@ -100,16 +108,16 @@ export abstract class IUserData<T extends z.Schema> {
   // The concrete implementations constrain the id further: FileUserData
   // requires a string, AtlasUserData requires undefined for user-scoped types
   // (see ScopedId).
-  abstract write(id: string | undefined, content: z.input<T>): Promise<boolean>;
-  abstract delete(id: string | undefined): Promise<boolean>;
+  abstract write(
+    ...args: ScopedArgs<Type, [content: z.input<T>]>
+  ): Promise<boolean>;
+  abstract delete(...args: ScopedArgs<Type, []>): Promise<boolean>;
   abstract readAll(options?: ReadOptions): Promise<ReadAllResult<T>>;
   abstract readOne(
-    id: string | undefined,
-    options?: ReadOptions
+    ...args: ScopedArgs<Type, [options?: ReadOptions]>
   ): Promise<z.output<T> | undefined>;
   abstract updateAttributes(
-    id: string | undefined,
-    data: Partial<z.input<T>>
+    ...args: ScopedArgs<Type, [data: Partial<z.input<T>>]>
   ): Promise<boolean>;
 }
 
@@ -387,7 +395,7 @@ export type AtlasServiceLike = {
 export class AtlasUserData<
   T extends z.Schema,
   Type extends UserDataType = UserDataType
-> extends IUserData<T> {
+> extends IUserData<T, Type> {
   private readonly atlasService: AtlasServiceLike;
   private orgId?: string;
   private projectId?: string;
@@ -418,7 +426,12 @@ export class AtlasUserData<
         );
   }
 
-  async write(id: ScopedId<Type>, content: z.input<T>): Promise<boolean> {
+  async write(
+    ...args: ScopedArgs<Type, [content: z.input<T>]>
+  ): Promise<boolean> {
+    const [id, content] = isUserScopedUserDataType(this.dataType)
+      ? ([undefined, args[0]] as [undefined, z.input<T>])
+      : (args as [string, z.input<T>]);
     const url = this.endpointFor(id);
     try {
       this.validator.parse(content);
@@ -448,7 +461,10 @@ export class AtlasUserData<
     }
   }
 
-  async delete(id: ScopedId<Type>): Promise<boolean> {
+  async delete(...args: ScopedArgs<Type, []>): Promise<boolean> {
+    const [id] = isUserScopedUserDataType(this.dataType)
+      ? [undefined]
+      : (args as [string]);
     const url = this.endpointFor(id);
     try {
       await this.atlasService.authenticatedFetch(url, {
@@ -501,12 +517,14 @@ export class AtlasUserData<
   }
 
   async updateAttributes(
-    id: ScopedId<Type>,
-    data: Partial<z.input<T>>
+    ...args: ScopedArgs<Type, [data: Partial<z.input<T>>]>
   ): Promise<boolean> {
+    const [id, data] = isUserScopedUserDataType(this.dataType)
+      ? ([undefined, args[0]] as [undefined, Partial<z.input<T>>])
+      : (args as [string, Partial<z.input<T>>]);
     const url = this.endpointFor(id);
     try {
-      const prevData = await this.readOne(id);
+      const prevData = await this.readOneById(id);
       const newData: z.input<T> = {
         ...prevData,
         ...data,
@@ -538,7 +556,7 @@ export class AtlasUserData<
   }
 
   // TODO: change this depending on whether or not updateAttributes can provide all current data
-  async readOne(id: ScopedId<Type>): Promise<z.output<T> | undefined> {
+  private async readOneById(id?: string): Promise<z.output<T> | undefined> {
     const url = this.endpointFor(id);
     try {
       const getResponse = await this.atlasService.authenticatedFetch(url, {
@@ -558,5 +576,14 @@ export class AtlasUserData<
         }
       );
     }
+  }
+
+  async readOne(
+    ...args: ScopedArgs<Type, [options?: ReadOptions]>
+  ): Promise<z.output<T> | undefined> {
+    const [id] = isUserScopedUserDataType(this.dataType)
+      ? [undefined]
+      : (args as [string, ReadOptions?]);
+    return this.readOneById(id);
   }
 }

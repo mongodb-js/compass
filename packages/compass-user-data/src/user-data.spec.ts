@@ -809,7 +809,7 @@ describe('AtlasUserData', function () {
       );
 
       const userData = getUserScopedUserData();
-      const result = await userData.write(undefined, { name: 'VSCode' });
+      const result = await userData.write({ name: 'VSCode' });
 
       expect(result).to.be.true;
       const [url, options] = atlasServiceStub.authenticatedFetch.firstCall.args;
@@ -851,7 +851,7 @@ describe('AtlasUserData', function () {
       );
 
       const userData = getUserScopedUserData();
-      const result = await userData.readOne(undefined);
+      const result = await userData.readOne();
 
       expect(result).to.deep.equal({
         ...defaultValues(),
