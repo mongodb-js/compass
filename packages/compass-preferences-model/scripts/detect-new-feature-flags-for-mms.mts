@@ -44,7 +44,6 @@ phases:
   local: enabled
   local-gov: disabled
   test: controlled
-  test-gov: disabled
   dev: controlled
   dev-gov: disabled
   qa: controlled
