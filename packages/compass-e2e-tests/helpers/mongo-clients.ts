@@ -3,6 +3,7 @@ import type { Db, MongoServerError } from 'mongodb';
 import { getDefaultConnectionStrings } from './test-runner-context';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { noServerWarningsCheckpoint } from './test-runner-global-fixtures';
+import type { Context as MochaContext } from 'mocha';
 
 // This is a list of all the known database names that get created by tests so
 // that we can know what to drop when we clean up before every test. If a new
@@ -43,7 +44,7 @@ for (let i = 0; i < 26; ++i) {
 let clients: MongoClient[];
 let test_dbs: Db[];
 
-export const beforeAll = async () => {
+export const beforeAll = async function beforeAll(this: MochaContext) {
   // Insert data on both connections so that the same databases and collections
   // will exist on both servers and then anything that's not properly scoped to
   // the correct connection has a chance to operate on the wrong one and
@@ -70,11 +71,11 @@ export const beforeAll = async () => {
   test_dbs = clients.map((client) => client.db('test'));
 };
 
-export const afterAll = async () => {
+export const afterAll = async function afterAll(this: MochaContext) {
   await Promise.all(clients.map((client) => client.close()));
 };
 
-export const beforeEach = async () => {
+export const beforeEach = async function beforeEach(this: MochaContext) {
   // Drop the databases that get created by tests or the functions below
   const promises = [];
 
@@ -87,7 +88,11 @@ export const beforeEach = async () => {
   await Promise.all(promises);
 };
 
-export const afterEach = () => {
+export const afterEach = function afterEach(this: MochaContext) {
+  // We already failed, doing a check will just hide the original error
+  if (this.currentTest?.isFailed()) {
+    return;
+  }
   // Check for unexpected server warnings after each test
   noServerWarningsCheckpoint();
 };

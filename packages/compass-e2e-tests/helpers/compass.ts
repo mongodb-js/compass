@@ -95,10 +95,9 @@ declare global {
  */
 export function skipForWeb(
   test: Mocha.Runnable | Mocha.Context,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  reason: string
+  _reason: string
 ) {
-  if (TEST_COMPASS_WEB) {
+  if (isTestingWeb()) {
     test.skip();
   }
 }
@@ -160,6 +159,13 @@ export class Compass {
       needsCloseWelcomeModal = false,
     }: CompassOptions
   ) {
+    // In case test run was aborted, stop the instance: this will close the
+    // webdriver session and internal logic of wdio will abort all in-progress
+    // operations
+    globalFixturesAbortController.signal.addEventListener('abort', () => {
+      void this.stop();
+    });
+
     this.name = name;
     this.browser = browser;
     this.mode = mode;
@@ -175,27 +181,6 @@ export class Compass {
         return v(browser, ...args);
       });
     }
-
-    // The waitUntil helper will continue running even if we started tests
-    // teardown on abort. To work around that, we will override the default
-    // method, will short circuit the wait if we aborted, and then throw the
-    // error instead of returning the result
-    browser.overwriteCommand(
-      'waitUntil',
-      async function (origWaitUntil, condition, options) {
-        // eslint-disable-next-line @typescript-eslint/await-thenable
-        const result = await origWaitUntil(function () {
-          if (globalFixturesAbortController.signal.aborted) {
-            return true;
-          }
-          return condition();
-        }, options);
-        if (globalFixturesAbortController.signal.aborted) {
-          throw new Error('Test run was aborted');
-        }
-        return result;
-      }
-    );
 
     // Adding a custom locator strategy to help locate open dialogs from a selector synchronously
     browser.addLocatorStrategy('dialogOpen', dialogOpenLocator);
@@ -363,83 +348,107 @@ export class Compass {
   }
 
   async stopElectron(): Promise<void> {
-    const renderLogPath = path.join(
-      LOG_PATH,
-      `electron-render.${this.name}.json`
-    );
-    debug(`Writing application render process log to ${renderLogPath}`);
-    await fs.writeFile(renderLogPath, JSON.stringify(this.renderLogs, null, 2));
+    debug(`Stopping Compass application [${this.name}]`);
+    let errWhenStopping;
 
-    if (this.writeCoverage) {
-      // coverage
-      debug('Writing coverage');
-      const coverage: Coverage = await this.browser.executeAsync((done) => {
-        void (async () => {
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const mainCoverage = await require('electron').ipcRenderer.invoke(
-            'coverage'
+    try {
+      const renderLogPath = path.join(
+        LOG_PATH,
+        `electron-render.${this.name}.json`
+      );
+      debug(`Writing application render process log to ${renderLogPath}`);
+      await fs.writeFile(
+        renderLogPath,
+        JSON.stringify(this.renderLogs, null, 2)
+      );
+
+      if (this.writeCoverage) {
+        // coverage
+        debug('Writing coverage');
+        const coverage: Coverage = await this.browser.executeAsync((done) => {
+          void (async () => {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const mainCoverage = await require('electron').ipcRenderer.invoke(
+              'coverage'
+            );
+            done({
+              main: JSON.stringify(mainCoverage, null, 4),
+              renderer: JSON.stringify((window as any).__coverage__, null, 4),
+            });
+          })();
+        });
+        if (coverage.main) {
+          await fs.writeFile(
+            path.join(LOG_COVERAGE_PATH, `main.${this.name}.log`),
+            coverage.main
           );
-          done({
-            main: JSON.stringify(mainCoverage, null, 4),
-            renderer: JSON.stringify((window as any).__coverage__, null, 4),
-          });
-        })();
-      });
-      if (coverage.main) {
-        await fs.writeFile(
-          path.join(LOG_COVERAGE_PATH, `main.${this.name}.log`),
-          coverage.main
-        );
+        }
+        if (coverage.renderer) {
+          await fs.writeFile(
+            path.join(LOG_COVERAGE_PATH, `renderer.${this.name}.log`),
+            coverage.renderer
+          );
+        }
       }
-      if (coverage.renderer) {
-        await fs.writeFile(
-          path.join(LOG_COVERAGE_PATH, `renderer.${this.name}.log`),
-          coverage.renderer
+
+      const copyCompassLog = async () => {
+        const compassLog = await getCompassLog(this.logPath ?? '');
+        const compassLogPath = path.join(
+          LOG_PATH,
+          `compass-log.${this.name}.log`
         );
-      }
+        debug(`Writing Compass application log to ${compassLogPath}`);
+        await fs.writeFile(compassLogPath, compassLog.raw);
+        return compassLog;
+      };
+
+      // Copy log files before stopping in case that stopping itself fails and needs to be debugged
+      this.logs = (await copyCompassLog()).structured;
+    } catch (err) {
+      errWhenStopping = err;
     }
 
-    const copyCompassLog = async () => {
-      const compassLog = await getCompassLog(this.logPath ?? '');
+    // No matter what, kill the session
+    await this.browser.deleteSession({ shutdownDriver: true });
+
+    if (errWhenStopping) {
+      throw errWhenStopping;
+    }
+  }
+
+  async stopBrowser(): Promise<void> {
+    debug(`Stopping Compass application [${this.name}]`);
+    let errWhenStopping;
+
+    try {
+      const logging: any[] = await this.browser.execute(function () {
+        const kSandboxLoggingAndTelemetryAccess = Symbol.for(
+          '@compass-web-sandbox-logging-and-telemetry-access'
+        );
+        return kSandboxLoggingAndTelemetryAccess in globalThis
+          ? (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
+          : [];
+      });
+      const lines = logging.map((log) => JSON.stringify(log));
+      const text = lines.join('\n');
       const compassLogPath = path.join(
         LOG_PATH,
         `compass-log.${this.name}.log`
       );
       debug(`Writing Compass application log to ${compassLogPath}`);
-      await fs.writeFile(compassLogPath, compassLog.raw);
-      return compassLog;
-    };
-
-    // Copy log files before stopping in case that stopping itself fails and needs to be debugged
-    await copyCompassLog();
-
-    debug(`Stopping Compass application [${this.name}]`);
+      await fs.writeFile(compassLogPath, text);
+    } catch (err) {
+      errWhenStopping = err;
+    }
     await this.browser.deleteSession({ shutdownDriver: true });
 
-    this.logs = (await copyCompassLog()).structured;
-  }
-
-  async stopBrowser(): Promise<void> {
-    const logging: any[] = await this.browser.execute(function () {
-      const kSandboxLoggingAndTelemetryAccess = Symbol.for(
-        '@compass-web-sandbox-logging-and-telemetry-access'
-      );
-      return kSandboxLoggingAndTelemetryAccess in globalThis
-        ? (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
-        : [];
-    });
-    const lines = logging.map((log) => JSON.stringify(log));
-    const text = lines.join('\n');
-    const compassLogPath = path.join(LOG_PATH, `compass-log.${this.name}.log`);
-    debug(`Writing Compass application log to ${compassLogPath}`);
-    await fs.writeFile(compassLogPath, text);
-
-    debug(`Stopping Compass application [${this.name}]`);
-    await this.browser.deleteSession({ shutdownDriver: true });
+    if (errWhenStopping) {
+      throw errWhenStopping;
+    }
   }
 
   async stop(): Promise<void> {
-    if (TEST_COMPASS_WEB) {
+    if (isTestingWeb()) {
       await this.stopBrowser();
     } else {
       await this.stopElectron();

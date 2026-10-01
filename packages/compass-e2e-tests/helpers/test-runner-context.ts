@@ -70,6 +70,12 @@ function buildCommonArgs(yargs: Argv) {
         // test can fail before Mocha times out
         default: 1000 * 60 * 4,
       })
+      .option('mocha-skip-teardown', {
+        type: 'boolean',
+        description:
+          'Do not wait for mocha to teardown when the test run is aborted',
+        default: false,
+      })
       .option('mocha-bail', {
         type: 'boolean',
         description: 'Bail on the first failing test instead of continuing',

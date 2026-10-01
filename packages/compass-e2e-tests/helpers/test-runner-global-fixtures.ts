@@ -42,16 +42,19 @@ import { template } from 'lodash';
 import { randomBytes } from 'crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils';
 import type { ClusterTypes } from './commands';
+// @ts-expect-error package missing types
+import logRunning from 'why-is-node-running';
 
 export const globalFixturesAbortController = new AbortController();
 
 function throwIfAborted() {
   if (globalFixturesAbortController.signal.aborted) {
-    throw new Error('Mocha run was aborted while global setup was in progress');
+    throw new Error(
+      'Mocha run was aborted while global setup was in progress',
+      { cause: globalFixturesAbortController.signal.reason }
+    );
   }
 }
-
-export let abortRunner: (() => void) | undefined;
 
 const debug = Debug('compass-e2e-tests:mocha-global-fixtures');
 
@@ -265,12 +268,15 @@ async function createAtlasCloudResources() {
  *  - Compiles the desktop app
  */
 export async function mochaGlobalSetup(this: Mocha.Runner) {
-  abortRunner = () => {
-    globalFixturesAbortController.abort();
-    this.abort();
-  };
-
   try {
+    debug('Clearing out past logs and setting up .log dir');
+    try {
+      fs.rmdirSync(LOG_PATH, { recursive: true });
+    } catch {
+      debug('.log dir already removed');
+    }
+    fs.mkdirSync(LOG_PATH, { recursive: true });
+
     debug('Unzipping fixtures...');
     await gunzip(
       // Not using absolute paths because Windows fails to resolve glob
@@ -292,12 +298,14 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
             getConnectionTitle(connectionInfo)
           );
           const server = await startTestServer(connectionInfo.testServer);
-          serverLogsCheckers.push(new ServerLogsChecker(server));
+          const checker = new ServerLogsChecker(server);
+          serverLogsCheckers.push(checker);
           cleanupFns.push(() => {
             debug(
               'Stopping server for connection %s',
               getConnectionTitle(connectionInfo)
             );
+            checker.close();
             return server.close();
           });
         }
@@ -349,15 +357,6 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     throwIfAborted();
 
-    try {
-      debug('Clearing out past logs');
-      fs.rmdirSync(LOG_PATH, { recursive: true });
-    } catch {
-      debug('.log dir already removed');
-    }
-
-    fs.mkdirSync(LOG_PATH, { recursive: true });
-
     if (isTestingDesktop(context)) {
       if (context.testPackagedApp) {
         debug('Maybe building Compass before running the tests ...');
@@ -382,28 +381,41 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
     cleanupFns.push(() => {
       removeUserDataDir();
     });
+
+    globalFixturesAbortController.signal.addEventListener('abort', () => {
+      this.abort();
+    });
   } catch (err) {
     // If we ended up here, something failed (or canceled) during initial setup.
     // Mocha will not run the teardown in this case, so we have to do it
     // ourselves to take care of all already registered cleanup functions
-    void mochaGlobalTeardown();
-    if (globalFixturesAbortController.signal.aborted) {
-      return;
-    }
+    await mochaGlobalTeardown();
     throw err;
   }
 }
 
+function terminateOnTimeout() {
+  // Don't keep logging forever because then evergreen can't kill the job
+  // after 10 minutes of inactivity if we get into a broken state
+  const timeoutId = setTimeout(() => {
+    debug('Mocha is still cleaning up:');
+    // Log what's preventing the process from exiting normally to help debug the
+    // cases where the process hangs and gets killed 10 minutes later by evergreen
+    // because there's no output.
+    logRunning(console);
+    debug('Terminating the process ...');
+    // Just exit now rather than waiting for 10 minutes just so evergreen
+    // can kill the task and fail anyway.
+    process.exitCode ??= 1;
+    process.exit();
+  }, 30_000);
+  timeoutId.unref();
+}
+
 export async function mochaGlobalTeardown() {
   debug('Cleaning up after the tests ...');
-
-  // Close server log checkers
-  for (const checker of serverLogsCheckers) {
-    checker.close();
-  }
-  serverLogsCheckers.length = 0;
-
-  await Promise.allSettled(
+  terminateOnTimeout();
+  return await Promise.allSettled(
     cleanupFns.map((fn) => {
       // We get a mix of sync and non-sync functions here. Awaiting even the
       // sync ones just makes the logic simpler

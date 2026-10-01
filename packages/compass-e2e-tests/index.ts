@@ -1,62 +1,22 @@
 #!/usr/bin/env ts-node
 import path from 'path';
 import { glob } from 'glob';
-import crossSpawn from 'cross-spawn';
 import Mocha from 'mocha';
 import Debug from 'debug';
 import { context } from './helpers/test-runner-context';
 import {
-  abortRunner,
+  globalFixturesAbortController,
   mochaGlobalSetup,
   mochaGlobalTeardown,
 } from './helpers/test-runner-global-fixtures';
 import { mochaRootHooks } from './helpers/mongo-clients';
-// @ts-expect-error no types for this package
-import logRunning from 'why-is-node-running';
+import type { SignalConstants } from 'os';
 
 const debug = Debug('compass-e2e-tests');
 
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
-// Trigger a mocha abort on interrupt. This doesn't stop the test runner
-// immediately as it will still try to finish running the current in-progress
-// suite before exiting, but the upside is that we are getting a way more robust
-// cleanup where all the after hooks are taken into account as expected rarely
-// leaving anythihg "hanging"
-async function cleanupOnInterrupt() {
-  // First trigger an abort on the mocha runner
-  abortRunner?.();
-  // Don't wait when bailing because it can take minutes of retries before it
-  // finally times out, the process exits back to the terminal but some zombie
-  // child stays around and keeps logging.. We only use bail locally when
-  // working on tests manually and in that case we probably don't care about the
-  // cleanup. If you see a test you're working on waiting for something that's
-  // never going to happen then you probably want to kill it and get back
-  // control immediately.
-  if (!context.mochaBail) {
-    await runnerPromise;
-  }
-}
-
-function terminateOnTimeout() {
-  // Don't keep logging forever because then evergreen can't kill the job
-  // after 10 minutes of inactivity if we get into a broken state
-  const timeoutId = setTimeout(() => {
-    debug('Mocha is still cleaning up:');
-    // Log what's preventing the process from exiting normally to help debug the
-    // cases where the process hangs and gets killed 10 minutes later by evergreen
-    // because there's no output.
-    logRunning(console);
-    debug('Terminating the process ...');
-    // Just exit now rather than waiting for 10 minutes just so evergreen
-    // can kill the task and fail anyway.
-    process.exitCode ??= 1;
-    process.exit();
-  }, 30_000);
-  timeoutId.unref();
-}
-
-let runnerPromise: Promise<any> | undefined;
+let runnerPromise: Promise<[Error, undefined] | [null, number]> | undefined;
 
 async function main() {
   const e2eTestGroupsAmount = context.testGroups;
@@ -128,53 +88,72 @@ async function main() {
   });
 
   debug('Running E2E tests');
-  runnerPromise = new Promise((resolve) => {
+  return (runnerPromise = new Promise((resolve) => {
+    // mocha will not handle non-test errors inside the run loop, so to make
+    // sure that runner promise settles correctly, we set up our own error
+    // listeners
+    const onError = (err: Error) => {
+      removeListeners();
+      resolve([err, undefined]);
+    };
+    const removeListeners = () => {
+      process.off('uncaughtException', onError);
+      process.off('unhandledRejection', onError);
+    };
+    process.on('uncaughtException', onError);
+    process.on('unhandledRejection', onError);
     mocha.run((failures: number) => {
-      debug('Finished running e2e tests', { failures });
-      process.exitCode = failures ? 1 : 0;
-      // Since the webdriverio update something is messing with the terminal's
-      // cursor. This brings it back.
-      crossSpawn.sync('tput', ['cnorm'], { stdio: 'inherit' });
-      terminateOnTimeout();
-      resolve(failures);
+      removeListeners();
+      resolve([null, failures]);
     });
-  });
+  }));
 }
 
-process.once('SIGINT', () => {
-  debug(`Process was interrupted. Waiting for mocha to abort and clean-up ...`);
+const onSignal = (signal: keyof SignalConstants) => {
   void (async () => {
-    await cleanupOnInterrupt();
-    process.kill(process.pid, 'SIGINT');
+    if (
+      // Second signal coming, just kill the process
+      globalFixturesAbortController.signal.aborted ||
+      // Don't wait when "skip teardown" because it can take minutes of retries
+      // before it finally times out, the process exits back to the terminal but
+      // some zombie child stays around and keeps logging.. We only use bail
+      // locally when working on tests manually and in that case we probably
+      // don't care about the cleanup. If you see a test you're working on
+      // waiting for something that's never going to happen then you probably
+      // want to kill it and get back control immediately.
+      context.mochaSkipTeardown
+    ) {
+      debug('Exiting ...');
+      process.off(signal, onSignal);
+    } else {
+      debug(
+        `Process was interrupted. Waiting for mocha to abort and clean-up (press ^C again to skip the wait) ...`
+      );
+      // Trigger a mocha abort on interrupt. This doesn't stop the test runner
+      // immediately as it will still try to finish running the current
+      // in-progress suite before exiting, but the upside is that we are getting
+      // a way more robust cleanup where all the after hooks are taken into
+      // account as expected rarely leaving anythihg "hanging"
+      globalFixturesAbortController.abort(new Error('Process was interrupted'));
+      await runnerPromise;
+    }
+    process.kill(process.pid, signal);
   })();
-});
+};
 
-process.once('SIGTERM', () => {
-  debug(`Process was terminated. Waiting for mocha to abort and clean-up ...`);
-  void (async () => {
-    await cleanupOnInterrupt();
-    process.kill(process.pid, 'SIGTERM');
-  })();
-});
-
-process.once('uncaughtException', (err: Error) => {
-  debug('Uncaught exception:');
-  console.error(err.stack || err.message || err);
-  debug('Waiting for mocha to abort and clean-up ...');
-  process.exitCode = 1;
-  void cleanupOnInterrupt();
-});
-
-process.on('unhandledRejection', (err: Error) => {
-  debug('Unhandled exception:');
-  console.error(err.stack || err.message || err);
-  debug('Waiting for mocha to abort and clean-up ...');
-  process.exitCode = 1;
-  void cleanupOnInterrupt();
-});
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.on(signal, onSignal);
+}
 
 async function run() {
-  await main();
+  const [err, failedSpecs] = await main();
+  if (globalFixturesAbortController.signal.aborted) {
+    return;
+  }
+  if (err) {
+    throw err;
+  }
+  process.exitCode = failedSpecs;
 }
 
 void run();

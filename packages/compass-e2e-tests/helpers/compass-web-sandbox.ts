@@ -30,13 +30,13 @@ const waitUntil = async (
   const start = Date.now();
   while (!done) {
     if (signal.aborted) {
-      return;
+      throw signal.reason;
     }
     if (Date.now() - start >= timeoutMs) {
       throw new Error(timeoutMessage);
     }
     await wait(intervalMs);
-    done = await fn();
+    done = Boolean(await fn());
   }
 };
 
@@ -56,6 +56,12 @@ export function spawnCompassWebSandbox(signal: AbortSignal) {
     ],
     { env: process.env, signal }
   );
+  proc.on('error', () => {
+    // Listen to error event to avoid uncaught exception event stopping the
+    // process. If this fails for whatever reason, we most definitely will see
+    // it logged and anything depending on this process will also fail. Relying
+    // on this is easier than accounting for the uncaught
+  });
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
   return () => {
@@ -104,6 +110,9 @@ export function spawnCompassWebStaticServer(signal: AbortSignal) {
     ],
     { env: process.env, signal }
   );
+  proc.on('error', function () {
+    // see above
+  });
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
   return () => {
