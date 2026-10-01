@@ -16,7 +16,8 @@ import { mongoLogId, useLogger } from '@mongodb-js/compass-logging/provider';
 
 class DataModelStorageAtlas implements DataModelStorage {
   private readonly userData: AtlasUserData<
-    typeof MongoDBDataModelDescriptionSchema
+    typeof MongoDBDataModelDescriptionSchema,
+    'DataModelDescriptions'
   >;
   constructor(orgId: string, projectId: string, atlasService: AtlasService) {
     this.userData = new AtlasUserData(
