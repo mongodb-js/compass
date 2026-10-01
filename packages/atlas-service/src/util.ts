@@ -1,5 +1,4 @@
 import type * as plugin from '@mongodb-js/oidc-plugin';
-import type { PreferencesAccess } from 'compass-preferences-model';
 import { defaultsDeep } from 'lodash';
 import { createHash } from 'crypto';
 
@@ -29,18 +28,14 @@ export class AtlasServiceError extends Error {
   }
 }
 
-export function throwIfNetworkTrafficDisabled(
-  preferences: Pick<PreferencesAccess, 'getPreferences'>
-) {
-  if (!preferences.getPreferences().networkTraffic) {
+export function throwIfNetworkTrafficDisabled(networkTraffic: boolean) {
+  if (!networkTraffic) {
     throw new Error('Network traffic is not allowed');
   }
 }
 
-export function throwIfAtlasSignInDisabled(
-  preferences: Pick<PreferencesAccess, 'getPreferences'>
-) {
-  if (!preferences.getPreferences().enableAtlasSignIn) {
+export function throwIfAtlasSignInDisabled(enableAtlasSignIn: boolean) {
+  if (!enableAtlasSignIn) {
     throw new Error('Atlas sign in is not allowed');
   }
 }
@@ -230,10 +225,16 @@ const config = Object.create({
   },
 });
 
-export function getAtlasConfig(
-  preferences: Pick<PreferencesAccess, 'getPreferences'>
+export type AtlasServiceBackendPreset =
+  | 'atlas-local'
+  | 'atlas-dev'
+  | 'atlas-qa'
+  | 'atlas-staging'
+  | 'atlas';
+
+export function getAtlasConfigForPreset(
+  atlasServiceBackendPreset: AtlasServiceBackendPreset
 ) {
-  const { atlasServiceBackendPreset } = preferences.getPreferences();
   const envConfig = {
     atlasPrivateApiBaseUrl:
       process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
