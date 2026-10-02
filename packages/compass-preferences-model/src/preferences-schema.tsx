@@ -52,6 +52,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     readOnly: boolean;
     readWrite: boolean;
     enableShell: boolean;
+    shellFollowsCompassTheme: boolean;
     enableDbAndCollStats: boolean;
     protectConnectionStrings?: boolean;
     forceConnectionOptions?: [key: string, value: string][];
@@ -619,6 +620,18 @@ export const storedUserPreferencesProps: Required<{
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  shellFollowsCompassTheme: {
+    ui: true,
+    exposedInSettingsUI: ['desktop'],
+    cli: true,
+    global: true,
+    description: {
+      short: 'Use Compass Theme in MongoDB Shell',
+      long: 'Make the embedded shell follow the Compass theme instead of always using dark mode.',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**
