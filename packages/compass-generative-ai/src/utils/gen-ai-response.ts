@@ -2,6 +2,7 @@ import { AiChatbotInvalidResponseError } from '../chatbot-errors';
 import { type AiQueryPrompt } from './gen-ai-prompt';
 import type { LanguageModel } from 'ai';
 import { streamText } from 'ai';
+import { getErrorMessage } from '@ai-sdk/provider-utils';
 
 export async function getAiQueryResponse(
   model: LanguageModel,
@@ -28,7 +29,7 @@ export async function getAiQueryResponse(
       'X-Assistant-Entrypoint': 'natural-language-to-mql',
     },
     abortSignal,
-  }).toUIMessageStream();
+  }).toUIMessageStream({ onError: getErrorMessage });
   const chunks: string[] = [];
   for await (const value of response) {
     if (value.type === 'text-delta') {
