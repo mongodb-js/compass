@@ -50,10 +50,8 @@ tests:
            * https://mongodb.github.io/mongo-java-driver
            */
 
-          MongoClient mongoClient = new MongoClient(
-              new MongoClientURI(
-                  "mongodb://localhost:27017"
-              )
+          MongoClient mongoClient = MongoClients.create(
+              "mongodb://localhost:27017"
           );
 
           MongoDatabase database = mongoClient.getDatabase("db");
@@ -165,8 +163,8 @@ tests:
           import org.bson.types.ObjectId;
           import static com.mongodb.client.model.Filters.and;
           import static com.mongodb.client.model.Filters.eq;
-          import com.mongodb.MongoClient;
-          import com.mongodb.MongoClientURI;
+          import com.mongodb.client.MongoClient;
+          import com.mongodb.client.MongoClients;
           import com.mongodb.client.MongoCollection;
           import com.mongodb.client.MongoDatabase;
           import org.bson.conversions.Bson;
@@ -229,10 +227,8 @@ tests:
           Bson filter = eq("x", 0L);
 
 
-          MongoClient mongoClient = new MongoClient(
-              new MongoClientURI(
-                  "mongodb://localhost:27017"
-              )
+          MongoClient mongoClient = MongoClients.create(
+              "mongodb://localhost:27017"
           );
 
           MongoDatabase database = mongoClient.getDatabase("db");
@@ -332,8 +328,8 @@ tests:
           from bson import Int64
         java: |-
           import static com.mongodb.client.model.Filters.eq;
-          import com.mongodb.MongoClient;
-          import com.mongodb.MongoClientURI;
+          import com.mongodb.client.MongoClient;
+          import com.mongodb.client.MongoClients;
           import com.mongodb.client.MongoCollection;
           import com.mongodb.client.MongoDatabase;
           import org.bson.conversions.Bson;
@@ -420,10 +416,8 @@ tests:
           Bson sort = eq("name", 1L);
 
 
-          MongoClient mongoClient = new MongoClient(
-              new MongoClientURI(
-                  "mongodb://localhost:27017"
-              )
+          MongoClient mongoClient = MongoClients.create(
+              "mongodb://localhost:27017"
           );
 
           MongoDatabase database = mongoClient.getDatabase("db");
@@ -436,7 +430,7 @@ tests:
               .sort(sort)
               .skip((int)5L)
               .limit((int)10L)
-              .maxTime(100L, TimeUnit.MICROSECONDS);
+              .maxTime(100L, TimeUnit.MILLISECONDS);
         javascript: >-
           /*
            * Requires the MongoDB Node.js Driver
@@ -600,8 +594,8 @@ tests:
         java: |-
           import org.bson.types.ObjectId;
           import static com.mongodb.client.model.Filters.eq;
-          import com.mongodb.MongoClient;
-          import com.mongodb.MongoClientURI;
+          import com.mongodb.client.MongoClient;
+          import com.mongodb.client.MongoClients;
           import com.mongodb.client.MongoCollection;
           import com.mongodb.client.MongoDatabase;
           import org.bson.conversions.Bson;
@@ -665,10 +659,8 @@ tests:
           Bson filter = eq("x", 0L);
 
 
-          MongoClient mongoClient = new MongoClient(
-              new MongoClientURI(
-                  "mongodb://localhost:27017"
-              )
+          MongoClient mongoClient = MongoClients.create(
+              "mongodb://localhost:27017"
           );
 
           MongoDatabase database = mongoClient.getDatabase("db");
@@ -768,8 +760,8 @@ tests:
           from bson import Int64
         java: |-
           import static com.mongodb.client.model.Filters.eq;
-          import com.mongodb.MongoClient;
-          import com.mongodb.MongoClientURI;
+          import com.mongodb.client.MongoClient;
+          import com.mongodb.client.MongoClients;
           import com.mongodb.client.MongoCollection;
           import com.mongodb.client.MongoDatabase;
           import org.bson.conversions.Bson;
