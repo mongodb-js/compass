@@ -9,10 +9,12 @@ import {
   Banner,
   Link,
   css,
+  cx,
   getScrollbarStyles,
   palette,
   rafraf,
   spacing,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import ShellInfoModal from '../shell-info-modal';
@@ -23,16 +25,22 @@ import type { RootState } from '../../stores/store';
 import { selectRuntimeById, saveHistory } from '../../stores/store';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 
-const compassShellStyles = css(
-  {
-    backgroundColor: palette.gray.dark4,
-    display: 'flex',
-    flexBasis: 'auto',
-    position: 'relative',
-    flexDirection: 'column',
-    width: '100%',
-  },
-  getScrollbarStyles(true /* Always show dark mode. */)
+const compassShellStyles = css({
+  display: 'flex',
+  flexBasis: 'auto',
+  position: 'relative',
+  flexDirection: 'column',
+  width: '100%',
+});
+
+const compassShellDarkModeStyles = css(
+  { backgroundColor: palette.gray.dark4 },
+  getScrollbarStyles(true)
+);
+
+const compassShellLightModeStyles = css(
+  { backgroundColor: palette.white },
+  getScrollbarStyles(false)
 );
 
 const infoBannerContainerStyles = css({
@@ -43,7 +51,11 @@ const compassShellContainerStyles = css({
   flexGrow: 1,
   display: 'flex',
   overflow: 'auto',
-  borderTop: `1px solid ${palette.gray.dark2}`,
+  borderTop: `1px solid ${palette.gray.light2}`,
+});
+
+const compassShellContainerDarkModeStyles = css({
+  borderTopColor: palette.gray.dark2,
 });
 
 type ShellProps = React.ComponentProps<typeof Shell>;
@@ -86,6 +98,7 @@ export const CompassShell: React.FC<CompassShellProps> = ({
   initialInput,
 }) => {
   const enableShell = usePreference('enableShell');
+  const darkMode = useDarkMode();
   const canRenderShell = !!(enableShell && initialHistory && runtime);
 
   const editorRef = useRef<EditorRef>(null);
@@ -210,7 +223,10 @@ export const CompassShell: React.FC<CompassShellProps> = ({
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
       <div
         data-testid="shell-section"
-        className={compassShellStyles}
+        className={cx(
+          compassShellStyles,
+          darkMode ? compassShellDarkModeStyles : compassShellLightModeStyles
+        )}
         id="content"
         onClick={focusEditor}
       >
@@ -221,7 +237,10 @@ export const CompassShell: React.FC<CompassShellProps> = ({
         />
         <div
           data-testid="shell-content"
-          className={compassShellContainerStyles}
+          className={cx(
+            compassShellContainerStyles,
+            darkMode && compassShellContainerDarkModeStyles
+          )}
         >
           <Shell
             runtime={runtime}

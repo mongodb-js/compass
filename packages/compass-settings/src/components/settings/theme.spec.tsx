@@ -9,20 +9,28 @@ import {
 import { spy } from 'sinon';
 import { expect } from 'chai';
 
+import { Provider } from 'react-redux';
 import { ThemeSettings } from './theme';
+import configureStore from '../../../test/configure-store';
+import { fetchSettings } from '../../stores/settings';
 
 describe('ThemeSettings', function () {
   let container: HTMLElement;
   let onChangeSpy: sinon.SinonSpy;
+  let store: ReturnType<typeof configureStore>;
 
-  beforeEach(function () {
+  beforeEach(async function () {
     onChangeSpy = spy();
+    store = configureStore();
+    await store.dispatch(fetchSettings());
     render(
-      <ThemeSettings
-        onChange={onChangeSpy}
-        preferenceStates={{}}
-        themeValue="LIGHT"
-      />
+      <Provider store={store}>
+        <ThemeSettings
+          onChange={onChangeSpy}
+          preferenceStates={{}}
+          themeValue="LIGHT"
+        />
+      </Provider>
     );
     container = screen.getByTestId('theme-settings');
   });
@@ -47,5 +55,16 @@ describe('ThemeSettings', function () {
       skipPointerEventsCheck: true,
     });
     expect(onChangeSpy.calledWith('theme', 'DARK')).to.be.true;
+  });
+
+  it('changes shellFollowsCompassTheme value when option is clicked', function () {
+    const checkbox = within(container).getByTestId('shellFollowsCompassTheme');
+    expect(store.getState().settings.settings.shellFollowsCompassTheme).to.be
+      .false;
+    userEvent.click(checkbox, undefined, {
+      skipPointerEventsCheck: true,
+    });
+    expect(store.getState().settings.settings.shellFollowsCompassTheme).to.be
+      .true;
   });
 });
