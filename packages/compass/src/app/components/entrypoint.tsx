@@ -1,7 +1,10 @@
 import React from 'react';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import {
+  PreferencesProvider,
+  usePreferencesContext,
+} from 'compass-preferences-model/provider';
 import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import {
   AtlasAuthServiceProvider,
@@ -61,6 +64,7 @@ export const WithAtlasProviders: React.FC<{
   children?: React.ReactNode;
 }> = ({ children }) => {
   const authService = useInitialValue(() => new CompassAtlasAuthService());
+  const preferences = usePreferencesContext();
   return (
     <AtlasAuthServiceProvider value={authService}>
       <AtlasServiceProvider
@@ -69,6 +73,9 @@ export const WithAtlasProviders: React.FC<{
             'User-Agent': `${getAppName()}/${getAppVersion()}`,
             'X-Request-Origin': 'mongodb-compass',
           },
+          getAtlasServiceBackendPreset: () =>
+            preferences.getPreferences().atlasServiceBackendPreset,
+          getNetworkTraffic: () => preferences.getPreferences().networkTraffic,
         }}
       >
         <AtlasAdminApiServiceProvider>

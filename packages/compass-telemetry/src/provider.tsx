@@ -139,7 +139,7 @@ export function useTrackOnChange(
  *
  * @example
  * useFireExperimentViewed({
- *   testName: ExperimentTestName.mockDataGenerator,
+ *   testName: ExperimentTestNames.searchActivationProgramP1,
  *   shouldFire: enableMockDataGenerator,
  * });
  */

@@ -14,7 +14,6 @@ import {
   getApi,
   getColumn,
   getActions,
-  getColumnApi,
   getContext,
   notCalledExcept,
 } from '../../../test/aggrid-helper';
@@ -31,7 +30,6 @@ describe('<CellEditor />', function () {
       headerComponentParams: { bsonType: 'String' },
     });
     const actions = getActions();
-    const columnApi = getColumnApi([]);
     const context = getContext([]);
 
     describe('editable element', function () {
@@ -53,7 +51,6 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             timezone="UTC"
-            columnApi={columnApi as any}
             context={context}
           />
         );
@@ -83,7 +80,6 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             timezone="UTC"
-            columnApi={columnApi as any}
             context={context}
           />
         );
@@ -121,7 +117,6 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             timezone="UTC"
-            columnApi={columnApi as any}
             context={context}
           />
         );
@@ -162,7 +157,6 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             version="3.4.0"
             timezone="UTC"
-            columnApi={columnApi}
             context={context}
           />
         );
@@ -203,7 +197,6 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             version="3.4.0"
             timezone="UTC"
-            columnApi={columnApi}
             context={context}
           />
         );
@@ -243,7 +236,6 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             version="3.4.0"
             timezone="UTC"
-            columnApi={columnApi}
             context={context}
           />
         );
@@ -283,7 +275,6 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             version="3.4.0"
             timezone="UTC"
-            columnApi={columnApi}
             context={subContext}
           />
         );
@@ -307,7 +298,6 @@ describe('<CellEditor />', function () {
 
   describe('#actions', function () {
     describe('editable element', function () {
-      const columnApi = getColumnApi([]);
       const context = getContext([]);
       const column = getColumn('field1', {
         headerName: 'field1',
@@ -337,7 +327,6 @@ describe('<CellEditor />', function () {
             version="3.4.0"
             timezone="UTC"
             context={context}
-            columnApi={columnApi}
           />
         );
 
@@ -374,7 +363,6 @@ describe('<CellEditor />', function () {
               version="3.4.0"
               timezone="UTC"
               context={context}
-              columnApi={columnApi}
             />
           );
 
@@ -429,7 +417,6 @@ describe('<CellEditor />', function () {
             version="3.4.0"
             timezone="UTC"
             context={context}
-            columnApi={columnApi}
           />
         );
 
@@ -471,7 +458,6 @@ describe('<CellEditor />', function () {
             version="3.4.0"
             timezone="UTC"
             context={context}
-            columnApi={columnApi}
           />
         );
 
@@ -497,13 +483,14 @@ describe('<CellEditor />', function () {
         const rowNode = getNode({});
         const colId = {};
         const column = getColumn('field1', colId);
-        const columnApi = getColumnApi([]);
         const context = getContext([]);
         rowNode.data.hadronDocument.insertEnd('$new', '');
         const value = rowNode.data.hadronDocument.get('$new');
+        const editorRef = React.createRef<CellEditor>();
 
         render(
           <CellEditor
+            ref={editorRef}
             api={api}
             node={rowNode}
             value={value}
@@ -519,7 +506,6 @@ describe('<CellEditor />', function () {
             column={column}
             version="3.4.0"
             timezone="UTC"
-            columnApi={columnApi}
           />
         );
 
@@ -532,13 +518,12 @@ describe('<CellEditor />', function () {
         expect(fieldInput.value).to.equal('fieldname');
       });
 
-      it('set field name to duplicate key - typing duplicate key works', function () {
-        const api = getApi();
+      it('cancels the edit when the field name duplicates an existing column', function () {
         const actions = getActions();
         const rowNode = getNode({});
         const colId = {};
         const column = getColumn('field1', colId);
-        const columnApi = getColumnApi([
+        const api = getApi([
           {
             getColDef: () => {
               return { colId: 'fieldname' };
@@ -548,9 +533,11 @@ describe('<CellEditor />', function () {
         const context = getContext([]);
         rowNode.data.hadronDocument.insertEnd('$new', '');
         const value = rowNode.data.hadronDocument.get('$new');
+        const editorRef = React.createRef<CellEditor>();
 
         render(
           <CellEditor
+            ref={editorRef}
             api={api}
             node={rowNode}
             value={value}
@@ -566,7 +553,6 @@ describe('<CellEditor />', function () {
             column={column}
             version="3.4.0"
             timezone="UTC"
-            columnApi={columnApi}
           />
         );
 
@@ -576,8 +562,11 @@ describe('<CellEditor />', function () {
         expect(fieldInput).to.exist;
         userEvent.clear(fieldInput);
         userEvent.type(fieldInput, 'fieldname');
-        // Typing duplicate key updates the input value
         expect(fieldInput.value).to.equal('fieldname');
+
+        expect(editorRef.current?.isCancelAfterEnd()).to.equal(false);
+        expect(actions.removeColumn.args).to.deep.equal([['$new']]);
+        expect(actions.renameColumn.called).to.equal(false);
       });
     });
 
@@ -592,7 +581,6 @@ describe('<CellEditor />', function () {
           headerComponentParams: { bsonType: 'Date' },
         });
         const context = getContext([]);
-        const columnApi = getColumnApi([]);
 
         render(
           <CellEditor
@@ -608,7 +596,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            columnApi={columnApi}
             version="3.4.0"
             timezone="UTC"
             context={context}
@@ -632,7 +619,6 @@ describe('<CellEditor />', function () {
           headerComponentParams: { bsonType: 'mixed' },
         });
         const context = getContext([]);
-        const columnApi = getColumnApi([]);
 
         render(
           <CellEditor
@@ -648,7 +634,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            columnApi={columnApi}
             version="3.4.0"
             timezone="UTC"
             context={context}
@@ -672,7 +657,6 @@ describe('<CellEditor />', function () {
           headerComponentParams: { bsonType: 'String' },
         });
         const context = getContext([]);
-        const columnApi = getColumnApi([]);
 
         render(
           <CellEditor
@@ -688,7 +672,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            columnApi={columnApi}
             version="3.4.0"
             timezone="UTC"
             context={context}
@@ -714,7 +697,6 @@ describe('<CellEditor />', function () {
         const api = getApi();
         const actions = getActions();
         const column = getColumn();
-        const columnApi = getColumnApi([]);
         const context = getContext([]);
 
         render(
@@ -731,7 +713,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            columnApi={columnApi}
             version="3.4.0"
             timezone="UTC"
             context={context}
