@@ -106,17 +106,11 @@ describe('Collection mock data generator (with mocked backend)', function () {
     releaseResponse?.();
     releaseResponse = undefined;
     await screenshotIfFailed(compass, this.currentTest);
-    if (await browser.$(Selectors.SettingsModal).isDisplayed()) {
-      await browser.$(Selectors.CloseSettingsModalButton).moveTo();
-      await browser.clickVisible(Selectors.CloseSettingsModalButton);
-      await browser.waitForOpenModal(Selectors.SettingsModal, {
-        reverse: true,
-      });
+    if (await browser.isModalOpen(Selectors.SettingsModal)) {
+      await browser.closeSettingsModal();
     }
-    if (
-      await browser.$(`${Selectors.MockDataGeneratorModal}[open]`).isExisting()
-    ) {
-      await closeGenerator();
+    if (await browser.isModalOpen(Selectors.MockDataGeneratorModal)) {
+      await closeGeneratorModal();
     }
     await browser.setFeature('enableMockDataGenerator', false);
   });
@@ -127,7 +121,7 @@ describe('Collection mock data generator (with mocked backend)', function () {
     await telemetry.stop();
   });
 
-  async function openGenerator() {
+  async function openGeneratorModal() {
     await browser.clickVisible(Selectors.AddDataButton);
     await browser.$(Selectors.GenerateMockDataOption).waitForClickable();
     await browser.$(Selectors.GenerateMockDataOption).moveTo();
@@ -147,13 +141,11 @@ describe('Collection mock data generator (with mocked backend)', function () {
     await browser.$(Selectors.MockDataGeneratorPreview).waitForDisplayed();
   }
 
-  async function closeGenerator() {
+  async function closeGeneratorModal() {
     const cancel = browser
       .$(Selectors.MockDataGeneratorModal)
       .$('button=Cancel');
-    await cancel.moveTo();
-    await cancel.waitForClickable();
-    await cancel.click();
+    await browser.clickVisible(cancel);
     await browser.waitForOpenModal(Selectors.MockDataGeneratorModal, {
       reverse: true,
     });
@@ -215,7 +207,7 @@ describe('Collection mock data generator (with mocked backend)', function () {
 
   it('generates and copies a script and command through the normal collection menu', async function () {
     const event = await browser.listenForTelemetryEvents(telemetry);
-    await openGenerator();
+    await openGeneratorModal();
     await waitForSchemaReady();
     expect(
       await browser.$(Selectors.MockDataGeneratorSchema).getText()
@@ -250,7 +242,7 @@ describe('Collection mock data generator (with mocked backend)', function () {
 
   it('sends sample values only after enabling the preference', async function () {
     await browser.setFeature('enableGenAISampleDocumentPassing', true);
-    await openGenerator();
+    await openGeneratorModal();
     await waitForSchemaReady();
     await confirmSchema();
     assertRequest(true);
@@ -258,7 +250,10 @@ describe('Collection mock data generator (with mocked backend)', function () {
 
   it('opens desktop AI settings, saves the sample-values preference, and reopens the generator', async function () {
     if (isTestingWeb()) this.skip();
-    await openGenerator();
+    await openGeneratorModal();
+    await browser
+      .$(Selectors.MockDataGeneratorSampleValuesBanner)
+      .waitForDisplayed();
     await browser.clickVisible(Selectors.MockDataGeneratorSettings);
     await browser.waitForOpenModal(Selectors.MockDataGeneratorModal, {
       reverse: true,
@@ -272,19 +267,17 @@ describe('Collection mock data generator (with mocked backend)', function () {
     );
     await browser.clickVisible(Selectors.SaveSettingsButton);
     await browser.waitForOpenModal(Selectors.SettingsModal, { reverse: true });
-    await openGenerator();
-    expect(
-      await browser
-        .$(Selectors.MockDataGeneratorSampleValuesBanner)
-        .isExisting()
-    ).to.equal(false);
+    await openGeneratorModal();
+    await browser
+      .$(Selectors.MockDataGeneratorSampleValuesBanner)
+      .waitForDisplayed({ reverse: true });
     await confirmSchema();
     assertRequest(true);
   });
 
   it('shows an API failure and allows retrying the schema confirmation', async function () {
     assistant.setResponse({ status: 500, body: 'Generation unavailable' });
-    await openGenerator();
+    await openGeneratorModal();
     await waitForSchemaReady();
     await browser.clickVisible(Selectors.MockDataGeneratorNext);
     await browser.$(Selectors.MockDataGeneratorError).waitForDisplayed();
@@ -304,15 +297,15 @@ describe('Collection mock data generator (with mocked backend)', function () {
         releaseResponse = resolve;
       }),
     });
-    await openGenerator();
+    await openGeneratorModal();
     await waitForSchemaReady();
     await browser.clickVisible(Selectors.MockDataGeneratorNext);
     await browser.waitUntil(() => assistant.getRequests().length === 1);
-    await closeGenerator();
+    await closeGeneratorModal();
     releaseResponse?.();
     assistant.clearRequests();
     assistant.setResponse(toolResponse);
-    await openGenerator();
+    await openGeneratorModal();
     await confirmSchema();
     assertRequest(false);
   });
@@ -329,15 +322,15 @@ describe('Collection mock data generator (with mocked backend)', function () {
     );
     // The menu item depends on cheap eligibility only, so it is visible even
     // for an empty collection; the empty case is handled inside the modal.
-    await openGenerator();
+    await openGeneratorModal();
     await browser.$(Selectors.MockDataGeneratorSchemaError).waitForDisplayed();
     expect(
       await browser.$(Selectors.MockDataGeneratorSchemaError).getText()
     ).to.include('No documents found');
-    await closeGenerator();
+    await closeGeneratorModal();
     await tryToInsertDocument(browser, '{ "name": "First document" }');
     await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
-    await openGenerator();
+    await openGeneratorModal();
     await waitForSchemaReady();
     await confirmSchema();
     expect(
