@@ -102,12 +102,12 @@ async function saveUpdateQueryAndRunIt(
   // Make sure the query is shown in the modal.
   expect(
     await browser.$(Selectors.BulkUpdateReadonlyFilter).getText()
-  ).to.match(/{\s+i:\s+{\s+\$gt:\s+5\s+}\s+}/);
+  ).to.match(/{\s+i:\s+{\s+\$gt:\s+NumberInt\('5'\)\s+}\s+}/);
 
   // Check that the modal starts with the expected update text
   expect(
     await browser.getCodemirrorEditorText(Selectors.BulkUpdateUpdate)
-  ).to.match(/{\s+\$set:\s+{\s+k:\s+0\s+}\s+}/);
+  ).to.match(/{\s+\$set:\s+{\s+k:\s+NumberInt\('0'\)\s+}\s+}/);
 }
 
 describe('Bulk Update', () => {
