@@ -58,13 +58,13 @@ describe('ThemeSettings', function () {
   });
 
   it('changes shellFollowsCompassTheme value when option is clicked', function () {
-    const checkbox = within(container).getByTestId('shellFollowsCompassTheme');
-    expect(store.getState().settings.settings.shellFollowsCompassTheme).to.be
-      .false;
+    const checkbox = within(container).getByRole('checkbox', {
+      name: /Use Compass Theme in MongoDB Shell/,
+    }) as HTMLInputElement;
+    expect(checkbox.checked).to.be.false;
     userEvent.click(checkbox, undefined, {
       skipPointerEventsCheck: true,
     });
-    expect(store.getState().settings.settings.shellFollowsCompassTheme).to.be
-      .true;
+    expect(checkbox.checked).to.be.true;
   });
 });
