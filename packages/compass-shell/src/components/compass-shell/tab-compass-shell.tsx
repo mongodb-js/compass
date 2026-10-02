@@ -99,6 +99,10 @@ export const CompassShell: React.FC<CompassShellProps> = ({
 }) => {
   const enableShell = usePreference('enableShell');
   const darkMode = useDarkMode();
+  const shellClassName = cx(
+    compassShellStyles,
+    darkMode ? compassShellDarkModeStyles : compassShellLightModeStyles
+  );
   const canRenderShell = !!(enableShell && initialHistory && runtime);
 
   const editorRef = useRef<EditorRef>(null);
@@ -206,7 +210,7 @@ export const CompassShell: React.FC<CompassShellProps> = ({
   }
 
   if (!canRenderShell || !mongoshVersion) {
-    return <div className={compassShellStyles} />;
+    return <div className={shellClassName} />;
   }
 
   return (
@@ -223,10 +227,7 @@ export const CompassShell: React.FC<CompassShellProps> = ({
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
       <div
         data-testid="shell-section"
-        className={cx(
-          compassShellStyles,
-          darkMode ? compassShellDarkModeStyles : compassShellLightModeStyles
-        )}
+        className={shellClassName}
         id="content"
         onClick={focusEditor}
       >
