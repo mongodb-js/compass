@@ -1,4 +1,5 @@
 import type { CompassBrowser } from '../../compass-browser.ts';
+import { CLOUD_URLS } from '../../test-runner-context.ts';
 
 export async function isAtlasCloudPage(
   browser: CompassBrowser,
@@ -19,14 +20,34 @@ export async function getProjectIdFromPageUrl(
   return projectId;
 }
 
+type AtlasHost = 'cloud' | 'account';
+
+async function assertAtlasPage(
+  browser: CompassBrowser,
+  host: AtlasHost,
+  route: string
+) {
+  const url = await browser.getUrl();
+  const hosts = Object.values(CLOUD_URLS).map((urls) =>
+    host === 'cloud' ? urls.cloudUrl : urls.accountUrl
+  );
+  if (!hosts.some((h) => url.startsWith(h))) {
+    throw new Error(
+      `${route} must be called from an Atlas ${host} page, browser is at ${url}`
+    );
+  }
+}
+
 export async function doCloudFetch<T = any>(
   browser: CompassBrowser,
   url: string,
   init?: Omit<RequestInit, 'body'>,
   body?:
     | { json: Record<string, unknown> | Array<unknown>; form?: never }
-    | { json?: never; form: Record<string, string> }
+    | { json?: never; form: Record<string, string> },
+  host: AtlasHost = 'cloud'
 ): Promise<T> {
+  await assertAtlasPage(browser, host, url);
   return browser.execute(
     async (url, init, body) => {
       const csrfHeaders = (() => {
@@ -80,4 +101,10 @@ export async function doCloudFetch<T = any>(
     init,
     body
   );
+}
+
+export function doAccountFetch<T = any>(
+  ...[browser, url, init, body]: Parameters<typeof doCloudFetch>
+): Promise<T> {
+  return doCloudFetch<T>(browser, url, init, body, 'account');
 }

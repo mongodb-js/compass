@@ -178,7 +178,23 @@ class CompassApplication {
   }
 
   private static async setupCompassAuthService() {
-    await CompassAuthService.init(this.preferences, this.httpClient);
+    const preferences = this.preferences;
+    await CompassAuthService.init(
+      {
+        getAtlasServiceBackendPreset: () =>
+          preferences.getPreferences().atlasServiceBackendPreset,
+        isNetworkTrafficAllowed: () =>
+          preferences.getPreferences().networkTraffic,
+        isAtlasSignInEnabled: () =>
+          preferences.getPreferences().enableAtlasSignIn,
+        getBrowserCommandForOIDCAuth: () =>
+          preferences.getPreferences().browserCommandForOIDCAuth,
+        onSignIn: async (auid: string) => {
+          await preferences.savePreferences({ telemetryAtlasUserId: auid });
+        },
+      },
+      this.httpClient
+    );
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
     });

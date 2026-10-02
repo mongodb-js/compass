@@ -2060,6 +2060,7 @@ class CrudStoreImpl
         collation: query.collation ? toJSString(query.collation) : undefined,
         skip: query.skip ? String(query.skip) : undefined,
         limit: query.limit ? String(query.limit) : undefined,
+        maxTimeMS: query.maxTimeMS ? String(query.maxTimeMS) : undefined,
       },
       'Query'
     );

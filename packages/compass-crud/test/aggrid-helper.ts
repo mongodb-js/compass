@@ -9,8 +9,12 @@ for (let i = 0; i < 60; i++) {
   expectedDocs.push({ _id: new ObjectId(), x: i.toString() });
 }
 
-export const getApi = function () {
+export const getApi = function (columns: any[] = []) {
   return {
+    getColumns: sinon.spy(() => columns),
+    getColumn: sinon.spy((key: string) =>
+      key in columns ? columns[key] : null
+    ),
     selectAll: sinon.spy(),
     startEditingCell: sinon.spy(),
     stopEditing: sinon.spy(),
@@ -65,17 +69,6 @@ export const getColumn = function (colId: any, colDef: any) {
     },
     getColDef: () => {
       return colDef;
-    },
-  };
-};
-
-export const getColumnApi = function (columns: any[]) {
-  return {
-    getAllColumns: () => {
-      return columns;
-    },
-    getColumn: (index) => {
-      return index in columns ? columns[index] : null;
     },
   };
 };
@@ -149,7 +142,6 @@ export default {
   getApi: getApi,
   getColumn: getColumn,
   getActions: getActions,
-  getColumnApi: getColumnApi,
   getContext: getContext,
   notCalledExcept: notCalledExcept,
   NUM_DOCS: NUM_DOCS,

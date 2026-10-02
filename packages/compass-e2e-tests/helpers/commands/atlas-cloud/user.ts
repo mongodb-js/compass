@@ -10,7 +10,7 @@ import {
 } from '../../test-runner-context.ts';
 import type { AtlasEnvironment } from '../../test-runner-context.ts';
 import { FIXTURES_PATH } from '../../test-runner-paths.ts';
-import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
+import { isAtlasCloudPage, doCloudFetch, doAccountFetch } from './utils.ts';
 import { createExternalBrowser, screenshotPathName } from '../../compass.ts';
 import { UUID } from 'mongodb';
 
@@ -84,14 +84,14 @@ export async function signInToAtlas(
    * is not shown. We are doing this before every login, because these values
    * can reset between sessions
    */
-  await doCloudFetch(
+  await doAccountFetch(
     browser,
     ATLAS_CLOUD_TEST_UTILS.bypassEncouragement,
     { method: 'PATCH' },
     { form: { username } }
   );
 
-  await doCloudFetch(
+  await doAccountFetch(
     browser,
     ATLAS_CLOUD_TEST_UTILS.verifyEmail,
     { method: 'POST' },
@@ -172,13 +172,13 @@ export async function signInToAtlasDesktop(
       `${accountUrl}/account/login?signedOut=true`
     );
 
-    await doCloudFetch(
+    await doAccountFetch(
       loginSessionBrowser,
       ATLAS_CLOUD_TEST_UTILS.bypassEncouragement,
       { method: 'PATCH' },
       { form: { username } }
     );
-    await doCloudFetch(
+    await doAccountFetch(
       loginSessionBrowser,
       ATLAS_CLOUD_TEST_UTILS.verifyEmail,
       { method: 'POST' },
@@ -218,7 +218,7 @@ export async function createAtlasUser(
 
   await browser.navigateTo(`${accountUrl}/account/login?signedOut=true`);
 
-  await doCloudFetch(
+  await doAccountFetch(
     browser,
     ATLAS_CLOUD_TEST_UTILS.registerUser,
     { method: 'POST' },
