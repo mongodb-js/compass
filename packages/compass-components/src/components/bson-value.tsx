@@ -4,6 +4,7 @@ import {
   uuidHexToString,
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
+  isBsonValue,
 } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
@@ -476,38 +477,31 @@ const KeyValue: React.FunctionComponent<{
 };
 
 function stringifyValue(value: unknown): string {
-  if (value === null || value === undefined) {
-    return String(value);
+  if (value === undefined) {
+    return 'undefined';
   }
-  if (typeof value === 'string') {
-    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  if (isBsonValue(value)) {
+    return value.inspect().replace(/^new /, '');
   }
   if (Array.isArray(value)) {
     return `[${value.map(stringifyValue).join(',')}]`;
   }
-  if (typeof value === 'object') {
-    // BSON type with an inspect method
-    if ('_bsontype' in value && 'inspect' in value) {
-      return (value as { inspect(): string })
-        .inspect()
-        .replace(/new /g, '') // Remove the constructor keyword
-        .replace(/"/g, "'"); // Ensure we use single quotes instead of double quotes
-    }
+  if (value !== null && typeof value === 'object') {
     return `{${Object.entries(value)
-      .map(([k, v]) => `${k}:${stringifyValue(v)}`)
+      .map(([k, v]) => `${JSON.stringify(k)}:${stringifyValue(v)}`)
       .join(',')}}`;
   }
-  return String(value);
+  return JSON.stringify(value);
 }
 
 const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
-    const args = [`"${value.collection}"`, stringifyValue(value.oid)];
+    const args = [JSON.stringify(value.collection), stringifyValue(value.oid)];
     const hasFields = Object.keys(value.fields ?? {}).length > 0;
     if (value.db || hasFields) {
-      args.push(value.db ? `"${value.db}"` : 'undefined');
+      args.push(stringifyValue(value.db));
     }
     if (hasFields) {
       args.push(stringifyValue(value.fields));

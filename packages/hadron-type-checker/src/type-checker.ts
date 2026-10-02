@@ -25,11 +25,15 @@ import {
   UUID,
   bsonType,
   type BSONTypeTag,
+  type BSONValue,
 } from 'bson';
 
 export { bsonType, type BSONTypeTag };
 export function getBsonType(value: any): BSONTypeTag | undefined {
   return value?.[bsonType];
+}
+export function isBsonValue(value: unknown): value is BSONValue {
+  return getBsonType(value) !== undefined;
 }
 
 export type TypeCastMap = {
