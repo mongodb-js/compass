@@ -108,10 +108,8 @@ await client.close();`);
  * https://mongodb.github.io/mongo-java-driver
  */
 Bson filter = new Document("foo", 1L);
-MongoClient mongoClient = new MongoClient(
-    new MongoClientURI(
-        "mongodb://foo:bar@mongodb.net"
-    )
+MongoClient mongoClient = MongoClients.create(
+    "mongodb://foo:bar@mongodb.net"
 );
 MongoDatabase database = mongoClient.getDatabase("namespace");
 MongoCollection<Document> collection = database.getCollection("");
@@ -130,8 +128,8 @@ FindIterable<Document> result = collection.find(filter);`);
 
       expect(output).to
         .equal(`import static com.mongodb.client.model.Filters.eq;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.conversions.Bson;
@@ -143,10 +141,8 @@ import com.mongodb.client.FindIterable;
  * https://mongodb.github.io/mongo-java-driver
  */
 Bson filter = eq("foo", 1L);
-MongoClient mongoClient = new MongoClient(
-    new MongoClientURI(
-        "mongodb://foo:bar@mongodb.net"
-    )
+MongoClient mongoClient = MongoClients.create(
+    "mongodb://foo:bar@mongodb.net"
 );
 MongoDatabase database = mongoClient.getDatabase("namespace");
 MongoCollection<Document> collection = database.getCollection("");

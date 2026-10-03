@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import type { UpdatePreview } from 'mongodb-data-service';
+import type { MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
 import { toJSString } from 'mongodb-query-parser';
 import {
@@ -13,6 +14,7 @@ import {
   KeylineCard,
   Description,
   Link,
+  showErrorDetails,
   useDarkMode,
   Modal,
   ModalFooter,
@@ -331,7 +333,7 @@ export type BulkUpdateModalProps = {
   updateText: string;
   preview: UpdatePreview;
   syntaxError?: Error & { loc?: { index: number } };
-  serverError?: Error;
+  serverError?: Error & Pick<MongoServerError, 'errInfo'>;
   enablePreview?: boolean;
   closeBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
@@ -355,6 +357,7 @@ export default function BulkUpdateModal({
   saveUpdateQuery,
 }: BulkUpdateModalProps) {
   const darkMode = useDarkMode();
+  const errorDetails = serverError?.errInfo;
 
   const [text, setText] = useState(updateText);
 
@@ -473,6 +476,24 @@ export default function BulkUpdateModal({
                       className={bannerStyles}
                     >
                       {serverError.message}
+                      {errorDetails && (
+                        <>
+                          {' '}
+                          <Link
+                            as="button"
+                            hideExternalIcon
+                            data-testid="bulk-update-error-details-button"
+                            onClick={() => {
+                              void showErrorDetails({
+                                details: errorDetails,
+                                closeAction: 'back',
+                              });
+                            }}
+                          >
+                            View details
+                          </Link>
+                        </>
+                      )}
                     </Banner>
                   )}
                 </div>

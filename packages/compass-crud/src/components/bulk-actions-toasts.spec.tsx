@@ -17,7 +17,7 @@ import {
 } from './bulk-actions-toasts';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MongoNetworkError } from 'mongodb';
+import { MongoNetworkError, MongoServerError } from 'mongodb';
 
 function renderToastPortal() {
   return render(<ToastArea></ToastArea>);
@@ -186,13 +186,13 @@ describe('Bulk Action Toasts', function () {
           modal: openBulkUpdateFailureToast,
           affected: 1,
           error: new Error('Could not update'),
-          expected: ['1 document could not be updated.', 'Could not update'],
+          expected: ['The update operation failed.', 'Could not update'],
         },
         {
           modal: openBulkUpdateFailureToast,
           affected: 2,
           error: new Error('Update failed'),
-          expected: ['2 documents could not be updated.', 'Update failed'],
+          expected: ['The update operation failed.', 'Update failed'],
         },
 
         {
@@ -225,6 +225,58 @@ describe('Bulk Action Toasts', function () {
           });
         });
       }
+    });
+
+    describe('update failure with validation error details', function () {
+      const errInfo = { failingDocumentId: 1, details: { reason: 'nope' } };
+
+      function createValidationError() {
+        const error = new MongoServerError({
+          message: 'Document failed validation',
+          code: 121,
+        });
+        error.errInfo = errInfo;
+        return error;
+      }
+
+      it('shows the server error instead of the affected count on partial failure', async function () {
+        openBulkUpdateFailureToast({
+          affectedDocuments: 42,
+          error: createValidationError(),
+        });
+
+        expect(await screen.findByText('The update operation failed.')).to
+          .exist;
+        expect(screen.getByText('Document failed validation')).to.exist;
+        expect(screen.queryByText('42 documents could not be updated.')).to.not
+          .exist;
+      });
+
+      it('opens the error details modal', async function () {
+        openBulkUpdateFailureToast({
+          affectedDocuments: 42,
+          error: createValidationError(),
+        });
+
+        userEvent.click(await screen.findByTestId('toast-action-View details'));
+
+        expect(
+          JSON.parse(
+            (await screen.findByTestId('error-details-json')).textContent ?? ''
+          )
+        ).to.deep.equal(errInfo);
+      });
+
+      it('does not show the details action when there is no errInfo', async function () {
+        openBulkUpdateFailureToast({
+          affectedDocuments: 42,
+          error: new Error('Update failed'),
+        });
+
+        expect(await screen.findByText('Update failed')).to.exist;
+        expect(screen.queryByTestId('toast-action-view error details')).to.not
+          .exist;
+      });
     });
 
     describe('action for successful toasts', function () {

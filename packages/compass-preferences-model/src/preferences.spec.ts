@@ -410,4 +410,21 @@ describe('Preferences class', function () {
     );
     expect(states).to.have.a.property('readOnly', 'set-cloud-user');
   });
+
+  it('enforces cloud preferences over the user stored values', async function () {
+    const preferences = await setupPreferences(tmpdir, {
+      atlasCloudUser: { timezone: 'America/New_York' },
+      atlasCloudProject: { enableRollingIndexes: true },
+      atlasCloudOrg: { enableGenAIFeaturesAtlasOrg: true },
+    });
+
+    const resolved = preferences.getPreferences();
+    expect(resolved.timezone).to.equal('America/New_York');
+    expect(resolved.enableRollingIndexes).to.equal(true);
+    expect(resolved.enableGenAIFeaturesAtlasOrg).to.equal(true);
+
+    // Cloud values are overrides: the user cannot change them.
+    await preferences.savePreferences({ timezone: 'Europe/Madrid' });
+    expect(preferences.getPreferences().timezone).to.equal('America/New_York');
+  });
 });
