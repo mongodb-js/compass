@@ -108,13 +108,13 @@
       "eslint-plugin-react-hooks": "^7.1.1"
     },
     "@mongodb-js/diagramming": {
-      "@leafygreen-ui/icon": "^14.9.0",
-      "@leafygreen-ui/leafygreen-provider": "^5.0.4",
-      "@leafygreen-ui/palette": "^5.0.2",
-      "@leafygreen-ui/select": "^17.1.0",
-      "@leafygreen-ui/tokens": "^4.2.2",
-      "@leafygreen-ui/tooltip": "^14.3.2",
-      "@leafygreen-ui/typography": "^22.2.4"
+      "@leafygreen-ui/icon": "^14.9.1",
+      "@leafygreen-ui/leafygreen-provider": "^5.0.5",
+      "@leafygreen-ui/palette": "^5.0.3",
+      "@leafygreen-ui/select": "^17.1.1",
+      "@leafygreen-ui/tokens": "^4.2.3",
+      "@leafygreen-ui/tooltip": "^14.3.3",
+      "@leafygreen-ui/typography": "^22.2.5"
     },
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
