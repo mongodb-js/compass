@@ -62,7 +62,7 @@
     "@mongodb-js/connection-info": "^0.29.1",
     "bson": "^7.3.2",
     "compass-preferences-model": "^3.4.0",
-    "electron": "^44.5.0",
+    "electron": "^44.5.1",
     "hadron-ipc": "^3.6.4",
     "lodash": "^4.18.1",
     "mongodb-connection-string-url": "^7.0.2",
