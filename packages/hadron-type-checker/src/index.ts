@@ -10,6 +10,7 @@ export {
   type UUIDType,
   type BSONTypeTag,
   getBsonType,
+  isBsonValue,
   type TypeCastMap,
   type TypeCastTypes,
 } from './type-checker';
