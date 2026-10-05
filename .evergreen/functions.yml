@@ -743,14 +743,24 @@ functions:
           tar czf coverage.tgz packages/compass-e2e-tests/coverage
 
   test-packaged-app:
+    - command: ec2.assume_role
+      retry_on_failure: true
+      display_name: Assume IAM role with permissions to download private -latest server binaries
+      params:
+        role_arn: 'arn:aws:iam::119629040606:role/access-to-private-atlas-artifacts'
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
       timeout_secs: 600
       params:
         working_dir: src
         shell: bash
+        include_expansions_in_env:
+          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           <<: [*compass-env, *compass-e2e-secrets]
+          # @aws-sdk/client-s3 is constructed without an explicit region in
+          # @mongodb-js/mongodb-downloader, so it has to come from the env.
+          AWS_REGION: us-east-1
           COMPASS_APP_PATH_ORIGINAL: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
