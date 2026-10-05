@@ -150,10 +150,21 @@ describe('Collection mock data generator (with mocked backend)', function () {
     const cancel = browser
       .$(Selectors.MockDataGeneratorModal)
       .$('button=Cancel');
-    await browser.clickVisible(cancel);
-    await browser.waitForOpenModal(Selectors.MockDataGeneratorModal, {
-      reverse: true,
-    });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await browser.clickVisible(cancel);
+      try {
+        await browser.waitForOpenModal(Selectors.MockDataGeneratorModal, {
+          reverse: true,
+          timeout: 10_000,
+        });
+        return;
+      } catch {
+        // The click can fail to register while the app is busy; try again.
+      }
+    }
+    throw new Error(
+      'Timeout waiting for the mock data generator modal to close'
+    );
   }
 
   function assertRequest(includeSampleValues: boolean) {
