@@ -142,6 +142,11 @@ describe('Collection mock data generator (with mocked backend)', function () {
   }
 
   async function closeGeneratorModal() {
+    if (
+      !(await browser.isModalEventuallyOpen(Selectors.MockDataGeneratorModal))
+    ) {
+      return;
+    }
     const cancel = browser
       .$(Selectors.MockDataGeneratorModal)
       .$('button=Cancel');
