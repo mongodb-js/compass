@@ -69,8 +69,8 @@
   "devDependencies": {
     "@mongodb-js/diagramming": "^2.4.1",
     "@mongodb-js/eslint-config-devtools": "^0.11.5",
-    "@mongodb-js/monorepo-tools": "^1.6.0",
-    "@mongodb-js/sbom-tools": "^0.10.23",
+    "@mongodb-js/monorepo-tools": "^1.6.1",
+    "@mongodb-js/sbom-tools": "^0.10.24",
     "@mongodb-js/tracking-plan": "^0.3.2",
     "@testing-library/dom": "^9.3.4",
     "ag-grid-react": "^36.2.0",
@@ -100,21 +100,21 @@
   ],
   "overrides": {
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.70.1",
-      "@typescript-eslint/parser": "^8.70.1",
+      "@typescript-eslint/eslint-plugin": "^8.71.0",
+      "@typescript-eslint/parser": "^8.71.0",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",
       "eslint-plugin-react-hooks": "^7.1.1"
     },
     "@mongodb-js/diagramming": {
-      "@leafygreen-ui/icon": "^14.9.0",
-      "@leafygreen-ui/leafygreen-provider": "^5.0.4",
-      "@leafygreen-ui/palette": "^5.0.2",
-      "@leafygreen-ui/select": "^17.1.0",
-      "@leafygreen-ui/tokens": "^4.2.2",
-      "@leafygreen-ui/tooltip": "^14.3.2",
-      "@leafygreen-ui/typography": "^22.2.4"
+      "@leafygreen-ui/icon": "^14.9.1",
+      "@leafygreen-ui/leafygreen-provider": "^5.0.5",
+      "@leafygreen-ui/palette": "^5.0.3",
+      "@leafygreen-ui/select": "^17.1.1",
+      "@leafygreen-ui/tokens": "^4.2.3",
+      "@leafygreen-ui/tooltip": "^14.3.3",
+      "@leafygreen-ui/typography": "^22.2.5"
     },
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
