@@ -34,7 +34,10 @@ const compassShellStyles = css({
 });
 
 const compassShellDarkModeStyles = css(
-  { backgroundColor: palette.gray.dark4 },
+  {
+    backgroundColor: palette.gray.dark4,
+    '&& .cm-editor': { backgroundColor: 'transparent' },
+  },
   getScrollbarStyles(true)
 );
 
