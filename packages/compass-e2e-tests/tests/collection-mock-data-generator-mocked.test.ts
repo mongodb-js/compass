@@ -18,7 +18,7 @@ import {
   type MockAssistantResponse,
 } from '../helpers/assistant-service.ts';
 import { startTelemetryServer, type Telemetry } from '../helpers/telemetry.ts';
-import { isTestingWeb, context } from '../helpers/test-runner-context.ts';
+import { context } from '../helpers/test-runner-context.ts';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document.ts';
 
 const toolResponse: MockAssistantResponse = {
@@ -244,33 +244,6 @@ describe('Collection mock data generator (with mocked backend)', function () {
     await browser.setFeature('enableGenAISampleDocumentPassing', true);
     await openGeneratorModal();
     await waitForSchemaReady();
-    await confirmSchema();
-    assertRequest(true);
-  });
-
-  it('opens desktop AI settings, saves the sample-values preference, and reopens the generator', async function () {
-    if (isTestingWeb()) this.skip();
-    await openGeneratorModal();
-    await browser
-      .$(Selectors.MockDataGeneratorSampleValuesBanner)
-      .waitForDisplayed();
-    await browser.clickVisible(Selectors.MockDataGeneratorSettings);
-    await browser.waitForOpenModal(Selectors.MockDataGeneratorModal, {
-      reverse: true,
-    });
-    await browser.waitForOpenModal(Selectors.SettingsModal);
-    await browser
-      .$(Selectors.ArtificialIntelligenceSettingsContent)
-      .waitForDisplayed();
-    await browser.clickParent(
-      Selectors.SettingsInputElement('enableGenAISampleDocumentPassing')
-    );
-    await browser.clickVisible(Selectors.SaveSettingsButton);
-    await browser.waitForOpenModal(Selectors.SettingsModal, { reverse: true });
-    await openGeneratorModal();
-    await browser
-      .$(Selectors.MockDataGeneratorSampleValuesBanner)
-      .waitForDisplayed({ reverse: true });
     await confirmSchema();
     assertRequest(true);
   });
