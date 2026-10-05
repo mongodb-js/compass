@@ -154,8 +154,15 @@ describe('Collection aggregations tab', function () {
       'Aggregations'
     );
     // Get us back to the empty stage every time. Also test the Create New
-    // Pipeline flow while at it.
-    await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    // Pipeline flow while at it. The button is only disabled when the pipeline
+    // is already empty and unnamed, which is exactly the state we want.
+    if (
+      (await browser
+        .$(Selectors.CreateNewPipelineButton)
+        .getAttribute('aria-disabled')) !== 'true'
+    ) {
+      await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    }
 
     // This is kinda superfluous for the nested beforeEach hooks below where we
     // immediately navigate away anyway, but most tests expect there to already
@@ -2015,6 +2022,48 @@ describe('Collection aggregations tab', function () {
         ).length;
         expect(numExpandedHadronElementsPostSwitch).to.equal(14);
       });
+    });
+  });
+
+  describe('create new pipeline button', function () {
+    it('is disabled on a new pipeline and enabled again once there is something to clear', async function () {
+      // The beforeEach hook leaves a single stage behind, so there is
+      // something for the button to clear.
+      await browser.waitForAriaDisabled(
+        Selectors.CreateNewPipelineButton,
+        false
+      );
+
+      await browser.clickVisible(Selectors.CreateNewPipelineButton);
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+
+      // The pipeline is now empty and unnamed, which is what the button would
+      // produce anyway, so it is disabled.
+      await browser.waitForAriaDisabled(
+        Selectors.CreateNewPipelineButton,
+        true
+      );
+
+      await addStage(browser, 1);
+      await browser.waitForAriaDisabled(
+        Selectors.CreateNewPipelineButton,
+        false
+      );
+    });
+
+    it('stays enabled after saving a pipeline so it can still be cleared', async function () {
+      skipForWeb(this, 'saved pipelines not yet available in compass-web');
+
+      await saveAggregationPipeline(browser, 'test agg create new', [
+        { $match: '{ i: 0 }' },
+      ]);
+
+      // Saving leaves the pipeline unmodified, but its stages and name are
+      // still there, so creating a new one is a meaningful action.
+      await browser.waitForAriaDisabled(
+        Selectors.CreateNewPipelineButton,
+        false
+      );
     });
   });
 
