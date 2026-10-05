@@ -74,5 +74,6 @@ export * from './wait-for-open-modal.ts';
 export * from './leafygreen.ts';
 export * from './atlas-cloud/user.ts';
 export * from './atlas-cloud/cluster.ts';
+export * from './atlas-cloud/project.ts';
 export * from './atlas-cloud/config-service.ts';
 export * from './assistant.ts';

@@ -36,6 +36,7 @@ const DataModelStorageServiceContext = React.createContext<
 
 export const DataModelStorageServiceProvider: React.FunctionComponent<{
   storage: DataModelStorage;
+  children?: React.ReactNode;
 }> = ({ storage, children }) => {
   const storageRef = useRef(storage);
   const [serviceState, setServiceState] =

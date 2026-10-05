@@ -99,7 +99,7 @@ const PipelineBuilderDndWrapper = ({
   );
 
   const handleSortEnd = useCallback(
-    ({ oldIndex, newIndex }) => {
+    ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => {
       const from = stagesIdAndType.findIndex(({ id }) => id + 1 === oldIndex);
       const to = stagesIdAndType.findIndex(({ id }) => id + 1 === newIndex);
       onStageMoveEnd(from, to);

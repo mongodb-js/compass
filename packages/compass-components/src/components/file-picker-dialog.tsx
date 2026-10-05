@@ -204,6 +204,7 @@ export type ElectronWebUtilsProvider = {
 
 export const FileInputBackendProvider: React.FunctionComponent<{
   createFileInputBackend: (() => FileInputBackend) | null;
+  children?: React.ReactNode;
 }> = ({ children, createFileInputBackend }) => {
   const initialCreateFileInputBackend = useInitialValue(() => {
     return createFileInputBackend;

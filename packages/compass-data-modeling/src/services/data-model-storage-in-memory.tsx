@@ -25,13 +25,14 @@ class DataModelStorageInMemory implements DataModelStorage {
 
 const storage = new DataModelStorageInMemory();
 
-export const DataModelStorageServiceProviderInMemory: React.FunctionComponent =
-  ({ children }) => {
-    return (
-      <DataModelStorageServiceProvider storage={storage}>
-        {children}
-      </DataModelStorageServiceProvider>
-    );
-  };
+export const DataModelStorageServiceProviderInMemory: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
+  return (
+    <DataModelStorageServiceProvider storage={storage}>
+      {children}
+    </DataModelStorageServiceProvider>
+  );
+};
 
 export default storage;

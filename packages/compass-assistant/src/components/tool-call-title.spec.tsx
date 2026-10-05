@@ -3,6 +3,7 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { ToolUIPart } from 'ai';
 import { getToolCallTitle } from './tool-call-title';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 
 describe('getToolCallTitle', function () {
   const baseToolCall: ToolUIPart = {
@@ -60,7 +61,11 @@ describe('getToolCallTitle', function () {
     const toolCall: ToolUIPart = {
       ...baseToolCall,
       state: 'output-denied',
-      approval: { id: 'approval-1', approved: false },
+      approval: {
+        id: 'approval-1',
+        approved: false,
+        reason: TOOL_DENIAL_REASONS.userDenied,
+      },
     };
 
     render(<>{getToolCallTitle(toolCall, toolName)}</>);

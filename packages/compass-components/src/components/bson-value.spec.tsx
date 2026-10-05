@@ -90,12 +90,12 @@ describe('BSONValue', function () {
     {
       type: 'DBRef',
       value: new DBRef('foo', new ObjectId('5d505646cf6d4fe581014ab2')),
-      expected: `DBRef("foo", ObjectId('5d505646cf6d4fe581014ab2'))`,
+      expected: `DBRef("foo", ObjectId("5d505646cf6d4fe581014ab2"))`,
     },
     {
       type: 'DBRef',
       value: new DBRef('foo', new ObjectId('5d505646cf6d4fe581014ab2'), 'buz'),
-      expected: `DBRef("foo", ObjectId('5d505646cf6d4fe581014ab2'), "buz")`,
+      expected: `DBRef("foo", ObjectId("5d505646cf6d4fe581014ab2"), "buz")`,
     },
     {
       type: 'DBRef',
@@ -105,17 +105,17 @@ describe('BSONValue', function () {
         undefined,
         { a: 1 }
       ),
-      expected: `DBRef("foo", ObjectId('5d505646cf6d4fe581014ab2'), undefined, {a:1})`,
+      expected: `DBRef("foo", ObjectId("5d505646cf6d4fe581014ab2"), undefined, {"a":1})`,
     },
     {
       type: 'DBRef',
       value: new DBRef('foo', 'some-string-id' as any),
-      expected: `DBRef("foo", 'some-string-id')`,
+      expected: `DBRef("foo", "some-string-id")`,
     },
     {
       type: 'DBRef',
       value: new DBRef('a', { x: '5f16b8bebe434dc98cdfc9cb' } as any),
-      expected: `DBRef("a", {x:'5f16b8bebe434dc98cdfc9cb'})`,
+      expected: `DBRef("a", {"x":"5f16b8bebe434dc98cdfc9cb"})`,
     },
     {
       type: 'DBRef',
@@ -156,10 +156,8 @@ describe('BSONValue', function () {
     },
     {
       type: 'String',
-      value:
-        'this is a string of test that is less than is more than 70 symbols for the purpose of showing truncated text',
-      expected:
-        '"this is a string of test that is less than is more than 70 symbols for…"',
+      value: `long string ${'a'.repeat(2000)}`,
+      expected: `"long string ${'a'.repeat(988)}…"`,
     },
     { type: 'Undefined', value: undefined, expected: 'undefined' },
     { type: 'Null', value: null, expected: 'null' },

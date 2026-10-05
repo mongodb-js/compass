@@ -291,7 +291,7 @@ describe('group', function () {
       });
     });
 
-    it('should call onGroupChange with modified set of conditions when a condition is changed', function () {
+    it('should call onGroupChange with modified set of conditions when a condition is changed', async function () {
       const conditionA = createCondition();
       const onGroupChangeSpy = Sinon.spy();
       const group = createGroup({
@@ -299,7 +299,7 @@ describe('group', function () {
       });
       renderGroup({ group, onGroupChange: onGroupChangeSpy });
 
-      setComboboxValue(
+      await setComboboxValue(
         new RegExp(SINGLE_SELECT_LABEL, 'i'),
         '_id',
         screen.getByTestId(CONDITION_TEST_IDS.condition(conditionA.id))

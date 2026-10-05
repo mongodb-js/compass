@@ -87,10 +87,13 @@ function ImportOptions({
   ignoreBlanks,
   setIgnoreBlanks,
 }: ImportOptionsProps) {
-  const handleOnSubmit = useCallback((evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-  }, []);
+  const handleOnSubmit = useCallback(
+    (evt: React.FormEvent<HTMLFormElement>) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+    },
+    []
+  );
 
   const isCSV = fileType === 'csv';
 

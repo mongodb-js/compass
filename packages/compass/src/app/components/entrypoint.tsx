@@ -1,7 +1,10 @@
 import React from 'react';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import {
+  PreferencesProvider,
+  usePreferencesContext,
+} from 'compass-preferences-model/provider';
 import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import {
   AtlasAuthServiceProvider,
@@ -35,7 +38,9 @@ import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-dat
 import { WorkspacesStorageServiceProviderDesktop } from '@mongodb-js/compass-workspaces';
 import { useInitialValue } from '@mongodb-js/compass-components';
 
-const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
+const WithPreferencesAndLoggerProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const loggerProviderValue = useInitialValue({
     createLogger,
   });
@@ -55,8 +60,11 @@ const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   );
 };
 
-export const WithAtlasProviders: React.FC = ({ children }) => {
+export const WithAtlasProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const authService = useInitialValue(() => new CompassAtlasAuthService());
+  const preferences = usePreferencesContext();
   return (
     <AtlasAuthServiceProvider value={authService}>
       <AtlasServiceProvider
@@ -65,6 +73,9 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
             'User-Agent': `${getAppName()}/${getAppVersion()}`,
             'X-Request-Origin': 'mongodb-compass',
           },
+          getAtlasServiceBackendPreset: () =>
+            preferences.getPreferences().atlasServiceBackendPreset,
+          getNetworkTraffic: () => preferences.getPreferences().networkTraffic,
         }}
       >
         <AtlasAdminApiServiceProvider>
@@ -77,7 +88,9 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
   );
 };
 
-export const WithStorageProviders: React.FC = ({ children }) => {
+export const WithStorageProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const pipelineStorage = useInitialValue<PipelineStorageAccess>({
     getStorage(options) {
       return createElectronPipelineStorage({ basepath: options?.basePath });

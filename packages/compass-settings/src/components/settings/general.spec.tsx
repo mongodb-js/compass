@@ -60,9 +60,10 @@ describe('GeneralSettings', function () {
     expect(within(container).getByTestId('defaultSortOrder')).to.exist;
   });
 
-  it('changes defaultSortOrder value when selecting an option', function () {
-    within(container).getByTestId('defaultSortOrder').click();
-    within(container).getByText('_id: 1').click();
+  it('changes defaultSortOrder value when selecting an option', async function () {
+    userEvent.click(within(container).getByTestId('defaultSortOrder'));
+    const option = await within(container).findByText('_id: 1');
+    userEvent.click(option);
     expect(getSettings()).to.have.property('defaultSortOrder', '{ _id: 1 }');
   });
 
@@ -70,9 +71,10 @@ describe('GeneralSettings', function () {
     expect(within(container).getByTestId('legacyUUIDDisplayEncoding')).to.exist;
   });
 
-  it('changes legacyUUIDDisplayEncoding value when selecting an option', function () {
-    within(container).getByTestId('legacyUUIDDisplayEncoding').click();
-    within(container).getByText('Legacy Java UUID').click();
+  it('changes legacyUUIDDisplayEncoding value when selecting an option', async function () {
+    userEvent.click(within(container).getByTestId('legacyUUIDDisplayEncoding'));
+    const option = await within(container).findByText('Legacy Java UUID');
+    userEvent.click(option);
     expect(getSettings()).to.have.property(
       'legacyUUIDDisplayEncoding',
       'LegacyJavaUUID'

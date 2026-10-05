@@ -987,6 +987,28 @@ type ConnectionImportedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when the user collapses all connections in the sidebar.
+ *
+ * @category Sidebar
+ */
+type SidebarConnectionsCollapsedAllEvent = CommonEvent<{
+  name: 'Sidebar Connections Collapsed All';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when the user toggles the 'active connections only' filter in the sidebar.
+ *
+ * @category Sidebar
+ */
+type SidebarConnectionsActiveConnectionsFilterEvent = CommonEvent<{
+  name: 'Sidebar Connections Active Connections Filter Toggled';
+  payload: {
+    active_only: boolean;
+  };
+}>;
+
+/**
  * This event is fired when user copies a document to the clipboard.
  *
  * @category Documents
@@ -4458,6 +4480,8 @@ export type TelemetryEvent =
   | SearchIndexCreateCancelledEvent
   | SearchIndexEditSubmittedEvent
   | SearchIndexEditCancelledEvent
+  | SidebarConnectionsCollapsedAllEvent
+  | SidebarConnectionsActiveConnectionsFilterEvent
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent

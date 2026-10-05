@@ -28,6 +28,7 @@ export const QueryItemCard: React.FunctionComponent<{
   header: (isHovered: boolean) => React.ReactNode;
   disabled?: boolean;
   ['data-testid']?: string;
+  children?: React.ReactNode;
 }> = ({ children, onClick, header, disabled, 'data-testid': dataTestId }) => {
   const [hoverProps, isHovered] = useHoverState();
   let hoverStyles = queryHoveredStylesDisabled;

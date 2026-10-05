@@ -11,7 +11,7 @@ type RequiredURLSearchParamsContextValue = {
 const RequiredURLSearchParamsContext =
   React.createContext<RequiredURLSearchParamsContextValue>({});
 export const RequiredURLSearchParamsProvider: React.FC<
-  RequiredURLSearchParamsContextValue
+  React.PropsWithChildren<RequiredURLSearchParamsContextValue>
 > = ({ utmSource, utmMedium, children }) => {
   const value: RequiredURLSearchParamsContextValue = {
     utmSource,

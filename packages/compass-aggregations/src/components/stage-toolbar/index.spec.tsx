@@ -62,14 +62,16 @@ describe('StageToolbar', function () {
       const store = await renderStageToolbar();
       store.dispatch(changeStageDisabled(0, true));
       expect(
-        screen.getByText('Stage disabled. Results not passed in the pipeline.')
+        await screen.findByText(
+          'Stage disabled. Results not passed in the pipeline.'
+        )
       ).to.exist;
     });
     it('when stage is collapsed', async function () {
       const store = await renderStageToolbar();
       store.dispatch(changeStageCollapsed(0, true));
       expect(
-        screen.getByText(
+        await screen.findByText(
           'A sample of the aggregated results from this stage will be shown below.'
         )
       ).to.exist;

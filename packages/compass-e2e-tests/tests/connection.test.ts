@@ -42,6 +42,7 @@ function hasAtlasEnvironmentVariables(): boolean {
     'E2E_TESTS_DATA_LAKE_HOST',
     'E2E_TESTS_ANALYTICS_NODE_HOST',
     'E2E_TESTS_FREE_TIER_HOST',
+    'E2E_TESTS_DISAGG_HOST',
     'E2E_TESTS_ATLAS_USERNAME',
     'E2E_TESTS_ATLAS_PASSWORD',
     'E2E_TESTS_ATLAS_X509_PEM_BASE64',
@@ -468,6 +469,23 @@ describe('Connection string', function () {
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
     }
+  });
+
+  it('can connect to an Atlas Infinite (disaggregated) cluster', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_DISAGG_HOST ?? '';
+    const connectionString = `mongodb+srv://${username}:${password}@${host}`;
+    const connectionName = connectionNameFromString(connectionString);
+
+    await browser.connectWithConnectionString(connectionString);
+
+    await browser.navigateToConnectionTab(connectionName, 'Databases');
+    await browser.$(Selectors.DatabasesTable).waitForDisplayed();
   });
 
   it('can connect with readWriteAnyDatabase builtin role', async function () {
@@ -924,6 +942,28 @@ describe('Connection form', function () {
 
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_FREE_TIER_HOST ?? ''
+    );
+    const connectionName = this.test?.fullTitle() ?? '';
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName,
+    });
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect to an Atlas Infinite (disaggregated) cluster', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
+      process.env.E2E_TESTS_DISAGG_HOST ?? ''
     );
     const connectionName = this.test?.fullTitle() ?? '';
     await browser.connectWithConnectionForm({

@@ -61,7 +61,7 @@ describe('In-Use Encryption', function () {
       expected: ConnectionOptions | ((opts: ConnectionOptions) => void)
     ): Promise<void> => {
       connectSpy.resetHistory();
-      fireEvent.click(screen.getByTestId('connect-button'));
+      userEvent.click(screen.getByTestId('connect-button'));
       try {
         await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
       } catch {
@@ -79,7 +79,7 @@ describe('In-Use Encryption', function () {
     };
 
     expectConnectionError = async (expectedErrorText: string) => {
-      fireEvent.click(screen.getByTestId('connect-button'));
+      userEvent.click(screen.getByTestId('connect-button'));
       await waitFor(() => screen.getByTestId('connection-error-summary'));
       expect(
         screen.getByTestId('connection-error-summary').textContent

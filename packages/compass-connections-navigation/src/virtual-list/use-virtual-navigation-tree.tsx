@@ -302,7 +302,9 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
     ...focusProps,
   };
 
-  const isTreeItemFocused = focusState === FocusStates.FocusWithinVisible;
+  const isTreeItemFocused =
+    focusState === FocusStates.FocusWithinVisible ||
+    focusState === FocusStates.FocusWithin;
 
   return [rootProps, currentTabbable, isTreeItemFocused];
 }

@@ -47,17 +47,17 @@ describe('project', function () {
     expect(screen.getByTestId('project-form-field')).to.exist;
   });
 
-  it('correctly changes the projection type', function () {
+  it('correctly changes the projection type', async function () {
     renderForm();
 
-    setSelectValue(/select projection type/i, 'exclude');
+    await setSelectValue(/select projection type/i, 'exclude');
     expect(
       within(screen.getByTestId('project-form-projection')).getByText(
         /exclude/i
       )
     ).to.exist;
 
-    setSelectValue(/select projection type/i, 'include');
+    await setSelectValue(/select projection type/i, 'include');
     expect(
       within(screen.getByTestId('project-form-projection')).getByText(
         /include/i
@@ -65,10 +65,10 @@ describe('project', function () {
     ).to.exist;
   });
 
-  it('correctly selects a field from the combobox of fields', function () {
+  it('correctly selects a field from the combobox of fields', async function () {
     renderForm();
 
-    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+    await setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
       'street',
       'city',
     ]);
@@ -87,54 +87,55 @@ describe('project', function () {
 
     projectionTypes.forEach((projectionType) => {
       context(`when projection type is ${projectionType}`, function () {
-        it('calls the props.onChange with form state converted to a project stage', function () {
+        it('calls the props.onChange with form state converted to a project stage', async function () {
           const onChangeSpy = sinon.spy();
           const op = projectionType === 'exclude' ? 0 : 1;
           renderForm({ onChange: onChangeSpy });
-          setSelectValue(/select projection type/i, projectionType);
+          await setSelectValue(/select projection type/i, projectionType);
 
-          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
-            'street',
-          ]);
+          await setMultiSelectComboboxValues(
+            new RegExp(MULTI_SELECT_LABEL, 'i'),
+            ['street']
+          );
           expect(onChangeSpy).to.have.been.calledWithExactly(
             JSON.stringify({ street: op }),
             null
           );
 
           // Since we selected street above, this time it will deselect it
-          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
-            'street',
-            'city',
-          ]);
+          await setMultiSelectComboboxValues(
+            new RegExp(MULTI_SELECT_LABEL, 'i'),
+            ['street', 'city']
+          );
           expect(onChangeSpy.lastCall).to.have.been.calledWithExactly(
             JSON.stringify({ city: op }),
             null
           );
 
           // Here we select all three
-          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
-            'street',
-            'zip',
-          ]);
+          await setMultiSelectComboboxValues(
+            new RegExp(MULTI_SELECT_LABEL, 'i'),
+            ['street', 'zip']
+          );
           expect(onChangeSpy.lastCall).to.have.been.calledWithExactly(
             JSON.stringify({ city: op, street: op, zip: op }),
             null
           );
         });
 
-        it('calls the props.onChange with error if there was an error', function () {
+        it('calls the props.onChange with error if there was an error', async function () {
           const onChangeSpy = sinon.spy();
           renderForm({ onChange: onChangeSpy });
           // Creating a scenario where form ends up empty
 
-          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
-            'street',
-            'city',
-          ]);
-          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
-            'street',
-            'city',
-          ]);
+          await setMultiSelectComboboxValues(
+            new RegExp(MULTI_SELECT_LABEL, 'i'),
+            ['street', 'city']
+          );
+          await setMultiSelectComboboxValues(
+            new RegExp(MULTI_SELECT_LABEL, 'i'),
+            ['street', 'city']
+          );
 
           expect(onChangeSpy.lastCall.args[0]).to.equal(JSON.stringify({}));
 

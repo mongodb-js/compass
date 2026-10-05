@@ -226,10 +226,19 @@ describe('BulkUpdateModal Component', function () {
 
     userEvent.click(screen.getByTestId('inline-save-query-modal-opener'));
     const inputElement = screen.getByTestId('inline-save-query-modal-input');
-    await waitFor(() => expect(inputElement).to.be.visible);
+    await waitFor(() =>
+      expect(window.getComputedStyle(inputElement).pointerEvents).to.not.equal(
+        'none'
+      )
+    );
     userEvent.type(inputElement, 'MySavedQuery');
 
-    userEvent.click(screen.getByTestId('inline-save-query-modal-submit'));
+    const submitButton = screen.getByTestId('inline-save-query-modal-submit');
+    await waitFor(() =>
+      expect(submitButton).to.have.attribute('aria-disabled', 'false')
+    );
+
+    userEvent.click(submitButton);
     expect(saveUpdateQuerySpy).to.have.been.calledOnceWith('MySavedQuery');
   });
 
@@ -258,5 +267,30 @@ describe('BulkUpdateModal Component', function () {
     );
 
     expect(screen.queryByTestId('inline-save-query-modal-opener')).to.not.exist;
+  });
+
+  it('shows validation error details for a preview server error', async function () {
+    const errInfo = { failingDocumentId: 1, details: { reason: 'nope' } };
+    renderBulkUpdateModal({
+      serverError: Object.assign(new Error('Document failed validation'), {
+        errInfo,
+      }),
+    });
+
+    userEvent.click(screen.getByTestId('bulk-update-error-details-button'));
+
+    expect(
+      JSON.parse(
+        (await screen.findByTestId('error-details-json')).textContent ?? ''
+      )
+    ).to.deep.equal(errInfo);
+  });
+
+  it('does not show error details when the server error has none', function () {
+    renderBulkUpdateModal({ serverError: new Error('Something went wrong') });
+
+    expect(screen.getByText('Something went wrong')).to.exist;
+    expect(screen.queryByTestId('bulk-update-error-details-button')).to.not
+      .exist;
   });
 });

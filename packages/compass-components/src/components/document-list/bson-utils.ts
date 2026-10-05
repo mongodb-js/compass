@@ -7,6 +7,9 @@ import { Themes, useDarkMode } from '../../hooks/use-theme';
 
 type BSONValueType = keyof TypeCastMap | 'DBRef';
 
+// Set by containers laying values out inline, see `elementContentInline`.
+export const bsonValueDisplayVar = '--bson-value-display';
+
 // Colors used to render bson values both in the read-only and the editing
 // state of a document.
 const VALUE_COLOR_BY_THEME_AND_TYPE: Record<

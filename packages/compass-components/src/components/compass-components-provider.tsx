@@ -72,7 +72,7 @@ type CompassComponentsProviderProps = {
 } & {
   onDrawerSectionOpen?: (drawerSectionId: string) => void;
   onDrawerSectionHide?: (drawerSectionId: string) => void;
-} & React.ComponentProps<typeof SignalHooksProvider>;
+} & Omit<React.ComponentProps<typeof SignalHooksProvider>, 'children'>;
 
 const darkModeMediaQuery = (() => {
   return typeof window !== 'undefined' && window.matchMedia

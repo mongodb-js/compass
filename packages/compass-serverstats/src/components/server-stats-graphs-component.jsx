@@ -55,7 +55,7 @@ class ServerStatsComponent extends React.Component {
   /**
    * Renders the component.
    *
-   * @returns {React.Component} The component.
+   * @returns {React.ReactElement} The component.
    */
   render() {
     const { eventDispatcher } = this.props;

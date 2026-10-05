@@ -182,9 +182,9 @@ function ExportSelectFields({
   );
 
   const handleAddFieldSubmit = useCallback(
-    (evt) => {
+    (evt: React.KeyboardEvent<HTMLInputElement>) => {
       if (evt.key === 'Enter') {
-        addFieldToExport(evt.target.value.split('.') as SchemaPath);
+        addFieldToExport(evt.currentTarget.value.split('.'));
       }
     },
     [addFieldToExport]

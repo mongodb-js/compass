@@ -64,6 +64,19 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /*
+   * Feature flag for AI Assistant's skills feature.
+   */
+
+  {
+    name: 'enableSkillsInAssistant',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable Skills in AI Assistant',
+    },
+  },
+
+  /*
    * Feature flag for AI Assistant's tool calling feature.
    */
   {
@@ -81,6 +94,15 @@ export const FEATURE_FLAG_DEFINITIONS = [
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable restoring previous workspace tabs on startup',
+    },
+  },
+
+  {
+    name: 'enableMockDataGenerator',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable generating mock data scripts with AI',
     },
   },
 

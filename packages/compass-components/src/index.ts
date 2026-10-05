@@ -221,6 +221,7 @@ export {
 export { ChevronCollapse } from './components/chevron-collapse-icon';
 export { formatDate, formatDuration } from './utils/format-date';
 export { compactBytes, compactNumber } from './utils/format';
+export { nbsp } from './utils/nbsp';
 export {
   VirtualList,
   type VirtualListRef,

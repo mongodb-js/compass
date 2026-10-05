@@ -71,17 +71,23 @@ export function usePreferences<K extends (keyof AllPreferences)[]>(
   const [values, setValues] = useState(() => {
     return pick(preferences.getPreferences(), keys);
   });
-  const updateValue = useCallback((key: keyof AllPreferences, newValue) => {
-    setValues((values) => {
-      if (newValue === values[key]) {
-        return values;
-      }
-      return {
-        ...values,
-        [key]: newValue,
-      };
-    });
-  }, []);
+  const updateValue = useCallback(
+    (
+      key: keyof AllPreferences,
+      newValue: AllPreferences[keyof AllPreferences]
+    ) => {
+      setValues((values) => {
+        if (newValue === values[key]) {
+          return values;
+        }
+        return {
+          ...values,
+          [key]: newValue,
+        };
+      });
+    },
+    []
+  );
   useEffect(() => {
     const unsubscribe = keysRef.current.map((key) => {
       return preferences.onPreferenceValueChanged(key, (newValue) => {

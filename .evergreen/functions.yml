@@ -64,6 +64,7 @@ variables:
     E2E_TESTS_DATA_LAKE_HOST: ${e2e_tests_data_lake_host}
     E2E_TESTS_ANALYTICS_NODE_HOST: ${e2e_tests_analytics_node_host}
     E2E_TESTS_FREE_TIER_HOST: ${e2e_tests_free_tier_host}
+    E2E_TESTS_DISAGG_HOST: ${e2e_tests_disagg_host}
     E2E_TESTS_ATLAS_USERNAME: ${e2e_tests_atlas_username}
     E2E_TESTS_ATLAS_PASSWORD: ${e2e_tests_atlas_password}
     E2E_TESTS_ATLAS_X509_PEM_BASE64: ${e2e_tests_atlas_x509_pem_base64}
@@ -724,6 +725,8 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
           COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_WITH_ATLAS_USER: ${test_with_atlas_user|false}
+          E2E_COVERAGE_TEST_ARGS: '${e2e_coverage_test_args|}'
           ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
@@ -735,7 +738,7 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- $E2E_COVERAGE_TEST_ARGS
 
           tar czf coverage.tgz packages/compass-e2e-tests/coverage
 
@@ -866,7 +869,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           echo "Starting atlas cloud e2e tests..."
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- web \
-            --test-atlas-cloud \
+            --test-in-atlas-cloud \
             $ATLAS_CLOUD_TEST_ARGS
 
   test-connectivity:

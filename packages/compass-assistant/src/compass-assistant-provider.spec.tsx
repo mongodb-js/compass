@@ -32,6 +32,10 @@ import {
   type ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import {
+  AI_MODEL_AGENT_VERSION,
+  AI_MODEL_CHAT_VERSION,
+} from '@mongodb-js/compass-generative-ai/provider';
 import type { ActiveConnectionInfo } from './assistant-global-state';
 import {
   AssistantGlobalStateProvider,
@@ -98,7 +102,7 @@ const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
 // Test component that renders CompassAssistantProvider (and AssistantProvider) with children
 const TestComponent: React.FunctionComponent<{
-  chat: Chat<AssistantMessage>;
+  chat?: Chat<AssistantMessage>;
   autoOpen?: boolean;
   mockAtlasService?: any;
   mockAtlasAiService?: any;
@@ -180,7 +184,7 @@ const TestComponent: React.FunctionComponent<{
 
 describe('useAssistantActions', function () {
   const createWrapper = (chat: Chat<AssistantMessage>) => {
-    function TestWrapper({ children }: { children: React.ReactNode }) {
+    function TestWrapper({ children }: { children?: React.ReactNode }) {
       const MockedProvider = createMockProvider();
 
       return (
@@ -512,7 +516,7 @@ describe('CompassAssistantProvider', function () {
           screen.getByPlaceholderText('Ask a question'),
           `Hello assistant! (${i})`
         );
-        userEvent.click(screen.getByLabelText('Send message'));
+        userEvent.click(await screen.findByLabelText('Send message'));
 
         await waitFor(() => {
           expect(sendMessageSpy.callCount).to.equal(i + 1);
@@ -558,7 +562,8 @@ describe('CompassAssistantProvider', function () {
         screen.getByPlaceholderText('Ask a question'),
         'How about now?'
       );
-      userEvent.click(screen.getByLabelText('Send message'));
+
+      userEvent.click(await screen.findByLabelText('Send message'));
 
       await waitFor(() => {
         expect(sendMessageSpy.callCount).to.equal(1);
@@ -1089,11 +1094,10 @@ describe('CompassAssistantProvider', function () {
           expect(
             screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
           ).to.not.exist;
+          expect(mockChat.messages).to.be.empty;
+          expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
+          expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
         });
-
-        expect(mockChat.messages).to.be.empty;
-        expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
-        expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
       });
 
       it('does not clear the chat when the user clicks the button and cancels', async function () {
@@ -1159,14 +1163,13 @@ describe('CompassAssistantProvider', function () {
           expect(
             screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
           ).to.not.exist;
+          expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
+          expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
         });
 
         // The non-genuine warning message should still be in the chat
         expect(screen.getByTestId('assistant-message-non-genuine-warning')).to
           .exist;
-        // The user messages should be gone
-        expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
-        expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
       });
     });
   });
@@ -1179,7 +1182,7 @@ describe('CompassAssistantProvider', function () {
 
   afterEach(function () {
     if (sandbox) {
-      sandbox.reset();
+      sandbox.restore();
     }
   });
 
@@ -1208,5 +1211,63 @@ describe('CompassAssistantProvider', function () {
     expect(fetchStub.lastCall.args[0]).to.eq(
       'https://example.com/assistant/api/v1/responses'
     );
+  });
+
+  describe('model selection', function () {
+    async function sendMessageAndGetRequestedModel(
+      enableSkillsInAssistant: boolean
+    ): Promise<string> {
+      const fetchStub = sandbox
+        .stub(globalThis, 'fetch')
+        .resolves(new Response(null));
+      const MockedProvider = createMockProvider();
+
+      const { result } = renderHook(() => useAssistantActions(), {
+        wrapper: ({ children }) => (
+          <DrawerContentProvider>
+            <MockedProvider
+              originForPrompt="mongodb-compass"
+              appNameForPrompt="MongoDB Compass"
+            >
+              {children}
+            </MockedProvider>
+          </DrawerContentProvider>
+        ),
+        preferences: {
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          enableSkillsInAssistant,
+        },
+      });
+
+      // Explain plan and analyze output prompts wait for user confirmation
+      // before sending, so we use one that sends right away.
+      result.current.interpretConnectionError?.({
+        connectionInfo: {
+          id: 'connection',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+        },
+        error: new Error('connection failed'),
+      });
+
+      await waitFor(() => {
+        expect(fetchStub).to.have.been.called;
+      });
+      const body = fetchStub.lastCall.args[1]?.body as string;
+      return (JSON.parse(body) as { model: string }).model;
+    }
+
+    it('uses the agent model when enableSkillsInAssistant is enabled', async function () {
+      expect(await sendMessageAndGetRequestedModel(true)).to.eq(
+        AI_MODEL_AGENT_VERSION
+      );
+    });
+
+    it('uses the chat model when enableSkillsInAssistant is disabled', async function () {
+      expect(await sendMessageAndGetRequestedModel(false)).to.eq(
+        AI_MODEL_CHAT_VERSION
+      );
+    });
   });
 });

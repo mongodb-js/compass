@@ -79,11 +79,14 @@ function NavigationTree({
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const onExpandedChange = useCallback(({ id }: { id: string }, isExpanded) => {
-    setExpanded((expanded) =>
-      isExpanded ? expanded.concat(id) : expanded.filter((_id) => _id !== id)
-    );
-  }, []);
+  const onExpandedChange = useCallback(
+    ({ id }: { id: string }, isExpanded: boolean) => {
+      setExpanded((expanded) =>
+        isExpanded ? expanded.concat(id) : expanded.filter((_id) => _id !== id)
+      );
+    },
+    []
+  );
 
   const listItems = useMemo(() => {
     return normalizeItems(items, 1, expanded);

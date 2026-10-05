@@ -28,7 +28,9 @@ describe('useCompassWebLoggerAndTelemetry', function () {
     onLog?: LogFunction;
     onTrack?: TrackFunction;
   } = {}) {
-    const Wrapper: React.FunctionComponent = ({ children }) => {
+    const Wrapper: React.FunctionComponent<{
+      children?: React.ReactNode;
+    }> = ({ children }) => {
       const { logger, telemetry } = useCompassWebLoggerAndTelemetry({
         onDebug,
         onLog,

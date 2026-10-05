@@ -99,7 +99,7 @@ const darkThemeStyles = css({
 });
 
 type WorkspaceContainerProps = {
-  toolbar?: React.ReactNode | (() => void);
+  toolbar?: React.ReactNode | (() => React.ReactNode);
   toolbarRef?: React.Ref<HTMLDivElement>;
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
   initialTopInView?: boolean;
@@ -116,7 +116,7 @@ function WorkspaceContainer({
   'data-testid': dataTestId,
   ...props
 }: WorkspaceContainerProps &
-  React.HTMLProps<HTMLDivElement> & {
+  Omit<React.HTMLProps<HTMLDivElement>, 'children'> & {
     children:
       | React.ReactNode
       | ((

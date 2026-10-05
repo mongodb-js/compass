@@ -461,12 +461,16 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.queryByTestId(recentConnectionId)).to.be.null;
 
           await connectAndNotifyInstanceManager(savedFavoriteConnection);
-          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          await waitFor(() => {
+            expect(screen.getByTestId(favoriteConnectionId)).to.be.visible;
+          });
           expect(screen.queryByTestId(recentConnectionId)).to.be.null;
 
           await connectAndNotifyInstanceManager(savedRecentConnection);
-          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
-          expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
+          await waitFor(() => {
+            expect(screen.getByTestId(recentConnectionId)).to.be.visible;
+          });
+          expect(screen.getByTestId(favoriteConnectionId)).to.be.visible;
         });
 
         it('should show "No results found." when search matches nothing, and restore the list when cleared', async function () {

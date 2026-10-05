@@ -41,7 +41,7 @@ export type IndexInfo = {
   properties: React.ReactNode;
   status: React.ReactNode;
   actions: undefined | React.ReactNode;
-  renderExpandedContent: React.ReactNode;
+  renderExpandedContent: () => React.ReactElement;
 };
 
 export type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;

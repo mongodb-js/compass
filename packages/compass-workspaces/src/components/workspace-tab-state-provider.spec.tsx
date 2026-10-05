@@ -1,5 +1,6 @@
 import {
   renderHook,
+  waitFor,
   cleanup as cleanupHooks,
 } from '@mongodb-js/testing-library-compass';
 import {
@@ -30,17 +31,19 @@ describe('useTabState', function () {
     expect(tabStateStore.getState()).to.deep.eq({ 'test-tab-id': { test: 1 } });
   });
 
-  it('should update the state when setState is called', function () {
+  it('should update the state when setState is called', async function () {
     const { result } = renderHook(() => useTabState('test', 1), {
       wrapper: TabStoreProvider,
     });
 
     result.current[1](2);
-    expect(result.current[0]).to.eq(2);
+    await waitFor(() => {
+      expect(result.current[0]).to.eq(2);
+    });
     expect(tabStateStore.getState()).to.deep.eq({ 'test-tab-id': { test: 2 } });
   });
 
-  it("should not re-render if value haven't changed", function () {
+  it("should not re-render if value haven't changed", async function () {
     let renderCount = 0;
 
     const { result } = renderHook(
@@ -68,6 +71,8 @@ describe('useTabState', function () {
     result.current[1](obj);
     result.current[1](obj);
 
-    expect(renderCount).to.eq(1);
+    await waitFor(() => {
+      expect(renderCount).to.eq(1);
+    });
   });
 });

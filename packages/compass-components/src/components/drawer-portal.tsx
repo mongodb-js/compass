@@ -259,7 +259,9 @@ export const DrawerContentProvider: React.FunctionComponent<{
   );
 };
 
-const DrawerContextGrabber: React.FunctionComponent = ({ children }) => {
+const DrawerContextGrabber: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const drawerToolbarContext = useDrawerToolbarContext();
   const openStateSetter = useContext(DrawerSetOpenStateContext);
   const currentTabSetter = useContext(DrawerSetCurrentTabContext);
@@ -357,7 +359,9 @@ const drawerTitleGroupStyles = css({
  * DrawerAnchor component will render the drawer in any place it is rendered.
  * This component has to wrap any content that Drawer will be shown near
  */
-export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
+export const DrawerAnchor: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const actions = useContext(DrawerActionsContext);
   const drawerSectionItems = useContext(DrawerStateContext);
   const currentDrawerTab = useContext(DrawerCurrentTabStateContext);
@@ -642,10 +646,9 @@ function querySectionPortal(
  * DrawerSection allows to declaratively render sections inside the drawer
  * independantly from the Drawer itself
  */
-export const DrawerSection: React.FunctionComponent<DrawerSectionProps> = ({
-  children,
-  ...props
-}) => {
+export const DrawerSection: React.FunctionComponent<
+  React.PropsWithChildren<DrawerSectionProps>
+> = ({ children, ...props }) => {
   const [portalNode, setPortalNode] = useState<Element | null>(() => {
     return querySectionPortal(document, props.id);
   });

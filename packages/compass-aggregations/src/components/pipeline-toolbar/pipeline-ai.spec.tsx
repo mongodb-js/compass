@@ -75,12 +75,14 @@ describe('PipelineAI Component', function () {
       store.dispatch(changeAIPromptText('test'));
     });
 
-    it('calls to clear the text when the X is clicked', function () {
+    it('calls to clear the text when the X is clicked', async function () {
       expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
         'test'
       );
 
-      userEvent.click(screen.getByRole('button', { name: 'Clear prompt' }));
+      userEvent.click(
+        await screen.findByRole('button', { name: 'Clear prompt' })
+      );
 
       expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
         ''

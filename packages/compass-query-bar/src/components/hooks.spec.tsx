@@ -2,7 +2,11 @@ import React from 'react';
 import { Provider } from '../stores/context';
 import { configureStore } from '../stores/query-bar-store';
 import { useIsLastAppliedQueryOutdated } from './hooks';
-import { renderHook, cleanup } from '@mongodb-js/testing-library-compass';
+import {
+  renderHook,
+  cleanup,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { applyQuery, changeField } from '../stores/query-bar-reducer';
 
@@ -62,7 +66,7 @@ describe('useIsLastAppliedQueryOutdated', function () {
     expect(hook.result.current).to.eq(false);
   });
 
-  it('should return `true` if query was applied from the different source and changed', function () {
+  it('should return `true` if query was applied from the different source and changed', async function () {
     const { hook, store } = render();
 
     store.dispatch(changeField('filter', '{ foo: 1 }'));
@@ -71,6 +75,8 @@ describe('useIsLastAppliedQueryOutdated', function () {
     store.dispatch(changeField('filter', '{"bar": 1}'));
     store.dispatch(applyQuery('bar'));
 
-    expect(hook.result.current).to.eq(true);
+    await waitFor(() => {
+      expect(hook.result.current).to.eq(true);
+    });
   });
 });

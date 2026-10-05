@@ -64,16 +64,20 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
       });
 
-      expect(screen.getByText('Sampling collections…')).to.be.visible;
-      expect(screen.getByText('2/3')).to.be.visible;
+      await waitFor(() => {
+        expect(screen.getByText('Sampling collections…')).to.be.visible;
+        expect(screen.getByText('2/3')).to.be.visible;
+      });
 
       // Last sample fetched
       store.dispatch({
         type: AnalysisProcessActionTypes.NAMESPACE_SAMPLE_FETCHED,
       });
 
-      expect(screen.getByText('Analyzing collection schemas…')).to.be.visible;
-      expect(screen.getByText('1/3')).to.be.visible;
+      await waitFor(() => {
+        expect(screen.getByText('Analyzing collection schemas…')).to.be.visible;
+        expect(screen.getByText('1/3')).to.be.visible;
+      });
 
       // Finish analyzing
       store.dispatch({
@@ -83,9 +87,11 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
       });
 
+      await waitFor(() => {
+        expect(screen.getByText('Preparing diagram…')).to.be.visible;
+      });
       expect(screen.queryByText('Inferring relationships between collections…'))
         .not.to.exist;
-      expect(screen.getByText('Preparing diagram…')).to.be.visible;
     });
 
     it('With relationship inferring', async () => {
@@ -115,8 +121,10 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_SCHEMA_ANALYZED,
       });
 
-      expect(screen.getByText('Inferring relationships between collections…'))
-        .to.be.visible;
+      await waitFor(() => {
+        expect(screen.getByText('Inferring relationships between collections…'))
+          .to.be.visible;
+      });
       expect(screen.queryByText('0/3')).not.to.exist;
 
       // Infer some relationships
@@ -127,8 +135,10 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
       });
 
-      expect(screen.getByText('Inferring relationships between collections…'))
-        .to.be.visible;
+      await waitFor(() => {
+        expect(screen.getByText('Inferring relationships between collections…'))
+          .to.be.visible;
+      });
       expect(screen.queryByText('2/3')).not.to.exist;
 
       // Finish inferring
@@ -136,7 +146,9 @@ describe('AnalysisProgressStatus', () => {
         type: AnalysisProcessActionTypes.NAMESPACE_RELATIONS_INFERRED,
       });
 
-      expect(screen.getByText('Preparing diagram…')).to.be.visible;
+      await waitFor(() => {
+        expect(screen.getByText('Preparing diagram…')).to.be.visible;
+      });
     });
   });
 });

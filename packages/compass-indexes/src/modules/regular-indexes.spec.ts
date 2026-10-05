@@ -485,9 +485,10 @@ describe('regular-indexes module', function () {
       );
 
       const waitForStatus = async (status: FetchStatus) => {
-        await waitFor(() => {
-          expect(store.getState().regularIndexes.status).to.eq(status);
-        });
+        if (store.getState().regularIndexes.status !== status) {
+          await clock.tickAsync(0);
+        }
+        expect(store.getState().regularIndexes.status).to.eq(status);
       };
 
       clock = sinon.useFakeTimers();

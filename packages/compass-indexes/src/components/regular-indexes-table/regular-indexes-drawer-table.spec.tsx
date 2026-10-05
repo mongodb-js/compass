@@ -4,12 +4,15 @@ import {
   cleanup,
   render,
   screen,
+  userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { RegularIndexesDrawerTable } from './regular-indexes-drawer-table';
+import { renderNameOverride } from './regular-indexes-drawer-table';
+import { InlineDefinition } from '@mongodb-js/compass-components';
 import { setupStore } from '../../../test/setup-store';
 import { mockRegularIndex } from '../../../test/helpers';
 import type {
@@ -18,6 +21,8 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 import type { RootState } from '../../modules';
+
+const NBSP = '\u00A0';
 
 const indexes: RegularIndex[] = [
   {
@@ -187,6 +192,53 @@ describe('RegularIndexesDrawerTable Component', function () {
       const indexRow = screen.getByTestId('indexes-row-_id_');
       expect(within(indexRow).getByText('hashed')).to.exist;
       expect(within(indexRow).queryByTestId('hashed-badge')).to.not.exist;
+    });
+  });
+
+  context('whitespace preservation in drawer names', function () {
+    it('preserves leading spaces in the truncated visible name', function () {
+      const index = mockRegularIndex({ name: '  a_long_index_name' });
+      renderIndexList({ indexes: [index] }, { isWritable: true });
+
+      const nameField = screen.getByTestId('indexes-name-field');
+      expect(nameField.textContent).to.equal(`${NBSP}${NBSP}a_long…`);
+    });
+
+    it('preserves leading spaces in the tooltip definition', function () {
+      const el = renderNameOverride(
+        '  a_long_index_name'
+      ) as React.ReactElement;
+      expect(el.type).to.equal(InlineDefinition);
+      expect(el.props.definition).to.equal(`${NBSP}${NBSP}a_long_index_name`);
+    });
+
+    it('preserves internal repeated spaces in visible name and definition', function () {
+      const el = renderNameOverride('name  with  spaces') as React.ReactElement;
+      expect(el.props.definition).to.equal(
+        `name${NBSP}${NBSP}with${NBSP}${NBSP}spaces`
+      );
+      expect(el.props.children).to.equal(`name${NBSP}${NBSP}wi…`);
+    });
+
+    it('preserves leading spaces for short names', function () {
+      expect(renderNameOverride('  short')).to.equal(`${NBSP}${NBSP}short`);
+    });
+
+    it('preserves spaces in the expanded Index Name detail', function () {
+      const index = mockRegularIndex({ name: '  abcd  ' });
+      renderIndexList({ indexes: [index] }, { isWritable: true });
+
+      const indexRow = screen
+        .getByTestId('indexes-name-field')
+        .closest('tr') as HTMLTableRowElement;
+      userEvent.click(within(indexRow).getByLabelText('Expand row'));
+
+      const detail = screen
+        .getByText((c) => c.startsWith('Index Name'))
+        .closest('div');
+      expect(detail?.textContent).to.equal(
+        `Index Name: ${NBSP}${NBSP}abcd${NBSP}${NBSP}`
+      );
     });
   });
 });

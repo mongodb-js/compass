@@ -48,23 +48,28 @@ export async function seedServer(
   client: MongoClient,
   databases: SeedDatabase[]
 ): Promise<void> {
-  for (const database of databases) {
-    const db = client.db(database.databaseName);
+  await Promise.all(
+    databases.flatMap((database) => {
+      const db = client.db(database.databaseName);
 
-    for (const collection of database.collections) {
-      const coll = db.collection(collection.collectionName);
+      return database.collections.map(async (collection) => {
+        const coll = db.collection(collection.collectionName);
 
-      if (collection.documents.length > 0) {
-        await coll.insertMany(collection.documents);
-      }
-
-      if (collection.indexes) {
-        for (const index of collection.indexes) {
-          await coll.createIndex(index.key, index.options ?? {});
+        if (collection.documents.length > 0) {
+          await coll.insertMany(collection.documents);
         }
-      }
-    }
-  }
+
+        if (collection.indexes?.length) {
+          await coll.createIndexes(
+            collection.indexes.map((index) => ({
+              key: index.key,
+              ...index.options,
+            }))
+          );
+        }
+      });
+    })
+  );
 
   await waitForIndexBuilds(client);
 }

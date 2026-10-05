@@ -12,7 +12,7 @@ import {
   Int32,
   Decimal128,
 } from 'bson';
-import TypeChecker, { getBsonType } from '../src';
+import TypeChecker, { getBsonType, isBsonValue } from '../src';
 
 describe('TypeChecker', function () {
   describe('#cast', function () {
@@ -835,6 +835,20 @@ describe('TypeChecker', function () {
           'LegacyCSharpUUID',
           'LegacyPythonUUID',
         ]);
+      });
+    });
+  });
+
+  describe('isBsonValue', function () {
+    context('when the object is a bson value', function () {
+      it('returns true', function () {
+        expect(isBsonValue(new ObjectId())).to.equal(true);
+      });
+    });
+
+    context('when the object is not a bson value', function () {
+      it('returns false', function () {
+        expect(isBsonValue({})).to.equal(false);
       });
     });
   });
