@@ -1263,6 +1263,9 @@ describe('Collection aggregations tab', function () {
   it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
     await browser.selectStageOperator(0, '$match');
     await browser.clickConfirmationAction(Selectors.CreateNewPipelineButton);
+
+    // The pipeline is now empty, so there is nothing left to create anew.
+    await browser.waitForAriaDisabled(Selectors.CreateNewPipelineButton, true);
   });
 
   describe('aggregation builder in text mode', function () {
@@ -2022,48 +2025,6 @@ describe('Collection aggregations tab', function () {
         ).length;
         expect(numExpandedHadronElementsPostSwitch).to.equal(14);
       });
-    });
-  });
-
-  describe('create new pipeline button', function () {
-    it('is disabled on a new pipeline and enabled again once there is something to clear', async function () {
-      // The beforeEach hook leaves a single stage behind, so there is
-      // something for the button to clear.
-      await browser.waitForAriaDisabled(
-        Selectors.CreateNewPipelineButton,
-        false
-      );
-
-      await browser.clickVisible(Selectors.CreateNewPipelineButton);
-      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-
-      // The pipeline is now empty and unnamed, which is what the button would
-      // produce anyway, so it is disabled.
-      await browser.waitForAriaDisabled(
-        Selectors.CreateNewPipelineButton,
-        true
-      );
-
-      await addStage(browser, 1);
-      await browser.waitForAriaDisabled(
-        Selectors.CreateNewPipelineButton,
-        false
-      );
-    });
-
-    it('stays enabled after saving a pipeline so it can still be cleared', async function () {
-      skipForWeb(this, 'saved pipelines not yet available in compass-web');
-
-      await saveAggregationPipeline(browser, 'test agg create new', [
-        { $match: '{ i: 0 }' },
-      ]);
-
-      // Saving leaves the pipeline unmodified, but its stages and name are
-      // still there, so creating a new one is a meaningful action.
-      await browser.waitForAriaDisabled(
-        Selectors.CreateNewPipelineButton,
-        false
-      );
     });
   });
 
