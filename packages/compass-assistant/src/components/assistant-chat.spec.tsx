@@ -1362,6 +1362,47 @@ describe('AssistantChat', function () {
       });
     });
 
+    it('registers connection IDs for tool calls that arrive in a later chunk', async function () {
+      const streamingMessage: AssistantMessage = {
+        id: 'assistant-streaming',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'Let me check.' }],
+        metadata: {
+          connectionInfo: { id: 'conn-1', name: 'My Connection' },
+        },
+      };
+      const chat = createMockChat({
+        messages: [streamingMessage],
+        status: 'streaming',
+      });
+
+      renderWithChat(chat);
+
+      chat.messages = [
+        {
+          ...chat.messages[0],
+          parts: [
+            ...chat.messages[0].parts,
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-1',
+              toolName: 'list-databases',
+              input: {},
+              state: 'approval-requested',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+        },
+      ];
+
+      await waitFor(() => {
+        expect(setConnectionIdSpy).to.have.been.calledWith({
+          toolCallId: 'tool-call-1',
+          connectionId: 'conn-1',
+        });
+      });
+    });
+
     it('does not re-register tool calls that have already been registered', async function () {
       const messagesWithRegisteredToolCall: AssistantMessage[] = [
         {

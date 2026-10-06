@@ -330,7 +330,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     // navigates around while the assistant is responding.
     // Also register connection IDs for any new tool calls so that the tools
     // controller knows which connection to use when executing them.
-    const newMessages: AssistantMessage[] = chat.messages.map((message) => {
+    const newMessages: AssistantMessage[] = messages.map((message) => {
       const connectionInfo =
         message.metadata?.connectionInfo !== undefined
           ? message.metadata.connectionInfo
@@ -394,7 +394,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     if (hasChanges) {
       setMessages(() => newMessages);
     }
-  }, [activeConnection, chat, setMessages, toolsController]);
+  }, [activeConnection, messages, setMessages, toolsController]);
 
   const prevToolCallingEnabled = useRef(areToolCallsEnabled);
   useEffect(() => {
