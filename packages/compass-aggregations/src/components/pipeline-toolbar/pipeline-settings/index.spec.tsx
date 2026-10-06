@@ -16,8 +16,6 @@ describe('PipelineSettings', function () {
   let container: HTMLElement;
   let onCreateNewPipelineSpy: SinonSpy;
 
-  afterEach(cleanup);
-
   describe('when the pipeline is already a new one', function () {
     beforeEach(async function () {
       onCreateNewPipelineSpy = spy();
