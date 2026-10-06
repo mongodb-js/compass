@@ -5,10 +5,19 @@ import type { ParentPort } from 'electron';
 import { main } from './index.mts';
 
 describe('embedded-shell utility', function () {
-  it('answers on a port handed over by main', async function () {
-    const parentPort = new EventEmitter() as unknown as ParentPort;
-    main(parentPort);
+  let parentPort: ParentPort;
+  let shell: Disposable;
 
+  beforeEach(function () {
+    parentPort = new EventEmitter() as unknown as ParentPort;
+    shell = main(parentPort);
+  });
+
+  afterEach(function () {
+    shell[Symbol.dispose]();
+  });
+
+  it('answers on a port handed over by main', async function () {
     const { port1, port2 } = new MessageChannelMain();
     parentPort.emit('message', { data: undefined, ports: [port2] });
     port1.start();

@@ -1,8 +1,5 @@
 {
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
   "include": ["**/*"],
-  "exclude": ["node_modules", "dist", "build"],
-  "compilerOptions": {
-    "allowImportingTsExtensions": true
-  }
+  "exclude": ["node_modules", "dist", "build"]
 }
