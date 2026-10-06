@@ -13,7 +13,7 @@ import type {
 import type { PreferencesStorage } from './preferences-storage';
 
 export type AtlasPreferencesStorageOptions = {
-  defaults?: Partial<AllPreferences>;
+  overrides?: Partial<AllPreferences>;
 };
 
 export class AtlasPreferencesStorage implements PreferencesStorage {
@@ -23,11 +23,11 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
     'AppPreferences'
   >;
   private preferences: StoredPreferences = getDefaultsForStoredPreferences();
-  private defaults: Partial<AllPreferences>;
+  private overrides: Partial<AllPreferences>;
 
   constructor(
     atlasService: AtlasServiceLike,
-    { defaults = {} }: AtlasPreferencesStorageOptions = {}
+    { overrides = {} }: AtlasPreferencesStorageOptions = {}
   ) {
     this.userData = new AtlasUserData(
       getPreferencesValidator(),
@@ -36,7 +36,7 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
         atlasService,
       }
     );
-    this.defaults = defaults;
+    this.overrides = overrides;
   }
 
   async setup() {
@@ -57,7 +57,7 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
     return {
       ...this.defaultPreferences,
       ...this.preferences,
-      ...this.defaults,
+      ...this.overrides,
     };
   }
 

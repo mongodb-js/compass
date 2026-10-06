@@ -59,13 +59,13 @@ describe('AtlasPreferencesStorage', function () {
     );
   });
 
-  it('applies environment defaults over the schema/stored values so they stay non-configurable', async function () {
+  it('applies environment overrides over the schema/stored values so they stay non-configurable', async function () {
     atlasService.authenticatedFetch.resolves(
       mockResponse({ data: JSON.stringify({ enableImportExport: true }) })
     );
 
     const storage = new AtlasPreferencesStorage(atlasService, {
-      defaults: { enableImportExport: false },
+      overrides: { enableImportExport: false },
     });
     await storage.setup();
 
