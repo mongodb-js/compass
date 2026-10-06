@@ -1,5 +1,6 @@
 'use strict';
 // @ts-check
+const fs = require('fs');
 const path = require('path');
 // @ts-ignore
 const { Target: HadronBuildTarget } = require('hadron-build');
@@ -37,25 +38,42 @@ module.exports = (_env, args) => {
     outputFilename: '[name].js',
   });
 
-  const embeddedShellConfig = createElectronMainConfig({
-    ...opts,
-    entry: {
-      'embedded-shell': path.resolve(
-        __dirname,
-        'src',
-        'utilities',
-        'embedded-shell',
-        'index.mts'
-      ),
-    },
-    outputFilename: '[name].mjs',
-  });
   // `WebpackPluginStartElectron` is a singleton keyed on the webpack target.
-  // This config also targets `electron-main`, so keeping the plugin here would
-  // let it take over from the real main config and race which one launches the
-  // app. Utility processes are forked by main, they never launch the app.
-  embeddedShellConfig.plugins = (embeddedShellConfig.plugins ?? []).filter(
-    (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+  // Utility and preload configs also target Electron, so keeping the plugin on
+  // them would let them take over from the real main config and race which
+  // one launches the app. Only the main config launches it.
+  const withoutStartElectron = (config) => ({
+    ...config,
+    plugins: (config.plugins ?? []).filter(
+      (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+    ),
+  });
+
+  // Every directory in src/utilities is a utility process: its entry is
+  // `<name>/index.mts` and it is built to `<name>.mjs`, which main forks.
+  // Adding a utility means adding a directory, nothing here.
+  const utilitiesDir = path.resolve(__dirname, 'src', 'utilities');
+  const utilityEntries = Object.fromEntries(
+    fs
+      .readdirSync(utilitiesDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map(({ name }) => [name, path.join(utilitiesDir, name, 'index.mts')])
+  );
+
+  const utilitiesConfig = withoutStartElectron(
+    createElectronMainConfig({
+      ...opts,
+      entry: utilityEntries,
+      outputFilename: '[name].mjs',
+    })
+  );
+
+  const preloadConfig = withoutStartElectron(
+    createElectronMainConfig({
+      ...opts,
+      entry: { preload: path.resolve(__dirname, 'src', 'preload', 'index.ts') },
+      outputFilename: '[name].js',
+    })
   );
 
   const rendererConfig = createElectronRendererConfig({
@@ -171,8 +189,8 @@ module.exports = (_env, args) => {
         ...compileOnlyPlugins,
       ],
     }),
-    merge(embeddedShellConfig, {
-      name: 'embedded-shell',
+    merge(utilitiesConfig, {
+      name: 'utilities',
       cache,
       snapshot,
       // Emitted as ESM so the utility can use `import.meta`
@@ -189,9 +207,18 @@ module.exports = (_env, args) => {
       ),
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // The main process forks a single file
-        new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+        // Main forks one file per utility
+        new webpack.optimize.LimitChunkCountPlugin({
+          maxChunks: Object.keys(utilityEntries).length,
+        }),
       ],
+    }),
+    merge(preloadConfig, {
+      name: 'preload',
+      target: 'electron-preload',
+      cache,
+      snapshot,
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
     merge(rendererConfig, {
       cache,

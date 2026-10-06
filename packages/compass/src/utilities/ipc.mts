@@ -1,4 +1,5 @@
-import type { MessagePortMain, ParentPort } from 'electron';
+import type { MessageEvent, MessagePortMain, ParentPort } from 'electron';
+import { listen } from '../listen.ts';
 
 /**
  * Main hands a utility its MessagePorts over `parentPort`, one per renderer
@@ -8,8 +9,8 @@ import type { MessagePortMain, ParentPort } from 'electron';
 export function onPort(
   parentPort: ParentPort,
   handler: (port: MessagePortMain) => void
-): void {
-  parentPort.on('message', ({ ports }) => {
+): Disposable {
+  return listen(parentPort, 'message', ({ ports }: MessageEvent) => {
     for (const port of ports) {
       handler(port);
       port.start();

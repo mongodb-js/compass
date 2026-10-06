@@ -37,6 +37,7 @@ import {
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
 import { handleSquirrelWindowsStartup } from './squirrel-startup';
+import { utilityFileName, utilityPortChannel } from '../utilities/conventions';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
@@ -202,9 +203,29 @@ class CompassApplication {
   }
 
   private static setupUtilityProcesses(): void {
-    utilityProcess.fork(path.join(__dirname, 'embedded-shell.mjs'), [], {
-      serviceName: 'Compass Embedded Shell',
-    });
+    for (const name of ['embedded-shell']) {
+      const child = utilityProcess.fork(
+        path.join(__dirname, utilityFileName(name)),
+        [],
+        {
+          serviceName: `Compass ${name}`,
+          env: {
+            ...process.env,
+            NODE_OPTIONS: [
+              process.env.NODE_OPTIONS,
+              '--disallow-code-generation-from-strings',
+              '--disable-proto=throw',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          },
+        }
+      );
+      // Relay ports a renderer hands over (see src/preload/utility-ports.ts)
+      ipcMain?.on(utilityPortChannel(name), (event, message) => {
+        child.postMessage(message, event.ports);
+      });
+    }
   }
 
   private static setupJavaScriptArguments(): void {
