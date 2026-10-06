@@ -55,9 +55,9 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
 
   getPreferences(): StoredPreferences {
     return {
-      ...this.defaults,
       ...this.defaultPreferences,
       ...this.preferences,
+      ...this.defaults,
     };
   }
 

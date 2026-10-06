@@ -300,7 +300,7 @@ const allFeatureFlagsProps: Required<{
   /** Meta-feature-flag! Whether to show the dev flags of the feature flag settings modal */
   showDevFeatureFlags: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     omitFromHelp: true,
@@ -321,7 +321,7 @@ const allFeatureFlagsProps: Required<{
    */
   enableDebugUseCsfleSchemaMap: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
@@ -667,7 +667,7 @@ export const storedUserPreferencesProps: Required<{
   },
   enableGenAIFeatures: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
@@ -1010,7 +1010,7 @@ export const storedUserPreferencesProps: Required<{
 
   enableGenAISampleDocumentPassing: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
@@ -1024,7 +1024,7 @@ export const storedUserPreferencesProps: Required<{
 
   enableGenAIToolCalling: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
@@ -1221,7 +1221,7 @@ export const storedUserPreferencesProps: Required<{
 
   inferNamespacesFromPrivileges: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {

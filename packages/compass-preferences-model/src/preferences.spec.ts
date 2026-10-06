@@ -288,6 +288,26 @@ describe('Preferences class', function () {
     expect(allAtlas).to.be.true;
   });
 
+  it('hides AI, feature flag and Compass-only settings in Data Explorer', async function () {
+    const atlas = await setupPreferences(tmpdir, {}, 'atlas');
+    const atlasPreferences = atlas.getSettingsUIPreferences();
+
+    for (const name of [
+      'enableGenAIFeatures',
+      'enableGenAISampleDocumentPassing',
+      'enableGenAIToolCalling',
+      'enableAutoEmbeddingPublicPreview',
+      'inferNamespacesFromPrivileges',
+    ]) {
+      expect(atlasPreferences).to.not.have.property(name);
+    }
+
+    const desktop = await setupPreferences(tmpdir, {}, 'desktop');
+    expect(desktop.getSettingsUIPreferences()).to.include({
+      enableGenAIFeatures: true,
+    });
+  });
+
   it('allows hardcoding some options and derive other option values based on that', async function () {
     const preferences = await setupPreferences(tmpdir, {
       cli: {
