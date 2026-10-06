@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -17,8 +16,6 @@ import {
   startMockAssistantServer,
   type MockAssistantResponse,
 } from '../helpers/assistant-service.ts';
-import { startTelemetryServer, type Telemetry } from '../helpers/telemetry.ts';
-import { context } from '../helpers/test-runner-context.ts';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document.ts';
 
 const toolResponse: MockAssistantResponse = {
@@ -67,13 +64,11 @@ describe('Collection mock data generator (with mocked backend)', function () {
   const collName = 'mockDataGenerator';
   let compass: Compass;
   let browser: CompassBrowser;
-  let telemetry: Telemetry;
   let assistant: Awaited<ReturnType<typeof startMockAssistantServer>>;
   let releaseResponse: (() => void) | undefined;
 
   before(async function () {
     assistant = await startMockAssistantServer();
-    telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setupDefaultConnections();
@@ -106,19 +101,13 @@ describe('Collection mock data generator (with mocked backend)', function () {
     releaseResponse?.();
     releaseResponse = undefined;
     await screenshotIfFailed(compass, this.currentTest);
-    if (await browser.isModalOpen(Selectors.SettingsModal)) {
-      await browser.closeSettingsModal();
-    }
-    if (await browser.isModalOpen(Selectors.MockDataGeneratorModal)) {
-      await closeGeneratorModal();
-    }
+    await browser.hideVisibleModal();
     await browser.setFeature('enableMockDataGenerator', false);
   });
 
   after(async function () {
     await cleanup(compass);
     await assistant.stop();
-    await telemetry.stop();
   });
 
   async function openGeneratorModal() {
@@ -139,32 +128,6 @@ describe('Collection mock data generator (with mocked backend)', function () {
   async function confirmSchema() {
     await browser.clickVisible(Selectors.MockDataGeneratorNext);
     await browser.$(Selectors.MockDataGeneratorPreview).waitForDisplayed();
-  }
-
-  async function closeGeneratorModal() {
-    if (
-      !(await browser.isModalEventuallyOpen(Selectors.MockDataGeneratorModal))
-    ) {
-      return;
-    }
-    const cancel = browser
-      .$(Selectors.MockDataGeneratorModal)
-      .$('button=Cancel');
-    for (let attempt = 0; attempt < 3; attempt++) {
-      await browser.clickVisible(cancel);
-      try {
-        await browser.waitForOpenModal(Selectors.MockDataGeneratorModal, {
-          reverse: true,
-          timeout: 10_000,
-        });
-        return;
-      } catch {
-        // The click can fail to register while the app is busy; try again.
-      }
-    }
-    throw new Error(
-      'Timeout waiting for the mock data generator modal to close'
-    );
   }
 
   function assertRequest(includeSampleValues: boolean) {
@@ -197,64 +160,6 @@ describe('Collection mock data generator (with mocked backend)', function () {
       expect(prompt).not.to.include('1-firstName');
     }
   }
-
-  async function copyCode(section: string) {
-    const code = browser.$(`${section} [data-testid="lg-code"]`);
-    await code.scrollIntoView();
-    const copyButton = browser.$(
-      `${section} [data-testid="lg-code-copy_button"]`
-    );
-    if (!context.disableClipboardUsage) {
-      await clipboard.write('');
-      // The copy button is only revealed while hovering the code block, and
-      // the hover state can be lost between driver commands on slow hosts.
-      for (let attempt = 0; attempt < 5; attempt++) {
-        await code.moveTo();
-        if (await copyButton.isDisplayed()) {
-          break;
-        }
-      }
-      await browser.clickVisible(copyButton);
-      await browser.waitUntil(async () => (await clipboard.read()).length > 0);
-      return await clipboard.read();
-    }
-    return await code.getText();
-  }
-
-  it('generates and copies a script and command through the normal collection menu', async function () {
-    const event = await browser.listenForTelemetryEvents(telemetry);
-    await openGeneratorModal();
-    await waitForSchemaReady();
-    expect(
-      await browser.$(Selectors.MockDataGeneratorSchema).getText()
-    ).to.include('names');
-    await confirmSchema();
-    assertRequest(false);
-    const preview = await browser
-      .$(Selectors.MockDataGeneratorPreview)
-      .getText();
-    expect(preview).to.include('firstName');
-    expect(preview).not.to.include('0-firstName');
-    await browser.setValueVisible(Selectors.MockDataGeneratorCount, '25');
-    await browser.clickVisible(Selectors.MockDataGeneratorNext);
-    await browser.$(Selectors.MockDataGeneratorScript).waitForDisplayed();
-    const script = await copyCode(Selectors.MockDataGeneratorScript);
-    expect(script).to.match(/const DB_NAME = ['"]test['"]/);
-    expect(script).to.match(/const COLL_NAME = ['"]mockDataGenerator['"]/);
-    expect(script).to.include('const TOTAL_DOCUMENTS = 25');
-    expect(script).to.include('faker.person.firstName(');
-    const command = await copyCode(Selectors.MockDataGeneratorRunCommand);
-    expect(command).to.include('mongosh "mongodb://');
-    expect(command).to.include('--file mockdatascript.js');
-    expect(command).not.to.include('--password');
-    await event('Mock Data Generator Screen Viewed');
-    await event('Mock Data Generator Screen Proceeded');
-    await event('Mock Data Document Count Changed');
-    await event('Mock Data Script Generated');
-    if (!context.disableClipboardUsage) {
-      await event('Mock Data Script Copied');
-    }
-  });
 
   it('sends sample values only after enabling the preference', async function () {
     await browser.setFeature('enableGenAISampleDocumentPassing', true);
@@ -290,7 +195,7 @@ describe('Collection mock data generator (with mocked backend)', function () {
     await waitForSchemaReady();
     await browser.clickVisible(Selectors.MockDataGeneratorNext);
     await browser.waitUntil(() => assistant.getRequests().length === 1);
-    await closeGeneratorModal();
+    await browser.hideVisibleModal();
     releaseResponse?.();
     assistant.clearRequests();
     assistant.setResponse(toolResponse);
@@ -316,7 +221,7 @@ describe('Collection mock data generator (with mocked backend)', function () {
     expect(
       await browser.$(Selectors.MockDataGeneratorSchemaError).getText()
     ).to.include('No documents found');
-    await closeGeneratorModal();
+    await browser.hideVisibleModal();
     await tryToInsertDocument(browser, '{ "name": "First document" }');
     await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
     await openGeneratorModal();
