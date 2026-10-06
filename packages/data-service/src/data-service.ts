@@ -989,8 +989,13 @@ const maybePickNs = ([ns]: unknown[]) => {
   }
 };
 
-const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {
-  return 'then' in val && typeof val.then === 'function';
+const isPromiseLike = <T>(val: unknown): val is PromiseLike<T> => {
+  return (
+    !!val &&
+    typeof val === 'object' &&
+    'then' in val &&
+    typeof val.then === 'function'
+  );
 };
 
 /**
@@ -998,13 +1003,16 @@ const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {
  * @param error - The error.
  * @returns The error with message translated.
  */
-const translateErrorMessage = (error: any): Error | { message: string } => {
+const translateErrorMessage = (error: unknown): Error | { message: string } => {
   if (typeof error === 'string') {
-    error = { message: error };
-  } else if (!error.message) {
-    error.message = error.err || error.errmsg;
+    return { message: error };
   }
-  return error;
+
+  const e = error as { message?: string; err?: string; errmsg?: string };
+  if (!e?.message) {
+    e.message = e.err || e.errmsg;
+  }
+  return e as Error;
 };
 
 /**
@@ -1029,8 +1037,9 @@ function op<T extends unknown[], K>(
     >
   ) {
     const opName = String(context.name);
+    type Resolved = K extends Promise<infer R> ? R : K;
     return function (this: WithLogContext, ...args: T): K {
-      const handleResult = (result: any) => {
+      const handleResult = <V extends Resolved>(result: V): V => {
         this._logger.info(
           logId,
           `Running ${opName}`,
@@ -1053,10 +1062,10 @@ function op<T extends unknown[], K>(
       };
       try {
         const result = target.call(this, ...args);
-        if (isPromiseLike<K extends Promise<infer R> ? R : never>(result)) {
+        if (isPromiseLike<Resolved>(result)) {
           return result.then(handleResult, handleError) as K;
         } else {
-          return handleResult(result);
+          return handleResult(result as Resolved) as K;
         }
       } catch (error: unknown) {
         return handleError(error);
@@ -3312,13 +3321,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 }
 
-function isTransactionAbortError(err: any) {
+function isTransactionAbortError(err: unknown) {
+  if (!err || typeof err !== 'object') return false;
+
+  if (!('message' in err)) return false;
   if (err.message === 'Cannot use a session that has ended') {
     return true;
   }
+
+  if (!('codeName' in err)) return false;
   if (err.codeName === 'NoSuchTransaction') {
     return true;
   }
+
   return false;
 }
 
