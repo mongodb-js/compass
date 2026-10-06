@@ -64,4 +64,16 @@ describe('CompassWebPreferencesAccess', function () {
 
     expect(updatePreferencesStub).to.not.have.been.called;
   });
+
+  it('propagates the running environment to the sandbox it creates', async function () {
+    const access = new CompassWebPreferencesAccess(undefined, undefined, 'web');
+    const sandboxAccess = await access.createSandbox();
+
+    const settingsFor = async (value: CompassWebPreferencesAccess) =>
+      Object.keys(await value.getSettingsUIPreferences()).sort();
+
+    expect(await settingsFor(sandboxAccess)).to.deep.equal(
+      await settingsFor(access)
+    );
+  });
 });

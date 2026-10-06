@@ -17,6 +17,8 @@ import PrivacySettings, { privacyFields } from './settings/privacy';
 import ThemeSettings, { themeFields } from './settings/theme';
 import FeaturePreviewSettings, {
   useShouldShowFeaturePreviewSettings,
+  previewFeatureFlagFields,
+  developmentFeatureFlagFields,
 } from './settings/feature-preview';
 import Sidebar from './sidebar';
 import type { SettingsTabId } from '../stores/settings';
@@ -123,25 +125,29 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
         name: 'Artificial Intelligence',
         component: GenAISettings,
       },
+      ...(hasFeaturePreviewSettings
+        ? [
+            {
+              tabId: 'preview' as SettingsTabId,
+              name: 'Feature Preview',
+              preferences: [
+                ...previewFeatureFlagFields,
+                ...developmentFeatureFlagFields,
+              ] as (keyof UserConfigurablePreferences)[],
+              component: FeaturePreviewSettings,
+            },
+          ]
+        : []),
     ].filter((setting) => {
       return setting.preferences.some((pref) =>
         Object.hasOwn(userConfigurableSettings, pref)
       );
     });
 
-    if (hasFeaturePreviewSettings) {
-      settings.push({
-        tabId: 'preview',
-        name: 'Feature Preview',
-        preferences: [],
-        component: FeaturePreviewSettings,
-      });
-    }
-
     return settings;
   }, [userConfigurableSettings, hasFeaturePreviewSettings]);
 
-  selectedTab ??= settings[0].tabId;
+  selectedTab ??= settings[0]?.tabId;
   const SettingComponent =
     settings.find((x) => x.tabId === selectedTab)?.component ?? null;
 
