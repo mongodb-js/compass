@@ -52,6 +52,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     readOnly: boolean;
     readWrite: boolean;
     enableShell: boolean;
+    shellFollowsCompassTheme: boolean;
     enableDbAndCollStats: boolean;
     protectConnectionStrings?: boolean;
     forceConnectionOptions?: [key: string, value: string][];
@@ -299,7 +300,7 @@ const allFeatureFlagsProps: Required<{
   /** Meta-feature-flag! Whether to show the dev flags of the feature flag settings modal */
   showDevFeatureFlags: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     omitFromHelp: true,
@@ -320,7 +321,7 @@ const allFeatureFlagsProps: Required<{
    */
   enableDebugUseCsfleSchemaMap: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
@@ -621,6 +622,18 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
+  shellFollowsCompassTheme: {
+    ui: true,
+    exposedInSettingsUI: ['desktop'],
+    cli: true,
+    global: true,
+    description: {
+      short: 'Use Compass Theme in MongoDB Shell',
+      long: 'Make the embedded shell follow the Compass theme instead of always using dark mode.',
+    },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  },
   /**
    * Switch to enable/disable dbStats and collStats calls.
    */
@@ -654,7 +667,7 @@ export const storedUserPreferencesProps: Required<{
   },
   enableGenAIFeatures: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
@@ -997,7 +1010,7 @@ export const storedUserPreferencesProps: Required<{
 
   enableGenAISampleDocumentPassing: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
@@ -1011,7 +1024,7 @@ export const storedUserPreferencesProps: Required<{
 
   enableGenAIToolCalling: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
@@ -1208,7 +1221,7 @@ export const storedUserPreferencesProps: Required<{
 
   inferNamespacesFromPrivileges: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {

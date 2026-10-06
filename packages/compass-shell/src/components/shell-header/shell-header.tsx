@@ -14,7 +14,6 @@ import React from 'react';
 const shellHeaderStyles = css({
   height: spacing[800],
   display: 'flex',
-  color: palette.gray.light1,
 });
 
 const shellHeaderDarkModeStyles = css({
@@ -27,13 +26,11 @@ const shellHeaderLeftStyles = css({
   alignItems: 'center',
 });
 
-const shellHeaderDefaultColor = palette.gray.light1;
-
 const shellHeaderToggleStyles = css({
   background: 'none',
   border: 'none',
   cursor: 'pointer',
-  color: shellHeaderDefaultColor,
+  color: palette.gray.dark1,
   padding: `0px ${spacing[200]}px`,
   height: '100%',
   display: 'flex',
@@ -48,12 +45,19 @@ const shellHeaderToggleStyles = css({
   userSelect: 'none',
   textTransform: 'uppercase',
   '&:hover': {
+    color: palette.black,
+  },
+});
+
+const shellHeaderToggleDarkModeStyles = css({
+  color: palette.gray.light1,
+  '&:hover': {
     color: palette.gray.light3,
   },
 });
 
 const plainShellHeaderStyles = css({
-  color: shellHeaderDefaultColor,
+  color: palette.gray.dark1,
   fontSize: spacing[200] * 1.5,
   fontWeight: 'bold',
   textTransform: 'uppercase',
@@ -67,9 +71,17 @@ const shellHeaderRightStyles = css({
   gap: spacing[200],
 });
 
+const plainShellHeaderDarkModeStyles = css({
+  color: palette.gray.light1,
+});
+
 const operationInProgressStyles = css({
-  color: palette.green.light2,
+  color: palette.green.dark2,
   marginLeft: spacing[200],
+});
+
+const operationInProgressDarkModeStyles = css({
+  color: palette.green.light2,
 });
 
 export interface ShellHeaderProps {
@@ -105,14 +117,22 @@ export const ShellHeader = ({
     >
       <div className={shellHeaderLeftStyles}>
         {renderPlainHeaderText ? (
-          <div className={plainShellHeaderStyles}>
+          <div
+            className={cx(
+              plainShellHeaderStyles,
+              darkMode && plainShellHeaderDarkModeStyles
+            )}
+          >
             <span>&gt;_MONGOSH</span>
           </div>
         ) : (
           <button
             type="button"
             data-testid="shell-expand-button"
-            className={shellHeaderToggleStyles}
+            className={cx(
+              shellHeaderToggleStyles,
+              darkMode && shellHeaderToggleDarkModeStyles
+            )}
             aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
             onClick={onShellToggleClicked}
             aria-pressed={isExpanded}
@@ -122,9 +142,12 @@ export const ShellHeader = ({
             {!isExpanded && isOperationInProgress && (
               <span
                 data-testid="shell-operation-in-progress"
-                className={operationInProgressStyles}
+                className={cx(
+                  operationInProgressStyles,
+                  darkMode && operationInProgressDarkModeStyles
+                )}
               >
-                <SpinLoader darkMode={true} />
+                <SpinLoader darkMode={darkMode} />
                 &nbsp;Command in progress&hellip;
               </span>
             )}
