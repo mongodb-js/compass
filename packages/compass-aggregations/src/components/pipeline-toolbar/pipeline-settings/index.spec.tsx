@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  cleanup,
-  screen,
-  within,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
+import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
