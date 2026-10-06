@@ -2,7 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
-import { app, safeStorage, session } from 'electron';
+import { app, safeStorage, session, utilityProcess } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
@@ -164,6 +164,7 @@ class CompassApplication {
     setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
+    this.setupUtilityProcesses();
     this.setupApplicationMenu();
     this.setupWindowManager();
     this.setupAutoUpdate();
@@ -197,6 +198,12 @@ class CompassApplication {
     );
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
+    });
+  }
+
+  private static setupUtilityProcesses(): void {
+    utilityProcess.fork(path.join(__dirname, 'embedded-shell.mjs'), [], {
+      serviceName: 'Compass Embedded Shell',
     });
   }
 

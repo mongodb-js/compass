@@ -8,6 +8,7 @@ const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
 const {
   createElectronMainConfig,
   createElectronRendererConfig,
+  sharedExternals,
   webpackArgsWithDefaults,
   isServe,
   webpack,
@@ -35,6 +36,27 @@ module.exports = (_env, args) => {
     entry: { main: path.resolve(__dirname, 'src', 'main', 'index.ts') },
     outputFilename: '[name].js',
   });
+
+  const embeddedShellConfig = createElectronMainConfig({
+    ...opts,
+    entry: {
+      'embedded-shell': path.resolve(
+        __dirname,
+        'src',
+        'utilities',
+        'embedded-shell',
+        'index.mts'
+      ),
+    },
+    outputFilename: '[name].mjs',
+  });
+  // `WebpackPluginStartElectron` is a singleton keyed on the webpack target.
+  // This config also targets `electron-main`, so keeping the plugin here would
+  // let it take over from the real main config and race which one launches the
+  // app. Utility processes are forked by main, they never launch the app.
+  embeddedShellConfig.plugins = (embeddedShellConfig.plugins ?? []).filter(
+    (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+  );
 
   const rendererConfig = createElectronRendererConfig({
     ...opts,
@@ -147,6 +169,28 @@ module.exports = (_env, args) => {
           ),
         }),
         ...compileOnlyPlugins,
+      ],
+    }),
+    merge(embeddedShellConfig, {
+      name: 'embedded-shell',
+      cache,
+      snapshot,
+      // Emitted as ESM so the utility can use `import.meta`
+      experiments: { outputModule: true },
+      output: { module: true },
+      // The eval devtool wraps modules in `eval`, where `import.meta` is a
+      // syntax error
+      devtool: 'source-map',
+      module: { parser: { javascript: { importMeta: false } } },
+      // `require` does not exist in ESM output, so CommonJS externals have to
+      // go through `createRequire`
+      externals: Object.fromEntries(
+        sharedExternals.map((name) => [name, `node-commonjs ${name}`])
+      ),
+      plugins: [
+        new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // The main process forks a single file
+        new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
       ],
     }),
     merge(rendererConfig, {
