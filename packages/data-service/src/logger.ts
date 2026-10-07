@@ -1,12 +1,18 @@
-import type { MongoLogWriter } from 'mongodb-log-writer';
-import { mongoLogId } from 'mongodb-log-writer';
+import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
 import _debug from 'debug';
 
 export const debug = _debug('data-service');
 
-export { mongoLogId };
-
-type MongoLogId = ReturnType<typeof mongoLogId>;
+// Re-implemented rather than imported so that renderer-side consumers of this
+// module don't pull mongodb-log-writer (and its Node-only stream/zlib/v8
+// dependencies) into the bundle. Same approach as compass-logging's provider.
+//
+// Disable prettier so that dupedLogId stays on the same line to be ignored by
+// the check-logids script
+// prettier-ignore
+export function mongoLogId(id: number): MongoLogId { // !dupedLogId
+  return { __value: id };
+}
 
 export type DataServiceImplLogger = Pick<
   MongoLogWriter,

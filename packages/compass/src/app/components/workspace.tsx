@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { WorkspaceTab as ShellWorkspace } from '@mongodb-js/compass-shell';
+// import { WorkspaceTab as ShellWorkspace } from '@mongodb-js/compass-shell';
 import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
@@ -40,7 +40,7 @@ import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
-import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
+// import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 
 export default function Workspace({
   appName,
@@ -77,7 +77,7 @@ export default function Workspace({
       value={[
         WelcomeWorkspace,
         MyQueriesWorkspace,
-        ShellWorkspace,
+        // ShellWorkspace,
         PerformanceWorkspace,
         DatabasesWorkspaceTab,
         CollectionsWorkspaceTab,
@@ -112,7 +112,7 @@ export default function Workspace({
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
               <RenameCollectionPlugin></RenameCollectionPlugin>
-              <CompassAssistantDrawerWithConnections appName="Compass" />
+              {/* <CompassAssistantDrawerWithConnections appName="Compass" /> */}
             </>
           )}
         ></WorkspacesPlugin>

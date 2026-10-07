@@ -231,6 +231,7 @@ function showConnectWindow(
       contextIsolation: false,
       enableRemoteModule: true,
       nodeIntegrationInWorker: true,
+      preload: path.join(__dirname, 'preload.js'),
       // For local dev, electron can not load @mongosh/node-runtime-worker-thread
       // worker (file:///) from the filesystem due to same-origin policy. For this
       // reason we disable the webSecurity.
@@ -255,6 +256,10 @@ function showConnectWindow(
 
   debug('creating new main window:', windowOpts);
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
+
+  // TODO(COMPASS-10808): temporary while the renderer runs without a storage
+  // path, so preferences (including `enableDevTools`) do not persist.
+  window.webContents.openDevTools({ mode: 'detach' });
   if (mongodbUrl) {
     registerMongoDbUrlForBrowserWindow(window, mongodbUrl);
   }

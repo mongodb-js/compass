@@ -10,10 +10,7 @@ import {
   ANALYSIS_STATE_INITIAL,
 } from '../constants/analysis-states';
 import { addLayer, generateGeoQuery } from '../modules/geo';
-import {
-  analyzeSchema,
-  calculateSchemaMetadata,
-} from '../modules/schema-analysis';
+import { calculateSchemaMetadata } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
@@ -288,7 +285,6 @@ export const startAnalysis = (): SchemaThunkAction<
       logger,
       fieldStoreService,
       analysisAbortControllerRef,
-      schemaAccessorRef,
       namespace,
       geoLayersRef,
       connectionInfoRef,
@@ -334,41 +330,36 @@ export const startAnalysis = (): SchemaThunkAction<
         analysisStartTime,
       });
 
-      const schemaAccessor = await analyzeSchema(
-        dataService,
-        abortSignal,
-        namespace,
-        samplingOptions,
-        driverOptions,
-        logger
-      );
+      const schema = await dataService.analyzeSchema({
+        ns: namespace,
+        query: samplingOptions,
+        aggregateOptions: driverOptions,
+        signal: abortSignal,
+      });
       if (abortSignal?.aborted) {
         throw new Error(abortSignal?.reason || new Error('Operation aborted'));
       }
 
-      schemaAccessorRef.current = schemaAccessor;
-      let schema: Schema | null = null;
-      if (schemaAccessor) {
-        schema = await schemaAccessor.getInternalSchema();
+      if (schema) {
         schema.fields = schema.fields.filter(
           ({ path }) => !isInternalFieldPath(path[0])
         );
       }
       const analysisTime = Date.now() - analysisStartTime;
 
-      if (schema !== null) {
+      if (schema) {
         fieldStoreService.updateFieldsFromSchema(namespace, schema);
       }
 
       dispatch({
         type: SchemaAnalysisActions.analysisFinished,
-        schema,
+        schema: schema ?? null,
       });
 
       track(
         'Schema Analyzed',
         getSchemaAnalyzedEventPayload({
-          schema,
+          schema: schema ?? null,
           query,
           analysisTime,
         }),

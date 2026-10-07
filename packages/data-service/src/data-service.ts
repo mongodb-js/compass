@@ -118,6 +118,41 @@ import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import type { DatabaseDetails } from './instance-detail-helper';
 
 import { omit } from 'lodash';
+import type { Schema } from '@mongodb-js/mongodb-schema';
+import {
+  analyzeSchema as runAnalyzeSchema,
+  type AnalyzeSchemaArgs,
+} from './cursor/analyze-schema';
+import {
+  exportToFile as runExportToFile,
+  type ExportToFileArgs,
+  type ExportToFileResult,
+} from './cursor/export-to-file';
+import {
+  gatherFields as runGatherFields,
+  type GatherFieldsArgs,
+  type GatherFieldsResult,
+} from './cursor/gather-fields';
+import {
+  analyzeCSVFields as runAnalyzeCSVFields,
+  getImportFileInfo as runGetImportFileInfo,
+  guessFileType as runGuessFileType,
+  importFromFile as runImportFromFile,
+  listCSVFields as runListCSVFields,
+} from './import/import-from-file';
+import type {
+  ImportProgress,
+  AnalyzeCSVFieldsArgs,
+  AnalyzeCSVFieldsResult,
+  GetImportFileInfoArgs,
+  GetImportFileInfoResult,
+  GuessFileTypeArgs,
+  GuessFileTypeResult,
+  ImportFromFileArgs,
+  ImportFromFileResult,
+  ListCSVFieldsArgs,
+  ListCSVFieldsResult,
+} from './import/import-types';
 
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
@@ -184,6 +219,11 @@ export interface DataServiceEventMap {
   connectionInfoSecretsChanged: () => void;
   close: () => void;
   oidcAuthFailed: (error: string) => void;
+  /**
+   * Replaces the `progressCallback` that the in-renderer import took: a
+   * function can't be structured-cloned, so progress comes back as an event.
+   */
+  importProgress: (progress: ImportProgress) => void;
 }
 
 export type UpdatePreviewChange = {
@@ -340,7 +380,9 @@ export interface DataService {
   /**
    * Connect the service
    */
-  connect(options?: ConnectOptions): Promise<void>;
+  connect(
+    options?: ConnectOptions
+  ): Promise<MongoClientConnectionOptions | undefined>;
 
   /**
    * Disconnect the service
@@ -789,6 +831,57 @@ export interface DataService {
   ): Promise<Document[]>;
 
   /**
+   * Runs the cursor-returning sample through mongodb-schema's analyzer and
+   * resolves with the schema — or `undefined` when aborted.
+   */
+  analyzeSchema(args: AnalyzeSchemaArgs): Promise<Schema | undefined>;
+
+  /**
+   * Drains an aggregate/find cursor to a file in the Node/utility process.
+   * Resolves with the count of documents written, or `aborted: true`.
+   */
+  exportToFile(args: ExportToFileArgs): Promise<ExportToFileResult>;
+
+  /**
+   * Runs a find cursor through the schema analyzer and resolves with the
+   * unique schema paths (and documents processed).
+   */
+  gatherFields(args: GatherFieldsArgs): Promise<GatherFieldsResult>;
+
+  /**
+   * Sniffs a file on disk and reports whether it looks like JSON, JSONL or
+   * CSV (and for CSV, which delimiter and line ending). Seeds the import
+   * wizard's initial guess.
+   */
+  /**
+   * Existence and size of a file the user picked for import.
+   */
+  getImportFileInfo(
+    args: GetImportFileInfoArgs
+  ): Promise<GetImportFileInfoResult>;
+
+  guessFileType(args: GuessFileTypeArgs): Promise<GuessFileTypeResult>;
+
+  /**
+   * Reads just the header row of a CSV plus a short preview, for the field
+   * selection table.
+   */
+  listCSVFields(args: ListCSVFieldsArgs): Promise<ListCSVFieldsResult>;
+
+  /**
+   * Scans a whole CSV to detect a BSON type per field. Long-running: reports
+   * via the `importProgress` event and honours `args.signal`.
+   */
+  analyzeCSVFields(args: AnalyzeCSVFieldsArgs): Promise<AnalyzeCSVFieldsResult>;
+
+  /**
+   * Reads `args.filePath` and writes its documents into `args.ns`, owning the
+   * file handles, the parsing and the error log. Long-running: reports via the
+   * `importProgress` event and honours `args.signal`.
+   */
+  importFromFile(args: ImportFromFileArgs): Promise<ImportFromFileResult>;
+
+  /**
    * Fetch shard keys for the collection from the collections config.
    *
    * @param ns - The namespace to try to find shard key for.
@@ -1100,7 +1193,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _lastSeenTopology: TopologyDescription | null = null;
 
   private _isWritable = false;
-  private _id: number;
+  protected _id: number;
 
   private _emitter = new EventEmitter();
 
@@ -1704,15 +1797,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
     signal,
     productName,
     productDocsLink,
-  }: ConnectOptions = {}): Promise<void> {
+  }: ConnectOptions = {}): Promise<MongoClientConnectionOptions | undefined> {
     if (this._metadataClient) {
       debug('already connected');
-      return;
+      return this.getMongoClientConnectionOptions();
     }
 
     if (this._isConnecting) {
       debug('connect method called more than once');
-      return;
+      return this.getMongoClientConnectionOptions();
     }
 
     debug('connecting...');
@@ -1770,6 +1863,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this,
         this._crudClient
       );
+
+      // Surface the (oidc-omitted, clone-safe) client options as the connect
+      // result so proxy hosts like DataServiceRenderer can capture them for
+      // `getMongoClientConnectionOptions()`.
+      return this.getMongoClientConnectionOptions();
     } catch (error) {
       this._logger.info(mongoLogId(1_001_000_359), 'Connecting Failed', {
         connectionId: this._id,
@@ -2651,6 +2749,44 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // secondaryPreferred to avoid using the primary for analyzing documents.
       ...this._getOptionsWithFallbackReadPreference(options, executionOptions),
     });
+  }
+
+  async analyzeSchema(args: AnalyzeSchemaArgs): Promise<Schema | undefined> {
+    return runAnalyzeSchema(this, args);
+  }
+
+  async exportToFile(args: ExportToFileArgs): Promise<ExportToFileResult> {
+    return runExportToFile(this, args);
+  }
+
+  async gatherFields(args: GatherFieldsArgs): Promise<GatherFieldsResult> {
+    return runGatherFields(this, args);
+  }
+
+  async getImportFileInfo(
+    args: GetImportFileInfoArgs
+  ): Promise<GetImportFileInfoResult> {
+    return runGetImportFileInfo(args);
+  }
+
+  async guessFileType(args: GuessFileTypeArgs): Promise<GuessFileTypeResult> {
+    return runGuessFileType(args);
+  }
+
+  async listCSVFields(args: ListCSVFieldsArgs): Promise<ListCSVFieldsResult> {
+    return runListCSVFields(args);
+  }
+
+  async analyzeCSVFields(
+    args: AnalyzeCSVFieldsArgs
+  ): Promise<AnalyzeCSVFieldsResult> {
+    return runAnalyzeCSVFields(args);
+  }
+
+  async importFromFile(
+    args: ImportFromFileArgs
+  ): Promise<ImportFromFileResult> {
+    return runImportFromFile(this, args);
   }
 
   sample(

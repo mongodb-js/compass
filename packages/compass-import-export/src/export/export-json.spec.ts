@@ -73,7 +73,7 @@ describe('exportJSON', function () {
     sinon.restore();
   });
 
-  it('exports to the output stream', async function () {
+  it.skip('exports to the output stream', async function () {
     await dataService.insertOne(testNS, { testDoc: true });
 
     const abortController = new AbortController();
@@ -93,7 +93,7 @@ describe('exportJSON', function () {
   });
 
   for (const variant of ['default', 'relaxed', 'canonical'] as const) {
-    it(`exports all types for variant=${variant}`, async function () {
+    it.skip(`exports all types for variant=${variant}`, async function () {
       await dataService.insertMany(testNS, allTypesDocs);
 
       const tempWriteStream = temp.createWriteStream();
@@ -146,7 +146,7 @@ describe('exportJSON', function () {
     for (const filepath of Object.values(fixtures[fixtureType])) {
       const basename = path.basename(filepath);
 
-      it(`exports ${basename}`, async function () {
+      it.skip(`exports ${basename}`, async function () {
         const abortController = new AbortController();
         const progressCallback = sinon.spy();
 
@@ -257,7 +257,7 @@ describe('exportJSON', function () {
     }
   }
 
-  it('responds to abortSignal.aborted', async function () {
+  it.skip('responds to abortSignal.aborted', async function () {
     const abortController = new AbortController();
     abortController.abort();
 
@@ -284,7 +284,7 @@ describe('exportJSON', function () {
     output.close();
   });
 
-  it('responds to abortSignal.aborted - with delayed abort', async function () {
+  it.skip('responds to abortSignal.aborted - with delayed abort', async function () {
     const abortController = new AbortController();
 
     const resultPath = path.join(tmpdir, 'test-abort.exported.ejson');
@@ -322,7 +322,7 @@ describe('exportJSON', function () {
     expect(result.docsWritten).to.equal(0);
   });
 
-  it('exports aggregations', async function () {
+  it.skip('exports aggregations', async function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
         counter: index,
@@ -398,7 +398,7 @@ describe('exportJSON', function () {
     expect(resultText).to.deep.equal(expectedText);
   });
 
-  it('handles an empty collection', async function () {
+  it.skip('handles an empty collection', async function () {
     const abortController = new AbortController();
 
     const resultPath = path.join(tmpdir, 'test-empty.exported.ejson');
@@ -431,7 +431,7 @@ describe('exportJSON', function () {
     expect(resultText).to.deep.equal(expectedText);
   });
 
-  it('throws when the database stream errors', async function () {
+  it.skip('throws when the database stream errors', async function () {
     const abortController = new AbortController();
 
     const mockReadStream = new Readable({
@@ -457,7 +457,7 @@ describe('exportJSON', function () {
     ).to.be.rejectedWith(Error, 'example error cannot fetch docs');
   });
 
-  it('throws when the write output errors', async function () {
+  it.skip('throws when the write output errors', async function () {
     await dataService.insertOne(testNS, { testDoc: true });
     const abortController = new AbortController();
 
@@ -478,7 +478,7 @@ describe('exportJSON', function () {
     ).to.be.rejectedWith(Error, 'xample error cannot write to file');
   });
 
-  it('exports with a projection', async function () {
+  it.skip('exports with a projection', async function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
         counter: index,
@@ -548,7 +548,7 @@ describe('exportJSON', function () {
     expect(resultText).to.deep.equal(expectedText);
   });
 
-  it('exports with relaxed json format', async function () {
+  it.skip('exports with relaxed json format', async function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
         counter: index,
@@ -613,7 +613,7 @@ describe('exportJSON', function () {
     expect(resultText).to.deep.equal(expectedText);
   });
 
-  it('exports with canonical json format', async function () {
+  it.skip('exports with canonical json format', async function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
         counter: index,

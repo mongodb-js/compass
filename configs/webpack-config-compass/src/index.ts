@@ -123,6 +123,33 @@ const sharedResolveOptions = (
       // Some lg test helpers that are getting bundled due to re-exporting from
       // the actual component packages, never needed in the webpack bundles
       '@lg-tools/test-harnesses': false,
+
+      // Node 24+ and modern Chromium both provide the WHATWG `fetch` natively,
+      // so `node-fetch` is dead weight. Alias it to a shim that re-exports
+      // the global `fetch` / `Headers` / `Request` / `Response`. Deep
+      // imports (node-fetch/src/body.js etc. used by gaxios/oidc-plugin) need
+      // explicit entries because webpack's object-form alias is exact-match.
+      'node-fetch': path.resolve(__dirname, 'shims', 'node-fetch.mjs'),
+      ...Object.fromEntries(
+        [
+          'src/body.js',
+          'src/errors/abort-error.js',
+          'src/errors/base.js',
+          'src/errors/fetch-error.js',
+          'src/headers.js',
+          'src/index.js',
+          'src/request.js',
+          'src/response.js',
+          'src/utils/get-search.js',
+          'src/utils/is-redirect.js',
+          'src/utils/is.js',
+          'src/utils/multipart-parser.js',
+          'src/utils/referrer.js',
+        ].map((p) => [
+          `node-fetch/${p}`,
+          path.resolve(__dirname, 'shims', 'node-fetch.mjs'),
+        ])
+      ),
     },
     modules: [
       // This allows us to find the packages that are not hoisted to the root of
@@ -239,15 +266,16 @@ export function createElectronRendererConfig(
   const config = {
     entry: entries,
     devtool: opts.devtool,
+    experiments: {
+      outputModule: true,
+    },
     output: {
       path: opts.outputPath,
-      filename: opts.outputFilename ?? '[name].[contenthash].renderer.js',
+      filename: opts.outputFilename ?? '[name].[contenthash].renderer.mjs',
       assetModuleFilename: 'assets/[name].[hash][ext]',
-      library: opts.library ?? getLibraryNameFromCwd(opts.cwd),
-      libraryTarget: 'umd',
+      module: true,
       strictModuleErrorHandling: true,
       strictModuleExceptionHandling: true,
-      globalObject: 'globalThis',
     },
     mode: opts.mode,
     target: opts.target,
@@ -290,7 +318,7 @@ export function createElectronRendererConfig(
     opts.mode === 'development'
       ? {
           output: {
-            filename: opts.outputFilename ?? '[name].renderer.js',
+            filename: opts.outputFilename ?? '[name].renderer.mjs',
             assetModuleFilename: 'assets/[name][ext]',
           },
         }

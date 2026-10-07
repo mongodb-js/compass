@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import assert from 'assert';
 import type { Document } from 'bson';
 import {
   Double,
@@ -27,6 +26,7 @@ import type {
   CSVFieldTypeInfo,
 } from './csv-types';
 import { getBsonType } from 'hadron-type-checker';
+import { csvHeaderNameToFieldName } from './csv-header-name';
 
 export function formatCSVValue(
   value: string,
@@ -180,9 +180,7 @@ export function stringifyCSVValue(
   });
 }
 
-export function csvHeaderNameToFieldName(name: string) {
-  return name.replace(/\[\d+\]/g, '[]');
-}
+export { csvHeaderNameToFieldName };
 
 const MIN_INT = -2147483648;
 const MAX_INT = 2147483647;
@@ -338,10 +336,9 @@ export function placeValue(
     // on export, but it is possible to hand-craft a broken file like that.
     // (Also checking getBsonType because `new Int32()` also results in an object,
     // but that's not what we mean.)
-    assert(
-      _.isObject(parent) && !getBsonType(parent) && !Array.isArray(parent),
-      'parent must be an object'
-    );
+    if (!_.isObject(parent) || getBsonType(parent) || Array.isArray(parent)) {
+      throw new Error('parent must be an object');
+    }
 
     if (overwrite || (parent as Document)[lastPart.name] === undefined) {
       (parent as Document)[lastPart.name] = value;
@@ -352,7 +349,9 @@ export function placeValue(
     const parent = ensure([]);
 
     // Same story as for the isObject() assertion above.
-    assert(Array.isArray(parent), 'parent must be an array');
+    if (!Array.isArray(parent)) {
+      throw new Error('parent must be an array');
+    }
 
     if (overwrite || parent[lastPart.index] === undefined) {
       parent[lastPart.index] = value;

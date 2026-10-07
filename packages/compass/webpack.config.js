@@ -4,10 +4,12 @@ const path = require('path');
 // @ts-ignore
 const { Target: HadronBuildTarget } = require('hadron-build');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
+const { FailOnNodeStdlib } = require('./scripts/fail-on-node-stdlib');
 
 const {
   createElectronMainConfig,
   createElectronRendererConfig,
+  sharedExternals,
   webpackArgsWithDefaults,
   isServe,
   webpack,
@@ -36,9 +38,103 @@ module.exports = (_env, args) => {
     outputFilename: '[name].js',
   });
 
+  // The data service utility process entry is emitted as ESM (so that
+  // `import.meta.main` is available to it) in a single file that the main
+  // process forks with `utilityProcess.fork`
+  const dataServiceUtilityBaseConfig = createElectronMainConfig({
+    ...opts,
+    entry: {
+      'data-service': path.resolve(
+        __dirname,
+        'src',
+        'utilities',
+        'data-service',
+        'index.mts'
+      ),
+    },
+    outputFilename: '[name].mjs',
+  });
+  // `createElectronMainConfig` attaches `WebpackPluginStartElectron` in serve
+  // mode. That plugin is a singleton keyed on `compiler.options.target`, and
+  // since this config also targets `electron-main`, attaching it here too
+  // makes it overwrite the real main compiler it already latched onto,
+  // racing which of the two decides the app's launch path. This isn't a
+  // main-process entry that starts the app, so it shouldn't get this plugin.
+  dataServiceUtilityBaseConfig.plugins = (
+    dataServiceUtilityBaseConfig.plugins ?? []
+  ).filter(
+    (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+  );
+  const dataServiceUtilityConfig = merge(dataServiceUtilityBaseConfig, {
+    name: 'data-service',
+    experiments: { outputModule: true },
+    output: { module: true },
+    // The eval-based devtools used in development wrap every module in a
+    // script `eval`, where `import.meta` is a syntax error
+    devtool: 'source-map',
+    // Leave `import.meta` to the runtime instead of webpack rewriting it
+    module: { parser: { javascript: { importMeta: false } } },
+    externals: Object.fromEntries(
+      sharedExternals.map((name) => [name, `node-commonjs ${name}`])
+    ),
+    plugins: [new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })],
+  });
+
+  // Atlas auth (OIDC) utility process — same pattern as data-service but
+  // skeleton-only for now (no BSON/AbortSignal handling, no full API mirror).
+  const atlasServiceUtilityBaseConfig = createElectronMainConfig({
+    ...opts,
+    entry: {
+      'atlas-service': path.resolve(
+        __dirname,
+        'src',
+        'utilities',
+        'atlas-service',
+        'index.mts'
+      ),
+    },
+    outputFilename: '[name].mjs',
+  });
+  atlasServiceUtilityBaseConfig.plugins = (
+    atlasServiceUtilityBaseConfig.plugins ?? []
+  ).filter(
+    (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+  );
+  const atlasServiceUtilityConfig = merge(atlasServiceUtilityBaseConfig, {
+    name: 'atlas-service',
+    experiments: { outputModule: true },
+    output: { module: true },
+    devtool: 'source-map',
+    module: { parser: { javascript: { importMeta: false } } },
+    externals: Object.fromEntries(
+      sharedExternals.map((name) => [name, `node-commonjs ${name}`])
+    ),
+    plugins: [new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })],
+  });
+
   const rendererConfig = createElectronRendererConfig({
     ...opts,
     entry: path.resolve(__dirname, 'src', 'app', 'index.ts'),
+  });
+
+  // Preload script for the main window. Kept as plain `window.postMessage`
+  // listeners rather than `contextBridge` since `contextIsolation` is off
+  // today; `postMessage` crosses the isolated-world boundary regardless, so
+  // this doesn't need to change when that eventually flips.
+  const preloadBaseConfig = createElectronMainConfig({
+    ...opts,
+    entry: { preload: path.resolve(__dirname, 'src', 'preload', 'index.ts') },
+    outputFilename: '[name].js',
+  });
+  // See the comment above `dataServiceUtilityBaseConfig`: this is a second
+  // `electron-main`-targeted config, so it would otherwise steal the
+  // `WebpackPluginStartElectron` singleton from the real main compiler.
+  preloadBaseConfig.plugins = (preloadBaseConfig.plugins ?? []).filter(
+    (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+  );
+  const preloadConfig = merge(preloadBaseConfig, {
+    name: 'preload',
+    target: 'electron-preload',
   });
 
   const externals = {
@@ -152,19 +248,74 @@ module.exports = (_env, args) => {
     merge(rendererConfig, {
       cache,
       snapshot,
+      // `target: 'electron-renderer'` turns on the node/electron externals
+      // presets, which claim every builtin as a CommonJS external before
+      // `resolve.fallback` is ever consulted. Turning them off lets the
+      // fallback below map builtins to empty modules instead.
+      externalsPresets: {
+        node: false,
+        electron: false,
+        electronRenderer: false,
+        electronPreload: false,
+      },
       // Chunk splitting makes sense only for renderer processes where the
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
       resolve: {
+        // The renderer has no `require`, so node builtins must not become
+        // CommonJS externals: with `output.module` webpack bridges those via
+        // `createRequire` from `node:module`, which is itself unresolvable in
+        // a browser and throws before any application code runs. Mapping them
+        // to empty modules keeps the bundle loadable; anything that actually
+        // calls into one still fails, which is what the stdlib report tracks.
+        fallback: Object.fromEntries(
+          require('module').builtinModules.flatMap((name) => [
+            [name, false],
+            [`node:${name}`, false],
+          ])
+        ),
         alias: {
+          // Browser-compatible replacements, same ones compass-web uses.
+          // Exact-match (`$`) so that the `stream` entry does not also claim
+          // `stream/promises`, which has no browser equivalent and stays
+          // mapped to an empty module by the fallback above.
+          stream$: require.resolve('readable-stream'),
+          events$: require.resolve('events/'),
+          // `util/types` must be listed before `util` so that the prefix match
+          // on `util` does not claim it first.
+          'util/types': path.resolve(__dirname, 'polyfills', 'util-types.js'),
+          util$: require.resolve('util/'),
+
           '@mongodb-js/atlas-local': false,
+          // `hadron-ipc`'s default entry pulls in its main-process half, which
+          // imports `electron` as a value. The renderer only ever needs the
+          // renderer half.
+          'hadron-ipc$': require.resolve('hadron-ipc/renderer'),
         },
       },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
+        new FailOnNodeStdlib({
+          reportPath: path.resolve(__dirname, 'node-stdlib-report.txt'),
+        }),
         ...compileOnlyPlugins,
       ],
+    }),
+    merge(dataServiceUtilityConfig, {
+      cache,
+      snapshot,
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
+    }),
+    merge(atlasServiceUtilityConfig, {
+      cache,
+      snapshot,
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
+    }),
+    merge(preloadConfig, {
+      cache,
+      snapshot,
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
   ];
 };

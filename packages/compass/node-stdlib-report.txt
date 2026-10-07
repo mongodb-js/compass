@@ -1,0 +1,123 @@
+Node stdlib imports in renderer bundle
+======================================
+31 unguarded imports of 10 distinct builtins, from 24 modules.
+2 further imports sit inside a try/catch and are reported separately below.
+
+BUILTINS
+  crypto, dns, fs, fs/promises, os, path, stream/promises, tty, url, vm
+
+BY PACKAGE
+    4  vfile
+    3  compass-preferences-model
+    2  @vscode/l10n
+    2  antlr4
+    2  bson-transpilers
+    2  compass-connection-import-export
+    2  compass-import-export
+    2  compass-user-data
+    2  supports-color
+    2  write-file-atomic
+    2  yargs-parser
+    1  atlas-service
+    1  compass
+    1  data-service
+    1  debug
+    1  mongodb-cloud-info
+    1  resolve-mongodb-srv
+
+BY IMPORTING MODULE
+    2  @vscode/l10n/dist/main.js
+    2  compass-preferences-model:yargs-parser/build/lib/index.js
+    2  compass-preferences-model/src/global-config.ts
+    2  compass-user-data:write-file-atomic/lib/index.js
+    2  compass-user-data/src/user-data.ts
+    2  supports-color/index.js
+    2  vfile/lib/index.js
+    1  ./src/app/index.ts
+    1  antlr4/CharStreams.js
+    1  antlr4/FileStream.js
+    1  atlas-service/src/util.ts
+    1  bson-transpilers/codegeneration/javascript/Visitor.js
+    1  bson-transpilers/codegeneration/shell/Visitor.js
+    1  compass-connection-import-export/src/hooks/use-export-connections.ts
+    1  compass-connection-import-export/src/hooks/use-import-connections.ts
+    1  compass-import-export/src/components/export-toast.tsx
+    1  compass-import-export/src/components/import-toast.tsx
+    1  compass-preferences-model/src/parse-record.ts
+    1  data-service/src/cursor/gather-fields.ts
+    1  debug/src/node.js
+    1  mongodb-cloud-info/dist/index.js
+    1  resolve-mongodb-srv/lib/index.js
+    1  vfile/lib/minpath.js
+    1  vfile/lib/minurl.js
+
+IMPORT TREE
+./src/app/index.ts  (31)
+  |- ./src/app/application.tsx  (30)
+  |  |- ./src/app/components/entrypoint.tsx  (19)
+  |  |  |- ./src/app/components/home.tsx  (11)
+  |  |  |  |- ./src/app/components/workspace.tsx  (6)
+  |  |  |  |  |- compass-export-to-language/src/index.ts > compass-export-to-language/src/components/modal.tsx > compass-export-to-language/src/modules/transpiler.ts > bson-transpilers/index.js  (4)
+  |  |  |  |  |  |- antlr4/index.js  (2)
+  |  |  |  |  |  |  |- antlr4/CharStreams.js
+  |  |  |  |  |  |  |  `- external "fs"
+  |  |  |  |  |  |  `- antlr4/FileStream.js
+  |  |  |  |  |  |     `- external "fs"
+  |  |  |  |  |  |- bson-transpilers/codegeneration/javascript/Visitor.js
+  |  |  |  |  |  |  `- external "vm"
+  |  |  |  |  |  `- bson-transpilers/codegeneration/shell/Visitor.js
+  |  |  |  |  |     `- external "vm"
+  |  |  |  |  `- compass-import-export/src/index.ts  (2)
+  |  |  |  |     |- compass-import-export/src/stores/export-store.ts > compass-import-export/src/modules/export.ts > compass-import-export/src/components/export-toast.tsx
+  |  |  |  |     |  `- external "path"
+  |  |  |  |     `- compass-import-export/src/stores/import-store.ts > compass-import-export/src/modules/import.ts > compass-import-export/src/components/import-toast.tsx
+  |  |  |  |        `- external "path"
+  |  |  |  |- ./src/app/utils/telemetry.ts  (3)
+  |  |  |  |  |- mongodb-cloud-info/dist/.esm-wrapper.mjs > mongodb-cloud-info/dist/index.js
+  |  |  |  |  |  `- external "dns"
+  |  |  |  |  |- resolve-mongodb-srv/.esm-wrapper.mjs > resolve-mongodb-srv/lib/index.js
+  |  |  |  |  |  `- external "dns"
+  |  |  |  |  `- data-service/src/index.ts > data-service/src/cursor/gather-fields.ts
+  |  |  |  |     `- external "stream/promises"
+  |  |  |  `- compass-connection-import-export/src/index.ts > compass-connection-import-export/src/context.tsx  (2)
+  |  |  |     |- compass-connection-import-export/src/components/export-modal.tsx > compass-connection-import-export/src/hooks/use-export-connections.ts
+  |  |  |     |  `- external "fs"
+  |  |  |     `- compass-connection-import-export/src/components/import-modal.tsx > compass-connection-import-export/src/hooks/use-import-connections.ts
+  |  |  |        `- external "fs"
+  |  |  |- compass-data-modeling/src/services/data-model-storage-electron.tsx > compass-user-data/src/index.ts > compass-user-data/src/user-data.ts  (4)
+  |  |  |  |- compass-user-data:write-file-atomic/lib/index.js  (2)
+  |  |  |  |  |- external "fs"
+  |  |  |  |  `- external "path"
+  |  |  |  |- external "fs"
+  |  |  |  `- external "path"
+  |  |  |- my-queries-storage/src/electron-exports.ts > my-queries-storage/src/storage-factories.ts > my-queries-storage/src/pipeline-storage-schema.ts > compass-editor/src/index.ts > compass-editor/src/use-json-schema-autocompleter.ts > vscode-json-languageservice/lib/esm/jsonLanguageService.js > vscode-json-languageservice/lib/esm/services/jsonValidation.js > @vscode/l10n/dist/main.js  (2)
+  |  |  |  |- external "fs"
+  |  |  |  `- external "fs/promises"
+  |  |  |- atlas-service/src/renderer.tsx > atlas-service/src/util.ts
+  |  |  |  `- external "crypto"
+  |  |  `- compass-preferences-model/src/provider.ts > compass-preferences-model/src/preferences-schema.tsx > compass-preferences-model/src/parse-record.ts
+  |  |     `- external "url"
+  |  |- compass-components/src/index.ts > compass-components/src/components/leafygreen.tsx > @lg-chat/message/dist/esm/index.js > @lg-chat/lg-markdown/dist/esm/index.js > react-markdown/lib/react-markdown.js > vfile/lib/index.js  (4)
+  |  |  |- vfile/lib/minpath.js
+  |  |  |  `- external "path"
+  |  |  |- vfile/lib/minurl.js
+  |  |  |  `- external "url"
+  |  |  |- external "path"
+  |  |  `- external "url"
+  |  |- compass-preferences-model/src/index.ts > compass-preferences-model/src/global-config.ts  (4)
+  |  |  |- compass-preferences-model:yargs-parser/build/lib/index.js  (2)
+  |  |  |  |- external "fs"
+  |  |  |  `- external "path"
+  |  |  |- external "fs"
+  |  |  `- external "path"
+  |  `- debug/src/index.js > debug/src/node.js  (3)
+  |     |- supports-color/index.js  (2)
+  |     |  |- external "os"
+  |     |  `- external "tty"
+  |     `- external "tty"
+  `- external "dns"
+
+OPTIONAL (inside try/catch -- these degrade gracefully)
+======================================================
+    1  compass-user-data:write-file-atomic/lib/index.js  ->  worker_threads
+    1  mongodb-log-writer/dist/mongo-log-writer.js  ->  v8

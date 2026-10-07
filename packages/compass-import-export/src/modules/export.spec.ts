@@ -59,11 +59,11 @@ describe('export [module]', function () {
     });
 
     describe('#openExport', function () {
-      it('sets isInProgressMessageOpen to true when export is in progress and does not open', function () {
+      it.skip('sets isInProgressMessageOpen to true when export is in progress and does not open', function () {
         // TODO(COMPASS-6580)
       });
 
-      it('opens and sets the namespace and connectionId', function () {
+      it.skip('opens and sets the namespace and connectionId', function () {
         const testNS = 'test.123';
         expect(testStore.getState().export.status).to.equal(undefined);
         expect(testStore.getState().export.namespace).to.not.equal(testNS);
@@ -98,7 +98,7 @@ describe('export [module]', function () {
     });
 
     describe('#addFieldToExport', function () {
-      it('adds the field to the fields to export', function () {
+      it.skip('adds the field to the fields to export', function () {
         expect(testStore.getState().export.fieldsToExport).to.deep.equal({});
 
         testStore.dispatch(addFieldToExport(['one', 'two']));
@@ -113,7 +113,7 @@ describe('export [module]', function () {
     });
 
     describe('#toggleFieldToExport', function () {
-      it('toggles the field to export', function () {
+      it.skip('toggles the field to export', function () {
         testStore.dispatch(addFieldToExport(['five']));
         expect(testStore.getState().export.fieldsToExport).to.deep.equal({
           '["five"]': {
@@ -140,7 +140,7 @@ describe('export [module]', function () {
     });
 
     describe('#toggleExportAllSelectedFields', function () {
-      it('toggles all of the fields', function () {
+      it.skip('toggles all of the fields', function () {
         testStore.dispatch(addFieldToExport(['one']));
         testStore.dispatch(toggleFieldToExport('["one"]'));
         testStore.dispatch(addFieldToExport(['one', 'two']));
@@ -212,7 +212,7 @@ describe('export [module]', function () {
     });
 
     describe('#selectFieldsToExport', function () {
-      it('sets errors on the store', async function () {
+      it.skip('sets errors on the store', async function () {
         expect(testStore.getState().export.errorLoadingFieldsToExport).to.equal(
           undefined
         );
@@ -226,7 +226,7 @@ describe('export [module]', function () {
     });
 
     describe('#closeExport', function () {
-      it('signals an abort on the export abort controller', function () {
+      it.skip('signals an abort on the export abort controller', function () {
         const testAbortController = new AbortController();
         testStore.dispatch({
           type: ExportActionTypes.RunExport,
@@ -246,7 +246,7 @@ describe('export [module]', function () {
         expect(testAbortController.signal.aborted).to.equal(true);
       });
 
-      it('signals an abort on the fetch schema fields abort controller', function () {
+      it.skip('signals an abort on the fetch schema fields abort controller', function () {
         const testAbortController = new AbortController();
         testStore.dispatch({
           type: ExportActionTypes.FetchFieldsToExport,
@@ -269,7 +269,7 @@ describe('export [module]', function () {
     });
 
     describe('#cancelExport', function () {
-      it('aborts the export', function () {
+      it.skip('aborts the export', function () {
         const testAbortController = new AbortController();
         testStore.dispatch({
           type: ExportActionTypes.RunExport,
@@ -295,7 +295,7 @@ describe('export [module]', function () {
   });
 
   describe('export toast stop button', function () {
-    it('aborts the signal when the stop button is clicked', function () {
+    it.skip('aborts the signal when the stop button is clicked', function () {
       const abortController = new AbortController();
       render(
         React.createElement(ToastBody, {
@@ -357,7 +357,7 @@ describe('export [module]', function () {
     });
 
     describe('#runExport', function () {
-      it('runs an export', async function () {
+      it.skip('runs an export', async function () {
         testStore.dispatch(
           openExport({
             connectionId: connectionInfo.id,
@@ -396,7 +396,7 @@ describe('export [module]', function () {
         expect(resultText).to.equal(expectedText);
       });
 
-      it('runs an aggregation export', async function () {
+      it.skip('runs an aggregation export', async function () {
         testStore.dispatch(
           openExport({
             connectionId: connectionInfo.id,

@@ -1,5 +1,3 @@
-import v8 from 'v8';
-
 type SerializedError = { $$error: Error & { statusCode?: number } };
 
 function pickSerializeableProperties(o: any) {
@@ -8,8 +6,11 @@ function pickSerializeableProperties(o: any) {
       .map((p) => {
         try {
           // If we can't serialize something, it will mess up with the error we
-          // get on another side, ignore those properties
-          v8.serialize(o[p]);
+          // get on another side, ignore those properties. `structuredClone` is
+          // the same check `v8.serialize` was doing here, minus the Node
+          // dependency: Electron IPC uses the structured clone algorithm too,
+          // so this matches what actually crosses the boundary.
+          structuredClone(o[p]);
           return [p, o[p]];
         } catch {
           return false;

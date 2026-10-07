@@ -1,10 +1,7 @@
 import type { Action, AnyAction, Reducer } from 'redux';
-import fs from 'fs';
 import _ from 'lodash';
-import {
-  createProjectionFromSchemaFields,
-  gatherFieldsFromQuery,
-} from '../export/gather-fields';
+import { createProjectionFromSchemaFields } from 'mongodb-data-service';
+import type { GatherFieldsResult } from 'mongodb-data-service';
 import type { SchemaPath } from '../export/gather-fields';
 import type {
   ExportAggregation,
@@ -310,7 +307,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
       export: { query, namespace, connectionId },
     } = getState();
 
-    let gatherFieldsResult: Awaited<ReturnType<typeof gatherFieldsFromQuery>>;
+    let gatherFieldsResult: GatherFieldsResult;
 
     try {
       if (!connectionId) {
@@ -319,13 +316,11 @@ export const selectFieldsToExport = (): ExportThunkAction<
 
       const dataService = connections.getDataServiceForConnection(connectionId);
 
-      gatherFieldsResult = await gatherFieldsFromQuery({
+      gatherFieldsResult = await dataService.gatherFields({
         ns: namespace,
-        abortSignal: fieldsToExportAbortController.signal,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        dataService: dataService,
         query,
         sampleSize: 50,
+        signal: fieldsToExportAbortController.signal,
       });
     } catch (err: any) {
       log.error(
@@ -376,17 +371,6 @@ export const runExport = ({
     getState,
     { connections, preferences, track, logger: { log, mongoLogId } }
   ) => {
-    let outputWriteStream: fs.WriteStream;
-    try {
-      outputWriteStream = fs.createWriteStream(filePath);
-    } catch (err: any) {
-      dispatch({
-        type: ExportActionTypes.ExportFileError,
-        errorMessage: err?.message || 'Error creating output file.',
-      });
-      return;
-    }
-
     const startTime = Date.now();
 
     const {
@@ -456,20 +440,6 @@ export const runExport = ({
 
     let exportSucceeded = false;
 
-    const progressCallback = _.throttle(function (
-      index: number,
-      csvPhase?: CSVExportPhase
-    ) {
-      showInProgressToast({
-        cancelExport: () => dispatch(cancelExport()),
-        docsWritten: index,
-        filePath,
-        namespace,
-        csvPhase,
-      });
-    },
-    1000);
-
     let exportResult: ExportResult | undefined;
     try {
       if (!connectionId) {
@@ -478,43 +448,14 @@ export const runExport = ({
 
       const dataService = connections.getDataServiceForConnection(connectionId);
 
-      const baseExportOptions = {
+      exportResult = await dataService.exportToFile({
         ns: namespace,
-        abortSignal: exportAbortController.signal,
-        dataService,
-        preferences,
-        progressCallback,
-        output: outputWriteStream,
-      };
-      if (aggregation) {
-        if (fileType === 'csv') {
-          exportResult = await exportCSVFromAggregation({
-            ...baseExportOptions,
-            escapeFormulae,
-            aggregation,
-          });
-        } else {
-          exportResult = await exportJSONFromAggregation({
-            ...baseExportOptions,
-            aggregation,
-            variant: jsonFormatVariant,
-          });
-        }
-      } else {
-        if (fileType === 'csv') {
-          exportResult = await exportCSVFromQuery({
-            ...baseExportOptions,
-            escapeFormulae,
-            query,
-          });
-        } else {
-          exportResult = await exportJSONFromQuery({
-            ...baseExportOptions,
-            query,
-            variant: jsonFormatVariant,
-          });
-        }
-      }
+        outputPath: filePath,
+        format: fileType,
+        jsonVariant: jsonFormatVariant,
+        signal: exportAbortController.signal,
+        ...(aggregation ? { aggregation } : { find: query }),
+      });
 
       log.info(mongoLogId(1_001_000_186), 'Export', 'Finished export', {
         namespace,
@@ -523,7 +464,6 @@ export const runExport = ({
       });
 
       exportSucceeded = true;
-      progressCallback.flush();
     } catch (err: any) {
       log.error(mongoLogId(1_001_000_187), 'Export', 'Export failed', {
         namespace,
@@ -534,8 +474,6 @@ export const runExport = ({
         error: err,
       });
       showFailedToast(err);
-    } finally {
-      outputWriteStream.close();
     }
 
     const aborted = !!(

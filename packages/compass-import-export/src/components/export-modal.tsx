@@ -225,9 +225,17 @@ function ExportModal({
   );
 
   const onClickExport = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-require-imports
-    const electron: typeof import('@electron/remote') = require('@electron/remote');
-    const fileBackend = createElectronFileInputBackend(electron, null)();
+    // TODO(COMPASS-10808): the native save dialog is a main-process API and
+    // `@electron/remote` cannot be reached from the renderer once
+    // `nodeIntegration` is off. Needs a main-process dialog channel.
+    throw new Error(
+      'Choosing an export file path is not available in the renderer yet (COMPASS-10808)'
+    );
+    // eslint-disable-next-line no-unreachable
+    const fileBackend = createElectronFileInputBackend(
+      undefined as never,
+      null
+    )();
 
     fileBackend.onFilesChosen((files: string[]) => {
       if (files.length > 0) {

@@ -2,8 +2,9 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
-import { app, safeStorage, session } from 'electron';
+import { app, safeStorage, session, utilityProcess } from 'electron';
 import { ipcMain } from 'hadron-ipc';
+import { DATA_SERVICE_PORT_CHANNEL } from 'mongodb-data-service';
 import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -19,7 +20,7 @@ import {
   proxyPreferenceToProxyOptions,
   setupPreferencesAndUser,
 } from 'compass-preferences-model';
-import { CompassAuthService } from '@mongodb-js/atlas-service/main';
+// import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
@@ -158,13 +159,14 @@ class CompassApplication {
       return;
     }
 
-    void this.setupCompassAuthService();
+    // void this.setupCompassAuthService();
     await this.setupCloudRequestHeaders();
     await setupCSFLELibrary();
     setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
+    this.launchUtilities();
     this.setupWindowManager();
     this.setupAutoUpdate();
     this.trackApplicationLaunched(globalPreferences);
@@ -209,6 +211,49 @@ class CompassApplication {
       // Force GTK 3 on Linux (Workaround for https://github.com/electron/electron/issues/46538)
       app.commandLine.appendSwitch('gtk-version', '3');
     }
+  }
+
+  private static launchUtilities(): void {
+    // data-service
+    // Electron forces Node's warn mode for its processes by default; restore
+    // the standard strict behavior so an unhandled rejection crashes the
+    // utility process loudly instead of surfacing as a warning.
+    const child = utilityProcess.fork(
+      path.join(__dirname, 'data-service.mjs'),
+      [],
+      {
+        env: {
+          NODE_OPTIONS: [
+            '--disallow-code-generation-from-strings',
+            '--disable-proto=throw',
+            // '--frozen-intrinsics', -- express uses depd which edits prepareStackTrace
+            '--enable-source-maps',
+          ].join(' '),
+        },
+      }
+    );
+    ipcMain?.on(DATA_SERVICE_PORT_CHANNEL, (event, message) => {
+      child.postMessage(message, event.ports);
+    });
+
+    // atlas-service (OIDC/Atlas auth) — skeleton utility process.
+    // Same Node hardening flags as data-service. MessageChannel wiring
+    // and OIDC logic move here later.
+    const atlasChild = utilityProcess.fork(
+      path.join(__dirname, 'atlas-service.mjs'),
+      [],
+      {
+        env: {
+          ...process.env,
+          NODE_OPTIONS: [
+            '--disallow-code-generation-from-strings',
+            '--disable-proto=throw',
+            '--enable-source-maps',
+          ].join(' '),
+        },
+      }
+    );
+    void atlasChild;
   }
 
   private static setupAutoUpdate(): void {
@@ -512,7 +557,7 @@ class CompassApplication {
       allowedCloudEndpoints,
       (details, callback) => {
         void (async () => {
-          let headers;
+          const headers: Record<string, string> = Object.create(null);
           try {
             const filteredHeaders = Object.fromEntries(
               Object.entries(details.requestHeaders).filter(([name]) => {
@@ -520,10 +565,12 @@ class CompassApplication {
               })
             );
 
-            headers = await CompassAuthService.handleAuthHeaders({
-              requestHeaders: filteredHeaders,
-              url: details.url,
-            });
+            void filteredHeaders;
+
+            // headers = await CompassAuthService.handleAuthHeaders({
+            //   requestHeaders: filteredHeaders,
+            //   url: details.url,
+            // });
           } catch (err) {
             log.warn(
               mongoLogId(1_001_000_249),

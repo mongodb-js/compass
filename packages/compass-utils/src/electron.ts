@@ -1,20 +1,21 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+type ElectronAppBridge = {
+  getName: () => string;
+  getVersion: () => string;
+  getPath: (name: 'userData') => string;
+};
 
-function getElectronApp() {
-  let app;
-
-  try {
-    app = require('@electron/remote').app;
-  } catch (e1: any) {
-    try {
-      app = require('electron').app;
-    } catch (e2: any) {
-      // eslint-disable-next-line no-console
-      console.log('Could not load @electron/remote', e1.message, e2.message);
+/**
+ * The preload script exposes the handful of Electron `app` accessors the
+ * renderer needs. Previously this reached for `@electron/remote` (falling back
+ * to `electron`) inside a try/catch, which pulled both into the renderer
+ * bundle even though neither resolves once `nodeIntegration` is off.
+ */
+function getElectronApp(): ElectronAppBridge | undefined {
+  return (
+    globalThis as typeof globalThis & {
+      __COMPASS_ELECTRON__?: { app?: ElectronAppBridge };
     }
-  }
-
-  return app;
+  ).__COMPASS_ELECTRON__?.app;
 }
 
 export function getAppName(): string | undefined {
@@ -25,10 +26,10 @@ export function getAppVersion(): string | undefined {
   return getElectronApp()?.getVersion();
 }
 
-export function getStoragePath() {
+export function getStoragePath(): string {
   const basepath = getElectronApp()?.getPath('userData');
   if (!basepath) {
-    throw new Error('The storage path is not defined.');
+    // throw new Error('The storage path is not defined.');
   }
-  return basepath as string;
+  return basepath ?? '';
 }

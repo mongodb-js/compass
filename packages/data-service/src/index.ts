@@ -1,3 +1,6 @@
+// Renderer-safe entry point. Nothing reachable from here may import the
+// MongoDB driver at runtime -- the driver lives in the utility process and is
+// reached over IPC. Driver-side exports live in `./utility` instead.
 import connect from './connect';
 import type {
   ConnectionOptions,
@@ -8,7 +11,7 @@ import type {
   UpdatePreview,
   UpdatePreviewChange,
 } from './data-service';
-import { configuredKMSProviders } from './instance-detail-helper';
+import { configuredKMSProviders } from './kms-providers';
 import { createConnectionAttempt } from './connection-attempt';
 import type { ConnectionAttempt } from './connection-attempt';
 
@@ -33,3 +36,45 @@ export type {
   SearchIndexStatus,
 } from './search-index-detail-helper';
 export type { InstanceDetails } from './instance-detail-helper';
+export type {
+  AnalyzeSchemaArgs,
+} from './cursor/analyze-schema';
+export type {
+  ExportToFileArgs,
+  ExportToFileResult,
+} from './cursor/export-to-file';
+export type {
+  GatherFieldsArgs,
+  GatherFieldsResult,
+  SchemaPath,
+} from './cursor/gather-fields';
+export { createProjectionFromSchemaFields } from './cursor/gather-fields';
+export type {
+  AnalyzeCSVFieldsArgs,
+  AnalyzeCSVFieldsResult,
+  CSVDetectableFieldType,
+  CSVField,
+  CSVParsableFieldType,
+  Delimiter,
+  GetImportFileInfoArgs,
+  GetImportFileInfoResult,
+  GuessFileTypeArgs,
+  GuessFileTypeResult,
+  ImportError,
+  ImportFromFileArgs,
+  ImportFromFileResult,
+  ImportProgress,
+  Linebreak,
+  ListCSVFieldsArgs,
+  ListCSVFieldsResult,
+} from './import/import-types';
+export { DATA_SERVICE_PORT_CHANNEL } from './protocol';
+export type {
+  DataServiceBoot,
+  DataServiceRequest,
+  DataServiceResult,
+  DeviceFlowInvocation,
+  OperationName,
+  RendererBoundMessage,
+  UtilityBoundMessage,
+} from './protocol';

@@ -365,7 +365,8 @@ function viewSubMenu(
     },
   ];
 
-  if (app.preferences.getPreferences().enableDevTools) {
+  // TODO(COMPASS-10808): forced on while preferences cannot persist.
+  if (true || app.preferences.getPreferences().enableDevTools) {
     subMenu.push(separator());
     subMenu.push({
       label: '&Toggle DevTools',
