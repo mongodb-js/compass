@@ -90,16 +90,16 @@ function updateSubmenu(
         },
       }
     : updateManagerState === 'installing updates'
-    ? {
-        label: 'Installing updates…',
-        enabled: false,
-      }
-    : {
-        label: 'Restart to Update',
-        click() {
-          compassApp.emit('menu-request-restart');
-        },
-      };
+      ? {
+          label: 'Installing updates…',
+          enabled: false,
+        }
+      : {
+          label: 'Restart to Update',
+          click() {
+            compassApp.emit('menu-request-restart');
+          },
+        };
 }
 
 function darwinCompassSubMenu(

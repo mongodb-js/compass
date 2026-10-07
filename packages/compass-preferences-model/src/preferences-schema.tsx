@@ -70,11 +70,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
     atlasServiceBackendPreset:
-      | 'atlas-local'
-      | 'atlas-dev'
-      | 'atlas-qa'
-      | 'atlas-staging'
-      | 'atlas';
+      'atlas-local' | 'atlas-dev' | 'atlas-qa' | 'atlas-staging' | 'atlas';
     optInGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
@@ -180,16 +176,16 @@ type PostProcessFunction<T> = (
 type PreferenceType<T> = T extends string
   ? 'string'
   : T extends boolean
-  ? 'boolean'
-  : T extends number
-  ? 'number'
-  : T extends unknown[]
-  ? 'array'
-  : T extends Date
-  ? 'date'
-  : T extends object
-  ? 'object'
-  : never;
+    ? 'boolean'
+    : T extends number
+      ? 'number'
+      : T extends unknown[]
+        ? 'array'
+        : T extends Date
+          ? 'date'
+          : T extends object
+            ? 'object'
+            : never;
 
 /* Identifies a source from which the preference was set */
 export type PreferenceState =
@@ -215,8 +211,7 @@ type SecretsConfiguration<T> = {
 };
 
 export type OmitFromHelp =
-  | boolean
-  | ((preferences: Partial<AllPreferences>) => boolean);
+  boolean | ((preferences: Partial<AllPreferences>) => boolean);
 
 export type CompassRunningEnvironment = 'desktop' | 'web' | 'atlas';
 export type PreferenceDefinition<K extends keyof AllPreferences> = {
@@ -230,14 +225,14 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
   cli: K extends keyof Omit<InternalUserPreferences, 'showedNetworkOptIn'>
     ? false
     : K extends keyof CliOnlyPreferences
-    ? true
-    : boolean;
+      ? true
+      : boolean;
   /** Whether the preference can be set in the global config file */
   global: K extends keyof InternalUserPreferences
     ? false
     : K extends keyof CliOnlyPreferences
-    ? false
-    : boolean;
+      ? false
+      : boolean;
   /** A description used for the --help text and the Settings UI */
   description: K extends keyof InternalUserPreferences
     ? null
@@ -1484,7 +1479,7 @@ function deriveValueDependingOnAtlasSignIn<K extends keyof AllPreferences>(
       state(property) ??
       (value('enableAtlasSignIn')
         ? undefined
-        : state('enableAtlasSignIn') ?? 'derived'),
+        : (state('enableAtlasSignIn') ?? 'derived')),
   });
 }
 
@@ -1498,7 +1493,7 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
       state(property) ??
       (value('networkTraffic')
         ? undefined
-        : state('networkTraffic') ?? 'derived'),
+        : (state('networkTraffic') ?? 'derived')),
   });
 }
 
@@ -1516,11 +1511,13 @@ function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
     state:
       state(property) ??
       (value('protectConnectionStrings')
-        ? state('protectConnectionStrings') ?? 'derived'
+        ? (state('protectConnectionStrings') ?? 'derived')
         : undefined) ??
-      (value('readOnly') ? state('readOnly') ?? 'derived' : undefined) ??
-      (value('enableShell') ? undefined : state('enableShell') ?? 'derived') ??
-      (value('maxTimeMS') ? state('maxTimeMS') ?? 'derived' : undefined),
+      (value('readOnly') ? (state('readOnly') ?? 'derived') : undefined) ??
+      (value('enableShell')
+        ? undefined
+        : (state('enableShell') ?? 'derived')) ??
+      (value('maxTimeMS') ? (state('maxTimeMS') ?? 'derived') : undefined),
   });
 }
 
@@ -1546,7 +1543,7 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
     ),
     state:
       state(property) ??
-      (value('readOnly') ? state('readOnly') ?? 'derived' : undefined),
+      (value('readOnly') ? (state('readOnly') ?? 'derived') : undefined),
   });
 }
 
@@ -1557,7 +1554,9 @@ export function getPreferencesValidator() {
       validator,
     ])
   ) as {
-    [K in keyof typeof storedUserPreferencesProps]: (typeof storedUserPreferencesProps)[K]['validator'];
+    [
+      K in keyof typeof storedUserPreferencesProps
+    ]: (typeof storedUserPreferencesProps)[K]['validator'];
   };
 
   return z.object(preferencesPropsValidator);
@@ -1573,7 +1572,7 @@ export function getDefaultsForStoredPreferences(): StoredPreferences {
 
 export function listEncryptedStoredPreferences(): [
   keyof StoredPreferences,
-  SecretsConfiguration<string>
+  SecretsConfiguration<string>,
 ][] {
   return Object.entries(storedUserPreferencesProps)
     .filter(([, value]) => value.secrets)
@@ -1584,7 +1583,7 @@ export function listEncryptedStoredPreferences(): [
 }
 
 export function getSettingDescription<
-  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
+  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>,
 >(
   name: Name
 ): Pick<PreferenceDefinition<Name>, 'description'> & { type: unknown } {

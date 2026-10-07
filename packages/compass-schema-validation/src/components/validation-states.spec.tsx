@@ -92,9 +92,8 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('does not render other banners', function () {
-      expect(
-        screen.queryByTestId('collection-validation-warning')
-      ).to.not.exist;
+      expect(screen.queryByTestId('collection-validation-warning')).to.not
+        .exist;
     });
   });
 
@@ -209,9 +208,8 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('does not offer to edit the rules', function () {
-      expect(
-        screen.queryByTestId('enable-edit-validation-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('enable-edit-validation-button')).to.not
+        .exist;
     });
   });
 
@@ -233,9 +231,8 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('does not render a warning banner', function () {
-      expect(
-        screen.queryByTestId('collection-validation-warning')
-      ).to.be.not.exist;
+      expect(screen.queryByTestId('collection-validation-warning')).to.be.not
+        .exist;
     });
   });
 
@@ -257,9 +254,8 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('does not render a warning banner', function () {
-      expect(
-        screen.queryByTestId('collection-validation-warning')
-      ).to.be.not.exist;
+      expect(screen.queryByTestId('collection-validation-warning')).to.be.not
+        .exist;
     });
   });
 

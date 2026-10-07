@@ -50,7 +50,7 @@ const fakeDataService = {
         await new Promise((resolve) => setTimeout(resolve, 0));
         yield* [{ prop1: 'abc' }];
       },
-    } as any),
+    }) as any,
 } as any;
 
 const fakeWorkspaces = {

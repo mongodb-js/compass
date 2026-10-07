@@ -16,13 +16,13 @@ export function entriesToNamedEntries(
   return typeof entry === 'string'
     ? { [path.basename(entry).replace(/\.(jsx?|tsx?)$/, '')]: entry }
     : Array.isArray(entry)
-    ? Object.fromEntries(
-        entry.map((entryPath) => [
-          path.basename(entryPath).replace(/\.(jsx?|tsx?)$/, ''),
-          entryPath,
-        ])
-      )
-    : entry;
+      ? Object.fromEntries(
+          entry.map((entryPath) => [
+            path.basename(entryPath).replace(/\.(jsx?|tsx?)$/, ''),
+            entryPath,
+          ])
+        )
+      : entry;
 }
 
 export function entriesToHtml(

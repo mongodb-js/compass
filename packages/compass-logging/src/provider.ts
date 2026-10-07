@@ -59,11 +59,11 @@ export function useLogger(component: string): Logger {
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : F extends { new (...args: [infer A, ...any]): any }
-  ? A
-  : never;
+    ? A
+    : never;
 
 export function withLogger<
-  T extends ((...args: any[]) => any) | { new (...args: any[]): any }
+  T extends ((...args: any[]) => any) | { new (...args: any[]): any },
 >(
   ReactComponent: T,
   component: string

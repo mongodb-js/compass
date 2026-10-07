@@ -34,20 +34,20 @@ export interface UpdateCsfleAction {
   value?: AutoEncryptionOptions[keyof AutoEncryptionOptions];
 }
 export interface AddCsfleProviderAction<
-  T extends KMSProviderType = KMSProviderType
+  T extends KMSProviderType = KMSProviderType,
 > {
   type: 'add-new-csfle-kms-provider';
   name: KMSProviderName<T>;
 }
 export interface RenameCsfleProviderAction<
-  T extends KMSProviderType = KMSProviderType
+  T extends KMSProviderType = KMSProviderType,
 > {
   type: 'rename-csfle-kms-provider';
   name: KMSProviderName<T>;
   newName: KMSProviderName<T>;
 }
 export interface RemoveCsfleProviderAction<
-  T extends KMSProviderType = KMSProviderType
+  T extends KMSProviderType = KMSProviderType,
 > {
   type: 'remove-csfle-kms-provider';
   name: KMSProviderName<T>;
@@ -55,7 +55,7 @@ export interface RemoveCsfleProviderAction<
 
 type KMSProviders = NonNullable<AutoEncryptionOptions['kmsProviders']>;
 export interface UpdateCsfleKmsAction<
-  T extends KMSProviderType = KMSProviderType
+  T extends KMSProviderType = KMSProviderType,
 > {
   type: 'update-csfle-kms-param';
   kmsProviderName: KMSProviderName<T>;
@@ -64,7 +64,7 @@ export interface UpdateCsfleKmsAction<
 }
 
 export interface UpdateCsfleKmsTlsAction<
-  T extends KMSTLSProviderType = KMSTLSProviderType
+  T extends KMSTLSProviderType = KMSTLSProviderType,
 > {
   type: 'update-csfle-kms-tls-param';
   kmsProviderName: KMSTLSProviderName<T>;

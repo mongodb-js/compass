@@ -27,6 +27,6 @@ export const PluginTabTitleComponent = connect((state: DataModelingState) => {
     tabTitle:
       state.step === 'NO_DIAGRAM_SELECTED'
         ? WorkspaceName
-        : state.diagram?.name ?? WorkspaceName,
+        : (state.diagram?.name ?? WorkspaceName),
   };
 })(_TabTitle);

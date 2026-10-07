@@ -10,9 +10,8 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export type Database = MongoDBInstance['databases'] extends Array<infer Db>
-  ? Db
-  : never;
+export type Database =
+  MongoDBInstance['databases'] extends Array<infer Db> ? Db : never;
 
 export type DatabasesState = {
   databases: ReturnType<Database['toJSON']>[];

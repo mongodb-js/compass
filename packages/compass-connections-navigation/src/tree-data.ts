@@ -11,18 +11,10 @@ import type {
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type DatabaseOrCollectionStatus =
-  | 'initial'
-  | 'fetching'
-  | 'refreshing'
-  | 'ready'
-  | 'error';
+  'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
 
 export type NotConnectedConnectionStatus =
-  | 'initial'
-  | 'connecting'
-  | 'disconnected'
-  | 'canceled'
-  | 'failed';
+  'initial' | 'connecting' | 'disconnected' | 'canceled' | 'failed';
 
 export type NotConnectedConnection = {
   name: string;

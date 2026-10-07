@@ -70,7 +70,7 @@ describe('sidebar instance', function () {
         () =>
           ({
             instance: [],
-          } as any as RootState),
+          }) as any as RootState,
         {
           globalAppRegistry,
           connections: connectionsService,

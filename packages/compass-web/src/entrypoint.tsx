@@ -596,7 +596,7 @@ const CompassWebWithPreferences = ({
                               onExtraConnectionDataRequest={() => {
                                 return Promise.resolve([{}, null] as [
                                   Record<string, unknown>,
-                                  null
+                                  null,
                                 ]);
                               }}
                               onAutoconnectInfoRequest={(connectionStore) => {

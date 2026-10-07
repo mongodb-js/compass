@@ -330,11 +330,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         message.metadata?.connectionInfo !== undefined
           ? message.metadata.connectionInfo
           : activeConnection
-          ? {
-              id: activeConnection.id,
-              name: getConnectionTitle(activeConnection),
-            }
-          : null;
+            ? {
+                id: activeConnection.id,
+                name: getConnectionTitle(activeConnection),
+              }
+            : null;
 
       // Collect tool call IDs from this message's parts
       const toolCallIds = message.parts

@@ -129,8 +129,8 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const namespaceType = isTimeSeries
     ? TIME_SERIES
     : sourceName
-    ? VIEW
-    : COLLECTION;
+      ? VIEW
+      : COLLECTION;
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();

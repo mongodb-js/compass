@@ -158,7 +158,7 @@ function validatePreferences(
 
   for (const [key, rawValue] of Object.entries(_obj ?? {}) as [
     keyof AllPreferences,
-    unknown
+    unknown,
   ][]) {
     if (!allPreferencesProps[key]) {
       error(`Unknown option "${key}"`);

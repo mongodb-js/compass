@@ -38,5 +38,4 @@ export type ItemAction<Action extends string> = {
 export type ItemSeparator = { separator: true };
 
 export type MenuAction<Action extends string> =
-  | ItemBase<Action>
-  | ItemSeparator;
+  ItemBase<Action> | ItemSeparator;

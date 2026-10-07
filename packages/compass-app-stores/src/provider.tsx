@@ -43,7 +43,7 @@ export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
     super();
     if (!instanceProps.preferences) {
       instanceProps.preferences = {
-        getPreferences: () => ({} as AllPreferences),
+        getPreferences: () => ({}) as AllPreferences,
         setPreferences: () => Promise.resolve(),
         onPreferenceValueChanged: () => () => {
           /* no-op */

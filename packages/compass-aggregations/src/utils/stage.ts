@@ -70,9 +70,9 @@ export const filterStageOperators = ({
   const namespaceType = isTimeSeries
     ? TIME_SERIES
     : // we identify a view looking for a source namespace (sourceName) in stats
-    sourceName
-    ? VIEW
-    : COLLECTION;
+      sourceName
+      ? VIEW
+      : COLLECTION;
 
   const cacheKey = JSON.stringify({
     serverVersion,

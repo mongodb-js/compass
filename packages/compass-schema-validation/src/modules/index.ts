@@ -89,7 +89,7 @@ export type SchemaValidationExtraArgs = {
 
 export type SchemaValidationThunkAction<
   R,
-  A extends Action = AnyAction
+  A extends Action = AnyAction,
 > = ThunkAction<R, RootState, SchemaValidationExtraArgs, A>;
 
 /**

@@ -20,7 +20,7 @@ describe('UseCaseDroppableArea', function () {
 
   it('should render the drop marker when useDraggable reports isOver=true', function () {
     const sandbox = Sinon.createSandbox();
-    const useDroppableFake = () => ({ isOver: true } as any);
+    const useDroppableFake = () => ({ isOver: true }) as any;
     sandbox.stub(DndKit, 'useDroppable').callsFake(useDroppableFake);
     render(
       <UseCaseDroppableArea index={1}>

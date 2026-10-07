@@ -762,8 +762,7 @@ const handleLoadingError = ({
 };
 
 type FetchNamespaceShardKeyActions =
-  | NamespaceShardingErrorFetchedAction
-  | NamespaceShardKeyFetchedAction;
+  NamespaceShardingErrorFetchedAction | NamespaceShardKeyFetchedAction;
 
 export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
   Promise<void>,

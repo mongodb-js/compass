@@ -26,9 +26,7 @@ type MappedRollingIndex = RollingIndex & {
 };
 
 export type MergedIndex =
-  | MappedRegularIndex
-  | MappedInProgressIndex
-  | MappedRollingIndex;
+  MappedRegularIndex | MappedInProgressIndex | MappedRollingIndex;
 
 export type IndexInfo = {
   id: string;

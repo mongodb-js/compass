@@ -15,7 +15,7 @@ export type ContextMenuState<T extends ContextMenuItem = ContextMenuItem> = {
 };
 
 export type ContextMenuWrapperProps<
-  T extends ContextMenuItem = ContextMenuItem
+  T extends ContextMenuItem = ContextMenuItem,
 > = {
   menu: ContextMenuState<T> & { close: () => void };
 };

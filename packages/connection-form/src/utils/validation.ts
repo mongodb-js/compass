@@ -30,12 +30,7 @@ export type FieldName =
   | 'username';
 
 export type TabId =
-  | 'general'
-  | 'authentication'
-  | 'tls'
-  | 'proxy'
-  | 'csfle'
-  | 'advanced';
+  'general' | 'authentication' | 'tls' | 'proxy' | 'csfle' | 'advanced';
 
 type ConnectionFormErrorWithField = {
   fieldName: FieldName;
@@ -50,8 +45,7 @@ type ConnectionFormErrorWithoutField = {
   message: string;
 };
 export type ConnectionFormError =
-  | ConnectionFormErrorWithField
-  | ConnectionFormErrorWithoutField;
+  ConnectionFormErrorWithField | ConnectionFormErrorWithoutField;
 export interface ConnectionFormWarning {
   message: string;
 }

@@ -24,7 +24,7 @@ const timezoneDaylightSavingsStyles = css({
 });
 
 export type PreferencesDescriptionProps<
-  K extends keyof UserConfigurablePreferences
+  K extends keyof UserConfigurablePreferences,
 > = {
   value: UserConfigurablePreferences[K] | undefined;
 };

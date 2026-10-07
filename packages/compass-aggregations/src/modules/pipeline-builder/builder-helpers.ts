@@ -175,6 +175,6 @@ export function mapPipelineModeToEditorViewType(
   return state.focusMode.isEnabled
     ? 'focus'
     : state.pipelineBuilder.pipelineMode === 'builder-ui'
-    ? 'stage'
-    : 'text';
+      ? 'stage'
+      : 'text';
 }

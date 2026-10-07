@@ -262,8 +262,8 @@ export const StageEditor = ({
           {!stageOperator
             ? 'Stage operator is required'
             : !stageValue
-            ? 'Stage value can not be empty'
-            : syntaxError.message}
+              ? 'Stage value can not be empty'
+              : syntaxError.message}
         </Banner>
       )}
       {serverError && !isServerErrorUpstream && (
@@ -344,8 +344,8 @@ export default connect(
       namespace: state.namespace,
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
-      syntaxError: shouldShowErrors ? stage.syntaxError ?? null : null,
-      serverError: shouldShowErrors ? stage.serverError ?? null : null,
+      syntaxError: shouldShowErrors ? (stage.syntaxError ?? null) : null,
+      serverError: shouldShowErrors ? (stage.serverError ?? null) : null,
       serverErrorStageIdx: getIndexOfFirstStageWithServerError(
         stages,
         ownProps.index

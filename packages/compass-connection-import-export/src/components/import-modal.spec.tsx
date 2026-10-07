@@ -44,7 +44,7 @@ describe('ImportConnectionsModal', function () {
           createFileInputBackend={() =>
             ({
               getPathForFile: () => exampleFile,
-            } as unknown as FileInputBackend)
+            }) as unknown as FileInputBackend
           }
         >
           {children}

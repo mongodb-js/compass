@@ -270,8 +270,8 @@ export function StageToolbar({
         {stage.disabled
           ? DISABLED_TEXT
           : stage.collapsed
-          ? COLLAPSED_TEXT
-          : null}
+            ? COLLAPSED_TEXT
+            : null}
       </div>
       <div className={rightStyles}>
         <IconButton
