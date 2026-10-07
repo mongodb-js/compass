@@ -8,7 +8,7 @@
     "prettier-compass": "./bin/prettier.js"
   },
   "peerDependencies": {
-    "prettier": "^2.7.1"
+    "prettier": "^3.9.9"
   },
   "devDependencies": {
     "@mongodb-js/prettier-config-devtools": "^1.0.1"
