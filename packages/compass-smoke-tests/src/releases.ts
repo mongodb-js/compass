@@ -4,11 +4,7 @@ import { type PackageKind } from './packages';
 type Arch = 'arm64' | 'x64';
 
 type PlatformShortName =
-  | 'darwin-arm64'
-  | 'darwin-x64'
-  | 'windows'
-  | 'linux_deb'
-  | 'linux_rpm';
+  'darwin-arm64' | 'darwin-x64' | 'windows' | 'linux_deb' | 'linux_rpm';
 
 /**
  * Determines a short name (package type) passable to the update server.

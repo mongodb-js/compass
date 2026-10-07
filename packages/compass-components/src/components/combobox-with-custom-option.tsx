@@ -11,7 +11,7 @@ type ComboboxWithCustomOptionProps<T extends boolean, K> = ComboboxProps<T> & {
 
 export const ComboboxWithCustomOption = <
   M extends boolean,
-  K extends { value: string }
+  K extends { value: string },
 >({
   onChange,
   options: userOptions,

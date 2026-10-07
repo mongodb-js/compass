@@ -67,7 +67,7 @@ export type RootState = ReturnType<
 
 export type SettingsThunkAction<
   R,
-  A extends AnyAction = AnyAction
+  A extends AnyAction = AnyAction,
 > = ThunkAction<R, RootState, SettingsThunkExtraArgs, A>;
 
 const onActivated = (

@@ -257,8 +257,7 @@ class Target {
     this.author = _.get(opts, 'author.name', opts.author) as string;
     this.shortcutFolderName = opts.shortcutFolderName as string | undefined;
     this.programFilesFolderName = opts.programFilesFolderName as
-      | string
-      | undefined;
+      string | undefined;
 
     this.slug = this.name;
     this.semver = new semver.SemVer(this.version);

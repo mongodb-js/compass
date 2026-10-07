@@ -142,8 +142,8 @@ describe('CompassWeb', function () {
           typeof input === 'string'
             ? input
             : input instanceof URL
-            ? input.href
-            : input.url;
+              ? input.href
+              : input.url;
         const isPreferencesRequest = url.includes('/preferences');
         return Promise.resolve({
           ok: isPreferencesRequest,

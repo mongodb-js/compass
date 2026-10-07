@@ -126,9 +126,8 @@ describe('CreateNamespacePlugin', function () {
       );
       appRegistry.emit('open-create-database', { connectionId: '1' });
 
-      expect(
-        await screen.findByRole('heading', { name: 'Create Database' })
-      ).to.exist;
+      expect(await screen.findByRole('heading', { name: 'Create Database' })).to
+        .exist;
 
       userEvent.type(
         screen.getByRole('textbox', { name: 'Database Name' }),
@@ -187,13 +186,11 @@ describe('CreateNamespacePlugin', function () {
         { connectionId: '2' }
       );
 
-      expect(
-        await screen.findByRole('heading', { name: 'Create Collection' })
-      ).to.exist;
+      expect(await screen.findByRole('heading', { name: 'Create Collection' }))
+        .to.exist;
 
-      expect(
-        screen.queryByRole('textbox', { name: 'Database Name' })
-      ).to.not.exist;
+      expect(screen.queryByRole('textbox', { name: 'Database Name' })).to.not
+        .exist;
 
       userEvent.type(
         screen.getByRole('textbox', { name: 'Collection Name' }),

@@ -88,7 +88,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
 
   const breadcrumbItems: [
     ...BreadcrumbItem[],
-    Omit<BreadcrumbItem, 'onClick'>
+    Omit<BreadcrumbItem, 'onClick'>,
   ] = useMemo(
     () => [
       { name: 'diagrams', onClick: () => openDataModelingWorkspace() },

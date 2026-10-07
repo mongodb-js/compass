@@ -57,8 +57,7 @@ export const Breadcrumbs = ({
   className,
 }: {
   items:
-    | BreadcrumbItem[]
-    | [...BreadcrumbItem[], Omit<BreadcrumbItem, 'onClick'>];
+    BreadcrumbItem[] | [...BreadcrumbItem[], Omit<BreadcrumbItem, 'onClick'>];
   className?: string;
 }) => {
   const darkMode = useDarkMode();

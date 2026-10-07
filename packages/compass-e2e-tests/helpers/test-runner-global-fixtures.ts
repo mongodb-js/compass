@@ -272,9 +272,8 @@ async function createWebAtlasCloudResources() {
 }
 
 async function waitForClusterToBeReachable(connectionString: string) {
-  const directConnectionString = await makeDirectConnectionString(
-    connectionString
-  );
+  const directConnectionString =
+    await makeDirectConnectionString(connectionString);
   const deadline = Date.now() + 5 * 60_000;
   for (let attempt = 1; ; attempt++) {
     throwIfAborted();

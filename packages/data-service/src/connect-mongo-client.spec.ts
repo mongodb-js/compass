@@ -321,6 +321,17 @@ describe('prepareOIDCOptions', function () {
     ); // decimal IPv4
   });
 
+  it('throws on an empty host when enableUntrustedEndpoints is true', function () {
+    expect(() =>
+      prepareOIDCOptions({
+        connectionOptions: {
+          connectionString: 'mongodb:///',
+          oidc: { enableUntrustedEndpoints: true },
+        },
+      })
+    ).to.throw(Error, 'Unexpected empty host');
+  });
+
   it('does not set ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is not set', function () {
     const options = prepareOIDCOptions({
       connectionOptions: {

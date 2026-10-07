@@ -731,7 +731,7 @@ export function useConnectForm(
     updateConnectionFormField: UpdateConnectionFormField;
     setErrors: (errors: ConnectionFormError[]) => void;
     setEnableEditingConnectionString: (enableEditing: boolean) => void;
-  }
+  },
 ] {
   const derivedFormState = buildStateFromConnectionInfo(initialConnectionInfo);
   const initialFormState: ConnectFormState = {

@@ -1663,16 +1663,16 @@ class CrudStoreImpl
           default_sort: !defaultSortOrder
             ? 'none'
             : /_id/.test(defaultSortOrder)
-            ? '_id'
-            : 'natural',
+              ? '_id'
+              : 'natural',
           has_limit: (query.limit ?? 0) > 0,
           has_collation: !!query.collation,
           changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,
           collection_type: isTimeSeries
             ? 'time-series'
             : isReadonly
-            ? 'readonly'
-            : 'collection',
+              ? 'readonly'
+              : 'collection',
           used_regex: objectContainsRegularExpression(query.filter ?? {}),
           mode: this.modeForTelemetry(),
         },
@@ -2254,7 +2254,7 @@ function resultId() {
 type ErrorOrResult =
   | [
       error: { message: string; code?: number; codeName?: string },
-      result: undefined
+      result: undefined,
     ]
   | [error: undefined | null, result: BSONObject];
 
@@ -2352,8 +2352,8 @@ function insertModeForTelemetry(
   return view === 'list'
     ? 'field-by-field'
     : view === 'shell'
-    ? 'shell'
-    : 'json';
+      ? 'shell'
+      : 'json';
 }
 
 /**
@@ -2417,7 +2417,7 @@ function serializeInsertDocument(
     return '';
   }
   return view === 'shell'
-    ? toJSString(doc.generateObject()) ?? ''
+    ? (toJSString(doc.generateObject()) ?? '')
     : doc.toEJSON();
 }
 
@@ -2439,7 +2439,7 @@ function convertInsertText(
         ? parseShellBSON(text)
         : EJSON.parse(text, { relaxed: false });
     return to === 'shell'
-      ? toJSString(value) ?? text
+      ? (toJSString(value) ?? text)
       : objectToIdiomaticEJSON(value);
   } catch {
     // This shouldn't happen as switching is disabled in

@@ -371,8 +371,8 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             newType === 'vectorSearch' && prevState.indexName === 'default'
               ? 'vector_index'
               : prevState.indexName === 'vector_index'
-              ? 'default'
-              : prevState.indexName,
+                ? 'default'
+                : prevState.indexName,
           indexType: newType as SearchIndexType,
         };
       });

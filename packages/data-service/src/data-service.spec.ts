@@ -103,7 +103,7 @@ describe('DataService', function () {
           id: MongoLogId,
           context: string,
           message: string,
-          attr?: unknown
+          attr?: unknown,
         ];
       }[] = [];
       const logCollector: DataServiceImplLogger = {
@@ -1569,7 +1569,7 @@ describe('DataService', function () {
           () =>
             ({
               command: commandSpy,
-            } as any)
+            }) as any
         );
 
         const session = dataService['_startSession']('CRUD');
@@ -1813,9 +1813,8 @@ describe('DataService', function () {
 
     describe('#isListSearchIndexesSupported', function () {
       it('returns false', async function () {
-        expect(
-          await dataService.isListSearchIndexesSupported(testNamespace)
-        ).to.be.false;
+        expect(await dataService.isListSearchIndexesSupported(testNamespace)).to
+          .be.false;
       });
     });
 
@@ -2603,9 +2602,8 @@ describe('DataService', function () {
             },
           },
         });
-        expect(
-          await dataService.isListSearchIndexesSupported('test.test')
-        ).to.be.true;
+        expect(await dataService.isListSearchIndexesSupported('test.test')).to
+          .be.true;
       });
 
       it('resolves to false if listSearchIndexes fails', async function () {
@@ -2616,9 +2614,8 @@ describe('DataService', function () {
             },
           },
         });
-        expect(
-          await dataService.isListSearchIndexesSupported('test.test')
-        ).to.be.false;
+        expect(await dataService.isListSearchIndexesSupported('test.test')).to
+          .be.false;
       });
     });
 
@@ -2680,9 +2677,8 @@ describe('DataService', function () {
     describe('#dropSearchIndex', function () {
       it('drops a search index', async function () {
         const dataService: any = createDataServiceWithMockedClient({});
-        expect(
-          await dataService.dropSearchIndex('test.test', 'my-index')
-        ).to.be.undefined;
+        expect(await dataService.dropSearchIndex('test.test', 'my-index')).to.be
+          .undefined;
       });
     });
 

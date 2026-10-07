@@ -191,14 +191,12 @@ async function getDiagramNodes(
 
       return (node as Element & { _diagram: DiagramInstance })._diagram
         .getNodes()
-        .map(
-          (node: Node): Node => ({
-            // do not add any non-serializable properties here,
-            // the result of browser.execute must be serializable
-            id: node.id,
-            position: node.position,
-          })
-        );
+        .map((node: Node): Node => ({
+          // do not add any non-serializable properties here,
+          // the result of browser.execute must be serializable
+          id: node.id,
+          position: node.position,
+        }));
     }, Selectors.DataModelEditor);
     return nodes.length === expectedCount;
   });
@@ -218,18 +216,16 @@ async function getDiagramEdges(
       }
       return (node as Element & { _diagram: DiagramInstance })._diagram
         .getEdges()
-        .map(
-          (edge: Edge): Edge => ({
-            // do not add any non-serializable properties here,
-            // the result of browser.execute must be serializable
-            id: edge.id,
-            source: edge.source,
-            target: edge.target,
-            markerStart: edge.markerStart,
-            markerEnd: edge.markerEnd,
-            selected: edge.selected,
-          })
-        );
+        .map((edge: Edge): Edge => ({
+          // do not add any non-serializable properties here,
+          // the result of browser.execute must be serializable
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          markerStart: edge.markerStart,
+          markerEnd: edge.markerEnd,
+          selected: edge.selected,
+        }));
     }, Selectors.DataModelEditor);
     return edges.length === expectedCount;
   });

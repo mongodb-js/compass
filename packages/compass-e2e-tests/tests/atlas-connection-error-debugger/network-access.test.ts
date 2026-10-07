@@ -34,9 +34,8 @@ describe('Atlas connection error debugger: network access', function () {
 
     // The test runner IP is deliberately not added to the access list: a new
     // project starts with an empty one and we need it to stay that way
-    expect(
-      await user.session.getProjectAccessList({ env, projectId })
-    ).to.be.empty;
+    expect(await user.session.getProjectAccessList({ env, projectId })).to.be
+      .empty;
 
     connectionString = await user.session.createAtlasCluster({
       env,

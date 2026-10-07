@@ -473,10 +473,9 @@ export class Compass {
     // coverage
     debug('Writing coverage');
     const coverage: Coverage = await this.browser.execute(async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const mainCoverage = await require('electron').ipcRenderer.invoke(
-        'coverage'
-      );
+      const mainCoverage =
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        await require('electron').ipcRenderer.invoke('coverage');
       return {
         main: JSON.stringify(mainCoverage, null, 4),
         renderer: JSON.stringify((window as any).__coverage__, null, 4),

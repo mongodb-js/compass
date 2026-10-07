@@ -114,9 +114,9 @@ export async function setFeature<K extends keyof UserPreferences>(
     const doesPreferenceExists = name in currentPreferences;
     await browser.waitUntil(
       async () => {
-        const newPreferences = await (isTestingWeb()
-          ? _setFeatureWeb
-          : _setFeatureDesktop)(browser, name, value);
+        const newPreferences = await (
+          isTestingWeb() ? _setFeatureWeb : _setFeatureDesktop
+        )(browser, name, value);
         latestValue = newPreferences[name];
         return doesPreferenceExists ? isEqual(latestValue, value) : true;
       },

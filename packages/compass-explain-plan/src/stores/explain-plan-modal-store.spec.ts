@@ -65,7 +65,7 @@ describe('explain plan modal store', function () {
         namespace: string;
         explainPlan: string;
         operationType: 'query' | 'aggregation';
-      }
+      },
     ]
   >;
 

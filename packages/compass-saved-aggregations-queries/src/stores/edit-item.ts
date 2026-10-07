@@ -45,9 +45,7 @@ type EditItemUpdatedAction = {
 };
 
 export type Actions =
-  | EditItemClickedAction
-  | EditItemCancelledAction
-  | EditItemUpdatedAction;
+  EditItemClickedAction | EditItemCancelledAction | EditItemUpdatedAction;
 
 const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<EditItemClickedAction>(action, ActionTypes.EditItemClicked)) {

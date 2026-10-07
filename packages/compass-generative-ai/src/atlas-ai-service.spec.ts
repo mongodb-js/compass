@@ -288,9 +288,8 @@ describe('AtlasAiService', function () {
             );
           global.fetch = fetchStub;
 
-          const result = await atlasAiService.getMockDataSchema(
-            mockSchemaInput
-          );
+          const result =
+            await atlasAiService.getMockDataSchema(mockSchemaInput);
 
           expect(fetchStub).to.have.been.calledOnce;
           expect(result).to.deep.equal(mockToolOutput);

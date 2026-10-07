@@ -35,7 +35,7 @@ const createDataService = () =>
     },
     currentOp() {},
     top() {},
-  } as unknown as DataService);
+  }) as unknown as DataService;
 
 const HOME_PROPS = {
   appName: 'home-testing',

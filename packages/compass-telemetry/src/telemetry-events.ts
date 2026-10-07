@@ -3678,13 +3678,9 @@ type ContextMenuItemClicked = CommonEvent<{
 
 // Types for the Mock Data Generator events
 type MockDataGeneratorScreen =
-  | 'SCHEMA_CONFIRMATION'
-  | 'PREVIEW_AND_DOC_COUNT'
-  | 'SCRIPT_RESULT';
+  'SCHEMA_CONFIRMATION' | 'PREVIEW_AND_DOC_COUNT' | 'SCRIPT_RESULT';
 type MockDataScriptStep =
-  | 'install fakerjs'
-  | 'create js file'
-  | 'mongosh script';
+  'install fakerjs' | 'create js file' | 'mongosh script';
 
 /**
  * This event is fired when the Mock Data Generator CTA button is viewed.

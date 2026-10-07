@@ -69,14 +69,14 @@ export function onActivated(
     reducer,
     {
       runtimeId: preferences.getPreferences().enableShell
-        ? initialProps.runtimeId ??
+        ? (initialProps.runtimeId ??
           createAndStoreRuntime(
             dataService,
             logger,
             track,
             connectionInfo,
             deviceId
-          ).id
+          ).id)
         : null,
       history: null,
     },
