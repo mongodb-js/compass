@@ -1073,6 +1073,29 @@ type DocumentFieldAddedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired the first time the value of an existing field is changed
+ * in the default document view or the table view. It is fired once per field
+ * per round of edits, not once per keystroke, and fields the user has just
+ * added are not counted (those are tracked as `Document Field Added`).
+ *
+ * @category Documents
+ */
+type DocumentFieldEditedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Edited';
+  payload: {
+    /**
+     * The BSON type of the edited field.
+     */
+    type: string;
+
+    /**
+     * The view in which the field was edited.
+     */
+    mode: 'list' | 'table';
+  };
+}>;
+
+/**
  * This event is fired when user removes a field from a document.
  *
  * @category Documents
@@ -1087,6 +1110,61 @@ type DocumentFieldRemovedEvent = ConnectionScopedEvent<{
 
     /**
      * The view in which the field was removed.
+     */
+    mode: 'list' | 'table' | 'insert';
+  };
+}>;
+
+/**
+ * This event is fired the first time the key of an existing field is changed
+ * in the default document view or the table view. Fields the user has just
+ * added are not counted.
+ *
+ * @category Documents
+ */
+type DocumentFieldRenamedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Renamed';
+  payload: {
+    /**
+     * The BSON type of the renamed field.
+     */
+    type: string;
+
+    /**
+     * The view in which the field was renamed.
+     */
+    mode: 'list' | 'table';
+  };
+}>;
+
+/**
+ * This event is fired when a field's BSON type is changed,
+ * either in the default document view, the table view, or the
+ * insert document dialog.
+ *
+ * @category Documents
+ */
+type DocumentFieldTypeChangedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Type Changed';
+  payload: {
+    /**
+     * The BSON type the field was changed from.
+     */
+    from_type: string;
+
+    /**
+     * The BSON type the field was changed to.
+     */
+    to_type: string;
+
+    /**
+     * Whether the field's value could not be converted to the new type, which
+     * leaves the field invalid until the user fixes its value.
+     */
+    value_invalid: boolean;
+
+    /**
+     * The view in which the field type was changed.
      */
     mode: 'list' | 'table' | 'insert';
   };
@@ -4345,7 +4423,10 @@ export type TelemetryEvent =
   | DocumentCopiedEvent
   | DocumentDeletedEvent
   | DocumentFieldAddedEvent
+  | DocumentFieldEditedEvent
   | DocumentFieldRemovedEvent
+  | DocumentFieldRenamedEvent
+  | DocumentFieldTypeChangedEvent
   | DocumentInsertCancelledEvent
   | DocumentInsertFailedEvent
   | DocumentInsertedEvent
