@@ -10,13 +10,13 @@ import { once } from 'events';
 import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,
+  WebPreferences,
 } from 'electron';
 import {
   app as electronApp,
   shell,
   screen as electronScreen,
   BrowserWindow,
-  WebPreferences,
 } from 'electron';
 import { enable } from '@electron/remote/main';
 

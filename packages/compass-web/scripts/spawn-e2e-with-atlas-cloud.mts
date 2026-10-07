@@ -180,7 +180,7 @@ const intervalId = setInterval(() => {
   const currentPatchInfoStr = spawnEvergreenSync([
     'list-patches',
     '--id',
-    patchInfo.patch_id,
+    `${patchInfo.patch_id}`,
     '--json',
   ]).stdout;
   const currentPatchInfo = JSON.parse(currentPatchInfoStr);
