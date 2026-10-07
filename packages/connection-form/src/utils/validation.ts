@@ -4,6 +4,7 @@ import type { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ConnectionStringParsingOptions } from 'mongodb-connection-string-url';
 import { hasAnyCsfleOption } from '../utils/csfle-handler';
+import { supportsReadPreferenceOptions } from './read-preference-handler';
 
 export type FieldName =
   | 'connectionString'
@@ -13,12 +14,14 @@ export type FieldName =
   | 'kerberosPrincipal'
   | 'keyVaultNamespace'
   | 'kmip.endpoint'
+  | 'maxStalenessSeconds'
   | `kmip:${string}.endpoint`
   | 'local.key'
   | `local:${string}.key`
   | 'password'
   | 'schema'
   | 'proxyHostname'
+  | 'readPreferenceTags'
   | 'schemaMap'
   | 'encryptedFieldsMap'
   | 'sshHostname'
@@ -102,7 +105,61 @@ export function validateConnectionOptionsErrors(
     ...(connectionOptions.sshTunnel
       ? validateSSHTunnelErrors(connectionOptions.sshTunnel)
       : validateSocksProxyErrors(connectionString)),
+    ...validateReadPreferenceErrors(connectionString),
   ];
+}
+
+// https://www.mongodb.com/docs/manual/core/read-preference-staleness/
+const MIN_MAX_STALENESS_SECONDS = 90;
+const TAG_SET_PATTERN = /^[^:,]+:[^:,]*(,[^:,]+:[^:,]*)*$/;
+
+function validateReadPreferenceErrors(
+  connectionString: ConnectionString
+): ConnectionFormError[] {
+  const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
+  const mode = searchParams.get('readPreference');
+  const tagSets = searchParams.getAll('readPreferenceTags');
+  const maxStalenessSeconds = searchParams.get('maxStalenessSeconds');
+
+  if (!supportsReadPreferenceOptions(mode)) {
+    return tagSets.length > 0 || maxStalenessSeconds
+      ? [
+          {
+            message:
+              'Read preference tags and max staleness can only be used with a read preference other than primary.',
+          },
+        ]
+      : [];
+  }
+
+  const errors: ConnectionFormError[] = [];
+  tagSets.forEach((tagSet, index) => {
+    if (tagSet !== '' && !TAG_SET_PATTERN.test(tagSet)) {
+      errors.push({
+        fieldTab: 'advanced',
+        fieldName: 'readPreferenceTags',
+        fieldIndex: index,
+        message: 'Tag sets must be in the format key0:value0,key1:value1.',
+      });
+    }
+  });
+
+  if (maxStalenessSeconds) {
+    const value = Number(maxStalenessSeconds);
+    // -1 is the driver's way of explicitly saying "no maximum".
+    if (
+      !Number.isInteger(value) ||
+      (value !== -1 && value < MIN_MAX_STALENESS_SECONDS)
+    ) {
+      errors.push({
+        fieldTab: 'advanced',
+        fieldName: 'maxStalenessSeconds',
+        message: `Max staleness must be at least ${MIN_MAX_STALENESS_SECONDS} seconds.`,
+      });
+    }
+  }
+
+  return errors;
 }
 
 function validateAuthMechanismErrors(

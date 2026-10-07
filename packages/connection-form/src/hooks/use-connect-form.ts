@@ -29,6 +29,8 @@ import type {
   UpdateTlsOptionAction,
 } from '../utils/tls-handler';
 import { handleUpdateTls, handleUpdateTlsOption } from '../utils/tls-handler';
+import type { UpdateReadPreferenceAction } from '../utils/read-preference-handler';
+import { handleUpdateReadPreference } from '../utils/read-preference-handler';
 import type {
   UpdateAuthMechanismAction,
   UpdatePasswordAction,
@@ -180,6 +182,7 @@ type ConnectionFormFieldActions =
       type: 'delete-search-param';
       key: keyof MongoClientOptions;
     }
+  | UpdateReadPreferenceAction
   | {
       type: 'update-auth-mechanism-property';
       key: keyof AuthMechanismProperties & string;
@@ -490,6 +493,13 @@ export function handleConnectionFormFieldUpdate(
     }
     case 'update-tls-option': {
       return handleUpdateTlsOption({
+        action,
+        connectionStringUrl: parsedConnectionStringUrl,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'update-read-preference': {
+      return handleUpdateReadPreference({
         action,
         connectionStringUrl: parsedConnectionStringUrl,
         connectionOptions: currentConnectionOptions,
