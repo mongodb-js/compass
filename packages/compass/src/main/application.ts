@@ -203,6 +203,24 @@ class CompassApplication {
   }
 
   private static setupUtilityProcesses(): void {
+    app.on('child-process-gone', (_event, details) => {
+      if (details.reason === 'clean-exit') {
+        log.info(
+          mongoLogId(1_001_000_443),
+          'Application',
+          'Child process gone',
+          details
+        );
+      } else {
+        log.error(
+          mongoLogId(1_001_000_444),
+          'Application',
+          'Child process crashed',
+          details
+        );
+      }
+    });
+
     for (const name of ['embedded-shell']) {
       const child = utilityProcess.fork(
         path.join(__dirname, utilityFileName(name)),
@@ -221,6 +239,12 @@ class CompassApplication {
           },
         }
       );
+      child.on('message', ({ channel, data }) => {
+        if (channel === 'compass:log') {
+          // @ts-expect-error electron types conflict with Node.js ones
+          process.emit('compass:log', data);
+        }
+      });
       // Relay ports a renderer hands over (see src/preload/utility-ports.ts)
       ipcMain?.on(utilityPortChannel(name), (event, message) => {
         child.postMessage(message, event.ports);
