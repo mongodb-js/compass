@@ -109,7 +109,13 @@ export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
 ) => {
-  const { version, enterprise } = DEFAULT_CONNECTIONS_SERVER_INFO[0];
+  const serverInfo = DEFAULT_CONNECTIONS_SERVER_INFO[0];
+  if (!serverInfo) {
+    throw new Error(
+      `Cannot check serverSatisfies('${semverCondition}'): MongoDB server info is not available`
+    );
+  }
+  const { version, enterprise } = serverInfo;
   return (
     semver.satisfies(version, semverCondition, {
       includePrerelease: true,
