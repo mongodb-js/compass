@@ -43,11 +43,7 @@ export function handleUpdateReadPreference({
   updatedSearchParams.delete('readPreferenceTags');
   updatedSearchParams.delete('maxStalenessSeconds');
 
-  // The driver rejects tag sets and maxStalenessSeconds in combination with
-  // the primary mode.
   if (supportsReadPreferenceOptions(action.mode)) {
-    // A lone empty tag set matches every member, so it is equivalent to not
-    // setting any tags.
     const hasTagSets = action.tagSets.some((tagSet) => tagSet !== '');
     if (hasTagSets) {
       for (const tagSet of action.tagSets) {
