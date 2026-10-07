@@ -362,6 +362,22 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
     });
 
+    it('hides sample values banner when sample document passing is enabled while the modal is open', async () => {
+      const result = await renderModal({
+        enableGenAISampleDocumentPassing: false,
+      });
+
+      expect(screen.getByTestId('sample-values-banner')).to.exist;
+
+      await result.preferences.savePreferences({
+        enableGenAISampleDocumentPassing: true,
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
+      });
+    });
+
     it('dismisses sample values banner when close button is clicked', async () => {
       await renderModal({
         enableGenAISampleDocumentPassing: false,

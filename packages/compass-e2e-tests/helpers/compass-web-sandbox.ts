@@ -61,7 +61,6 @@ export function spawnCompassWebSandbox(signal: AbortSignal) {
     'npm',
     [
       'run',
-      '--unsafe-perm',
       'start',
       '--workspace',
       '@mongodb-js/compass-web',
@@ -103,7 +102,6 @@ export function spawnCompassWebStaticServer(signal: AbortSignal) {
     'npm',
     [
       'run',
-      '--unsafe-perm',
       'watch',
       '--workspace',
       '@mongodb-js/compass-web',

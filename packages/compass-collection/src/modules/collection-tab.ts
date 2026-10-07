@@ -759,7 +759,8 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       });
     } catch (err: any) {
       // Check if the error is due to cancellation
-      if (isCancelError(err) || abortController.signal.aborted) {
+      if (abortController.signal.aborted) return;
+      if (isCancelError(err)) {
         logger.debug('Schema analysis was aborted');
         dispatch({
           type: CollectionActions.SchemaAnalysisCanceled,
@@ -782,14 +783,16 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       });
     } finally {
       // Clean up abort controller
-      schemaAnalysisAbortControllerRef.current = undefined;
+      if (schemaAnalysisAbortControllerRef.current === abortController) {
+        schemaAnalysisAbortControllerRef.current = undefined;
+      }
     }
   };
 };
 
 export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
   return (
-    _dispatch,
+    dispatch,
     _getState,
     { schemaAnalysisAbortControllerRef, logger }
   ) => {
@@ -797,6 +800,7 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
       logger.debug('Canceling schema analysis');
       schemaAnalysisAbortControllerRef.current.abort();
       schemaAnalysisAbortControllerRef.current = undefined;
+      dispatch({ type: CollectionActions.SchemaAnalysisCanceled });
     }
   };
 };
@@ -964,6 +968,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
       const response = await atlasAiService.getMockDataSchema(
         mockDataSchemaRequest
       );
+      if (abortSignal.aborted) return;
 
       // Transform to keyed object structure
       const transformedFakerSchema = transformFakerSchemaToObject(

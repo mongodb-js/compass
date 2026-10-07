@@ -3,8 +3,10 @@ import {
   openToast,
   closeToast,
   ToastBody,
+  showErrorDetails,
 } from '@mongodb-js/compass-components';
 import { MongoNetworkError } from 'mongodb';
+import type { MongoServerError } from 'mongodb';
 
 type BulkDeleteSuccessToastProps = {
   affectedDocuments?: number;
@@ -91,23 +93,33 @@ export function openBulkOperationFailureToast({
     title = `${
       type === 'delete' ? 'Delete' : 'Update'
     } operation - network error occurred.`;
-  } else if (affectedDocuments === undefined) {
+  } else if (affectedDocuments === undefined || type === 'update') {
     title = `The ${type} operation failed.`;
-  } else if (affectedDocuments === 1) {
-    title = `${affectedDocuments} document could not be ${
-      type === 'delete' ? 'deleted' : 'updated'
-    }.`;
   } else {
-    title = `${affectedDocuments} documents could not be ${
-      type === 'delete' ? 'deleted' : 'updated'
-    }.`;
+    title = `${affectedDocuments} document${
+      affectedDocuments === 1 ? '' : 's'
+    } could not be deleted.`;
   }
 
-  openToast(`bulk-${type}-toast`, {
+  const toastId = `bulk-${type}-toast`;
+  const errInfo = (error as MongoServerError).errInfo;
+
+  openToast(toastId, {
     title,
     variant: 'warning',
     dismissible: true,
-    description: <ToastBody statusMessage={error.message} />,
+    description: (
+      <ToastBody
+        statusMessage={error.message}
+        {...(errInfo && {
+          actionText: 'View details',
+          actionHandler: () => {
+            closeToast(toastId);
+            void showErrorDetails({ details: errInfo, closeAction: 'close' });
+          },
+        })}
+      />
+    ),
   });
 }
 

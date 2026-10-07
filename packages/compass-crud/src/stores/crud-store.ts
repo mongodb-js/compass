@@ -2060,6 +2060,7 @@ class CrudStoreImpl
         collation: query.collation ? toJSString(query.collation) : undefined,
         skip: query.skip ? String(query.skip) : undefined,
         limit: query.limit ? String(query.limit) : undefined,
+        maxTimeMS: query.maxTimeMS ? String(query.maxTimeMS) : undefined,
       },
       'Query'
     );
@@ -2264,17 +2265,18 @@ export async function findAndModifyWithFLEFallback(
   object: { $set?: BSONObject; $unset?: BSONObject } | BSONObject | BSONArray,
   modificationType: 'update' | 'replace'
 ): Promise<ErrorOrResult> {
-  const findOneAndModifyMethod =
-    modificationType === 'update' ? 'findOneAndUpdate' : 'findOneAndReplace';
   let error: (Error & { codeName?: string; code?: any }) | undefined;
 
+  const options = {
+    returnDocument: 'after',
+    promoteValues: false,
+  } as const;
   try {
     return [
       undefined,
-      await ds[findOneAndModifyMethod](ns, query, object, {
-        returnDocument: 'after',
-        promoteValues: false,
-      }),
+      await (modificationType === 'update'
+        ? ds.findOneAndUpdate(ns, query, object, options)
+        : ds.findOneAndReplace(ns, query, object, options)),
     ] as ErrorOrResult;
   } catch (e) {
     error = e as Error;
@@ -2284,11 +2286,10 @@ export async function findAndModifyWithFLEFallback(
     error.codeName === 'ShardKeyNotFound' ||
     +(error?.code ?? 0) === 63714_02 // 6371402 is "'findAndModify with encryption only supports new: false'"
   ) {
-    const modifyOneMethod =
-      modificationType === 'update' ? 'updateOne' : 'replaceOne';
-
     try {
-      await ds[modifyOneMethod](ns, query, object);
+      await (modificationType === 'update'
+        ? ds.updateOne(ns, query, object)
+        : ds.replaceOne(ns, query, object));
     } catch (e) {
       // Return the modifyOneMethod error here
       // since we already know the original error from findOneAndModifyMethod
