@@ -75,6 +75,7 @@ const dataTypesLinkStyles = css({
 
 type ImportModalProps = {
   isOpen: boolean;
+  openId: number;
   ns: string;
   startImport: () => void;
   cancelImport: () => void;
@@ -115,6 +116,7 @@ type ImportModalProps = {
 
 function ImportModal({
   isOpen,
+  openId,
   ns,
   startImport,
   cancelImport,
@@ -171,11 +173,12 @@ function ImportModal({
 
   if (isOpen && !fileName && errors.length === 0) {
     // Show the file input when we don't have a file to import yet.
+    // Use openId as key to force remounting when import is re-opened,
+    // ensuring autoOpen triggers the file dialog each time.
     return (
-      // Don't actually show it on the screen, just render it to trigger
-      // autoOpen
       <div style={{ display: 'none' }}>
         <ImportFileInput
+          key={openId}
           autoOpen
           onCancel={handleClose}
           fileName={fileName}
@@ -272,6 +275,7 @@ function ImportModal({
 const mapStateToProps = (state: RootImportState) => ({
   ns: state.import.namespace,
   isOpen: state.import.isOpen,
+  openId: state.import.openId,
   errors: state.import.firstErrors,
   fileType: state.import.fileType,
   fileName: state.import.fileName,
