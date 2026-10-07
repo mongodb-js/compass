@@ -431,7 +431,7 @@ describe('Preferences class', function () {
     expect(states).to.have.a.property('readOnly', 'set-cloud-user');
   });
 
-  it('enforces cloud preferences over the user stored values', async function () {
+  it('applies cloud preferences and lets the user override them', async function () {
     const preferences = await setupPreferences(tmpdir, {
       atlasCloudUser: { timezone: 'America/New_York' },
       atlasCloudProject: { enableRollingIndexes: true },
@@ -443,8 +443,8 @@ describe('Preferences class', function () {
     expect(resolved.enableRollingIndexes).to.equal(true);
     expect(resolved.enableGenAIFeaturesAtlasOrg).to.equal(true);
 
-    // Cloud values are overrides: the user cannot change them.
     await preferences.savePreferences({ timezone: 'Europe/Madrid' });
-    expect(preferences.getPreferences().timezone).to.equal('America/New_York');
+    expect(preferences.getPreferences().timezone).to.equal('Europe/Madrid');
+    expect(preferences.getPreferenceStates()).to.not.have.property('timezone');
   });
 });

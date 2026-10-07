@@ -57,6 +57,9 @@ export class Preferences {
     atlasCloudProject: Partial<FeatureFlags>;
     atlasCloudOrg: Partial<FeatureFlags>;
   };
+  // Saved values take precedence over cloud-provided ones for the rest of the
+  // session.
+  private _savedOverrides: Partial<AllPreferences> = {};
 
   constructor({
     logger,
@@ -146,9 +149,12 @@ export class Preferences {
       return originalPreferences;
     }
 
+    const previousOverrides = this._savedOverrides;
+    this._savedOverrides = { ...this._savedOverrides, ...attributes };
     try {
       await this._preferencesStorage.updatePreferences(attributes);
     } catch (err) {
+      this._savedOverrides = previousOverrides;
       this._logger.log.error(
         this._logger.mongoLogId(1_001_000_157),
         'preferences',
@@ -199,11 +205,12 @@ export class Preferences {
   private _getStoredValues(): AllPreferences {
     return {
       ...this._getUserPreferenceValues(),
-      ...this._globalPreferences.cli,
-      ...this._globalPreferences.global,
       ...this._globalPreferences.atlasCloudUser,
       ...this._globalPreferences.atlasCloudProject,
       ...this._globalPreferences.atlasCloudOrg,
+      ...this._savedOverrides,
+      ...this._globalPreferences.cli,
+      ...this._globalPreferences.global,
       ...this._globalPreferences.hardcoded,
     };
   }
@@ -216,16 +223,17 @@ export class Preferences {
   private _computePreferenceValuesAndStates() {
     const values = this._getStoredValues();
     const states: Partial<Record<string, PreferenceState>> = {};
-    for (const key of Object.keys(this._globalPreferences.cli))
-      states[key] = 'set-cli';
-    for (const key of Object.keys(this._globalPreferences.global))
-      states[key] = 'set-global';
     for (const key of Object.keys(this._globalPreferences.atlasCloudUser))
       states[key] = 'set-cloud-user';
     for (const key of Object.keys(this._globalPreferences.atlasCloudProject))
       states[key] = 'set-cloud-project';
     for (const key of Object.keys(this._globalPreferences.atlasCloudOrg))
       states[key] = 'set-cloud-org';
+    for (const key of Object.keys(this._savedOverrides)) delete states[key];
+    for (const key of Object.keys(this._globalPreferences.cli))
+      states[key] = 'set-cli';
+    for (const key of Object.keys(this._globalPreferences.global))
+      states[key] = 'set-global';
     for (const key of Object.keys(this._globalPreferences.hardcoded))
       states[key] = 'hardcoded';
 
