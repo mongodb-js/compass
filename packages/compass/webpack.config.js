@@ -173,6 +173,8 @@ module.exports = (_env, args) => {
 
   return [
     merge(mainConfig, {
+      name: 'main',
+      dependencies: ['utilities', 'preload'],
       cache,
       snapshot,
       externals,
