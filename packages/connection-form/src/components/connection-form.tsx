@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -357,12 +357,10 @@ function ConnectionForm({
   onAdvancedOptionsToggle,
   openSettingsModal,
 }: ConnectionFormPropsWithoutSettings): React.ReactElement {
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
 
   const onAdvancedChange = useCallback(
     (newState: boolean) => {
-      setAdvancedOpen(newState);
       onAdvancedOptionsToggle?.(newState);
     },
     [onAdvancedOptionsToggle]
@@ -594,8 +592,7 @@ function ConnectionForm({
               protectConnectionStrings || disableEditingConnectedConnection
             ) && (
               <AdvancedConnectionOptions
-                open={advancedOpen}
-                setOpen={onAdvancedChange}
+                onOpenToggle={onAdvancedChange}
                 errors={connectionStringInvalidError ? [] : errors}
                 disabled={
                   !!(

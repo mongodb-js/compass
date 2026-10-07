@@ -4,13 +4,16 @@ export async function expandAccordion(
   browser: CompassBrowser,
   selector: string
 ): Promise<boolean> {
-  const expandButton = browser.$(selector);
-  await expandButton.waitForDisplayed();
+  const accordion = browser.$(selector);
+  await accordion.waitForDisplayed();
 
-  if ((await expandButton.getAttribute('aria-expanded')) === 'false') {
-    await expandButton.click();
+  const isOpen = await accordion.getAttribute('open');
+
+  if (!isOpen) {
+    const summary = await accordion.$('summary');
+    await summary.click();
     await browser.waitUntil(async () => {
-      return (await expandButton.getAttribute('aria-expanded')) === 'true';
+      return (await accordion.getAttribute('open')) !== null;
     });
     return false; // it was collapsed and had to expand
   }
