@@ -27,6 +27,10 @@ const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 // cleanup where all the after hooks are taken into account as expected rarely
 // leaving anythihg "hanging"
 async function cleanupOnInterrupt() {
+  // Arm the terminate watchdog here too: when global setup fails, mocha's run
+  // callback never fires and never arms it, so waiting on `runnerPromise` below
+  // would otherwise hang until the Evergreen idle timeout.
+  terminateOnTimeout();
   // First trigger an abort on the mocha runner
   abortRunner?.();
   // Don't wait when bailing because it can take minutes of retries before it

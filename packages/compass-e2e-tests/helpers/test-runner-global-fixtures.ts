@@ -427,21 +427,21 @@ export async function mochaGlobalTeardown() {
 }
 
 async function updateMongoDBServerInfo() {
-  try {
-    for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
-      let client: MongoClient | undefined;
-      try {
-        client = new MongoClient(connectionOptions.connectionString);
-        const info = await client.db('admin').command({ buildInfo: 1 });
-        DEFAULT_CONNECTIONS_SERVER_INFO.push({
-          version: info.version,
-          enterprise: isEnterprise(info),
-        });
-      } finally {
-        void client?.close(true);
-      }
+  // Deliberately not swallowed: with no server info, `serverSatisfies` would
+  // dereference an empty array and throw a TypeError that aborts mocha before
+  // its run callback arms the terminate watchdog, hanging global setup until
+  // the Evergreen idle timeout instead of failing fast.
+  for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
+    let client: MongoClient | undefined;
+    try {
+      client = new MongoClient(connectionOptions.connectionString);
+      const info = await client.db('admin').command({ buildInfo: 1 });
+      DEFAULT_CONNECTIONS_SERVER_INFO.push({
+        version: info.version,
+        enterprise: isEnterprise(info),
+      });
+    } finally {
+      void client?.close(true);
     }
-  } catch (err) {
-    debug('Failed to get MongoDB server info:', err);
   }
 }
