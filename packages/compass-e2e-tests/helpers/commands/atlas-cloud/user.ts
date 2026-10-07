@@ -48,7 +48,7 @@ export async function fillAtlasLoginForm(
         }
         return authenticated;
       },
-      { interval: 500 }
+      { interval: 500, timeout: 30_000 }
     );
 
   const [, , authenticationPromiseSettled] = await Promise.allSettled([
