@@ -57,14 +57,6 @@ const descriptionStyles = css({
   marginBottom: spacing[200],
 });
 
-const listInputStyles = css({
-  maxWidth: spacing[1600] * 5,
-});
-
-const maxStalenessInputStyles = css({
-  maxWidth: spacing[1600] * 3,
-});
-
 type ReadPreferenceOptions = {
   tagSets: string[];
   maxStalenessSeconds: string;
@@ -142,8 +134,7 @@ function ReadPreferenceForm({
       <FormFieldContainer>
         <Label htmlFor="read-preferences">Read Preference</Label>
         <Description className={descriptionStyles}>
-          Read preference determines which members of a replica set or sharded
-          cluster your reads are routed to.&nbsp;
+          Choose which members your reads go to.&nbsp;
           <Link href="https://www.mongodb.com/docs/manual/core/read-preference/">
             Learn More
           </Link>
@@ -189,15 +180,14 @@ function ReadPreferenceForm({
               Read Preference Tags
             </Label>
             <Description className={descriptionStyles}>
-              Tag sets are tried in order until one matches a member. An empty
-              tag set matches any eligible member.&nbsp;
+              Tried in order. Leave a set empty to fall back to any
+              member.&nbsp;
               <Link href="https://www.mongodb.com/docs/manual/core/read-preference-tags/">
                 Learn More
               </Link>
             </Description>
             <ListEditor
               items={tagSetItems}
-              className={listInputStyles}
               renderItem={(tagSet: string, index: number) => {
                 const errorMessage = errorMessageByFieldNameAndIndex(
                   errors,
@@ -211,7 +201,11 @@ function ReadPreferenceForm({
                     data-testid="read-preference-tags-input"
                     id={`read-preference-tags-input-${index}`}
                     aria-labelledby="read-preference-tags-label"
-                    placeholder="key0:value0,key1:value1"
+                    placeholder={
+                      index === 0
+                        ? 'nodeType:ANALYTICS,region:US_EAST_1'
+                        : 'Empty: any member'
+                    }
                     state={errorMessage ? 'error' : undefined}
                     errorMessage={errorMessage}
                     value={tagSet}
@@ -245,11 +239,10 @@ function ReadPreferenceForm({
           </FormFieldContainer>
           <FormFieldContainer>
             <TextInput
-              className={maxStalenessInputStyles}
               type="number"
               data-testid="max-staleness-seconds-input"
               label="Max Staleness Seconds"
-              description="How far behind the primary a secondary can be and still be read from. Must be at least 90 seconds."
+              description="Minimum 90 seconds."
               optional={true}
               min={90}
               value={maxStalenessSeconds}
