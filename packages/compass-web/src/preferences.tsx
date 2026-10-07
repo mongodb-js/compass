@@ -24,7 +24,6 @@ export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableImportExport: false,
   enableGenAIFeatures: true,
   enableGenAIFeaturesAtlasProject: false,
-  enableGenAISampleDocumentPassing: false,
   enableGenAIFeaturesAtlasOrg: false,
   enableGenAIToolCallingAtlasProject: true,
   enableAssistantConnectionDebugging: false,
