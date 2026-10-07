@@ -298,7 +298,7 @@ describe('compass-web preferences', function () {
       } = await getPreferencesFromCloudApi(PROJECT_ID, atlasService);
 
       const storage = new AtlasPreferencesStorage(atlasService, {
-        defaults: DEFAULT_COMPASS_WEB_PREFERENCES,
+        overrides: DEFAULT_COMPASS_WEB_PREFERENCES,
       });
       const preferences = new CompassWebPreferencesAccess(
         undefined,

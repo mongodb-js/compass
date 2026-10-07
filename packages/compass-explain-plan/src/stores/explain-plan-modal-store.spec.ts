@@ -83,7 +83,7 @@ describe('explain plan modal store', function () {
     dataService = {
       explainAggregate: explain,
       explainFind: explain,
-      isCancelError() {
+      isCancelError(_error: unknown): _error is Error {
         return isCancelError;
       },
     };

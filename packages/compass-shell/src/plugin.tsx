@@ -17,9 +17,15 @@ import reducer, {
   loadHistory,
 } from './stores/store';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import { Themes, ThemeProvider } from '@mongodb-js/compass-components';
+import {
+  Themes,
+  ThemeProvider,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model/provider';
 
-const SHELL_THEME = { theme: Themes.Dark, enabled: true };
+const DARK_SHELL_THEME = { theme: Themes.Dark, enabled: true };
+const LIGHT_SHELL_THEME = { theme: Themes.Light, enabled: true };
 
 type ShellPluginProps = {
   runtimeId?: string;
@@ -28,8 +34,11 @@ type ShellPluginProps = {
 };
 
 export function ShellPlugin(props: ShellPluginProps) {
+  const followsCompassTheme = usePreference('shellFollowsCompassTheme');
+  const compassDarkMode = useDarkMode();
+  const isLightTheme = followsCompassTheme && !compassDarkMode;
   return (
-    <ThemeProvider theme={SHELL_THEME}>
+    <ThemeProvider theme={isLightTheme ? LIGHT_SHELL_THEME : DARK_SHELL_THEME}>
       <TabShell {...props} />
     </ThemeProvider>
   );

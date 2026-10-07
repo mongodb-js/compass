@@ -53,7 +53,7 @@ const activeStylesDark = css({
 });
 
 type SidebarProps = {
-  activeItem: SettingsTabId;
+  activeItem?: SettingsTabId;
   onSelectItem: (item: SettingsTabId) => void;
   items: [SettingsTabId, string][];
 };

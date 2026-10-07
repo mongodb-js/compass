@@ -129,6 +129,25 @@ export function getIsRerankFirstStageBannerVisible(
   return previewDocs !== null && previewDocs.length > 0;
 }
 
+/**
+ * Whether the pipeline is already in the state that creating a new pipeline
+ * would leave it in: nothing was edited and there are no stages or name to
+ * clear. Note that a pipeline can be unmodified and still have content, for
+ * example right after it was saved or opened from the saved pipelines list.
+ */
+export function getIsNewPipelineFromBuilderState(state: RootState): boolean {
+  if (state.isModified || state.name !== '') {
+    return false;
+  }
+  if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
+    return state.pipelineBuilder.stageEditor.stages.every(
+      (stage) => stage.type === 'stage' && stage.empty
+    );
+  }
+  const { pipelineText } = state.pipelineBuilder.textEditor.pipeline;
+  return ['', '[]'].includes(pipelineText.trim());
+}
+
 export function getIsPipelineInvalidFromBuilderState(
   state: RootState,
   includeServerErrors = true
