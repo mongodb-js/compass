@@ -675,9 +675,7 @@ class TypeChecker {
   type(
     object: unknown,
     legacyUUIDEncoding?:
-      | 'LegacyJavaUUID'
-      | 'LegacyCSharpUUID'
-      | 'LegacyPythonUUID'
+      'LegacyJavaUUID' | 'LegacyCSharpUUID' | 'LegacyPythonUUID'
   ): TypeCastTypes {
     const bsonType = getBsonType(object);
     if (bsonType) {

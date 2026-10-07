@@ -31,9 +31,7 @@ type DisableModeChangedAction = {
 };
 
 export type EditModeAction =
-  | EditModeChangedAction
-  | EnableEditRulesAction
-  | DisableModeChangedAction;
+  EditModeChangedAction | EnableEditRulesAction | DisableModeChangedAction;
 
 /**
  * Whether the collection is locked by the "constraint" validation level, which
@@ -113,8 +111,8 @@ export default function reducer(
         action.validationLevel === 'constraint'
           ? 'active'
           : action.prepareConstraintValidationLevel
-          ? 'prepared'
-          : 'none',
+            ? 'prepared'
+            : 'none',
       isEditingEnabledByUser: false,
     };
   }

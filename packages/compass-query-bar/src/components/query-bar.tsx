@@ -200,8 +200,8 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         disabledDescription: isInterpretLoading
           ? 'Interpret in progress'
           : !isAssistantEnabled
-          ? 'Assistant is not available'
-          : undefined,
+            ? 'Assistant is not available'
+            : undefined,
       },
       {
         action: 'visual-tree',

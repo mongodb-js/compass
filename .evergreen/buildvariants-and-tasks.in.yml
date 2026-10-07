@@ -64,8 +64,8 @@ const PACKAGE_BUILD_VARIANTS = [
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-ubuntu',
-    display_name: 'Ubuntu 24.04',
-    run_on: 'ubuntu2404-latest-large',
+    display_name: 'Ubuntu 26.04',
+    run_on: 'ubuntu2604-latest-large',
     depends_on: 'package-ubuntu',
   },
   {

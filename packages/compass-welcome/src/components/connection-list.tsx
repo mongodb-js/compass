@@ -80,14 +80,14 @@ function ConnectionStatus({ connectionId }: ConnectionStatusProps) {
           statusText: `Connected to ${connectionName}`,
         }
       : status === 'failed'
-      ? {
-          icon: <Icon glyph="X" size="small" color={palette.red.base} />,
-          statusText: `Failed to connect to ${connectionName}`,
-        }
-      : {
-          icon: <SpinLoader size={16} />,
-          statusText: `Connecting to ${connectionName}`,
-        };
+        ? {
+            icon: <Icon glyph="X" size="small" color={palette.red.base} />,
+            statusText: `Failed to connect to ${connectionName}`,
+          }
+        : {
+            icon: <SpinLoader size={16} />,
+            statusText: `Connecting to ${connectionName}`,
+          };
 
   return (
     <li className={connectionItemStyles}>

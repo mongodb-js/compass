@@ -288,6 +288,26 @@ describe('Preferences class', function () {
     expect(allAtlas).to.be.true;
   });
 
+  it('hides AI, feature flag and Compass-only settings in Data Explorer', async function () {
+    const atlas = await setupPreferences(tmpdir, {}, 'atlas');
+    const atlasPreferences = atlas.getSettingsUIPreferences();
+
+    for (const name of [
+      'enableGenAIFeatures',
+      'enableGenAISampleDocumentPassing',
+      'enableGenAIToolCalling',
+      'enableAutoEmbeddingPublicPreview',
+      'inferNamespacesFromPrivileges',
+    ]) {
+      expect(atlasPreferences).to.not.have.property(name);
+    }
+
+    const desktop = await setupPreferences(tmpdir, {}, 'desktop');
+    expect(desktop.getSettingsUIPreferences()).to.include({
+      enableGenAIFeatures: true,
+    });
+  });
+
   it('allows hardcoding some options and derive other option values based on that', async function () {
     const preferences = await setupPreferences(tmpdir, {
       cli: {
@@ -411,7 +431,7 @@ describe('Preferences class', function () {
     expect(states).to.have.a.property('readOnly', 'set-cloud-user');
   });
 
-  it('enforces cloud preferences over the user stored values', async function () {
+  it('applies cloud preferences and lets the user override them', async function () {
     const preferences = await setupPreferences(tmpdir, {
       atlasCloudUser: { timezone: 'America/New_York' },
       atlasCloudProject: { enableRollingIndexes: true },
@@ -423,8 +443,8 @@ describe('Preferences class', function () {
     expect(resolved.enableRollingIndexes).to.equal(true);
     expect(resolved.enableGenAIFeaturesAtlasOrg).to.equal(true);
 
-    // Cloud values are overrides: the user cannot change them.
     await preferences.savePreferences({ timezone: 'Europe/Madrid' });
-    expect(preferences.getPreferences().timezone).to.equal('America/New_York');
+    expect(preferences.getPreferences().timezone).to.equal('Europe/Madrid');
+    expect(preferences.getPreferenceStates()).to.not.have.property('timezone');
   });
 });

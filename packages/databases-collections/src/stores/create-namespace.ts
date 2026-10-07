@@ -46,7 +46,7 @@ export type CreateNamespaceRootState = ReturnType<
 
 export type CreateNamespaceThunkAction<
   R,
-  A extends Action = AnyAction
+  A extends Action = AnyAction,
 > = ThunkAction<R, CreateNamespaceRootState, CreateNamespaceServices, A>;
 
 export function activatePlugin(

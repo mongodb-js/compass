@@ -38,6 +38,7 @@ import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compati
 import { useSearchIndexesTable } from './use-search-indexes-table';
 import { COLUMNS, COLUMNS_WITH_ACTIONS } from './search-indexes-columns';
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
+import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
 
 type SearchIndexesTableProps = {
   namespace: string;
@@ -179,9 +180,10 @@ export const SearchIndexesTable: React.FunctionComponent<
             newTab: true,
             ...(isVectorSearchIndex
               ? {
-                  initialPipelineText: enableAutoEmbeddingPublicPreview
-                    ? getInitialAutoEmbedSearchIndexPipelineText(name)
-                    : getInitialVectorSearchIndexPipelineText(name),
+                  initialPipelineText:
+                    enableAutoEmbeddingPublicPreview && isAutoEmbedIndex(index)
+                      ? getInitialAutoEmbedSearchIndexPipelineText(name)
+                      : getInitialVectorSearchIndexPipelineText(name),
                 }
               : {
                   initialPipeline: getInitialSearchIndexPipeline(name),

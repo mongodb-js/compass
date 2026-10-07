@@ -367,9 +367,8 @@ describe('Indexes Component', function () {
           collectionStats: mockCollectionStats,
         });
 
-        expect(
-          screen.getByTestId('view-not-search-compatible-banner')
-        ).to.exist;
+        expect(screen.getByTestId('view-not-search-compatible-banner')).to
+          .exist;
       });
 
       it('renders search indexes list if 8.1+ and has indexes', async function () {

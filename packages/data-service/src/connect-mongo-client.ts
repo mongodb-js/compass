@@ -35,9 +35,9 @@ function matchingAllowedHosts(
     { looseValidation: true }
   );
   const suffixes = connectionString.hosts.map((hostStr) => {
-    // eslint-disable-next-line
-    const { host } = hostStr.match(/^(?<host>.+?)(?<port>:[^:\]\[]+)?$/)
-      ?.groups!;
+    const pattern = /^(?<host>.+?)(?<port>:[^:\][]+)?$/;
+    const { host } = hostStr.match(pattern)?.groups ?? { host: null };
+    if (!host) throw new Error('Unexpected empty host');
     if (host.startsWith('[') && host.endsWith(']')) {
       return host.slice(1, -1); // IPv6
     }
@@ -149,7 +149,7 @@ export async function connectMongoClientDataService({
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
     connectionState: DevtoolsConnectionState,
-    options: { url: string; options: DevtoolsConnectOptions }
+    options: { url: string; options: DevtoolsConnectOptions },
   ]
 > {
   debug(

@@ -128,8 +128,8 @@ async function promptForUpdate(
   return answer.response === 0
     ? 'download'
     : answer.response === 1
-    ? 'update'
-    : 'cancel';
+      ? 'update'
+      : 'cancel';
 }
 
 /**

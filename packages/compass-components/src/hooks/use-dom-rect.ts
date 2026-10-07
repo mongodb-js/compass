@@ -2,7 +2,7 @@ import { useState, useRef, useLayoutEffect } from 'react';
 
 export function useDOMRect<T extends HTMLElement = HTMLDivElement>(): [
   React.HTMLProps<T>,
-  DOMRectReadOnly
+  DOMRectReadOnly,
 ] {
   const [rect, setRect] = useState<DOMRectReadOnly>(
     () => new DOMRectReadOnly()

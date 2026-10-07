@@ -31,9 +31,8 @@ type DatasetSamples = {
 
 async function getDatasets(): Promise<DatasetSamples> {
   return {
-    'airbnb.listingsAndReviews': await getSampleAndSchemaFromDataset(
-      airbnbListings
-    ),
+    'airbnb.listingsAndReviews':
+      await getSampleAndSchemaFromDataset(airbnbListings),
     'berlin.cocktailbars': await getSampleAndSchemaFromDataset(berlinBars),
     'netflix.movies': await getSampleAndSchemaFromDataset(netflixMovies),
     'netflix.comments': await getSampleAndSchemaFromDataset(netflixComments),

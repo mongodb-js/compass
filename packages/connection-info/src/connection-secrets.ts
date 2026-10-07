@@ -212,8 +212,7 @@ function extractAutoEncryptionSecrets(data: AutoEncryptionOptions): {
 
   for (const kmsProviderName of Object.keys(kmsProviders ?? {})) {
     const key = kmsProviderName.split(':')[0] as
-      | keyof typeof KMS_PROVIDER_SECRET_PATHS
-      | undefined;
+      keyof typeof KMS_PROVIDER_SECRET_PATHS | undefined;
     if (!key) {
       continue;
     }

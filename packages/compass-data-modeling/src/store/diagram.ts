@@ -471,9 +471,8 @@ export function createNewRelationship({
 }): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
     const relationshipId = new UUID().toString();
-    const currentNumberOfRelationships = getCurrentNumberOfRelationships(
-      getState()
-    );
+    const currentNumberOfRelationships =
+      getCurrentNumberOfRelationships(getState());
     dispatch(
       applyEdit({
         type: 'AddRelationship',
@@ -779,9 +778,8 @@ export function deleteRelationship(
   relationshipId: string
 ): DataModelingThunkAction<void, RelationSelectedAction> {
   return (dispatch, getState, { track }) => {
-    const currentNumberOfRelationships = getCurrentNumberOfRelationships(
-      getState()
-    );
+    const currentNumberOfRelationships =
+      getCurrentNumberOfRelationships(getState());
     dispatch(
       applyEdit({
         type: 'RemoveRelationship',

@@ -16,11 +16,11 @@ export function isMockDataGeneratorEligible(
 ): boolean {
   return Boolean(
     metadata &&
-      !metadata.isReadonly &&
-      !metadata.isTimeSeries &&
-      !metadata.sourceName &&
-      !preferences.readOnly &&
-      isAIFeatureEnabled(preferences) &&
-      preferences.enableMockDataGenerator
+    !metadata.isReadonly &&
+    !metadata.isTimeSeries &&
+    !metadata.sourceName &&
+    !preferences.readOnly &&
+    isAIFeatureEnabled(preferences) &&
+    preferences.enableMockDataGenerator
   );
 }

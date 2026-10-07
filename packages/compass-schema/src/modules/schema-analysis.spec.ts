@@ -79,7 +79,7 @@ describe('schema-analysis', function () {
               await new Promise((resolve) => setTimeout(resolve, 0));
               yield* docs;
             },
-          } as any),
+          }) as any,
       };
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
@@ -178,7 +178,7 @@ describe('schema-analysis', function () {
                 a: 123,
               };
             },
-          } as any),
+          }) as any,
       };
       const sampleSpy = sinon.spy(dataService, 'sampleCursor');
       const abortController = new AbortController();
@@ -218,7 +218,7 @@ describe('schema-analysis', function () {
                 a: 345,
               };
             },
-          } as any),
+          }) as any,
       };
 
       const result = await analyzeSchema(
@@ -248,7 +248,7 @@ describe('schema-analysis', function () {
               yield {};
               throw error;
             },
-          } as any),
+          }) as any,
       };
 
       const abortController = new AbortController();
@@ -520,9 +520,8 @@ describe('schema-analysis', function () {
         });
 
         it('counts fields missing from some documents', async function () {
-          const { optional_field_count } = await calculateSchemaMetadata(
-            schema
-          );
+          const { optional_field_count } =
+            await calculateSchemaMetadata(schema);
           expect(optional_field_count).to.equal(1);
         });
       });
@@ -534,9 +533,8 @@ describe('schema-analysis', function () {
         });
 
         it('returns zero', async function () {
-          const { optional_field_count } = await calculateSchemaMetadata(
-            schema
-          );
+          const { optional_field_count } =
+            await calculateSchemaMetadata(schema);
           expect(optional_field_count).to.equal(0);
         });
       });
@@ -552,9 +550,8 @@ describe('schema-analysis', function () {
         });
 
         it('returns zero', async function () {
-          const { optional_field_count } = await calculateSchemaMetadata(
-            schema
-          );
+          const { optional_field_count } =
+            await calculateSchemaMetadata(schema);
           expect(optional_field_count).to.equal(0);
         });
       });
@@ -570,9 +567,8 @@ describe('schema-analysis', function () {
         });
 
         it('returns does not count the optionals', async function () {
-          const { optional_field_count } = await calculateSchemaMetadata(
-            schema
-          );
+          const { optional_field_count } =
+            await calculateSchemaMetadata(schema);
           expect(optional_field_count).to.equal(0);
         });
       });

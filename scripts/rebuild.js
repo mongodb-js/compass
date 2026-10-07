@@ -18,8 +18,8 @@ async function getBinPath(pkgName, resolveFrom = process.cwd()) {
       typeof bin === 'string'
         ? bin
         : typeof bin === 'object' && bin !== null
-        ? Object.values(bin)[0]
-        : null;
+          ? Object.values(bin)[0]
+          : null;
 
     return binPath ? path.resolve(path.dirname(pkgJsonFile), binPath) : null;
   } catch {

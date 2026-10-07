@@ -120,11 +120,9 @@ export class ImportWriter {
     try {
       bulkWriteResult = await this.dataService.bulkWrite(
         this.ns,
-        documents.map(
-          (document: any): AnyBulkWriteOperation<Document> => ({
-            insertOne: { document },
-          })
-        ),
+        documents.map((document: any): AnyBulkWriteOperation<Document> => ({
+          insertOne: { document },
+        })),
         {
           ordered: this.stopOnErrors,
           checkKeys: false,

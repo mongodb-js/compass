@@ -462,8 +462,8 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
                     disabledForManyDocs
                       ? 'The visual editor is unavailable for multiple documents'
                       : hasSafeIntegerViolations
-                      ? 'Fix the numbers exceeding the safe integer range to switch views'
-                      : option.label
+                        ? 'Fix the numbers exceeding the safe integer range to switch views'
+                        : option.label
                   );
                   setTooltipOpen(true);
                 }}

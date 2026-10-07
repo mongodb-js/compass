@@ -155,17 +155,15 @@ describe('query-history', function () {
     it('in recents', async function () {
       await renderQueryHistory(tmpDir);
       userEvent.click(screen.getByText(/recents/i));
-      expect(
-        screen.getByText(/your recent queries will appear here\./i)
-      ).to.exist;
+      expect(screen.getByText(/your recent queries will appear here\./i)).to
+        .exist;
     });
 
     it('in favorites', async function () {
       await renderQueryHistory(tmpDir);
       userEvent.click(screen.getByText(/favorites/i));
-      expect(
-        screen.getByText(/your favorite queries will appear here\./i)
-      ).to.exist;
+      expect(screen.getByText(/your favorite queries will appear here\./i)).to
+        .exist;
     });
   });
 

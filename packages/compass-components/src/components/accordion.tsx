@@ -70,8 +70,10 @@ const buttonHintStyles = css({
   display: 'inline',
 });
 
-interface AccordionProps
-  extends Omit<React.HTMLProps<HTMLButtonElement>, 'size'> {
+interface AccordionProps extends Omit<
+  React.HTMLProps<HTMLButtonElement>,
+  'size'
+> {
   text: string | React.ReactNode;
   hintText?: string;
   textClassName?: string;

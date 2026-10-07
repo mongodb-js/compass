@@ -48,8 +48,7 @@ export type UseChatHelpers<UI_MESSAGE extends UIMessage> = {
 >;
 
 export type UseChatOptions<UI_MESSAGE extends UIMessage> = (
-  | { chat: Chat<UI_MESSAGE> }
-  | ChatInit<UI_MESSAGE>
+  { chat: Chat<UI_MESSAGE> } | ChatInit<UI_MESSAGE>
 ) & {
   /**
 Custom throttle wait in ms for the chat messages and data updates.

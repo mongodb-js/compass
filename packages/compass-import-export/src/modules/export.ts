@@ -411,24 +411,24 @@ export const runExport = ({
             filter: {},
           }
         : selectedFieldOption === 'select-fields'
-        ? {
-            ...(_query ?? {
-              filter: {},
-            }),
-            projection: createProjectionFromSchemaFields(
-              Object.values(fieldsToExport)
-                .filter((field) => {
-                  if (field.selected) {
-                    fieldsIncludedCount++;
-                  } else {
-                    fieldsExcludedCount++;
-                  }
-                  return field.selected;
-                })
-                .map((field) => field.path)
-            ),
-          }
-        : _query;
+          ? {
+              ...(_query ?? {
+                filter: {},
+              }),
+              projection: createProjectionFromSchemaFields(
+                Object.values(fieldsToExport)
+                  .filter((field) => {
+                    if (field.selected) {
+                      fieldsIncludedCount++;
+                    } else {
+                      fieldsExcludedCount++;
+                    }
+                    return field.selected;
+                  })
+                  .map((field) => field.path)
+              ),
+            }
+          : _query;
 
     log.info(mongoLogId(1_001_000_185), 'Export', 'Start export', {
       namespace,
@@ -467,8 +467,7 @@ export const runExport = ({
         namespace,
         csvPhase,
       });
-    },
-    1000);
+    }, 1000);
 
     let exportResult: ExportResult | undefined;
     try {

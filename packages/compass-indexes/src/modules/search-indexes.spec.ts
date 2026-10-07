@@ -173,18 +173,16 @@ describe('search-indexes module', function () {
     it('closes an open modal for creation', function () {
       store.dispatch(createSearchIndexOpened());
       store.dispatch(createSearchIndexClosed());
-      expect(
-        store.getState().searchIndexes.createIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be
+        .false;
     });
 
     it('creates the index when data is valid', async function () {
       await store.dispatch(
         createIndex({ name: 'indexName', definition: {}, type: 'search' })
       );
-      expect(
-        store.getState().searchIndexes.createIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be
+        .false;
       expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
     });
 
@@ -219,9 +217,8 @@ describe('search-indexes module', function () {
     });
     it('closes an open modal for update', function () {
       store.dispatch(updateSearchIndexClosed());
-      expect(
-        store.getState().searchIndexes.updateIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be
+        .false;
     });
 
     it('updates the index when data is valid and does not match existing definition', async function () {
@@ -232,9 +229,8 @@ describe('search-indexes module', function () {
           type: 'search',
         })
       );
-      expect(
-        store.getState().searchIndexes.updateIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be
+        .false;
       expect(
         (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
       ).to.equal(1);
@@ -257,9 +253,8 @@ describe('search-indexes module', function () {
           type: 'search',
         })
       );
-      expect(
-        store.getState().searchIndexes.updateIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be
+        .false;
       expect(
         (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
       ).to.equal(0);

@@ -226,11 +226,7 @@ const config = Object.create({
 });
 
 export type AtlasServiceBackendPreset =
-  | 'atlas-local'
-  | 'atlas-dev'
-  | 'atlas-qa'
-  | 'atlas-staging'
-  | 'atlas';
+  'atlas-local' | 'atlas-dev' | 'atlas-qa' | 'atlas-staging' | 'atlas';
 
 export function getAtlasConfigForPreset(
   atlasServiceBackendPreset: AtlasServiceBackendPreset

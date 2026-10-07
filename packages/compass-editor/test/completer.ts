@@ -6,7 +6,7 @@ import { languages, languageName } from '../src/editor';
 import type { EditorLanguage } from '../src/editor';
 
 export const setupCodemirrorCompleter = <
-  T extends (...args: any[]) => CompletionSource
+  T extends (...args: any[]) => CompletionSource,
 >(
   completer: T,
   language: EditorLanguage = 'javascript-expression'

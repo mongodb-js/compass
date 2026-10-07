@@ -130,12 +130,12 @@ async function getImportsForPackage(pkgJson, cwd = process.cwd()) {
   const entryPoints = pkgJson['compass:exports']
     ? Object.values(pkgJson['compass:exports'])
     : pkgJson['compass:main']
-    ? [pkgJson['compass:main']]
-    : (() => {
-        throw new Error(
-          `Expected "${pkgJson.name}" package to have a special "compass:" entrypoint`
-        );
-      })();
+      ? [pkgJson['compass:main']]
+      : (() => {
+          throw new Error(
+            `Expected "${pkgJson.name}" package to have a special "compass:" entrypoint`
+          );
+        })();
 
   if (pkgJson.types) {
     try {

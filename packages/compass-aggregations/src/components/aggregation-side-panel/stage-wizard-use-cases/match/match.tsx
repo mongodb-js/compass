@@ -31,13 +31,11 @@ export type MatchConditionExpression =
   | { [field: string]: unknown }
   | { [field: string]: { [operator in MatchOperator]: unknown } };
 
-export type MatchGroupExpression =
-  | {
-      [$andOr in LogicalOperator]?: (
-        | MatchConditionExpression
-        | MatchGroupExpression
-      )[];
-    };
+export type MatchGroupExpression = {
+  [$andOr in LogicalOperator]?: (
+    MatchConditionExpression | MatchGroupExpression
+  )[];
+};
 
 export type MatchExpression = MatchConditionExpression | MatchGroupExpression;
 

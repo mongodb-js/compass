@@ -108,10 +108,10 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         disabledDescription: isInterpretLoading
           ? 'Interpret in progress'
           : hasSearchStage
-          ? 'Not supported for this query'
-          : !isAssistantEnabled
-          ? 'Assistant is not available'
-          : undefined,
+            ? 'Not supported for this query'
+            : !isAssistantEnabled
+              ? 'Assistant is not available'
+              : undefined,
       },
       {
         action: 'visual-tree',
