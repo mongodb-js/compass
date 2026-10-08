@@ -6,6 +6,7 @@ import {
   css,
   spacing,
   useId,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const formStyles = css({
@@ -32,6 +33,7 @@ type SaveQueryFormProps = {
 
 export const SaveQueryForm = forwardRef<HTMLFormElement, SaveQueryFormProps>(
   ({ onSave, onCancel }, ref) => {
+    const t = useTranslation();
     const [name, setName] = useState<string>('');
     const labelId = useId();
     const controlId = useId();
@@ -50,7 +52,7 @@ export const SaveQueryForm = forwardRef<HTMLFormElement, SaveQueryFormProps>(
         <TextInput
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus={true}
-          placeholder="Favorite Name"
+          placeholder={t('queryBar.history.favoriteName', 'Favorite Name')}
           className={textInputStyles}
           id={controlId}
           aria-labelledby={labelId}
@@ -65,14 +67,14 @@ export const SaveQueryForm = forwardRef<HTMLFormElement, SaveQueryFormProps>(
           type="submit"
           variant="primary"
         >
-          Save
+          {t('queryBar.history.save', 'Save')}
         </Button>
         <Button
           data-testid="recent-query-save-favorite-cancel"
           type="button"
           onClick={onCancel}
         >
-          Cancel
+          {t('queryBar.history.cancel', 'Cancel')}
         </Button>
       </form>
     );

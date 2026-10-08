@@ -1,5 +1,10 @@
 import React from 'react';
-import { css, Button, Icon } from '@mongodb-js/compass-components';
+import {
+  css,
+  Button,
+  Icon,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 const controlsContainerStyle = css({
   display: 'flex',
@@ -44,6 +49,7 @@ export const ZoomControl: React.FunctionComponent<{
   minValue = MIN_SCALE_VALUE,
   onZoomChange,
 }) => {
+  const t = useTranslation();
   return (
     <div className={controlsContainerStyle}>
       <Button
@@ -53,7 +59,7 @@ export const ZoomControl: React.FunctionComponent<{
           onZoomChange(Math.max(minValue, value + step));
         }}
         size="small"
-        aria-label="Zoom in"
+        aria-label={t('explainPlan.zoom.in', 'Zoom in')}
       ></Button>
       <Button
         className={buttonStyles}
@@ -62,7 +68,7 @@ export const ZoomControl: React.FunctionComponent<{
           onZoomChange(Math.max(minValue, value - step));
         }}
         size="small"
-        aria-label="Zoom out"
+        aria-label={t('explainPlan.zoom.out', 'Zoom out')}
       ></Button>
     </div>
   );

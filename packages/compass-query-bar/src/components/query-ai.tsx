@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, useTranslation } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai/provider';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -18,6 +18,7 @@ import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
   const logger = useLogger('AI-QUERY-UI');
   const track = useTelemetry();
+  const t = useTranslation();
   const connectionInfoRef = useConnectionInfoRef();
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
@@ -40,11 +41,14 @@ const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
 
       openToast('query-ai-feedback-submitted', {
         variant: 'success',
-        title: 'Your feedback has been submitted.',
+        title: t(
+          'queryBar.ai.feedbackSubmitted',
+          'Your feedback has been submitted.'
+        ),
         timeout: 10_000,
       });
     },
-    [logger, lastAIQueryRequestId, track, connectionInfoRef]
+    [logger, lastAIQueryRequestId, track, connectionInfoRef, t]
   );
 };
 

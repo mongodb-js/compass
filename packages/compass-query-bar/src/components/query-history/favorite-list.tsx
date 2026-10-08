@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from '@mongodb-js/compass-components';
 import { connect } from '../../stores/context';
 import {
   applyFromHistory,
@@ -123,8 +124,16 @@ export const FavoriteList = ({
   queries: FavoriteQuery[];
   isReadonly: boolean;
 }) => {
+  const t = useTranslation();
   if (queries.length === 0) {
-    return <ZeroGraphic text={'Your favorite queries will appear here.'} />;
+    return (
+      <ZeroGraphic
+        text={t(
+          'queryBar.history.noFavorites',
+          'Your favorite queries will appear here.'
+        )}
+      />
+    );
   }
   const content = queries.map((query) => (
     <FavoriteItem

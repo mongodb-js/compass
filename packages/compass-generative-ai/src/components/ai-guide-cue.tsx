@@ -1,5 +1,10 @@
 import React, { useEffect } from 'react';
-import { LGGuideCue, spacing, useId } from '@mongodb-js/compass-components';
+import {
+  LGGuideCue,
+  spacing,
+  useId,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 // TODO: Is LG guide cue exported
 
@@ -24,6 +29,7 @@ export const AIGuideCue = ({
   onCloseGuideCue,
 }: AIGuideCueProps) => {
   const aiGuideCuePopoverId = useId();
+  const t = useTranslation();
 
   useEffect(() => {
     if (!showGuideCue) {
@@ -69,7 +75,7 @@ export const AIGuideCue = ({
       onDismiss={onCloseGuideCue}
       title={title}
       data-popoverid={`ai-guide-cue-description-popover-${aiGuideCuePopoverId}`}
-      buttonText="Got it"
+      buttonText={t('genai.guideCue.gotIt', 'Got it')}
     >
       <span data-testid="ai-guide-cue-description-span">{description}</span>
     </LGGuideCue>

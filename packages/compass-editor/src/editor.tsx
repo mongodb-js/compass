@@ -60,6 +60,7 @@ import {
   codePalette,
   useCurrentValueRef,
   useInitialValue,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
@@ -636,13 +637,13 @@ type EditorProps = {
     'id' | 'className' | 'onFocus' | 'onPaste' | 'onBlur'
   >;
 
-function createFoldGutterExtension() {
+function createFoldGutterExtension(labels: { fold: string; unfold: string }) {
   return foldGutter({
     markerDOM(open) {
       const marker = document.createElement('span');
       marker.className = `foldMarker foldMarker${open ? 'Open' : 'Closed'}`;
       marker.ariaHidden = 'true';
-      marker.title = open ? 'Fold code block' : 'Unfold code block';
+      marker.title = open ? labels.fold : labels.unfold;
       marker.innerHTML = open
         ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8.679 10.796a.554.554 0 0 1-.858 0L4.64 6.976C4.32 6.594 4.582 6 5.069 6h6.362c.487 0 .748.594.43.976l-3.182 3.82z"/></svg>`
         : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M10.796 7.321a.554.554 0 0 1 0 .858l-3.82 3.181c-.382.319-.976.058-.976-.429V4.57c0-.487.594-.748.976-.43l3.82 3.182z"/></svg>`;
@@ -794,6 +795,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   ref
 ) {
   const darkMode = useDarkMode(_darkMode);
+  const t = useTranslation();
   const onChangeTextRef = useCurrentValueRef(onChangeText);
   const onLoadRef = useCurrentValueRef(onLoad);
   const onFocusRef = useCurrentValueRef(onFocus);
@@ -947,11 +949,15 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     editorViewRef
   );
 
+  const foldLabel = t('editor.foldCodeBlock', 'Fold code block');
+  const unfoldLabel = t('editor.unfoldCodeBlock', 'Unfold code block');
   const foldGutterExtension = useCodemirrorExtensionCompartment(
     () => {
-      return showFoldGutter ? createFoldGutterExtension() : [];
+      return showFoldGutter
+        ? createFoldGutterExtension({ fold: foldLabel, unfold: unfoldLabel })
+        : [];
     },
-    showFoldGutter,
+    showFoldGutter && `${foldLabel}/${unfoldLabel}`,
     editorViewRef
   );
 

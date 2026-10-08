@@ -1,9 +1,12 @@
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
+import {
+  capMaxTimeMSAtPreferenceLimit,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, translate } from '@mongodb-js/compass-components';
 import type {
   ExplainPlanModalServices,
   OpenExplainPlanModalEvent,
@@ -363,6 +366,24 @@ export const openExplainPlanModal = (
   };
 };
 
+const getInterpretErrorToast = (preferences: PreferencesAccess) => {
+  const language = preferences.getPreferences().language ?? 'en';
+  return {
+    variant: 'warning',
+    title: translate(
+      language,
+      'explainPlan.interpretError.title',
+      "Couldn't interpret explain plan"
+    ),
+    description: translate(
+      language,
+      'explainPlan.interpretError.description',
+      'Failed to fetch the explain plan. Please try again.'
+    ),
+    timeout: 8000,
+  } as const;
+};
+
 export const openExplainPlanForInterpret = (
   event: OpenExplainPlanForInterpretEvent
 ): ExplainPlanModalThunkAction<Promise<void>> => {
@@ -385,12 +406,10 @@ export const openExplainPlanForInterpret = (
           'Explain',
           'Explain for interpret returned no plan'
         );
-        openToast('explain-interpret-error', {
-          variant: 'warning',
-          title: "Couldn't interpret explain plan",
-          description: 'Failed to fetch the explain plan. Please try again.',
-          timeout: 8000,
-        });
+        openToast(
+          'explain-interpret-error',
+          getInterpretErrorToast(services.preferences)
+        );
       }
     } catch (err) {
       if (services.dataService.isCancelError(err)) {
@@ -402,12 +421,10 @@ export const openExplainPlanForInterpret = (
         'Failed to run explain for interpret',
         { message: (err as Error).message }
       );
-      openToast('explain-interpret-error', {
-        variant: 'warning',
-        title: "Couldn't interpret explain plan",
-        description: 'Failed to fetch the explain plan. Please try again.',
-        timeout: 8000,
-      });
+      openToast(
+        'explain-interpret-error',
+        getInterpretErrorToast(services.preferences)
+      );
     } finally {
       cleanupAbortSignal(fetchId);
       services.localAppRegistry.emit('explain-plan-interpret-finished');

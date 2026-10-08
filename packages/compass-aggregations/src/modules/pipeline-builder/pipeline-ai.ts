@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import toNS from 'mongodb-ns';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, translate } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import { UUID } from 'bson';
 
@@ -337,10 +337,19 @@ export const runAIPipelineGeneration = (
       // We're going to reset input state with this error, show the error in the
       // toast instead
       if ((err as AtlasServiceError).statusCode === 401) {
+        const language = preferences.getPreferences().language ?? 'en';
         openToast('ai-unauthorized', {
           variant: 'important',
-          title: 'Network Error',
-          description: 'Unauthorized',
+          title: translate(
+            language,
+            'aggregations.ai.networkError',
+            'Network Error'
+          ),
+          description: translate(
+            language,
+            'aggregations.ai.unauthorized',
+            'Unauthorized'
+          ),
           timeout: 5000,
         });
       }
@@ -385,7 +394,14 @@ export const runAIPipelineGeneration = (
       });
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
-        errorMessage: (err as Error).message,
+        errorMessage:
+          (err as Error).message === emptyPipelineError
+            ? translate(
+                preferences.getPreferences().language ?? 'en',
+                'aggregations.ai.noPipeline',
+                emptyPipelineError
+              )
+            : (err as Error).message,
       });
       return;
     }

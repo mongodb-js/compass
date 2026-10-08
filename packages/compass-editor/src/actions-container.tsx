@@ -2,7 +2,12 @@ import React, { type RefObject } from 'react';
 
 import { type Action, ActionButton, FormatIcon } from './action-button';
 import type { EditorRef } from './types';
-import { css, cx, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 type ActionsContainerProps = {
   copyable: boolean;
@@ -44,6 +49,7 @@ export const ActionsContainer = ({
   onExpand,
   expanded,
 }: ActionsContainerProps) => {
+  const t = useTranslation();
   return (
     <div
       className={cx(
@@ -55,7 +61,14 @@ export const ActionsContainer = ({
       {onExpand && (
         <div className={expandContainerStyle}>
           <ActionButton
-            label={expanded ? 'Collapse all' : 'Expand all'}
+            label={
+              expanded
+                ? t('editor.collapseAll', 'Collapse all')
+                : t('editor.expandAll', 'Expand all')
+            }
+            data-testid={`editor-action-${
+              expanded ? 'Collapse all' : 'Expand all'
+            }`}
             icon={expanded ? 'CaretDown' : 'CaretRight'}
             onClick={onExpand}
             compact
@@ -65,7 +78,8 @@ export const ActionsContainer = ({
       <span className={actionsGroupItemSeparator}></span>
       {copyable && (
         <ActionButton
-          label="Copy"
+          label={t('editor.copy', 'Copy')}
+          data-testid="editor-action-Copy"
           icon="Copy"
           onClick={() => {
             return editorRef.current?.copyAll() ?? false;
@@ -74,7 +88,8 @@ export const ActionsContainer = ({
       )}
       {formattable && (
         <ActionButton
-          label="Format"
+          label={t('editor.format', 'Format')}
+          data-testid="editor-action-Format"
           icon={
             <FormatIcon
               size={/* leafygreen small */ 14}

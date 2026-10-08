@@ -1,3 +1,4 @@
+import { getTranslator } from '../utils/i18n';
 import toNS from 'mongodb-ns';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
@@ -93,6 +94,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       track,
       connectionScopedAppRegistry,
       connectionInfoRef,
+      preferences,
     }
   ) => {
     dispatch(dismissViewError());
@@ -122,12 +124,22 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     ) {
       const pipelineIsSearchQueryable =
         VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(viewPipeline);
+      const t = getTranslator(preferences);
       const confirmed = await showConfirmation({
-        title: `Are you sure you want to update the view?`,
+        title: t(
+          'aggregations.updateView.confirmTitle',
+          `Are you sure you want to update the view?`
+        ),
         description: pipelineIsSearchQueryable
-          ? 'There are search indexes created on this view. Updating the view will result in an index rebuild, which will consume additional resources on your cluster.'
-          : 'This update will make the view incompatible with search indexes and will cause all search indexes to fail. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.',
-        buttonText: 'Update',
+          ? t(
+              'aggregations.updateView.confirmSearchIndexes',
+              'There are search indexes created on this view. Updating the view will result in an index rebuild, which will consume additional resources on your cluster.'
+            )
+          : t(
+              'aggregations.updateView.confirmIncompatible',
+              'This update will make the view incompatible with search indexes and will cause all search indexes to fail. Only views containing $addFields, $set or $match stages with the $expr operator are compatible with search indexes.'
+            ),
+        buttonText: t('aggregations.updateView.confirmButton', 'Update'),
         variant: pipelineIsSearchQueryable ? 'primary' : 'danger',
       });
 

@@ -12,6 +12,7 @@ import {
   useDarkMode,
   Card,
   Body,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
@@ -253,12 +254,13 @@ const Highlight: React.FunctionComponent<{
   value: string;
   field: string;
 }> = ({ field, value }) => {
+  const t = useTranslation();
   if (typeof value === 'undefined') {
     return null;
   }
   return (
     <li className={overflowTextStyles}>
-      <span>{field}: </span>
+      <span>{t(`explainPlan.stage.highlight.${field}`, field)}: </span>
       <strong title={value}>{value}</strong>
     </li>
   );
@@ -267,13 +269,20 @@ const Highlight: React.FunctionComponent<{
 const Highlights: React.FunctionComponent<{
   highlights: Record<string, boolean | string>;
 }> = ({ highlights }) => {
+  const t = useTranslation();
   return (
     <ul>
       {Object.entries(highlights).map(([key, value], index) => (
         <Highlight
           key={index}
           field={key}
-          value={typeof value === 'boolean' ? (value ? 'yes' : 'no') : value}
+          value={
+            typeof value === 'boolean'
+              ? value
+                ? t('explainPlan.stage.yes', 'yes')
+                : t('explainPlan.stage.no', 'no')
+              : value
+          }
         />
       ))}
     </ul>
@@ -286,14 +295,15 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
   curStageExecTimeMS,
   totalExecTimeMS,
 }) => {
+  const t = useTranslation();
   return (
     <div className={executionStatsStyle}>
       <div>
-        <span>Returned </span>
+        <span>{t('explainPlan.stage.returned', 'Returned')} </span>
         <StatsBadge stats={nReturned} />
       </div>
       <div>
-        <span>Execution Time</span>
+        <span>{t('explainPlan.stage.executionTime', 'Execution Time')}</span>
         <span>
           <Tooltip
             align="top"
@@ -308,10 +318,11 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
               </div>
             }
           >
-            The clock represents the total time the query took to complete. The
-            blue clock segment is the time taken by the highlighted stage (
-            {curStageExecTimeMS - prevStageExecTimeMS} ms). The gray clock
-            segment is the time taken by preceding stages.
+            {t(
+              'explainPlan.stage.clockTooltip',
+              'The clock represents the total time the query took to complete. The blue clock segment is the time taken by the highlighted stage ({ms} ms). The gray clock segment is the time taken by preceding stages.',
+              { ms: curStageExecTimeMS - prevStageExecTimeMS }
+            )}
           </Tooltip>
         </span>
       </div>

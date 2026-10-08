@@ -23,6 +23,7 @@ import {
   useCurrentValueRef,
   useDarkMode,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   IntercomTrackingEvents,
@@ -274,8 +275,6 @@ const VerticallyResizingTextArea = forwardRef(
   }
 );
 
-const closeText = 'Close AI Helper';
-
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
   <svg
     width={highlightSize}
@@ -328,7 +327,7 @@ function GenerativeAIInput({
   errorMessage,
   errorCode,
   isFetching,
-  placeholder = 'Tell us what to find (e.g. movies from 2000) or paste a query in another language (SQL, Java, etc.)',
+  placeholder,
   show,
   onCancelRequest,
   onClose,
@@ -338,6 +337,14 @@ function GenerativeAIInput({
   isAggregationGeneratedFromQuery = false,
   onResetIsAggregationGeneratedFromQuery,
 }: GenerativeAIInputProps) {
+  const t = useTranslation();
+  const closeText = t('genai.input.close', 'Close AI Helper');
+  const placeholderText =
+    placeholder ??
+    t(
+      'genai.input.placeholder',
+      'Tell us what to find (e.g. movies from 2000) or paste a query in another language (SQL, Java, etc.)'
+    );
   const promptTextInputRef = useRef<HTMLTextAreaElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showEmptyResultsDisclaimer, setShowEmptyResultsDisclaimer] = useState(
@@ -434,15 +441,27 @@ function GenerativeAIInput({
                     onResetIsAggregationGeneratedFromQuery?.();
                   }}
                   refEl={guideCueRef}
-                  title="Aggregation generated"
-                  description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
+                  title={t(
+                    'genai.input.aggregationGeneratedTitle',
+                    'Aggregation generated'
+                  )}
+                  description={t(
+                    'genai.input.aggregationGeneratedDescription',
+                    "Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
+                  )}
                 />
                 <AIGuideCue
                   showGuideCue={showEmptyResultsDisclaimer}
                   onCloseGuideCue={() => setShowEmptyResultsDisclaimer(false)}
                   refEl={guideCueRef}
-                  title="No content generated"
-                  description="The query generated returns all of the documents in your collection. Consider adjusting and resubmitting your prompt to narrow down the results."
+                  title={t(
+                    'genai.input.noContentTitle',
+                    'No content generated'
+                  )}
+                  description={t(
+                    'genai.input.noContentDescription',
+                    'The query generated returns all of the documents in your collection. Consider adjusting and resubmitting your prompt to narrow down the results.'
+                  )}
                 />
                 <span className={aiEntryContainerStyles} ref={guideCueRef}>
                   <Icon glyph="Sparkle" />
@@ -457,8 +476,11 @@ function GenerativeAIInput({
                 data-testid="ai-user-text-input"
                 aria-labelledby=""
                 spellCheck={false}
-                aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
-                placeholder={placeholder}
+                aria-label={t(
+                  'genai.input.ariaLabel',
+                  'Enter a plain text query that the AI will translate into MongoDB query language.'
+                )}
+                placeholder={placeholderText}
                 value={aiPromptText}
                 onChange={(evt) => onChangeAIPromptText(evt.target.value)}
                 onKeyDown={onTextInputKeyDown}
@@ -483,7 +505,10 @@ function GenerativeAIInput({
                   <>
                     {aiPromptText && (
                       <IconButton
-                        aria-label="Clear prompt"
+                        aria-label={t(
+                          'genai.input.clearPrompt',
+                          'Clear prompt'
+                        )}
                         onClick={() => onChangeAIPromptText('')}
                         data-testid="ai-text-clear-prompt"
                       >
@@ -506,7 +531,7 @@ function GenerativeAIInput({
                 >
                   {isFetching ? (
                     <>
-                      <div>Cancel</div>
+                      <div>{t('genai.input.cancel', 'Cancel')}</div>
                       <span
                         className={cx(
                           buttonHighlightStyles,
@@ -520,7 +545,7 @@ function GenerativeAIInput({
                     </>
                   ) : (
                     <>
-                      <div>Generate</div>
+                      <div>{t('genai.input.generate', 'Generate')}</div>
                       <SubmitArrowSVG darkMode={darkMode} />
                     </>
                   )}
@@ -551,6 +576,7 @@ const AIError = ({
   errorCode?: string;
   errorMessage: string;
 }) => {
+  const t = useTranslation();
   // NOTE: this error is not coming from the HTTP endpoint.
   if (!errorCode) {
     return <>{errorMessage}</>;
@@ -561,8 +587,10 @@ const AIError = ({
   if (errorCode === 'NOT_SUPPORTED') {
     return (
       <>
-        Sorry, this version of Compass is no longer suitable to generate
-        queries. Please update to the latest version to access all the features.
+        {t(
+          'genai.error.notSupported',
+          'Sorry, this version of Compass is no longer suitable to generate queries. Please update to the latest version to access all the features.'
+        )}
       </>
     );
   }
@@ -570,8 +598,10 @@ const AIError = ({
   if (errorCode === 'USER_INPUT_TOO_LONG') {
     return (
       <>
-        Looks like your input exceeds the allowed length. Please reduce it and
-        submit your prompt again.
+        {t(
+          'genai.error.inputTooLong',
+          'Looks like your input exceeds the allowed length. Please reduce it and submit your prompt again.'
+        )}
       </>
     );
   }
@@ -583,8 +613,10 @@ const AIError = ({
     // able to fix the issue on their own it cases where the schema is too big.
     return (
       <>
-        Sorry, your request is too large. Please use a smaller prompt or try
-        using this feature on a collection with smaller documents.
+        {t(
+          'genai.error.promptTooLong',
+          'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
+        )}
       </>
     );
   }
@@ -592,8 +624,10 @@ const AIError = ({
   if (errorCode === 'TOO_MANY_REQUESTS') {
     return (
       <>
-        Sorry, we are receiving too many requests in a short period of time.
-        Please wait a few minutes and try again.
+        {t(
+          'genai.error.tooManyRequests',
+          'Sorry, we are receiving too many requests in a short period of time. Please wait a few minutes and try again.'
+        )}
       </>
     );
   }
@@ -601,8 +635,10 @@ const AIError = ({
   if (errorCode === 'GATEWAY_TIMEOUT') {
     return (
       <>
-        It took too long to generate your query, please check your connection
-        and try again. If the problem persists, contact our support team.
+        {t(
+          'genai.error.timeout',
+          'It took too long to generate your query, please check your connection and try again. If the problem persists, contact our support team.'
+        )}
       </>
     );
   }
@@ -610,8 +646,10 @@ const AIError = ({
   // We received an errorCode that is not actionable (INTERNAL_SERVER_ERROR, QUERY_GENERATION_FAILED), or unknown.
   return (
     <>
-      Sorry, we were unable to generate the query, please try again. If the
-      error persists, try changing your prompt.
+      {t(
+        'genai.error.generic',
+        'Sorry, we were unable to generate the query, please try again. If the error persists, try changing your prompt.'
+      )}
     </>
   );
 };

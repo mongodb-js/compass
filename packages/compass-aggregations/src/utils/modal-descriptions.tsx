@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from '@mongodb-js/compass-components';
+import { renderTemplate } from './render-template';
+import { Link, useTranslation } from '@mongodb-js/compass-components';
 
-export const runPipelineConfirmationDescription = ({
+const PipelineConfirmationDescription = ({
   typeOfWrite,
   stage,
   ns,
@@ -10,21 +11,37 @@ export const runPipelineConfirmationDescription = ({
   stage: { name: string; link: string };
   ns: string | null;
 }) => {
+  const t = useTranslation();
+  const stageLink = (
+    <Link hideExternalIcon={false} href={stage.link} target="_blank">
+      {stage.name}
+    </Link>
+  );
   return (
     <div data-testid="confirmation-description">
-      This pipeline will execute a{' '}
-      <Link hideExternalIcon={false} href={stage.link} target="_blank">
-        {stage.name}
-      </Link>{' '}
-      operation,{' '}
-      {ns ? (
-        <>
-          {typeOfWrite} &quot;<b>{ns}</b>&quot;
-        </>
-      ) : (
-        <>that may alter or overwrite a collection</>
-      )}
-      . Do you wish to proceed?
+      {ns
+        ? renderTemplate(
+            t(
+              `aggregations.writeConfirmation.${typeOfWrite}`,
+              `This pipeline will execute a {stage} operation, ${typeOfWrite} "{ns}". Do you wish to proceed?`
+            ),
+            { stage: stageLink, ns: <b>{ns}</b> }
+          )
+        : renderTemplate(
+            t(
+              'aggregations.writeConfirmation.unknownNamespace',
+              'This pipeline will execute a {stage} operation, that may alter or overwrite a collection. Do you wish to proceed?'
+            ),
+            { stage: stageLink }
+          )}
     </div>
   );
+};
+
+export const runPipelineConfirmationDescription = (props: {
+  typeOfWrite: string;
+  stage: { name: string; link: string };
+  ns: string | null;
+}) => {
+  return <PipelineConfirmationDescription {...props} />;
 };

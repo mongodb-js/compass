@@ -1,6 +1,9 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from '../../stores/context';
-import { useFormattedDate } from '@mongodb-js/compass-components';
+import {
+  useFormattedDate,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import {
   deleteRecentQuery,
   saveRecentAsFavorite,
@@ -152,6 +155,7 @@ export const RecentList = ({
   onSaveFavorite: () => void;
   isReadonly: boolean;
 }) => {
+  const t = useTranslation();
   const onFavorite = useCallback(
     async (query: RecentQuery, name: string) => {
       const saved = await _onFavorite(query, name);
@@ -164,7 +168,14 @@ export const RecentList = ({
   );
 
   if (queries.length === 0) {
-    return <ZeroGraphic text={'Your recent queries will appear here.'} />;
+    return (
+      <ZeroGraphic
+        text={t(
+          'queryBar.history.noRecents',
+          'Your recent queries will appear here.'
+        )}
+      />
+    );
   }
   const content = queries.map((query) => (
     <RecentItem

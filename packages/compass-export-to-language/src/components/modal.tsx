@@ -11,11 +11,12 @@ import {
   FormFieldContainer,
   Panel,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { Language } from '@mongodb-js/compass-components';
 import type { OutputLanguage } from '../modules/languages';
 import { isQueryExpression, runTranspiler } from '../modules/transpiler';
-import type { InputExpression } from '../modules/transpiler';
+import type { ExportMode, InputExpression } from '../modules/transpiler';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -48,6 +49,13 @@ const SUPPORTED_LANGUAGES = new Set<string>(
 function isSupportedLanguage(lang: string): lang is OutputLanguage {
   return SUPPORTED_LANGUAGES.has(lang);
 }
+
+const EXPORT_MODE_KEYS = {
+  Query: 'query',
+  'Delete Query': 'deleteQuery',
+  'Update Query': 'updateQuery',
+  Pipeline: 'pipeline',
+} as const satisfies Record<ExportMode, string>;
 
 const shellLanguageOptions: LanguageOption[] = [
   { displayName: 'Shell', language: 'javascript' },
@@ -115,6 +123,7 @@ const ExportToLanguageModal: React.FunctionComponent<
     onModalClose: () => void;
   }
 > = ({ modalOpen, onModalClose, inputExpression, uri, namespace }) => {
+  const t = useTranslation();
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const [outputLanguage, setOutputLanguage] =
@@ -124,6 +133,7 @@ const ExportToLanguageModal: React.FunctionComponent<
   const [useBuilders, setUseBuilders] = useState<boolean>(false);
 
   const mode = inputExpression.exportMode;
+  const modeKey = EXPORT_MODE_KEYS[mode];
   const isQuery = isQueryExpression(inputExpression);
 
   const protectConnectionStrings = !!usePreference('protectConnectionStrings');
@@ -227,7 +237,10 @@ const ExportToLanguageModal: React.FunctionComponent<
       data-testid="export-to-language-modal"
       open={modalOpen}
       onClose={onModalClose}
-      title={`Export ${mode} To Language`}
+      title={t(
+        `exportToLanguage.title.${modeKey}`,
+        `Export ${mode} To Language`
+      )}
       size="large"
     >
       {errorMessage && (
@@ -246,7 +259,7 @@ const ExportToLanguageModal: React.FunctionComponent<
             htmlFor="export-to-language-input"
             className={editorHeadingStyles}
           >
-            My {mode}
+            {t(`exportToLanguage.input.${modeKey}`, `My ${mode}`)}
           </Label>
           <Code
             className={codeStyles}
@@ -275,7 +288,7 @@ const ExportToLanguageModal: React.FunctionComponent<
             htmlFor="export-to-language-output"
             className={editorHeadingStyles}
           >
-            Exported {mode}
+            {t(`exportToLanguage.output.${modeKey}`, `Exported ${mode}`)}
           </Label>
           <Code
             className={codeStyles}
@@ -303,7 +316,10 @@ const ExportToLanguageModal: React.FunctionComponent<
         className={checkboxStyles}
         data-testid="export-to-language-include-imports"
         onChange={() => setIncludeImports(!includeImports)}
-        label="Include Import Statements"
+        label={t(
+          'exportToLanguage.includeImports',
+          'Include Import Statements'
+        )}
         checked={includeImports}
         bold={false}
       />
@@ -312,7 +328,7 @@ const ExportToLanguageModal: React.FunctionComponent<
         className={checkboxStyles}
         data-testid="export-to-language-include-drivers"
         onChange={() => setIncludeDrivers(!includeDrivers)}
-        label="Include Driver Syntax"
+        label={t('exportToLanguage.includeDrivers', 'Include Driver Syntax')}
         checked={includeDrivers}
         bold={false}
       />
@@ -322,7 +338,7 @@ const ExportToLanguageModal: React.FunctionComponent<
           className={checkboxStyles}
           data-testid="export-to-language-use-builders"
           onChange={() => setUseBuilders(!useBuilders)}
-          label="Use Builders"
+          label={t('exportToLanguage.useBuilders', 'Use Builders')}
           checked={useBuilders}
           bold={false}
         />

@@ -3,6 +3,7 @@ import {
   type PreferencesAccess,
   isAIFeatureEnabled,
 } from 'compass-preferences-model/provider';
+import { translate } from '@mongodb-js/compass-components';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -278,7 +279,11 @@ export class AtlasAiService {
     }
     if (!isAIFeatureEnabled(this.preferences.getPreferences())) {
       throw new Error(
-        "Compass' AI functionality is not currently enabled. Please try again later."
+        translate(
+          this.preferences.getPreferences().language ?? 'en',
+          'genai.service.notEnabled',
+          "Compass' AI functionality is not currently enabled. Please try again later."
+        )
       );
     }
   }
@@ -353,7 +358,11 @@ export class AtlasAiService {
       validateSchemaSize(schema);
     } catch {
       throw new AtlasAiServiceInvalidInputError(
-        'The provided schema is too large to process. Please reduce the schema size and try again.'
+        translate(
+          this.preferences.getPreferences().language ?? 'en',
+          'genai.service.schemaTooLarge',
+          'The provided schema is too large to process. Please reduce the schema size and try again.'
+        )
       );
     }
 

@@ -11,7 +11,7 @@ import {
 } from '../utils/query';
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, translate } from '@mongodb-js/compass-components';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
@@ -266,10 +266,19 @@ export const runAIQuery = (
       // We're going to reset input state with this error, show the error in the
       // toast instead
       if ((err as AtlasServiceError).statusCode === 401) {
+        const language = preferences.getPreferences().language ?? 'en';
         openToast('ai-unauthorized', {
           variant: 'important',
-          title: 'Network Error',
-          description: 'Unauthorized',
+          title: translate(
+            language,
+            'queryBar.ai.networkError',
+            'Network Error'
+          ),
+          description: translate(
+            language,
+            'queryBar.ai.unauthorized',
+            'Unauthorized'
+          ),
           timeout: 5000,
         });
       }
@@ -360,7 +369,11 @@ export const runAIQuery = (
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
-        errorMessage: msg,
+        errorMessage: translate(
+          preferences.getPreferences().language ?? 'en',
+          'queryBar.ai.noQuery',
+          msg
+        ),
       });
       return;
     }

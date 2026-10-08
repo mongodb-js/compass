@@ -6,6 +6,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  useTranslation,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import {
@@ -100,6 +101,11 @@ function AIExperienceEntry({
 }) {
   const darkMode = useDarkMode();
   const track = useTelemetry();
+  const t = useTranslation();
+  const label =
+    type === 'query'
+      ? t('genai.entry.generateQuery', 'Generate query')
+      : t('genai.entry.generateAggregation', 'Generate aggregation');
 
   const handleClick = useCallback(() => {
     track('AI Generate Query Clicked', { type });
@@ -115,9 +121,9 @@ function AIExperienceEntry({
       onClick={handleClick}
       data-testid={dataTestId}
       type="button"
-      title={`Generate ${type}`}
+      title={label}
     >
-      <span className={hiddenOnNarrowStyles}>Generate {type}</span>
+      <span className={hiddenOnNarrowStyles}>{label}</span>
       <AIEntrySVG darkMode={darkMode} />
     </button>
   );
@@ -129,11 +135,13 @@ function createAIPlaceholderHTMLPlaceholder({
   onClickAI,
   darkMode,
   placeholderText,
+  generateLabel = 'Generate query',
   track,
 }: {
   onClickAI: () => void;
   darkMode?: boolean;
   placeholderText: string;
+  generateLabel?: string;
   track: TrackFunction;
 }): () => HTMLElement {
   const containerEl = document.createElement('div');
@@ -165,9 +173,10 @@ function createAIPlaceholderHTMLPlaceholder({
     darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
   );
 
-  const aiButtonContent = `<span>Generate query</span>
+  const aiButtonContent = `<span></span>
 ${getAIEntrySVGString()}`;
   aiButtonEl.innerHTML = aiButtonContent;
+  aiButtonEl.firstElementChild!.textContent = generateLabel;
 
   containerEl.appendChild(aiButtonEl);
 

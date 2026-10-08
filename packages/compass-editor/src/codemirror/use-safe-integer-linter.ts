@@ -1,5 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useCurrentValueRef } from '@mongodb-js/compass-components';
+import {
+  useCurrentValueRef,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { syntaxTree } from '@codemirror/language';
 import type { Text } from '@codemirror/state';
 import type { EditorRef } from '../types';
@@ -32,8 +35,6 @@ type FixOptions = {
 };
 
 const defaultOnFixViolation = (source: string) => `Long("${source}")`;
-
-const VIOLATION_MESSAGE = 'Exceeds safe integer range.';
 
 // Constructors that accept a string and use the value. Anything else
 // either changes meaning (`Date`) or still rounds the value (`Int32`,
@@ -136,6 +137,7 @@ export function useSafeIntegerLinter({
   tooltipExitDelay,
   theme,
 }: SafeIntegerLinterOptions) {
+  const t = useTranslation();
   const [violations, setViolations] = useState<SafeIntegerViolation[]>([]);
   const optionsRef = useCurrentValueRef({
     onFixViolation,
@@ -177,10 +179,13 @@ export function useSafeIntegerLinter({
             from,
             to,
             severity: 'error',
-            message: VIOLATION_MESSAGE,
+            message: t(
+              'editor.safeInteger.exceedsRange',
+              'Exceeds safe integer range.'
+            ),
             actions: [
               {
-                name: 'Convert to Long',
+                name: t('editor.safeInteger.convertToLong', 'Convert to Long'),
                 apply: (view, from, to) => {
                   view.dispatch({
                     changes: {
@@ -206,7 +211,7 @@ export function useSafeIntegerLinter({
       },
       { lintDelay, theme, tooltipExitDelay }
     );
-  }, [lintDelay, theme, tooltipExitDelay]);
+  }, [lintDelay, theme, tooltipExitDelay, t]);
 
   const onFixViolations = useCallback(() => {
     const editor = editorRef?.current?.editor;

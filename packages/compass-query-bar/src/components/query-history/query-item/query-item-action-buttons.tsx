@@ -1,4 +1,8 @@
-import { Icon, IconButton } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  IconButton,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import React from 'react';
 
 type ActionButtonProps = {
@@ -12,11 +16,13 @@ const justDelegateClick =
   };
 
 export const FavoriteActionButton = ({ onClick }: ActionButtonProps) => {
+  const t = useTranslation();
+  const label = t('queryBar.history.favoriteQuery', 'Favorite Query');
   return (
     <IconButton
       data-testid="query-history-button-fav"
-      aria-label="Favorite Query"
-      title="Favorite Query"
+      aria-label={label}
+      title={label}
       onClick={justDelegateClick(onClick)}
     >
       <Icon glyph="Favorite" />
@@ -25,11 +31,13 @@ export const FavoriteActionButton = ({ onClick }: ActionButtonProps) => {
 };
 
 export const CopyActionButton = ({ onClick }: ActionButtonProps) => {
+  const t = useTranslation();
+  const label = t('queryBar.history.copyQuery', 'Copy Query to Clipboard');
   return (
     <IconButton
       data-testid="query-history-button-copy-query"
-      aria-label="Copy Query to Clipboard"
-      title="Copy Query to Clipboard"
+      aria-label={label}
+      title={label}
       onClick={justDelegateClick(onClick)}
     >
       <Icon glyph="Copy" />
@@ -38,11 +46,13 @@ export const CopyActionButton = ({ onClick }: ActionButtonProps) => {
 };
 
 export const DeleteActionButton = ({ onClick }: ActionButtonProps) => {
+  const t = useTranslation();
+  const label = t('queryBar.history.deleteQuery', 'Delete Query from List');
   return (
     <IconButton
       data-testid="query-history-button-delete-recent"
-      aria-label="Delete Query from List"
-      title="Delete Query from List"
+      aria-label={label}
+      title={label}
       onClick={justDelegateClick(onClick)}
     >
       <Icon glyph="Trash" />
@@ -51,11 +61,13 @@ export const DeleteActionButton = ({ onClick }: ActionButtonProps) => {
 };
 
 export const OpenBulkUpdateActionButton = ({ onClick }: ActionButtonProps) => {
+  const t = useTranslation();
+  const label = t('queryBar.history.openInModal', 'Open in Modal');
   return (
     <IconButton
       data-testid="query-opens-in-modal-button"
-      aria-label="Open in Modal"
-      title="Open in Modal"
+      aria-label={label}
+      title={label}
       onClick={justDelegateClick(onClick)}
     >
       <Icon glyph="OpenNewTab" />

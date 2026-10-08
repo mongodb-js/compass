@@ -6,6 +6,7 @@ import {
   css,
   focusRing,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import QueryHistory from './query-history';
@@ -42,6 +43,7 @@ const QueryHistoryButtonPopover = ({
 }: {
   onOpenPopover: () => void;
 }) => {
+  const t = useTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
   const connectionInfoRef = useConnectionInfoRef();
 
@@ -81,9 +83,9 @@ const QueryHistoryButtonPopover = ({
             data-testid="query-history-button"
             onClick={onClick}
             className={openQueryHistoryButtonStyles}
-            aria-label="Open query history"
+            aria-label={t('queryBar.history.open', 'Open query history')}
             aria-haspopup="true"
-            title="Query History"
+            title={t('queryBar.history.title', 'Query History')}
             tabIndex={0}
             aria-expanded={isOpen ? true : undefined}
             type="button"

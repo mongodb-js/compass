@@ -11,6 +11,7 @@ import {
   Link,
   Icon,
   Tooltip,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import { closeExplainPlanModal } from '../stores/explain-plan-modal-store';
@@ -89,12 +90,15 @@ const loaderContainerStyles = css({
 });
 
 const Loader: React.FunctionComponent = () => {
+  const t = useTranslation();
   return (
     <div
       className={explainPlanModalLoadingStyles}
       data-testid="explain-plan-loading"
     >
-      <SpinLoaderWithLabel progressText="Running explain"></SpinLoaderWithLabel>
+      <SpinLoaderWithLabel
+        progressText={t('explainPlan.modal.running', 'Running explain')}
+      ></SpinLoaderWithLabel>
     </div>
   );
 };
@@ -111,6 +115,7 @@ export const ExplainPlanModal: React.FunctionComponent<
   initialViewType = 'tree',
   onModalClose,
 }) => {
+  const t = useTranslation();
   const { interpretExplainPlan } = useAssistantActions();
 
   return (
@@ -124,16 +129,19 @@ export const ExplainPlanModal: React.FunctionComponent<
       <div className={headerWithButtonStyles}>
         <div className={headerContentStyles}>
           <ModalHeader
-            title="Explain Plan"
+            title={t('explainPlan.modal.title', 'Explain Plan')}
             subtitle={
               <div>
-                Explain provides key execution metrics that help diagnose slow
-                queries and optimize index usage.&nbsp;
+                {t(
+                  'explainPlan.modal.subtitle',
+                  'Explain provides key execution metrics that help diagnose slow queries and optimize index usage.'
+                )}
+                &nbsp;
                 <Link
                   href="https://www.mongodb.com/docs/upcoming/reference/explain-results/#mongodb-data-explain.executionStats"
                   target="_blank"
                 >
-                  Learn more
+                  {t('explainPlan.modal.learnMore', 'Learn more')}
                 </Link>
               </div>
             }
@@ -156,7 +164,7 @@ export const ExplainPlanModal: React.FunctionComponent<
               }}
               disabled={status !== 'ready'}
             >
-              Interpret
+              {t('explainPlan.modal.interpret', 'Interpret')}
             </Button>
             <Tooltip
               triggerEvent="hover"
@@ -166,8 +174,10 @@ export const ExplainPlanModal: React.FunctionComponent<
                 </span>
               }
             >
-              Understand Explain output in natural language and get suggestions
-              to improve performance
+              {t(
+                'explainPlan.modal.interpretTooltip',
+                'Understand Explain output in natural language and get suggestions to improve performance'
+              )}
             </Tooltip>
           </div>
         )}
@@ -192,7 +202,9 @@ export const ExplainPlanModal: React.FunctionComponent<
 
       <ModalFooter>
         <Button onClick={onModalClose} data-testid="explain-close-button">
-          {status === 'loading' ? 'Cancel' : 'Close'}
+          {status === 'loading'
+            ? t('explainPlan.modal.cancel', 'Cancel')
+            : t('explainPlan.modal.close', 'Close')}
         </Button>
       </ModalFooter>
     </Modal>

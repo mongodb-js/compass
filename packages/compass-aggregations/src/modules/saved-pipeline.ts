@@ -1,3 +1,4 @@
+import { getTranslator } from '../utils/i18n';
 import { openToast } from '@mongodb-js/compass-components';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
@@ -133,7 +134,11 @@ export const openStoredPipeline = (
   pipelineData: SavedPipeline,
   updatePreview = true
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder, logger: { debug } }) => {
+  return (
+    dispatch,
+    getState,
+    { pipelineBuilder, logger: { debug }, preferences }
+  ) => {
     try {
       pipelineBuilder.reset(pipelineData.pipelineText);
       dispatch(restorePipeline(pipelineData, pipelineBuilder));
@@ -145,9 +150,17 @@ export const openStoredPipeline = (
         if (shortName.length < pipelineData.name.length) {
           shortName += '…';
         }
+        const t = getTranslator(preferences);
         openToast('restore-pipeline-with-errors', {
-          title: "Can't parse pipeline source to stages",
-          description: `Loaded pipeline "${shortName}" contains syntax errors`,
+          title: t(
+            'aggregations.savedPipeline.parseError',
+            "Can't parse pipeline source to stages"
+          ),
+          description: t(
+            'aggregations.savedPipeline.syntaxErrors',
+            'Loaded pipeline "{name}" contains syntax errors',
+            { name: shortName }
+          ),
           variant: 'warning',
           timeout: 10000,
         });
@@ -223,16 +236,25 @@ export const saveCurrentPipeline =
 
 export const confirmOpenPipeline =
   (pipelineData: SavedPipeline): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { track, connectionInfoRef }) => {
+  async (dispatch, getState, { track, connectionInfoRef, preferences }) => {
+    const t = getTranslator(preferences);
     const isModified = getState().isModified;
     const connectionInfo = connectionInfoRef.current;
     if (isModified) {
       track('Screen', { name: 'restore_pipeline_modal' }, connectionInfo);
       const confirmed = await showConfirmation({
-        title: 'Are you sure you want to open this pipeline?',
-        description:
-          'Opening this project will abandon unsaved changes to the current pipeline you are building.',
-        buttonText: 'Open Pipeline',
+        title: t(
+          'aggregations.savedPipeline.openConfirmTitle',
+          'Are you sure you want to open this pipeline?'
+        ),
+        description: t(
+          'aggregations.savedPipeline.openConfirmDescription',
+          'Opening this project will abandon unsaved changes to the current pipeline you are building.'
+        ),
+        buttonText: t(
+          'aggregations.savedPipeline.openConfirmButton',
+          'Open Pipeline'
+        ),
       });
       if (!confirmed) {
         return;
@@ -252,14 +274,27 @@ export const confirmOpenPipeline =
 
 export const confirmDeletePipeline =
   (pipelineId: string): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineStorage, track, connectionInfoRef }) => {
+  async (
+    dispatch,
+    getState,
+    { pipelineStorage, track, connectionInfoRef, preferences }
+  ) => {
+    const t = getTranslator(preferences);
     const connectionInfo = connectionInfoRef.current;
     track('Screen', { name: 'delete_pipeline_modal' }, connectionInfo);
     const confirmed = await showConfirmation({
-      title: 'Are you sure you want to delete this pipeline?',
-      description:
-        'Deleting this pipeline will remove it from your saved pipelines.',
-      buttonText: 'Delete Pipeline',
+      title: t(
+        'aggregations.savedPipeline.deleteConfirmTitle',
+        'Are you sure you want to delete this pipeline?'
+      ),
+      description: t(
+        'aggregations.savedPipeline.deleteConfirmDescription',
+        'Deleting this pipeline will remove it from your saved pipelines.'
+      ),
+      buttonText: t(
+        'aggregations.savedPipeline.deleteConfirmButton',
+        'Delete Pipeline'
+      ),
       variant: ConfirmationModalVariant.Danger,
     });
     if (!confirmed) {

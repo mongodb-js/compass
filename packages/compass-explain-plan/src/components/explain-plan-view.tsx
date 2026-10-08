@@ -7,6 +7,7 @@ import {
   SegmentedControlOption,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -113,6 +114,7 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
   initialViewType,
   error,
 }) => {
+  const t = useTranslation();
   const [viewType, setViewType] = useState<'tree' | 'json'>(
     error ? 'json' : (initialViewType ?? 'tree')
   );
@@ -150,14 +152,14 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
             glyph={<Icon glyph="Diagram"></Icon>}
             disabled={!!error}
           >
-            Visual Tree
+            {t('explainPlan.view.visualTree', 'Visual Tree')}
           </SegmentedControlOption>
           <SegmentedControlOption
             value="json"
             glyph={<Icon glyph="CurlyBraces"></Icon>}
             disabled={!!error}
           >
-            Raw Output
+            {t('explainPlan.view.rawOutput', 'Raw Output')}
           </SegmentedControlOption>
         </SegmentedControl>
         {isParsingError && (

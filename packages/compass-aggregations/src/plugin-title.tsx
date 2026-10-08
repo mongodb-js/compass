@@ -1,5 +1,11 @@
+import { useTranslation } from '@mongodb-js/compass-components';
 import React from 'react';
 
 export function AggregationsTabTitle() {
-  return <div data-testid="aggregations-tab-title">Aggregations</div>;
+  const t = useTranslation();
+  return (
+    <div data-testid="aggregations-tab-title">
+      {t('aggregations.tabTitle', 'Aggregations')}
+    </div>
+  );
 }

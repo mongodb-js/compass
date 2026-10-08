@@ -10,6 +10,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const suggestionActionButtonStyles = css({
@@ -79,6 +80,7 @@ type AIFeedbackProps = {
 
 function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   const feedbackPositiveButtonRef = useRef<HTMLButtonElement>(null);
   const feedbackNegativeButtonRef = useRef<HTMLButtonElement>(null);
@@ -124,7 +126,7 @@ function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
         <Disclaimer
           className={darkMode ? submittedDarkStyles : submittedLightStyles}
         >
-          Success!
+          {t('genai.feedback.success', 'Success!')}
         </Disclaimer>
       </div>
     );
@@ -141,7 +143,7 @@ function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
         size="small"
         data-testid="ai-feedback-thumbs-up"
         ref={feedbackPositiveButtonRef}
-        aria-label="Submit positive feedback"
+        aria-label={t('genai.feedback.positive', 'Submit positive feedback')}
       >
         <Icon glyph="ThumbsUp" />
       </Button>
@@ -154,7 +156,7 @@ function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
         onClick={() => setChosenFeedbackOption('negative')}
         size="small"
         ref={feedbackNegativeButtonRef}
-        aria-label="Submit negative feedback"
+        aria-label={t('genai.feedback.negative', 'Submit negative feedback')}
       >
         <Icon glyph="ThumbsDown" />
       </Button>
@@ -173,12 +175,18 @@ function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
           open
           setOpen={() => setChosenFeedbackOption('none')}
           onSubmitFeedback={_onSubmitFeedback}
-          label="Provide Feedback"
+          label={t('genai.feedback.provide', 'Provide Feedback')}
           tooltipJustify="end"
           placeholder={
             chosenFeedbackOption === 'positive'
-              ? 'What do you like about the generated query?'
-              : 'What could be better about the generated query?'
+              ? t(
+                  'genai.feedback.placeholderPositive',
+                  'What do you like about the generated query?'
+                )
+              : t(
+                  'genai.feedback.placeholderNegative',
+                  'What could be better about the generated query?'
+                )
           }
         />
       )}

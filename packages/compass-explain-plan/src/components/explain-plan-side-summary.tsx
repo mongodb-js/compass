@@ -14,6 +14,7 @@ import {
   Icon,
   SignalPopover,
   PerformanceSignals,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   openCreateIndexModal,
@@ -130,12 +131,6 @@ const indexIconDescriptionStyles = css({
   verticalAlign: 'text-top',
 });
 
-const indexTypeToMessage = {
-  COVERED: 'Query covered by index:',
-  MULTIPLE: 'Query used the following indexes (shard results differ):',
-  INDEX: 'Query used the following index:',
-} as const;
-
 const IndexDetails = ({
   indexType,
   indexKeys,
@@ -145,6 +140,7 @@ const IndexDetails = ({
   'indexType' | 'indexKeys' | 'onCreateIndexInsightClick'
 >) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
 
   if (indexType === 'CLUSTERED') {
@@ -155,7 +151,12 @@ const IndexDetails = ({
     return (
       <div className={statsStyles} style={{ color: warningColor }}>
         <Icon glyph="Warning"></Icon>
-        <span>No index available for this query.</span>
+        <span>
+          {t(
+            'explainPlan.summary.noIndex',
+            'No index available for this query.'
+          )}
+        </span>
         <SignalPopover
           signals={{
             ...PerformanceSignals.get('explain-plan-without-index'),
@@ -166,6 +167,18 @@ const IndexDetails = ({
     );
   }
 
+  const indexTypeToMessage = {
+    COVERED: t('explainPlan.summary.coveredByIndex', 'Query covered by index:'),
+    MULTIPLE: t(
+      'explainPlan.summary.multipleIndexes',
+      'Query used the following indexes (shard results differ):'
+    ),
+    INDEX: t(
+      'explainPlan.summary.usedIndex',
+      'Query used the following index:'
+    ),
+  } as const;
+
   return (
     <div className={indexesSummaryStyles}>
       <ExplainPlanSummaryStat
@@ -173,11 +186,20 @@ const IndexDetails = ({
         label={indexTypeToMessage[indexType]}
         definition={
           <>
-            The index(es) used to fulfill the query. A value of{' '}
+            {t(
+              'explainPlan.summary.indexDefinition.start',
+              'The index(es) used to fulfill the query. A value of'
+            )}{' '}
             <IndexIcon className={indexIconDescriptionStyles} direction={1} />{' '}
-            indicates an ascending index, and a value of{' '}
+            {t(
+              'explainPlan.summary.indexDefinition.ascending',
+              'indicates an ascending index, and a value of'
+            )}{' '}
             <IndexIcon className={indexIconDescriptionStyles} direction={-1} />{' '}
-            indicates a descending index.
+            {t(
+              'explainPlan.summary.indexDefinition.descending',
+              'indicates a descending index.'
+            )}
           </>
         }
       ></ExplainPlanSummaryStat>
@@ -207,6 +229,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
   onCreateIndexInsightClick,
 }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   return (
     <KeylineCard
       className={summaryCardStyles}
@@ -218,7 +241,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
           darkMode && summaryHeadingDarkModeStyles
         )}
       >
-        Query Performance Summary
+        {t('explainPlan.summary.title', 'Query Performance Summary')}
       </Subtitle>
 
       <ul className={statsListStyles}>
@@ -234,8 +257,11 @@ export const ExplainPlanSummary: React.FunctionComponent<
           }
           value={docsReturned}
           data-testid="docsReturned"
-          label="documents returned"
-          definition="Number of documents returned by the query."
+          label={t('explainPlan.summary.docsReturned', 'documents returned')}
+          definition={t(
+            'explainPlan.summary.docsReturnedDefinition',
+            'Number of documents returned by the query.'
+          )}
         ></ExplainPlanSummaryStat>
 
         <ExplainPlanSummaryStat
@@ -250,8 +276,11 @@ export const ExplainPlanSummary: React.FunctionComponent<
           }
           value={docsExamined}
           data-testid="docsExamined"
-          label="documents examined"
-          definition="Number of documents examined during query execution. When an index covers a query, this value is 0."
+          label={t('explainPlan.summary.docsExamined', 'documents examined')}
+          definition={t(
+            'explainPlan.summary.docsExaminedDefinition',
+            'Number of documents examined during query execution. When an index covers a query, this value is 0.'
+          )}
         ></ExplainPlanSummaryStat>
 
         <ExplainPlanSummaryStat
@@ -266,8 +295,11 @@ export const ExplainPlanSummary: React.FunctionComponent<
           value={executionTimeMs}
           data-testid="executionTimeMs"
           formatter={(val) => `${String(val)}\xa0ms`}
-          label="execution time"
-          definition="Total time in milliseconds for query plan selection and query execution."
+          label={t('explainPlan.summary.executionTime', 'execution time')}
+          definition={t(
+            'explainPlan.summary.executionTimeDefinition',
+            'Total time in milliseconds for query plan selection and query execution.'
+          )}
         ></ExplainPlanSummaryStat>
 
         <ExplainPlanSummaryStat
@@ -283,9 +315,16 @@ export const ExplainPlanSummary: React.FunctionComponent<
           }
           value={sortedInMemory}
           data-testid="sortedInMemory"
-          formatter={(val) => (val ? 'Is' : 'Is not')}
-          label="sorted in memory"
-          definition="Indicates whether the sort operation occurred in system memory. In-memory sorts perform better than on-disk sorts."
+          formatter={(val) =>
+            val
+              ? t('explainPlan.summary.isSorted', 'Is')
+              : t('explainPlan.summary.isNotSorted', 'Is not')
+          }
+          label={t('explainPlan.summary.sortedInMemory', 'sorted in memory')}
+          definition={t(
+            'explainPlan.summary.sortedInMemoryDefinition',
+            'Indicates whether the sort operation occurred in system memory. In-memory sorts perform better than on-disk sorts.'
+          )}
         ></ExplainPlanSummaryStat>
 
         <ExplainPlanSummaryStat
@@ -300,8 +339,14 @@ export const ExplainPlanSummary: React.FunctionComponent<
           }
           value={indexKeysExamined}
           data-testid="indexKeysExamined"
-          label="index keys examined"
-          definition="Number of indexes examined to fulfill the query."
+          label={t(
+            'explainPlan.summary.indexKeysExamined',
+            'index keys examined'
+          )}
+          definition={t(
+            'explainPlan.summary.indexKeysExaminedDefinition',
+            'Number of indexes examined to fulfill the query.'
+          )}
         ></ExplainPlanSummaryStat>
 
         <IndexDetails

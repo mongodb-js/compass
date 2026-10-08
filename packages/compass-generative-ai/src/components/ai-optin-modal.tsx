@@ -11,6 +11,7 @@ import {
   useDarkMode,
   MarketingModal,
   cx,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { AiImageBanner } from './ai-image-banner';
 import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
@@ -72,11 +73,27 @@ const bannerStyles = css({
   textAlign: 'left',
 });
 
+function withLink(template: string, link: React.ReactNode): React.ReactNode {
+  const [before, after] = template.split('{link}');
+  return (
+    <>
+      {before}
+      {link}
+      {after}
+    </>
+  );
+}
+
 const CloudAIOptInBannerContent: React.FunctionComponent<{
   isProjectAIEnabled: boolean;
   isSampleDocumentPassingEnabled: boolean;
   projectId?: string;
 }> = ({ isProjectAIEnabled, isSampleDocumentPassingEnabled, projectId }) => {
+  const t = useTranslation();
+  const projectSettingsLabel = t(
+    'genai.optin.projectSettings',
+    'Project Settings'
+  );
   const projectSettingsLink = projectId ? (
     <Link
       href={
@@ -85,35 +102,36 @@ const CloudAIOptInBannerContent: React.FunctionComponent<{
       target="_blank"
       hideExternalIcon
     >
-      Project Settings
+      {projectSettingsLabel}
     </Link>
   ) : (
-    'Project Settings'
+    projectSettingsLabel
   );
   if (!isProjectAIEnabled) {
     // Both disabled case (main AI features disabled)
-    return (
-      <>
-        AI features are disabled for project users with data access. Project
-        Owners can enable Data Explorer AI features in {projectSettingsLink}.
-      </>
+    return withLink(
+      t(
+        'genai.optin.cloudDisabled',
+        'AI features are disabled for project users with data access. Project Owners can enable Data Explorer AI features in {link}.'
+      ),
+      projectSettingsLink
     );
   } else if (!isSampleDocumentPassingEnabled) {
     // Only sample values disabled case
-    return (
-      <>
-        AI features are enabled for project users with data access. Project
-        Owners can disable these features or enable sending sample field values
-        in Data Explorer AI features to improve their accuracy in{' '}
-        {projectSettingsLink}.
-      </>
+    return withLink(
+      t(
+        'genai.optin.cloudSamplesDisabled',
+        'AI features are enabled for project users with data access. Project Owners can disable these features or enable sending sample field values in Data Explorer AI features to improve their accuracy in {link}.'
+      ),
+      projectSettingsLink
     );
   }
-  return (
-    <>
-      AI features are enabled for project users with data access. Project Owners
-      can disable Data Explorer AI features in {projectSettingsLink}.
-    </>
+  return withLink(
+    t(
+      'genai.optin.cloudEnabled',
+      'AI features are enabled for project users with data access. Project Owners can disable Data Explorer AI features in {link}.'
+    ),
+    projectSettingsLink
   );
 };
 
@@ -131,6 +149,8 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
   );
   const track = useTelemetry();
   const darkMode = useDarkMode();
+  const t = useTranslation();
+  const product = isCloudOptIn ? 'Data Explorer' : 'Compass';
 
   useEffect(() => {
     if (isOptInModalVisible) {
@@ -154,29 +174,37 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
     <MarketingModal
       showBlob
       blobPosition="top right"
-      title={`Use AI Features in ${isCloudOptIn ? 'Data Explorer' : 'Compass'}`}
+      title={t('genai.optin.title', 'Use AI Features in {product}', {
+        product,
+      })}
       open={isOptInModalVisible}
       onClose={handleModalClose}
       data-testid="ai-optin-modal"
       buttonProps={{
-        children: 'Use AI Features',
+        children: t('genai.optin.useAiFeatures', 'Use AI Features'),
         onClick: onConfirmClick,
         disabled: !isProjectAIEnabled,
       }}
-      linkText="Not now"
+      linkText={t('genai.optin.notNow', 'Not now')}
       onLinkClick={onOptInModalClose}
       graphic={<AiImageBanner />}
       disclaimer={
         <div
           className={disclaimerStyles[darkMode ? Themes.Dark : Themes.Light]}
         >
-          Features in {isCloudOptIn ? 'Data Explorer' : 'Compass'} powered by
-          generative AI may produce inaccurate responses. Please see our{' '}
+          {t(
+            'genai.optin.disclaimerBefore',
+            'Features in {product} powered by generative AI may produce inaccurate responses. Please see our',
+            { product }
+          )}{' '}
           <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
-            FAQ
+            {t('genai.optin.faq', 'FAQ')}
           </Link>{' '}
-          for more information. Continue to opt into all AI-powered features
-          within {isCloudOptIn ? 'Data Explorer' : 'Compass'}.
+          {t(
+            'genai.optin.disclaimerAfter',
+            'for more information. Continue to opt into all AI-powered features within {product}.',
+            { product }
+          )}
         </div>
       }
     >
@@ -186,9 +214,11 @@ export const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
           darkMode ? bodyDarkThemeStyles : bodyLightThemeStyles
         )}
       >
-        AI-powered features in {isCloudOptIn ? 'Data Explorer' : 'Compass'}{' '}
-        supply users with an intelligent toolset to build faster and smarter
-        with MongoDB.
+        {t(
+          'genai.optin.description',
+          'AI-powered features in {product} supply users with an intelligent toolset to build faster and smarter with MongoDB.',
+          { product }
+        )}
         {isCloudOptIn && (
           <Banner
             data-testid="ai-optin-cloud-banner"

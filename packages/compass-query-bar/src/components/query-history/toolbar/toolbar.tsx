@@ -9,6 +9,7 @@ import {
   palette,
   Icon,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { QueryHistoryTab } from '..';
 
@@ -53,6 +54,7 @@ function Toolbar({
   namespace,
 }: ToolbarProps): React.ReactElement {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   const labelId = useId();
   const controlId = useId();
@@ -60,7 +62,7 @@ function Toolbar({
   return (
     <div className={toolbarStyles}>
       <Label className={titleStyles} id={labelId} htmlFor={controlId}>
-        Queries in{' '}
+        {t('queryBar.history.queriesIn', 'Queries in')}{' '}
         <span
           className={darkMode ? titleStylesDark : titleStylesLight}
           title={namespace}
@@ -81,7 +83,7 @@ function Toolbar({
           data-testid="past-queries-recent"
           glyph={<Icon glyph="Clock" />}
         >
-          Recents
+          {t('queryBar.history.recents', 'Recents')}
         </SegmentedControlOption>
         <SegmentedControlOption
           aria-controls="favorite"
@@ -89,7 +91,7 @@ function Toolbar({
           data-testid="past-queries-favorites"
           glyph={<Icon glyph="Favorite" />}
         >
-          Favorites
+          {t('queryBar.history.favorites', 'Favorites')}
         </SegmentedControlOption>
       </SegmentedControl>
     </div>

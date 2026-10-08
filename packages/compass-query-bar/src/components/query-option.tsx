@@ -9,6 +9,7 @@ import {
   palette,
   useDarkMode,
   useCurrentValueRef,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
@@ -87,6 +88,12 @@ export const documentEditorLabelContainerStyles = css(
 
 type QueryBarProperty = Exclude<QueryProperty, 'update'>;
 
+const TRANSLATABLE_PLACEHOLDERS = new Set<QueryBarProperty>([
+  'filter',
+  'sort',
+  'hint',
+]);
+
 type QueryOptionProps = {
   id: string;
   name: QueryBarProperty;
@@ -130,6 +137,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   disabled = false,
   onUnsafeIntegerReceived,
 }) => {
+  const t = useTranslation();
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
@@ -139,7 +147,9 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   const optionDefinition = OPTION_DEFINITION[name];
   const isDocumentEditor = optionDefinition.type === 'document';
 
-  placeholder ??= optionDefinition.placeholder;
+  placeholder ??= TRANSLATABLE_PLACEHOLDERS.has(name)
+    ? t(`queryBar.placeholder.${name}`, optionDefinition.placeholder)
+    : optionDefinition.placeholder;
   value ??= '';
 
   const onValueChange = useCallback(
@@ -207,7 +217,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                 : queryOptionLabelStyles
             }
           >
-            {optionDefinition.label ?? name}
+            {t(`queryBar.option.${name}`, optionDefinition.label ?? name)}
           </Label>
         </div>
       )}
@@ -270,8 +280,10 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                       </div>
                     )}
                   >
-                    Operations longer than 5 minutes are not supported in the
-                    web environment
+                    {t(
+                      'queryBar.maxTimeMSWebLimit',
+                      'Operations longer than 5 minutes are not supported in the web environment'
+                    )}
                   </Tooltip>
                 );
               }

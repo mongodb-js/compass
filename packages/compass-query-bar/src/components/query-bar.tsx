@@ -10,6 +10,7 @@ import {
   spacing,
   palette,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   AIExperienceEntry,
@@ -148,7 +149,7 @@ type QueryBarProps = {
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
-  buttonLabel = 'Apply',
+  buttonLabel,
   onApply,
   onReset,
   // Used to specify which query options to show and where they are positioned.
@@ -177,6 +178,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   source,
 }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const track = useTelemetry();
   const {
@@ -190,31 +192,36 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     (): MenuAction<ExplainMode>[] => [
       {
         action: 'interpret',
-        label: 'Interpret',
+        label: t('queryBar.explain.interpret', 'Interpret'),
         icon: isInterpretLoading ? (
-          <SpinLoader title="Loading interpret" />
+          <SpinLoader
+            title={t('queryBar.explain.loadingInterpret', 'Loading interpret')}
+          />
         ) : (
           'Sparkle'
         ),
         isDisabled: !isAssistantEnabled || isInterpretLoading,
         disabledDescription: isInterpretLoading
-          ? 'Interpret in progress'
+          ? t('queryBar.explain.interpretInProgress', 'Interpret in progress')
           : !isAssistantEnabled
-            ? 'Assistant is not available'
+            ? t(
+                'queryBar.explain.assistantUnavailable',
+                'Assistant is not available'
+              )
             : undefined,
       },
       {
         action: 'visual-tree',
-        label: 'Visual tree',
+        label: t('queryBar.explain.visualTree', 'Visual tree'),
         icon: 'Diagram',
       },
       {
         action: 'raw-output',
-        label: 'Raw output',
+        label: t('queryBar.explain.rawOutput', 'Raw output'),
         icon: 'CurlyBraces',
       },
     ],
-    [isAssistantEnabled, isInterpretLoading]
+    [isAssistantEnabled, isInterpretLoading, t]
   );
 
   const onExplainAction = useCallback(
@@ -247,7 +254,11 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             onShowAIInputClick();
           },
           darkMode,
-          placeholderText: OPTION_DEFINITION.filter.placeholder,
+          placeholderText: t(
+            'queryBar.placeholder.filter',
+            OPTION_DEFINITION.filter.placeholder
+          ),
+          generateLabel: t('genai.entry.generateQuery', 'Generate query'),
           track,
         })
       : placeholders?.filter;
@@ -258,6 +269,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     placeholders?.filter,
     onShowAIInputClick,
     track,
+    t,
   ]);
 
   const showAIEntryButton = useMemo(() => {
@@ -326,20 +338,23 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         {showExplainButton &&
           (isSearchActivationProgramP2Loading ? (
             <Button
-              aria-label="Explain query"
-              title="View the execution plan for the current query"
+              aria-label={t('queryBar.explainQuery', 'Explain query')}
+              title={t(
+                'queryBar.explainTooltip',
+                'View the execution plan for the current query'
+              )}
               data-testid="query-bar-explain-button-loading"
               disabled
               size="small"
               type="button"
               leftGlyph={<SpinLoader />}
             >
-              Explain
+              {t('queryBar.explain', 'Explain')}
             </Button>
           ) : enableSearchActivationProgramP2 ? (
             <DropdownMenuButton
               data-testid="query-bar-explain-dropdown-button"
-              buttonText="Explain"
+              buttonText={t('queryBar.explain', 'Explain')}
               buttonProps={{
                 size: 'small',
                 disabled: !isQueryValid || isAIFetching,
@@ -351,26 +366,29 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             />
           ) : (
             <Button
-              aria-label="Explain query"
-              title="View the execution plan for the current query"
+              aria-label={t('queryBar.explainQuery', 'Explain query')}
+              title={t(
+                'queryBar.explainTooltip',
+                'View the execution plan for the current query'
+              )}
               data-testid="query-bar-explain-button"
               onClick={onExplain}
               disabled={!isQueryValid || isAIFetching}
               size="small"
               type="button"
             >
-              Explain
+              {t('queryBar.explain', 'Explain')}
             </Button>
           ))}
         <Button
-          aria-label="Reset query"
+          aria-label={t('queryBar.resetQuery', 'Reset query')}
           data-testid="query-bar-reset-filter-button"
           onClick={handleReset}
           disabled={!queryChanged || isAIFetching}
           size="small"
           type="button"
         >
-          Reset
+          {t('queryBar.reset', 'Reset')}
         </Button>
         <Button
           data-testid="query-bar-apply-filter-button"
@@ -380,7 +398,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           type="submit"
           onClick={onFormSubmit}
         >
-          {buttonLabel}
+          {buttonLabel ?? t('queryBar.apply', 'Apply')}
         </Button>
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
           <div>
