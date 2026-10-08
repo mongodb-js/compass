@@ -189,7 +189,10 @@ export function getDisplayType(
     if (
       binary.sub_type === Binary.SUBTYPE_UUID_OLD &&
       binary.buffer.length === 16 &&
-      legacyUUIDEncoding
+      legacyUUIDEncoding &&
+      // 'ExtendedJSON' only changes how the value is rendered, it is not
+      // an editable element type.
+      isUUIDType(legacyUUIDEncoding)
     ) {
       return legacyUUIDEncoding as Element['type'];
     }

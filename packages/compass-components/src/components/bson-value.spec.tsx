@@ -263,6 +263,18 @@ describe('BSONValue', function () {
       );
     });
 
+    it('should render Legacy UUID as Extended JSON', function () {
+      const { container } = render(
+        <BSONDisplayOptionsProvider legacyUUIDDisplayEncoding="ExtendedJSON">
+          <BSONValue type="Binary" value={legacyUuidBinary} />
+        </BSONDisplayOptionsProvider>
+      );
+
+      expect(container.querySelector('.element-value')?.textContent).to.eq(
+        '{"$binary":{"base64":"ASNFZ4mrze8BI0VniavN7w==","subType":"03"}}'
+      );
+    });
+
     it('should fallback to raw format if UUID conversion fails', function () {
       // Create an invalid UUID binary that will cause conversion to fail.
       const invalidUuidBinary = new Binary(

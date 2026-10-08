@@ -6,9 +6,10 @@ import {
   reverseCSharpUUIDBytes,
   isBsonValue,
 } from 'hadron-type-checker';
-import { Binary } from 'bson';
+import { Binary, EJSON } from 'bson';
 import type { DBRef } from 'bson';
 import { Icon, Link } from './leafygreen';
+import { useTranslation } from '../i18n';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import {
@@ -168,6 +169,8 @@ const LegacyUUIDValue: React.FunctionComponent<PropsByValueType<'Binary'>> = (
           return toLegacyCSharpUUID(bsonValue);
         } else if (legacyUUIDDisplayEncoding === 'LegacyPythonUUID') {
           return toLegacyPythonUUID(bsonValue);
+        } else if (legacyUUIDDisplayEncoding === 'ExtendedJSON') {
+          return EJSON.stringify(bsonValue.value);
         }
       } catch {
         // Ignore errors and fallback to the raw representation.
@@ -288,18 +291,25 @@ const LegacyPythonUUIDValue: React.FunctionComponent<
 const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
   value,
 }) => {
+  const t = useTranslation();
   const { stringifiedValue, title, additionalHints } = useMemo(() => {
     if (value.sub_type === Binary.SUBTYPE_ENCRYPTED) {
       return {
         stringifiedValue: '*********',
-        title: 'Encrypted',
+        title: t('components.bsonValue.encrypted', 'Encrypted'),
         additionalHints: (
           <Link
             className={encryptedHelpLinkStyle}
             hideExternalIcon={true}
             href="https://www.mongodb.com/docs/compass/current/in-use-encryption-tutorial/"
-            aria-label="Compass In-Use Encryption documentation"
-            title="Compass In-Use Encryption documentation"
+            aria-label={t(
+              'components.bsonValue.inUseEncryptionDocs',
+              'Compass In-Use Encryption documentation'
+            )}
+            title={t(
+              'components.bsonValue.inUseEncryptionDocs',
+              'Compass In-Use Encryption documentation'
+            )}
             data-testid="bson-value-in-use-encryption-docs-link"
           >
             <Icon size="small" glyph="QuestionMarkWithCircle"></Icon>
@@ -358,7 +368,7 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
         100
       )}', ${value.sub_type})`,
     };
-  }, [value]);
+  }, [value, t]);
 
   return (
     <BSONValueContainer type="Binary" title={title ?? stringifiedValue}>
