@@ -8,3 +8,8 @@ export {
   isCancelError,
   throwIfAborted,
 } from './cancellable-promise';
+export {
+  utilityPortChannel,
+  isUtilityPortChannel,
+  openUtilityPort,
+} from './utility-process';

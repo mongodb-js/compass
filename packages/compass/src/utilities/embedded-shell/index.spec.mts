@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import process from 'node:process';
 import { EventEmitter, once } from 'events';
 import { MessageChannelMain } from 'electron';
-import type { ParentPort } from 'electron';
+import type { MessagePortMain, ParentPort } from 'electron';
 import { main } from './index.mts';
 
 describe('embedded-shell utility', function () {
@@ -38,13 +38,32 @@ describe('embedded-shell utility', function () {
     expect(entry.attr.startupMs).to.be.a('number');
   });
 
-  it('answers on a port handed over by main', async function () {
-    const { port1, port2 } = new MessageChannelMain();
-    parentPort.emit('message', { data: undefined, ports: [port2] });
-    port1.start();
-    port1.postMessage('hello');
+  describe('a shell session on a port', function () {
+    let port: MessagePortMain;
 
-    const [{ data }] = await once(port1, 'message');
-    expect(data).to.equal('hello');
+    beforeEach(function () {
+      const channel = new MessageChannelMain();
+      port = channel.port1;
+      parentPort.emit('message', { data: undefined, ports: [channel.port2] });
+      port.start();
+    });
+
+    afterEach(function () {
+      port.postMessage({ meta: 'terminate' });
+      port.close();
+    });
+
+    it('replies that nothing was interrupted when nothing is running', async function () {
+      port.postMessage({ meta: 'interrupt' });
+      const [{ data }] = await once(port, 'message');
+      expect(data).to.deep.equal({ meta: 'interrupted', interrupted: false });
+    });
+
+    it('starts the worker runtime in a worker thread', async function () {
+      this.timeout(20_000);
+      port.postMessage({ meta: 'spawn', workerOptions: { name: 'test' } });
+      const [{ data }] = await once(port, 'message');
+      expect(data).to.equal('ready');
+    });
   });
 });

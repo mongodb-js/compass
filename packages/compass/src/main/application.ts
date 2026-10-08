@@ -37,10 +37,12 @@ import {
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
 import { handleSquirrelWindowsStartup } from './squirrel-startup';
-import { utilityFileName, utilityPortChannel } from '../utilities/conventions';
+import { utilityPortChannel } from '@mongodb-js/compass-utils';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
+
+const UTILITIES = ['embedded-shell'];
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
@@ -221,9 +223,9 @@ class CompassApplication {
       }
     });
 
-    for (const name of ['embedded-shell']) {
+    for (const name of UTILITIES) {
       const child = utilityProcess.fork(
-        path.join(__dirname, utilityFileName(name)),
+        path.join(__dirname, `${name}.mjs`),
         [],
         {
           serviceName: `Compass ${name}`,
@@ -231,8 +233,10 @@ class CompassApplication {
             ...process.env,
             NODE_OPTIONS: [
               process.env.NODE_OPTIONS,
-              '--disallow-code-generation-from-strings',
               '--disable-proto=throw',
+              name === 'embedded-shell'
+                ? ''
+                : '--disallow-code-generation-from-strings',
             ]
               .filter(Boolean)
               .join(' '),
