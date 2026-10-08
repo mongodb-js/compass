@@ -5,6 +5,7 @@ import {
   css,
   spacing,
   showErrorDetails,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { WriteError } from '../stores/crud-store';
 import { getSafeIntegerViolationMessage } from '../utils';
@@ -52,6 +53,7 @@ export function InsertDocumentDialogBanner({
   safeIntegerViolationCount,
   onFixSafeIntegerViolations,
 }: InsertDocumentDialogBannerProps) {
+  const t = useTranslation();
   const banner = useMemo(() => {
     if (documentValidationError) {
       return {
@@ -61,19 +63,22 @@ export function InsertDocumentDialogBanner({
     }
     if (safeIntegerViolationCount > 0) {
       return {
-        message: getSafeIntegerViolationMessage(safeIntegerViolationCount),
+        message: getSafeIntegerViolationMessage(safeIntegerViolationCount, t),
         variant: 'danger' as const,
         action: {
           onClick: onFixSafeIntegerViolations,
           text:
             safeIntegerViolationCount === 1
-              ? 'Convert to Long'
-              : 'Convert all to Long',
+              ? t('crud.insertBanner.convertToLong', 'Convert to Long')
+              : t('crud.insertBanner.convertAllToLong', 'Convert all to Long'),
         },
       };
     }
     if (insertInProgress) {
-      return { message: 'Inserting Document', variant: 'info' as const };
+      return {
+        message: t('crud.insertBanner.inserting', 'Inserting Document'),
+        variant: 'info' as const,
+      };
     }
     if (documentWriteError) {
       return {
@@ -87,7 +92,7 @@ export function InsertDocumentDialogBanner({
                 closeAction: 'back',
               });
             },
-            text: 'VIEW ERROR DETAILS',
+            text: t('crud.insertBanner.viewErrorDetails', 'VIEW ERROR DETAILS'),
           },
         }),
       };
@@ -99,6 +104,7 @@ export function InsertDocumentDialogBanner({
     documentWriteError,
     safeIntegerViolationCount,
     onFixSafeIntegerViolations,
+    t,
   ]);
 
   if (!banner) {

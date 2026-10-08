@@ -7,7 +7,7 @@ import {
   confirmSelectedCollections,
   gotoStep,
 } from '../../store/generate-diagram-wizard';
-import { Modal } from '@mongodb-js/compass-components';
+import { Modal, useTranslation } from '@mongodb-js/compass-components';
 import SetupDiagramStep from './setup-diagram-step';
 import SelectCollectionsStep from './select-collections-step';
 import { selectIsAnalysisInProgress } from '../../store/analysis-process';
@@ -42,55 +42,63 @@ const NewDiagramModal: React.FunctionComponent<NewDiagramModalProps> = ({
   onStep,
   onGenerate,
 }) => {
+  const t = useTranslation();
   const formStepProps = useMemo(() => {
+    const collectionsSelectedFooter = numTotalCollections > 0 && (
+      <>
+        <strong>{numSelectedCollections}</strong>/
+        <strong>{numTotalCollections}</strong>{' '}
+        {numTotalCollections === 1
+          ? t(
+              'dataModeling.newDiagram.collectionsSelected.one',
+              'total collection selected.'
+            )
+          : t(
+              'dataModeling.newDiagram.collectionsSelected.other',
+              'total collections selected.'
+            )}
+      </>
+    );
     switch (currentStep) {
       case 'SETUP_DIAGRAM':
         return {
-          title: 'New diagram setup',
+          title: t('dataModeling.newDiagram.setupTitle', 'New diagram setup'),
           onNextClick: () => onStep('SELECT_COLLECTIONS'),
           onPreviousClick: onCancel,
-          nextLabel: 'Next',
-          previousLabel: 'Cancel',
+          nextLabel: t('dataModeling.newDiagram.next', 'Next'),
+          previousLabel: t('dataModeling.newDiagram.cancel', 'Cancel'),
           isNextDisabled: isGotoCollectionsStepDisabled,
           step: currentStep,
         };
       case 'SELECT_COLLECTIONS':
         return {
-          title: `Select collections for ${selectedDatabaseName}`,
-          description:
-            'These collections will be included in your generated diagram.',
+          title: t(
+            'dataModeling.newDiagram.selectCollectionsTitle',
+            'Select collections for {database}',
+            { database: selectedDatabaseName }
+          ),
+          description: t(
+            'dataModeling.newDiagram.selectCollectionsDescription',
+            'These collections will be included in your generated diagram.'
+          ),
           onNextClick: () => onStep('DIAGRAM_SETTINGS'),
           onPreviousClick: () => onStep('SETUP_DIAGRAM'),
-          nextLabel: 'Next',
-          previousLabel: 'Back',
+          nextLabel: t('dataModeling.newDiagram.next', 'Next'),
+          previousLabel: t('dataModeling.newDiagram.back', 'Back'),
           isNextDisabled: isGenerateDiagramDisabled,
           step: currentStep,
-          footerText: numTotalCollections > 0 && (
-            <>
-              <strong>{numSelectedCollections}</strong>/
-              <strong>{numTotalCollections}</strong> total{' '}
-              {numTotalCollections === 1 ? 'collection' : 'collections'}{' '}
-              selected.
-            </>
-          ),
+          footerText: collectionsSelectedFooter,
         };
       case 'DIAGRAM_SETTINGS':
         return {
-          title: `Diagram settings`,
+          title: t('dataModeling.newDiagram.settingsTitle', 'Diagram settings'),
           onNextClick: onGenerate,
           onPreviousClick: () => onStep('SELECT_COLLECTIONS'),
-          nextLabel: 'Generate',
-          previousLabel: 'Back',
+          nextLabel: t('dataModeling.newDiagram.generate', 'Generate'),
+          previousLabel: t('dataModeling.newDiagram.back', 'Back'),
           isNextDisabled: isGenerateDiagramDisabled,
           step: currentStep,
-          footerText: numTotalCollections > 0 && (
-            <>
-              <strong>{numSelectedCollections}</strong>/
-              <strong>{numTotalCollections}</strong> total{' '}
-              {numTotalCollections === 1 ? 'collection' : 'collections'}{' '}
-              selected.
-            </>
-          ),
+          footerText: collectionsSelectedFooter,
         };
       default:
         throw new Error('Unknown diagram generation step');
@@ -105,6 +113,7 @@ const NewDiagramModal: React.FunctionComponent<NewDiagramModalProps> = ({
     onCancel,
     onGenerate,
     onStep,
+    t,
   ]);
 
   return (

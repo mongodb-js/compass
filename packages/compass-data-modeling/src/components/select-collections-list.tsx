@@ -6,6 +6,7 @@ import {
   SelectList,
   spacing,
   SpinLoaderWithLabel,
+  useTranslation,
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -51,6 +52,7 @@ export const SelectCollectionsList: React.FunctionComponent<
   error,
   onCollectionsSelect,
 }) => {
+  const t = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredCollections = useMemo(() => {
@@ -95,7 +97,7 @@ export const SelectCollectionsList: React.FunctionComponent<
     return (
       <div className={loadingStyles}>
         <SpinLoaderWithLabel progressText="">
-          Fetching collections …
+          {t('dataModeling.collections.fetching', 'Fetching collections …')}
         </SpinLoaderWithLabel>
       </div>
     );
@@ -112,7 +114,10 @@ export const SelectCollectionsList: React.FunctionComponent<
     <>
       <FormFieldContainer>
         <SearchInput
-          aria-label="Search collections"
+          aria-label={t(
+            'dataModeling.collections.search',
+            'Search collections'
+          )}
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
@@ -120,9 +125,19 @@ export const SelectCollectionsList: React.FunctionComponent<
         />
       </FormFieldContainer>
       {collections.length === 0 ? (
-        <Body>This database has no collections.</Body>
+        <Body>
+          {t(
+            'dataModeling.collections.noCollections',
+            'This database has no collections.'
+          )}
+        </Body>
       ) : filteredCollections.length === 0 ? (
-        <Body>No collections match your search.</Body>
+        <Body>
+          {t(
+            'dataModeling.collections.noMatch',
+            'No collections match your search.'
+          )}
+        </Body>
       ) : (
         <SelectList
           className={collectionListStyles}
@@ -133,7 +148,10 @@ export const SelectCollectionsList: React.FunctionComponent<
               disabled: disabledCollections.includes(collName),
             };
           })}
-          label={{ displayLabelKey: 'id', name: 'Collection Name' }}
+          label={{
+            displayLabelKey: 'id',
+            name: t('dataModeling.collections.name', 'Collection Name'),
+          }}
           onChange={onChangeSelection}
         />
       )}

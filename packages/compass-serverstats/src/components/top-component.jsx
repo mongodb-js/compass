@@ -1,4 +1,5 @@
 const timer = require('d3-timer');
+const { Translated } = require('@mongodb-js/compass-components');
 const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
@@ -99,9 +100,18 @@ class TopComponent extends React.Component {
     return (
       <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+          <h2 className="rt-lists__headerlabel">
+            <Translated id="serverStats.top.title">
+              Hottest Collections
+            </Translated>
+          </h2>
         </header>
-        <div className="rt-lists__empty-error">&#9888; DATA UNAVAILABLE</div>
+        <div className="rt-lists__empty-error">
+          &#9888;{' '}
+          <Translated id="serverStats.dataUnavailable">
+            DATA UNAVAILABLE
+          </Translated>
+        </div>
       </div>
     );
   }
@@ -115,9 +125,16 @@ class TopComponent extends React.Component {
     return (
       <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+          <h2 className="rt-lists__headerlabel">
+            <Translated id="serverStats.top.title">
+              Hottest Collections
+            </Translated>
+          </h2>
         </header>
-        <div className="rt-lists__empty-error">&#10004; No Hot Collections</div>
+        <div className="rt-lists__empty-error">
+          &#10004;{' '}
+          <Translated id="serverStats.top.empty">No Hot Collections</Translated>
+        </div>
       </div>
     );
   }
@@ -157,7 +174,11 @@ class TopComponent extends React.Component {
     return (
       <div className="rt-lists" style={{ display: this.state.display }}>
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Hottest Collections</h2>
+          <h2 className="rt-lists__headerlabel">
+            <Translated id="serverStats.top.title">
+              Hottest Collections
+            </Translated>
+          </h2>
         </header>
         <div className="rt-lists__listdiv" id="div-scroll">
           <ul className="rt-lists__list">{rows}</ul>

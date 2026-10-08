@@ -8,6 +8,7 @@ import {
   cx,
   spacing,
   palette,
+  useTranslation,
   Label,
   Banner,
   BannerVariant,
@@ -157,6 +158,7 @@ const inlineSaveQueryModalContainedElements = ['#inline-save-query-modal *'];
 const InlineSaveQueryModal: React.FunctionComponent<
   InlineSaveQueryModalProps
 > = ({ disabled, onSave }) => {
+  const t = useTranslation();
   const [open, setOpen] = useState(false);
   const [favoriteName, setFavoriteName] = useState('');
   const [valid, setValid] = useState(false);
@@ -207,7 +209,7 @@ const InlineSaveQueryModal: React.FunctionComponent<
             disabled={disabled}
           >
             <Icon glyph="Favorite" />
-            Save
+            {t('crud.bulkUpdate.save', 'Save')}
             {children}
           </Button>
         );
@@ -223,7 +225,7 @@ const InlineSaveQueryModal: React.FunctionComponent<
           id="inline-save-query-modal-input"
           data-testid="inline-save-query-modal-input"
           className={inlineSaveQueryModalInputStyles}
-          aria-label="Saved query name"
+          aria-label={t('crud.bulkUpdate.savedQueryName', 'Saved query name')}
           value={favoriteName}
           onChange={updateFavoriteName}
           onKeyUp={handleSpecialKeyboardEvents}
@@ -234,14 +236,14 @@ const InlineSaveQueryModal: React.FunctionComponent<
           disabled={!valid}
           onClick={onClickSave}
         >
-          Save
+          {t('crud.bulkUpdate.save', 'Save')}
         </Button>
         <Button
           id="inline-save-query-modal-cancel-button"
           variant="default"
           onClick={cleanClose}
         >
-          Cancel
+          {t('crud.bulkUpdate.cancel', 'Cancel')}
         </Button>
       </div>
     </InteractivePopover>
@@ -274,6 +276,15 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   count,
   preview,
 }) => {
+  const t = useTranslation();
+  const sampleText =
+    preview.changes.length === 1
+      ? t('crud.bulkUpdate.sampleOne', '(sample of {count} document)', {
+          count: preview.changes.length,
+        })
+      : t('crud.bulkUpdate.sampleMany', '(sample of {count} documents)', {
+          count: preview.changes.length,
+        });
   // show a preview for the edge case where the count is undefined, not the
   // empty state
   if (count === 0) {
@@ -283,17 +294,21 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
         className={emptyStyles}
       >
         <Label htmlFor="bulk-update-preview">
-          Preview{' '}
+          {t('crud.bulkUpdate.preview', 'Preview')}{' '}
           <Description className={previewDescriptionStyles}>
-            (sample of {preview.changes.length} document
-            {preview.changes.length === 1 ? '' : 's'})
+            {sampleText}
           </Description>
         </Label>
         <div className={previewZeroStateIconStyles}>
           <DocumentIcon />
-          <b className={previewNoResultsLabel}>No results</b>
+          <b className={previewNoResultsLabel}>
+            {t('crud.bulkUpdate.noResults', 'No results')}
+          </b>
           <p className={previewZeroStateDescriptionStyles}>
-            Try modifying your query to get results.
+            {t(
+              'crud.bulkUpdate.tryModifying',
+              'Try modifying your query to get results.'
+            )}
           </p>
         </div>
       </div>
@@ -303,10 +318,9 @@ const BulkUpdatePreview: React.FunctionComponent<BulkUpdatePreviewProps> = ({
   return (
     <div>
       <Label htmlFor="bulk-update-preview">
-        Preview{' '}
+        {t('crud.bulkUpdate.preview', 'Preview')}{' '}
         <Description className={previewDescriptionStyles}>
-          (sample of {preview.changes.length} document
-          {preview.changes.length === 1 ? '' : 's'})
+          {sampleText}
         </Description>
       </Label>
       <div className={updatePreviewStyles}>
@@ -356,6 +370,7 @@ export default function BulkUpdateModal({
   runBulkUpdate,
   saveUpdateQuery,
 }: BulkUpdateModalProps) {
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const errorDetails = serverError?.errInfo;
 
@@ -403,15 +418,17 @@ export default function BulkUpdateModal({
 
   const modalTitleAndButtonText = useMemo(() => {
     if (typeof count !== 'number') {
-      return 'Update documents';
+      return t('crud.bulkUpdate.updateDocuments', 'Update documents');
     }
 
     if (count === 1) {
-      return `Update 1 document`;
+      return t('crud.bulkUpdate.updateOne', 'Update 1 document');
     }
 
-    return `Update ${count} documents`;
-  }, [count]);
+    return t('crud.bulkUpdate.updateMany', 'Update {count} documents', {
+      count,
+    });
+  }, [count, t]);
 
   const bulkUpdateUpdateId = useId();
   const disabled = !!(syntaxError || serverError || violations.length > 0);
@@ -435,13 +452,18 @@ export default function BulkUpdateModal({
             </div>
 
             <div className={cx(queryFieldStyles, updateFieldStyles)}>
-              <Label htmlFor={bulkUpdateUpdateId}>Update</Label>
+              <Label htmlFor={bulkUpdateUpdateId}>
+                {t('crud.bulkUpdate.update', 'Update')}
+              </Label>
               <Description className={descriptionStyles}>
                 <Link
                   tabIndex={0}
                   href="https://www.mongodb.com/docs/manual/reference/method/db.collection.updateMany/#std-label-update-many-update"
                 >
-                  Learn more about Update syntax
+                  {t(
+                    'crud.bulkUpdate.learnMore',
+                    'Learn more about Update syntax'
+                  )}
                 </Link>
               </Description>
               <KeylineCard
@@ -490,7 +512,7 @@ export default function BulkUpdateModal({
                               });
                             }}
                           >
-                            View details
+                            {t('crud.bulkUpdate.viewDetails', 'View details')}
                           </Link>
                         </>
                       )}
@@ -520,7 +542,7 @@ export default function BulkUpdateModal({
             onClick={closeBulkUpdateModal}
             data-testid="cancel-button"
           >
-            Cancel
+            {t('crud.bulkUpdate.cancel', 'Cancel')}
           </Button>
           <Button
             disabled={disabled}

@@ -11,6 +11,7 @@ import {
   cx,
   spacing,
   useId,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { BSONObject } from '../stores/crud-store';
 import { toJSString } from 'mongodb-query-parser';
@@ -82,6 +83,7 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   onConfirmDeletion,
   onExportToLanguage,
 }) => {
+  const t = useTranslation();
   const preview = (
     <div className={documentListWrapper}>
       {sampleDocuments.map((doc, i) => {
@@ -103,9 +105,15 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
       initialFocus={`#${exportButtonId}`}
     >
       <ModalHeader
-        title={`Delete ${documentCount ?? ''} document${
-          documentCount === 1 ? '' : 's'
-        }`}
+        title={
+          documentCount === 1
+            ? t('crud.bulkDelete.titleOne', 'Delete {count} document', {
+                count: documentCount,
+              })
+            : t('crud.bulkDelete.titleMany', 'Delete {count} documents', {
+                count: documentCount ?? '',
+              })
+        }
         subtitle={namespace}
         variant={'danger'}
       />
@@ -123,14 +131,23 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           >
-            Export
+            {t('crud.bulkDelete.export', 'Export')}
           </Button>
         </div>
 
         <div>
           <b data-testid="preview-title">
-            Preview (sample of {sampleDocuments.length} document
-            {sampleDocuments.length === 1 ? '' : 's'})
+            {sampleDocuments.length === 1
+              ? t(
+                  'crud.bulkDelete.previewOne',
+                  'Preview (sample of {count} document)',
+                  { count: sampleDocuments.length }
+                )
+              : t(
+                  'crud.bulkDelete.previewMany',
+                  'Preview (sample of {count} documents)',
+                  { count: sampleDocuments.length }
+                )}
           </b>
           {preview}
         </div>
@@ -141,14 +158,20 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
           onClick={onCancel}
           data-testid="cancel-button"
         >
-          Cancel
+          {t('crud.bulkDelete.cancel', 'Cancel')}
         </Button>
         <Button
           variant="danger"
           onClick={onConfirmDeletion}
           data-testid="delete-button"
         >
-          Delete {documentCount ?? ''} document{documentCount === 1 ? '' : 's'}
+          {documentCount === 1
+            ? t('crud.bulkDelete.deleteOne', 'Delete {count} document', {
+                count: documentCount,
+              })
+            : t('crud.bulkDelete.deleteMany', 'Delete {count} documents', {
+                count: documentCount ?? '',
+              })}
         </Button>
       </ModalFooter>
     </Modal>

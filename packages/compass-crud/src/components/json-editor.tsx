@@ -13,6 +13,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
@@ -96,6 +97,8 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   const [docValidationError, setDocValidationError] = useState<Error | null>(
     null
   );
+  const t = useTranslation();
+
   const handleCopy = useCallback(() => {
     copyToClipboard?.(doc, 'ejson');
   }, [copyToClipboard, doc]);
@@ -186,14 +189,14 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     return [
       isEditable && {
         icon: 'Edit',
-        label: 'Edit',
+        label: t('crud.jsonEditor.edit', 'Edit'),
         action() {
           onEdit();
         },
       },
       {
         icon: 'Copy',
-        label: 'Copy',
+        label: t('crud.jsonEditor.copy', 'Copy'),
         action() {
           handleCopy();
           return true;
@@ -201,18 +204,26 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
       },
       isEditable && {
         icon: 'Clone',
-        label: 'Clone',
+        label: t('crud.jsonEditor.clone', 'Clone'),
         action: handleClone,
       },
       isEditable && {
         icon: 'Trash',
-        label: 'Delete',
+        label: t('crud.jsonEditor.delete', 'Delete'),
         action() {
           onMarkForDeletion();
         },
       },
     ].filter(Boolean) as Action[];
-  }, [editing, onEdit, onMarkForDeletion, handleClone, handleCopy, isEditable]);
+  }, [
+    editing,
+    onEdit,
+    onMarkForDeletion,
+    handleClone,
+    handleCopy,
+    isEditable,
+    t,
+  ]);
 
   useEffect(() => {
     doc.on(HadronDocument.Events.Cancel, onCancel);
@@ -332,7 +343,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
           docValidationError ??
           (safeIntegerViolations.length > 0
             ? new Error(
-                getSafeIntegerViolationMessage(safeIntegerViolations.length)
+                getSafeIntegerViolationMessage(safeIntegerViolations.length, t)
               )
             : null)
         }
@@ -351,8 +362,11 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
                   className={footerActionButtonStyles}
                 >
                   {safeIntegerViolations.length === 1
-                    ? 'Convert to Long'
-                    : 'Convert all to Long'}
+                    ? t('crud.insertBanner.convertToLong', 'Convert to Long')
+                    : t(
+                        'crud.insertBanner.convertAllToLong',
+                        'Convert all to Long'
+                      )}
                 </Link>
               )}
             </div>

@@ -15,6 +15,7 @@ import {
   SpinLoader,
   PngIcon,
   useDiagram,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
@@ -67,6 +68,7 @@ const ExportDiagramModal = ({
   onCloseClick,
 }: ExportDiagramModalProps) => {
   const diagram = useDiagram();
+  const t = useTranslation();
 
   return (
     <Modal
@@ -74,22 +76,29 @@ const ExportDiagramModal = ({
       setOpen={onCloseClick}
       data-testid="export-diagram-modal"
     >
-      <ModalHeader title="Export data model" />
+      <ModalHeader
+        title={t('dataModeling.export.title', 'Export data model')}
+      />
       <ModalBody className={modelBodyStyles}>
         <div className={contentContainerStyles}>
-          <Label htmlFor="">Select file format:</Label>
+          <Label htmlFor="">
+            {t('dataModeling.export.selectFormat', 'Select file format:')}
+          </Label>
           <RadioGroup className={contentContainerStyles} value={exportFormat}>
             <div className={radioItemStyles}>
               <Icon glyph="Diagram" />
               <Radio
                 checked={exportFormat === 'diagram'}
                 value="diagram"
-                aria-label="MDM File"
+                aria-label={t('dataModeling.export.mdmFile', 'MDM File')}
                 onClick={() => onSelectFormat('diagram')}
                 size="small"
-                description="Importable into Compass and Data Explorer so teammates can collaborate."
+                description={t(
+                  'dataModeling.export.mdmDescription',
+                  'Importable into Compass and Data Explorer so teammates can collaborate.'
+                )}
               >
-                MDM File
+                {t('dataModeling.export.mdmFile', 'MDM File')}
               </Radio>
             </div>
             <div className={radioItemStyles}>
@@ -100,7 +109,10 @@ const ExportDiagramModal = ({
                 aria-label="PNG"
                 onClick={() => onSelectFormat('png')}
                 size="small"
-                description="Shareable image for documentation or presentations."
+                description={t(
+                  'dataModeling.export.pngDescription',
+                  'Shareable image for documentation or presentations.'
+                )}
               >
                 PNG
               </Radio>
@@ -113,7 +125,10 @@ const ExportDiagramModal = ({
                 aria-label="JSON"
                 onClick={() => onSelectFormat('json')}
                 size="small"
-                description="Raw schema data for programmatic use."
+                description={t(
+                  'dataModeling.export.jsonDescription',
+                  'Raw schema data for programmatic use.'
+                )}
               >
                 JSON
               </Radio>
@@ -127,7 +142,7 @@ const ExportDiagramModal = ({
           onClick={onCloseClick}
           data-testid="cancel-button"
         >
-          Cancel
+          {t('dataModeling.export.cancel', 'Cancel')}
         </Button>
         <Button
           variant="primary"
@@ -137,7 +152,7 @@ const ExportDiagramModal = ({
           loadingIndicator={<SpinLoader />}
           isLoading={isExporting}
         >
-          Export
+          {t('dataModeling.export.export', 'Export')}
         </Button>
       </ModalFooter>
     </Modal>

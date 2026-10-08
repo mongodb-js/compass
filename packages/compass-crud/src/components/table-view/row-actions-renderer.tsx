@@ -1,6 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { ItemActionGroup } from '@mongodb-js/compass-components';
+import {
+  ItemActionGroup,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 type RowActionsRendererProps = {
   api?: any;
@@ -24,10 +27,11 @@ const RowActionsRenderer: React.FunctionComponent<RowActionsRendererProps> = ({
   value,
   isEditable,
 }) => {
+  const t = useTranslation();
   const rowActions: ItemAction<RowAction>[] = useMemo(() => {
     const edit: ItemAction<RowAction> = {
       action: 'edit',
-      label: 'Edit Document',
+      label: t('crud.tableView.editDocument', 'Edit Document'),
       icon: 'Edit',
     };
 
@@ -37,11 +41,23 @@ const RowActionsRenderer: React.FunctionComponent<RowActionsRendererProps> = ({
 
     return [
       edit,
-      { action: 'copy', label: 'Copy Document', icon: 'Copy' },
-      { action: 'clone', label: 'Clone Document', icon: 'Clone' },
-      { action: 'remove', label: 'Delete Document', icon: 'Trash' },
+      {
+        action: 'copy',
+        label: t('crud.tableView.copyDocument', 'Copy Document'),
+        icon: 'Copy',
+      },
+      {
+        action: 'clone',
+        label: t('crud.tableView.cloneDocument', 'Clone Document'),
+        icon: 'Clone',
+      },
+      {
+        action: 'remove',
+        label: t('crud.tableView.deleteDocument', 'Delete Document'),
+        icon: 'Trash',
+      },
     ];
-  }, [nested]);
+  }, [nested, t]);
 
   const onAction = useCallback(
     (action: RowAction) => {

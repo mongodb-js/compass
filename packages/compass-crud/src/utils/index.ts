@@ -1,4 +1,4 @@
-import type { Signal } from '@mongodb-js/compass-components';
+import type { Signal, TranslateFn } from '@mongodb-js/compass-components';
 import { PerformanceSignals } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { Element } from 'hadron-document';
@@ -76,9 +76,13 @@ export function objectContainsRegularExpression(obj: unknown): boolean {
 }
 
 export function getSafeIntegerViolationMessage(
-  numSafeIntegerViolations: number
+  numSafeIntegerViolations: number,
+  t: TranslateFn = (_key, english) => english
 ): string {
   return numSafeIntegerViolations === 1
-    ? 'Number exceeds the safe integer range.'
-    : 'Numbers exceed the safe integer range.';
+    ? t('crud.safeInteger.exceedsOne', 'Number exceeds the safe integer range.')
+    : t(
+        'crud.safeInteger.exceedsMany',
+        'Numbers exceed the safe integer range.'
+      );
 }

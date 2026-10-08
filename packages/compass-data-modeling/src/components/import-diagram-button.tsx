@@ -4,6 +4,7 @@ import {
   type ButtonProps,
   FileSelector,
   Tooltip,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 type ImportDiagramButtonProps = Omit<ButtonProps, 'onClick'> & {
@@ -14,6 +15,7 @@ export const ImportDiagramButton = ({
   onImportDiagram,
   ...buttonProps
 }: ImportDiagramButtonProps) => {
+  const t = useTranslation();
   return (
     <Tooltip
       trigger={
@@ -31,15 +33,17 @@ export const ImportDiagramButton = ({
             }}
             trigger={({ onClick }) => (
               <Button {...buttonProps} onClick={onClick}>
-                Import diagram
+                {t('dataModeling.import.button', 'Import diagram')}
               </Button>
             )}
           />
         </span>
       }
     >
-      Only MDM files exported from Compass or Atlas Data Explorer can be
-      imported.
+      {t(
+        'dataModeling.import.tooltip',
+        'Only MDM files exported from Compass or Atlas Data Explorer can be imported.'
+      )}
     </Tooltip>
   );
 };

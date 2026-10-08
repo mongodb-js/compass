@@ -2,7 +2,10 @@ import React from 'react';
 import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
-import type { DiagramInstance } from '@mongodb-js/compass-components';
+import type {
+  DiagramInstance,
+  TranslateFn,
+} from '@mongodb-js/compass-components';
 import {
   rafraf,
   spacing,
@@ -13,6 +16,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { raceWithAbort } from '@mongodb-js/compass-utils';
 import { mapFieldDataToJsonSchema } from '../utils/utils';
+import { translateEnglish } from '../utils/translator';
 
 function moveSvgDefsToViewportElement(
   container: Element,
@@ -38,10 +42,11 @@ function moveSvgDefsToViewportElement(
 export async function exportToPng(
   fileName: string,
   diagram: DiagramInstance,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  t: TranslateFn = translateEnglish
 ) {
   const dataUri = await raceWithAbort(
-    getExportPngDataUri(diagram),
+    getExportPngDataUri(diagram, t),
     signal ?? new AbortController().signal
   );
   downloadFile(dataUri, fileName);
@@ -74,7 +79,10 @@ export function getDiagramNodesAndEdges(
   return { nodes, edges };
 }
 
-export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
+export function getExportPngDataUri(
+  diagram: DiagramInstance,
+  t: TranslateFn = translateEnglish
+): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const bounds = getNodesBounds(diagram.getNodes());
 
@@ -117,7 +125,14 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
           );
           if (!viewportElement) {
             document.body.removeChild(container);
-            return reject(new Error('Diagram element not found'));
+            return reject(
+              new Error(
+                t(
+                  'dataModeling.errors.diagramElementNotFound',
+                  'Diagram element not found'
+                )
+              )
+            );
           }
 
           const transform = getViewportForBounds(

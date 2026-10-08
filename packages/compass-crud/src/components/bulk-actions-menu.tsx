@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Tooltip,
   DropdownMenuButton,
   css,
   palette,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
@@ -19,11 +20,6 @@ const bulkActionsMenuButtonStyles = css({
 });
 
 type BulkActionOption = 'bulk-update' | 'bulk-delete';
-
-const bulkActions: MenuAction<BulkActionOption>[] = [
-  { action: 'bulk-update', label: 'Bulk update documents' },
-  { action: 'bulk-delete', label: 'Bulk delete documents' },
-];
 
 type BulkActionsMenuButtonProps = {
   disabled?: boolean;
@@ -55,6 +51,20 @@ function BulkActionsMenuButton({
   onUpdate,
   onDelete,
 }: BulkActionsMenuButtonProps) {
+  const t = useTranslation();
+  const bulkActions = useMemo<MenuAction<BulkActionOption>[]>(
+    () => [
+      {
+        action: 'bulk-update',
+        label: t('crud.bulkActions.update', 'Bulk update documents'),
+      },
+      {
+        action: 'bulk-delete',
+        label: t('crud.bulkActions.delete', 'Bulk delete documents'),
+      },
+    ],
+    [t]
+  );
   const onAction = useCallback(
     (action: BulkActionOption) => {
       if (action === 'bulk-update') {
@@ -71,7 +81,7 @@ function BulkActionsMenuButton({
       data-testid="crud-bulk-actions"
       actions={bulkActions}
       onAction={onAction}
-      buttonText="Bulk"
+      buttonText={t('crud.bulkActions.bulk', 'Bulk')}
       buttonProps={{
         size: 'xsmall',
         leftGlyph: <BulkActionsIcon />,

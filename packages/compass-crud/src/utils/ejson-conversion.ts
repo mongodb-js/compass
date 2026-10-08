@@ -1,5 +1,6 @@
 import { EJSON } from 'bson';
 import { toJSString } from 'mongodb-query-parser';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 
 const EJSON_SHELL_EQUIVALENTS = new Map([
   ['$oid', 'ObjectId()'],
@@ -73,14 +74,22 @@ export function getAccidentalEJSONKey(
  * Throws if the document contains Extended JSON that cannot be deserialized,
  * for example `{ "$oid": "not-a-valid-object-id" }`.
  */
-export function convertEJSONToShellSyntax(parsed: unknown): string {
+export function convertEJSONToShellSyntax(
+  parsed: unknown,
+  t: TranslateFn = (_key, english) => english
+): string {
   const converted = toJSString(
     EJSON.parse(EJSON.stringify(parsed, { relaxed: false }), {
       relaxed: false,
     })
   );
   if (converted === undefined) {
-    throw new Error('The converted document could not be serialized.');
+    throw new Error(
+      t(
+        'crud.ejsonConversion.notSerializable',
+        'The converted document could not be serialized.'
+      )
+    );
   }
   return converted;
 }

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
@@ -71,6 +72,7 @@ const CurrentOpComponent: React.FunctionComponent<{
     }
   }, [interval, store]);
 
+  const t = useTranslation();
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
 
@@ -86,9 +88,13 @@ const CurrentOpComponent: React.FunctionComponent<{
     return (
       <div className="rt-lists" style={{ display: state.display }}>
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
+          <h2 className="rt-lists__headerlabel">
+            {t('serverStats.currentOp.title', 'Slowest Operations')}
+          </h2>
         </header>
-        <div className="rt-lists__empty-error">&#9888; DATA UNAVAILABLE</div>
+        <div className="rt-lists__empty-error">
+          &#9888; {t('serverStats.dataUnavailable', 'DATA UNAVAILABLE')}
+        </div>
       </div>
     );
   }
@@ -97,10 +103,12 @@ const CurrentOpComponent: React.FunctionComponent<{
     return (
       <div className="rt-lists" style={{ display: state.display }}>
         <header className="rt-lists__header">
-          <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
+          <h2 className="rt-lists__headerlabel">
+            {t('serverStats.currentOp.title', 'Slowest Operations')}
+          </h2>
         </header>
         <div data-testid="no-slow-operations" className="rt-lists__empty-error">
-          &#10004; No Slow Operations
+          &#10004; {t('serverStats.currentOp.empty', 'No Slow Operations')}
         </div>
       </div>
     );
@@ -126,7 +134,9 @@ const CurrentOpComponent: React.FunctionComponent<{
   return (
     <div className="rt-lists" style={{ display: state.display }}>
       <header className="rt-lists__header">
-        <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
+        <h2 className="rt-lists__headerlabel">
+          {t('serverStats.currentOp.title', 'Slowest Operations')}
+        </h2>
       </header>
       <div className="rt-lists__listdiv" id="div-scroll">
         <ul className="rt-lists__list">{rows}</ul>

@@ -9,6 +9,8 @@ import {
   spacing,
   withDarkMode,
 } from '@mongodb-js/compass-components';
+import { Translated } from '@mongodb-js/compass-components';
+import { TranslationConsumer } from '../translation-consumer';
 import type { DocumentList as DocumentListTypes } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 import type { ICellRenderer } from 'ag-grid-community';
@@ -267,13 +269,17 @@ class CellRenderer
       <div className={className}>
         <div className={cellContainerStyle}>
           {this.props.value.decrypted && (
-            <span
-              data-testid="hadron-document-element-decrypted-icon"
-              title="Encrypted Field"
-              className={decrypdedIconStyles}
-            >
-              <Icon glyph="Key" size="small" />
-            </span>
+            <TranslationConsumer>
+              {(t) => (
+                <span
+                  data-testid="hadron-document-element-decrypted-icon"
+                  title={t('crud.tableView.encryptedField', 'Encrypted Field')}
+                  className={decrypdedIconStyles}
+                >
+                  <Icon glyph="Key" size="small" />
+                </span>
+              )}
+            </TranslationConsumer>
           )}
           {element}
         </div>
@@ -291,15 +297,19 @@ class CellRenderer
       return null;
     }
     return (
-      <IconButton
-        className={undoButtonClass}
-        // @ts-expect-error TODO: size="small" is not an acceptable size
-        size="small"
-        aria-label="Undo change"
-        onClick={this.handleUndo.bind(this)}
-      >
-        <Icon glyph="Undo"></Icon>
-      </IconButton>
+      <TranslationConsumer>
+        {(t) => (
+          <IconButton
+            className={undoButtonClass}
+            // @ts-expect-error TODO: size="small" is not an acceptable size
+            size="small"
+            aria-label={t('crud.tableView.undoChange', 'Undo change')}
+            onClick={this.handleUndo.bind(this)}
+          >
+            <Icon glyph="Undo"></Icon>
+          </IconButton>
+        )}
+      </TranslationConsumer>
     );
   }
 
@@ -309,15 +319,19 @@ class CellRenderer
     }
     return (
       <span>
-        <IconButton
-          className={BUTTON_CLASS}
-          // @ts-expect-error TODO: size="small" is not an acceptable size
-          size="small"
-          aria-label="Expand field"
-          onClick={this.handleDrillDown.bind(this)}
-        >
-          <Icon glyph="OpenNewTab" size="xsmall" />
-        </IconButton>
+        <TranslationConsumer>
+          {(t) => (
+            <IconButton
+              className={BUTTON_CLASS}
+              // @ts-expect-error TODO: size="small" is not an acceptable size
+              size="small"
+              aria-label={t('crud.tableView.expandField', 'Expand field')}
+              onClick={this.handleDrillDown.bind(this)}
+            >
+              <Icon glyph="OpenNewTab" size="xsmall" />
+            </IconButton>
+          )}
+        </TranslationConsumer>
       </span>
     );
   }
@@ -332,14 +346,16 @@ class CellRenderer
       element = '';
       className = `${className}-${UNEDITABLE}`;
     } else if (this.isEmpty || this.isDeleted) {
-      element = 'No field';
+      element = <Translated id="crud.tableView.noField">No field</Translated>;
       className = `${className}-${EMPTY}`;
     } else if (!this.element.isCurrentTypeValid()) {
       element = this.renderInvalidCell();
       className = `${className}-${INVALID}`;
       canUndo = true;
     } else if (this.element.isRemoved()) {
-      element = 'Deleted field';
+      element = (
+        <Translated id="crud.tableView.deletedField">Deleted field</Translated>
+      );
       className = `${className}-${DELETED}`;
       canUndo = true;
     } else {

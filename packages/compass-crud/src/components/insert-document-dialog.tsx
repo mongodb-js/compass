@@ -21,6 +21,7 @@ import {
   InfoSprinkle,
   Code,
   Tooltip,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
@@ -43,12 +44,6 @@ import InsertEJSONConversionBanner from './insert-ejson-conversion-banner';
 import { convertEJSONToShellSyntax } from '../utils/ejson-conversion';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
-
-/**
- * The insert invalid message.
- */
-const INSERT_INVALID_MESSAGE =
-  'Insert not permitted while document contains errors.';
 
 const documentViewId = 'insert-document-view';
 
@@ -81,18 +76,21 @@ const insertDocumentStyles = css({
 const insertViewOptions = [
   {
     value: 'shell',
+    labelKey: 'crud.insertDialog.shellSyntax',
     label: 'Shell syntax',
     testId: 'insert-document-dialog-view-shell',
     glyph: 'Shell',
   },
   {
     value: 'list',
+    labelKey: 'crud.insertDialog.visualEditor',
     label: 'Visual editor',
     testId: 'insert-document-dialog-view-list',
     glyph: 'Menu',
   },
   {
     value: 'json',
+    labelKey: 'crud.insertDialog.ejson',
     label: 'EJSON',
     testId: 'insert-document-dialog-view-json',
     glyph: 'CurlyBraces',
@@ -138,6 +136,7 @@ const DocumentOrJsonView: React.FC<{
   editorRef,
   namespace,
 }) => {
+  const t = useTranslation();
   useDocumentEditsTelemetry(
     useMemo(() => (doc ? [doc] : []), [doc]),
     'insert'
@@ -159,9 +158,10 @@ const DocumentOrJsonView: React.FC<{
   if (isManyDocuments) {
     return (
       <Banner variant="warning">
-        This view is not supported for multiple documents. To specify data types
-        and use other functionality of this view, please insert documents one at
-        a time.
+        {t(
+          'crud.insertDialog.listNotSupported',
+          'This view is not supported for multiple documents. To specify data types and use other functionality of this view, please insert documents one at a time.'
+        )}
       </Banner>
     );
   }
@@ -196,6 +196,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   updateInsertDocText,
   closeInsertDocumentDialog,
 }) => {
+  const t = useTranslation();
   const editorRef = useRef<EditorRef>(null);
   const connectionInfoRef = useConnectionInfoRef();
   const [invalidElements, setInvalidElements] = useState<Document['uuid'][]>(
@@ -234,15 +235,15 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       return { value: null, error: null };
     }
     try {
-      const value = parseInsertDocumentText(insertView, editorText);
+      const value = parseInsertDocumentText(insertView, editorText, t);
       // Not everything that parses can be inserted as a document, and that is
       // part of what makes the text invalid.
-      toInsertHadronDocument(value);
+      toInsertHadronDocument(value, t);
       return { value, error: null };
     } catch (e) {
       return { value: null, error: e as Error };
     }
-  }, [editorText, insertView]);
+  }, [editorText, insertView, t]);
 
   // The visual editor can only represent a single document, so disable it when
   // the editor holds an array.
@@ -258,9 +259,14 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       return parseResult.error;
     }
     return invalidElements.length > 0
-      ? new Error(INSERT_INVALID_MESSAGE)
+      ? new Error(
+          t(
+            'crud.insertDialog.invalidMessage',
+            'Insert not permitted while document contains errors.'
+          )
+        )
       : null;
-  }, [insertView, parseResult, invalidElements]);
+  }, [insertView, parseResult, invalidElements, t]);
 
   const handleInvalid = useCallback(
     (el: Element) => {
@@ -352,7 +358,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const onFixEJSONToShellSyntax = useCallback(() => {
     let succeeded = false;
     try {
-      onChangeText(convertEJSONToShellSyntax(parseResult.value));
+      onChangeText(convertEJSONToShellSyntax(parseResult.value, t));
       succeeded = true;
     } catch (err) {
       setFailedConversion({
@@ -371,7 +377,15 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       { success: succeeded },
       connectionInfoRef.current
     );
-  }, [parseResult, editorText, onChangeText, logger, track, connectionInfoRef]);
+  }, [
+    parseResult,
+    editorText,
+    onChangeText,
+    logger,
+    track,
+    connectionInfoRef,
+    t,
+  ]);
 
   const {
     onFixViolations: onFixSafeIntegerViolations,
@@ -410,12 +424,12 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
 
   return (
     <FormModal
-      title="Insert Document"
-      subtitle={`To collection ${ns}`}
+      title={t('crud.insertDialog.title', 'Insert Document')}
+      subtitle={t('crud.insertDialog.subtitle', 'To collection {ns}', { ns })}
       open={isOpen}
       onSubmit={handleInsert}
       onCancel={closeInsertDocumentDialog}
-      submitButtonText="Insert"
+      submitButtonText={t('crud.insertDialog.insert', 'Insert')}
       submitDisabled={Boolean(
         documentValidationError || safeIntegerViolations.length > 0
       )}
@@ -426,8 +440,10 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       <div className={toolbarStyles}>
         {isTextView && (
           <InfoSprinkle>
-            Paste a document, or an array to insert multiple. If an ObjectId is
-            not specified, one is assigned automatically.
+            {t(
+              'crud.insertDialog.pasteHint',
+              'Paste a document, or an array to insert multiple. If an ObjectId is not specified, one is assigned automatically.'
+            )}
             <Code
               language="javascript"
               copyButtonAppearance="none"
@@ -435,7 +451,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           </InfoSprinkle>
         )}
         <SegmentedControl
-          label="View"
+          label={t('crud.insertDialog.view', 'View')}
           size="xsmall"
           value={insertView}
           aria-controls={documentViewId}
@@ -453,17 +469,23 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
                   disabledForManyDocs
                 }
                 data-testid={option.testId}
-                aria-label={option.label}
+                aria-label={t(option.labelKey, option.label)}
                 value={option.value}
                 glyph={<Icon glyph={option.glyph} />}
                 onMouseEnter={(evt) => {
                   hoveredOptionRef.current = evt.currentTarget;
                   setTooltipLabel(
                     disabledForManyDocs
-                      ? 'The visual editor is unavailable for multiple documents'
+                      ? t(
+                          'crud.insertDialog.visualEditorUnavailable',
+                          'The visual editor is unavailable for multiple documents'
+                        )
                       : hasSafeIntegerViolations
-                        ? 'Fix the numbers exceeding the safe integer range to switch views'
-                        : option.label
+                        ? t(
+                            'crud.insertDialog.fixNumbers',
+                            'Fix the numbers exceeding the safe integer range to switch views'
+                          )
+                        : t(option.labelKey, option.label)
                   );
                   setTooltipOpen(true);
                 }}

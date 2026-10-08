@@ -1,5 +1,5 @@
 import React from 'react';
-import { cx } from '@mongodb-js/compass-components';
+import { Translated, cx } from '@mongodb-js/compass-components';
 import type { TableHeaderType } from '../../stores/grid-store';
 
 export type HeaderCellRendererProps = {
@@ -25,10 +25,12 @@ class HeaderCellRenderer extends React.Component<HeaderCellRendererProps> {
     if (this.props.hide) {
       return null;
     }
-    let displayName = this.props.displayName;
-    if (this.props.displayName === '$new') {
-      displayName = 'New Field';
-    }
+    const displayName =
+      this.props.displayName === '$new' ? (
+        <Translated id="crud.tableView.newField">New Field</Translated>
+      ) : (
+        this.props.displayName
+      );
     return (
       <div
         className={cx('table-view-cell-header', {

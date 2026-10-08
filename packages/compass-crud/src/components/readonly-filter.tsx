@@ -8,6 +8,7 @@ import {
   KeylineCard,
   fontFamilies,
   useId,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const queryLabelStyles = css({
@@ -40,16 +41,22 @@ type ReadonlyFilterProps = {
 };
 
 export function ReadonlyFilter({
-  queryLabel = 'Filter',
+  queryLabel,
   filterQuery,
 }: ReadonlyFilterProps) {
+  const t = useTranslation();
   const readOnlyFilterId = useId();
   return (
     <>
       <div className={queryLabelStyles}>
-        <Label htmlFor={readOnlyFilterId}>{queryLabel}</Label>
+        <Label htmlFor={readOnlyFilterId}>
+          {queryLabel ?? t('crud.readonlyFilter.filter', 'Filter')}
+        </Label>
         <InfoSprinkle align="right">
-          Return to the Documents tab to edit this query.
+          {t(
+            'crud.readonlyFilter.returnToDocuments',
+            'Return to the Documents tab to edit this query.'
+          )}
         </InfoSprinkle>
       </div>
       <KeylineCard
@@ -58,7 +65,9 @@ export function ReadonlyFilter({
         className={readOnlyFilterStyles}
       >
         <code className={codeStyles}>
-          {filterQuery === '{}' ? 'None' : filterQuery}
+          {filterQuery === '{}'
+            ? t('crud.readonlyFilter.none', 'None')
+            : filterQuery}
         </code>
       </KeylineCard>
     </>

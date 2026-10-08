@@ -10,6 +10,7 @@ import {
   palette,
   useScrollbars,
   useInitialValue,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import GraphsComponent from './server-stats-graphs-component';
@@ -84,6 +85,7 @@ function PerformancePanel({
 }
 
 function PerformancePanelMsgs() {
+  const t = useTranslation();
   const [, forceUpdate] = useState({});
 
   useEffect(() => {
@@ -100,15 +102,18 @@ function PerformancePanelMsgs() {
     <div>
       {(ServerStatsStore as any).isMongos && (
         <Banner className={mongosWarningStyles} variant="warning">
-          Top command is not available for mongos, some charts may not show any
-          data.
+          {t(
+            'serverStats.msgs.topUnavailableMongos',
+            'Top command is not available for mongos, some charts may not show any data.'
+          )}
         </Banner>
       )}
       {(TopStore as any).topUnableToRetrieveSomeCollections && (
         <Banner className={mongosWarningStyles} variant="warning">
-          Top command is unable to retrieve information about certain
-          collections, resulting in incomplete data being displayed on the
-          charts.
+          {t(
+            'serverStats.msgs.topIncomplete',
+            'Top command is unable to retrieve information about certain collections, resulting in incomplete data being displayed on the charts.'
+          )}
         </Banner>
       )}
     </div>

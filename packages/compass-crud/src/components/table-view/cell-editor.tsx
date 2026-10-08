@@ -10,6 +10,7 @@ import {
 } from 'hadron-document';
 import TypesDropdown from './types-dropdown';
 import AddFieldButton from './add-field-button';
+import { TranslationConsumer } from '../translation-consumer';
 import {
   Button,
   css,
@@ -402,16 +403,20 @@ class CellEditor
   renderFieldName() {
     if (this.newField && this.element?.currentKey === '$new') {
       return (
-        <TextInput
-          className={textInputStyle}
-          sizeVariant="xsmall"
-          data-testid="table-view-cell-editor-fieldname-input"
-          value={this.state.fieldName}
-          placeholder="Field Name"
-          onChange={this.handleFieldNameChange.bind(this)}
-          // NOTE: Leafygreen doesn't support aria-label and only understand "aria-labelledby" and "label" instead
-          aria-labelledby=""
-        />
+        <TranslationConsumer>
+          {(t) => (
+            <TextInput
+              className={textInputStyle}
+              sizeVariant="xsmall"
+              data-testid="table-view-cell-editor-fieldname-input"
+              value={this.state.fieldName}
+              placeholder={t('crud.tableView.fieldName', 'Field Name')}
+              onChange={this.handleFieldNameChange.bind(this)}
+              // NOTE: Leafygreen doesn't support aria-label and only understand "aria-labelledby" and "label" instead
+              aria-labelledby=""
+            />
+          )}
+        </TranslationConsumer>
       );
     }
     return null;
@@ -453,16 +458,20 @@ class CellEditor
     return (
       <div>
         <span className={this.wrapperStyle()}>
-          <TextInput
-            className={textInputStyle}
-            data-testid="table-view-cell-editor-value-input"
-            sizeVariant="xsmall"
-            onChange={this.handleInputChange.bind(this)}
-            onPaste={this.handlePaste.bind(this)}
-            value={this.editor().value()}
-            placeholder="Value"
-            aria-labelledby=""
-          ></TextInput>
+          <TranslationConsumer>
+            {(t) => (
+              <TextInput
+                className={textInputStyle}
+                data-testid="table-view-cell-editor-value-input"
+                sizeVariant="xsmall"
+                onChange={this.handleInputChange.bind(this)}
+                onPaste={this.handlePaste.bind(this)}
+                value={this.editor().value()}
+                placeholder={t('crud.tableView.value', 'Value')}
+                aria-labelledby=""
+              ></TextInput>
+            )}
+          </TranslationConsumer>
         </span>
       </div>
     );
@@ -480,14 +489,18 @@ class CellEditor
       return null;
     }
     return (
-      <Button
-        data-testid="table-view-cell-editor-expand-button"
-        aria-label="Expand field"
-        size="xsmall"
-        onClick={this.handleDrillDown.bind(this)}
-      >
-        <Icon glyph="OpenNewTab" size="xsmall"></Icon>
-      </Button>
+      <TranslationConsumer>
+        {(t) => (
+          <Button
+            data-testid="table-view-cell-editor-expand-button"
+            aria-label={t('crud.tableView.expandField', 'Expand field')}
+            size="xsmall"
+            onClick={this.handleDrillDown.bind(this)}
+          >
+            <Icon glyph="OpenNewTab" size="xsmall"></Icon>
+          </Button>
+        )}
+      </TranslationConsumer>
     );
   }
 
@@ -504,14 +517,18 @@ class CellEditor
       return null;
     }
     return (
-      <Button
-        data-testid="table-view-cell-editor-remove-field-button"
-        aria-label="Remove field"
-        size="xsmall"
-        onClick={this.handleRemoveField.bind(this)}
-      >
-        <Icon glyph="Trash" size="xsmall"></Icon>
-      </Button>
+      <TranslationConsumer>
+        {(t) => (
+          <Button
+            data-testid="table-view-cell-editor-remove-field-button"
+            aria-label={t('crud.tableView.removeField', 'Remove field')}
+            size="xsmall"
+            onClick={this.handleRemoveField.bind(this)}
+          >
+            <Icon glyph="Trash" size="xsmall"></Icon>
+          </Button>
+        )}
+      </TranslationConsumer>
     );
   }
 

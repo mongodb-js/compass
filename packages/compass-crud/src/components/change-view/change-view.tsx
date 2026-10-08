@@ -11,6 +11,7 @@ import {
   spacing,
   fontFamilies,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { getImplicitChangeType, unifyDocuments } from './unified-document';
@@ -123,11 +124,16 @@ function ExpandButton({
   isOpen: boolean;
   toggleIsOpen: () => void;
 }) {
+  const t = useTranslation();
   return (
     <button
       type="button"
       aria-pressed={isOpen}
-      aria-label={isOpen ? 'Collapse field items' : 'Expand field items'}
+      aria-label={
+        isOpen
+          ? t('crud.changeView.collapseItems', 'Collapse field items')
+          : t('crud.changeView.expandItems', 'Expand field items')
+      }
       className={expandButtonStyles}
       onClick={toggleIsOpen}
     >

@@ -14,6 +14,7 @@ import {
   type StaticModel,
 } from '../services/data-model-storage';
 import { AnalysisProcessActionTypes } from './analysis-process';
+import { getTranslator } from '../utils/translator';
 import { memoize } from 'lodash';
 import type { DataModelingState, DataModelingThunkAction } from './reducer';
 import {
@@ -645,16 +646,24 @@ function handleError(
 export function applyEdit(
   rawEdit: EditAction
 ): DataModelingThunkAction<boolean, ApplyEditAction | RevertFailedEditAction> {
-  return (dispatch, getState, { dataModelStorage, openToast }) => {
+  return (dispatch, getState, { dataModelStorage, openToast, preferences }) => {
+    const t = getTranslator(preferences);
     const edit = {
       ...rawEdit,
       id: new UUID().toString(),
       timestamp: new Date().toISOString(),
     };
-    const { result, errors } = validateEdit(edit);
+    const { result, errors } = validateEdit(edit, t);
     let isValid = result;
     if (!result) {
-      handleError(openToast, 'Could not apply changes', errors);
+      handleError(
+        openToast,
+        t(
+          'dataModeling.errors.couldNotApplyChanges',
+          'Could not apply changes'
+        ),
+        errors
+      );
       return isValid;
     }
     dispatch({
@@ -666,10 +675,20 @@ export function applyEdit(
     try {
       selectCurrentModelFromState(getState());
     } catch (e) {
-      handleError(openToast, 'Could not apply changes', [
-        'Something went wrong when applying the changes.',
-        (e as Error).message,
-      ]);
+      handleError(
+        openToast,
+        t(
+          'dataModeling.errors.couldNotApplyChanges',
+          'Could not apply changes'
+        ),
+        [
+          t(
+            'dataModeling.errors.applyChangesFailed',
+            'Something went wrong when applying the changes.'
+          ),
+          (e as Error).message,
+        ]
+      );
       dispatch({ type: DiagramActionTypes.REVERT_FAILED_EDIT });
       isValid = false;
     }
@@ -688,10 +707,17 @@ export function openDiagram(
 export function deleteDiagram(
   id: string
 ): DataModelingThunkAction<Promise<void>, DeleteDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage }) => {
+  return async (dispatch, getState, { dataModelStorage, preferences }) => {
+    const t = getTranslator(preferences);
     const confirmed = await showConfirmation({
-      title: 'Are you sure you want to delete this diagram?',
-      description: 'This action can not be undone.',
+      title: t(
+        'dataModeling.confirm.deleteTitle',
+        'Are you sure you want to delete this diagram?'
+      ),
+      description: t(
+        'dataModeling.confirm.deleteDescription',
+        'This action can not be undone.'
+      ),
       variant: 'danger',
     });
     if (!confirmed) {
@@ -712,15 +738,16 @@ export function renameDiagram(
 export function showDiagramRenameModal(
   id: string // TODO maybe pass the whole thing here, we always have it when calling this, then we don't need to re-load storage
 ): DataModelingThunkAction<Promise<void>, RenameDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage }) => {
+  return async (dispatch, getState, { dataModelStorage, preferences }) => {
+    const t = getTranslator(preferences);
     try {
       const diagram = await dataModelStorage.load(id);
       if (!diagram) {
         return;
       }
       const newName = await showPrompt({
-        title: 'Rename diagram',
-        label: 'Name',
+        title: t('dataModeling.rename.title', 'Rename diagram'),
+        label: t('dataModeling.rename.label', 'Name'),
         defaultValue: diagram.name,
       });
       if (!newName) {
@@ -737,9 +764,17 @@ export function showDiagramRenameModal(
 export function openDiagramFromFile(
   file: File
 ): DataModelingThunkAction<Promise<void>, OpenDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage, track, openToast }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataModelStorage, track, openToast, preferences }
+  ) => {
+    const t = getTranslator(preferences);
     try {
-      const { name, edits, database } = await getDiagramContentsFromFile(file);
+      const { name, edits, database } = await getDiagramContentsFromFile(
+        file,
+        t
+      );
 
       const existingDiagramNames = (await dataModelStorage.loadAll()).map(
         (diagram) => diagram.name
@@ -758,9 +793,11 @@ export function openDiagramFromFile(
       track('Data Modeling Diagram Imported', {});
       void dataModelStorage.save(diagram);
     } catch (error) {
-      handleError(openToast, 'Error opening diagram', [
-        (error as Error).message,
-      ]);
+      handleError(
+        openToast,
+        t('dataModeling.errors.openDiagram', 'Error opening diagram'),
+        [(error as Error).message]
+      );
     }
   };
 }

@@ -46,7 +46,12 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
-import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation,
+  translate,
+} from '@mongodb-js/compass-components';
+import type { TranslateVars } from '@mongodb-js/compass-components';
 import {
   openBulkDeleteFailureToast,
   openBulkDeleteProgressToast,
@@ -227,20 +232,6 @@ const ERROR = 'error';
  * Modifying constant.
  */
 const MODIFYING = 'modifying';
-
-/**
- * The delete error message.
- */
-const DELETE_ERROR = new Error(
-  'Cannot delete documents that do not have an _id field.'
-);
-
-/**
- * The empty update error message.
- */
-const EMPTY_UPDATE_ERROR = new Error(
-  'Unable to update, no changes have been made.'
-);
 
 /**
  * Default max time ms for the first query which is not getting the value from
@@ -568,6 +559,18 @@ class CrudStoreImpl
     void navigator.clipboard.writeText(str);
   }
 
+  private t(key: string, english: string, vars?: TranslateVars) {
+    return translate(
+      this.preferences.getPreferences().language ?? 'en',
+      key,
+      english,
+      vars
+    );
+  }
+
+  private translateParse = (key: string, english: string) =>
+    this.t(key, english);
+
   getWriteError(error: Error): WriteError {
     return {
       message: error.message,
@@ -623,7 +626,14 @@ class CrudStoreImpl
         this.trigger(this.state);
       }
     } else {
-      doc.onRemoveError(DELETE_ERROR);
+      doc.onRemoveError(
+        new Error(
+          this.t(
+            'crud.store.deleteWithoutId',
+            'Cannot delete documents that do not have an _id field.'
+          )
+        )
+      );
       this.trigger(this.state);
     }
   }
@@ -652,7 +662,10 @@ class CrudStoreImpl
       if (!isAllowed) {
         doc.onUpdateError(
           new Error(
-            'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+            this.t(
+              'crud.store.updateBlocked',
+              'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+            )
           )
         );
         return false;
@@ -690,7 +703,14 @@ class CrudStoreImpl
       this.logger.debug('Performing findOneAndUpdate', { query, updateDoc });
 
       if (Object.keys(updateDoc).length === 0) {
-        doc.onUpdateError(EMPTY_UPDATE_ERROR);
+        doc.onUpdateError(
+          new Error(
+            this.t(
+              'crud.store.noChanges',
+              'Unable to update, no changes have been made.'
+            )
+          )
+        );
         return;
       }
 
@@ -731,9 +751,11 @@ class CrudStoreImpl
     } catch (err: any) {
       doc.onUpdateError(
         new Error(
-          `An error occured when attempting to update the document: ${String(
-            err.message
-          )}`
+          this.t(
+            'crud.store.updateFailed',
+            'An error occured when attempting to update the document: {message}',
+            { message: String(err.message) }
+          )
         )
       );
     }
@@ -827,9 +849,11 @@ class CrudStoreImpl
     } catch (err: any) {
       doc.onUpdateError(
         new Error(
-          `An error occured when attempting to update the document: ${String(
-            err.message
-          )}`
+          this.t(
+            'crud.store.updateFailed',
+            'An error occured when attempting to update the document: {message}',
+            { message: String(err.message) }
+          )
         )
       );
     }
@@ -1091,7 +1115,7 @@ class CrudStoreImpl
     // see if the update will parse.
     if (!this.state.isUpdatePreviewSupported) {
       try {
-        parseShellBSON(updateText);
+        parseShellBSON(updateText, this.translateParse);
       } catch (err: any) {
         this.setState({
           bulkUpdate: {
@@ -1138,7 +1162,7 @@ class CrudStoreImpl
 
     let update: BSONObject | BSONObject[];
     try {
-      update = parseShellBSON(updateText);
+      update = parseShellBSON(updateText, this.translateParse);
     } catch (err: any) {
       if (abortController.signal.aborted) {
         // ignore this result because it is stale
@@ -1239,7 +1263,10 @@ class CrudStoreImpl
     const { filter = {} } = query;
     let update;
     try {
-      update = parseShellBSON(this.state.bulkUpdate.updateText);
+      update = parseShellBSON(
+        this.state.bulkUpdate.updateText,
+        this.translateParse
+      );
     } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
@@ -1255,6 +1282,7 @@ class CrudStoreImpl
 
     openBulkUpdateProgressToast({
       affectedDocuments: this.state.bulkUpdate.affected,
+      language: this.preferences.getPreferences().language,
     });
 
     try {
@@ -1262,11 +1290,13 @@ class CrudStoreImpl
 
       openBulkUpdateSuccessToast({
         affectedDocuments: this.state.bulkUpdate.affected,
+        language: this.preferences.getPreferences().language,
         onRefresh: () => void this.refreshDocuments(),
       });
     } catch (err: any) {
       openBulkUpdateFailureToast({
         affectedDocuments: this.state.bulkUpdate.affected,
+        language: this.preferences.getPreferences().language,
         error: err as Error,
       });
 
@@ -1333,7 +1363,7 @@ class CrudStoreImpl
       const hadronDoc =
         !editorText || editorText === ''
           ? doc
-          : parseInsertDocument(from, editorText);
+          : parseInsertDocument(from, editorText, this.translateParse);
       this.setState({
         insert: { ...common, insertView: 'list', doc: hadronDoc, editorText },
       });
@@ -1382,7 +1412,8 @@ class CrudStoreImpl
       );
       const docs = parseInsertDocumentArray(
         this.state.insert.insertView,
-        this.state.insert.editorText ?? ''
+        this.state.insert.editorText ?? '',
+        this.translateParse
       ).map((doc) => {
         if (schemaFields) {
           doc.preserveTypesFromSchema(schemaFields);
@@ -1464,7 +1495,8 @@ class CrudStoreImpl
       if (this.state.insert.insertView !== 'list') {
         const hadronDoc = parseInsertDocument(
           this.state.insert.insertView,
-          this.state.insert.editorText ?? ''
+          this.state.insert.editorText ?? '',
+          this.translateParse
         );
         if (schemaFields) {
           hadronDoc.preserveTypesFromSchema(schemaFields);
@@ -1974,12 +2006,14 @@ class CrudStoreImpl
 
     openBulkDeleteProgressToast({
       affectedDocuments: this.state.bulkDelete.affected,
+      language: this.preferences.getPreferences().language,
     });
   }
 
   bulkDeleteFailed(ex: Error) {
     openBulkDeleteFailureToast({
       affectedDocuments: this.state.bulkDelete.affected,
+      language: this.preferences.getPreferences().language,
       error: ex,
     });
 
@@ -1994,6 +2028,7 @@ class CrudStoreImpl
   bulkDeleteSuccess() {
     openBulkDeleteSuccessToast({
       affectedDocuments: this.state.bulkDelete.affected,
+      language: this.preferences.getPreferences().language,
       onRefresh: () => void this.refreshDocuments(),
     });
   }
@@ -2014,15 +2049,35 @@ class CrudStoreImpl
     this.closeBulkDeleteDialog();
 
     const confirmation = await showConfirmation({
-      title: 'Are you absolutely sure?',
-      buttonText: `Delete ${affected ? `${affected} ` : ''} document${
-        affected !== 1 ? 's' : ''
-      }`,
-      description: `This action can not be undone. This will permanently delete ${
-        affected ?? 'an unknown number of'
-      } document${affected !== 1 ? 's' : ''}.`,
-      warning:
-        'The document list and count may not always reflect the latest updates in real time. This action will apply to all relevant documents, including those not currently visible, so please ensure they are handled safely.',
+      title: this.t('crud.store.confirmTitle', 'Are you absolutely sure?'),
+      buttonText:
+        affected === 1
+          ? this.t('crud.bulkDelete.deleteOne', 'Delete {count} document', {
+              count: affected,
+            })
+          : this.t('crud.bulkDelete.deleteMany', 'Delete {count} documents', {
+              count: affected ?? '',
+            }),
+      description:
+        affected === 1
+          ? this.t(
+              'crud.store.confirmDescriptionOne',
+              'This action can not be undone. This will permanently delete {count} document.',
+              { count: affected }
+            )
+          : this.t(
+              'crud.store.confirmDescriptionMany',
+              'This action can not be undone. This will permanently delete {count} documents.',
+              {
+                count:
+                  affected ??
+                  this.t('crud.store.unknownNumber', 'an unknown number of'),
+              }
+            ),
+      warning: this.t(
+        'crud.store.confirmWarning',
+        'The document list and count may not always reflect the latest updates in real time. This action will apply to all relevant documents, including those not currently visible, so please ensure they are handled safely.'
+      ),
       variant: 'danger',
     });
 
@@ -2089,7 +2144,10 @@ class CrudStoreImpl
     const { filter } = this.queryBar.getLastAppliedQuery('crud');
     let update;
     try {
-      update = parseShellBSON(this.state.bulkUpdate.updateText);
+      update = parseShellBSON(
+        this.state.bulkUpdate.updateText,
+        this.translateParse
+      );
     } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
@@ -2108,7 +2166,11 @@ class CrudStoreImpl
       variant: 'success',
       dismissible: true,
       timeout: 6_000,
-      description: `${name} added to "My Queries".`,
+      description: this.t(
+        'crud.store.savedToMyQueries',
+        '{name} added to "My Queries".',
+        { name }
+      ),
     });
   }
 }
@@ -2316,8 +2378,15 @@ export async function findAndModifyWithFLEFallback(
   return [error, undefined] as ErrorOrResult;
 }
 
+type ParseTranslator = (key: string, english: string) => string;
+
+const identityTranslator: ParseTranslator = (_key, english) => english;
+
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
-export function parseShellBSON(source: string): BSONObject | BSONObject[] {
+export function parseShellBSON(
+  source: string,
+  t: ParseTranslator = identityTranslator
+): BSONObject | BSONObject[] {
   const parsed = _parseShellBSON(source, {
     mode: ParseMode.Strict,
     allowComments: true,
@@ -2326,7 +2395,9 @@ export function parseShellBSON(source: string): BSONObject | BSONObject[] {
   if (!parsed || typeof parsed !== 'object') {
     // XXX(COMPASS-5689): We've hit the condition in
     // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
-    throw new Error('The provided definition is invalid.');
+    throw new Error(
+      t('crud.parse.invalidDefinition', 'The provided definition is invalid.')
+    );
   }
   return parsed as BSONObject | BSONObject[];
 }
@@ -2337,11 +2408,19 @@ export function parseShellBSON(source: string): BSONObject | BSONObject[] {
  * would enumerate no fields and silently insert an empty document, so we
  * reject anything that isn't a plain object.
  */
-function assertPlainDocument(parsed: unknown): BSONObject {
+function assertPlainDocument(
+  parsed: unknown,
+  t: ParseTranslator = identityTranslator
+): BSONObject {
   const prototype =
     parsed && typeof parsed === 'object' ? Object.getPrototypeOf(parsed) : null;
   if (prototype !== Object.prototype && prototype !== null) {
-    throw new Error('The provided definition is not a valid document.');
+    throw new Error(
+      t(
+        'crud.parse.notValidDocument',
+        'The provided definition is not a valid document.'
+      )
+    );
   }
   return parsed as BSONObject;
 }
@@ -2362,10 +2441,11 @@ function insertModeForTelemetry(
  */
 export function parseInsertDocumentText(
   view: InsertDocumentView,
-  text: string
+  text: string,
+  t: ParseTranslator = identityTranslator
 ): unknown {
   return view === 'shell'
-    ? parseShellBSON(text)
+    ? parseShellBSON(text, t)
     : EJSON.parse(text, { relaxed: false });
 }
 
@@ -2373,11 +2453,14 @@ export function parseInsertDocumentText(
  * Wrap an already parsed insert editor value into a single HadronDocument,
  * rejecting values that could not be inserted as a document.
  */
-export function toInsertHadronDocument(parsed: unknown): HadronDocument {
+export function toInsertHadronDocument(
+  parsed: unknown,
+  t: ParseTranslator = identityTranslator
+): HadronDocument {
   return new HadronDocument(
     Array.isArray(parsed)
       ? (parsed as unknown as BSONObject)
-      : assertPlainDocument(parsed)
+      : assertPlainDocument(parsed, t)
   );
 }
 
@@ -2387,9 +2470,10 @@ export function toInsertHadronDocument(parsed: unknown): HadronDocument {
  */
 export function parseInsertDocument(
   view: InsertDocumentView,
-  text: string
+  text: string,
+  t: ParseTranslator = identityTranslator
 ): HadronDocument {
-  return toInsertHadronDocument(parseInsertDocumentText(view, text));
+  return toInsertHadronDocument(parseInsertDocumentText(view, text, t), t);
 }
 
 /**
@@ -2398,12 +2482,13 @@ export function parseInsertDocument(
  */
 export function parseInsertDocumentArray(
   view: InsertDocumentView,
-  text: string
+  text: string,
+  t: ParseTranslator = identityTranslator
 ): HadronDocument[] {
   if (view === 'shell') {
-    const parsed = parseShellBSON(text);
+    const parsed = parseShellBSON(text, t);
     return (Array.isArray(parsed) ? parsed : [parsed]).map(
-      (doc) => new HadronDocument(assertPlainDocument(doc))
+      (doc) => new HadronDocument(assertPlainDocument(doc, t))
     );
   }
   return HadronDocument.FromEJSONArray(text);

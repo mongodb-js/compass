@@ -2,6 +2,8 @@ import type { SetModelEdit } from './data-model-storage';
 import { EditListSchema, type Edit } from './data-model-storage';
 import { downloadFile } from './export-diagram';
 import { z } from '@mongodb-js/compass-user-data';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { translateEnglish } from '../utils/translator';
 
 const kCurrentVersion = 1;
 const kFileTypeDescription = 'Compass Data Modeling Diagram';
@@ -43,7 +45,10 @@ export function getDownloadDiagramContent(
   };
 }
 
-export async function getDiagramContentsFromFile(file: File): Promise<{
+export async function getDiagramContentsFromFile(
+  file: File,
+  t: TranslateFn = translateEnglish
+): Promise<{
   name: string;
   edits: [SetModelEdit, ...Edit[]];
   database: string;
@@ -54,7 +59,12 @@ export async function getDiagramContentsFromFile(file: File): Promise<{
       try {
         const content = event.target?.result;
         if (typeof content !== 'string') {
-          throw new Error('Invalid file contents');
+          throw new Error(
+            t(
+              'dataModeling.errors.invalidFileContents',
+              'Invalid file contents'
+            )
+          );
         }
         const parsedContent = JSON.parse(content);
 
@@ -62,13 +72,23 @@ export async function getDiagramContentsFromFile(file: File): Promise<{
           parsedContent.version !== kCurrentVersion ||
           parsedContent.type !== kFileTypeDescription
         ) {
-          throw new Error('Unsupported diagram file format');
+          throw new Error(
+            t(
+              'dataModeling.errors.unsupportedFileFormat',
+              'Unsupported diagram file format'
+            )
+          );
         }
 
         const { name, edits, database } = parsedContent;
 
         if (!name || !edits || typeof edits !== 'string' || !database) {
-          throw new Error('Diagram file is missing required fields');
+          throw new Error(
+            t(
+              'dataModeling.errors.missingRequiredFields',
+              'Diagram file is missing required fields'
+            )
+          );
         }
 
         const parsedEdits = JSON.parse(
@@ -85,13 +105,23 @@ export async function getDiagramContentsFromFile(file: File): Promise<{
       } catch (error) {
         const message =
           error instanceof z.ZodError
-            ? 'Failed to parse diagram file: Invalid diagram data.'
-            : `Failed to parse diagram file: ${(error as Error).message}`;
+            ? t(
+                'dataModeling.errors.parseFailedInvalidData',
+                'Failed to parse diagram file: Invalid diagram data.'
+              )
+            : t(
+                'dataModeling.errors.parseFailed',
+                'Failed to parse diagram file: {message}',
+                { message: (error as Error).message }
+              );
         reject(new Error(message));
       }
     };
     reader.onerror = (error) => {
-      reject(error.target?.error || new Error('File read error'));
+      reject(
+        error.target?.error ||
+          new Error(t('dataModeling.errors.fileReadError', 'File read error'))
+      );
     };
     reader.readAsText(file);
   });

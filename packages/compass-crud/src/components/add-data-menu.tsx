@@ -4,6 +4,7 @@ import {
   Tooltip,
   DropdownMenuButton,
   css,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -35,30 +36,34 @@ function AddDataMenuButton({
   isDisabled?: boolean;
   isMockDataGeneratorEligible?: boolean;
 }) {
+  const t = useTranslation();
   const isImportExportEnabled = usePreference('enableImportExport');
   const localAppRegistry = useLocalAppRegistry();
 
   const addDataActions = useMemo(() => {
     const actions: MenuAction<AddDataOption>[] = [
-      { action: 'insert-document' as const, label: 'Insert document' },
+      {
+        action: 'insert-document' as const,
+        label: t('crud.addData.insertDocument', 'Insert document'),
+      },
     ];
 
     if (isImportExportEnabled) {
       actions.unshift({
         action: 'import-file' as const,
-        label: 'Import JSON or CSV file',
+        label: t('crud.addData.importFile', 'Import JSON or CSV file'),
       });
     }
 
     if (isMockDataGeneratorEligible) {
       actions.push({
         action: 'generate-mock-data' as const,
-        label: 'Generate mock data script',
+        label: t('crud.addData.generateMockData', 'Generate mock data script'),
       });
     }
 
     return actions;
-  }, [isImportExportEnabled, isMockDataGeneratorEligible]);
+  }, [isImportExportEnabled, isMockDataGeneratorEligible, t]);
 
   const handleAction = useCallback(
     (action: AddDataOption) => {
@@ -76,7 +81,7 @@ function AddDataMenuButton({
       data-testid="crud-add-data"
       actions={addDataActions}
       onAction={handleAction}
-      buttonText="Add data"
+      buttonText={t('crud.addData.button', 'Add data')}
       buttonProps={{
         size: 'xsmall',
         variant: 'primary',

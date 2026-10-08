@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Icon } from '@mongodb-js/compass-components';
+import { Button, Icon, useTranslation } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import Actions from '../actions';
@@ -25,6 +25,7 @@ type CurrentOpData = {
 export function DetailViewComponent() {
   const [data, setData] = useState<null | CurrentOpData>(null);
 
+  const t = useTranslation();
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
 
@@ -64,7 +65,9 @@ export function DetailViewComponent() {
   return (
     <div className="rt-details">
       <header className="rt-details__header">
-        <h2 className="rt-details__headerlabel">operation details</h2>
+        <h2 className="rt-details__headerlabel">
+          {t('serverStats.detail.title', 'operation details')}
+        </h2>
         <div className="rt-details__closebutton">
           <Button
             darkMode
@@ -72,7 +75,7 @@ export function DetailViewComponent() {
             leftGlyph={<Icon glyph="X" />}
             onClick={hideOperationDetails}
           >
-            Close
+            {t('serverStats.detail.close', 'Close')}
           </Button>
         </div>
       </header>
@@ -88,15 +91,21 @@ export function DetailViewComponent() {
             <div className="rt-details__datatype-val">{data.opid}</div>
           </li>
           <li className="rt-details__item">
-            <div className="rt-details__datatype">client s</div>
+            <div className="rt-details__datatype">
+              {t('serverStats.detail.client', 'client s')}
+            </div>
             <div className="rt-details__datatype-val">{data.client}</div>
           </li>
           <li className="rt-details__item">
-            <div className="rt-details__datatype">active</div>
+            <div className="rt-details__datatype">
+              {t('serverStats.detail.active', 'active')}
+            </div>
             <div className="rt-details__datatype-val">{data.active}</div>
           </li>
           <li className="rt-details__item">
-            <div className="rt-details__datatype">wait lock</div>
+            <div className="rt-details__datatype">
+              {t('serverStats.detail.waitLock', 'wait lock')}
+            </div>
             <div className="rt-details__datatype-val">
               {data.waitingForLock}
             </div>
@@ -109,7 +118,7 @@ export function DetailViewComponent() {
                 darkMode
                 onClick={onKillOp}
               >
-                Kill Op
+                {t('serverStats.detail.killOp', 'Kill Op')}
               </Button>
             </div>
           </li>

@@ -10,6 +10,7 @@ import {
   spacing,
   withDarkMode,
   useCurrentValueRef,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -338,6 +339,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     updateMaxDocumentsPerPage,
   } = props;
 
+  const t = useTranslation();
+
   useDocumentEditsTelemetry(docs, DOCUMENT_EDITS_MODES[view]);
 
   const onOpenInsert = useCallback(
@@ -471,8 +474,11 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
           <div className={loaderContainerStyles}>
             <CancelLoader
               data-testid="fetching-documents"
-              progressText="Fetching Documents"
-              cancelText="Stop"
+              progressText={t(
+                'crud.documentList.fetching',
+                'Fetching Documents'
+              )}
+              cancelText={t('crud.documentList.stop', 'Stop')}
               onCancel={onCancelClicked}
             />
           </div>
@@ -484,8 +490,14 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               <div data-testid="document-list-zero-state">
                 <EmptyContent
                   icon={DocumentIcon}
-                  title="This collection has no data"
-                  subTitle="It only takes a few seconds to import data from a JSON or CSV file."
+                  title={t(
+                    'crud.documentList.emptyTitle',
+                    'This collection has no data'
+                  )}
+                  subTitle={t(
+                    'crud.documentList.emptySubtitle',
+                    'It only takes a few seconds to import data from a JSON or CSV file.'
+                  )}
                   callToAction={
                     isImportExportEnabled && (
                       <Button
@@ -497,7 +509,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
                         variant="primary"
                         size="small"
                       >
-                        Import data
+                        {t('crud.documentList.importData', 'Import data')}
                       </Button>
                     )
                   }
@@ -509,8 +521,11 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               <div data-testid="document-list-zero-state">
                 <EmptyContent
                   icon={DocumentIcon}
-                  title="No results"
-                  subTitle="Try modifying your query to get results."
+                  title={t('crud.documentList.noResults', 'No results')}
+                  subTitle={t(
+                    'crud.documentList.tryModifying',
+                    'Try modifying your query to get results.'
+                  )}
                 />
               </div>
             );
@@ -549,6 +564,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       currentViewInitialScrollTop,
       columnWidths,
       onColumnWidthChange,
+      t,
     ]
   );
 

@@ -1,5 +1,7 @@
 import type { Reducer } from 'redux';
 import { isAction } from './util';
+import { getTranslator } from '../utils/translator';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import type { DataModelingThunkAction } from './reducer';
 import toNS from 'mongodb-ns';
 import { selectCurrentModelFromState } from './diagram';
@@ -241,7 +243,7 @@ export function reselectCollections(): DataModelingThunkAction<
   return async (
     dispatch,
     getState,
-    { connections, instanceManager, logger, track }
+    { connections, instanceManager, logger, track, preferences }
   ) => {
     const { diagram } = getState();
     if (!diagram) {
@@ -287,14 +289,18 @@ export function reselectCollections(): DataModelingThunkAction<
       );
       if (!databases.some((x) => x === selectedDatabase)) {
         throw new Error(
-          'The selected database does not exist on this connection.'
+          getTranslator(preferences)(
+            'dataModeling.errors.databaseNotFound',
+            'The selected database does not exist on this connection.'
+          )
         );
       }
       const databaseCollections = await getCollectionsForDatabase(
         selectedConnection,
         selectedDatabase,
         connections,
-        instanceManager
+        instanceManager,
+        getTranslator(preferences)
       );
       dispatch({
         type: ReselectCollectionsWizardActionTypes.SHOW_WIZARD,
@@ -342,7 +348,7 @@ export function establishConnection(): DataModelingThunkAction<
   return async (
     dispatch,
     getState,
-    { connections, instanceManager, logger }
+    { connections, instanceManager, logger, preferences }
   ) => {
     const {
       reselectCollections: { selectedConnectionId, selectedDatabase },
@@ -355,7 +361,12 @@ export function establishConnection(): DataModelingThunkAction<
         selectedConnectionId ?? ''
       )?.info;
       if (!connectionInfo) {
-        throw new Error('Can not find selected connection.');
+        throw new Error(
+          getTranslator(preferences)(
+            'dataModeling.errors.connectionNotFound',
+            'Can not find selected connection.'
+          )
+        );
       }
       dispatch({
         type: ReselectCollectionsWizardActionTypes.CONNECT_TO_CONNECTION_CLICKED,
@@ -374,7 +385,8 @@ export function establishConnection(): DataModelingThunkAction<
         selectedConnectionId,
         selectedDatabase,
         connections,
-        instanceManager
+        instanceManager,
+        getTranslator(preferences)
       );
       dispatch({
         type: ReselectCollectionsWizardActionTypes.CONNECT_TO_CONNECTION_SUCCEEDED,
@@ -479,7 +491,8 @@ async function getCollectionsForDatabase(
   connectionId: string,
   database: string,
   connections: ConnectionsService,
-  instanceManager: MongoDBInstancesManager
+  instanceManager: MongoDBInstancesManager,
+  t: TranslateFn
 ) {
   await getDatabasesFromConnection(connectionId, connections, instanceManager);
   const mongoDBInstance =
@@ -487,7 +500,12 @@ async function getCollectionsForDatabase(
   const dataService = connections.getDataServiceForConnection(connectionId);
   const db = mongoDBInstance.databases.get(database);
   if (!db) {
-    throw new Error('The selected database does not exist on this connection.');
+    throw new Error(
+      t(
+        'dataModeling.errors.databaseNotFound',
+        'The selected database does not exist on this connection.'
+      )
+    );
   }
   await db.fetchCollections({ dataService, force: true });
   return db.collections

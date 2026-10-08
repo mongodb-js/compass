@@ -9,6 +9,7 @@ import {
   spacing,
   Subtitle,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { DiagramListContext } from './saved-diagrams-list';
 import { ImportDiagramButton } from './import-diagram-button';
@@ -55,6 +56,7 @@ export const DiagramListToolbar = () => {
     onImportDiagram,
   } = useContext(DiagramListContext);
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   return (
     <div className={containerStyles}>
@@ -64,7 +66,7 @@ export const DiagramListToolbar = () => {
           darkMode ? toolbarTitleDarkStyles : toolbarTitleLightStyles
         )}
       >
-        Open an existing diagram:
+        {t('dataModeling.list.openExisting', 'Open an existing diagram:')}
       </Subtitle>
       <div className={diagramActionsStyles}>
         <ImportDiagramButton
@@ -79,11 +81,11 @@ export const DiagramListToolbar = () => {
           data-testid="create-diagram-button"
           leftGlyph={<Icon glyph="Plus"></Icon>}
         >
-          Generate new diagram
+          {t('dataModeling.list.generateNew', 'Generate new diagram')}
         </Button>
       </div>
       <SearchInput
-        aria-label="Search diagrams"
+        aria-label={t('dataModeling.list.searchDiagrams', 'Search diagrams')}
         value={searchTerm}
         className={searchInputStyles}
         onChange={(e) => onSearch(e.target.value)}

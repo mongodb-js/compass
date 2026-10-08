@@ -14,6 +14,7 @@ import {
   cx,
   Icon,
   Link,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   deleteRelationship,
@@ -163,6 +164,7 @@ export const CardinalitySelect = ({
   label: string;
   onChange: (value: number | null) => void;
 }) => {
+  const t = useTranslation();
   return (
     <Select
       size="small"
@@ -175,7 +177,9 @@ export const CardinalitySelect = ({
       {CARDINALITY_OPTIONS.map(({ tag, value, label }) => (
         <Option key={String(value)} value={String(value)}>
           <div className={cardinalityLabelContainerStyles}>
-            {tag}
+            {tag === 'One'
+              ? t('dataModeling.relationship.cardinalityOne', 'One')
+              : t('dataModeling.relationship.cardinalityMany', 'Many')}
             <span
               className={cx(
                 cardinalityLabelStyles,
@@ -213,6 +217,7 @@ const configurationForeignFieldStyles = css({
 const RelationshipDrawerContent: React.FunctionComponent<
   RelationshipDrawerContentProps
 > = ({ relationshipId, relationship, fields, onRelationshipUpdate }) => {
+  const t = useTranslation();
   const collections = useMemo(() => {
     return Object.keys(fields);
   }, [fields]);
@@ -245,13 +250,21 @@ const RelationshipDrawerContent: React.FunctionComponent<
 
   return (
     <div data-relationship-id={relationshipId}>
-      <DMDrawerSection label="Relationship properties">
+      <DMDrawerSection
+        label={t(
+          'dataModeling.relationship.properties',
+          'Relationship properties'
+        )}
+      >
         <div className={configurationContainerStyles}>
           <div className={configurationLocalFieldStyles}>
             <DMFormFieldContainer>
               <Combobox
                 size="small"
-                label="Local collection"
+                label={t(
+                  'dataModeling.relationship.localCollection',
+                  'Local collection'
+                )}
                 value={localCollection}
                 onChange={(value) => {
                   if (value) {
@@ -277,7 +290,7 @@ const RelationshipDrawerContent: React.FunctionComponent<
             <DMFormFieldContainer>
               <Combobox
                 size="small"
-                label="Local field"
+                label={t('dataModeling.relationship.localField', 'Local field')}
                 value={localField}
                 onChange={(value) => {
                   if (value) {
@@ -300,7 +313,10 @@ const RelationshipDrawerContent: React.FunctionComponent<
             </DMFormFieldContainer>
             <DMFormFieldContainer>
               <CardinalitySelect
-                label="Local cardinality"
+                label={t(
+                  'dataModeling.relationship.localCardinality',
+                  'Local cardinality'
+                )}
                 value={localCardinality}
                 onChange={(value) =>
                   onFieldChange({ key: 'localCardinality', value })
@@ -313,7 +329,10 @@ const RelationshipDrawerContent: React.FunctionComponent<
             <DMFormFieldContainer>
               <Combobox
                 size="small"
-                label="Foreign collection"
+                label={t(
+                  'dataModeling.relationship.foreignCollection',
+                  'Foreign collection'
+                )}
                 value={foreignCollection}
                 onChange={(value) => {
                   if (value) {
@@ -339,7 +358,10 @@ const RelationshipDrawerContent: React.FunctionComponent<
             <DMFormFieldContainer>
               <Combobox
                 size="small"
-                label="Foreign field"
+                label={t(
+                  'dataModeling.relationship.foreignField',
+                  'Foreign field'
+                )}
                 value={foreignField}
                 onChange={(value) => {
                   if (value) {
@@ -363,7 +385,10 @@ const RelationshipDrawerContent: React.FunctionComponent<
 
             <DMFormFieldContainer>
               <CardinalitySelect
-                label="Foreign cardinality"
+                label={t(
+                  'dataModeling.relationship.foreignCardinality',
+                  'Foreign cardinality'
+                )}
                 value={foreignCardinality}
                 onChange={(value) =>
                   onFieldChange({ key: 'foreignCardinality', value })
@@ -375,18 +400,27 @@ const RelationshipDrawerContent: React.FunctionComponent<
         <div className={cardinalityInfoContainerStyles}>
           <Icon glyph="InfoWithCircle" className={infoIconStyles} />
           <span>
-            Relationship cardinality can inform whether you embed or reference.
+            {t(
+              'dataModeling.relationship.cardinalityInfo',
+              'Relationship cardinality can inform whether you embed or reference.'
+            )}
             {nbsp}
             <Link href="https://www.mongodb.com/docs/manual/applications/data-models-relationships">
-              Learn more
+              {t('dataModeling.relationship.learnMore', 'Learn more')}
             </Link>
           </span>
         </div>
       </DMDrawerSection>
 
-      <DMDrawerSection label="Notes">
+      <DMDrawerSection
+        label={t('dataModeling.collectionDrawer.notes', 'Notes')}
+      >
         <DMFormFieldContainer>
-          <TextArea label="" aria-label="Notes" {...noteInputProps}></TextArea>
+          <TextArea
+            label=""
+            aria-label={t('dataModeling.collectionDrawer.notes', 'Notes')}
+            {...noteInputProps}
+          ></TextArea>
         </DMFormFieldContainer>
       </DMDrawerSection>
     </div>

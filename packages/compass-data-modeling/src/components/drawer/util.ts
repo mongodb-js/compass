@@ -1,13 +1,17 @@
+import type { TranslateFn } from '@mongodb-js/compass-components';
+
 export function getIsNewNameValid({
   newName,
   existingNames,
   currentName,
   entity,
+  t,
 }: {
   newName: string;
   existingNames: string[];
   currentName: string;
-  entity: string;
+  entity: 'Diagram' | 'Collection';
+  t: TranslateFn;
 }): {
   isValid: boolean;
   errorMessage?: string;
@@ -15,7 +19,16 @@ export function getIsNewNameValid({
   if (newName.trim().length === 0) {
     return {
       isValid: false,
-      errorMessage: `${entity} name cannot be empty.`,
+      errorMessage:
+        entity === 'Diagram'
+          ? t(
+              'dataModeling.validation.diagramNameEmpty',
+              'Diagram name cannot be empty.'
+            )
+          : t(
+              'dataModeling.validation.collectionNameEmpty',
+              'Collection name cannot be empty.'
+            ),
     };
   }
 
@@ -29,6 +42,16 @@ export function getIsNewNameValid({
 
   return {
     isValid: !isDuplicate,
-    errorMessage: isDuplicate ? `${entity} name must be unique.` : undefined,
+    errorMessage: isDuplicate
+      ? entity === 'Diagram'
+        ? t(
+            'dataModeling.validation.diagramNameUnique',
+            'Diagram name must be unique.'
+          )
+        : t(
+            'dataModeling.validation.collectionNameUnique',
+            'Collection name must be unique.'
+          )
+      : undefined,
   };
 }

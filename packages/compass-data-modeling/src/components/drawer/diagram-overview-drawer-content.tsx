@@ -9,6 +9,7 @@ import {
   spacing,
   TextInput,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { renameDiagram } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
@@ -91,6 +92,7 @@ const DiagramOverviewDrawerContent: React.FunctionComponent<
   onRenameDiagram,
 }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   const connectionInfo = useConnectionInfoForId(connectionId);
   const { items: savedDiagrams } = useDataModelSavedItems();
   const diagramNames = useMemo(
@@ -122,16 +124,17 @@ const DiagramOverviewDrawerContent: React.FunctionComponent<
         existingNames: diagramNames,
         currentName: _diagramName,
         entity: 'Diagram',
+        t,
       }),
-    [diagramName, _diagramName, diagramNames]
+    [diagramName, _diagramName, diagramNames, t]
   );
 
   return (
     <>
-      <DMDrawerSection label="Model">
+      <DMDrawerSection label={t('dataModeling.overview.model', 'Model')}>
         <DMFormFieldContainer>
           <TextInput
-            label="Diagram name"
+            label={t('dataModeling.setup.diagramName', 'Diagram name')}
             data-testid="data-model-overview-drawer-name-input"
             sizeVariant="small"
             value={diagramName}
@@ -142,28 +145,30 @@ const DiagramOverviewDrawerContent: React.FunctionComponent<
         </DMFormFieldContainer>
         <div className={infoContainerStyles}>
           <Label as="div" htmlFor="">
-            Generated
+            {t('dataModeling.overview.generated', 'Generated')}
           </Label>
-          <LabeledInfoItem label="From">
+          <LabeledInfoItem label={t('dataModeling.overview.from', 'From')}>
             {connectionInfo ? `${connectionInfo.title}.${database}` : database}
           </LabeledInfoItem>
-          <LabeledInfoItem label="At">
+          <LabeledInfoItem label={t('dataModeling.overview.at', 'At')}>
             {formatDateTime(createdAt)}
           </LabeledInfoItem>
         </div>
         <div className={infoContainerStyles}>
           <Label as="div" htmlFor="">
-            Last updated
+            {t('dataModeling.overview.lastUpdated', 'Last updated')}
           </Label>
-          <LabeledInfoItem label="At">
+          <LabeledInfoItem label={t('dataModeling.overview.at', 'At')}>
             {formatDateTime(updatedAt)}
           </LabeledInfoItem>
         </div>
         <div className={cx(infoTextStyles, darkMode && infoTextStylesDark)}>
           <Icon glyph="InfoWithCircle" />
           <span>
-            This diagram was generated based on a sample of documents. Changes
-            made to the diagram will not impact your data.
+            {t(
+              'dataModeling.overview.sampleInfo',
+              'This diagram was generated based on a sample of documents. Changes made to the diagram will not impact your data.'
+            )}
           </span>
         </div>
       </DMDrawerSection>

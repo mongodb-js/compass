@@ -4,7 +4,12 @@ import DiagramEditor from './diagram-editor';
 import SavedDiagramsList from './saved-diagrams-list';
 import NewDiagramFormModal from './new-diagram/new-diagram-modal';
 import type { DataModelingState } from '../store/reducer';
-import { Button, css, DiagramProvider } from '@mongodb-js/compass-components';
+import {
+  Button,
+  css,
+  DiagramProvider,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import DiagramEditorSidePanel from './drawer/diagram-editor-side-panel';
 import ReselectCollectionsModal from './reselect-collections-modal';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -27,14 +32,17 @@ const deletedDiagramContainerStyles = css({
 
 const DeletedDiagramInfo: React.FunctionComponent = () => {
   const { openDataModelingWorkspace } = useOpenWorkspace();
+  const t = useTranslation();
   return (
     <div className={deletedDiagramContainerStyles}>
-      <div>This data model has been deleted.</div>
+      <div>
+        {t('dataModeling.deleted.message', 'This data model has been deleted.')}
+      </div>
       <Button
         onClick={() => openDataModelingWorkspace({ newTab: false })}
         variant="primary"
       >
-        Back to Data Modeling
+        {t('dataModeling.deleted.back', 'Back to Data Modeling')}
       </Button>
     </div>
   );

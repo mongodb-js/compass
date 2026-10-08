@@ -1,5 +1,6 @@
 import toNS from 'mongodb-ns';
 import type {
+  TranslateFn,
   EdgeProps,
   NodeField,
   NodeGlyph,
@@ -223,6 +224,7 @@ type CollectionWithRenderOptions = Pick<
   selected: boolean;
   isInRelationshipDrawingMode: boolean;
   relationships: Relationship[];
+  t: TranslateFn;
 };
 
 export function collectionToDiagramNode({
@@ -234,12 +236,16 @@ export function collectionToDiagramNode({
   selected,
   isInRelationshipDrawingMode,
   relationships,
+  t,
 }: CollectionWithRenderOptions): NodeProps {
   let variant: NodeProps['variant'] = undefined;
   if (relationships.some((r) => !isRelationshipValid(r))) {
     variant = {
       type: 'warn' as const,
-      warnMessage: 'One or more relationships cannot be resolved.',
+      warnMessage: t(
+        'dataModeling.nodes.unresolvedRelationships',
+        'One or more relationships cannot be resolved.'
+      ),
     };
   }
   return {

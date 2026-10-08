@@ -9,6 +9,7 @@ import {
   Subtitle,
   useDarkMode,
   useFormattedDate,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 import React from 'react';
@@ -84,6 +85,7 @@ export function DiagramCard({
   onDelete: (id: string) => void;
 }) {
   const darkmode = useDarkMode();
+  const t = useTranslation();
   const formattedDate = useFormattedDate(new Date(diagram.updatedAt).getTime());
   return (
     <Card
@@ -105,8 +107,14 @@ export function DiagramCard({
         <ItemActionMenu
           isVisible
           actions={[
-            { action: 'rename', label: 'Rename' },
-            { action: 'delete', label: 'Delete' },
+            {
+              action: 'rename',
+              label: t('dataModeling.diagramCard.rename', 'Rename'),
+            },
+            {
+              action: 'delete',
+              label: t('dataModeling.diagramCard.delete', 'Delete'),
+            },
           ]}
           onAction={(action) => {
             switch (action) {
@@ -133,7 +141,8 @@ export function DiagramCard({
           <span className={namespaceNameStyles}>{diagram.database}</span>
         </div>
         <div className={lastModifiedLabel}>
-          Last&nbsp;modified: {formattedDate}
+          {t('dataModeling.diagramCard.lastModified', 'Last modified:')}{' '}
+          {formattedDate}
         </div>
       </div>
     </Card>

@@ -12,6 +12,7 @@ import {
   TextInput,
   Toggle,
   useDarkMode,
+  useTranslation,
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useMemo } from 'react';
@@ -157,6 +158,7 @@ export const DiagramSettingsContent: React.FunctionComponent<
   );
 
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   if (error) {
     return (
@@ -172,7 +174,10 @@ export const DiagramSettingsContent: React.FunctionComponent<
           id={inferRelationshipLabelId}
           htmlFor={inferRelationshipToggleId}
         >
-          Automatically infer relationships
+          {t(
+            'dataModeling.settings.inferRelationships',
+            'Automatically infer relationships'
+          )}
         </Label>
         <Toggle
           id={inferRelationshipToggleId}
@@ -189,23 +194,29 @@ export const DiagramSettingsContent: React.FunctionComponent<
         id={inferRelationshipDescriptionId}
         className={cx(infoTextStyles, darkMode && infoTextStylesDark)}
       >
-        Analysis process will try to automatically discover relationships in
-        selected collections. This operation will run multiple find requests
-        against indexed fields of the collections and{' '}
+        {t(
+          'dataModeling.settings.inferDescription',
+          'Analysis process will try to automatically discover relationships in selected collections. This operation will run multiple find requests against indexed fields of the collections and'
+        )}{' '}
         <strong>
-          will take additional time per collection being analyzed.
+          {t(
+            'dataModeling.settings.inferDescriptionEmphasis',
+            'will take additional time per collection being analyzed.'
+          )}
         </strong>
       </div>
       <FormFieldContainer className={sampleSizeContainerStyles}>
-        <Body weight="bold">Document sampling</Body>
+        <Body weight="bold">
+          {t('dataModeling.settings.documentSampling', 'Document sampling')}
+        </Body>
         <div
           id={samplingOptionsDescriptionId}
           className={cx(infoTextStyles, darkMode && infoTextStylesDark)}
         >
-          By default, diagrams are generated from a small sample per collection.
-          Larger samples improve accuracy but increase analysis time and memory
-          usage, while smaller samples are faster but may miss infrequent fields
-          or relationships.
+          {t(
+            'dataModeling.settings.samplingDescription',
+            'By default, diagrams are generated from a small sample per collection. Larger samples improve accuracy but increase analysis time and memory usage, while smaller samples are faster but may miss infrequent fields or relationships.'
+          )}
         </div>
         <RadioGroup
           className={radioGroupStyles}
@@ -218,25 +229,37 @@ export const DiagramSettingsContent: React.FunctionComponent<
               <TextInput
                 id="sample-size-input"
                 data-testid="sample-size-input"
-                aria-label="Sample size"
+                aria-label={t(
+                  'dataModeling.settings.sampleSize',
+                  'Sample size'
+                )}
                 className={sampleSizeInputStyles}
                 type="number"
                 min={1}
                 value={samplingOptions.sampleSize.toString()}
                 onChange={handleSampleSizeInputChange}
               />
-              <Body>documents per collection.</Body>
+              <Body>
+                {t(
+                  'dataModeling.settings.documentsPerCollection',
+                  'documents per collection.'
+                )}
+              </Body>
             </div>
           </Radio>
           <Radio value="allDocuments">
-            <Body>All documents</Body>
+            <Body>
+              {t('dataModeling.settings.allDocuments', 'All documents')}
+            </Body>
           </Radio>
         </RadioGroup>
         <div className={warningTextContainerStyles}>
           {areSamplingOptionsInvalid && (
             <div className={errorTextStyles} data-testid="sample-size-warning">
               <Icon glyph="Warning" size="large" />
-              <span>Invalid input</span>
+              <span>
+                {t('dataModeling.settings.invalidInput', 'Invalid input')}
+              </span>
             </div>
           )}
           {isLargeSampleSize && (
@@ -250,8 +273,13 @@ export const DiagramSettingsContent: React.FunctionComponent<
                 className={warningIconStyles}
               />
               <span>
-                <strong>Warning:</strong> Consider your dataset size and the
-                available resources on your device or browser.
+                <strong>
+                  {t('dataModeling.settings.warning', 'Warning:')}
+                </strong>{' '}
+                {t(
+                  'dataModeling.settings.warningDescription',
+                  'Consider your dataset size and the available resources on your device or browser.'
+                )}
               </span>
             </div>
           )}

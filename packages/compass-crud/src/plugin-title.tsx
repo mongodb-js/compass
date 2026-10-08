@@ -6,6 +6,7 @@ import {
   spacing,
   compactBytes,
   compactNumber,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { CrudStore } from './stores/crud-store';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -28,9 +29,13 @@ const isNumber = (val: any): val is number => {
   return typeof val === 'number' && !isNaN(val);
 };
 
-const format = (value: any, formatType: 'number' | 'bytes' = 'number') => {
+const format = (
+  value: any,
+  formatType: 'number' | 'bytes' = 'number',
+  invalid = INVALID
+) => {
   if (!isNumber(value)) {
-    return INVALID;
+    return invalid;
   }
   const decimals = value <= 1000 ? 0 : 1;
   return formatType === 'bytes'
@@ -84,7 +89,9 @@ export const CrudTabTitle = ({
 }: {
   store: CrudStore;
 }) => {
+  const t = useTranslation();
   const { documentCount, storageSize, avgDocumentSize } = useMemo(() => {
+    const notAvailable = t('crud.toolbar.notAvailable', 'N/A');
     const {
       document_count = NaN,
       storage_size,
@@ -92,29 +99,43 @@ export const CrudTabTitle = ({
       avg_document_size = NaN,
     } = collectionStats ?? {};
     return {
-      documentCount: format(document_count, 'number'),
+      documentCount: format(document_count, 'number', notAvailable),
       // Undefined when the server did not report the sizes, which is not the
       // same as reporting zero — see CollectionStats in data-service.
       storageSize:
         storage_size === undefined
           ? undefined
-          : format(storage_size - (free_storage_size ?? 0), 'bytes'),
-      avgDocumentSize: format(avg_document_size, 'bytes'),
+          : format(
+              storage_size - (free_storage_size ?? 0),
+              'bytes',
+              notAvailable
+            ),
+      avgDocumentSize: format(avg_document_size, 'bytes', notAvailable),
     };
-  }, [collectionStats]);
+  }, [collectionStats, t]);
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
 
   const details = [
-    `Documents: ${documentCount}`,
+    t('crud.tabTitle.documentsStat', 'Documents: {value}', {
+      value: documentCount,
+    }),
     // Omitted rather than shown as "N/A": the storage size of a disaggregated
     // storage cluster is not something we can report at all.
-    ...(storageSize === undefined ? [] : [`Storage Size: ${storageSize}`]),
-    `Avg. Size: ${avgDocumentSize}`,
+    ...(storageSize === undefined
+      ? []
+      : [
+          t('crud.tabTitle.storageSize', 'Storage Size: {value}', {
+            value: storageSize,
+          }),
+        ]),
+    t('crud.tabTitle.avgSize', 'Avg. Size: {value}', {
+      value: avgDocumentSize,
+    }),
   ];
 
   return (
     <div data-testid="documents-tab-title" className={containerStyles}>
-      Documents
+      {t('crud.tabTitle.documents', 'Documents')}
       {enableDbAndCollStats && (
         <CollectionStats text={documentCount} details={details} />
       )}

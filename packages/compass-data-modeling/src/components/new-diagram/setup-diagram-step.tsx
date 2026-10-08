@@ -5,6 +5,7 @@ import {
   css,
   spacing,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
@@ -56,16 +57,20 @@ const SetupDiagramStep = ({
   onConnectionSelect,
   onDatabaseSelect,
 }: SetupDiagramStepProps) => {
+  const t = useTranslation();
   const connections = useSavedConnections();
   const connectionErrorMessage = useMemo(() => {
     if (selectedConnection.error) {
       return selectedConnection.error.message;
     }
     if (connections.length === 0) {
-      return 'You do not have any connections, create a new connection first.';
+      return t(
+        'dataModeling.setup.noConnections',
+        'You do not have any connections, create a new connection first.'
+      );
     }
     return undefined;
-  }, [selectedConnection.error, connections.length]);
+  }, [selectedConnection.error, connections.length, t]);
 
   const databaseErrorMessage = useMemo(() => {
     if (connectionErrorMessage) {
@@ -76,18 +81,27 @@ const SetupDiagramStep = ({
       return selectedDatabase.error.message;
     }
     if (databases.length === 0) {
-      return 'No databases found for the selected connection.';
+      return t(
+        'dataModeling.setup.noDatabases',
+        'No databases found for the selected connection.'
+      );
     }
     return undefined;
-  }, [connectionErrorMessage, selectedDatabase.error, databases.length]);
+  }, [connectionErrorMessage, selectedDatabase.error, databases.length, t]);
 
   return (
     <div className={containerStyles}>
       <div className={connectionAndDatabaseContainerStyles}>
         <Combobox
-          label="Connection"
-          placeholder="Select connection"
-          aria-label="Select connection"
+          label={t('dataModeling.setup.connection', 'Connection')}
+          placeholder={t(
+            'dataModeling.setup.selectConnection',
+            'Select connection'
+          )}
+          aria-label={t(
+            'dataModeling.setup.selectConnection',
+            'Select connection'
+          )}
           value={selectedConnection.value ?? ''}
           data-testid="new-diagram-connection-selector"
           onChange={(connectionId) => {
@@ -113,9 +127,12 @@ const SetupDiagramStep = ({
           })}
         </Combobox>
         <Combobox
-          label="Database"
-          placeholder="Select database"
-          aria-label="Select database"
+          label={t('dataModeling.setup.database', 'Database')}
+          placeholder={t(
+            'dataModeling.setup.selectDatabase',
+            'Select database'
+          )}
+          aria-label={t('dataModeling.setup.selectDatabase', 'Select database')}
           value={selectedDatabase.value ?? ''}
           data-testid="new-diagram-database-selector"
           onChange={(databaseName) => {
@@ -137,7 +154,7 @@ const SetupDiagramStep = ({
         </Combobox>
       </div>
       <TextInput
-        label="Diagram name"
+        label={t('dataModeling.setup.diagramName', 'Diagram name')}
         value={diagramName.value}
         data-testid="new-diagram-name-input"
         onChange={(e) => {
@@ -151,8 +168,10 @@ const SetupDiagramStep = ({
         errorMessage={diagramName.error?.message}
       ></TextInput>
       <Banner variant="info">
-        Diagram will be generated from a sample of documents in the selected
-        database. Changes made to the diagram will not impact your data.
+        {t(
+          'dataModeling.setup.banner',
+          'Diagram will be generated from a sample of documents in the selected database. Changes made to the diagram will not impact your data.'
+        )}
       </Banner>
     </div>
   );

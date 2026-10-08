@@ -8,6 +8,7 @@ import {
   spacing,
   palette,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
@@ -57,6 +58,7 @@ type ServerStatsToolbarProps = {
 };
 
 function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
+  const t = useTranslation();
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
@@ -97,7 +99,9 @@ function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
         leftGlyph={<Icon glyph={isPaused ? 'Play' : 'Pause'} />}
         variant={isPaused ? 'primary' : 'default'}
       >
-        {isPaused ? 'Play' : 'Pause'}
+        {isPaused
+          ? t('serverStats.toolbar.play', 'Play')
+          : t('serverStats.toolbar.pause', 'Pause')}
       </Button>
       <div
         className={cx(

@@ -11,6 +11,7 @@ import {
   spacing,
   Tooltip,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { Relationship } from '../../services/data-model-storage';
 import { getDefaultRelationshipName } from '../../utils';
@@ -85,18 +86,19 @@ export const RelationshipsSection: React.FunctionComponent<
   onDeleteRelationshipClick,
 }) => {
   const darkmode = useDarkMode();
+  const t = useTranslation();
   return (
     <DMDrawerSection
       label={
         <>
-          Relationships&nbsp;
+          {t('dataModeling.relationships.title', 'Relationships')}&nbsp;
           <Badge>{relationships.length}</Badge>
           <Button
             className={titleBtnStyles}
             size="xsmall"
             onClick={onCreateNewRelationshipClick}
           >
-            Add Relationship
+            {t('dataModeling.relationships.add', 'Add Relationship')}
           </Button>
         </>
       }
@@ -137,14 +139,22 @@ export const RelationshipsSection: React.FunctionComponent<
                           </div>
                         }
                       >
-                        Cannot resolve the relationship - please verify the
-                        linked fields and namespace.
+                        {t(
+                          'dataModeling.relationships.cannotResolve',
+                          'Cannot resolve the relationship - please verify the linked fields and namespace.'
+                        )}
                       </Tooltip>
                     )}
                   </div>
                   <IconButton
-                    aria-label="Edit relationship"
-                    title="Edit relationship"
+                    aria-label={t(
+                      'dataModeling.relationships.edit',
+                      'Edit relationship'
+                    )}
+                    title={t(
+                      'dataModeling.relationships.edit',
+                      'Edit relationship'
+                    )}
                     onClick={() => {
                       onEditRelationshipClick(r.id);
                     }}
@@ -152,8 +162,14 @@ export const RelationshipsSection: React.FunctionComponent<
                     <Icon glyph="Edit" />
                   </IconButton>
                   <IconButton
-                    aria-label="Delete relationship"
-                    title="Delete relationship"
+                    aria-label={t(
+                      'dataModeling.relationships.delete',
+                      'Delete relationship'
+                    )}
+                    title={t(
+                      'dataModeling.relationships.delete',
+                      'Delete relationship'
+                    )}
                     onClick={() => {
                       onDeleteRelationshipClick(r.id);
                     }}

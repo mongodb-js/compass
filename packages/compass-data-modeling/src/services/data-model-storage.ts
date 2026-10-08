@@ -1,4 +1,6 @@
 import { z } from '@mongodb-js/compass-user-data';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { translateEnglish } from '../utils/translator';
 import toNS from 'mongodb-ns';
 import type { MongoDBJSONSchema } from '@mongodb-js/mongodb-schema';
 
@@ -201,7 +203,8 @@ export type SetModelEdit = Extract<
 export type EditAction = z.output<typeof EditSchemaVariants>;
 
 export const validateEdit = (
-  edit: unknown
+  edit: unknown,
+  t: TranslateFn = translateEnglish
 ): { result: true; errors?: never } | { result: false; errors: string[] } => {
   try {
     EditSchema.parse(edit);
@@ -211,8 +214,14 @@ export const validateEdit = (
       result: false,
       errors: (e as z.ZodError).issues.map(({ path, message }) =>
         message === 'Required'
-          ? `'${path}' is required`
-          : `Invalid field '${path}': ${message}`
+          ? t('dataModeling.errors.fieldRequired', "'{path}' is required", {
+              path: String(path),
+            })
+          : t(
+              'dataModeling.errors.invalidField',
+              "Invalid field '{path}': {message}",
+              { path: String(path), message }
+            )
       ),
     };
   }

@@ -3,7 +3,7 @@ import {
   useConnectionInfo,
   useConnectionsListRef,
 } from '@mongodb-js/compass-connections/provider';
-import { WorkspaceTab } from '@mongodb-js/compass-components';
+import { WorkspaceTab, useTranslation } from '@mongodb-js/compass-components';
 import type { PluginHeaderProps } from '@mongodb-js/workspace-info';
 
 export const WorkspaceName = 'Performance' as const;
@@ -13,6 +13,8 @@ type PluginTitleComponentProps = PluginHeaderProps<typeof WorkspaceName>;
 export function ServerStatsPluginTitleComponent(
   props: PluginTitleComponentProps
 ) {
+  const t = useTranslation();
+  const performance = t('serverStats.tab.title', 'Performance');
   const { getConnectionById } = useConnectionsListRef();
   const { id: connectionId } = useConnectionInfo();
   const connectionName = getConnectionById(connectionId)?.title || '';
@@ -22,8 +24,8 @@ export function ServerStatsPluginTitleComponent(
       {...props}
       type={WorkspaceName}
       connectionName={connectionName}
-      title={`Performance: ${connectionName}`}
-      tooltip={[['Performance', connectionName || '']]}
+      title={`${performance}: ${connectionName}`}
+      tooltip={[[performance, connectionName || '']]}
       iconGlyph="Gauge"
     />
   );

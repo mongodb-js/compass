@@ -7,6 +7,7 @@ import {
   DrawerSection,
   ItemActionControls,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import CollectionDrawerContent from './collection-drawer-content';
 import RelationshipDrawerContent from './relationship-drawer-content';
@@ -59,6 +60,7 @@ function DiagramEditorSidePanel({
   onDeleteRelationship,
   onDeleteField,
 }: DiagramEditorSidePanelProps) {
+  const t = useTranslation();
   const { content, label, actions, title, handleAction } = useMemo(() => {
     if (!hasDiagram) {
       return {
@@ -69,7 +71,10 @@ function DiagramEditorSidePanel({
     if (selectedItems?.type === 'collection') {
       return {
         title: selectedItems.title,
-        label: 'Collection Configuration',
+        label: t(
+          'dataModeling.drawer.collectionConfiguration',
+          'Collection Configuration'
+        ),
         content: (
           <CollectionDrawerContent
             key={selectedItems.id}
@@ -79,7 +84,10 @@ function DiagramEditorSidePanel({
         actions: [
           {
             action: 'delete',
-            label: 'Delete Collection',
+            label: t(
+              'dataModeling.drawer.deleteCollection',
+              'Delete Collection'
+            ),
             icon: 'Trash' as const,
           },
         ],
@@ -94,7 +102,10 @@ function DiagramEditorSidePanel({
     if (selectedItems?.type === 'relationship') {
       return {
         title: selectedItems.title,
-        label: 'Relationship Configuration',
+        label: t(
+          'dataModeling.drawer.relationshipConfiguration',
+          'Relationship Configuration'
+        ),
         content: (
           <RelationshipDrawerContent
             key={selectedItems.id}
@@ -102,7 +113,11 @@ function DiagramEditorSidePanel({
           ></RelationshipDrawerContent>
         ),
         actions: [
-          { action: 'delete', label: 'Delete', icon: 'Trash' as const },
+          {
+            action: 'delete',
+            label: t('dataModeling.drawer.delete', 'Delete'),
+            icon: 'Trash' as const,
+          },
         ],
         handleAction: (actionName: string) => {
           if (actionName === 'delete') {
@@ -115,7 +130,10 @@ function DiagramEditorSidePanel({
     if (selectedItems?.type === 'field') {
       return {
         title: selectedItems.title,
-        label: 'Field Configuration',
+        label: t(
+          'dataModeling.drawer.fieldConfiguration',
+          'Field Configuration'
+        ),
         content: (
           <FieldDrawerContent
             key={`${selectedItems.namespace}.${JSON.stringify(
@@ -130,7 +148,7 @@ function DiagramEditorSidePanel({
             ? [
                 {
                   action: 'delete',
-                  label: 'Delete Field',
+                  label: t('dataModeling.drawer.deleteField', 'Delete Field'),
                   icon: 'Trash' as const,
                 },
               ]
@@ -145,8 +163,8 @@ function DiagramEditorSidePanel({
     }
 
     return {
-      title: 'Data Model Overview',
-      label: 'Data Model Overview',
+      title: t('dataModeling.drawer.overview', 'Data Model Overview'),
+      label: t('dataModeling.drawer.overview', 'Data Model Overview'),
       content: <DiagramOverviewDrawerContent />,
     };
   }, [
@@ -155,6 +173,7 @@ function DiagramEditorSidePanel({
     onDeleteCollection,
     onDeleteRelationship,
     onDeleteField,
+    t,
   ]);
 
   if (!content) {

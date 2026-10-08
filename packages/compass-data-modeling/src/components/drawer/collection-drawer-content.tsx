@@ -5,7 +5,11 @@ import type {
   DataModelCollection,
   Relationship,
 } from '../../services/data-model-storage';
-import { TextInput, TextArea } from '@mongodb-js/compass-components';
+import {
+  TextInput,
+  TextArea,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import {
   createNewRelationship,
   deleteRelationship,
@@ -55,6 +59,7 @@ const CollectionDrawerContent: React.FunctionComponent<
   onNoteChange,
   onRenameCollection,
 }) => {
+  const t = useTranslation();
   const namespaces = useMemo(() => {
     return collections.map((c) => c.ns);
   }, [collections]);
@@ -85,8 +90,9 @@ const CollectionDrawerContent: React.FunctionComponent<
         existingNames: namespaces.map((ns) => toNS(ns).collection),
         currentName: toNS(namespace).collection,
         entity: 'Collection',
+        t,
       }),
-    [collectionName, namespaces, namespace]
+    [collectionName, namespaces, namespace, t]
   );
 
   const noteInputProps = useChangeOnBlur(note, (newNote) => {
@@ -102,11 +108,16 @@ const CollectionDrawerContent: React.FunctionComponent<
 
   return (
     <>
-      <DMDrawerSection label="Collection properties">
+      <DMDrawerSection
+        label={t(
+          'dataModeling.collectionDrawer.properties',
+          'Collection properties'
+        )}
+      >
         <DMFormFieldContainer>
           <TextInput
             ref={nameInputRef}
-            label="Name"
+            label={t('dataModeling.collectionDrawer.name', 'Name')}
             data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
             value={collectionName}
@@ -118,7 +129,10 @@ const CollectionDrawerContent: React.FunctionComponent<
       </DMDrawerSection>
       <RelationshipsSection
         relationships={relationships}
-        emptyMessage="This collection does not have any relationships yet."
+        emptyMessage={t(
+          'dataModeling.collectionDrawer.noRelationships',
+          'This collection does not have any relationships yet.'
+        )}
         onCreateNewRelationshipClick={() => {
           onCreateNewRelationshipClick({ localNamespace: namespace });
         }}
@@ -126,9 +140,15 @@ const CollectionDrawerContent: React.FunctionComponent<
         onDeleteRelationshipClick={onDeleteRelationshipClick}
       />
 
-      <DMDrawerSection label="Notes">
+      <DMDrawerSection
+        label={t('dataModeling.collectionDrawer.notes', 'Notes')}
+      >
         <DMFormFieldContainer>
-          <TextArea label="" aria-label="Notes" {...noteInputProps}></TextArea>
+          <TextArea
+            label=""
+            aria-label={t('dataModeling.collectionDrawer.notes', 'Notes')}
+            {...noteInputProps}
+          ></TextArea>
         </DMFormFieldContainer>
       </DMDrawerSection>
     </>

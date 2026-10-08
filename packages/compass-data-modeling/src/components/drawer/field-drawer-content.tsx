@@ -9,6 +9,8 @@ import {
   ComboboxOption,
   TextInput,
   useSyncStateOnPropChange,
+  useTranslation,
+  type TranslateFn,
 } from '@mongodb-js/compass-components';
 import {
   changeFieldType,
@@ -77,7 +79,8 @@ type FieldDrawerContentProps = {
 export function getIsFieldNameValid(
   currentFieldPath: FieldPath,
   existingFields: FieldPath[],
-  newName: string
+  newName: string,
+  t: TranslateFn
 ): {
   isValid: boolean;
   errorMessage?: string;
@@ -86,7 +89,10 @@ export function getIsFieldNameValid(
   if (!trimmedName.length) {
     return {
       isValid: false,
-      errorMessage: 'Field name cannot be empty.',
+      errorMessage: t(
+        'dataModeling.field.nameEmpty',
+        'Field name cannot be empty.'
+      ),
     };
   }
 
@@ -112,7 +118,9 @@ export function getIsFieldNameValid(
 
   return {
     isValid: !isDuplicate,
-    errorMessage: isDuplicate ? 'Field already exists.' : undefined,
+    errorMessage: isDuplicate
+      ? t('dataModeling.field.alreadyExists', 'Field already exists.')
+      : undefined,
   };
 }
 
@@ -128,6 +136,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
   onRenameField,
   onChangeFieldType,
 }) => {
+  const t = useTranslation();
   const [fieldTypeEditErrorMessage, setFieldTypeEditErrorMessage] = useState<
     string | undefined
   >();
@@ -157,14 +166,16 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
 
   const { isValid: isFieldNameValid, errorMessage: fieldNameEditErrorMessage } =
     useMemo(
-      () => getIsFieldNameValid(fieldPath, fieldPaths, fieldName),
-      [fieldPath, fieldPaths, fieldName]
+      () => getIsFieldNameValid(fieldPath, fieldPaths, fieldName, t),
+      [fieldPath, fieldPaths, fieldName, t]
     );
 
   const handleTypeChange = (newTypes: string[]) => {
     setFieldTypes(newTypes);
     if (newTypes.length === 0) {
-      setFieldTypeEditErrorMessage('Field must have a type.');
+      setFieldTypeEditErrorMessage(
+        t('dataModeling.field.typeRequired', 'Field must have a type.')
+      );
       return;
     }
     setFieldTypeEditErrorMessage(undefined);
@@ -180,10 +191,12 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
 
   return (
     <>
-      <DMDrawerSection label="Field properties">
+      <DMDrawerSection
+        label={t('dataModeling.field.properties', 'Field properties')}
+      >
         <DMFormFieldContainer>
           <TextInput
-            label="Field name"
+            label={t('dataModeling.field.name', 'Field name')}
             disabled={isReadOnly}
             data-testid="data-model-collection-drawer-name-input"
             sizeVariant="small"
@@ -197,8 +210,8 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
         <DMFormFieldContainer>
           <Combobox
             data-testid="lg-combobox-datatype"
-            label="Datatype"
-            aria-label="Datatype"
+            label={t('dataModeling.field.datatype', 'Datatype')}
+            aria-label={t('dataModeling.field.datatype', 'Datatype')}
             disabled={isReadOnly}
             value={fieldTypes}
             size="small"
@@ -217,7 +230,10 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
 
       <RelationshipsSection
         relationships={relationships}
-        emptyMessage="This field does not have any relationships yet."
+        emptyMessage={t(
+          'dataModeling.field.noRelationships',
+          'This field does not have any relationships yet.'
+        )}
         onCreateNewRelationshipClick={() => {
           onCreateNewRelationshipClick({
             localNamespace: namespace,

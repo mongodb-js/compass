@@ -7,6 +7,7 @@ import {
   css,
   cx,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { getAccidentalEJSONKey } from '../utils/ejson-conversion';
 import {
@@ -28,6 +29,7 @@ function InsertEJSONConversionBanner({
   conversionError,
   onConvert,
 }: InsertEJSONConversionBannerProps) {
+  const t = useTranslation();
   const [dismissedKey, setDismissedKey] = useState<string | null>(null);
   const accidentalEJSON = useMemo(
     () => getAccidentalEJSONKey(parsedEditorText),
@@ -49,16 +51,30 @@ function InsertEJSONConversionBanner({
       onClose={() => setDismissedKey(key)}
     >
       <div>
-        This document contains keys such as <code>{key}</code> which indicate
-        that this document is supposed to be in{' '}
+        {t(
+          'crud.ejsonBanner.containsKeys',
+          'This document contains keys such as'
+        )}{' '}
+        <code>{key}</code>{' '}
+        {t(
+          'crud.ejsonBanner.indicate',
+          'which indicate that this document is supposed to be in'
+        )}{' '}
         <Link href="https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/">
-          Extended JSON
+          {t('crud.ejsonBanner.extendedJson', 'Extended JSON')}
         </Link>{' '}
-        format, which is a different format than this view accepts.
+        {t(
+          'crud.ejsonBanner.format',
+          'format, which is a different format than this view accepts.'
+        )}
       </div>
       <div>
-        Do you want to convert this text to Shell Syntax (e.g.{' '}
-        <code>{shellEquivalent}</code> instead of <code>{key}</code>)?
+        {t(
+          'crud.ejsonBanner.convertQuestion',
+          'Do you want to convert this text to Shell Syntax (e.g.'
+        )}{' '}
+        <code>{shellEquivalent}</code>{' '}
+        {t('crud.ejsonBanner.instead', 'instead of')} <code>{key}</code>)?
       </div>
       <div className={bannerActionContainerStyles}>
         <Button
@@ -66,7 +82,7 @@ function InsertEJSONConversionBanner({
           onClick={onConvert}
           data-testid="insert-document-ejson-conversion-button"
         >
-          Convert
+          {t('crud.ejsonBanner.convert', 'Convert')}
         </Button>
       </div>
       {conversionError && (
@@ -74,7 +90,11 @@ function InsertEJSONConversionBanner({
           className={cx(errorStyles, bannerMessageStyles)}
           data-testid="insert-document-ejson-conversion-error"
         >
-          The document could not be converted: {conversionError}
+          {t(
+            'crud.ejsonBanner.conversionFailed',
+            'The document could not be converted:'
+          )}{' '}
+          {conversionError}
         </div>
       )}
     </Banner>

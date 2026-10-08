@@ -4,6 +4,7 @@ import type { DataModelingThunkAction } from './reducer';
 import { startAnalysis } from './analysis-process';
 import toNS from 'mongodb-ns';
 import { getDiagramName } from '../services/open-and-download-diagram';
+import { getTranslator } from '../utils/translator';
 import {
   DEFAULT_SAMPLING_OPTIONS,
   type SamplingOptions,
@@ -435,7 +436,7 @@ export function validateDiagramName(): DataModelingThunkAction<
   Promise<void>,
   InvalidNameAction
 > {
-  return async (dispatch, getState, { dataModelStorage }) => {
+  return async (dispatch, getState, { dataModelStorage, preferences }) => {
     const diagramName =
       getState().generateDiagramWizard.formFields.diagramName.value;
     if (!diagramName) {
@@ -445,7 +446,12 @@ export function validateDiagramName(): DataModelingThunkAction<
     if (items.some((x) => x.name === diagramName)) {
       dispatch({
         type: GenerateDiagramWizardActionTypes.INVALID_NAME,
-        error: new Error('Diagram with this name already exists.'),
+        error: new Error(
+          getTranslator(preferences)(
+            'dataModeling.errors.diagramNameExists',
+            'Diagram with this name already exists.'
+          )
+        ),
       });
     }
   };
@@ -489,7 +495,12 @@ export function selectConnection(
       );
       dispatch({
         type: GenerateDiagramWizardActionTypes.CONNECTION_FAILED,
-        error: new Error('Connection failed.'),
+        error: new Error(
+          getTranslator(services.preferences)(
+            'dataModeling.errors.connectionFailed',
+            'Connection failed.'
+          )
+        ),
       });
       return;
     }

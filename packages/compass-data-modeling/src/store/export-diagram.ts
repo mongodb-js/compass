@@ -1,6 +1,7 @@
 import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
+import { getTranslator } from '../utils/translator';
 import { exportToJson, exportToPng } from '../services/export-diagram';
 import { selectCurrentModelFromState } from './diagram';
 import { openToast } from '@mongodb-js/compass-components';
@@ -102,7 +103,11 @@ export function exportDiagram(
   Promise<void>,
   ExportStartedAction | ExportCompletedAction
 > {
-  return async (dispatch, getState, { track, cancelExportControllerRef }) => {
+  return async (
+    dispatch,
+    getState,
+    { track, cancelExportControllerRef, preferences }
+  ) => {
     const {
       exportDiagram: { exportFormat, isExporting },
       diagram,
@@ -126,7 +131,8 @@ export function exportDiagram(
         await exportToPng(
           diagram.name,
           diagramInstance,
-          cancelController.signal
+          cancelController.signal,
+          getTranslator(preferences)
         );
       } else if (exportFormat === 'diagram') {
         downloadDiagram(diagram.name, diagram.edits.current, diagram.database);
@@ -138,12 +144,15 @@ export function exportDiagram(
       });
     } catch (error) {
       if (!isCancelError(error)) {
+        const t = getTranslator(preferences);
         openToast('export-diagram-error', {
           variant: 'warning',
-          title: 'Export failed',
-          description: `An error occurred while exporting the diagram: ${
-            (error as Error).message
-          }`,
+          title: t('dataModeling.export.failedTitle', 'Export failed'),
+          description: t(
+            'dataModeling.export.failedDescription',
+            'An error occurred while exporting the diagram: {message}',
+            { message: (error as Error).message }
+          ),
         });
       }
     } finally {

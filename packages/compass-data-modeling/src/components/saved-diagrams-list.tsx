@@ -13,6 +13,7 @@ import {
   WorkspaceContainer,
   Body,
   usePersistedState,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
 import {
@@ -100,34 +101,53 @@ const featureItemStyles = css({
 });
 
 type Feature = 'visualization' | 'collaboration' | 'interactive';
-const featureDescription: Record<
-  Feature,
-  { icon: React.FunctionComponent; title: string; subtitle: string }
-> = {
-  visualization: {
-    icon: SchemaVisualizationIcon,
-    title: 'Quick Visualization',
-    subtitle: 'Instantly visualize your data models',
-  },
-  collaboration: {
-    icon: CollaborateIcon,
-    title: 'Collaboration & Sharing with your team',
-    subtitle: 'Collaborate and share schemas across teams',
-  },
-  interactive: {
-    icon: FlexibilityIcon,
-    title: 'Interactive Diagram Analysis',
-    subtitle: 'Explore and annotate interactive diagrams',
-  },
-} as const;
+const featureIcons = {
+  visualization: SchemaVisualizationIcon,
+  collaboration: CollaborateIcon,
+  interactive: FlexibilityIcon,
+} as const satisfies Record<Feature, React.FunctionComponent>;
 
 const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
   features,
 }) => {
+  const t = useTranslation();
+  const featureTexts = {
+    visualization: {
+      title: t(
+        'dataModeling.features.visualization.title',
+        'Quick Visualization'
+      ),
+      subtitle: t(
+        'dataModeling.features.visualization.subtitle',
+        'Instantly visualize your data models'
+      ),
+    },
+    collaboration: {
+      title: t(
+        'dataModeling.features.collaboration.title',
+        'Collaboration & Sharing with your team'
+      ),
+      subtitle: t(
+        'dataModeling.features.collaboration.subtitle',
+        'Collaborate and share schemas across teams'
+      ),
+    },
+    interactive: {
+      title: t(
+        'dataModeling.features.interactive.title',
+        'Interactive Diagram Analysis'
+      ),
+      subtitle: t(
+        'dataModeling.features.interactive.subtitle',
+        'Explore and annotate interactive diagrams'
+      ),
+    },
+  } as const satisfies Record<Feature, { title: string; subtitle: string }>;
   return (
     <div className={featuresListStyles}>
       {features.map((feature, key) => {
-        const { icon: Icon, title, subtitle } = featureDescription[feature];
+        const Icon = featureIcons[feature];
+        const { title, subtitle } = featureTexts[feature];
         return (
           <div key={key} className={featureItemStyles}>
             <Icon />
@@ -144,21 +164,22 @@ const DiagramListEmptyContent: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
   onImportDiagramClick: (file: File) => void;
 }> = ({ onCreateDiagramClick, onImportDiagramClick }) => {
+  const t = useTranslation();
   return (
     <WorkspaceContainer>
       <EmptyContent
-        title="Visualize your Data Model"
+        title={t('dataModeling.empty.title', 'Visualize your Data Model')}
         subTitle={
           <>
-            Your data model is the foundation of application performance. As
-            applications evolve, so must your schema—intelligently and
-            strategically. Minimize complexity, prevent performance bottlenecks,
-            and keep your development agile.
+            {t(
+              'dataModeling.empty.description',
+              'Your data model is the foundation of application performance. As applications evolve, so must your schema—intelligently and strategically. Minimize complexity, prevent performance bottlenecks, and keep your development agile.'
+            )}
             <FeaturesList
               features={['visualization', 'collaboration', 'interactive']}
             />
             <Link href="https://www.mongodb.com/docs/compass/current/data-modeling/">
-              Data modeling documentation
+              {t('dataModeling.empty.docs', 'Data modeling documentation')}
             </Link>
           </>
         }
@@ -171,7 +192,7 @@ const DiagramListEmptyContent: React.FunctionComponent<{
               variant="primary"
               data-testid="create-diagram-button"
             >
-              Generate diagram
+              {t('dataModeling.empty.generate', 'Generate diagram')}
             </Button>
           </div>
         }
@@ -193,7 +214,18 @@ export const SavedDiagramsList: React.FunctionComponent<{
   onDiagramDeleteClick,
   onImportDiagramClick,
 }) => {
+  const t = useTranslation();
   const { items, status } = useDataModelSavedItems();
+  const sortByTranslated = useMemo(
+    () => [
+      { name: sortBy[0].name, label: t('dataModeling.list.sortName', 'Name') },
+      {
+        name: sortBy[1].name,
+        label: t('dataModeling.list.sortLastModified', 'Last Modified'),
+      },
+    ],
+    [t]
+  );
   const [search, setSearch] = useState('');
   const filteredItems = useMemo(() => {
     try {
@@ -208,7 +240,7 @@ export const SavedDiagramsList: React.FunctionComponent<{
     name: (typeof sortBy)[number]['name'] | null;
     order: 1 | -1;
   }>('saved-diagrams-list-controls', { name: sortBy[0].name, order: 1 });
-  const [sortControls, sortState] = useSortControls(sortBy, {
+  const [sortControls, sortState] = useSortControls(sortByTranslated, {
     initialState: initialSortState,
     onChange: setSortState,
   });
@@ -258,8 +290,11 @@ export const SavedDiagramsList: React.FunctionComponent<{
           resetActiveItemOnBlur={false}
           renderEmptyList={() => (
             <EmptyContent
-              title="No results found."
-              subTitle="We can't find any diagram matching your search."
+              title={t('dataModeling.list.noResults', 'No results found.')}
+              subTitle={t(
+                'dataModeling.list.noResultsDescription',
+                "We can't find any diagram matching your search."
+              )}
             />
           )}
         ></VirtualGrid>

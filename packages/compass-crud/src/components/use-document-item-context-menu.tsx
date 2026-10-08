@@ -1,5 +1,8 @@
 import type HadronDocument from 'hadron-document';
-import { useContextMenuGroups } from '@mongodb-js/compass-components';
+import {
+  useContextMenuGroups,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 import type { DocumentProps } from './document';
 
@@ -14,6 +17,7 @@ export function useDocumentItemContextMenu({
   copyToClipboard,
   openInsertDocumentDialog,
 }: UseDocumentItemContextMenuProps) {
+  const t = useTranslation();
   const { expanded: isExpanded, editing: isEditing } = doc;
 
   return useContextMenuGroups(
@@ -22,7 +26,9 @@ export function useDocumentItemContextMenu({
         telemetryLabel: 'Document Expand Collapse',
         items: [
           {
-            label: isExpanded ? 'Collapse all fields' : 'Expand all fields',
+            label: isExpanded
+              ? t('crud.contextMenu.collapseAll', 'Collapse all fields')
+              : t('crud.contextMenu.expandAll', 'Expand all fields'),
             onAction: () => {
               if (isExpanded) {
                 doc.collapse();
@@ -39,7 +45,9 @@ export function useDocumentItemContextMenu({
           ...(isEditable
             ? [
                 {
-                  label: isEditing ? 'Cancel editing' : 'Edit document',
+                  label: isEditing
+                    ? t('crud.contextMenu.cancelEditing', 'Cancel editing')
+                    : t('crud.contextMenu.editDocument', 'Edit document'),
                   onAction: () => {
                     if (isEditing) {
                       doc.finishEditing();
@@ -51,20 +59,23 @@ export function useDocumentItemContextMenu({
               ]
             : []),
           {
-            label: 'Copy document as Shell Syntax',
+            label: t(
+              'crud.contextMenu.copyShell',
+              'Copy document as Shell Syntax'
+            ),
             onAction: () => {
               copyToClipboard?.(doc, 'shell-syntax');
             },
           },
           {
-            label: 'Copy document as EJSON',
+            label: t('crud.contextMenu.copyEjson', 'Copy document as EJSON'),
             onAction: () => {
               copyToClipboard?.(doc, 'ejson');
             },
           },
           isEditable
             ? {
-                label: 'Clone document...',
+                label: t('crud.contextMenu.clone', 'Clone document...'),
                 onAction: () => {
                   const clonedDoc = doc.generateObject({
                     excludeInternalFields: true,
@@ -80,7 +91,7 @@ export function useDocumentItemContextMenu({
             telemetryLabel: 'Document Item Delete',
             items: [
               {
-                label: 'Delete document',
+                label: t('crud.contextMenu.delete', 'Delete document'),
                 onAction: () => {
                   doc.markForDeletion();
                 },
@@ -96,6 +107,7 @@ export function useDocumentItemContextMenu({
       isEditable,
       copyToClipboard,
       openInsertDocumentDialog,
+      t,
     ]
   );
 }

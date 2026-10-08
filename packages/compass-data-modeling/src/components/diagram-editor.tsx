@@ -41,6 +41,7 @@ import {
   spacing,
   Button,
   useDarkMode,
+  useTranslation,
   useDrawerActions,
   useDrawerState,
   useThrottledProps,
@@ -95,6 +96,7 @@ const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
   children?: React.ReactNode;
 }> = ({ children, onRetryClick }) => {
+  const t = useTranslation();
   return (
     <Banner variant="danger" className={errorBannerStyles}>
       <div>{children}</div>
@@ -103,7 +105,7 @@ const ErrorBannerWithRetry: React.FunctionComponent<{
         size="xsmall"
         onClick={onRetryClick}
       >
-        Retry
+        {t('dataModeling.editor.retry', 'Retry')}
       </Button>
     </Banner>
   );
@@ -144,7 +146,7 @@ const MINIMAP_PROPS = {
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
-  diagramLabel: string;
+  diagramLabel?: string;
   database: string | null;
   model: StaticModel | null;
   isInRelationshipDrawingMode: boolean;
@@ -224,6 +226,7 @@ const DiagramContent: React.FunctionComponent<{
   onToggleFieldExpanded,
 }) => {
   const isDarkMode = useDarkMode();
+  const t = useTranslation();
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
@@ -259,6 +262,7 @@ const DiagramContent: React.FunctionComponent<{
         selected,
         isInRelationshipDrawingMode,
         relationships,
+        t,
       });
     });
   }, [
@@ -266,6 +270,7 @@ const DiagramContent: React.FunctionComponent<{
     model?.relationships,
     selectedItems,
     isInRelationshipDrawingMode,
+    t,
   ]);
 
   const edges = useMemo<EdgeProps[]>(() => {
@@ -478,7 +483,9 @@ const DiagramContent: React.FunctionComponent<{
     () =>
       ({
         isDarkMode,
-        title: diagramLabel,
+        title:
+          diagramLabel ||
+          t('dataModeling.editor.schemaPreview', 'Schema Preview'),
         edges,
         nodes,
         zoomOnScroll: false,
@@ -502,6 +509,7 @@ const DiagramContent: React.FunctionComponent<{
     [
       isDarkMode,
       diagramLabel,
+      t,
       edges,
       nodes,
       onClickAddFieldToCollection,
@@ -548,7 +556,7 @@ const ConnectedDiagramContent = connect(
     const model = diagram ? selectCurrentModelFromState(state) : null;
     return {
       model,
-      diagramLabel: diagram?.name || 'Schema Preview',
+      diagramLabel: diagram?.name,
       selectedItems: state.diagram?.selectedItems ?? null,
       newCollection: diagram?.draftCollection,
       database: model?.collections[0]?.ns
@@ -589,6 +597,7 @@ const DiagramEditor: React.FunctionComponent<{
   onAddCollectionClick,
   DiagramComponent = Diagram,
 }) => {
+  const t = useTranslation();
   const { openDrawer } = useDrawerActions();
   let content;
 
@@ -621,7 +630,7 @@ const DiagramEditor: React.FunctionComponent<{
   if (step === 'ANALYSIS_FAILED') {
     content = (
       <ErrorBannerWithRetry onRetryClick={onRetryClick}>
-        Analysis canceled
+        {t('dataModeling.editor.analysisFailed', 'Analysis failed')}
       </ErrorBannerWithRetry>
     );
   }
@@ -629,7 +638,7 @@ const DiagramEditor: React.FunctionComponent<{
   if (step === 'ANALYSIS_CANCELED') {
     content = (
       <ErrorBannerWithRetry onRetryClick={onRetryClick}>
-        Analysis canceled
+        {t('dataModeling.editor.analysisCanceled', 'Analysis canceled')}
       </ErrorBannerWithRetry>
     );
   }

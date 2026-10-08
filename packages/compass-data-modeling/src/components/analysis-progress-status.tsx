@@ -1,25 +1,29 @@
 import {
   ProgressLoaderWithCancel,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { cancelAnalysis, type AnalysisStep } from '../store/analysis-process';
 
-function getProgressPropsFromStatus({
-  step,
-  sampledCollections,
-  analyzedCollections,
-  collectionRelationsInferred,
-  totalCollections,
-}: {
-  step: AnalysisStep;
-  sampledCollections: number;
-  analyzedCollections: number;
-  collectionRelationsInferred: number;
-  totalCollections: number;
-}): {
+function getProgressPropsFromStatus(
+  t: ReturnType<typeof useTranslation>,
+  {
+    step,
+    sampledCollections,
+    analyzedCollections,
+    collectionRelationsInferred,
+    totalCollections,
+  }: {
+    step: AnalysisStep;
+    sampledCollections: number;
+    analyzedCollections: number;
+    collectionRelationsInferred: number;
+    totalCollections: number;
+  }
+): {
   label: string;
 } & (
   | {
@@ -35,7 +39,7 @@ function getProgressPropsFromStatus({
   if (step === 'SAMPLING') {
     return {
       isIndeterminate: false,
-      label: 'Sampling collections…',
+      label: t('dataModeling.analysis.sampling', 'Sampling collections…'),
       maxValue: totalCollections,
       value: sampledCollections,
       formatValue: 'fraction',
@@ -44,7 +48,10 @@ function getProgressPropsFromStatus({
   if (step === 'ANALYZING_SCHEMA') {
     return {
       isIndeterminate: false,
-      label: 'Analyzing collection schemas…',
+      label: t(
+        'dataModeling.analysis.analyzing',
+        'Analyzing collection schemas…'
+      ),
       maxValue: totalCollections,
       value: analyzedCollections,
       formatValue: 'fraction',
@@ -53,7 +60,10 @@ function getProgressPropsFromStatus({
   if (step === 'INFERRING_RELATIONSHIPS') {
     return {
       isIndeterminate: false,
-      label: 'Inferring relationships between collections…',
+      label: t(
+        'dataModeling.analysis.inferring',
+        'Inferring relationships between collections…'
+      ),
       maxValue: totalCollections,
       value: collectionRelationsInferred,
       formatValue: undefined,
@@ -61,7 +71,7 @@ function getProgressPropsFromStatus({
   }
   return {
     isIndeterminate: true,
-    label: 'Preparing diagram…',
+    label: t('dataModeling.analysis.preparing', 'Preparing diagram…'),
   };
 }
 
@@ -83,14 +93,18 @@ export const AnalysisProgressStatus: React.FC<AnalysisProgressStatusProps> = ({
   onCancelClick,
 }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   return (
     <ProgressLoaderWithCancel
       darkMode={darkMode}
       variant="success"
-      cancelText="Cancel"
+      cancelText={t('dataModeling.analysis.cancel', 'Cancel')}
       onCancel={onCancelClick}
-      description="This might take a few minutes."
-      {...getProgressPropsFromStatus({
+      description={t(
+        'dataModeling.analysis.description',
+        'This might take a few minutes.'
+      )}
+      {...getProgressPropsFromStatus(t, {
         step,
         sampledCollections,
         analyzedCollections,

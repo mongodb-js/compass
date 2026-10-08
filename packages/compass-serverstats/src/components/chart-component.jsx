@@ -1,7 +1,7 @@
 /* eslint complexity: [2, 12] */
 const React = require('react');
 const PropTypes = require('prop-types');
-const { palette } = require('@mongodb-js/compass-components');
+const { palette, useTranslation } = require('@mongodb-js/compass-components');
 const Actions = require('../actions');
 const d3 = require('d3');
 const chartFn = require('../d3/').realTimeLineChart;
@@ -16,6 +16,18 @@ const LINE_COLORS = [
   palette.purple.base,
   palette.yellow.light2,
 ];
+
+const CHART_TITLES = {
+  'read & write': ['serverStats.chart.readWrite', 'read & write'],
+  memory: ['serverStats.chart.memory', 'memory'],
+  network: ['serverStats.chart.network', 'network'],
+  operations: ['serverStats.chart.operations', 'operations'],
+};
+
+function translateTitle(t, title) {
+  const entry = CHART_TITLES[title];
+  return entry ? t(entry[0], entry[1]) : title;
+}
 
 /**
  * Represents the component that renders serverStatus charts.
@@ -88,7 +100,11 @@ class ChartComponent extends React.Component {
     this.chart
       .width(this.props.width)
       .height(this.props.height)
-      .title(data.labels ? data.labels.title : 'Loading...')
+      .title(
+        data.labels
+          ? translateTitle(this.props.t, data.labels.title)
+          : this.props.t('serverStats.chart.loading', 'Loading...')
+      )
       .animationDelay(data.paused ? null : 1000)
       .singlePointTime(1000)
 
@@ -147,8 +163,16 @@ ChartComponent.propTypes = {
   height: PropTypes.number,
   store: PropTypes.any.isRequired,
   dispatcher: PropTypes.any.isRequired,
+  t: PropTypes.func.isRequired,
 };
 
 ChartComponent.displayName = 'ChartComponent';
 
-module.exports = ChartComponent;
+const TranslatedChartComponent = (props) => {
+  const t = useTranslation();
+  return <ChartComponent {...props} t={t} />;
+};
+
+TranslatedChartComponent.displayName = 'TranslatedChartComponent';
+
+module.exports = TranslatedChartComponent;

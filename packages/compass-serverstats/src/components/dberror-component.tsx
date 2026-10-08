@@ -1,6 +1,11 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import type { Store } from 'reflux';
-import { ErrorSummary, css, spacing } from '@mongodb-js/compass-components';
+import {
+  ErrorSummary,
+  css,
+  spacing,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 const errorContainerStyles = css({
   padding: spacing[200],
@@ -11,6 +16,7 @@ const errorContainerStyles = css({
  * Represents the component that renders DB Errors.
  */
 function DBErrorComponent({ store }: { store: Store }) {
+  const t = useTranslation();
   const [data, setData] = useState<unknown[]>([]);
 
   const onRefresh = useCallback(
@@ -24,9 +30,13 @@ function DBErrorComponent({ store }: { store: Store }) {
     return !data || data.length < 1
       ? []
       : (data as any[]).map((row) => {
-          return `Command "${row.ops}" returned error "${row.errorMsg}"`;
+          return t(
+            'serverStats.dbError.commandFailed',
+            'Command "{command}" returned error "{error}"',
+            { command: row.ops, error: row.errorMsg }
+          );
         });
-  }, [data]);
+  }, [data, t]);
 
   useEffect(() => {
     const unsubscribeRefresh = store.listen(onRefresh, store);

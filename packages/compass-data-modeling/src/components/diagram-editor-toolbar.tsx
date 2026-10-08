@@ -19,6 +19,7 @@ import {
   useHotkeys,
   Menu,
   MenuItem,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import AddCollection from './icons/add-collection';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -83,6 +84,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   isInRelationshipDrawingMode,
 }) => {
   const darkmode = useDarkMode();
+  const t = useTranslation();
   const { openDataModelingWorkspace } = useOpenWorkspace();
   const [isAddCollectionMenuOpen, setIsAddCollectionMenuOpen] = useState(false);
 
@@ -91,10 +93,13 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
     Omit<BreadcrumbItem, 'onClick'>,
   ] = useMemo(
     () => [
-      { name: 'diagrams', onClick: () => openDataModelingWorkspace() },
-      { name: diagramName || 'untitled' },
+      {
+        name: t('dataModeling.toolbar.diagrams', 'diagrams'),
+        onClick: () => openDataModelingWorkspace(),
+      },
+      { name: diagramName || t('dataModeling.toolbar.untitled', 'untitled') },
     ],
-    [diagramName, openDataModelingWorkspace]
+    [diagramName, openDataModelingWorkspace, t]
   );
 
   // Use dualSourceHandlerDebounce to avoid handling the same keypresses
@@ -147,7 +152,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
           <Tooltip
             trigger={
               <IconButton
-                aria-label="Undo"
+                aria-label={t('dataModeling.toolbar.undo', 'Undo')}
                 disabled={!hasUndo}
                 onClick={onUndoClick}
               >
@@ -155,12 +160,12 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
               </IconButton>
             }
           >
-            Undo
+            {t('dataModeling.toolbar.undo', 'Undo')}
           </Tooltip>
           <Tooltip
             trigger={
               <IconButton
-                aria-label="Redo"
+                aria-label={t('dataModeling.toolbar.redo', 'Redo')}
                 disabled={!hasRedo}
                 onClick={onRedoClick}
               >
@@ -168,7 +173,7 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
               </IconButton>
             }
           >
-            Redo
+            {t('dataModeling.toolbar.redo', 'Redo')}
           </Tooltip>
           <Menu
             align="bottom"
@@ -180,12 +185,21 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
               return (
                 <Tooltip
                   trigger={
-                    <IconButton aria-label="Add Collection" onClick={onClick}>
+                    <IconButton
+                      aria-label={t(
+                        'dataModeling.toolbar.addCollection',
+                        'Add Collection'
+                      )}
+                      onClick={onClick}
+                    >
                       <AddCollection />
                     </IconButton>
                   }
                 >
-                  Add or select collections from the database
+                  {t(
+                    'dataModeling.toolbar.addOrSelectCollections',
+                    'Add or select collections from the database'
+                  )}
                 </Tooltip>
               );
             }}
@@ -197,7 +211,10 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
                 onAddCollectionClick();
               }}
             >
-              Add a new Collection
+              {t(
+                'dataModeling.toolbar.addNewCollection',
+                'Add a new Collection'
+              )}
             </MenuItem>
             <MenuItem
               data-testid="select-from-database"
@@ -206,7 +223,10 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
                 onAddCollectionsFromDatabaseClick();
               }}
             >
-              Select from database
+              {t(
+                'dataModeling.toolbar.selectFromDatabase',
+                'Select from database'
+              )}
             </MenuItem>
           </Menu>
           <Tooltip
@@ -214,8 +234,14 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
               <IconButton
                 aria-label={
                   !isInRelationshipDrawingMode
-                    ? 'Add Relationship'
-                    : 'Exit Relationship Drawing Mode'
+                    ? t(
+                        'dataModeling.toolbar.addRelationship',
+                        'Add Relationship'
+                      )
+                    : t(
+                        'dataModeling.toolbar.exitRelationshipMode',
+                        'Exit Relationship Drawing Mode'
+                      )
                 }
                 onClick={onRelationshipDrawingToggle}
                 active={isInRelationshipDrawingMode}
@@ -225,18 +251,25 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
               </IconButton>
             }
           >
-            Add a relationship by dragging from one collection to another
+            {t(
+              'dataModeling.toolbar.addRelationshipHint',
+              'Add a relationship by dragging from one collection to another'
+            )}
           </Tooltip>
         </div>
         <div className={toolbarGroupStyles}>
           <Tooltip
             trigger={
-              <Button size="xsmall" aria-label="Export" onClick={onExportClick}>
+              <Button
+                size="xsmall"
+                aria-label={t('dataModeling.toolbar.export', 'Export')}
+                onClick={onExportClick}
+              >
                 <Icon glyph="Export"></Icon>
               </Button>
             }
           >
-            Export data model
+            {t('dataModeling.export.title', 'Export data model')}
           </Tooltip>
         </div>
       </div>

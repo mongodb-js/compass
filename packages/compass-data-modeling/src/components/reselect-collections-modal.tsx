@@ -5,6 +5,7 @@ import {
   Combobox,
   ComboboxOption,
   Modal,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { selectIsAnalysisInProgress } from '../store/analysis-process';
 import type { ReselectCollectionsWizardState } from '../store/reselect-collections-wizard';
@@ -77,12 +78,16 @@ function SelectConnection({
   isConnecting: boolean;
   error?: Error;
 }) {
+  const t = useTranslation();
   const connections = useSavedConnections();
   return (
     <Combobox
-      label="Connection"
-      placeholder="Select connection"
-      aria-label="Select connection"
+      label={t('dataModeling.setup.connection', 'Connection')}
+      placeholder={t(
+        'dataModeling.setup.selectConnection',
+        'Select connection'
+      )}
+      aria-label={t('dataModeling.setup.selectConnection', 'Select connection')}
       value={selectedConnectionId ?? ''}
       data-testid="reselect-collections-connection-selector"
       onChange={(connectionId) => {
@@ -157,58 +162,71 @@ const ReselectCollectionsModal: React.FunctionComponent<
   onStep,
   onGenerate,
 }) => {
+  const t = useTranslation();
   const formStepProps = useMemo(() => {
+    const collectionsSelectedFooter = numTotalCollections > 0 && (
+      <>
+        <strong>{numSelectedCollections}</strong>/
+        <strong>{numTotalCollections}</strong>{' '}
+        {numTotalCollections === 1
+          ? t(
+              'dataModeling.newDiagram.collectionsSelected.one',
+              'total collection selected.'
+            )
+          : t(
+              'dataModeling.newDiagram.collectionsSelected.other',
+              'total collections selected.'
+            )}
+      </>
+    );
     switch (currentStep) {
       case 'SELECT_CONNECTION':
         return {
-          title: 'Select connection',
-          description:
-            'To fetch the collections for this database, select and connect to the database associated with this data model first.',
+          title: t(
+            'dataModeling.reselect.selectConnectionTitle',
+            'Select connection'
+          ),
+          description: t(
+            'dataModeling.reselect.selectConnectionDescription',
+            'To fetch the collections for this database, select and connect to the database associated with this data model first.'
+          ),
           onNextClick: onConnect,
           onPreviousClick: onCancel,
-          nextLabel: 'Connect',
-          previousLabel: 'Cancel',
+          nextLabel: t('dataModeling.reselect.connect', 'Connect'),
+          previousLabel: t('dataModeling.newDiagram.cancel', 'Cancel'),
           isNextDisabled: isConnectButtonDisabled,
           step: currentStep,
           isLoading: isConnecting,
         };
       case 'SELECT_COLLECTIONS':
         return {
-          title: `Select collections for ${selectedDatabaseName}`,
-          description:
-            'These collections will be included in your generated diagram.',
+          title: t(
+            'dataModeling.newDiagram.selectCollectionsTitle',
+            'Select collections for {database}',
+            { database: selectedDatabaseName }
+          ),
+          description: t(
+            'dataModeling.newDiagram.selectCollectionsDescription',
+            'These collections will be included in your generated diagram.'
+          ),
           onNextClick: () => onStep('DIAGRAM_SETTINGS'),
           onPreviousClick: onCancel,
-          nextLabel: 'Next',
-          previousLabel: 'Cancel',
+          nextLabel: t('dataModeling.newDiagram.next', 'Next'),
+          previousLabel: t('dataModeling.newDiagram.cancel', 'Cancel'),
           isNextDisabled: isGenerateDiagramDisabled,
           step: currentStep,
-          footerText: numTotalCollections > 0 && (
-            <>
-              <strong>{numSelectedCollections}</strong>/
-              <strong>{numTotalCollections}</strong> total{' '}
-              {numTotalCollections === 1 ? 'collection' : 'collections'}{' '}
-              selected.
-            </>
-          ),
+          footerText: collectionsSelectedFooter,
         };
       case 'DIAGRAM_SETTINGS':
         return {
-          title: `Diagram settings`,
+          title: t('dataModeling.newDiagram.settingsTitle', 'Diagram settings'),
           onNextClick: onGenerate,
           onPreviousClick: () => onStep('SELECT_COLLECTIONS'),
-          nextLabel: 'Generate',
-          previousLabel: 'Back',
+          nextLabel: t('dataModeling.newDiagram.generate', 'Generate'),
+          previousLabel: t('dataModeling.newDiagram.back', 'Back'),
           isNextDisabled: isGenerateDiagramDisabled,
           step: currentStep,
-          footerText: numTotalCollections > 0 && (
-            <>
-              <strong>{numSelectedCollections}</strong>/
-              <strong>{numTotalCollections}</strong> total{' '}
-              {numTotalCollections === 1 ? 'collection' : 'collections'}{' '}
-              selected.
-            </>
-          ),
+          footerText: collectionsSelectedFooter,
         };
       default:
         throw new Error(`Unknown diagram generation step: "${currentStep}"`);
@@ -225,6 +243,7 @@ const ReselectCollectionsModal: React.FunctionComponent<
     onStep,
     onGenerate,
     isConnecting,
+    t,
   ]);
 
   return (

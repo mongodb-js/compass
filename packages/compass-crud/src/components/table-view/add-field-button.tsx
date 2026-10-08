@@ -6,29 +6,28 @@ import {
   Menu,
   MenuItem,
 } from '@mongodb-js/compass-components';
+import { Translated } from '@mongodb-js/compass-components';
+import { TranslationConsumer } from '../translation-consumer';
 import type { CellEditorProps } from './cell-editor';
 import type Document from 'hadron-document';
 import type { Element } from 'hadron-document';
 
-/**
- * The default text.
- */
-const DEFAULT_TEXT = 'Add field after ';
-
-/**
- * Object text.
- */
-const OBJECT_TEXT = 'Add field to ';
-
-/**
- * Array text.
- */
-const ARRAY_TEXT = 'Add array element to ';
-
-/**
- * Array element text.
- */
-const ARRAY_ELEMENT_TEXT = 'Add array element after ';
+const MENU_TEXTS = {
+  default: (
+    <Translated id="crud.tableView.addFieldAfter">Add field after</Translated>
+  ),
+  object: <Translated id="crud.tableView.addFieldTo">Add field to</Translated>,
+  array: (
+    <Translated id="crud.tableView.addArrayElementTo">
+      Add array element to
+    </Translated>
+  ),
+  arrayElement: (
+    <Translated id="crud.tableView.addArrayElementAfter">
+      Add array element after
+    </Translated>
+  ),
+};
 
 /**
  * Add child icon.
@@ -178,7 +177,7 @@ class AddFieldButton extends React.Component<
     if (this.isElementArray() && this.props.value.isValueEditable()) {
       return this.renderMenuItem(
         ADD_CHILD_ICON,
-        ARRAY_TEXT,
+        MENU_TEXTS.array,
         this.handleAddChildClick.bind(this),
         'add-element-to-array'
       );
@@ -191,7 +190,9 @@ class AddFieldButton extends React.Component<
    * @returns {React.Component} The component.
    */
   renderDefaultItem() {
-    const text = this.isParentArray() ? ARRAY_ELEMENT_TEXT : DEFAULT_TEXT;
+    const text = this.isParentArray()
+      ? MENU_TEXTS.arrayElement
+      : MENU_TEXTS.default;
     return this.renderMenuItem(
       ADD_FIELD_ICON,
       text,
@@ -250,7 +251,7 @@ class AddFieldButton extends React.Component<
    */
   renderMenuItem(
     glyph: string,
-    text: string,
+    text: React.ReactNode,
     handler: React.MouseEventHandler,
     testId: string
   ) {
@@ -274,7 +275,7 @@ class AddFieldButton extends React.Component<
     if (this.isElementObject() && this.props.value.isValueEditable()) {
       return this.renderMenuItem(
         ADD_CHILD_ICON,
-        OBJECT_TEXT,
+        MENU_TEXTS.object,
         this.handleAddChildClick.bind(this),
         'add-child-to-object'
       );
@@ -319,16 +320,20 @@ class AddFieldButton extends React.Component<
           onClick: React.MouseEventHandler;
         }) => {
           return (
-            <Button
-              size="xsmall"
-              data-testid="table-view-cell-editor-add-field-button"
-              aria-label="Add field"
-              onClick={onClick}
-              {...props}
-            >
-              <Icon glyph="Plus" size="xsmall"></Icon>
-              {children}
-            </Button>
+            <TranslationConsumer>
+              {(t) => (
+                <Button
+                  size="xsmall"
+                  data-testid="table-view-cell-editor-add-field-button"
+                  aria-label={t('crud.tableView.addField', 'Add field')}
+                  onClick={onClick}
+                  {...props}
+                >
+                  <Icon glyph="Plus" size="xsmall"></Icon>
+                  {children}
+                </Button>
+              )}
+            </TranslationConsumer>
           );
         }}
       >
