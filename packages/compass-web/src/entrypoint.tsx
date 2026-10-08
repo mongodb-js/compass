@@ -22,6 +22,8 @@ import {
   css,
   useInitialValue,
   openToast,
+  translate,
+  useLanguage,
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import {
@@ -142,6 +144,11 @@ const WithMultiplexTransport = createServiceProvider(
   }) {
     const abortControllerRef = useRef(new AbortController());
     const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
+    const language = useLanguage();
+    const languageRef = useRef(language);
+    useEffect(() => {
+      languageRef.current = language;
+    }, [language]);
     const atlasService = atlasServiceLocator();
     const ccsUrls = useMemo(
       () => atlasService.multiplexWebsocketEndpoint(projectId),
@@ -168,7 +175,11 @@ const WithMultiplexTransport = createServiceProvider(
           { error: err.message }
         );
         openToast('multiplex-websocket-connection-failed', {
-          title: 'WebSocket Connection Failed',
+          title: translate(
+            languageRef.current,
+            'web.multiplexConnectionFailed',
+            'WebSocket Connection Failed'
+          ),
           description: err.message,
           variant: 'warning',
         });
@@ -406,17 +417,19 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
   children?: React.ReactNode;
 }> = ({ darkMode, children }) => {
   const track = useTelemetry();
-  const { enableGuideCues, legacyUUIDDisplayEncoding, timezone } =
+  const { enableGuideCues, legacyUUIDDisplayEncoding, timezone, language } =
     usePreferences([
       'enableGuideCues',
       'legacyUUIDDisplayEncoding',
       'timezone',
+      'language',
     ]);
   return (
     <CompassComponentsProvider
       darkMode={darkMode}
       legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
       timezone={timezone}
+      language={language}
       // Making sure that compass-web modals and tooltips are definitely not
       // hidden by Cloud UI sidebar and page header
       stackedElementsZIndex={10_000}

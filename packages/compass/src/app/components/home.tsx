@@ -136,11 +136,13 @@ export default function ThemedHome(
   const {
     legacyUUIDDisplayEncoding,
     timezone,
+    language,
     showedNetworkOptIn,
     enableGuideCues,
   } = usePreferences([
     'legacyUUIDDisplayEncoding',
     'timezone',
+    'language',
     'showedNetworkOptIn',
     'enableGuideCues',
   ]);
@@ -148,6 +150,7 @@ export default function ThemedHome(
     <CompassComponentsProvider
       legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
       timezone={timezone}
+      language={language}
       onGuideCueShown={(cue) => {
         track('Guide Cue Shown', {
           groupId: cue.groupId,

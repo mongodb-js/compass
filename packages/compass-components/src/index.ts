@@ -212,6 +212,14 @@ export type { Cue, GroupCue } from './components/guide-cue/guide-cue';
 export { PerformanceSignals } from './components/signals';
 export { ToastBody } from './components/toast-body';
 export { CompassComponentsProvider } from './components/compass-components-provider';
+export {
+  LanguageProvider,
+  Translated,
+  useLanguage,
+  useTranslation,
+  translate,
+} from './i18n';
+export type { TranslateFn, TranslateVars } from './i18n';
 export { type BreadcrumbItem, Breadcrumbs } from './components/breadcrumb';
 export {
   urlWithUtmParams,

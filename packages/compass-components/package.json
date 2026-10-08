@@ -6,9 +6,17 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./i18n": "./src/i18n/index.tsx"
   },
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "i18n": [
+        "dist/i18n/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],

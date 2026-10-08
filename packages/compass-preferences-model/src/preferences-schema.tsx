@@ -30,8 +30,12 @@ export const LEGACY_UUID_ENCODINGS = [
   'LegacyJavaUUID',
   'LegacyCSharpUUID',
   'LegacyPythonUUID',
+  'ExtendedJSON',
 ] as const;
 export type LEGACY_UUID_ENCODINGS = (typeof LEGACY_UUID_ENCODINGS)[number];
+
+export const LANGUAGES = ['en', 'de', 'fr', 'es'] as const;
+export type LANGUAGES = (typeof LANGUAGES)[number];
 
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
@@ -66,6 +70,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
     legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS;
+    language: LANGUAGES;
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
@@ -1287,9 +1292,33 @@ export const storedUserPreferencesProps: Required<{
           description:
             'Display legacy UUIDs using Python UUID encoding. LegacyPythonUUID("UUID_STRING")',
         },
+        ExtendedJSON: {
+          label: 'JSON',
+          description:
+            'Display legacy UUIDs as Extended JSON. {"$binary": {"base64": "...", "subType": "03"}}',
+        },
       },
     },
     validator: z.enum(LEGACY_UUID_ENCODINGS).default(''),
+    type: 'string',
+  },
+
+  language: {
+    ui: true,
+    exposedInSettingsUI: '*',
+    cli: true,
+    global: true,
+    description: {
+      short: 'Language',
+      long: 'Select the language used for the Compass user interface. Texts that are not translated yet are shown in English.',
+      options: {
+        en: { label: 'English', description: 'English (default)' },
+        de: { label: 'Deutsch', description: 'German' },
+        fr: { label: 'Français', description: 'French' },
+        es: { label: 'Español', description: 'Spanish' },
+      },
+    },
+    validator: z.enum(LANGUAGES).default('en'),
     type: 'string',
   },
 
