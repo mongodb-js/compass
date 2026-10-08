@@ -17,6 +17,7 @@ import {
   SpinLoader,
   Subtitle,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   createShardKey,
@@ -67,36 +68,56 @@ const nbsp = '\u00a0';
 type ShardingAdvancedOption = 'default' | 'unique-index' | 'hashed-index';
 
 function CreateShardKeyDescription() {
+  const t = useTranslation();
   return (
     <div className={containerStyles} data-testid="unsharded-text-description">
-      <Subtitle>Configure compound shard key</Subtitle>
+      <Subtitle>
+        {t(
+          'globalWrites.createShardKey.configureTitle',
+          'Configure compound shard key'
+        )}
+      </Subtitle>
       <Body>
-        To properly configure Global Writes, your collections must be sharded
-        using a compound shard key made up of a ‘location’ field and a second
-        field of your choosing.
+        {t(
+          'globalWrites.createShardKey.configureIntro',
+          'To properly configure Global Writes, your collections must be sharded using a compound shard key made up of a ‘location’ field and a second field of your choosing.'
+        )}
       </Body>
 
       <Body>
-        All documents in your collection should contain both the ‘location’
-        field and your chosen second field.
+        {t(
+          'globalWrites.createShardKey.allDocumentsContain',
+          'All documents in your collection should contain both the ‘location’ field and your chosen second field.'
+        )}
       </Body>
 
       <ul className={listStyles}>
         <li>
           <Body>
-            The second field should represent a well-distributed and immutable
-            value to ensure that data is equally distributed across shards in a
-            particular zone.{nbsp}
+            {t(
+              'globalWrites.createShardKey.secondFieldHint',
+              'The second field should represent a well-distributed and immutable value to ensure that data is equally distributed across shards in a particular zone.'
+            )}
+            {nbsp}
             <strong>
-              Note that the value of this field cannot be an array.
+              {t(
+                'globalWrites.createShardKey.secondFieldNoArray',
+                'Note that the value of this field cannot be an array.'
+              )}
             </strong>
             {nbsp}
-            For more information, read our documentation on{' '}
+            {t(
+              'globalWrites.createShardKey.moreInfoPrefix',
+              'For more information, read our documentation on'
+            )}{' '}
             <Link
               hideExternalIcon
               href="https://www.mongodb.com/docs/manual/core/sharding-shard-key/#choosing-a-shard-key"
             >
-              selecting a shard key
+              {t(
+                'globalWrites.createShardKey.selectingShardKey',
+                'selecting a shard key'
+              )}
             </Link>
             .
           </Body>
@@ -104,7 +125,10 @@ function CreateShardKeyDescription() {
       </ul>
 
       <Body weight="medium">
-        Once you shard your collection, it cannot be unsharded.
+        {t(
+          'globalWrites.createShardKey.cannotUnshard',
+          'Once you shard your collection, it cannot be unsharded.'
+        )}
       </Body>
     </div>
   );
@@ -123,6 +147,7 @@ export function CreateShardKeyForm({
   isCancellingSharding,
   onCreateShardKey,
 }: CreateShardKeyFormProps) {
+  const t = useTranslation();
   const [isAdvancedOptionsOpen, setIsAdvancedOptionsOpen] = useState(false);
   const [selectedAdvancedOption, setSelectedAdvancedOption] =
     useState<ShardingAdvancedOption>('default');
@@ -168,25 +193,40 @@ export function CreateShardKeyForm({
         <div className={shardKeyFormFieldsStyles}>
           <div>
             <Label htmlFor="first-shard-key">
-              First shard key field
+              {t(
+                'globalWrites.createShardKey.firstShardKeyField',
+                'First shard key field'
+              )}
               <InlineInfoLink
-                aria-label="Connection String Documentation"
+                aria-label={t(
+                  'globalWrites.createShardKey.docsAriaLabel',
+                  'Connection String Documentation'
+                )}
                 data-testid="connectionStringDocsButton"
                 href="https://docs.mongodb.com/manual/core/sharding-shard-key"
               />
             </Label>
             <TextInput
               id="first-shard-key"
-              aria-labelledby="First shard key field"
+              aria-labelledby={t(
+                'globalWrites.createShardKey.firstShardKeyField',
+                'First shard key field'
+              )}
               placeholder="location"
               disabled
             />
           </div>
           <div>
             <Label htmlFor="second-shard-key">
-              Second shard key field
+              {t(
+                'globalWrites.createShardKey.secondShardKeyField',
+                'Second shard key field'
+              )}
               <InlineInfoLink
-                aria-label="Connection String Documentation"
+                aria-label={t(
+                  'globalWrites.createShardKey.docsAriaLabel',
+                  'Connection String Documentation'
+                )}
                 data-testid="connectionStringDocsButton"
                 href="https://docs.mongodb.com/manual/core/zone-sharding/#shard-key"
               />
@@ -194,8 +234,14 @@ export function CreateShardKeyForm({
             <ComboboxWithCustomOption
               id="second-shard-key"
               data-testid="second-shard-key"
-              aria-label="Second shard key field"
-              placeholder="Second shard key field"
+              aria-label={t(
+                'globalWrites.createShardKey.secondShardKeyField',
+                'Second shard key field'
+              )}
+              placeholder={t(
+                'globalWrites.createShardKey.secondShardKeyField',
+                'Second shard key field'
+              )}
               size="default"
               clearable={false}
               overflow="scroll-x"
@@ -203,14 +249,23 @@ export function CreateShardKeyForm({
               options={fields.map(({ value }) => ({ value }))}
               className={secondShardKeyStyles}
               value={secondShardKey}
-              searchEmptyMessage="No fields found. Please enter a valid field name."
+              searchEmptyMessage={t(
+                'globalWrites.createShardKey.noFieldsFound',
+                'No fields found. Please enter a valid field name.'
+              )}
               renderOption={(option, index, isCustom) => {
                 return (
                   <ComboboxOption
                     key={`field-option-${index}`}
                     value={option.value}
                     displayName={
-                      isCustom ? `Field: "${option.value}"` : option.value
+                      isCustom
+                        ? t(
+                            'globalWrites.createShardKey.customField',
+                            'Field: "{field}"',
+                            { field: option.value }
+                          )
+                        : option.value
                     }
                   />
                 );
@@ -220,7 +275,10 @@ export function CreateShardKeyForm({
         </div>
         <Accordion
           data-testid="advanced-shard-key-configuration"
-          text="Advanced Shard Key Configuration"
+          text={t(
+            'globalWrites.createShardKey.advancedConfiguration',
+            'Advanced Shard Key Configuration'
+          )}
           open={isAdvancedOptionsOpen}
           setOpen={setIsAdvancedOptionsOpen}
           className={accordionStyles}
@@ -237,7 +295,7 @@ export function CreateShardKeyForm({
               value="default"
               checked={selectedAdvancedOption === 'default'}
             >
-              Default
+              {t('globalWrites.createShardKey.default', 'Default')}
             </Radio>
             <Radio
               id="unique-index"
@@ -247,13 +305,18 @@ export function CreateShardKeyForm({
             >
               <div>
                 <Label htmlFor="unique-index">
-                  Use unique index as the shard key
+                  {t(
+                    'globalWrites.createShardKey.useUniqueIndex',
+                    'Use unique index as the shard key'
+                  )}
                 </Label>
                 <Body>
-                  Enforce a uniqueness constraint on the shard key of this
-                  Global Collection.{' '}
+                  {t(
+                    'globalWrites.createShardKey.uniqueIndexDescription',
+                    'Enforce a uniqueness constraint on the shard key of this Global Collection.'
+                  )}{' '}
                   <Link href="https://docs.atlas.mongodb.com/data-explorer/global-writes/#optional-expand-advanced-shard-key-configuration-section-to-specify-how-to-shard-the-collection">
-                    Learn more
+                    {t('globalWrites.createShardKey.learnMore', 'Learn more')}
                   </Link>
                 </Body>
               </div>
@@ -266,13 +329,18 @@ export function CreateShardKeyForm({
             >
               <div>
                 <Label htmlFor="hashed-index">
-                  Use hashed index as the shard key
+                  {t(
+                    'globalWrites.createShardKey.useHashedIndex',
+                    'Use hashed index as the shard key'
+                  )}
                 </Label>
                 <Body>
-                  Improve even distribution of the sharded data by hashing the
-                  second field of the shard key.{' '}
+                  {t(
+                    'globalWrites.createShardKey.hashedIndexDescription',
+                    'Improve even distribution of the sharded data by hashing the second field of the shard key.'
+                  )}{' '}
                   <Link href="https://docs.atlas.mongodb.com/data-explorer/global-writes/#optional-expand-advanced-shard-key-configuration-section-to-specify-how-to-shard-the-collection">
-                    Learn more
+                    {t('globalWrites.createShardKey.learnMore', 'Learn more')}
                   </Link>
                 </Body>
               </div>
@@ -283,22 +351,36 @@ export function CreateShardKeyForm({
               <Checkbox
                 data-testid="presplit-data-checkbox"
                 onChange={() => setIsPreSplitData(!isPreSplitData)}
-                label="Pre-split data for even distribution."
+                label={t(
+                  'globalWrites.createShardKey.presplitData',
+                  'Pre-split data for even distribution.'
+                )}
                 checked={isPreSplitData}
               />
               <div className={chunksInputStyles}>
                 <TextInput
                   data-testid="chunks-per-shard-input"
                   id="chunks-per-shard"
-                  aria-labelledby="Chunks per shard"
+                  aria-labelledby={t(
+                    'globalWrites.createShardKey.chunksPerShardLabel',
+                    'Chunks per shard'
+                  )}
                   disabled={!isPreSplitData}
                   type="number"
-                  placeholder="Chunks"
+                  placeholder={t(
+                    'globalWrites.createShardKey.chunksPlaceholder',
+                    'Chunks'
+                  )}
                   min={0}
                   value={numInitialChunks}
                   onChange={(event) => setNumInitialChunks(event.target.value)}
                 />
-                <Body>chunks per shard.</Body>
+                <Body>
+                  {t(
+                    'globalWrites.createShardKey.chunksPerShard',
+                    'chunks per shard.'
+                  )}
+                </Body>
               </div>
             </div>
           )}
@@ -314,7 +396,10 @@ export function CreateShardKeyForm({
             isLoading={isSubmittingForSharding}
             loadingIndicator={<SpinLoader />}
           >
-            Shard Collection
+            {t(
+              'globalWrites.createShardKey.shardCollection',
+              'Shard Collection'
+            )}
           </Button>
         </div>
       </div>

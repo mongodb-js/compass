@@ -1,5 +1,6 @@
 import type { Document } from 'bson';
 import type { Readable } from 'stream';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import Papa from 'papaparse';
 import toNS from 'mongodb-ns';
 
@@ -13,6 +14,7 @@ import type {
 } from '../csv/csv-types';
 import type { ImportResult, ImportOptions } from './import-types';
 import { createDebug } from '../utils/logger';
+import { englishTranslate } from '../utils/translate';
 
 const debug = createDebug('import-csv');
 
@@ -28,15 +30,19 @@ class CSVTransformer {
   fields: IncludedFields;
   ignoreEmptyStrings?: boolean;
   headerFields: string[];
+  t: TranslateFn;
   parsedHeader?: Record<string, PathPart[]>;
 
   constructor({
     fields,
     ignoreEmptyStrings,
+    t = englishTranslate,
   }: {
     fields: IncludedFields;
     ignoreEmptyStrings?: boolean;
+    t?: TranslateFn;
   }) {
+    this.t = t;
     this.fields = fields;
     this.ignoreEmptyStrings = ignoreEmptyStrings;
     this.headerFields = [];
@@ -77,12 +83,15 @@ class CSVTransformer {
       this.fields,
       {
         ignoreEmptyStrings: this.ignoreEmptyStrings,
-      }
+      },
+      this.t
     );
   }
 
   lineAnnotation(numProcessed: number): string {
-    return `[Row ${numProcessed}]`;
+    return this.t('importExport.csv.row', '[Row {index}]', {
+      index: numProcessed,
+    });
   }
 }
 
@@ -99,6 +108,7 @@ export async function importCSV({
   ignoreEmptyStrings,
   stopOnErrors,
   fields,
+  translate: t,
 }: ImportCSVOptions): Promise<ImportResult> {
   debug('importCSV()', { ns: toNS(ns), stopOnErrors });
 
@@ -107,7 +117,7 @@ export async function importCSV({
     await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 
-  const transformer = new CSVTransformer({ fields, ignoreEmptyStrings });
+  const transformer = new CSVTransformer({ fields, ignoreEmptyStrings, t });
 
   const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, {
     delimiter,

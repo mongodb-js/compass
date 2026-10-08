@@ -5,6 +5,7 @@ import {
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
+import { getTranslate } from '../utils/get-translate';
 
 export const POLLING_INTERVAL = 5000;
 
@@ -518,9 +519,10 @@ export const fetchClusterShardingData =
   async (
     dispatch,
     getState,
-    { atlasGlobalWritesService, logger, connectionInfoRef }
+    { atlasGlobalWritesService, logger, connectionInfoRef, preferences }
   ) => {
     const { namespace } = getState();
+    const t = getTranslate(preferences);
     try {
       const managedNamespace =
         await atlasGlobalWritesService.getManagedNamespace(namespace);
@@ -542,7 +544,10 @@ export const fetchClusterShardingData =
         handleLoadingError({
           error: error as Error,
           id: `global-writes-fetch-shard-info-error-${connectionInfoRef.current.id}-${namespace}`,
-          description: 'Failed to fetch sharding information',
+          description: t(
+            'globalWrites.store.fetchShardingInfoFailed',
+            'Failed to fetch sharding information'
+          ),
         })
       );
     }
@@ -576,9 +581,10 @@ export const createShardKey = (
   return async (
     dispatch,
     getState,
-    { atlasGlobalWritesService, logger, connectionInfoRef }
+    { atlasGlobalWritesService, logger, connectionInfoRef, preferences }
   ) => {
     const { namespace, userActionInProgress } = getState();
+    const t = getTranslate(preferences);
 
     if (userActionInProgress) {
       logger.log.warn(
@@ -612,7 +618,11 @@ export const createShardKey = (
       openToast(
         `global-writes-create-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
         {
-          title: `Failed to create shard key: ${(error as Error).message}`,
+          title: t(
+            'globalWrites.store.createShardKeyFailed',
+            'Failed to create shard key: {message}',
+            { message: (error as Error).message }
+          ),
           dismissible: true,
           timeout: 5000,
           variant: 'important',
@@ -638,11 +648,15 @@ export const cancelSharding = (): GlobalWritesThunkAction<
   return async (
     dispatch,
     getState,
-    { atlasGlobalWritesService, logger, pollingTimeoutRef }
+    { atlasGlobalWritesService, logger, pollingTimeoutRef, preferences }
   ) => {
+    const t = getTranslate(preferences);
     const confirmed = await showConfirmation({
-      title: 'Confirmation',
-      description: 'Are you sure you want to cancel the sharding request?',
+      title: t('globalWrites.store.confirmationTitle', 'Confirmation'),
+      description: t(
+        'globalWrites.store.cancelShardingConfirm',
+        'Are you sure you want to cancel the sharding request?'
+      ),
     });
 
     if (!confirmed) {
@@ -682,9 +696,11 @@ export const cancelSharding = (): GlobalWritesThunkAction<
         }
       );
       openToast('global-writes-cancel-sharding-error', {
-        title: `Failed to cancel the sharding process: ${
-          (error as Error).message
-        }`,
+        title: t(
+          'globalWrites.store.cancelShardingFailed',
+          'Failed to cancel the sharding process: {message}',
+          { message: (error as Error).message }
+        ),
         dismissible: true,
         timeout: 5000,
         variant: 'important',
@@ -771,10 +787,17 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
   return async (
     dispatch,
     getState,
-    { atlasGlobalWritesService, logger, connectionInfoRef, pollingTimeoutRef }
+    {
+      atlasGlobalWritesService,
+      logger,
+      connectionInfoRef,
+      pollingTimeoutRef,
+      preferences,
+    }
   ) => {
     pollingTimeoutRef.current = null;
     const { namespace, managedNamespace } = getState();
+    const t = getTranslate(preferences);
 
     try {
       const [shardingError, shardKey] = await Promise.all([
@@ -817,7 +840,10 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         handleLoadingError({
           error: error as Error,
           id: `global-writes-fetch-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
-          description: 'Failed to fetch shard key or deployment status',
+          description: t(
+            'globalWrites.store.fetchShardKeyFailed',
+            'Failed to fetch shard key or deployment status'
+          ),
         })
       );
     }
@@ -831,9 +857,10 @@ export const fetchShardingZones = (): GlobalWritesThunkAction<
   return async (
     dispatch,
     getState,
-    { atlasGlobalWritesService, connectionInfoRef }
+    { atlasGlobalWritesService, connectionInfoRef, preferences }
   ) => {
     const { shardZones } = getState();
+    const t = getTranslate(preferences);
     if (shardZones.length > 0) {
       return;
     }
@@ -850,7 +877,11 @@ export const fetchShardingZones = (): GlobalWritesThunkAction<
       openToast(
         `global-writes-fetch-sharding-zones-error-${connectionInfoRef.current.id}`,
         {
-          title: `Failed to fetch sharding zones: ${(error as Error).message}`,
+          title: t(
+            'globalWrites.store.fetchShardingZonesFailed',
+            'Failed to fetch sharding zones: {message}',
+            { message: (error as Error).message }
+          ),
           dismissible: true,
           timeout: 5000,
           variant: 'important',
@@ -869,9 +900,10 @@ export const unmanageNamespace = (): GlobalWritesThunkAction<
   return async (
     dispatch,
     getState,
-    { atlasGlobalWritesService, connectionInfoRef, logger }
+    { atlasGlobalWritesService, connectionInfoRef, logger, preferences }
   ) => {
     const { namespace, userActionInProgress } = getState();
+    const t = getTranslate(preferences);
 
     if (userActionInProgress) {
       logger.log.warn(
@@ -898,7 +930,11 @@ export const unmanageNamespace = (): GlobalWritesThunkAction<
       openToast(
         `global-writes-unmanage-namespace-error-${connectionInfoRef.current.id}-${namespace}`,
         {
-          title: `Failed to unmanage namespace: ${(error as Error).message}`,
+          title: t(
+            'globalWrites.store.unmanageNamespaceFailed',
+            'Failed to unmanage namespace: {message}',
+            { message: (error as Error).message }
+          ),
           dismissible: true,
           timeout: 5000,
           variant: 'important',

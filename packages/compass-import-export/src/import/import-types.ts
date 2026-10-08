@@ -2,6 +2,7 @@ import type { Document } from 'bson';
 
 import type { DataService } from 'mongodb-data-service';
 import type { Writable } from 'stream';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 
 export type ImportOptions = {
   dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>;
@@ -11,6 +12,7 @@ export type ImportOptions = {
   progressCallback?: (progress: ImportProgress) => void;
   errorCallback?: (error: ErrorJSON) => void;
   stopOnErrors?: boolean;
+  translate?: TranslateFn;
 };
 
 export type ImportResult = {

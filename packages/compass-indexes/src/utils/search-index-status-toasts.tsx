@@ -3,6 +3,8 @@ import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
 import type { SearchIndex } from 'mongodb-data-service';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { Link, openToast } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { translateToEnglish } from './get-translate';
 
 /**
  * Detects search indexes that transitioned statuses and shows appropriate toast notifications.
@@ -12,7 +14,8 @@ export function showSearchIndexStatusChangeToasts(
   newIndexes: SearchIndex[],
   atlasMetadata: AtlasClusterMetadata | undefined,
   namespace: string,
-  onStatusDetailsLinkClick: (index: SearchIndex) => void
+  onStatusDetailsLinkClick: (index: SearchIndex) => void,
+  t: TranslateFn = translateToEnglish
 ): void {
   const previousIndexesMap = new Map(
     previousIndexes.map((index) => [index.name, index])
@@ -20,14 +23,23 @@ export function showSearchIndexStatusChangeToasts(
 
   for (const index of newIndexes) {
     const previousIndex = previousIndexesMap.get(index.name);
-    const indexTypeLabel =
-      index.type === 'vectorSearch' ? 'Vector search index' : 'Search index';
+    const isVectorSearch = index.type === 'vectorSearch';
+    const indexTypeLabel = isVectorSearch
+      ? t('indexes.statusToast.vectorSearchIndex', 'Vector search index')
+      : t('indexes.statusToast.searchIndex', 'Search index');
 
     if (index.status === 'BUILDING') {
       if (!previousIndex) {
         openToast(`search-index-building-${index.name}`, {
-          title: 'Index build in progress',
-          description: `${indexTypeLabel} ${index.name} is building and is non-queryable.`,
+          title: t(
+            'indexes.statusToast.buildInProgress',
+            'Index build in progress'
+          ),
+          description: t(
+            'indexes.statusToast.buildingNonQueryable',
+            '{indexType} {name} is building and is non-queryable.',
+            { indexType: indexTypeLabel, name: index.name }
+          ),
           dismissible: true,
           timeout: 5000,
           variant: 'progress',
@@ -37,10 +49,22 @@ export function showSearchIndexStatusChangeToasts(
         previousIndex.status === 'FAILED'
       ) {
         openToast(`search-index-rebuilding-${index.name}`, {
-          title: `${indexTypeLabel} is rebuilding`,
-          description: `${indexTypeLabel} ${index.name} is rebuilding and is ${
-            previousIndex.queryable ? 'queryable' : 'non-queryable'
-          }.`,
+          title: t(
+            'indexes.statusToast.rebuilding',
+            '{indexType} is rebuilding',
+            { indexType: indexTypeLabel }
+          ),
+          description: previousIndex.queryable
+            ? t(
+                'indexes.statusToast.rebuildingQueryable',
+                '{indexType} {name} is rebuilding and is queryable.',
+                { indexType: indexTypeLabel, name: index.name }
+              )
+            : t(
+                'indexes.statusToast.rebuildingNonQueryable',
+                '{indexType} {name} is rebuilding and is non-queryable.',
+                { indexType: indexTypeLabel, name: index.name }
+              ),
           dismissible: true,
           timeout: 5000,
           variant: 'progress',
@@ -51,11 +75,24 @@ export function showSearchIndexStatusChangeToasts(
       previousIndex?.status !== 'FAILED'
     ) {
       openToast(`search-index-build-failed-${index.name}`, {
-        title: `${indexTypeLabel} build failed`,
+        title: t(
+          'indexes.statusToast.buildFailed',
+          '{indexType} build failed',
+          { indexType: indexTypeLabel }
+        ),
         description: (
           <>
-            The index build for {index.name} failed and is{' '}
-            {index.queryable ? 'queryable' : 'non-queryable'}.{' '}
+            {index.queryable
+              ? t(
+                  'indexes.statusToast.failedQueryable',
+                  'The index build for {name} failed and is queryable.',
+                  { name: index.name }
+                )
+              : t(
+                  'indexes.statusToast.failedNonQueryable',
+                  'The index build for {name} failed and is non-queryable.',
+                  { name: index.name }
+                )}{' '}
             {atlasMetadata ? (
               <Link
                 href={buildAtlasSearchLink({
@@ -67,7 +104,10 @@ export function showSearchIndexStatusChangeToasts(
                 target="_blank"
                 onClick={() => onStatusDetailsLinkClick(index)}
               >
-                View Status Details by Node
+                {t(
+                  'indexes.statusToast.viewStatusDetails',
+                  'View Status Details by Node'
+                )}
               </Link>
             ) : null}
           </>
@@ -78,10 +118,22 @@ export function showSearchIndexStatusChangeToasts(
       });
     } else if (index.status === 'READY' && previousIndex?.status !== 'READY') {
       openToast(`search-index-build-success-${index.name}`, {
-        title: `${indexTypeLabel} build complete`,
-        description: `Your ${indexTypeLabel.toLowerCase()} ${
-          index.name
-        } has finished building and is queryable.`,
+        title: t(
+          'indexes.statusToast.buildComplete',
+          '{indexType} build complete',
+          { indexType: indexTypeLabel }
+        ),
+        description: isVectorSearch
+          ? t(
+              'indexes.statusToast.vectorSearchFinished',
+              'Your vector search index {name} has finished building and is queryable.',
+              { name: index.name }
+            )
+          : t(
+              'indexes.statusToast.searchFinished',
+              'Your search index {name} has finished building and is queryable.',
+              { name: index.name }
+            ),
         dismissible: true,
         timeout: 5000,
         variant: 'success',

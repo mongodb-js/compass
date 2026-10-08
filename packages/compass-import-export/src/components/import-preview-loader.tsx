@@ -11,6 +11,7 @@ import {
   palette,
   useDarkMode,
   SpinLoader,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { RootImportState } from '../stores/import-store';
 import { skipCSVAnalyze } from '../modules/import';
@@ -54,6 +55,7 @@ export function ImportPreviewLoader({
   skipCSVAnalyze: () => void;
 }) {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   return (
     <div
@@ -62,7 +64,9 @@ export function ImportPreviewLoader({
         darkMode ? analyzeStylesDark : analyzeStylesLight
       )}
     >
-      <Body weight="medium">Detecting field types</Body>
+      <Body weight="medium">
+        {t('importExport.previewLoader.title', 'Detecting field types')}
+      </Body>
       {analyzeBytesTotal && (
         <div className={loaderStyles}>
           <SpinLoader />
@@ -72,12 +76,13 @@ export function ImportPreviewLoader({
         </div>
       )}
       <Body className={explanationTextStyles}>
-        We are scanning your CSV file row by row to detect the field types. You
-        can skip this step and manually assign field types at any point during
-        the process.
+        {t(
+          'importExport.previewLoader.description',
+          'We are scanning your CSV file row by row to detect the field types. You can skip this step and manually assign field types at any point during the process.'
+        )}
       </Body>
       <Button data-testid="skip-csv-analyze-button" onClick={skipCSVAnalyze}>
-        Skip
+        {t('importExport.previewLoader.skip', 'Skip')}
       </Button>
     </div>
   );

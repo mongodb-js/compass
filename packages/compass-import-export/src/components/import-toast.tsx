@@ -6,6 +6,7 @@ import {
   Link,
   openToast,
   ToastBody,
+  translate,
 } from '@mongodb-js/compass-components';
 import path from 'path';
 
@@ -14,6 +15,7 @@ const bloatedDocumentSignalToastId = 'import-toast-bloated-document';
 const toastMessageCharacterLimit = 180;
 
 export function showInProgressToast({
+  language,
   fileName,
   cancelImport,
   docsWritten,
@@ -21,6 +23,7 @@ export function showInProgressToast({
   bytesProcessed,
   bytesTotal,
 }: {
+  language: string;
   fileName: string;
   cancelImport: () => void;
   docsWritten: number;
@@ -31,20 +34,50 @@ export function showInProgressToast({
   // Update the toast with the new progress.
   const progress = bytesTotal ? bytesProcessed / bytesTotal : undefined;
 
-  let statusMessage = `${docsWritten} document${
-    docsWritten !== 1 ? 's' : ''
-  } written.`;
+  let statusMessage =
+    docsWritten === 1
+      ? translate(
+          language,
+          'importExport.toast.docsWritten.one',
+          '{count} document written.',
+          { count: docsWritten }
+        )
+      : translate(
+          language,
+          'importExport.toast.docsWritten.other',
+          '{count} documents written.',
+          { count: docsWritten }
+        );
   if (numErrors) {
-    statusMessage += ` ${numErrors} error${numErrors !== 1 ? 's' : ''}.`;
+    statusMessage += ` ${
+      numErrors === 1
+        ? translate(
+            language,
+            'importExport.importToast.errors.one',
+            '{count} error.',
+            { count: numErrors }
+          )
+        : translate(
+            language,
+            'importExport.importToast.errors.other',
+            '{count} errors.',
+            { count: numErrors }
+          )
+    }`;
   }
 
   openToast(importToastId, {
-    title: `Importing ${path.basename(fileName)}…`,
+    title: translate(
+      language,
+      'importExport.importToast.importing',
+      'Importing {fileName}…',
+      { fileName: path.basename(fileName) }
+    ),
     description: (
       <ToastBody
         statusMessage={statusMessage}
         actionHandler={cancelImport}
-        actionText="stop"
+        actionText={translate(language, 'importExport.toast.stop', 'stop')}
       />
     ),
     progress,
@@ -54,19 +87,30 @@ export function showInProgressToast({
 }
 
 export function showStartingToast({
+  language,
   fileName,
   cancelImport,
 }: {
+  language: string;
   fileName: string;
   cancelImport: () => void;
 }) {
   openToast(importToastId, {
-    title: `Importing ${path.basename(fileName)}…`,
+    title: translate(
+      language,
+      'importExport.importToast.importing',
+      'Importing {fileName}…',
+      { fileName: path.basename(fileName) }
+    ),
     description: (
       <ToastBody
-        statusMessage="Starting…"
+        statusMessage={translate(
+          language,
+          'importExport.toast.starting',
+          'Starting…'
+        )}
         actionHandler={cancelImport}
-        actionText="stop"
+        actionText={translate(language, 'importExport.toast.stop', 'stop')}
       />
     ),
     variant: 'progress',
@@ -74,12 +118,33 @@ export function showStartingToast({
   });
 }
 
-export function showCompletedToast({ docsWritten }: { docsWritten: number }) {
+export function showCompletedToast({
+  language,
+  docsWritten,
+}: {
+  language: string;
+  docsWritten: number;
+}) {
   openToast(importToastId, {
-    title: 'Import completed.',
-    description: `${docsWritten} document${
-      docsWritten === 1 ? '' : 's'
-    } imported.`,
+    title: translate(
+      language,
+      'importExport.importToast.completed',
+      'Import completed.'
+    ),
+    description:
+      docsWritten === 1
+        ? translate(
+            language,
+            'importExport.importToast.imported.one',
+            '{count} document imported.',
+            { count: docsWritten }
+          )
+        : translate(
+            language,
+            'importExport.importToast.imported.other',
+            '{count} documents imported.',
+            { count: docsWritten }
+          ),
     variant: 'success',
   });
 }
@@ -90,16 +155,26 @@ const reviewDocumentsCTAStyles = css({
 });
 
 export function showBloatedDocumentSignalToast({
+  language,
   onReviewDocumentsClick,
 }: {
+  language: string;
   onReviewDocumentsClick?: () => void;
 }) {
   openToast(bloatedDocumentSignalToastId, {
-    title: 'Possibly bloated documents',
+    title: translate(
+      language,
+      'importExport.importToast.bloated.title',
+      'Possibly bloated documents'
+    ),
     description: (
       <>
         <Body as="span">
-          The imported documents might exceed a reasonable size for performance.
+          {translate(
+            language,
+            'importExport.importToast.bloated.description',
+            'The imported documents might exceed a reasonable size for performance.'
+          )}
         </Body>
         {onReviewDocumentsClick && (
           <>
@@ -109,7 +184,11 @@ export function showBloatedDocumentSignalToast({
               onClick={onReviewDocumentsClick}
               className={reviewDocumentsCTAStyles}
             >
-              Review Documents
+              {translate(
+                language,
+                'importExport.importToast.reviewDocuments',
+                'Review Documents'
+              )}
             </Body>
           </>
         )}
@@ -120,17 +199,26 @@ export function showBloatedDocumentSignalToast({
 }
 
 export function showUnboundArraySignalToast({
+  language,
   onReviewDocumentsClick,
 }: {
+  language: string;
   onReviewDocumentsClick?: () => void;
 }) {
   openToast(bloatedDocumentSignalToastId, {
-    title: 'Large array detected',
+    title: translate(
+      language,
+      'importExport.importToast.largeArray.title',
+      'Large array detected'
+    ),
     description: (
       <>
         <Body as="span">
-          Some of the imported documents contained unbounded arrays that may
-          degrade efficiency
+          {translate(
+            language,
+            'importExport.importToast.largeArray.description',
+            'Some of the imported documents contained unbounded arrays that may degrade efficiency'
+          )}
         </Body>
         {onReviewDocumentsClick && (
           <>
@@ -140,7 +228,11 @@ export function showUnboundArraySignalToast({
               onClick={onReviewDocumentsClick}
               className={reviewDocumentsCTAStyles}
             >
-              Review Documents
+              {translate(
+                language,
+                'importExport.importToast.reviewDocuments',
+                'Review Documents'
+              )}
             </Body>
           </>
         )}
@@ -150,7 +242,7 @@ export function showUnboundArraySignalToast({
   });
 }
 
-function getToastErrorsText(errors: Error[]) {
+function getToastErrorsText(language: string, errors: Error[]) {
   const rawErrorsText = errors
     .slice(0, 2)
     .map((error) => error.message)
@@ -162,31 +254,46 @@ function getToastErrorsText(errors: Error[]) {
       : rawErrorsText
   }${
     errors.length > 2
-      ? '\nMore errors occurred, open the error log to view.\n'
+      ? `\n${translate(
+          language,
+          'importExport.importToast.moreErrors',
+          'More errors occurred, open the error log to view.'
+        )}\n`
       : ''
   }`;
   return errorsText;
 }
 
 export function showCompletedWithErrorsToast({
+  language,
   errors,
   docsWritten,
   docsProcessed,
   actionHandler,
 }: {
+  language: string;
   errors: Error[];
   docsWritten: number;
   docsProcessed: number;
   actionHandler?: () => void;
 }) {
-  const statusMessage = getToastErrorsText(errors);
+  const statusMessage = getToastErrorsText(language, errors);
   openToast(importToastId, {
-    title: `Import completed ${docsWritten}/${docsProcessed} with errors:`,
+    title: translate(
+      language,
+      'importExport.importToast.completedWithErrors',
+      'Import completed {docsWritten}/{docsProcessed} with errors:',
+      { docsWritten, docsProcessed }
+    ),
     description: (
       <ToastBody
         statusMessage={statusMessage}
         actionHandler={actionHandler}
-        actionText="view log"
+        actionText={translate(
+          language,
+          'importExport.importToast.viewLog',
+          'view log'
+        )}
       />
     ),
     variant: 'warning',
@@ -194,21 +301,31 @@ export function showCompletedWithErrorsToast({
 }
 
 export function showCancelledToast({
+  language,
   errors,
   actionHandler,
 }: {
+  language: string;
   errors: Error[];
   actionHandler?: () => void;
 }) {
   if (errors.length > 0) {
-    const statusMessage = getToastErrorsText(errors);
+    const statusMessage = getToastErrorsText(language, errors);
     openToast(importToastId, {
-      title: 'Import aborted with the following errors:',
+      title: translate(
+        language,
+        'importExport.importToast.abortedWithErrors',
+        'Import aborted with the following errors:'
+      ),
       description: (
         <ToastBody
           statusMessage={statusMessage}
           actionHandler={actionHandler}
-          actionText="view log"
+          actionText={translate(
+            language,
+            'importExport.importToast.viewLog',
+            'view log'
+          )}
         />
       ),
       variant: 'warning',
@@ -217,18 +334,27 @@ export function showCancelledToast({
   }
 
   openToast(importToastId, {
-    title: 'Import aborted.',
+    title: translate(
+      language,
+      'importExport.importToast.aborted',
+      'Import aborted.'
+    ),
     description: null,
     variant: 'warning',
   });
 }
 
 export function showFailedToast(
+  language: string,
   err: Error | undefined,
   showErrorDetails?: () => void
 ) {
   openToast(importToastId, {
-    title: 'Failed to import with the following error:',
+    title: translate(
+      language,
+      'importExport.importToast.failed',
+      'Failed to import with the following error:'
+    ),
     description: (
       <>
         {err?.message}&nbsp;
@@ -240,7 +366,11 @@ export function showFailedToast(
             }}
             data-testid="import-error-details-button"
           >
-            View error details
+            {translate(
+              language,
+              'importExport.importToast.viewErrorDetails',
+              'View error details'
+            )}
           </Link>
         )}
       </>

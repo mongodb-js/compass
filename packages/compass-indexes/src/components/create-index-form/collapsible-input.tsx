@@ -1,4 +1,8 @@
-import { CollapsibleFieldSet, TextInput } from '@mongodb-js/compass-components';
+import {
+  CollapsibleFieldSet,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
@@ -39,6 +43,7 @@ export const CollapsibleInput: React.FunctionComponent<
   enabled,
   onToggled,
 }) => {
+  const t = useTranslation();
   const id = `create-index-modal-${name}`;
   const inputId = `${id}-${type}`;
   return (
@@ -73,7 +78,11 @@ export const CollapsibleInput: React.FunctionComponent<
           spellCheck={false}
           disabled={disabled}
           optional={optional}
-          label={units}
+          label={
+            units === undefined
+              ? undefined
+              : t('indexes.createIndex.ttl.units', units)
+          }
           aria-labelledby={!units ? id : undefined}
         />
       )}

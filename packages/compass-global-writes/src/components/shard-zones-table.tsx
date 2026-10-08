@@ -18,6 +18,7 @@ import {
   getExpandedRowModel,
   getFilteredRowModel,
   useCurrentValueRef,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 import { ShardZonesDescription } from './shard-zones-description';
@@ -35,20 +36,6 @@ interface ShardZoneRow {
 interface ShardZoneExpandableRow extends ShardZoneRow {
   subRows: ShardZoneRow[];
 }
-
-const columns: Array<LGColumnDef<ShardZoneRow>> = [
-  {
-    accessorKey: 'locationName',
-    header: 'Location Name',
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'zone',
-    header: 'Zone',
-    enableSorting: true,
-    enableGlobalFilter: false,
-  },
-];
 
 const parseRow = ({
   isoCode,
@@ -88,6 +75,23 @@ export function ShardZonesTable({
 }: {
   shardZones: ShardZoneData[];
 }) {
+  const t = useTranslation();
+  const columns = useMemo<Array<LGColumnDef<ShardZoneRow>>>(
+    () => [
+      {
+        accessorKey: 'locationName',
+        header: t('globalWrites.shardZones.locationName', 'Location Name'),
+        enableSorting: true,
+      },
+      {
+        accessorKey: 'zone',
+        header: t('globalWrites.shardZones.zone', 'Zone'),
+        enableSorting: true,
+        enableGlobalFilter: false,
+      },
+    ],
+    [t]
+  );
   const [searchText, setSearchText] = useState<string>('');
   const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
 
@@ -137,10 +141,20 @@ export function ShardZonesTable({
       <SearchInput
         value={searchText}
         onChange={handleSearchTextChange}
-        aria-label="Search for a location"
-        placeholder="Search for a location"
+        aria-label={t(
+          'globalWrites.shardZones.searchLocation',
+          'Search for a location'
+        )}
+        placeholder={t(
+          'globalWrites.shardZones.searchLocation',
+          'Search for a location'
+        )}
       />
-      <Table className={containerStyles} title="Zone Mapping" table={table}>
+      <Table
+        className={containerStyles}
+        title={t('globalWrites.shardZones.zoneMapping', 'Zone Mapping')}
+        table={table}
+      >
         <TableHead isSticky>
           {table
             .getHeaderGroups()

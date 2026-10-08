@@ -1,7 +1,14 @@
 import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
-import { spacing, css, Tooltip, Body } from '@mongodb-js/compass-components';
+import {
+  spacing,
+  css,
+  Tooltip,
+  Body,
+  useTranslation,
+} from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
@@ -39,13 +46,32 @@ const HIDDEN_INDEX_TEXT = 'HIDDEN';
 const SHARD_KEY_INDEX_TEXT = 'SHARD KEY';
 
 export const getPropertyText = (
-  property: RegularIndex['properties'][number]
+  property: RegularIndex['properties'][number],
+  t?: TranslateFn
 ): string => {
   if (property === 'shardKey') {
-    return SHARD_KEY_INDEX_TEXT;
+    return (
+      t?.('indexes.propertyField.shardKey', SHARD_KEY_INDEX_TEXT) ??
+      SHARD_KEY_INDEX_TEXT
+    );
   }
 
-  return property;
+  return t ? translatePropertyName(property, t) : property;
+};
+
+const translatePropertyName = (property: string, t: TranslateFn): string => {
+  switch (property) {
+    case 'unique':
+      return t('indexes.propertyField.unique', 'unique');
+    case 'sparse':
+      return t('indexes.propertyField.sparse', 'sparse');
+    case 'partial':
+      return t('indexes.propertyField.partial', 'partial');
+    case 'collation':
+      return t('indexes.propertyField.collation', 'collation');
+    default:
+      return property;
+  }
 };
 
 const PropertyBadgeWithTooltip: React.FunctionComponent<{
@@ -83,6 +109,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   properties,
   cardinality,
 }) => {
+  const t = useTranslation();
   return (
     <div className={containerStyles}>
       {extra &&
@@ -90,7 +117,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
           return (
             <PropertyBadgeWithTooltip
               key={property}
-              text={getPropertyText(property)}
+              text={getPropertyText(property, t)}
               link={getIndexHelpLink(property) ?? '#'}
               tooltip={getPropertyTooltip(property, extra)}
             />
@@ -98,13 +125,13 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
         })}
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
-          text={cardinality}
+          text={t('indexes.propertyField.compound', cardinality)}
           link={getIndexHelpLink(cardinality) ?? '#'}
         />
       )}
       {extra?.hidden && (
         <PropertyBadgeWithTooltip
-          text={HIDDEN_INDEX_TEXT}
+          text={t('indexes.propertyField.hidden', HIDDEN_INDEX_TEXT)}
           link={getIndexHelpLink(HIDDEN_INDEX_TEXT) ?? '#'}
         />
       )}

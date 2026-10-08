@@ -10,6 +10,8 @@ import {
   Link,
   nbsp,
   spacing,
+  Translated,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { isReadyStatus } from '../../utils/fetch-status';
@@ -62,7 +64,11 @@ export function renderNameOverride(name: string): React.ReactNode {
 }
 
 function renderTypeOverride(index: SearchIndex): React.ReactNode {
-  return index.type === 'vectorSearch' ? 'Vector' : 'Search';
+  return index.type === 'vectorSearch' ? (
+    <Translated id="indexes.searchDrawer.typeVector">Vector</Translated>
+  ) : (
+    <Translated id="indexes.searchDrawer.typeSearch">Search</Translated>
+  );
 }
 
 function renderExpandedContentOverride(
@@ -72,19 +78,33 @@ function renderExpandedContentOverride(
   return (
     <Body className={searchIndexDetailsForDrawerStyles}>
       <div>
-        <b>Index Name: </b>
+        <b>
+          <Translated id="indexes.searchDrawer.indexName">
+            {'Index Name: '}
+          </Translated>
+        </b>
         {nbsp(index.name)}
       </div>
       <div>
-        <b>Status: </b>
+        <b>
+          <Translated id="indexes.searchDrawer.status">{'Status: '}</Translated>
+        </b>
         {index.status}
       </div>
       <div>
-        <b>Index Fields: </b>
+        <b>
+          <Translated id="indexes.searchDrawer.indexFields">
+            {'Index Fields: '}
+          </Translated>
+        </b>
         {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
       </div>
       <div>
-        <b>Queryable: </b>
+        <b>
+          <Translated id="indexes.searchDrawer.queryable">
+            {'Queryable: '}
+          </Translated>
+        </b>
         {index.queryable.toString()}
       </div>
     </Body>
@@ -117,33 +137,40 @@ const ZeroState: React.FunctionComponent<ZeroStateProps> = ({
   isSearchIndexesWritable,
   onActionDispatch,
 }) => {
+  const t = useTranslation();
   return (
     <EmptyContent
       containerClassName={emptyContentStyles}
       icon={ZeroSearchIndexesGraphic}
-      title="No search indexes found"
+      title={t('indexes.searchDrawer.noIndexes', 'No search indexes found')}
       subTitle={
         <span>
-          Define a{' '}
+          {t('indexes.searchDrawer.defineA', 'Define a')}{' '}
           <Link
             href="https://www.mongodb.com/docs/atlas/atlas-search/manage-indexes/"
             target="_blank"
           >
-            search
+            {t('indexes.searchDrawer.search', 'search')}
           </Link>{' '}
-          or{' '}
+          {t('indexes.searchDrawer.or', 'or')}{' '}
           <Link
             href="https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-type/"
             target="_blank"
           >
-            vector search index
+            {t('indexes.searchDrawer.vectorSearchIndex', 'vector search index')}
           </Link>{' '}
-          to start using $search or $vectorSearch.
+          {t(
+            'indexes.searchDrawer.toStartUsing',
+            'to start using $search or $vectorSearch.'
+          )}
         </span>
       }
       callToActionLink={
         <DropdownMenuButton
-          buttonText="Create a search index"
+          buttonText={t(
+            'indexes.searchDrawer.createSearchIndex',
+            'Create a search index'
+          )}
           buttonProps={{
             size: 'xsmall',
             disabled: !isSearchIndexesWritable,
@@ -151,11 +178,14 @@ const ZeroState: React.FunctionComponent<ZeroStateProps> = ({
           actions={[
             {
               action: 'createSearchIndex',
-              label: 'Search Index',
+              label: t('indexes.searchDrawer.menuSearchIndex', 'Search Index'),
             },
             {
               action: 'createVectorSearchIndex',
-              label: 'Vector Search Index',
+              label: t(
+                'indexes.searchDrawer.menuVectorSearchIndex',
+                'Vector Search Index'
+              ),
             },
           ]}
           onAction={onActionDispatch}

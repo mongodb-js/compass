@@ -7,6 +7,7 @@ import {
   ButtonVariant,
   Link,
   SpinLoader,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
@@ -43,21 +44,30 @@ export function IncompleteShardingSetup({
   onResume,
   isSubmittingForSharding,
 }: IncompleteShardingSetupProps) {
+  const t = useTranslation();
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Warning}>
         <strong>
-          It looks like you&#39;ve chosen a Global Writes shard key for this
-          collection, but your configuration is incomplete.
+          {t(
+            'globalWrites.incompleteSetup.warning',
+            "It looks like you've chosen a Global Writes shard key for this collection, but your configuration is incomplete."
+          )}
         </strong>{' '}
-        Please enable Global Writes for this collection to ensure that documents
-        are associated with the appropriate zone.&nbsp;
+        {t(
+          'globalWrites.incompleteSetup.enablePrompt',
+          'Please enable Global Writes for this collection to ensure that documents are associated with the appropriate zone.'
+        )}
+        &nbsp;
         <Link
           href="https://www.mongodb.com/docs/atlas/global-clusters/"
           target="_blank"
           rel="noreferrer"
         >
-          Read more about Global Writes
+          {t(
+            'globalWrites.incompleteSetup.readMore',
+            'Read more about Global Writes'
+          )}
         </Link>
         <div>
           <Button
@@ -68,7 +78,10 @@ export function IncompleteShardingSetup({
             loadingIndicator={<SpinLoader />}
             className={bannerBtnStyles}
           >
-            Enable Global Writes
+            {t(
+              'globalWrites.incompleteSetup.enableButton',
+              'Enable Global Writes'
+            )}
           </Button>
         </div>
       </Banner>

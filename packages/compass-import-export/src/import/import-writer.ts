@@ -9,6 +9,8 @@ import type {
 } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import type { ErrorJSON } from '../import/import-types';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { englishTranslate } from '../utils/translate';
 
 import { createDebug } from '../utils/logger';
 
@@ -27,8 +29,13 @@ class ImportWriterError extends Error {
   writeErrors: any[];
   name = 'ImportWriterError';
 
-  constructor(writeErrors: any[]) {
-    super('Something went wrong while writing data to a collection');
+  constructor(writeErrors: any[], t: TranslateFn = englishTranslate) {
+    super(
+      t(
+        'importExport.import.writeFailed',
+        'Something went wrong while writing data to a collection'
+      )
+    );
     this.writeErrors = writeErrors;
   }
 }
@@ -71,13 +78,16 @@ export class ImportWriter {
   stopOnErrors?: boolean;
   batch: Document[];
   _batchCounter: number;
+  t: TranslateFn;
   errorCallback?: (error: ErrorJSON) => void;
 
   constructor(
     dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>,
     ns: string,
-    stopOnErrors?: boolean
+    stopOnErrors?: boolean,
+    t: TranslateFn = englishTranslate
   ) {
+    this.t = t;
     this.dataService = dataService;
     this.ns = ns;
     this.BATCH_SIZE = 1000;
@@ -167,7 +177,7 @@ export class ImportWriter {
     this._batchCounter++;
 
     if (writeErrors.length) {
-      throw new ImportWriterError(writeErrors);
+      throw new ImportWriterError(writeErrors, this.t);
     }
   }
 

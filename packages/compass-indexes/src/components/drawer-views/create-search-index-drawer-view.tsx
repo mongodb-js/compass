@@ -24,6 +24,7 @@ import {
   TextInput,
   Tooltip,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   containerStyles,
@@ -39,6 +40,7 @@ import {
   useJsonSchemaAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
+import { getSearchIndexLabels } from '../../utils/search-index-labels';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
   ATLAS_SEARCH_TEMPLATES,
@@ -116,6 +118,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   onIndexDefinitionEdit,
 }) => {
   const track = useTelemetry();
+  const t = useTranslation();
   const connectionInfoRef = useConnectionInfoRef();
 
   useEffect(() => {
@@ -225,10 +228,11 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     });
   }, [name, indexDefinition, createIndex, currentIndexType, track]);
 
-  const indexLabel =
-    currentIndexType === 'vectorSearch'
-      ? 'Vector Search Index'
-      : 'Search Index';
+  const {
+    label: indexLabel,
+    lowerCase: indexLabelLowerCase,
+    plural: indexLabelPlural,
+  } = getSearchIndexLabels(t, currentIndexType === 'vectorSearch');
 
   return (
     <div
@@ -240,34 +244,58 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
           className={overflowWrapStyles}
           data-testid="create-search-index-drawer-view-title"
         >
-          Create {indexLabel} for {namespace}
+          {t(
+            'indexes.searchIndexForm.createFor',
+            'Create {indexLabel} for {namespace}',
+            { indexLabel, namespace }
+          )}
         </Subtitle>
         <Body>
           {currentIndexType === 'search'
-            ? 'Full-text search for relevance-based app features.'
-            : 'For semantic search and AI applications.'}
+            ? t(
+                'indexes.searchIndexForm.searchTagline',
+                'Full-text search for relevance-based app features.'
+              )
+            : t(
+                'indexes.searchIndexForm.vectorTagline',
+                'For semantic search and AI applications.'
+              )}
         </Body>
         <TextInput
           data-testid="create-search-index-drawer-view-name-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          label="Index Name"
-          description={`Give your ${indexLabel.toLowerCase()} a name for easy reference`}
+          label={t('indexes.searchIndexForm.indexName', 'Index Name')}
+          description={t(
+            'indexes.searchIndexForm.nameDescription',
+            'Give your {indexLabel} a name for easy reference',
+            { indexLabel: indexLabelLowerCase }
+          )}
           state={name === '' ? 'error' : 'none'}
           errorMessage={
-            name === '' ? 'Please enter the name of the index.' : ''
+            name === ''
+              ? t(
+                  'indexes.createSearchIndex.nameRequired',
+                  'Please enter the name of the index.'
+                )
+              : ''
           }
           disabled={!isSearchIndexesWritable}
         />
         <Body>
-          By default, your {indexLabel.toLowerCase()} will have the following
-          configurations. We recommend starting with this and refining it later
-          if you need to.
+          {t(
+            'indexes.searchIndexForm.defaultConfiguration',
+            'By default, your {indexLabel} will have the following configurations. We recommend starting with this and refining it later if you need to.',
+            { indexLabel: indexLabelLowerCase }
+          )}
         </Body>
         {currentIndexType === 'vectorSearch' && isAutoEmbedEnabled && (
           <VectorSearchIndexTemplateDropdown
             value={vectorTemplateChoice}
-            tooltip="Selecting a new template will replace your existing index definition in the code editor."
+            tooltip={t(
+              'indexes.searchIndexForm.templateTooltip',
+              'Selecting a new template will replace your existing index definition in the code editor.'
+            )}
             onTemplateChoice={onVectorTemplateChoice}
             disabled={!isSearchIndexesWritable}
           />
@@ -308,7 +336,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
             onClose();
           }}
         >
-          Cancel
+          {t('indexes.searchIndexForm.cancel', 'Cancel')}
         </Button>
         <Tooltip
           trigger={
@@ -320,16 +348,24 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
               disabled={!isCreateEnabled || !isSearchIndexesWritable}
               onClick={onCreateClick}
             >
-              Create {indexLabel}
+              {t('indexes.searchIndexForm.create', 'Create {indexLabel}', {
+                indexLabel,
+              })}
             </Button>
           }
           enabled={!isSearchIndexesWritable}
         >
-          You currently don&apos;t have permission to create {indexLabel}es in
-          this{' '}
           {!atlasMetadata
-            ? 'cluster.'
-            : 'project, please contact Project Owner to request the Project Data Access Admin role.'}
+            ? t(
+                'indexes.searchIndexForm.noPermissionCreateCluster',
+                "You currently don't have permission to create {indexLabel} in this cluster.",
+                { indexLabel: indexLabelPlural }
+              )
+            : t(
+                'indexes.searchIndexForm.noPermissionCreateProject',
+                "You currently don't have permission to create {indexLabel} in this project, please contact Project Owner to request the Project Data Access Admin role.",
+                { indexLabel: indexLabelPlural }
+              )}
         </Tooltip>
       </div>
     </div>

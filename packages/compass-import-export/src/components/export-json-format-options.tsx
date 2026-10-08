@@ -7,6 +7,7 @@ import {
   RadioGroup,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { ExportJSONFormat } from '../export/export-json';
@@ -26,6 +27,8 @@ function JSONFileTypeOptions({
   jsonFormat: ExportJSONFormat;
   setJSONFormatVariant: (jsonFormatVariant: ExportJSONFormat) => void;
 }) {
+  const t = useTranslation();
+  const exampleLabel = t('importExport.jsonFormat.example', 'Example:');
   const relaxedWarningBannerContainerRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     // When the user selects relaxed we scroll to show the warning at the bottom.
@@ -36,7 +39,7 @@ function JSONFileTypeOptions({
 
   return (
     <Accordion
-      text="Advanced JSON Format"
+      text={t('importExport.jsonFormat.advanced', 'Advanced JSON Format')}
       data-testid="export-advanced-json-format"
     >
       <RadioGroup
@@ -49,24 +52,27 @@ function JSONFileTypeOptions({
         <Radio
           value="default"
           checked={jsonFormat === 'default'}
-          description='Example:  { "fortyTwo": 42, "oneHalf": 0.5, "bignumber": { "$numberLong": "5000000000" } }'
+          description={`${exampleLabel}  { "fortyTwo": 42, "oneHalf": 0.5, "bignumber": { "$numberLong": "5000000000" } }`}
         >
-          Default Extended JSON
+          {t('importExport.jsonFormat.default', 'Default Extended JSON')}
         </Radio>
         <Radio
           value="relaxed"
           checked={jsonFormat === 'relaxed'}
-          description='Example: { "fortyTwo": 42, "oneHalf": 0.5, "bignumber": 5000000000 }. Large numbers (>= 2^^53) will change with this format.'
+          description={`${exampleLabel} { "fortyTwo": 42, "oneHalf": 0.5, "bignumber": 5000000000 }. ${t(
+            'importExport.jsonFormat.relaxedNote',
+            'Large numbers (>= 2^^53) will change with this format.'
+          )}`}
         >
-          Relaxed Extended JSON
+          {t('importExport.jsonFormat.relaxed', 'Relaxed Extended JSON')}
         </Radio>
         <Radio
           value="canonical"
           data-testid="export-json-format-canonical"
           checked={jsonFormat === 'canonical'}
-          description='Example: { "fortyTwo": { "$numberInt": "42" }, "oneHalf": { "$numberDouble": "0.5" }, "bignumber": { "$numberLong": "5000000000" } }'
+          description={`${exampleLabel} { "fortyTwo": { "$numberInt": "42" }, "oneHalf": { "$numberDouble": "0.5" }, "bignumber": { "$numberLong": "5000000000" } }`}
         >
-          Canonical Extended JSON
+          {t('importExport.jsonFormat.canonical', 'Canonical Extended JSON')}
         </Radio>
       </RadioGroup>
       {/* TODO(COMPASS-6632): Add docs link */}
@@ -74,7 +80,7 @@ function JSONFileTypeOptions({
         href="https://www.mongodb.com/docs/compass/current/import-export/"
         target="_blank"
       >
-        Learn more about JSON format
+        {t('importExport.jsonFormat.learnMore', 'Learn more about JSON format')}
       </Link>
       <div
         className={bannerContainerStyles}
@@ -82,8 +88,10 @@ function JSONFileTypeOptions({
       >
         {jsonFormat === 'relaxed' && (
           <Banner variant="warning">
-            Large numbers (&gt;= 2^^53) will lose precision with the relaxed
-            EJSON format. This format is not recommended for data integrity.
+            {t(
+              'importExport.jsonFormat.relaxedWarning',
+              'Large numbers (>= 2^^53) will lose precision with the relaxed EJSON format. This format is not recommended for data integrity.'
+            )}
           </Banner>
         )}
       </div>

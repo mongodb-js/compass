@@ -9,6 +9,7 @@ import {
   spacing,
   usePersistedState,
   Body,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   useTelemetry,
@@ -66,6 +67,7 @@ const AtlasIndexesBanner = ({
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
+  const t = useTranslation();
 
   if (!atlasMetadata || dismissed) {
     return null;
@@ -74,11 +76,22 @@ const AtlasIndexesBanner = ({
   return (
     <Banner variant="info" dismissible onClose={onDismissClick}>
       {!enableSearchActivationProgramP1 && (
-        <Body weight="medium">Looking for search indexes?</Body>
+        <Body weight="medium">
+          {t(
+            'indexes.atlasBanner.lookingForSearch',
+            'Looking for search indexes?'
+          )}
+        </Body>
       )}
       {enableSearchActivationProgramP1
-        ? 'View index sizes, queryability status, and per-node build progress in '
-        : 'These indexes can be created and viewed under '}
+        ? t(
+            'indexes.atlasBanner.viewIndexDetails',
+            'View index sizes, queryability status, and per-node build progress in '
+          )
+        : t(
+            'indexes.atlasBanner.createdUnder',
+            'These indexes can be created and viewed under '
+          )}
       <Link
         target="_blank"
         rel="noopener"
@@ -93,7 +106,10 @@ const AtlasIndexesBanner = ({
         }}
         hideExternalIcon
       >
-        Search and Vector Search
+        {t(
+          'indexes.atlasBanner.searchAndVectorSearch',
+          'Search and Vector Search'
+        )}
       </Link>
       {'.'}
     </Banner>

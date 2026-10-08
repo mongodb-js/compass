@@ -15,6 +15,7 @@ import {
   Link,
   palette,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { FINISHED_STATUSES, STARTED } from '../constants/process-status';
@@ -142,6 +143,7 @@ function ImportModal({
   analyzeError,
 }: ImportModalProps) {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   const modalBodyRef = useRef<HTMLDivElement>(null);
 
@@ -192,7 +194,16 @@ function ImportModal({
       data-testid="import-modal"
       size={fileType === 'csv' ? 'large' : 'small'}
     >
-      <ModalHeader title="Import" subtitle={`To collection ${ns}`} />
+      <ModalHeader
+        title={t('importExport.importModal.title', 'Import')}
+        subtitle={t(
+          'importExport.importModal.toCollection',
+          'To collection {ns}',
+          {
+            ns,
+          }
+        )}
+      />
       <ModalBody ref={modalBodyRef}>
         <ImportOptions
           delimiter={delimiter}
@@ -214,12 +225,18 @@ function ImportModal({
                 darkMode ? fieldsHeadingStylesDark : fieldsHeadingStylesLight
               )}
             >
-              Specify Fields and Types
+              {t(
+                'importExport.importModal.specifyFields',
+                'Specify Fields and Types'
+              )}
               <Link
                 className={dataTypesLinkStyles}
                 href="https://www.mongodb.com/docs/mongodb-shell/reference/data-types/"
               >
-                Learn more about data types
+                {t(
+                  'importExport.importModal.learnMoreTypes',
+                  'Learn more about data types'
+                )}
               </Link>
             </Body>
             {csvAnalyzed ? (
@@ -247,7 +264,9 @@ function ImportModal({
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button data-testid="cancel-button" onClick={handleClose}>
-          {FINISHED_STATUSES.includes(status) ? 'Close' : 'Cancel'}
+          {FINISHED_STATUSES.includes(status)
+            ? t('importExport.importModal.close', 'Close')
+            : t('importExport.importModal.cancel', 'Cancel')}
         </Button>
         <Button
           data-testid="import-button"
@@ -259,7 +278,9 @@ function ImportModal({
           }
           variant="primary"
         >
-          {status === STARTED ? 'Importing\u2026' : 'Import'}
+          {status === STARTED
+            ? t('importExport.importModal.importing', 'Importing\u2026')
+            : t('importExport.importModal.import', 'Import')}
         </Button>
       </ModalFooter>
     </Modal>

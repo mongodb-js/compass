@@ -9,6 +9,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { RegularIndex } from '../../modules/regular-indexes';
@@ -21,6 +22,14 @@ const typeFieldStyles = css({
   gap: spacing[50],
   minWidth: spacing[1800],
 });
+
+const TRANSLATABLE_TYPES = new Set([
+  'regular',
+  'geospatial',
+  'hashed',
+  'clustered',
+  'unknown',
+]);
 
 export const canRenderTooltip = (type: string) => {
   return ['text', 'wildcard', 'columnstore'].indexOf(type ?? '') !== -1;
@@ -61,7 +70,11 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
 }) => {
   const link = getIndexHelpLink(type) ?? '#';
   const darkMode = useDarkMode();
-  const text = type ?? 'unknown';
+  const t = useTranslation();
+  const rawText = type ?? 'unknown';
+  const text = TRANSLATABLE_TYPES.has(rawText)
+    ? t(`indexes.typeField.${rawText}`, rawText)
+    : rawText;
   return (
     <Tooltip
       enabled={canRenderTooltip(type)}

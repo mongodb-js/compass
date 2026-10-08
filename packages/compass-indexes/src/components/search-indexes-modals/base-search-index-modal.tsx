@@ -22,6 +22,7 @@ import {
   SpinLoader,
   Tooltip,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import {
@@ -51,7 +52,8 @@ import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { isEqual } from 'lodash';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
-import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
+import { getAutoEmbedEditCostWarning } from '../../utils/auto-embed-messaging';
+import { getSearchIndexLabels } from '../../utils/search-index-labels';
 
 const bodyStyles = css({
   display: 'flex',
@@ -180,6 +182,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   onClose,
   onClearError,
 }) => {
+  const t = useTranslation();
   const initialIndexType =
     _initialIndexType === 'search' || _initialIndexType === 'vectorSearch'
       ? _initialIndexType
@@ -279,7 +282,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       let parsingError = undefined;
 
       try {
-        parseShellBSON(newDefinition);
+        parseShellBSON(newDefinition, t);
       } catch (ex) {
         parsingError = ex as ParsingError;
       }
@@ -297,7 +300,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         };
       });
     },
-    [error, onClearError]
+    [error, onClearError, t]
   );
 
   const onSubmitIndex = useCallback(() => {
@@ -449,10 +452,18 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       <ModalHeader
         title={
           mode === 'create'
-            ? 'Create Atlas Search Index'
-            : `Edit ${
-                initialIndexType === 'vectorSearch' ? 'Vector Search' : 'Search'
-              } Index "${indexName}"`
+            ? t('indexes.searchModal.createTitle', 'Create Atlas Search Index')
+            : initialIndexType === 'vectorSearch'
+              ? t(
+                  'indexes.searchModal.editVectorTitle',
+                  'Edit Vector Search Index "{indexName}"',
+                  { indexName }
+                )
+              : t(
+                  'indexes.searchModal.editSearchTitle',
+                  'Edit Search Index "{indexName}"',
+                  { indexName }
+                )
         }
       />
       <ModalBody className={bodyStyles}>
@@ -461,7 +472,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             <>
               <section className={formFieldContainerStyles}>
                 <Label htmlFor="name-of-search-index">
-                  Name of Search Index
+                  {t(
+                    'indexes.searchModal.nameOfSearchIndex',
+                    'Name of Search Index'
+                  )}
                 </Label>
                 <TextInput
                   id="name-of-search-index"
@@ -471,7 +485,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                   state={indexName === '' ? 'error' : 'none'}
                   errorMessage={
                     indexName === ''
-                      ? 'Please enter the name of the index.'
+                      ? t(
+                          'indexes.createSearchIndex.nameRequired',
+                          'Please enter the name of the index.'
+                        )
                       : ''
                   }
                   value={indexName}
@@ -490,7 +507,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                 <>
                   <section className={formFieldContainerStyles}>
                     <Label htmlFor="search-index-type">
-                      Atlas Search Index type
+                      {t(
+                        'indexes.searchModal.indexType',
+                        'Atlas Search Index type'
+                      )}
                     </Label>
                     <RadioBoxGroup
                       id="search-index-type"
@@ -522,17 +542,21 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             <section className={templateToolbarStyles}>
               <div className={templateToolbarTextDescriptionStyles}>
                 <Label htmlFor="definition-of-search-index">
-                  Index Definition
+                  {t('indexes.searchModal.indexDefinition', 'Index Definition')}
                 </Label>
                 <br />
                 {mode === 'create' && (
                   <Body>
-                    By default, your{' '}
-                    {searchIndexType === 'vectorSearch'
-                      ? 'vector search'
-                      : 'search'}{' '}
-                    index will have the following configurations. We recommend
-                    starting with this and refining it later if you need to.
+                    {t(
+                      'indexes.searchIndexForm.defaultConfiguration',
+                      'By default, your {indexLabel} will have the following configurations. We recommend starting with this and refining it later if you need to.',
+                      {
+                        indexLabel: getSearchIndexLabels(
+                          t,
+                          searchIndexType === 'vectorSearch'
+                        ).lowerCase,
+                      }
+                    )}
                   </Body>
                 )}
                 <Link
@@ -544,18 +568,26 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                   target="_blank"
                   hideExternalIcon={true}
                 >
-                  View Atlas{' '}
                   {searchIndexType === 'vectorSearch'
-                    ? 'Vector Search'
-                    : 'Search'}{' '}
-                  tutorials <Icon size="small" glyph="OpenNewTab"></Icon>
+                    ? t(
+                        'indexes.searchModal.vectorTutorials',
+                        'View Atlas Vector Search tutorials'
+                      )
+                    : t(
+                        'indexes.searchModal.searchTutorials',
+                        'View Atlas Search tutorials'
+                      )}{' '}
+                  <Icon size="small" glyph="OpenNewTab"></Icon>
                 </Link>
               </div>
               {searchIndexType === 'search' && !isEditingVectorSearchIndex && (
                 <div className={templateToolbarDropdownStyles}>
                   <SearchIndexTemplateDropdown
                     isVectorSearchSupported={isVectorSearchSupported}
-                    tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                    tooltip={t(
+                      'indexes.searchIndexForm.templateTooltip',
+                      'Selecting a new template will replace your existing index definition in the code editor.'
+                    )}
                     onTemplate={onChangeTemplate}
                   />
                 </div>
@@ -566,7 +598,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                   <div className={templateToolbarDropdownStyles}>
                     <VectorSearchIndexTemplateDropdown
                       value={vectorTemplateChoice}
-                      tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                      tooltip={t(
+                        'indexes.searchIndexForm.templateTooltip',
+                        'Selecting a new template will replace your existing index definition in the code editor.'
+                      )}
                       onTemplateChoice={onVectorTemplateChoice}
                     />
                   </div>
@@ -588,7 +623,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               vectorTemplateChoice === 'autoEmbed' &&
               mode === 'create' && (
                 <Banner data-testid="auto-embedding-cost-banner">
-                  {`Automated Embedding uses embedding models, which incur usage-based costs. The generated vector embeddings are stored in your MongoDB cluster. The model inference platform runs on MongoDB's infrastructure in GCP cloud in a US region.`}
+                  {t(
+                    'indexes.searchModal.autoEmbedCostBanner',
+                    "Automated Embedding uses embedding models, which incur usage-based costs. The generated vector embeddings are stored in your MongoDB cluster. The model inference platform runs on MongoDB's infrastructure in GCP cloud in a US region."
+                  )}
                 </Banner>
               )}
           </div>
@@ -597,27 +635,29 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         {!parsingError && error && <ErrorSummary errors={error} />}
         {mode === 'update' && !showAutoEmbedEditCostBanner && (
           <Banner>
-            Note: Updating the index definition will consume additional
-            resources on your cluster.
+            {t(
+              'indexes.searchModal.updateNote',
+              'Note: Updating the index definition will consume additional resources on your cluster.'
+            )}
           </Banner>
         )}
         {showAutoEmbedEditRestrictedBanner && (
           <Banner data-testid="auto-embed-edit-restricted-banner">
-            You cannot edit an autoEmbed field (updating path, model,
-            quantization, etc.) in an existing index during Public Preview. This
-            includes adding, removing, or modifying fields. To use a different
-            autoEmbed configuration, create a new index.
+            {t(
+              'indexes.searchModal.autoEmbedRestricted',
+              'You cannot edit an autoEmbed field (updating path, model, quantization, etc.) in an existing index during Public Preview. This includes adding, removing, or modifying fields. To use a different autoEmbed configuration, create a new index.'
+            )}
           </Banner>
         )}
         {showAutoEmbedEditCostBanner && (
           <Banner data-testid="auto-embed-edit-cost-banner">
-            {AUTO_EMBED_EDIT_COST_WARNING}
+            {getAutoEmbedEditCostWarning(t)}
           </Banner>
         )}
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button variant="default" onClick={onClose}>
-          Cancel
+          {t('indexes.searchModal.cancel', 'Cancel')}
         </Button>
         <Tooltip
           trigger={
@@ -629,12 +669,20 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               isLoading={isBusy}
               loadingIndicator={<SpinLoader />}
             >
-              {mode === 'create' ? 'Create Search Index' : 'Save'}
+              {mode === 'create'
+                ? t(
+                    'indexes.searchModal.createSearchIndex',
+                    'Create Search Index'
+                  )
+                : t('indexes.searchModal.save', 'Save')}
             </Button>
           }
           enabled={isIndexDefinitionUnchanged}
         >
-          Make a change to the index definition to enable saving.
+          {t(
+            'indexes.searchModal.makeChange',
+            'Make a change to the index definition to enable saving.'
+          )}
         </Tooltip>
       </ModalFooter>
     </Modal>

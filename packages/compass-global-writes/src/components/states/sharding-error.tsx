@@ -6,6 +6,7 @@ import {
   css,
   spacing,
   SpinLoader,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { cancelSharding, type RootState } from '../../store/reducer';
@@ -35,11 +36,14 @@ export function ShardingError({
   isSubmittingForSharding,
   onCancelSharding,
 }: ShardingErrorProps) {
+  const t = useTranslation();
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Danger} className={bannerStyles}>
-        There was an error sharding your collection. Please cancel the request,
-        make any necessary changes to your collection, and try again.
+        {t(
+          'globalWrites.shardingError.message',
+          'There was an error sharding your collection. Please cancel the request, make any necessary changes to your collection, and try again.'
+        )}
         <div className={errorStyles}>{shardingError}</div>
         <Button
           className={bannerBtnStyles}
@@ -49,7 +53,7 @@ export function ShardingError({
           loadingIndicator={<SpinLoader />}
           onClick={onCancelSharding}
         >
-          Cancel Request
+          {t('globalWrites.shardingError.cancelRequest', 'Cancel Request')}
         </Button>
       </Banner>
       <CreateShardKeyForm />

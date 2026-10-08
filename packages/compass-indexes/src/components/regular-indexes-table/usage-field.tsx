@@ -1,14 +1,22 @@
 import React from 'react';
-import { Tooltip, Body } from '@mongodb-js/compass-components';
+import { Tooltip, Body, useTranslation } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { translateToEnglish } from '../../utils/get-translate';
 
-const NO_USAGE_STATS =
-  'Either the server does not support the $indexStats command' +
-  ' or the user is not authorized to execute it.';
-
-export const getUsageTooltip = (usage?: number): string => {
+export const getUsageTooltip = (
+  usage?: number,
+  t: TranslateFn = translateToEnglish
+): string => {
   return usage === null || usage === undefined
-    ? NO_USAGE_STATS
-    : `${usage} index hits since index creation or last server restart`;
+    ? t(
+        'indexes.usageField.noStats',
+        'Either the server does not support the $indexStats command or the user is not authorized to execute it.'
+      )
+    : t(
+        'indexes.usageField.hits',
+        '{usage} index hits since index creation or last server restart',
+        { usage }
+      );
 };
 
 type UsageFieldProps = {
@@ -21,23 +29,28 @@ const UsageField: React.FunctionComponent<UsageFieldProps> = ({
   usage,
   since,
 }) => {
+  const t = useTranslation();
   return (
     <Tooltip
       trigger={
         <Body>
           {usage === null || usage === undefined ? (
-            'Usage data unavailable'
+            t('indexes.usageField.unavailable', 'Usage data unavailable')
           ) : (
             <>
               {usage}
               {nbsp}
-              {since ? `(since ${since.toDateString()})` : ''}
+              {since
+                ? t('indexes.usageField.since', '(since {date})', {
+                    date: since.toDateString(),
+                  })
+                : ''}
             </>
           )}
         </Body>
       }
     >
-      <Body>{getUsageTooltip(usage)}</Body>
+      <Body>{getUsageTooltip(usage, t)}</Body>
     </Tooltip>
   );
 };

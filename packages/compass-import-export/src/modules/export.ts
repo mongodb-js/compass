@@ -29,6 +29,7 @@ import {
   exportJSONFromQuery,
 } from '../export/export-json';
 import type { ExportJSONFormat } from '../export/export-json';
+import { translate } from '@mongodb-js/compass-components';
 import type { ExportThunkAction } from '../stores/export-store';
 
 export type FieldsToExport = {
@@ -376,13 +377,20 @@ export const runExport = ({
     getState,
     { connections, preferences, track, logger: { log, mongoLogId } }
   ) => {
+    const language = preferences.getPreferences().language ?? 'en';
     let outputWriteStream: fs.WriteStream;
     try {
       outputWriteStream = fs.createWriteStream(filePath);
     } catch (err: any) {
       dispatch({
         type: ExportActionTypes.ExportFileError,
-        errorMessage: err?.message || 'Error creating output file.',
+        errorMessage:
+          err?.message ||
+          translate(
+            language,
+            'importExport.export.errorCreatingFile',
+            'Error creating output file.'
+          ),
       });
       return;
     }
@@ -450,6 +458,7 @@ export const runExport = ({
     });
 
     showStartingToast({
+      language,
       cancelExport: () => dispatch(cancelExport()),
       namespace,
     });
@@ -461,6 +470,7 @@ export const runExport = ({
       csvPhase?: CSVExportPhase
     ) {
       showInProgressToast({
+        language,
         cancelExport: () => dispatch(cancelExport()),
         docsWritten: index,
         filePath,
@@ -532,7 +542,7 @@ export const runExport = ({
         type: ExportActionTypes.RunExportError,
         error: err,
       });
-      showFailedToast(err);
+      showFailedToast(language, err);
     } finally {
       outputWriteStream.close();
     }
@@ -583,11 +593,13 @@ export const runExport = ({
 
     if (exportResult?.aborted) {
       showCancelledToast({
+        language,
         docsWritten: exportResult?.docsWritten ?? 0,
         filePath,
       });
     } else {
       showCompletedToast({
+        language,
         docsWritten: exportResult?.docsWritten ?? 0,
         filePath,
       });

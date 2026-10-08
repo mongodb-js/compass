@@ -20,7 +20,9 @@ import {
   Select,
   Option,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 
 import { createDebug } from '../utils/logger';
 import type { CSVParsableFieldType, CSVField } from '../csv/csv-types';
@@ -139,9 +141,12 @@ const arrayTextStyles = css({
   whiteSpace: 'nowrap',
 });
 
-function fieldTypeName(type: CSVParsableFieldType | 'undefined') {
+function fieldTypeName(
+  t: TranslateFn,
+  type: CSVParsableFieldType | 'undefined'
+) {
   if (type === 'undefined') {
-    return 'Blank';
+    return t('importExport.preview.blank', 'Blank');
   }
   return CSVFieldTypeLabels[type];
 }
@@ -175,6 +180,7 @@ function SelectFieldType({
   selectedType: CSVParsableFieldType;
   onChange: (type: string) => void;
 }) {
+  const t = useTranslation();
   return (
     <Select
       // NOTE: Leafygreen gives an error with only aria-label for select.
@@ -183,7 +189,7 @@ function SelectFieldType({
       id={`import-preview-field-type-select-menu-${fieldPath}`}
       data-testid={`import-preview-field-type-select-menu-${fieldPath}`}
       className={selectStyles}
-      aria-label="Field type"
+      aria-label={t('importExport.preview.fieldType', 'Field type')}
       value={selectedType}
       onChange={onChange}
       allowDeselect={false}
@@ -208,11 +214,12 @@ type Field = {
 
 function InfoIcon() {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   return (
     <IconButton
       // NOTE: Leafygreen doesn't support aria-label and only understand "aria-labelledby" and "label" instead
       aria-labelledby=""
-      aria-label="Types documentation"
+      aria-label={t('importExport.preview.typesDocs', 'Types documentation')}
       as="a"
       className={cx(
         infoIconCommonStyles,
@@ -250,6 +257,7 @@ function MixedWarning({
   selectedType: CSVParsableFieldType;
   children: React.ReactElement;
 }) {
+  const t = useTranslation();
   return (
     <Tooltip
       align="top"
@@ -259,23 +267,32 @@ function MixedWarning({
     >
       <>
         <Body>
-          This field has{' '}
           {selectedType === 'number'
-            ? 'mixed numeric types'
-            : 'mixed data types'}
-          :
+            ? t(
+                'importExport.preview.mixedNumeric',
+                'This field has mixed numeric types:'
+              )
+            : t(
+                'importExport.preview.mixedData',
+                'This field has mixed data types:'
+              )}
         </Body>
         <ul className={typesListStyles}>
           {Object.entries(result.types).map(([type, info]) => {
             return (
               <li key={type}>
-                {fieldTypeName(type as CSVParsableFieldType | 'undefined')} *{' '}
+                {fieldTypeName(t, type as CSVParsableFieldType | 'undefined')} *{' '}
                 {info.count}
               </li>
             );
           })}
         </ul>
-        <Body>To standardize your data, select a different type.</Body>
+        <Body>
+          {t(
+            'importExport.preview.standardize',
+            'To standardize your data, select a different type.'
+          )}
+        </Body>
       </>
     </Tooltip>
   );
@@ -290,6 +307,7 @@ function TypeWarning({
   selectedType: CSVParsableFieldType;
   children: React.ReactElement;
 }) {
+  const t = useTranslation();
   const example = findBrokenCSVTypeExample(result.types, selectedType);
 
   if (!example) {
@@ -309,21 +327,34 @@ function TypeWarning({
       trigger={<div>{triggerChildren}</div>}
     >
       <>
-        <Body>This field has these detected types:</Body>
+        <Body>
+          {t(
+            'importExport.preview.detectedTypes',
+            'This field has these detected types:'
+          )}
+        </Body>
         <ul className={typesListStyles}>
           {Object.entries(result.types).map(([type, info]) => {
             return (
               <li key={type}>
-                {fieldTypeName(type as CSVParsableFieldType | 'undefined')} *{' '}
+                {fieldTypeName(t, type as CSVParsableFieldType | 'undefined')} *{' '}
                 {info.count}
               </li>
             );
           })}
         </ul>
         <Body>
-          Row {example.firstRowIndex + 1} contains the value{' '}
-          <i>&quot;{value}&quot;</i>. This will cause an error for type{' '}
-          {CSVFieldTypeLabels[selectedType]}.
+          {t(
+            'importExport.preview.rowContainsValue',
+            'Row {row} contains the value ',
+            { row: example.firstRowIndex + 1 }
+          )}
+          <i>&quot;{value}&quot;</i>
+          {t(
+            'importExport.preview.errorForType',
+            '. This will cause an error for type {type}.',
+            { type: CSVFieldTypeLabels[selectedType] }
+          )}
         </Body>
       </>
     </Tooltip>
@@ -351,6 +382,17 @@ function FieldTypeHeading({
   onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
   setFieldType: (fieldPath: string, fieldType: string) => void;
 }) {
+  const t = useTranslation();
+  const ignoredLabel = t(
+    'importExport.preview.valuesIgnored',
+    'Values for {path} will be ignored',
+    { path: field.path }
+  );
+  const importedLabel = t(
+    'importExport.preview.valuesImported',
+    '{path} values will be imported',
+    { path: field.path }
+  );
   const children = (
     <div>
       <div className={columnNameStyles}>
@@ -358,17 +400,9 @@ function FieldTypeHeading({
           aria-labelledby={`toggle-import-field-label-${field.path}`}
           id={`toggle-import-field-checkbox-${field.path}`}
           data-testid={`toggle-import-field-checkbox-${field.path}`}
-          aria-label={
-            field.checked
-              ? `${field.path} values will be imported`
-              : `Values for ${field.path} will be ignored`
-          }
+          aria-label={field.checked ? importedLabel : ignoredLabel}
           checked={field.checked}
-          title={
-            field.checked
-              ? `${field.path} values will be imported`
-              : `Values for ${field.path} will be ignored`
-          }
+          title={field.checked ? importedLabel : ignoredLabel}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onFieldCheckedChanged(field.path, !!e.target.checked)
           }
@@ -382,7 +416,11 @@ function FieldTypeHeading({
         </Label>
       </div>
       <div className={fieldTypeContainerStyles}>
-        {field.isArray && <span className={arrayTextStyles}>Array of</span>}
+        {field.isArray && (
+          <span className={arrayTextStyles}>
+            {t('importExport.preview.arrayOf', 'Array of')}
+          </span>
+        )}
         <SelectFieldType
           fieldPath={field.path}
           selectedType={field.type}
@@ -426,6 +464,11 @@ function ImportPreview({
   loaded: boolean;
 }) {
   const darkMode = useDarkMode();
+  const t = useTranslation();
+  const emptyStringLabel = t(
+    'importExport.preview.emptyString',
+    'empty string'
+  );
 
   if (!loaded) {
     debug('Preview unavailable: not loaded yet');
@@ -509,11 +552,11 @@ function ImportPreview({
                     !fields[fieldIndex].checked && cellUncheckedStyles
                   )}
                   title={`${
-                    capStringLength(fieldValues[fieldIndex]) || 'empty string'
+                    capStringLength(fieldValues[fieldIndex]) || emptyStringLabel
                   }`}
                 >
                   {fieldValues[fieldIndex] === '' ? (
-                    <i>empty string</i>
+                    <i>{emptyStringLabel}</i>
                   ) : (
                     capStringLength(fieldValues[fieldIndex])
                   )}

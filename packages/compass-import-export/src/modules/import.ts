@@ -35,7 +35,8 @@ import {
 import type { ImportThunkAction } from '../stores/import-store';
 import { openFile } from '../utils/open-file';
 import type { DataService } from 'mongodb-data-service';
-import { showErrorDetails } from '@mongodb-js/compass-components';
+import { makeTranslate } from '../utils/translate';
+import { showErrorDetails, translate } from '@mongodb-js/compass-components';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -205,10 +206,12 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       globalAppRegistry: appRegistry,
       workspaces,
       track,
+      preferences,
       logger: { log, mongoLogId, debug },
     }
   ) => {
     const startTime = Date.now();
+    const language = preferences.getPreferences().language ?? 'en';
 
     const {
       import: {
@@ -249,9 +252,12 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         ? fs.createWriteStream(errorLogFilePath)
         : undefined;
     } catch (err: any) {
-      (err as Error).message = `unable to create import error log file: ${
-        (err as Error).message
-      }`;
+      (err as Error).message = translate(
+        language,
+        'importExport.import.errorLogCreateFailed',
+        'unable to create import error log file: {message}',
+        { message: (err as Error).message }
+      );
       firstErrors.push(err as Error);
     }
 
@@ -284,6 +290,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     );
 
     showStartingToast({
+      language,
       cancelImport: () => dispatch(cancelImport()),
       fileName,
     });
@@ -308,6 +315,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       bytesProcessed: number;
     }) {
       showInProgressToast({
+        language,
         cancelImport: () => dispatch(cancelImport()),
         docsWritten,
         numErrors,
@@ -340,6 +348,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           errorCallback,
           stopOnErrors,
           ignoreEmptyStrings: ignoreBlanks,
+          translate: makeTranslate(language),
         });
       } else {
         result = await importJSON({
@@ -352,6 +361,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           jsonVariant: fileIsMultilineJSON ? 'jsonl' : 'json',
           progressCallback,
           errorCallback,
+          translate: makeTranslate(language),
         });
       }
 
@@ -386,6 +396,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       const errInfo =
         err?.writeErrors?.length && err?.writeErrors[0]?.err?.errInfo;
       showFailedToast(
+        language,
         err as Error,
         errInfo &&
           (() =>
@@ -441,6 +452,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     if (result.aborted) {
       showCancelledToast({
+        language,
         errors: firstErrors,
         actionHandler: openErrorLogFilePathActionHandler,
       });
@@ -454,15 +466,16 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         : undefined;
 
       if (result.biggestDocSize > 10_000_000) {
-        showBloatedDocumentSignalToast({ onReviewDocumentsClick });
+        showBloatedDocumentSignalToast({ language, onReviewDocumentsClick });
       }
 
       if (result.hasUnboundArray) {
-        showUnboundArraySignalToast({ onReviewDocumentsClick });
+        showUnboundArraySignalToast({ language, onReviewDocumentsClick });
       }
 
       if (firstErrors.length > 0) {
         showCompletedWithErrorsToast({
+          language,
           docsWritten: result.docsWritten,
           errors: firstErrors,
           docsProcessed: result.docsProcessed,
@@ -470,6 +483,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         });
       } else {
         showCompletedToast({
+          language,
           docsWritten: result.docsWritten,
         });
       }
@@ -762,11 +776,22 @@ export const setFieldType = (path: string, bsonType: string) => {
 export const selectImportFileName = (
   fileName: string
 ): ImportThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { logger: { log, mongoLogId } }) => {
+  return async (
+    dispatch,
+    _getState,
+    { preferences, logger: { log, mongoLogId } }
+  ) => {
     try {
       const exists = await checkFileExists(fileName);
       if (!exists) {
-        throw new Error(`File ${fileName} not found`);
+        throw new Error(
+          translate(
+            preferences.getPreferences().language ?? 'en',
+            'importExport.import.fileNotFound',
+            'File {fileName} not found',
+            { fileName }
+          )
+        );
       }
       const fileStats = await getFileStats(fileName);
 
@@ -774,7 +799,13 @@ export const selectImportFileName = (
       const detected = await guessFileType({ input });
 
       if (detected.type === 'unknown') {
-        throw new Error('Cannot determine the file type');
+        throw new Error(
+          translate(
+            preferences.getPreferences().language ?? 'en',
+            'importExport.import.unknownFileType',
+            'Cannot determine the file type'
+          )
+        );
       }
 
       // This is temporary. The store should just work with one fileType var
@@ -812,9 +843,12 @@ export const selectImportFileName = (
           'The encoded data was not valid for encoding utf-8'
         )
       ) {
-        err.message = `Unable to load the file. Make sure the file is valid CSV or JSON. Error: ${
-          err?.message as string
-        }`;
+        err.message = translate(
+          preferences.getPreferences().language ?? 'en',
+          'importExport.import.unableToLoadFile',
+          'Unable to load the file. Make sure the file is valid CSV or JSON. Error: {message}',
+          { message: err?.message as string }
+        );
       }
 
       dispatch(onFileSelectError(new Error(err)));

@@ -19,6 +19,7 @@ import {
   FormFieldContainer,
   Checkbox,
   Accordion,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -50,16 +51,25 @@ const AdvancedCSVFormat: React.FunctionComponent<{
   escapeFormulae: boolean;
   onEscapeFormulaeChange: (newVal: boolean) => void;
 }> = ({ escapeFormulae, onEscapeFormulaeChange }) => {
+  const t = useTranslation();
   return (
-    <Accordion text="Advanced CSV Format">
+    <Accordion
+      text={t('importExport.exportModal.advancedCsv', 'Advanced CSV Format')}
+    >
       <FormFieldContainer>
         <Checkbox
           checked={escapeFormulae}
           onChange={(event) => {
             onEscapeFormulaeChange(event.target.checked);
           }}
-          label="Escape formulae in data"
-          description="Recommended for datasets containing user provided data"
+          label={t(
+            'importExport.exportModal.escapeFormulae',
+            'Escape formulae in data'
+          )}
+          description={t(
+            'importExport.exportModal.escapeFormulaeDescription',
+            'Recommended for datasets containing user provided data'
+          )}
         ></Checkbox>
       </FormFieldContainer>
     </Accordion>
@@ -168,6 +178,7 @@ function ExportModal({
   backToSelectFieldOptions,
   backToSelectFieldsToExport,
 }: ExportModalProps) {
+  const t = useTranslation();
   // TODO: this state depends on redux store too much and should be part of
   // redux store and not UI
   const [
@@ -238,15 +249,18 @@ function ExportModal({
     fileBackend.openFileChooser({
       multi: false,
       mode: 'save',
-      title: 'Target output file',
+      title: t('importExport.exportModal.targetFile', 'Target output file'),
       defaultPath: `${ns}.${fileType}`,
-      buttonLabel: 'Select',
+      buttonLabel: t('importExport.exportModal.select', 'Select'),
       filters: [
         { name: fileType, extensions: [fileType] },
-        { name: 'All Files', extensions: ['*'] },
+        {
+          name: t('importExport.exportModal.allFiles', 'All Files'),
+          extensions: ['*'],
+        },
       ],
     });
-  }, [fileType, ns, onSelectExportFilePath]);
+  }, [fileType, ns, onSelectExportFilePath, t]);
 
   const onSelectExportFileNameEvent = useCallback(
     ({ detail: filePath }: CustomEventInit<string>) => {
@@ -282,8 +296,20 @@ function ExportModal({
   return (
     <Modal open={isOpen} setOpen={closeExport} data-testid="export-modal">
       <ModalHeader
-        title="Export"
-        subtitle={aggregation ? `Aggregation on ${ns}` : `Collection ${ns}`}
+        title={t('importExport.exportModal.title', 'Export')}
+        subtitle={
+          aggregation
+            ? t(
+                'importExport.exportModal.aggregationOn',
+                'Aggregation on {ns}',
+                {
+                  ns,
+                }
+              )
+            : t('importExport.exportModal.collection', 'Collection {ns}', {
+                ns,
+              })
+        }
       />
       <ModalBody className={modalBodyStyles}>
         {status === 'select-field-options' && (
@@ -303,15 +329,27 @@ function ExportModal({
                 <ExportCodeView />
                 {!aggregation && query && queryHasProjection(query) && (
                   <Banner data-testid="export-projection-banner">
-                    Only projected fields will be exported. To export all
-                    fields, go back and leave the <b>Project</b> field empty.
+                    {t(
+                      'importExport.exportModal.projectedOnly.prefix',
+                      'Only projected fields will be exported. To export all fields, go back and leave the '
+                    )}
+                    <b>
+                      {t(
+                        'importExport.exportModal.projectedOnly.project',
+                        'Project'
+                      )}
+                    </b>
+                    {t(
+                      'importExport.exportModal.projectedOnly.suffix',
+                      ' field empty.'
+                    )}
                   </Banner>
                 )}
               </>
             )}
             <SelectFileType
               fileType={fileType}
-              label="Export File Type"
+              label={t('importExport.exportModal.fileType', 'Export File Type')}
               onSelected={setFileType}
             />
             {fileType === 'csv' && (
@@ -322,13 +360,15 @@ function ExportModal({
                 ></AdvancedCSVFormat>
 
                 <Banner className={messageBannerStyles}>
-                  Exporting with CSV may lose type information and is not
-                  suitable for backing up your data.{' '}
+                  {t(
+                    'importExport.exportModal.csvWarning',
+                    'Exporting with CSV may lose type information and is not suitable for backing up your data.'
+                  )}{' '}
                   <Link
                     href="https://www.mongodb.com/docs/compass/current/import-export/#export-data-from-a-collection"
                     target="_blank"
                   >
-                    Learn more
+                    {t('importExport.exportModal.learnMore', 'Learn more')}
                   </Link>
                 </Banner>
               </>
@@ -341,7 +381,11 @@ function ExportModal({
             )}
             {exportFileError && (
               <Banner variant="danger" className={messageBannerStyles}>
-                Error creating output file: {exportFileError}
+                {t(
+                  'importExport.exportModal.fileError',
+                  'Error creating output file: {error}',
+                  { error: exportFileError }
+                )}
               </Banner>
             )}
           </>
@@ -353,7 +397,9 @@ function ExportModal({
           !aggregation &&
           !(query && queryHasProjection(query))) ||
           status === 'select-fields-to-export') && (
-          <Button onClick={onClickBack}>Back</Button>
+          <Button onClick={onClickBack}>
+            {t('importExport.exportModal.back', 'Back')}
+          </Button>
         )}
         {((status === 'ready-to-export' &&
           (aggregation ||
@@ -364,7 +410,7 @@ function ExportModal({
             data-testid="export-close-export-button"
             onClick={closeExport}
           >
-            Cancel
+            {t('importExport.exportModal.cancel', 'Cancel')}
           </Button>
         )}
         {status === 'select-field-options' && (
@@ -373,7 +419,7 @@ function ExportModal({
             onClick={onClickSelectFieldOptionsNext}
             variant="primary"
           >
-            Next
+            {t('importExport.exportModal.next', 'Next')}
           </Button>
         )}
         {status === 'select-fields-to-export' && (
@@ -383,7 +429,7 @@ function ExportModal({
             disabled={isFieldsToExportLoading}
             variant="primary"
           >
-            Next
+            {t('importExport.exportModal.next', 'Next')}
           </Button>
         )}
 
@@ -393,7 +439,7 @@ function ExportModal({
             onClick={onClickExport}
             variant="primary"
           >
-            Export…
+            {t('importExport.exportModal.export', 'Export…')}
           </Button>
         )}
       </ModalFooter>

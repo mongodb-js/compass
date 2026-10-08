@@ -1,5 +1,11 @@
 import React from 'react';
-import { css, Banner, spacing, Button } from '@mongodb-js/compass-components';
+import {
+  css,
+  Banner,
+  spacing,
+  Button,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
 import type { Field } from '../../modules/create-index';
@@ -41,6 +47,7 @@ function CreateIndexActions({
   fields: Field[];
 }) {
   const track = useTelemetry();
+  const t = useTranslation();
 
   const isCreateIndexButtonDisabled = !areAllFieldsFilledIn(fields);
 
@@ -70,7 +77,7 @@ function CreateIndexActions({
           });
         }}
       >
-        Cancel
+        {t('indexes.createIndexActions.cancel', 'Cancel')}
       </Button>
       <Button
         data-testid="create-index-actions-create-index-button"
@@ -79,7 +86,7 @@ function CreateIndexActions({
         className={createIndexButtonStyles}
         disabled={isCreateIndexButtonDisabled}
       >
-        Create Index
+        {t('indexes.createIndexActions.create', 'Create Index')}
       </Button>
     </div>
   );

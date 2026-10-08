@@ -1,4 +1,10 @@
-import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Code,
+  css,
+  spacing,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import React from 'react';
 import type { ShardKey } from '../store/reducer';
 
@@ -21,6 +27,7 @@ export function ShardKeyMarkup({
   showMetaData,
   type = 'existing',
 }: ShardKeyMarkupProps) {
+  const t = useTranslation();
   let markup = shardKey.fields
     .map(
       (field) =>
@@ -36,11 +43,19 @@ export function ShardKeyMarkup({
       <Body data-testid={`${type}-shardkey-description-title`}>
         {type === 'existing' ? (
           <>
-            <strong>{namespace}</strong> is configured with the following shard
-            key:
+            <strong>{namespace}</strong>{' '}
+            {t(
+              'globalWrites.shardKeyMarkup.configuredWith',
+              'is configured with the following shard key:'
+            )}
           </>
         ) : (
-          <>You requested to use the shard key:</>
+          <>
+            {t(
+              'globalWrites.shardKeyMarkup.requested',
+              'You requested to use the shard key:'
+            )}
+          </>
         )}
       </Body>
       <Code language="js" data-testid={`${type}-shardkey-description-content`}>

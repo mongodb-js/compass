@@ -6,6 +6,7 @@ import {
   css,
   cx,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { SearchIndex } from 'mongodb-data-service';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -44,25 +45,30 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   onEditIndex,
   onRunAggregateIndex,
 }) => {
+  const t = useTranslation();
   const indexActions: GroupedItemAction<SearchIndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<SearchIndexAction>[] = [
       {
         action: 'edit',
-        label: `Edit Index ${index.name}`,
-        tooltip: 'Edit Index',
+        label: t('indexes.searchActions.editIndex', 'Edit Index {name}', {
+          name: index.name,
+        }),
+        tooltip: t('indexes.searchActions.editIndexTooltip', 'Edit Index'),
         icon: 'Edit',
         isDisabled: !onEditIndex,
       },
       {
         action: 'drop',
-        label: `Drop Index ${index.name}`,
-        tooltip: 'Drop Index',
+        label: t('indexes.searchActions.dropIndex', 'Drop Index {name}', {
+          name: index.name,
+        }),
+        tooltip: t('indexes.searchActions.dropIndexTooltip', 'Drop Index'),
         icon: 'Trash',
       },
     ];
 
     return actions;
-  }, [index, onEditIndex]);
+  }, [index, onEditIndex, t]);
 
   const track = useTelemetry();
 
@@ -97,7 +103,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
           size="xsmall"
           onClick={() => onRunAggregateIndex(index.name)}
         >
-          Aggregate
+          {t('indexes.searchActions.aggregate', 'Aggregate')}
         </Button>
       )}
       <ItemActionGroup<SearchIndexAction>

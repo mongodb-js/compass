@@ -16,6 +16,7 @@ import {
   spacing,
   SpinLoader,
   Tooltip,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import semver from 'semver';
@@ -127,6 +128,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     enableAtlasSearchIndexes || enableSearchActivationProgramP1;
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
+  const t = useTranslation();
   // `readWrite` (Atlas "Project Data Access Read Write") normally hides index
   // editing, but a user with index-management permission (Atlas "Index
   // Manager" role) is still allowed to create indexes.
@@ -139,10 +141,15 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
-      <SpinLoader title="Refreshing Indexes" />
+      <SpinLoader
+        title={t('indexes.toolbar.refreshingIndexes', 'Refreshing Indexes')}
+      />
     </div>
   ) : (
-    <Icon glyph="Refresh" title="Refresh Indexes" />
+    <Icon
+      glyph="Refresh"
+      title={t('indexes.toolbar.refreshIndexes', 'Refresh Indexes')}
+    />
   );
 
   const showToolbarButtons = shouldShowIndexesToolbarButtons({
@@ -152,8 +159,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     isViewPipelineSearchQueryable,
     hasSearchIndexes,
   });
-  const pipelineNotSearchQueryableDescription =
-    'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
+  const pipelineNotSearchQueryableDescription = t(
+    'indexes.toolbar.pipelineNotSearchQueryable',
+    'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set'
+  );
 
   return (
     <div
@@ -198,7 +207,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
               size="small"
               leftGlyph={refreshButtonIcon}
             >
-              Refresh
+              {t('indexes.toolbar.refresh', 'Refresh')}
             </Button>
             {showAtlasSearchLink && atlasMetadata && (
               <Link
@@ -214,7 +223,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 hideExternalIcon
                 arrowAppearance="persist"
               >
-                Manage your search indexes
+                {t(
+                  'indexes.toolbar.manageSearchIndexes',
+                  'Manage your search indexes'
+                )}
               </Link>
             )}
             {!errorMessage && hasTooManyIndexes && (
@@ -228,7 +240,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 size="xsmall"
                 onChange={(evt) => onIndexViewChanged(evt as IndexView)}
                 className={alignSelfEndStyles}
-                label="Viewing"
+                label={t('indexes.toolbar.viewing', 'Viewing')}
                 value={indexView}
                 data-testid="indexes-segment-controls"
               >
@@ -244,11 +256,14 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                         value="regular-indexes"
                         disabled={isReadonlyView}
                       >
-                        Indexes
+                        {t('indexes.toolbar.indexes', 'Indexes')}
                       </SegmentedControlOption>
                     }
                   >
-                    Readonly views may not contain standard indexes.
+                    {t(
+                      'indexes.toolbar.readonlyViewsNoStandardIndexes',
+                      'Readonly views may not contain standard indexes.'
+                    )}
                   </Tooltip>
                 )}
                 {!isReadonlyView && (
@@ -256,7 +271,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     data-testid="regular-indexes-tab"
                     value="regular-indexes"
                   >
-                    Indexes
+                    {t('indexes.toolbar.indexes', 'Indexes')}
                   </SegmentedControlOption>
                 )}
                 {!isSearchIndexesSupported && !isReadonlyView && (
@@ -271,28 +286,30 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                         value="search-indexes"
                         disabled={true}
                       >
-                        Search Indexes
+                        {t('indexes.toolbar.searchIndexes', 'Search Indexes')}
                       </SegmentedControlOption>
                     }
                   >
                     {serverSupportsSearchIndexManagement(serverVersion) ? (
                       <p>
-                        Unable to fetch search indexes. This can occur when your
-                        cluster does not support search indexes or the request
-                        to list search indexes failed.
+                        {t(
+                          'indexes.toolbar.unableToFetchSearchIndexes',
+                          'Unable to fetch search indexes. This can occur when your cluster does not support search indexes or the request to list search indexes failed.'
+                        )}
                       </p>
                     ) : (
                       <>
                         <p>
-                          Atlas Search index management in Compass is only
-                          available for Atlas local deployments and clusters
-                          running MongoDB 6.0.7 or newer.
+                          {t(
+                            'indexes.toolbar.searchManagementRequirements',
+                            'Atlas Search index management in Compass is only available for Atlas local deployments and clusters running MongoDB 6.0.7 or newer.'
+                          )}
                         </p>
                         <p>
-                          For clusters running an earlier version of MongoDB,
-                          you can manage your Atlas Search indexes from the
-                          Atlas web Ul, with the CLI, or with the Administration
-                          API.
+                          {t(
+                            'indexes.toolbar.searchManagementEarlierVersions',
+                            'For clusters running an earlier version of MongoDB, you can manage your Atlas Search indexes from the Atlas web Ul, with the CLI, or with the Administration API.'
+                          )}
                         </p>
                       </>
                     )}
@@ -303,7 +320,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     data-testid="search-indexes-tab"
                     value="search-indexes"
                   >
-                    Search Indexes
+                    {t('indexes.toolbar.searchIndexes', 'Search Indexes')}
                   </SegmentedControlOption>
                 )}
               </SegmentedControl>
@@ -344,6 +361,7 @@ export const CreateIndexButton: React.FunctionComponent<
   isViewPipelineSearchQueryable,
 }) => {
   const track = useTelemetry();
+  const t = useTranslation();
 
   const onActionDispatch = useCallback(
     (action: CreateIndexActions) => {
@@ -371,7 +389,7 @@ export const CreateIndexButton: React.FunctionComponent<
           variant="primary"
           size="small"
         >
-          Create Search Index
+          {t('indexes.toolbar.createSearchIndex', 'Create Search Index')}
         </Button>
       );
     }
@@ -382,15 +400,21 @@ export const CreateIndexButton: React.FunctionComponent<
     return (
       <DropdownMenuButton
         data-testid="multiple-index-types-creation-dropdown"
-        buttonText="Create"
+        buttonText={t('indexes.toolbar.create', 'Create')}
         buttonProps={{
           size: 'small',
           variant: 'primary',
           disabled: !isWritable,
         }}
         actions={[
-          { action: 'createRegularIndex', label: 'Index' },
-          { action: 'createSearchIndex', label: 'Search Index' },
+          {
+            action: 'createRegularIndex',
+            label: t('indexes.toolbar.createMenuIndex', 'Index'),
+          },
+          {
+            action: 'createSearchIndex',
+            label: t('indexes.toolbar.createMenuSearchIndex', 'Search Index'),
+          },
         ]}
         onAction={onActionDispatch}
         hideOnNarrow={false}
@@ -406,7 +430,7 @@ export const CreateIndexButton: React.FunctionComponent<
       variant="primary"
       size="small"
     >
-      Create Index
+      {t('indexes.toolbar.createIndex', 'Create Index')}
     </Button>
   );
 };

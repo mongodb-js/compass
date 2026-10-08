@@ -14,6 +14,7 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type ImportPluginServices = {
   globalAppRegistry: AppRegistry;
@@ -21,6 +22,7 @@ export type ImportPluginServices = {
   logger: Logger;
   track: TrackFunction;
   connections: ConnectionsService;
+  preferences: PreferencesAccess;
 };
 
 export function configureStore(services: ImportPluginServices) {
@@ -60,6 +62,7 @@ export function activatePlugin(
     workspaces,
     logger,
     track,
+    preferences,
   }: ImportPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -69,6 +72,7 @@ export function activatePlugin(
     logger,
     track,
     connections,
+    preferences,
   });
 
   addCleanup(() => {

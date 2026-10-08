@@ -6,6 +6,7 @@ import {
   Link,
   spacing,
   Subtitle,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import type { ShardKey } from '../store/reducer';
@@ -34,6 +35,7 @@ export function ExampleCommandsMarkup({
   namespace,
   shardKey,
 }: ExampleCommandsMarkupProps) {
+  const t = useTranslation();
   const sampleCodes = useMemo(() => {
     const { collection, database } = toNS(namespace);
     const db = JSON.stringify(database);
@@ -47,27 +49,44 @@ export function ExampleCommandsMarkup({
 
   return (
     <>
-      <Subtitle>Example commands</Subtitle>
+      <Subtitle>
+        {t('globalWrites.exampleCommands.title', 'Example commands')}
+      </Subtitle>
       <div className={paragraphStyles}>
         <Body>
-          Start querying your database with some of the most{' '}
+          {t(
+            'globalWrites.exampleCommands.startQueryingPrefix',
+            'Start querying your database with some of the most'
+          )}{' '}
           <Link
             href="https://www.mongodb.com/docs/atlas/global-clusters"
             hideExternalIcon
           >
-            common commands
+            {t(
+              'globalWrites.exampleCommands.commonCommands',
+              'common commands'
+            )}
           </Link>{' '}
-          for Global Writes.
+          {t(
+            'globalWrites.exampleCommands.startQueryingSuffix',
+            'for Global Writes.'
+          )}
         </Body>
         <Body>
-          Replace the text to perform operations on different documents. US-NY
-          is an ISO 3166 location code referring to New York, United States. You
-          can look up other ISO 3166 location codes below.
+          {t(
+            'globalWrites.exampleCommands.replaceText',
+            'Replace the text to perform operations on different documents. US-NY is an ISO 3166 location code referring to New York, United States. You can look up other ISO 3166 location codes below.'
+          )}
         </Body>
       </div>
 
       <div className={codeBlockContainerStyles}>
-        <Label htmlFor="finding-documents">Finding documents</Label>
+        <Label htmlFor="finding-documents">
+          {t(
+            'globalWrites.exampleCommands.findingDocuments',
+            'Finding documents'
+          )}
+        </Label>
         <Code
           language="js"
           data-testid="sample-finding-documents"
@@ -78,7 +97,12 @@ export function ExampleCommandsMarkup({
       </div>
 
       <div className={codeBlockContainerStyles}>
-        <Label htmlFor="inserting-documents">Inserting documents</Label>
+        <Label htmlFor="inserting-documents">
+          {t(
+            'globalWrites.exampleCommands.insertingDocuments',
+            'Inserting documents'
+          )}
+        </Label>
         <Code
           language="js"
           data-testid="sample-inserting-documents"

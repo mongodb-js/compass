@@ -19,6 +19,8 @@ import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
+import { getTranslate } from '../utils/get-translate';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import { isAutoEmbedIndex } from '../utils/is-auto-embed-index';
 import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
 import {
@@ -26,11 +28,18 @@ import {
   ExperimentTestNames,
 } from '@mongodb-js/compass-telemetry/provider';
 
-const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
-  InvalidIndexSpecificationOption: 'Invalid index definition.',
-  IndexAlreadyExists:
-    'This index name is already in use. Please choose another one.',
-} as const;
+const getAtlasSearchServerErrors = (
+  t: TranslateFn
+): Record<string, string> => ({
+  InvalidIndexSpecificationOption: t(
+    'indexes.searchErrors.invalidDefinition',
+    'Invalid index definition.'
+  ),
+  IndexAlreadyExists: t(
+    'indexes.searchErrors.indexAlreadyExists',
+    'This index name is already in use. Please choose another one.'
+  ),
+});
 
 export const ActionTypes = {
   // Fetch indexes
@@ -550,23 +559,28 @@ export const createIndex = ({
   return async function (
     dispatch,
     getState,
-    { track, connectionInfoRef, dataService }
+    { track, connectionInfoRef, dataService, preferences }
   ) {
+    const t = getTranslate(preferences);
+    const serverErrors = getAtlasSearchServerErrors(t);
     const { namespace, searchIndexes } = getState();
 
     dispatch(createSearchIndexStarted());
 
     if (name === '') {
-      dispatch(createSearchIndexFailed('Please enter the name of the index.'));
+      dispatch(
+        createSearchIndexFailed(
+          t(
+            'indexes.createSearchIndex.nameRequired',
+            'Please enter the name of the index.'
+          )
+        )
+      );
       return;
     }
 
     if (searchIndexes.indexes.some((x) => x.name === name)) {
-      dispatch(
-        createSearchIndexFailed(
-          ATLAS_SEARCH_SERVER_ERRORS['IndexAlreadyExists']
-        )
-      );
+      dispatch(createSearchIndexFailed(serverErrors['IndexAlreadyExists']));
       return;
     }
 
@@ -583,9 +597,7 @@ export const createIndex = ({
     } catch (ex) {
       const error = (ex as Error).message;
 
-      dispatch(
-        createSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
-      );
+      dispatch(createSearchIndexFailed(serverErrors[error] || error));
       track(
         'Index Create Failed',
         {
@@ -608,7 +620,11 @@ export const createIndex = ({
     );
 
     openToast('search-index-creation-in-progress', {
-      title: `Your index ${name} is in progress.`,
+      title: t(
+        'indexes.createSearchIndex.inProgress',
+        'Your index {name} is in progress.',
+        { name }
+      ),
       dismissible: true,
       timeout: 5000,
       variant: 'progress',
@@ -636,8 +652,9 @@ export const updateIndex = ({
   return async function (
     dispatch,
     getState,
-    { track, connectionInfoRef, dataService }
+    { track, connectionInfoRef, dataService, preferences }
   ) {
+    const t = getTranslate(preferences);
     const {
       namespace,
       searchIndexes: { indexes },
@@ -663,7 +680,11 @@ export const updateIndex = ({
         connectionInfoRef.current
       );
       openToast('search-index-update-in-progress', {
-        title: `Your index ${name} is being updated.`,
+        title: t(
+          'indexes.updateSearchIndex.inProgress',
+          'Your index {name} is being updated.',
+          { name }
+        ),
         dismissible: true,
         timeout: 5000,
         variant: 'progress',
@@ -672,7 +693,7 @@ export const updateIndex = ({
     } catch (e) {
       const error = (e as Error).message;
       dispatch(
-        updateSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
+        updateSearchIndexFailed(getAtlasSearchServerErrors(t)[error] || error)
       );
       return;
     }
@@ -759,7 +780,8 @@ const fetchIndexes = (
             track('Search Index Status Details Link Clicked', {
               index_type: index.type ?? 'search',
             });
-          }
+          },
+          getTranslate(preferences)
         );
       }
     } catch (err) {
@@ -799,12 +821,6 @@ export const pollSearchIndexes = (): IndexesThunkAction<
 // its value. This enables to test dropSearchIndex action.
 export const showConfirmation = showConfirmationModal;
 
-const AUTO_EMBED_DROP_CONFIRMATION_DESCRIPTION =
-  'Dropping this index will permanently remove all generated vector embeddings associated with it. All queries that use this index will stop working. If you create a new index later, embeddings will be generated again and will use additional tokens.';
-
-const DEFAULT_DROP_CONFIRMATION_DESCRIPTION =
-  'If you drop this index, all queries using it will no longer function.';
-
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
@@ -813,6 +829,7 @@ export const dropSearchIndex = (
     getState,
     { track, connectionInfoRef, dataService, preferences }
   ) {
+    const t = getTranslate(preferences);
     const { namespace, searchIndexes } = getState();
     const { enableAutoEmbeddingPublicPreview } = preferences.getPreferences();
 
@@ -823,11 +840,21 @@ export const dropSearchIndex = (
       isAutoEmbedIndex(index);
 
     const description = useAutoEmbedDropCopy
-      ? AUTO_EMBED_DROP_CONFIRMATION_DESCRIPTION
-      : DEFAULT_DROP_CONFIRMATION_DESCRIPTION;
+      ? t(
+          'indexes.dropSearchIndex.autoEmbedDescription',
+          'Dropping this index will permanently remove all generated vector embeddings associated with it. All queries that use this index will stop working. If you create a new index later, embeddings will be generated again and will use additional tokens.'
+        )
+      : t(
+          'indexes.dropSearchIndex.description',
+          'If you drop this index, all queries using it will no longer function.'
+        );
     const isConfirmed = await showConfirmation({
-      title: `Are you sure you want to drop "${name}" from Cluster?`,
-      buttonText: 'Drop Index',
+      title: t(
+        'indexes.dropSearchIndex.title',
+        'Are you sure you want to drop "{name}" from Cluster?',
+        { name }
+      ),
+      buttonText: t('indexes.dropSearchIndex.button', 'Drop Index'),
       variant: 'danger',
       requiredInputText: name,
       description,
@@ -846,7 +873,11 @@ export const dropSearchIndex = (
         connectionInfoRef.current
       );
       openToast('search-index-delete-in-progress', {
-        title: `Your index ${name} is being deleted.`,
+        title: t(
+          'indexes.dropSearchIndex.inProgress',
+          'Your index {name} is being deleted.',
+          { name }
+        ),
         dismissible: true,
         timeout: 5000,
         variant: 'progress',
@@ -854,7 +885,7 @@ export const dropSearchIndex = (
       await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (e) {
       openToast('search-index-delete-failed', {
-        title: `Failed to drop index.`,
+        title: t('indexes.dropSearchIndex.failed', 'Failed to drop index.'),
         description: (e as Error).message,
         dismissible: true,
         timeout: 5000,

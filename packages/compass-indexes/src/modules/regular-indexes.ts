@@ -1,6 +1,7 @@
 import { isEqual, pick } from 'lodash';
 import type { IndexBuildProgress, IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
@@ -11,6 +12,7 @@ import type { FetchStatus } from '../utils/fetch-status';
 import { FetchReasons } from '../utils/fetch-reason';
 import type { FetchReason } from '../utils/fetch-reason';
 import { isAction } from '../utils/is-action';
+import { getTranslate } from '../utils/get-translate';
 import type { CreateIndexSpec } from './create-index';
 import type { IndexesThunkAction, RootState } from '.';
 import {
@@ -190,12 +192,15 @@ export const INITIAL_STATE: State = {
   error: undefined,
 };
 
-function processError(error: string): string {
+function processError(error: string, t: TranslateFn): string {
   const internalCodePattern = /[A-Z_]+:/; // Matches all caps with underscores followed by a colon anywhere in the string
   const httpCodePattern = /\b(4\d{2}|5\d{2})\b/; // Matches HTTP codes 400-599 anywhere in the string
 
   if (internalCodePattern.test(error) || httpCodePattern.test(error)) {
-    return "We're sorry, an unexpected error has occurred. Please try again.";
+    return t(
+      'indexes.regularIndexes.unexpectedError',
+      "We're sorry, an unexpected error has occurred. Please try again."
+    );
   }
 
   return error; // Return original error if it doesn't match the patterns
@@ -287,9 +292,7 @@ export default function reducer(
       // previous list of indexes is shown to the user.
       // If fetch fails for refresh or polling, set the status to READY again.
       error:
-        state.status === FetchStatuses.FETCHING
-          ? processError(action.error)
-          : state.error,
+        state.status === FetchStatuses.FETCHING ? action.error : state.error,
       status:
         state.status === FetchStatuses.FETCHING
           ? FetchStatuses.ERROR
@@ -488,7 +491,11 @@ const fetchIndexes = (
         });
       }
     } catch (err) {
-      dispatch(fetchIndexesFailed((err as Error).message));
+      dispatch(
+        fetchIndexesFailed(
+          processError((err as Error).message, getTranslate(preferences))
+        )
+      );
     }
   };
 };
@@ -691,8 +698,9 @@ export const dropIndex = (
   return async (
     dispatch,
     getState,
-    { connectionInfoRef, dataService, track }
+    { connectionInfoRef, dataService, track, preferences }
   ) => {
+    const t = getTranslate(preferences);
     const { namespace, regularIndexes } = getState();
     const { indexes } = regularIndexes;
 
@@ -706,10 +714,14 @@ export const dropIndex = (
       track('Screen', { name: 'drop_index_modal' }, connectionInfo);
       const confirmed = await showConfirmation({
         variant: 'danger',
-        title: 'Drop Index',
-        description: `Are you sure you want to drop index "${indexName}"?`,
+        title: t('indexes.dropIndex.title', 'Drop Index'),
+        description: t(
+          'indexes.dropIndex.description',
+          'Are you sure you want to drop index "{indexName}"?',
+          { indexName }
+        ),
         requiredInputText: indexName,
-        buttonText: 'Drop',
+        buttonText: t('indexes.dropIndex.button', 'Drop'),
         'data-testid': 'drop-index-modal',
       });
       if (!confirmed) {
@@ -719,14 +731,20 @@ export const dropIndex = (
       track('Index Dropped', { atlas_search: false }, connectionInfo);
       openToast('drop-index-success', {
         variant: 'success',
-        title: `Index "${indexName}" dropped`,
+        title: t('indexes.dropIndex.success', 'Index "{indexName}" dropped', {
+          indexName,
+        }),
         timeout: 3000,
       });
       await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (err) {
       openToast('drop-index-error', {
         variant: 'important',
-        title: `Failed to drop index "${indexName}"`,
+        title: t(
+          'indexes.dropIndex.failed',
+          'Failed to drop index "{indexName}"',
+          { indexName }
+        ),
         description: (err as Error).message,
         timeout: 3000,
       });
@@ -737,11 +755,14 @@ export const dropIndex = (
 export const hideIndex = (
   indexName: string
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, preferences }) => {
+    const t = getTranslate(preferences);
     const { namespace } = getState();
     const confirmed = await showConfirmation({
-      title: `Hiding \`${indexName}\``,
-      description: hideModalDescription(indexName),
+      title: t('indexes.hideIndex.title', 'Hiding `{indexName}`', {
+        indexName,
+      }),
+      description: hideModalDescription(indexName, t),
     });
 
     if (!confirmed) {
@@ -758,11 +779,13 @@ export const hideIndex = (
       await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (error) {
       openToast('hide-index-error', {
-        title: 'Failed to hide the index',
+        title: t('indexes.hideIndex.failed', 'Failed to hide the index'),
         variant: 'warning',
-        description: `An error occurred while hiding the index. ${
-          (error as Error).message
-        }`,
+        description: t(
+          'indexes.hideIndex.failedDescription',
+          'An error occurred while hiding the index. {message}',
+          { message: (error as Error).message }
+        ),
       });
     }
   };
@@ -771,11 +794,14 @@ export const hideIndex = (
 export const unhideIndex = (
   indexName: string
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, preferences }) => {
+    const t = getTranslate(preferences);
     const { namespace } = getState();
     const confirmed = await showConfirmation({
-      title: `Unhiding \`${indexName}\``,
-      description: unhideModalDescription(indexName),
+      title: t('indexes.unhideIndex.title', 'Unhiding `{indexName}`', {
+        indexName,
+      }),
+      description: unhideModalDescription(indexName, t),
     });
 
     if (!confirmed) {
@@ -792,11 +818,13 @@ export const unhideIndex = (
       await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (error) {
       openToast('unhide-index-error', {
-        title: 'Failed to unhide the index',
+        title: t('indexes.unhideIndex.failed', 'Failed to unhide the index'),
         variant: 'warning',
-        description: `An error occurred while unhiding the index. ${
-          (error as Error).message
-        }`,
+        description: t(
+          'indexes.unhideIndex.failedDescription',
+          'An error occurred while unhiding the index. {message}',
+          { message: (error as Error).message }
+        ),
       });
     }
   };

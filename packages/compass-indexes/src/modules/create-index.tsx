@@ -4,11 +4,12 @@ import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
 import React from 'react';
 import type { Action, Dispatch, Reducer } from 'redux';
-import { Badge, Link } from '@mongodb-js/compass-components';
+import { Badge, Link, Translated } from '@mongodb-js/compass-components';
 import { isAction } from '../utils/is-action';
-import type { IndexesThunkAction, RootState } from '.';
+import type { IndexesExtraArgs, IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
 import { parseShellBSON } from '../utils/parse-shell-bson';
+import { getTranslate } from '../utils/get-translate';
 
 export const ActionTypes = {
   FieldAdded: 'compass-indexes/create-index/fields/field-added',
@@ -106,7 +107,12 @@ const fieldsChanged = (fields: Field[]) => ({
 });
 
 export const updateFieldName = (idx: number, name: string) => {
-  return (dispatch: Dispatch, getState: () => RootState) => {
+  return (
+    dispatch: Dispatch,
+    getState: () => RootState,
+    { preferences }: Pick<IndexesExtraArgs, 'preferences'>
+  ) => {
+    const t = getTranslate(preferences);
     const state = getState();
     const fields: Field[] = [...state.createIndex.fields];
     if (idx >= 0 && idx < state.createIndex.fields.length) {
@@ -116,7 +122,11 @@ export const updateFieldName = (idx: number, name: string) => {
           (field: Field, eIdx: number) => field.name === name && eIdx !== idx
         )
       ) {
-        dispatch(errorEncountered('Index keys must be unique'));
+        dispatch(
+          errorEncountered(
+            t('indexes.createIndex.keysUnique', 'Index keys must be unique')
+          )
+        );
         return;
       }
       const field = { ...fields[idx] };
@@ -132,47 +142,91 @@ export const updateFieldName = (idx: number, name: string) => {
 export const OPTIONS = {
   unique: {
     type: 'checkbox',
-    label: 'Create unique index',
-    description:
-      'A unique index ensures that the indexed fields do not store duplicate values; i.e. enforces uniqueness for the indexed fields.',
+    label: (
+      <Translated id="indexes.createIndex.unique.label">
+        Create unique index
+      </Translated>
+    ),
+    description: (
+      <Translated id="indexes.createIndex.unique.description">
+        A unique index ensures that the indexed fields do not store duplicate
+        values; i.e. enforces uniqueness for the indexed fields.
+      </Translated>
+    ),
   },
   name: {
     type: 'text',
-    label: 'Index name',
-    description:
-      'Enter the name of the index to create, or leave blank to have MongoDB create a default name for the index.',
+    label: (
+      <Translated id="indexes.createIndex.name.label">Index name</Translated>
+    ),
+    description: (
+      <Translated id="indexes.createIndex.name.description">
+        Enter the name of the index to create, or leave blank to have MongoDB
+        create a default name for the index.
+      </Translated>
+    ),
     units: undefined,
     optional: true,
   },
   expireAfterSeconds: {
     type: 'number',
-    label: 'Create TTL',
-    description:
-      'TTL indexes are special single-field indexes that MongoDB can use to automatically remove documents from a collection after a certain amount of time or at a specific clock time.',
+    label: (
+      <Translated id="indexes.createIndex.ttl.label">Create TTL</Translated>
+    ),
+    description: (
+      <Translated id="indexes.createIndex.ttl.description">
+        TTL indexes are special single-field indexes that MongoDB can use to
+        automatically remove documents from a collection after a certain amount
+        of time or at a specific clock time.
+      </Translated>
+    ),
     units: 'seconds',
     optional: false,
   },
   partialFilterExpression: {
     type: 'code',
-    label: 'Partial Filter Expression',
-    description:
-      'Partial indexes only index the documents in a collection that meet a specified filter expression.',
+    label: (
+      <Translated id="indexes.createIndex.partial.label">
+        Partial Filter Expression
+      </Translated>
+    ),
+    description: (
+      <Translated id="indexes.createIndex.partial.description">
+        Partial indexes only index the documents in a collection that meet a
+        specified filter expression.
+      </Translated>
+    ),
     units: undefined,
     optional: false,
   },
   wildcardProjection: {
     type: 'code',
-    label: 'Wildcard Projection',
-    description:
-      'Wildcard indexes support queries against unknown or arbitrary fields.',
+    label: (
+      <Translated id="indexes.createIndex.wildcard.label">
+        Wildcard Projection
+      </Translated>
+    ),
+    description: (
+      <Translated id="indexes.createIndex.wildcard.description">
+        Wildcard indexes support queries against unknown or arbitrary fields.
+      </Translated>
+    ),
     units: undefined,
     optional: false,
   },
   collation: {
     type: 'code',
-    label: 'Use Custom Collation',
-    description:
-      'Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks.',
+    label: (
+      <Translated id="indexes.createIndex.collation.label">
+        Use Custom Collation
+      </Translated>
+    ),
+    description: (
+      <Translated id="indexes.createIndex.collation.description">
+        Collation allows users to specify language-specific rules for string
+        comparison, such as rules for lettercase and accent marks.
+      </Translated>
+    ),
     units: undefined,
     optional: false,
   },
@@ -180,30 +234,58 @@ export const OPTIONS = {
     type: 'code',
     label: (
       <>
-        Columnstore Projection&nbsp;<Badge>Preview</Badge>
+        <Translated id="indexes.createIndex.columnstore.label">
+          Columnstore Projection
+        </Translated>
+        &nbsp;
+        <Badge>
+          <Translated id="indexes.createIndex.columnstore.preview">
+            Preview
+          </Translated>
+        </Badge>
       </>
     ),
-    description:
-      'Columnstore indexes support queries against unknown or arbitrary fields.',
+    description: (
+      <Translated id="indexes.createIndex.columnstore.description">
+        Columnstore indexes support queries against unknown or arbitrary fields.
+      </Translated>
+    ),
     units: undefined,
     optional: false,
   },
   sparse: {
     type: 'checkbox',
-    label: 'Create sparse index',
-    description:
-      'Sparse indexes only contain entries for documents that have the indexed field, even if the index field contains a null value. The index skips over any document that is missing the indexed field.',
+    label: (
+      <Translated id="indexes.createIndex.sparse.label">
+        Create sparse index
+      </Translated>
+    ),
+    description: (
+      <Translated id="indexes.createIndex.sparse.description">
+        Sparse indexes only contain entries for documents that have the indexed
+        field, even if the index field contains a null value. The index skips
+        over any document that is missing the indexed field.
+      </Translated>
+    ),
   },
   buildInRollingProcess: {
     type: 'checkbox',
-    label: 'Build in rolling process',
+    label: (
+      <Translated id="indexes.createIndex.rolling.label">
+        Build in rolling process
+      </Translated>
+    ),
     description: (
       <>
-        Building an index in a rolling fashion reduces the resiliency of your
-        cluster and increases index build times. We only recommend using rolling
-        index builds when regular index builds do not meet your needs.{' '}
+        <Translated id="indexes.createIndex.rolling.description">
+          Building an index in a rolling fashion reduces the resiliency of your
+          cluster and increases index build times. We only recommend using
+          rolling index builds when regular index builds do not meet your needs.
+        </Translated>{' '}
         <Link href="https://www.mongodb.com/docs/manual/core/rolling-index-builds/">
-          Learn More
+          <Translated id="indexes.createIndex.rolling.learnMore">
+            Learn More
+          </Translated>
         </Link>
       </>
     ),
@@ -364,7 +446,8 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
   void,
   ErrorEncounteredAction | CreateIndexFormSubmittedAction
 > => {
-  return (dispatch, getState, { track }) => {
+  return (dispatch, getState, { track, preferences }) => {
+    const t = getTranslate(preferences);
     track('Create Index Button Clicked', {
       context: 'Create Index Modal',
     });
@@ -392,7 +475,14 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
       isCollationValid(formIndexOptions.collation.value ?? '') || undefined;
 
     if (formIndexOptions.collation.enabled && !collation) {
-      dispatch(errorEncountered('You must provide a valid collation object'));
+      dispatch(
+        errorEncountered(
+          t(
+            'indexes.createIndex.invalidCollation',
+            'You must provide a valid collation object'
+          )
+        )
+      );
       return;
     }
 
@@ -420,7 +510,9 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
       if (isNaN(options.expireAfterSeconds)) {
         dispatch(
           errorEncountered(
-            `Bad TTL: "${String(formIndexOptions.expireAfterSeconds.value)}"`
+            t('indexes.createIndex.badTtl', 'Bad TTL: "{value}"', {
+              value: String(formIndexOptions.expireAfterSeconds.value),
+            })
           )
         );
         return;
@@ -430,10 +522,19 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     if (formIndexOptions.wildcardProjection.enabled) {
       try {
         options.wildcardProjection = parseShellBSON(
-          formIndexOptions.wildcardProjection.value ?? ''
+          formIndexOptions.wildcardProjection.value ?? '',
+          t
         );
       } catch (err) {
-        dispatch(errorEncountered(`Bad WildcardProjection: ${String(err)}`));
+        dispatch(
+          errorEncountered(
+            t(
+              'indexes.createIndex.badWildcardProjection',
+              'Bad WildcardProjection: {error}',
+              { error: String(err) }
+            )
+          )
+        );
         return;
       }
     }
@@ -442,10 +543,19 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
       try {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
         options.columnstoreProjection = parseShellBSON(
-          formIndexOptions.columnstoreProjection.value ?? ''
+          formIndexOptions.columnstoreProjection.value ?? '',
+          t
         );
       } catch (err) {
-        dispatch(errorEncountered(`Bad ColumnstoreProjection: ${String(err)}`));
+        dispatch(
+          errorEncountered(
+            t(
+              'indexes.createIndex.badColumnstoreProjection',
+              'Bad ColumnstoreProjection: {error}',
+              { error: String(err) }
+            )
+          )
+        );
         return;
       }
     }
@@ -453,11 +563,18 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     if (formIndexOptions.partialFilterExpression.enabled) {
       try {
         options.partialFilterExpression = parseShellBSON(
-          formIndexOptions.partialFilterExpression.value ?? ''
+          formIndexOptions.partialFilterExpression.value ?? '',
+          t
         );
       } catch (err) {
         dispatch(
-          errorEncountered(`Bad PartialFilterExpression: ${String(err)}`)
+          errorEncountered(
+            t(
+              'indexes.createIndex.badPartialFilterExpression',
+              'Bad PartialFilterExpression: {error}',
+              { error: String(err) }
+            )
+          )
         );
         return;
       }

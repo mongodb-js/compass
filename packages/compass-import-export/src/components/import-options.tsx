@@ -8,6 +8,7 @@ import {
   Option,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { AcceptedFileType } from '../constants/file-types';
@@ -44,22 +45,27 @@ const checkboxStyles = css({
 
 const delimiters: {
   value: Delimiter;
+  key: string;
   label: string;
 }[] = [
   {
     value: ',',
+    key: 'importExport.options.comma',
     label: 'Comma',
   },
   {
     value: '\t',
+    key: 'importExport.options.tab',
     label: 'Tab',
   },
   {
     value: ';',
+    key: 'importExport.options.semicolon',
     label: 'Semicolon',
   },
   {
     value: ' ',
+    key: 'importExport.options.space',
     label: 'Space',
   },
 ];
@@ -87,6 +93,7 @@ function ImportOptions({
   ignoreBlanks,
   setIgnoreBlanks,
 }: ImportOptionsProps) {
+  const t = useTranslation();
   const handleOnSubmit = useCallback(
     (evt: React.FormEvent<HTMLFormElement>) => {
       evt.preventDefault();
@@ -104,7 +111,7 @@ function ImportOptions({
         selectImportFileName={selectImportFileName}
       />
       <Body as="h3" className={optionsHeadingStyles}>
-        Options
+        {t('importExport.options.heading', 'Options')}
       </Body>
       {isCSV && (
         <>
@@ -114,13 +121,13 @@ function ImportOptions({
               htmlFor="import-delimiter-select"
               className={inlineLabelStyles}
             >
-              Select delimiter
+              {t('importExport.options.selectDelimiter', 'Select delimiter')}
             </Label>
             <Select
               className={delimiterSelectStyles}
               id="import-delimiter-select"
               aria-labelledby="import-delimiter-label"
-              aria-label="Delimiter"
+              aria-label={t('importExport.options.delimiter', 'Delimiter')}
               data-testid="import-delimiter-select"
               onChange={(delimiter: string) =>
                 void setDelimiter(delimiter as Delimiter)
@@ -129,9 +136,9 @@ function ImportOptions({
               allowDeselect={false}
               size="small"
             >
-              {delimiters.map(({ value, label }) => (
+              {delimiters.map(({ value, key, label }) => (
                 <Option key={value} value={value}>
-                  {label}
+                  {t(key, label)}
                 </Option>
               ))}
             </Select>
@@ -142,7 +149,10 @@ function ImportOptions({
             onChange={() => {
               setIgnoreBlanks(!ignoreBlanks);
             }}
-            label="Ignore empty strings"
+            label={t(
+              'importExport.options.ignoreEmptyStrings',
+              'Ignore empty strings'
+            )}
           />
         </>
       )}
@@ -153,7 +163,7 @@ function ImportOptions({
         onChange={() => {
           setStopOnErrors(!stopOnErrors);
         }}
-        label="Stop on errors"
+        label={t('importExport.options.stopOnErrors', 'Stop on errors')}
       />
     </form>
   );

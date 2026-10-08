@@ -7,6 +7,7 @@ import {
   EmptyContent,
   Link,
   Tooltip,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { isReadyStatus } from '../../utils/fetch-status';
@@ -62,14 +63,18 @@ function ZeroState({
   isViewPipelineSearchQueryable: boolean;
 }) {
   const track = useTelemetry();
+  const t = useTranslation();
   const isViewAndPipelineSearchNonQueryable =
     isReadonlyView && !isViewPipelineSearchQueryable;
 
   return (
     <EmptyContent
       icon={ZeroRegularIndexesGraphic}
-      title="No search indexes yet"
-      subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
+      title={t('indexes.searchTable.noIndexes', 'No search indexes yet')}
+      subTitle={t(
+        'indexes.searchTable.zeroStateSubtitle',
+        'Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features.'
+      )}
       callToAction={
         <Tooltip
           enabled={isViewAndPipelineSearchNonQueryable}
@@ -91,22 +96,31 @@ function ZeroState({
               // TODO(COMPASS-10353): disable for other non-writable cases as well
               disabled={isViewAndPipelineSearchNonQueryable}
             >
-              Create Atlas Search Index
+              {t(
+                'indexes.searchTable.createAtlasSearchIndex',
+                'Create Atlas Search Index'
+              )}
             </Button>
           }
         >
-          Search indexes can only be created on views containing $match stages
-          with the $expr operator, $addFields, or $set.
+          {t(
+            'indexes.searchTable.viewTooltip',
+            'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set.'
+          )}
         </Tooltip>
       }
       callToActionLink={
         <span>
-          Not sure where to start?&nbsp;
+          {t(
+            'indexes.searchTable.notSureWhereToStart',
+            'Not sure where to start?'
+          )}
+          &nbsp;
           <Link
             href="https://www.mongodb.com/docs/atlas/atlas-search/"
             target="_blank"
           >
-            Visit our Docs
+            {t('indexes.searchTable.visitDocs', 'Visit our Docs')}
           </Link>
         </span>
       }

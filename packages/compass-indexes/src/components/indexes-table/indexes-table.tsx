@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   css,
   cx,
@@ -14,6 +14,7 @@ import {
   palette,
   flexRender,
   useLeafyGreenTable,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type {
   LGColumnDef,
@@ -24,6 +25,7 @@ import type {
 } from '@mongodb-js/compass-components';
 import { useDarkMode } from '@mongodb-js/compass-components';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
+import { translateColumnHeaders } from '../../utils/translated-header';
 
 const tableWrapperStyles = css({
   width: '100%',
@@ -130,10 +132,15 @@ export function IndexesTable<T extends { id: string }>({
     },
     [onExpandedChange]
   );
+  const t = useTranslation();
+  const translatedColumns = useMemo(
+    () => translateColumnHeaders(columns, t),
+    [columns, t]
+  );
   const table = useLeafyGreenTable<T>({
     data,
     getRowId: (row) => row.id,
-    columns,
+    columns: translatedColumns,
     enableSortingRemoval: false,
     withPagination: false,
     state: { sorting, expanded },

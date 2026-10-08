@@ -8,6 +8,7 @@ import {
   Tooltip,
   compactBytes,
   compactNumber,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -101,15 +102,21 @@ const TabTitle = ({
 
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
 
+  const t = useTranslation();
+
   const details = [
-    `Indexes: ${indexCount}`,
-    `Total Size: ${totalIndexSize}`,
-    `Avg. Size: ${avgIndexSize}`,
+    t('indexes.tabTitle.count', 'Indexes: {value}', { value: indexCount }),
+    t('indexes.tabTitle.totalSize', 'Total Size: {value}', {
+      value: totalIndexSize,
+    }),
+    t('indexes.tabTitle.avgSize', 'Avg. Size: {value}', {
+      value: avgIndexSize,
+    }),
   ];
 
   return (
     <div data-testid="indexes-tab-title" className={containerStyles}>
-      Indexes
+      {t('indexes.tabTitle.title', 'Indexes')}
       {enableDbAndCollStats && (
         <CollectionStats text={indexCount} details={details} />
       )}

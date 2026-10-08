@@ -1,4 +1,4 @@
-import { Banner, Link } from '@mongodb-js/compass-components';
+import { Banner, Link, useTranslation } from '@mongodb-js/compass-components';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
@@ -10,6 +10,7 @@ type ViewSearchIncompatibleBannerProps = {
 const ViewPipelineIncompatibleBanner = ({
   hasNoSearchIndexes,
 }: ViewSearchIncompatibleBannerProps) => {
+  const t = useTranslation();
   return (
     <Banner
       variant={hasNoSearchIndexes ? 'warning' : 'danger'}
@@ -17,18 +18,29 @@ const ViewPipelineIncompatibleBanner = ({
     >
       {hasNoSearchIndexes && (
         <>
-          <b>Looking for search indexes?</b> <br />
+          <b>
+            {t(
+              'indexes.viewBanner.lookingForSearch',
+              'Looking for search indexes?'
+            )}
+          </b>{' '}
+          <br />
         </>
       )}
-      This view is incompatible with search indexes. Only views containing
-      $match stages with the $expr operator, $addFields, or $set are compatible
-      with search indexes.{' '}
-      {!hasNoSearchIndexes && 'Edit the view to rebuild search indexes.'}{' '}
+      {t(
+        'indexes.viewBanner.pipelineIncompatible',
+        'This view is incompatible with search indexes. Only views containing $match stages with the $expr operator, $addFields, or $set are compatible with search indexes.'
+      )}{' '}
+      {!hasNoSearchIndexes &&
+        t(
+          'indexes.viewBanner.editView',
+          'Edit the view to rebuild search indexes.'
+        )}{' '}
       <Link
         href={'https://www.mongodb.com/docs/atlas/atlas-search/view-support/'}
         hideExternalIcon
       >
-        Learn more.
+        {t('indexes.viewBanner.learnMore', 'Learn more.')}
       </Link>
     </Banner>
   );

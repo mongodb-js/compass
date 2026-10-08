@@ -5,6 +5,7 @@ import {
   Modal,
   ModalFooter,
   ModalHeader,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { closeInProgressMessage } from '../modules/import';
@@ -19,6 +20,7 @@ function ImportInProgressModal({
   closeInProgressMessage,
   isInProgressMessageOpen,
 }: ImportInProgressModalProps) {
+  const t = useTranslation();
   return (
     <Modal
       open={isInProgressMessageOpen}
@@ -26,11 +28,19 @@ function ImportInProgressModal({
       data-testid="import-modal"
     >
       <ModalHeader
-        title="Sorry, currently only one import operation is possible at a time"
-        subtitle="Import is disabled as there is an import already in progress."
+        title={t(
+          'importExport.importInProgress.title',
+          'Sorry, currently only one import operation is possible at a time'
+        )}
+        subtitle={t(
+          'importExport.importInProgress.subtitle',
+          'Import is disabled as there is an import already in progress.'
+        )}
       />
       <ModalFooter>
-        <Button onClick={closeInProgressMessage}>Cancel</Button>
+        <Button onClick={closeInProgressMessage}>
+          {t('importExport.inProgress.cancel', 'Cancel')}
+        </Button>
       </ModalFooter>
     </Modal>
   );

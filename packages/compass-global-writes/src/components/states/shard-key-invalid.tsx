@@ -3,6 +3,7 @@ import {
   BannerVariant,
   spacing,
   css,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
@@ -22,16 +23,20 @@ export interface ShardKeyInvalidProps {
 }
 
 export function ShardKeyInvalid({ shardKey, namespace }: ShardKeyInvalidProps) {
+  const t = useTranslation();
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Danger} className={bannerStyles}>
         <strong>
-          To configure Global Writes, the first shard key of this collection
-          must be &quot;location&quot; with ranged sharding and you must also
-          specify a second shard key.
+          {t(
+            'globalWrites.shardKeyInvalid.requirement',
+            'To configure Global Writes, the first shard key of this collection must be "location" with ranged sharding and you must also specify a second shard key.'
+          )}
         </strong>{' '}
-        Please migrate the data in this collection to a new collection and
-        reshard it using a valid compound shard key.
+        {t(
+          'globalWrites.shardKeyInvalid.migrate',
+          'Please migrate the data in this collection to a new collection and reshard it using a valid compound shard key.'
+        )}
       </Banner>
       <ShardKeyMarkup
         namespace={namespace}
@@ -39,8 +44,10 @@ export function ShardKeyInvalid({ shardKey, namespace }: ShardKeyInvalidProps) {
         showMetaData={true}
       />
       <div className={paragraphStyles}>
-        Documents in this collection will be distributed across your shards
-        without being mapped to specific zones.
+        {t(
+          'globalWrites.shardKeyInvalid.distribution',
+          'Documents in this collection will be distributed across your shards without being mapped to specific zones.'
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import {
   Button,
   ButtonVariant,
   SpinLoader,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import {
@@ -37,6 +38,7 @@ export function ShardKeyCorrect({
   isUnmanagingNamespace,
   onUnmanageNamespace,
 }: ShardKeyCorrectProps) {
+  const t = useTranslation();
   const customShardKeyField = useMemo(() => {
     return shardKey.fields[1].name;
   }, [shardKey]);
@@ -45,21 +47,34 @@ export function ShardKeyCorrect({
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Info} className={bannerStyles}>
         <strong>
-          All documents in your collection should contain both the ‘location’
-          field (with a ISO country or subdivision code) and your{' '}
-          {customShardKeyField} field at insert time.
+          {t(
+            'globalWrites.shardKeyCorrect.documentsShouldContain',
+            'All documents in your collection should contain both the ‘location’ field (with a ISO country or subdivision code) and your {field} field at insert time.',
+            { field: customShardKeyField }
+          )}
         </strong>
-        {nbsp}We have included a table for reference below.
+        {nbsp}
+        {t(
+          'globalWrites.shardKeyCorrect.tableIncluded',
+          'We have included a table for reference below.'
+        )}
       </Banner>
       <ShardKeyMarkup namespace={namespace} shardKey={shardKey} />
       <ExampleCommandsMarkup namespace={namespace} shardKey={shardKey} />
 
       <ShardZonesTable shardZones={shardZones} />
 
-      <Subtitle>Unmanage this collection</Subtitle>
+      <Subtitle>
+        {t(
+          'globalWrites.shardKeyCorrect.unmanageTitle',
+          'Unmanage this collection'
+        )}
+      </Subtitle>
       <Body>
-        Documents belonging to this collection will no longer be distributed
-        across the shards of your global clusters.
+        {t(
+          'globalWrites.shardKeyCorrect.unmanageDescription',
+          'Documents belonging to this collection will no longer be distributed across the shards of your global clusters.'
+        )}
       </Body>
       <div>
         <Button
@@ -69,7 +84,10 @@ export function ShardKeyCorrect({
           isLoading={isUnmanagingNamespace}
           loadingIndicator={<SpinLoader />}
         >
-          Unmanage collection
+          {t(
+            'globalWrites.shardKeyCorrect.unmanageButton',
+            'Unmanage collection'
+          )}
         </Button>
       </div>
     </div>

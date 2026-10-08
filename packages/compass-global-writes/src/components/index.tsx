@@ -6,6 +6,7 @@ import {
   WorkspaceContainer,
   SpinLoaderWithLabel,
   ConfirmationModalArea,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { RootState, ShardingStatus } from '../store/reducer';
 import { ShardingStatuses } from '../store/reducer';
@@ -80,10 +81,13 @@ function ShardingStateView({
 }
 
 export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
+  const t = useTranslation();
   if (shardingStatus === ShardingStatuses.NOT_READY) {
     return (
       <div className={loaderStyles} data-status={shardingStatus.toLowerCase()}>
-        <SpinLoaderWithLabel progressText="Loading …" />
+        <SpinLoaderWithLabel
+          progressText={t('globalWrites.loading', 'Loading …')}
+        />
       </div>
     );
   }

@@ -6,6 +6,7 @@ import {
   Link,
   showConfirmation,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { connect } from 'react-redux';
@@ -50,6 +51,7 @@ const Drawer = ({
   openIndexesListDrawerView,
 }: DrawerProps) => {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const t = useTranslation();
 
   const beforeSectionHide = useCallback(async () => {
     if (!isDirty) {
@@ -57,12 +59,18 @@ const Drawer = ({
     }
 
     return await showConfirmation({
-      title: 'Any unsaved progress will be lost',
-      buttonText: 'Discard',
+      title: t(
+        'indexes.drawer.discardTitle',
+        'Any unsaved progress will be lost'
+      ),
+      buttonText: t('indexes.drawer.discard', 'Discard'),
       variant: 'danger',
-      description: 'Are you sure you want to continue?',
+      description: t(
+        'indexes.drawer.discardDescription',
+        'Are you sure you want to continue?'
+      ),
     });
-  }, [isDirty]);
+  }, [isDirty, t]);
 
   if (!enableSearchActivationProgramP1) {
     return null;
@@ -76,13 +84,13 @@ const Drawer = ({
         }
         title={
           currentView === 'indexes-list' ? (
-            'Indexes'
+            t('indexes.drawer.title', 'Indexes')
           ) : (
             <div className={indexesTitleLinkStyles}>
               <Link onClick={openIndexesListDrawerView}>
                 <div className={indexesTitleLinkContentStyles}>
                   <Icon glyph="ArrowLeft" />
-                  Back to All Indexes
+                  {t('indexes.drawer.backToAll', 'Back to All Indexes')}
                 </div>
               </Link>
             </div>
@@ -90,17 +98,26 @@ const Drawer = ({
         }
         label={
           subTab === 'Indexes'
-            ? 'You are already on the indexes page'
-            : 'Indexes'
+            ? t(
+                'indexes.drawer.alreadyOnIndexes',
+                'You are already on the indexes page'
+              )
+            : t('indexes.drawer.title', 'Indexes')
         }
         glyph="SearchIndex"
         disabled={subTab === 'Indexes'}
         beforeSectionHide={beforeSectionHide}
         guideCue={{
           cueId: 'indexes-drawer',
-          title: 'Easily access all your search indexes',
-          description: 'Click to view and manage search indexes.',
-          buttonText: 'Got it',
+          title: t(
+            'indexes.drawer.guideCueTitle',
+            'Easily access all your search indexes'
+          ),
+          description: t(
+            'indexes.drawer.guideCueDescription',
+            'Click to view and manage search indexes.'
+          ),
+          buttonText: t('indexes.drawer.guideCueButton', 'Got it'),
           tooltipAlign: 'left',
           tooltipJustify: 'start',
         }}

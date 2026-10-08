@@ -124,6 +124,7 @@ export async function doImport(
     progressCallback,
     errorCallback,
     stopOnErrors,
+    translate,
   }: ImportOptions
 ): Promise<ImportResult> {
   const byteCounter = new ByteCounter();
@@ -132,7 +133,12 @@ export async function doImport(
 
   const docStatsCollector = new DocStatsCollector();
 
-  const importWriter = new ImportWriter(dataService, ns, stopOnErrors);
+  const importWriter = new ImportWriter(
+    dataService,
+    ns,
+    stopOnErrors,
+    translate
+  );
 
   let numProcessed = 0;
   let numParseErrors = 0;

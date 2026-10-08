@@ -1,5 +1,11 @@
 import React, { useMemo } from 'react';
-import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Accordion,
+  Body,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { Field } from '../../modules/create-index';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { CreateIndexFields } from '../create-index-fields';
@@ -54,6 +60,7 @@ function CreateIndexForm({
     rollingIndexesFeatureEnabled && supportsRollingIndexes;
 
   const track = useTelemetry();
+  const t = useTranslation();
 
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
@@ -67,7 +74,7 @@ function CreateIndexForm({
         data-testid="create-index-form"
       >
         <Body weight="medium" className={indexFieldsHeaderStyles}>
-          Index fields
+          {t('indexes.createIndexForm.indexFields', 'Index fields')}
         </Body>
 
         {fields.length > 0 ? (
@@ -86,7 +93,7 @@ function CreateIndexForm({
 
       <Accordion
         data-testid="create-index-modal-toggle-options"
-        text={'Options'}
+        text={t('indexes.createIndexForm.options', 'Options')}
         setOpen={() => {
           track('Options Clicked', {
             context: 'Create Index Modal',

@@ -21,6 +21,7 @@ import {
   spacing,
   SpinLoader,
   useDrawerActions,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { createIndexOpened } from '../../modules/create-index';
 import { FetchStatuses } from '../../utils/fetch-status';
@@ -93,6 +94,7 @@ const IndexesListDrawerView: React.FunctionComponent<
   const { openDrawer } = useDrawerActions();
 
   const track = useTelemetry();
+  const t = useTranslation();
   const connectionInfoRef = useConnectionInfoRef();
 
   useEffect(() => {
@@ -182,10 +184,15 @@ const IndexesListDrawerView: React.FunctionComponent<
 
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
-      <SpinLoader title="Refreshing Indexes" />
+      <SpinLoader
+        title={t('indexes.listDrawer.refreshingIndexes', 'Refreshing Indexes')}
+      />
     </div>
   ) : (
-    <Icon glyph="Refresh" title="Refresh Indexes" />
+    <Icon
+      glyph="Refresh"
+      title={t('indexes.listDrawer.refreshIndexes', 'Refresh Indexes')}
+    />
   );
 
   return (
@@ -206,10 +213,10 @@ const IndexesListDrawerView: React.FunctionComponent<
           size="xsmall"
           leftGlyph={refreshButtonIcon}
         >
-          Refresh
+          {t('indexes.listDrawer.refresh', 'Refresh')}
         </Button>
         <DropdownMenuButton
-          buttonText="Create new"
+          buttonText={t('indexes.listDrawer.createNew', 'Create new')}
           buttonProps={{
             size: 'xsmall',
             variant: 'primary',
@@ -218,17 +225,20 @@ const IndexesListDrawerView: React.FunctionComponent<
           actions={[
             {
               action: 'createRegularIndex',
-              label: 'Standard Index',
+              label: t('indexes.listDrawer.standardIndex', 'Standard Index'),
               isDisabled: !isRegularIndexesWritable,
             },
             {
               action: 'createSearchIndex',
-              label: 'Search Index',
+              label: t('indexes.listDrawer.searchIndex', 'Search Index'),
               isDisabled: !isSearchIndexesWritable,
             },
             {
               action: 'createVectorSearchIndex',
-              label: 'Vector Search Index',
+              label: t(
+                'indexes.listDrawer.vectorSearchIndex',
+                'Vector Search Index'
+              ),
               isDisabled: !isSearchIndexesWritable,
             },
           ]}
@@ -236,14 +246,17 @@ const IndexesListDrawerView: React.FunctionComponent<
         />
       </div>
       <SearchInput
-        aria-label="Indexes search"
-        placeholder="Find by index name"
+        aria-label={t('indexes.listDrawer.searchAriaLabel', 'Indexes search')}
+        placeholder={t(
+          'indexes.listDrawer.searchPlaceholder',
+          'Find by index name'
+        )}
         size="small"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <Accordion
-        text="Standard"
+        text={t('indexes.listDrawer.standard', 'Standard')}
         open={isRegularIndexesAccordionOpen}
         setOpen={onRegularIndexesAccordionOpen}
       >
@@ -255,7 +268,10 @@ const IndexesListDrawerView: React.FunctionComponent<
           />
         )}
       </Accordion>
-      <Accordion text="Search" defaultOpen={true}>
+      <Accordion
+        text={t('indexes.listDrawer.search', 'Search')}
+        defaultOpen={true}
+      >
         {getSearchIndexesBanner()}
         {isSearchIndexesReadable && (
           <SearchIndexesDrawerTable searchTerm={searchTerm} />

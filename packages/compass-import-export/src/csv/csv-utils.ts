@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import assert from 'assert';
 import type { Document } from 'bson';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { englishTranslate } from '../utils/translate';
 import {
   Double,
   Int32,
@@ -380,7 +382,8 @@ export function makeDocFromCSV(
   header: string[],
   parsedHeader: Record<string, PathPart[]>,
   included: IncludedFields,
-  { ignoreEmptyStrings }: { ignoreEmptyStrings?: boolean }
+  { ignoreEmptyStrings }: { ignoreEmptyStrings?: boolean },
+  t: TranslateFn = englishTranslate
 ): Document {
   const doc: Document = Object.create(null);
 
@@ -427,7 +430,11 @@ export function makeDocFromCSV(
       );
       if (!['int', 'long', 'double'].includes(type)) {
         throw new Error(
-          `"${original}" is not a number (found "${type}") [Col ${index}]`
+          t(
+            'importExport.csv.notNumberFound',
+            '"{value}" is not a number (found "{type}") [Col {index}]',
+            { value: original, type, index }
+          )
         );
       }
     }
@@ -435,12 +442,16 @@ export function makeDocFromCSV(
     const path = parsedHeader[name];
 
     try {
-      const value = parseCSVValue(original, type);
+      const value = parseCSVValue(original, type, t);
 
       placeValue(doc, path, value, true);
     } catch (err: unknown) {
       // rethrow with the column index appended to aid debugging
-      (err as Error).message = `${(err as Error).message} [Col ${index}]`;
+      (err as Error).message = `${(err as Error).message} ${t(
+        'importExport.csv.column',
+        '[Col {index}]',
+        { index }
+      )}`;
       throw err;
     }
   }
@@ -450,11 +461,14 @@ export function makeDocFromCSV(
 
 export function parseCSVValue(
   value: string,
-  type: CSVParsableFieldType
+  type: CSVParsableFieldType,
+  t: TranslateFn = englishTranslate
 ): CSVValue {
   if (type === 'int') {
     if (isNaN(+value)) {
-      throw new Error(`"${value}" is not a number`);
+      throw new Error(
+        t('importExport.csv.notNumber', '"{value}" is not a number', { value })
+      );
     }
 
     return new Int32(value);
@@ -462,7 +476,9 @@ export function parseCSVValue(
 
   if (type === 'long') {
     if (isNaN(+value)) {
-      throw new Error(`"${value}" is not a number`);
+      throw new Error(
+        t('importExport.csv.notNumber', '"{value}" is not a number', { value })
+      );
     }
 
     return new Long(value);
@@ -470,7 +486,9 @@ export function parseCSVValue(
 
   if (type === 'double') {
     if (isNaN(+value)) {
-      throw new Error(`"${value}" is not a number`);
+      throw new Error(
+        t('importExport.csv.notNumber', '"{value}" is not a number', { value })
+      );
     }
 
     return new Double(parseFloat(value));
@@ -507,7 +525,9 @@ export function parseCSVValue(
     }
 
     if (date.toString() === 'Invalid Date') {
-      throw new Error(`"${value}" is not a date`);
+      throw new Error(
+        t('importExport.csv.notDate', '"{value}" is not a date', { value })
+      );
     }
 
     return date;
@@ -520,7 +540,9 @@ export function parseCSVValue(
     if (NULL_STRINGS.includes(value)) {
       return null;
     } else {
-      throw new Error(`"${value}" is not null`);
+      throw new Error(
+        t('importExport.csv.notNull', '"{value}" is not null', { value })
+      );
     }
   }
 
@@ -532,7 +554,13 @@ export function parseCSVValue(
   if (type === 'regex') {
     const match = value.match(/^\/(.*)\/(.*)$/);
     if (!match) {
-      throw new Error(`"${value}" is not a regular expression`);
+      throw new Error(
+        t(
+          'importExport.csv.notRegex',
+          '"{value}" is not a regular expression',
+          { value }
+        )
+      );
     }
     return new BSONRegExp(match[1], match[2]);
   }
@@ -541,7 +569,9 @@ export function parseCSVValue(
     if (value === '$MinKey') {
       return new MinKey();
     } else {
-      throw new Error(`"${value}" is not $MinKey`);
+      throw new Error(
+        t('importExport.csv.notMinKey', '"{value}" is not $MinKey', { value })
+      );
     }
   }
 
@@ -549,7 +579,9 @@ export function parseCSVValue(
     if (value === '$MaxKey') {
       return new MaxKey();
     } else {
-      throw new Error(`"${value}" is not $MaxKey`);
+      throw new Error(
+        t('importExport.csv.notMaxKey', '"{value}" is not $MaxKey', { value })
+      );
     }
   }
 
@@ -565,7 +597,11 @@ export function parseCSVValue(
   if (type === 'objectId') {
     const match = value.match(OBJECTID_REGEX);
     if (!match) {
-      throw new Error(`"${value}" is not an ObjectId`);
+      throw new Error(
+        t('importExport.csv.notObjectId', '"{value}" is not an ObjectId', {
+          value,
+        })
+      );
     }
     return new ObjectId(match[2]);
   }
@@ -584,7 +620,9 @@ export function parseCSVValue(
 
   if (type === 'timestamp') {
     if (isNaN(+value)) {
-      throw new Error(`"${value}" is not a number`);
+      throw new Error(
+        t('importExport.csv.notNumber', '"{value}" is not a number', { value })
+      );
     }
 
     return Timestamp.fromString(value, 10);

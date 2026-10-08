@@ -24,6 +24,7 @@ import {
   css,
   spacing,
   Label,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
@@ -89,13 +90,17 @@ const MAX_FIELDS_TO_SHOW_DEFAULT = 100;
 const FIELDS_TO_SHOW_INCREASE = 100;
 
 function LoadingTable() {
+  const t = useTranslation();
   return (
     <Table shouldAlternateRowColor>
       <TableHead>
         <HeaderRow>
           <HeaderCell className={smallCellContainerStyle} key="checkbox">
             <Checkbox
-              aria-label="Select all fields"
+              aria-label={t(
+                'importExport.selectFields.selectAll',
+                'Select all fields'
+              )}
               disabled
               checked={false}
               onChange={() => {
@@ -103,7 +108,9 @@ function LoadingTable() {
               }}
             />
           </HeaderCell>
-          <HeaderCell key="field-name">Field Name</HeaderCell>
+          <HeaderCell key="field-name">
+            {t('importExport.selectFields.fieldName', 'Field Name')}
+          </HeaderCell>
         </HeaderRow>
       </TableHead>
       <TableBody>
@@ -148,6 +155,7 @@ function ExportSelectFields({
   toggleFieldToExport,
   toggleExportAllSelectedFields,
 }: ExportSelectFieldsProps) {
+  const t = useTranslation();
   const newFieldRef = useRef<HTMLInputElement | null>(null);
 
   const [maxFieldsToShow, setMaxFieldsToShow] = useState<number>(
@@ -253,10 +261,19 @@ function ExportSelectFields({
   return (
     <>
       <div className={headerContainerStyles}>
-        <Body weight="medium">Select Fields</Body>
+        <Body weight="medium">
+          {t('importExport.selectFields.title', 'Select Fields')}
+        </Body>
         <Body>
-          The fields in the table below are from a <b>sample</b> of documents in
-          the collection. Add missing fields you want to export.
+          {t(
+            'importExport.selectFields.description.prefix',
+            'The fields in the table below are from a '
+          )}
+          <b>{t('importExport.selectFields.description.sample', 'sample')}</b>
+          {t(
+            'importExport.selectFields.description.suffix',
+            ' of documents in the collection. Add missing fields you want to export.'
+          )}
         </Body>
         <div>
           <Button
@@ -267,7 +284,7 @@ function ExportSelectFields({
             disabled={isLoading}
             onClick={onAddNewFieldButtonClicked}
           >
-            Add new field
+            {t('importExport.selectFields.addNewField', 'Add new field')}
           </Button>
         </div>
       </div>
@@ -287,19 +304,33 @@ function ExportSelectFields({
                     data-testid="export-fields-select-all-table-checkbox"
                     aria-label={
                       isEveryFieldChecked
-                        ? 'Deselect all fields'
-                        : 'Select all fields'
+                        ? t(
+                            'importExport.selectFields.deselectAll',
+                            'Deselect all fields'
+                          )
+                        : t(
+                            'importExport.selectFields.selectAll',
+                            'Select all fields'
+                          )
                     }
                     title={
                       isEveryFieldChecked
-                        ? 'Deselect all fields'
-                        : 'Select all fields'
+                        ? t(
+                            'importExport.selectFields.deselectAll',
+                            'Deselect all fields'
+                          )
+                        : t(
+                            'importExport.selectFields.selectAll',
+                            'Select all fields'
+                          )
                     }
                     checked={isEveryFieldChecked}
                     onChange={toggleExportAllSelectedFields}
                   />
                 </HeaderCell>
-                <HeaderCell key="field-name">Field Name</HeaderCell>
+                <HeaderCell key="field-name">
+                  {t('importExport.selectFields.fieldName', 'Field Name')}
+                </HeaderCell>
               </HeaderRow>
             </TableHead>
             <TableBody>
@@ -308,9 +339,19 @@ function ExportSelectFields({
                   <Cell className={smallCellContainerStyle}>
                     <div>
                       <Checkbox
-                        aria-label={`${field.checked ? 'Exclude' : 'Include'} ${
-                          field.fieldLabel
-                        } in exported collection`}
+                        aria-label={
+                          field.checked
+                            ? t(
+                                'importExport.selectFields.excludeField',
+                                'Exclude {field} in exported collection',
+                                { field: field.fieldLabel }
+                              )
+                            : t(
+                                'importExport.selectFields.includeField',
+                                'Include {field} in exported collection',
+                                { field: field.fieldLabel }
+                              )
+                        }
                         aria-labelledby={`export-field-checkbox-${field.fieldKey}-label`}
                         id={`export-field-checkbox-${field.fieldKey}`}
                         checked={field.checked}
@@ -344,7 +385,11 @@ function ExportSelectFields({
                       }
                       size="small"
                     >
-                      Show {FIELDS_TO_SHOW_INCREASE} more fields
+                      {t(
+                        'importExport.selectFields.showMore',
+                        'Show {count} more fields',
+                        { count: FIELDS_TO_SHOW_INCREASE }
+                      )}
                     </Button>
                   </Cell>
                 </Row>
@@ -356,17 +401,26 @@ function ExportSelectFields({
                 <Cell>
                   <TextInput
                     aria-labelledby="enter-to-add-field-export"
-                    aria-label="Enter a field to include in the export"
+                    aria-label={t(
+                      'importExport.selectFields.enterField',
+                      'Enter a field to include in the export'
+                    )}
                     type="text"
                     className={textInputStyles}
                     ref={newFieldRef}
-                    placeholder="Add field"
+                    placeholder={t(
+                      'importExport.selectFields.addField',
+                      'Add field'
+                    )}
                     onKeyDown={handleAddFieldSubmit}
                     sizeVariant="small"
                   />
                   <div className={enterToAddStyles}>
                     <Disclaimer id="enter-to-add-field-export">
-                      Press &quot;Enter&quot; to add field
+                      {t(
+                        'importExport.selectFields.pressEnter',
+                        'Press "Enter" to add field'
+                      )}
                     </Disclaimer>
                   </div>
                 </Cell>
@@ -378,9 +432,13 @@ function ExportSelectFields({
       {!!errorLoadingFieldsToExport && (
         <div className={retryButtonContainerStyles}>
           <ErrorSummary
-            errors={`Unable to load fields to export: ${errorLoadingFieldsToExport}`}
+            errors={t(
+              'importExport.selectFields.loadError',
+              'Unable to load fields to export: {error}',
+              { error: errorLoadingFieldsToExport }
+            )}
             onAction={selectFieldsToExport}
-            actionText="Retry"
+            actionText={t('importExport.selectFields.retry', 'Retry')}
           />
         </div>
       )}

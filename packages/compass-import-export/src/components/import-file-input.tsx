@@ -1,5 +1,8 @@
 import React, { useCallback } from 'react';
-import { FilePickerDialog } from '@mongodb-js/compass-components';
+import {
+  FilePickerDialog,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 type ImportFileInputProps = {
   autoOpen?: boolean;
@@ -14,6 +17,7 @@ function ImportFileInput({
   selectImportFileName,
   fileName,
 }: ImportFileInputProps) {
+  const t = useTranslation();
   const handleChooseFile = useCallback(
     (files: string[]) => {
       if (files.length > 0) {
@@ -30,14 +34,17 @@ function ImportFileInput({
   return (
     <FilePickerDialog
       autoOpen={autoOpen}
-      label="Import file:"
+      label={t('importExport.importFileInput.label', 'Import file:')}
       id="import-file"
       onChange={handleChooseFile}
       values={values}
       variant="small"
       mode="open"
-      title="Select JSON or CSV to import"
-      buttonLabel="Select"
+      title={t(
+        'importExport.importFileInput.title',
+        'Select JSON or CSV to import'
+      )}
+      buttonLabel={t('importExport.importFileInput.select', 'Select')}
     />
   );
 }

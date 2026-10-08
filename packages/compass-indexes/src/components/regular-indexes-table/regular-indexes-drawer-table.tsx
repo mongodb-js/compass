@@ -35,6 +35,8 @@ import {
   InlineDefinition,
   nbsp,
   spacing,
+  Translated,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
 import { createIndexOpened } from '../../modules/create-index';
@@ -83,7 +85,11 @@ function renderExpandedContentOverride(
   return (
     <Body className={indexDetailsForDrawerStyles}>
       <div>
-        <b>Index Name: </b>
+        <b>
+          <Translated id="indexes.regularDrawer.indexName">
+            {'Index Name: '}
+          </Translated>
+        </b>
         {nbsp(indexData.name)}
       </div>
       <IndexKeysBadge
@@ -120,18 +126,19 @@ const ZeroState: React.FunctionComponent<ZeroStateProps> = ({
   isRegularIndexesWritable,
   onCreateRegularIndexClick,
 }) => {
+  const t = useTranslation();
   return (
     <EmptyContent
       containerClassName={emptyContentStyles}
       icon={ZeroRegularIndexesGraphic}
-      title="No standard indexes found"
+      title={t('indexes.regularDrawer.noIndexes', 'No standard indexes found')}
       callToActionLink={
         <Button
           disabled={!isRegularIndexesWritable}
           onClick={onCreateRegularIndexClick}
           size="xsmall"
         >
-          Create index
+          {t('indexes.regularDrawer.createIndex', 'Create index')}
         </Button>
       }
     />

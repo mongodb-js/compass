@@ -1,6 +1,9 @@
 import semver from 'semver';
 import React, { useCallback, useMemo } from 'react';
-import type { GroupedItemAction } from '@mongodb-js/compass-components';
+import type {
+  GroupedItemAction,
+  TranslateFn,
+} from '@mongodb-js/compass-components';
 import {
   css,
   ItemActionGroup,
@@ -8,6 +11,7 @@ import {
   Body,
   spacing,
   formatDuration,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type {
   RegularIndex,
@@ -106,6 +110,7 @@ const canToggleVisibility = (
 // Helper: Build actions array based on index state
 const buildIndexActions = (
   index: IndexForActions,
+  t: TranslateFn,
   serverVersion?: string
 ): GroupedItemAction<IndexAction>[] => {
   const actions: GroupedItemAction<IndexAction>[] = [];
@@ -114,8 +119,10 @@ const buildIndexActions = (
     // Building indexes can only be cancelled
     actions.push({
       action: 'delete',
-      label: `Cancel Index ${index.name}`,
-      tooltip: 'Cancel Index',
+      label: t('indexes.indexActions.cancelIndex', 'Cancel Index {name}', {
+        name: index.name,
+      }),
+      tooltip: t('indexes.indexActions.cancelIndexTooltip', 'Cancel Index'),
       icon: 'XWithCircle',
       variant: 'destructive',
     });
@@ -128,14 +135,25 @@ const buildIndexActions = (
         index.extra?.hidden
           ? {
               action: 'unhide',
-              label: `Unhide Index ${index.name}`,
-              tooltip: `Unhide Index`,
+              label: t(
+                'indexes.indexActions.unhideIndex',
+                'Unhide Index {name}',
+                {
+                  name: index.name,
+                }
+              ),
+              tooltip: t(
+                'indexes.indexActions.unhideIndexTooltip',
+                'Unhide Index'
+              ),
               icon: 'Visibility',
             }
           : {
               action: 'hide',
-              label: `Hide Index ${index.name}`,
-              tooltip: `Hide Index`,
+              label: t('indexes.indexActions.hideIndex', 'Hide Index {name}', {
+                name: index.name,
+              }),
+              tooltip: t('indexes.indexActions.hideIndexTooltip', 'Hide Index'),
               icon: 'VisibilityOff',
             }
       );
@@ -145,8 +163,10 @@ const buildIndexActions = (
     if (canDeleteIndex(index)) {
       actions.push({
         action: 'delete',
-        label: `Drop Index ${index.name}`,
-        tooltip: 'Drop Index',
+        label: t('indexes.indexActions.dropIndex', 'Drop Index {name}', {
+          name: index.name,
+        }),
+        tooltip: t('indexes.indexActions.dropIndexTooltip', 'Drop Index'),
         icon: 'Trash',
       });
     }
@@ -163,9 +183,10 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   onHideIndexClick,
   onUnhideIndexClick,
 }) => {
+  const t = useTranslation();
   const indexActions = useMemo(
-    () => buildIndexActions(index, serverVersion),
-    [index, serverVersion]
+    () => buildIndexActions(index, t, serverVersion),
+    [index, t, serverVersion]
   );
 
   const hasActionHandler = useMemo(() => {
@@ -218,16 +239,32 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     let progressText: string;
     const hasDuration = secsRunning !== undefined;
     if (progress) {
-      progressText = `Building… ${Math.trunc(progress * 100)}%`;
+      progressText = t(
+        'indexes.indexActions.buildingPercent',
+        'Building… {percent}%',
+        {
+          percent: Math.trunc(progress * 100),
+        }
+      );
     } else if (hasDuration) {
-      progressText = `Building For… ${formatDuration(secsRunning)}`;
+      progressText = t(
+        'indexes.indexActions.buildingFor',
+        'Building For… {duration}',
+        { duration: formatDuration(secsRunning) }
+      );
     } else {
-      progressText = 'Building…';
+      progressText = t('indexes.indexActions.building', 'Building…');
     }
     return (
       <div className={buildProgressStyles} data-testid="index-building-spinner">
         <Body>{progressText}</Body>
-        <SpinLoader size={16} title="Index build in progress" />
+        <SpinLoader
+          size={16}
+          title={t(
+            'indexes.indexActions.buildInProgress',
+            'Index build in progress'
+          )}
+        />
         {hasActionHandler && indexActions.length > 0 ? (
           <ItemActionGroup<IndexAction>
             data-testid="index-actions"

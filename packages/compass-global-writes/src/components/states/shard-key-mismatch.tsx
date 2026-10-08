@@ -4,6 +4,7 @@ import {
   Button,
   ButtonVariant,
   SpinLoader,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
@@ -51,16 +52,20 @@ export function ShardKeyMismatch({
   onUnmanageNamespace,
   isUnmanagingNamespace,
 }: ShardKeyMismatchProps) {
+  const t = useTranslation();
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Danger} className={bannerStyles}>
         <strong>
-          Your requested shard key cannot be configured because the collection
-          has already been sharded with a different key.
+          {t(
+            'globalWrites.shardKeyMismatch.cannotConfigure',
+            'Your requested shard key cannot be configured because the collection has already been sharded with a different key.'
+          )}
         </strong>{' '}
-        Please click the button below to unmanage this collection. If the
-        existing shard key is valid, you can enable Global Writes for this
-        collection on the next screen.
+        {t(
+          'globalWrites.shardKeyMismatch.unmanagePrompt',
+          'Please click the button below to unmanage this collection. If the existing shard key is valid, you can enable Global Writes for this collection on the next screen.'
+        )}
         <div>
           <Button
             data-testid="unmanage-collection-button"
@@ -70,7 +75,10 @@ export function ShardKeyMismatch({
             loadingIndicator={<SpinLoader />}
             className={bannerBtnStyles}
           >
-            Unmanage collection
+            {t(
+              'globalWrites.shardKeyMismatch.unmanageButton',
+              'Unmanage collection'
+            )}
           </Button>
         </div>
       </Banner>

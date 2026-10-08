@@ -12,6 +12,7 @@ import {
   InfoSprinkle,
   Label,
   useId,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 export type VectorIndexTemplateChoice = 'autoEmbed' | 'bringYourOwn';
@@ -50,6 +51,7 @@ export const VectorSearchIndexTemplateDropdown: React.FunctionComponent<
   VectorSearchIndexTemplateDropdownProps
 > = ({ tooltip, value, onTemplateChoice, disabled }) => {
   const labelId = useId();
+  const t = useTranslation();
 
   const onChoose = useCallback(
     (choice: string) => {
@@ -63,7 +65,7 @@ export const VectorSearchIndexTemplateDropdown: React.FunctionComponent<
     <div className={containerStyles} data-testid="vector-search-index-template">
       <div className={dropdownLabelStyles}>
         <Label id={labelId} htmlFor="vector-template-dropdown">
-          Template
+          {t('indexes.templateDropdown.template', 'Template')}
         </Label>
         <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
       </div>
@@ -75,8 +77,15 @@ export const VectorSearchIndexTemplateDropdown: React.FunctionComponent<
         onChange={onChoose}
         disabled={disabled}
       >
-        <Option value="autoEmbed">Automated embedding</Option>
-        <Option value="bringYourOwn">Bring your own embeddings</Option>
+        <Option value="autoEmbed">
+          {t('indexes.templateDropdown.autoEmbed', 'Automated embedding')}
+        </Option>
+        <Option value="bringYourOwn">
+          {t(
+            'indexes.templateDropdown.bringYourOwn',
+            'Bring your own embeddings'
+          )}
+        </Option>
       </Select>
     </div>
   );

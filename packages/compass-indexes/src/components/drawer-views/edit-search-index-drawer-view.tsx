@@ -33,6 +33,7 @@ import {
   Tooltip,
   useDarkMode,
   cx,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   containerStyles,
@@ -53,7 +54,8 @@ import { parseShellBSON } from '../../utils/parse-shell-bson';
 import type { SearchIndex } from 'mongodb-data-service';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
-import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
+import { getAutoEmbedEditCostWarning } from '../../utils/auto-embed-messaging';
+import { getSearchIndexLabels } from '../../utils/search-index-labels';
 import {
   useConnectionInfo,
   useConnectionInfoRef,
@@ -98,6 +100,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   onIndexDefinitionEdit,
 }) => {
   const track = useTelemetry();
+  const t = useTranslation();
   const connectionInfoRef = useConnectionInfoRef();
 
   useEffect(() => {
@@ -189,10 +192,11 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     });
   }, [searchIndex, indexDefinition, updateIndex, track]);
 
-  const indexLabel =
-    searchIndex.type === 'vectorSearch'
-      ? 'Vector Search Index'
-      : 'Search Index';
+  const {
+    label: indexLabel,
+    lowerCase: indexLabelLowerCase,
+    plural: indexLabelPlural,
+  } = getSearchIndexLabels(t, searchIndex.type === 'vectorSearch');
 
   const showAutoEmbedEditCostBanner =
     enableAutoEmbeddingGaRelease &&
@@ -206,7 +210,9 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     >
       <div className={contentStyles}>
         <Subtitle data-testid="edit-search-index-drawer-view-title">
-          Edit {indexLabel}
+          {t('indexes.searchIndexForm.edit', 'Edit {indexLabel}', {
+            indexLabel,
+          })}
         </Subtitle>
         <div className={scrollContainerStyles}>
           <div className={headerContainerStyles}>
@@ -231,13 +237,23 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
                   : BadgeVariant.Red
               }
             >
-              {searchIndex.queryable ? 'Queryable' : 'Non-queryable'}
+              {searchIndex.queryable
+                ? t('indexes.searchIndexForm.queryable', 'Queryable')
+                : t('indexes.searchIndexForm.nonQueryable', 'Non-queryable')}
             </Badge>
           </div>
         </div>
         <Body className={overflowWrapStyles}>
-          This {indexLabel.toLowerCase()} parses the data in <b>{namespace}</b>{' '}
-          and has the following configurations.
+          {t(
+            'indexes.searchIndexForm.parsesDataBefore',
+            'This {indexLabel} parses the data in',
+            { indexLabel: indexLabelLowerCase }
+          )}{' '}
+          <b>{namespace}</b>{' '}
+          {t(
+            'indexes.searchIndexForm.parsesDataAfter',
+            'and has the following configurations.'
+          )}
         </Body>
         <div
           className={cx(
@@ -264,7 +280,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         {error && <ErrorSummary errors={error} />}
         {showAutoEmbedEditCostBanner && (
           <Banner data-testid="auto-embed-edit-cost-banner">
-            {AUTO_EMBED_EDIT_COST_WARNING}
+            {getAutoEmbedEditCostWarning(t)}
           </Banner>
         )}
       </div>
@@ -280,7 +296,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             onClose();
           }}
         >
-          Cancel
+          {t('indexes.searchIndexForm.cancel', 'Cancel')}
         </Button>
         <Tooltip
           trigger={
@@ -292,16 +308,22 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
               disabled={!isSaveEnabled || !isSearchIndexesWritable}
               onClick={onSaveClick}
             >
-              Save and Rebuild
+              {t('indexes.searchIndexForm.saveAndRebuild', 'Save and Rebuild')}
             </Button>
           }
           enabled={!isSearchIndexesWritable}
         >
-          You currently don&apos;t have permission to edit {indexLabel}es in
-          this{' '}
           {!atlasMetadata
-            ? 'cluster.'
-            : 'project, please contact Project Owner to request the Project Data Access Admin role.'}
+            ? t(
+                'indexes.searchIndexForm.noPermissionEditCluster',
+                "You currently don't have permission to edit {indexLabel} in this cluster.",
+                { indexLabel: indexLabelPlural }
+              )
+            : t(
+                'indexes.searchIndexForm.noPermissionEditProject',
+                "You currently don't have permission to edit {indexLabel} in this project, please contact Project Owner to request the Project Data Access Admin role.",
+                { indexLabel: indexLabelPlural }
+              )}
         </Tooltip>
       </div>
     </div>

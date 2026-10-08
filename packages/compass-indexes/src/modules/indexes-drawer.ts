@@ -21,6 +21,8 @@ import type {
 } from './search-indexes';
 import type { FetchSearchIndexesActions } from './search-indexes';
 import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { getTranslate } from '../utils/get-translate';
 export type IndexesDrawerViewType =
   'indexes-list' | 'create-search-index' | 'edit-search-index';
 
@@ -101,26 +103,36 @@ export const showConfirmation = showConfirmationModal;
  * Helper to check if view change should be allowed when there are unsaved changes.
  * Returns true if allowed, false if user cancelled.
  */
-const confirmViewChangeIfDirty = async (isDirty: boolean): Promise<boolean> => {
+const confirmViewChangeIfDirty = async (
+  isDirty: boolean,
+  t: TranslateFn
+): Promise<boolean> => {
   if (!isDirty) {
     return true;
   }
 
   return showConfirmation({
-    title: 'Any unsaved progress will be lost',
-    buttonText: 'Discard',
+    title: t(
+      'indexes.drawer.discardTitle',
+      'Any unsaved progress will be lost'
+    ),
+    buttonText: t('indexes.drawer.discard', 'Discard'),
     variant: 'danger',
-    description: 'Are you sure you want to continue?',
+    description: t(
+      'indexes.drawer.discardDescription',
+      'Are you sure you want to continue?'
+    ),
   });
 };
 
 export const openIndexesListDrawerView = (
   focusedIndexName?: string
 ): IndexesThunkAction<Promise<void>, OpenIndexesListDrawerViewAction> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { preferences }) => {
     const state = getState();
     const confirmed = await confirmViewChangeIfDirty(
-      state.indexesDrawer.isDirty
+      state.indexesDrawer.isDirty,
+      getTranslate(preferences)
     );
     if (!confirmed) {
       return;
@@ -138,9 +150,12 @@ export const openIndexesListDrawerView = (
 export const openCreateSearchIndexDrawerView = (
   currentIndexType: SearchIndexType
 ): IndexesThunkAction<Promise<void>, OpenCreateSearchIndexDrawerViewAction> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { preferences }) => {
     const { isDirty } = getState().indexesDrawer;
-    const confirmed = await confirmViewChangeIfDirty(isDirty);
+    const confirmed = await confirmViewChangeIfDirty(
+      isDirty,
+      getTranslate(preferences)
+    );
     if (!confirmed) {
       return;
     }
@@ -151,9 +166,12 @@ export const openCreateSearchIndexDrawerView = (
 export const openEditSearchIndexDrawerView = (
   currentIndexName: string
 ): IndexesThunkAction<Promise<void>, OpenEditSearchIndexDrawerViewAction> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { preferences }) => {
     const { isDirty } = getState().indexesDrawer;
-    const confirmed = await confirmViewChangeIfDirty(isDirty);
+    const confirmed = await confirmViewChangeIfDirty(
+      isDirty,
+      getTranslate(preferences)
+    );
     if (!confirmed) {
       return;
     }

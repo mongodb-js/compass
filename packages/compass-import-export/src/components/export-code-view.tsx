@@ -1,6 +1,12 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Code,
+  css,
+  spacing,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 import type { FieldsToExportOption, FieldsToExport } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
@@ -36,6 +42,7 @@ function ExportCodeView({
   fields,
   selectedFieldOption,
 }: ExportCodeViewProps) {
+  const t = useTranslation();
   const code = useMemo(() => {
     if (aggregation) {
       return aggregationAsShellJSString({
@@ -71,7 +78,15 @@ function ExportCodeView({
   return (
     <div className={containerStyles}>
       <Body>
-        Export results from the {aggregation ? 'aggregation' : 'query'} below
+        {aggregation
+          ? t(
+              'importExport.codeView.aggregation',
+              'Export results from the aggregation below'
+            )
+          : t(
+              'importExport.codeView.query',
+              'Export results from the query below'
+            )}
       </Body>
       <Code
         className={codeStyles}

@@ -8,6 +8,7 @@ import {
   Badge,
   BadgeVariant,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
 
@@ -65,12 +66,13 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
   tooltip,
 }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   return (
     <div className={statusFieldStyles}>
       {status === 'ready' && (
         <Badge data-testid="index-ready" variant={BadgeVariant.Green}>
-          Ready
+          {t('indexes.statusField.ready', 'Ready')}
         </Badge>
       )}
 
@@ -78,9 +80,12 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
         <BadgeWithTooltip
           data-testid="index-building"
           variant={BadgeVariant.Blue}
-          tooltip="This index is being built in a rolling process"
+          tooltip={t(
+            'indexes.statusField.buildingTooltip',
+            'This index is being built in a rolling process'
+          )}
         >
-          Building
+          {t('indexes.statusField.building', 'Building')}
         </BadgeWithTooltip>
       )}
 
@@ -91,13 +96,13 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
           tooltip={tooltip}
           darkMode={darkMode}
         >
-          In&nbsp;Progress
+          {t('indexes.statusField.inProgress', 'In Progress')}
         </BadgeWithTooltip>
       )}
 
       {status === 'creating' && (
         <Badge data-testid="index-creating" variant={BadgeVariant.Blue}>
-          Creating
+          {t('indexes.statusField.creating', 'Creating')}
         </Badge>
       )}
 
@@ -108,7 +113,7 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
           darkMode={darkMode}
           variant={BadgeVariant.Red}
         >
-          Failed
+          {t('indexes.statusField.failed', 'Failed')}
         </BadgeWithTooltip>
       )}
 
@@ -116,12 +121,16 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
         <BadgeWithTooltip
           data-testid="index-unknown"
           tooltip={
-            tooltip || 'Build status unavailable (insufficient permissions)'
+            tooltip ||
+            t(
+              'indexes.statusField.unknownTooltip',
+              'Build status unavailable (insufficient permissions)'
+            )
           }
           darkMode={darkMode}
           variant={BadgeVariant.Yellow}
         >
-          Unknown
+          {t('indexes.statusField.unknown', 'Unknown')}
         </BadgeWithTooltip>
       )}
     </div>

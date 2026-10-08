@@ -9,6 +9,7 @@ import {
   InfoSprinkle,
   Label,
   useId,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
@@ -34,6 +35,7 @@ export const SearchIndexTemplateDropdown: React.FunctionComponent<
 > = ({ isVectorSearchSupported, tooltip, onTemplate }) => {
   const [templateValue, setTemplateValue] = useState('0');
   const labelId = useId();
+  const t = useTranslation();
 
   const onChooseTemplate = useCallback(
     (value: string) => {
@@ -58,7 +60,7 @@ export const SearchIndexTemplateDropdown: React.FunctionComponent<
     <div className={containerStyles}>
       <div className={dropdownLabelStyles}>
         <Label id={labelId} htmlFor="template-dropdown">
-          Template
+          {t('indexes.templateDropdown.template', 'Template')}
         </Label>
         <InfoSprinkle align="right">{tooltip}</InfoSprinkle>
       </div>

@@ -14,6 +14,7 @@ import {
   spacing,
   Tooltip,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
@@ -43,10 +44,11 @@ const importantIconStylesDark = css({
 });
 
 const ErrorIcon = ({ darkMode }: { darkMode: boolean }) => {
+  const t = useTranslation();
   return (
     <Icon
       glyph="Warning"
-      aria-label="warning"
+      aria-label={t('globalWrites.pluginTitle.warning', 'warning')}
       className={cx(
         warningIconStyles,
         warningIconStylesLight,
@@ -57,10 +59,11 @@ const ErrorIcon = ({ darkMode }: { darkMode: boolean }) => {
 };
 
 const WarningIcon = ({ darkMode }: { darkMode: boolean }) => {
+  const t = useTranslation();
   return (
     <Icon
       glyph="ImportantWithCircle"
-      aria-label="important"
+      aria-label={t('globalWrites.pluginTitle.important', 'important')}
       className={cx(
         warningIconStyles,
         importantIconStylesLight,
@@ -77,10 +80,11 @@ export const PluginTitle = ({
   showError: boolean;
   showWarning: boolean;
 }) => {
+  const t = useTranslation();
   const darkMode = !!useDarkMode();
   return (
     <div data-testid="global-writes-tab-title" className={containerStyles}>
-      Global Writes{' '}
+      {t('globalWrites.pluginTitle.title', 'Global Writes')}{' '}
       {(showError || showWarning) && (
         <Tooltip
           data-testid="collection-stats-tooltip"
@@ -103,10 +107,10 @@ export const PluginTitle = ({
           }
         >
           <Body>
-            Collections in Atlas Global Clusters with Atlas-managed sharding
-            must be configured with a compound shard key made up of both a
-            &apos;location&apos; field and an identifier field that you provide.
-            Please configure sharding here.
+            {t(
+              'globalWrites.pluginTitle.tooltip',
+              "Collections in Atlas Global Clusters with Atlas-managed sharding must be configured with a compound shard key made up of both a 'location' field and an identifier field that you provide. Please configure sharding here."
+            )}
           </Body>
         </Tooltip>
       )}

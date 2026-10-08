@@ -1,5 +1,9 @@
 import React from 'react';
-import { openToast, ToastBody } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  ToastBody,
+  translate,
+} from '@mongodb-js/compass-components';
 import path from 'path';
 
 import revealFile from '../utils/reveal-file';
@@ -7,39 +11,69 @@ import type { CSVExportPhase } from '../export/export-csv';
 
 const exportToastId = 'export-toast';
 
-const docsWrittenText = (docsWritten: number) => {
-  return `${docsWritten} document${docsWritten !== 1 ? 's' : ''} written.`;
+const docsWrittenText = (language: string, docsWritten: number) => {
+  return docsWritten === 1
+    ? translate(
+        language,
+        'importExport.toast.docsWritten.one',
+        '{count} document written.',
+        { count: docsWritten }
+      )
+    : translate(
+        language,
+        'importExport.toast.docsWritten.other',
+        '{count} documents written.',
+        { count: docsWritten }
+      );
 };
 
 export function showInProgressToast({
+  language,
   filePath,
   namespace,
   cancelExport,
   docsWritten,
   csvPhase,
 }: {
+  language: string;
   filePath: string;
   namespace: string;
   cancelExport: () => void;
   docsWritten: number;
   csvPhase?: CSVExportPhase;
 }) {
-  let statusMessage = docsWrittenText(docsWritten);
+  let statusMessage = docsWrittenText(language, docsWritten);
 
   if (csvPhase === 'DOWNLOAD') {
-    statusMessage = `Processing documents before exporting, ${docsWritten} document${
-      docsWritten !== 1 ? 's' : ''
-    } processed.`;
+    statusMessage =
+      docsWritten === 1
+        ? translate(
+            language,
+            'importExport.exportToast.processing.one',
+            'Processing documents before exporting, {count} document processed.',
+            { count: docsWritten }
+          )
+        : translate(
+            language,
+            'importExport.exportToast.processing.other',
+            'Processing documents before exporting, {count} documents processed.',
+            { count: docsWritten }
+          );
   }
 
   // Update the toast with the new progress.
   openToast(exportToastId, {
-    title: `Exporting "${namespace}" to ${path.basename(filePath)}…`,
+    title: translate(
+      language,
+      'importExport.exportToast.exportingTo',
+      'Exporting "{namespace}" to {fileName}…',
+      { namespace, fileName: path.basename(filePath) }
+    ),
     description: (
       <ToastBody
         statusMessage={statusMessage}
         actionHandler={cancelExport}
-        actionText="stop"
+        actionText={translate(language, 'importExport.toast.stop', 'stop')}
       />
     ),
     progress: undefined, // Don't show progress as there is no total document count.
@@ -49,19 +83,30 @@ export function showInProgressToast({
 }
 
 export function showStartingToast({
+  language,
   namespace,
   cancelExport,
 }: {
+  language: string;
   namespace: string;
   cancelExport: () => void;
 }) {
   openToast(exportToastId, {
-    title: `Exporting "${namespace}"…`,
+    title: translate(
+      language,
+      'importExport.exportToast.exporting',
+      'Exporting "{namespace}"…',
+      { namespace }
+    ),
     description: (
       <ToastBody
-        statusMessage="Starting…"
+        statusMessage={translate(
+          language,
+          'importExport.toast.starting',
+          'Starting…'
+        )}
         actionHandler={cancelExport}
-        actionText="stop"
+        actionText={translate(language, 'importExport.toast.stop', 'stop')}
       />
     ),
     variant: 'progress',
@@ -70,19 +115,29 @@ export function showStartingToast({
 }
 
 export function showCompletedToast({
+  language,
   docsWritten,
   filePath,
 }: {
+  language: string;
   docsWritten: number;
   filePath: string;
 }) {
   openToast(exportToastId, {
-    title: 'Export completed.',
+    title: translate(
+      language,
+      'importExport.exportToast.completed',
+      'Export completed.'
+    ),
     description: (
       <ToastBody
-        statusMessage={docsWrittenText(docsWritten)}
+        statusMessage={docsWrittenText(language, docsWritten)}
         actionHandler={() => revealFile(filePath)}
-        actionText="show file"
+        actionText={translate(
+          language,
+          'importExport.exportToast.showFile',
+          'show file'
+        )}
       />
     ),
     variant: 'success',
@@ -90,29 +145,43 @@ export function showCompletedToast({
 }
 
 export function showCancelledToast({
+  language,
   docsWritten,
   filePath,
 }: {
+  language: string;
   filePath: string;
   docsWritten: number;
 }) {
   openToast(exportToastId, {
-    title: 'Export aborted.',
+    title: translate(
+      language,
+      'importExport.exportToast.aborted',
+      'Export aborted.'
+    ),
     description:
       docsWritten > 0 ? (
         <ToastBody
-          statusMessage={docsWrittenText(docsWritten)}
+          statusMessage={docsWrittenText(language, docsWritten)}
           actionHandler={() => revealFile(filePath)}
-          actionText="show file"
+          actionText={translate(
+            language,
+            'importExport.exportToast.showFile',
+            'show file'
+          )}
         />
       ) : null,
     variant: 'warning',
   });
 }
 
-export function showFailedToast(err: Error | undefined) {
+export function showFailedToast(language: string, err: Error | undefined) {
   openToast(exportToastId, {
-    title: 'Failed to export with the following error:',
+    title: translate(
+      language,
+      'importExport.exportToast.failed',
+      'Failed to export with the following error:'
+    ),
     description: err?.message,
     variant: 'warning',
   });

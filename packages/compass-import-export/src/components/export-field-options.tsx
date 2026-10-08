@@ -6,6 +6,7 @@ import {
   RadioBoxGroup,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { FieldsToExportOption } from '../modules/export';
@@ -29,13 +30,14 @@ function FieldsToExportOptions({
   fieldsToExportOption: FieldsToExportOption;
   setFieldsToExportOption: (fieldsToExportOption: FieldsToExportOption) => void;
 }) {
+  const t = useTranslation();
   const [showProjectInfoMessage, setShowProjectInfoMessage] =
     useState<boolean>(true);
 
   return (
     <>
       <Label htmlFor={selectFieldsToExportId} id={selectFieldsToExportLabelId}>
-        Fields to export
+        {t('importExport.fieldOptions.fieldsToExport', 'Fields to export')}
       </Label>
       <RadioBoxGroup
         aria-labelledby={selectFieldsToExportLabelId}
@@ -53,7 +55,7 @@ function FieldsToExportOptions({
           value="all-fields"
           checked={fieldsToExportOption === 'all-fields'}
         >
-          All fields
+          {t('importExport.fieldOptions.allFields', 'All fields')}
         </RadioBox>
         <RadioBox
           className={selectFieldsRadioBoxStyles}
@@ -61,7 +63,10 @@ function FieldsToExportOptions({
           value="select-fields"
           checked={fieldsToExportOption === 'select-fields'}
         >
-          Select fields in table
+          {t(
+            'importExport.fieldOptions.selectFieldsInTable',
+            'Select fields in table'
+          )}
         </RadioBox>
       </RadioBoxGroup>
       {showProjectInfoMessage && (
@@ -70,8 +75,15 @@ function FieldsToExportOptions({
           dismissible
           onClose={() => setShowProjectInfoMessage(false)}
         >
-          You can also use the <b>Project</b> field in the query bar to specify
-          which fields to return or export.
+          {t(
+            'importExport.fieldOptions.projectHint.prefix',
+            'You can also use the '
+          )}
+          <b>{t('importExport.fieldOptions.projectHint.project', 'Project')}</b>
+          {t(
+            'importExport.fieldOptions.projectHint.suffix',
+            ' field in the query bar to specify which fields to return or export.'
+          )}
         </Banner>
       )}
     </>

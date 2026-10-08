@@ -8,8 +8,12 @@ import {
   Tooltip,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
-import type { LGTableDataType } from '@mongodb-js/compass-components';
+import type {
+  LGTableDataType,
+  TranslateFn,
+} from '@mongodb-js/compass-components';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 export type SearchIndexInfo = {
@@ -32,6 +36,25 @@ const statusBadgeVariants: Record<SearchIndexStatus, BadgeVariant> = {
   DELETING: BadgeVariant.Red,
 } as const;
 
+function getStatusText(status: SearchIndexStatus, t: TranslateFn): string {
+  switch (status) {
+    case 'BUILDING':
+      return t('indexes.searchIndexStatus.building', 'BUILDING');
+    case 'FAILED':
+      return t('indexes.searchIndexStatus.failed', 'FAILED');
+    case 'PENDING':
+      return t('indexes.searchIndexStatus.pending', 'PENDING');
+    case 'READY':
+      return t('indexes.searchIndexStatus.ready', 'READY');
+    case 'STALE':
+      return t('indexes.searchIndexStatus.stale', 'STALE');
+    case 'DELETING':
+      return t('indexes.searchIndexStatus.deleting', 'DELETING');
+    default:
+      return status;
+  }
+}
+
 export function IndexStatus({
   status,
   'data-testid': dataTestId,
@@ -39,10 +62,11 @@ export function IndexStatus({
   status: SearchIndexStatus;
   'data-testid': string;
 }) {
+  const t = useTranslation();
   const variant = statusBadgeVariants[status];
   return (
     <Badge variant={variant} data-testid={dataTestId}>
-      {status}
+      {getStatusText(status, t)}
     </Badge>
   );
 }
@@ -65,10 +89,16 @@ export function VectorSearchIndexDetails({
 }: {
   definition: Document;
 }) {
+  const t = useTranslation();
   return (
     <>
       {!definition.fields || definition.fields.length === 0 ? (
-        <Disclaimer>No fields in the index definition.</Disclaimer>
+        <Disclaimer>
+          {t(
+            'indexes.searchTable.noFields',
+            'No fields in the index definition.'
+          )}
+        </Disclaimer>
       ) : (
         definition.fields.map((field: { path: string }) => (
           <Tooltip
@@ -94,11 +124,12 @@ export function VectorSearchIndexDetails({
 }
 
 export function SearchIndexDetails({ definition }: { definition: Document }) {
+  const t = useTranslation();
   const badges: { name: string; className?: string }[] = [];
 
   if (definition.mappings?.dynamic) {
     badges.push({
-      name: 'Dynamic Mappings',
+      name: t('indexes.searchTable.dynamicMappings', 'Dynamic Mappings'),
       className: undefined,
     });
   }
@@ -114,7 +145,12 @@ export function SearchIndexDetails({ definition }: { definition: Document }) {
   return (
     <>
       {badges.length === 0 ? (
-        <Disclaimer>No mappings in the index definition.</Disclaimer>
+        <Disclaimer>
+          {t(
+            'indexes.searchTable.noMappings',
+            'No mappings in the index definition.'
+          )}
+        </Disclaimer>
       ) : (
         badges.map((badge) => (
           <Badge key={badge.name} className={badge.className}>
@@ -176,6 +212,7 @@ export function useSearchIndexesTable({
   renderTypeOverride,
   renderExpandedContentOverride,
 }: UseSearchIndexesTableProps) {
+  const t = useTranslation();
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
       indexes.map((index) => {
@@ -197,12 +234,12 @@ export function useSearchIndexesTable({
             renderTypeOverride(index)
           ) : isVectorSearchIndex ? (
             <BadgeWithIconLink
-              text="Vector Search"
+              text={t('indexes.searchIndexType.vectorSearch', 'Vector Search')}
               link="https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/"
             />
           ) : (
             <BadgeWithIconLink
-              text="Search"
+              text={t('indexes.searchIndexType.search', 'Search')}
               link="https://www.mongodb.com/docs/atlas/atlas-search/create-index/"
             />
           ),
@@ -233,6 +270,7 @@ export function useSearchIndexesTable({
       renderTypeOverride,
       renderExpandedContentOverride,
       renderActions,
+      t,
     ]
   );
 

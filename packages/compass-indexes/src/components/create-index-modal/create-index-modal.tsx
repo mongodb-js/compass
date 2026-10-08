@@ -5,6 +5,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalBody,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   fieldAdded,
@@ -45,6 +46,7 @@ function CreateIndexModal({
 }: CreateIndexModalProps) {
   const connectionInfoRef = useConnectionInfoRef();
   const track = useTelemetry();
+  const t = useTranslation();
 
   const onSetOpen = useCallback(
     (open: boolean) => {
@@ -82,7 +84,10 @@ function CreateIndexModal({
       setOpen={onSetOpen}
       data-testid="create-index-modal"
     >
-      <ModalHeader title="Create Index" subtitle={namespace} />
+      <ModalHeader
+        title={t('indexes.createIndexModal.title', 'Create Index')}
+        subtitle={namespace}
+      />
 
       <ModalBody>
         <CreateIndexForm namespace={namespace} {...props} />

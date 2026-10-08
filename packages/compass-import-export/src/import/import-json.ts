@@ -1,5 +1,6 @@
 import { EJSON } from 'bson';
 import type { Readable } from 'stream';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import toNS from 'mongodb-ns';
 import Parser from 'stream-json/Parser';
 import StreamArray from 'stream-json/streamers/StreamArray';
@@ -8,6 +9,7 @@ import StreamValues from 'stream-json/streamers/StreamValues';
 import { doImport } from './import-utils';
 import type { ImportOptions, ImportResult } from './import-types';
 import { createDebug } from '../utils/logger';
+import { englishTranslate } from '../utils/translate';
 
 const debug = createDebug('import-json');
 
@@ -19,12 +21,20 @@ type ImportJSONOptions = ImportOptions & {
 };
 
 class JSONTransformer {
+  t: TranslateFn;
+
+  constructor(t: TranslateFn = englishTranslate) {
+    this.t = t;
+  }
+
   transform(chunk: any) {
     // make sure files parsed as jsonl only contain objects with no arrays and simple values
     // (this will either stop the entire import and throw or just skip this
     // one value depending on the value of stopOnErrors)
     if (Object.prototype.toString.call(chunk.value) !== '[object Object]') {
-      throw new Error('Value is not an object');
+      throw new Error(
+        this.t('importExport.json.notObject', 'Value is not an object')
+      );
     }
 
     return EJSON.deserialize(chunk.value as Document, {
@@ -33,7 +43,9 @@ class JSONTransformer {
   }
 
   lineAnnotation(numProcessed: number): string {
-    return ` [Index ${numProcessed - 1}]`;
+    return ` ${this.t('importExport.json.index', '[Index {index}]', {
+      index: numProcessed - 1,
+    })}`;
   }
 }
 
@@ -47,6 +59,7 @@ export async function importJSON({
   stopOnErrors,
   input,
   jsonVariant,
+  translate: t,
 }: ImportJSONOptions): Promise<ImportResult> {
   debug('importJSON()', { ns: toNS(ns) });
 
@@ -55,7 +68,7 @@ export async function importJSON({
     await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 
-  const transformer = new JSONTransformer();
+  const transformer = new JSONTransformer(t);
 
   const streams = [];
 

@@ -6,6 +6,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
 import reducer, {
@@ -19,6 +20,7 @@ type GlobalWritesExtraArgs = {
   logger: Logger;
   track: TrackFunction;
   connectionInfoRef: ConnectionInfoRef;
+  preferences?: PreferencesAccess;
   atlasGlobalWritesService: AtlasGlobalWritesService;
   pollingTimeoutRef: {
     current: ReturnType<typeof setTimeout> | null;
@@ -40,7 +42,7 @@ export type GlobalWritesPluginOptions = Pick<
 >;
 export type GlobalWritesPluginServices = Pick<
   GlobalWritesExtraArgs,
-  'logger' | 'track' | 'connectionInfoRef'
+  'logger' | 'track' | 'connectionInfoRef' | 'preferences'
 > & {
   atlasService: AtlasService;
 };
@@ -56,6 +58,7 @@ export function activateGlobalWritesPlugin(
     logger,
     track,
     atlasService,
+    preferences,
   }: GlobalWritesPluginServices,
   { cleanup }: ActivateHelpers
 ) {
@@ -78,6 +81,7 @@ export function activateGlobalWritesPlugin(
         logger,
         track,
         connectionInfoRef,
+        preferences,
         atlasGlobalWritesService,
         pollingTimeoutRef,
       })

@@ -10,6 +10,7 @@ import {
   css,
   ListEditor,
   Badge,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { Field } from '../modules/create-index';
@@ -25,14 +26,6 @@ const INDEX_TYPES = [
   'text (full text search)',
   'columnstore',
 ];
-
-/**
- * Default values for field name and type as presented in the UI.
- */
-const DEFAULT_FIELD = {
-  name: 'Select or type a field name',
-  type: 'Select a type',
-};
 
 const createIndexFieldsStyles = css({
   display: 'flex',
@@ -71,6 +64,7 @@ function CreateIndexFields({
   onSelectFieldTypeClick,
 }: CreateIndexFieldsProps): React.ReactElement {
   const track = useTelemetry();
+  const t = useTranslation();
 
   const [indexTypes, selectorWidth] = useMemo(() => {
     const serverSupportsColumnStoreIndex =
@@ -119,8 +113,14 @@ function CreateIndexFields({
             data-testid={`create-index-fields-name-${index}`}
           >
             <ComboboxWithCustomOption
-              aria-label="Index fields"
-              placeholder={DEFAULT_FIELD.name}
+              aria-label={t(
+                'indexes.createIndexFields.ariaLabel',
+                'Index fields'
+              )}
+              placeholder={t(
+                'indexes.createIndexFields.fieldNamePlaceholder',
+                'Select or type a field name'
+              )}
               size="default"
               clearable={false}
               overflow="scroll-x"
@@ -135,7 +135,15 @@ function CreateIndexFields({
                     key={`field-option-${index}`}
                     value={option.value}
                     displayName={
-                      isCustom ? `Field: "${option.value}"` : option.value
+                      isCustom
+                        ? t(
+                            'indexes.createIndexFields.customField',
+                            'Field: "{value}"',
+                            {
+                              value: option.value,
+                            }
+                          )
+                        : option.value
                     }
                   />
                 );
@@ -148,7 +156,10 @@ function CreateIndexFields({
           >
             <Select
               id={`create-index-fields-type-select-${index}`}
-              placeholder={DEFAULT_FIELD.type}
+              placeholder={t(
+                'indexes.createIndexFields.fieldTypePlaceholder',
+                'Select a type'
+              )}
               onChange={(type) => onSelectFieldTypeClick(index, type)}
               allowDeselect={false}
               value={field.type}
@@ -161,7 +172,10 @@ function CreateIndexFields({
                   {type}
                   {type === 'columnstore' && (
                     <>
-                      &nbsp;<Badge>Preview</Badge>
+                      &nbsp;
+                      <Badge>
+                        {t('indexes.createIndexFields.preview', 'Preview')}
+                      </Badge>
                     </>
                   )}
                 </Option>

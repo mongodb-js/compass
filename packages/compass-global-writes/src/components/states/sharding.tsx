@@ -6,6 +6,7 @@ import {
   Button,
   Link,
   SpinLoader,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { cancelSharding, type RootState } from '../../store/reducer';
@@ -26,11 +27,18 @@ export function ShardingState({
   isCancellingSharding,
   onCancelSharding,
 }: ShardingStateProps) {
+  const t = useTranslation();
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Info} className={bannerStyles}>
-        <strong>Sharding your collection …</strong>
-        {nbsp}this should not take too long.
+        <strong>
+          {t('globalWrites.sharding.inProgress', 'Sharding your collection …')}
+        </strong>
+        {nbsp}
+        {t(
+          'globalWrites.sharding.shouldNotTakeLong',
+          'this should not take too long.'
+        )}
         <Button
           className={bannerBtnStyles}
           data-testid="cancel-sharding-btn"
@@ -38,19 +46,23 @@ export function ShardingState({
           isLoading={isCancellingSharding}
           loadingIndicator={<SpinLoader />}
         >
-          Cancel Request
+          {t('globalWrites.sharding.cancelRequest', 'Cancel Request')}
         </Button>
       </Banner>
       <Body>
-        Once your collection is sharded, this tab will show instructions on
-        document ‘location’ field formatting, and provide some common command
-        examples.
+        {t(
+          'globalWrites.sharding.onceSharded',
+          'Once your collection is sharded, this tab will show instructions on document ‘location’ field formatting, and provide some common command examples.'
+        )}
       </Body>
       <Link
         href="https://www.mongodb.com/docs/atlas/global-clusters/"
         hideExternalIcon
       >
-        You can read more about Global Writes in our documentation.
+        {t(
+          'globalWrites.sharding.readMore',
+          'You can read more about Global Writes in our documentation.'
+        )}
       </Link>
     </div>
   );
