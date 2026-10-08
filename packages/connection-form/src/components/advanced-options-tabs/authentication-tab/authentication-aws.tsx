@@ -1,5 +1,9 @@
 import React from 'react';
-import { FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
+import {
+  FormFieldContainer,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -22,6 +26,7 @@ function AuthenticationAWS({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const awsAccessKeyId = getConnectionStringUsername(connectionStringUrl);
   const awsSecretAccessKey = getConnectionStringPassword(connectionStringUrl);
   const authMechanismProperties =
@@ -41,7 +46,10 @@ function AuthenticationAWS({
               username: value,
             });
           }}
-          label={AWS_ACCESS_KEY_ID_LABEL}
+          label={t(
+            'connections.form.auth.awsAccessKeyId',
+            AWS_ACCESS_KEY_ID_LABEL
+          )}
           value={awsAccessKeyId || ''}
         />
       </FormFieldContainer>
@@ -56,7 +64,10 @@ function AuthenticationAWS({
               password: value,
             });
           }}
-          label={AWS_SECRET_ACCESS_KEY_LABEL}
+          label={t(
+            'connections.form.auth.awsSecretAccessKey',
+            AWS_SECRET_ACCESS_KEY_LABEL
+          )}
           type="password"
           value={awsSecretAccessKey || ''}
           optional={true}
@@ -75,7 +86,10 @@ function AuthenticationAWS({
               value: value,
             });
           }}
-          label={AWS_SESSION_TOKEN_LABEL}
+          label={t(
+            'connections.form.auth.awsSessionToken',
+            AWS_SESSION_TOKEN_LABEL
+          )}
           value={sessionToken || ''}
           optional={true}
           type="password"

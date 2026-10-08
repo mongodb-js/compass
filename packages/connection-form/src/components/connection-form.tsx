@@ -21,6 +21,7 @@ import {
   useDarkMode,
   Button,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 import ConnectionStringInput from './connection-string-input';
@@ -225,6 +226,7 @@ function ConnectionPersonalizationForm({
   updateConnectionFormField,
   personalizationOptions,
 }: ConnectionPersonalizationFormProps): React.ReactElement {
+  const t = useTranslation();
   const showFavoriteActions = useConnectionFormSetting('showFavoriteActions');
 
   const onChangeName = useCallback(
@@ -271,12 +273,12 @@ function ConnectionPersonalizationForm({
         value={personalizationOptions.name}
         data-testid="personalization-name-input"
         onChange={onChangeName}
-        label="Name"
+        label={t('connections.form.personalization.name', 'Name')}
       />
       <Select
         className={personalizationColorInputStyles}
         data-testid="personalization-color-input"
-        label="Color"
+        label={t('connections.form.personalization.color', 'Color')}
         defaultValue={personalizationOptions.color || 'no-color'}
         allowDeselect={false}
         onChange={onChangeColor}
@@ -285,7 +287,7 @@ function ConnectionPersonalizationForm({
           glyph={<ColorCircleGlyph hexColor="transparent" />}
           value={'no-color'}
         >
-          No Color
+          {t('connections.form.personalization.noColor', 'No Color')}
         </Option>
         {connectionColorCodes().map((colorCode) => (
           <Option
@@ -305,9 +307,18 @@ function ConnectionPersonalizationForm({
           onChange={onChangeFavorite}
           data-testid="personalization-favorite-checkbox"
           checked={personalizationOptions.isFavorite}
-          label={<b>Favorite this connection</b>}
-          description="Favoriting a connection will pin it to the top of your list of
-        connections"
+          label={
+            <b>
+              {t(
+                'connections.form.personalization.favorite',
+                'Favorite this connection'
+              )}
+            </b>
+          }
+          description={t(
+            'connections.form.personalization.favoriteDescription',
+            'Favoriting a connection will pin it to the top of your list of connections'
+          )}
         />
       )}
     </div>
@@ -357,6 +368,7 @@ function ConnectionForm({
   onAdvancedOptionsToggle,
   openSettingsModal,
 }: ConnectionFormPropsWithoutSettings): React.ReactElement {
+  const t = useTranslation();
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
 
@@ -396,12 +408,14 @@ function ConnectionForm({
       ..._warnings,
       // Do not include values here, only keys, since values might contain sensitive information/credentials
       {
-        message: `Some connection options have been overridden through settings: ${overriddenKeys.join(
-          ', '
-        )}`,
+        message: t(
+          'connections.form.overriddenOptions',
+          'Some connection options have been overridden through settings: {keys}',
+          { keys: overriddenKeys.join(', ') }
+        ),
       },
     ];
-  }, [_warnings, forceConnectionOptions]);
+  }, [_warnings, forceConnectionOptions, t]);
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'
@@ -433,12 +447,16 @@ function ConnectionForm({
         // uncaught in case that code would change
         setErrors([
           {
-            message: `Unable to save connection: ${(err as Error).message}`,
+            message: t(
+              'connections.form.unableToSave',
+              'Unable to save connection: {message}',
+              { message: (err as Error).message }
+            ),
           },
         ]);
       }
     },
-    [onSaveClicked, setErrors]
+    [onSaveClicked, setErrors, t]
   );
   const onSubmitForm = useCallback(
     (intendedAction?: 'connect' | 'save-and-connect') => {
@@ -517,11 +535,15 @@ function ConnectionForm({
         <div className={formHeaderStyles}>
           <div className={formHeaderContentStyles}>
             <H3 className={headingWithHiddenButtonStyles}>
-              {(initialConnectionInfo.favorite?.name ?? 'New Connection') ||
-                'Edit Connection'}
+              {(initialConnectionInfo.favorite?.name ??
+                t('connections.form.newConnection', 'New Connection')) ||
+                t('connections.form.editConnection', 'Edit Connection')}
             </H3>
             <Description className={descriptionStyles}>
-              Manage your connection settings
+              {t(
+                'connections.form.manageSettings',
+                'Manage your connection settings'
+              )}
             </Description>
           </div>
         </div>
@@ -535,10 +557,10 @@ function ConnectionForm({
               >
                 <div className={disabledConnectedConnectionContentStyles}>
                   <div>
-                    While connected, you may only personalize your
-                    connection&apos;s name, color or favorite status. To fully
-                    configure it, you must first disconnect. Beware that
-                    disconnecting might cause work in progress to be lost.
+                    {t(
+                      'connections.form.connectedWarning',
+                      "While connected, you may only personalize your connection's name, color or favorite status. To fully configure it, you must first disconnect. Beware that disconnecting might cause work in progress to be lost."
+                    )}
                   </div>
                   <div>
                     <Button
@@ -546,7 +568,7 @@ function ConnectionForm({
                       leftGlyph={<Icon glyph="Disconnect" />}
                       onClick={onDisconnectClicked}
                     >
-                      Disconnect
+                      {t('connections.form.disconnect', 'Disconnect')}
                     </Button>
                   </div>
                 </div>
@@ -557,10 +579,10 @@ function ConnectionForm({
                 data-testid="protect-connection-strings-banner"
                 className={bannerStyles}
               >
-                Advanced Connection Options are hidden while the &quot;Protect
-                Connection String Secrets&quot; setting is enabled. Disable the
-                setting to configure Advanced Connection Options or edit your
-                connection string.
+                {t(
+                  'connections.form.protectedWarning',
+                  'Advanced Connection Options are hidden while the "Protect Connection String Secrets" setting is enabled. Disable the setting to configure Advanced Connection Options or edit your connection string.'
+                )}
               </Banner>
             )}
             <ConnectionStringInput

@@ -7,6 +7,8 @@ import {
   RadioBoxGroup,
   css,
   FormFieldContainer,
+  useTranslation,
+  type TranslateFn,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -37,9 +39,9 @@ interface TabOption {
   }>;
 }
 
-const tabOptions: TabOption[] = [
+const getTabOptions = (t: TranslateFn): TabOption[] => [
   {
-    title: 'None',
+    title: t('connections.form.proxy.none', 'None'),
     id: 'none',
     type: 'none',
     component: function None() {
@@ -47,19 +49,19 @@ const tabOptions: TabOption[] = [
     },
   },
   {
-    title: 'SSH with Password',
+    title: t('connections.form.proxy.sshPassword', 'SSH with Password'),
     id: 'password',
     type: 'ssh-password',
     component: SshTunnelPassword,
   },
   {
-    title: 'SSH with Identity File',
+    title: t('connections.form.proxy.sshIdentity', 'SSH with Identity File'),
     id: 'identity',
     type: 'ssh-identity',
     component: SshTunnelIdentity,
   },
   {
-    title: 'Socks5',
+    title: t('connections.form.proxy.socks', 'Socks5'),
     id: 'socks',
     type: 'socks',
     component: Socks,
@@ -121,6 +123,7 @@ function ProxyAndSshTunnelTab({
   connectionOptions?: ConnectionOptions;
   openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
+  const t = useTranslation();
   const selectedTunnelType: TunnelType = getSelectedTunnelType(
     connectionStringUrl,
     connectionOptions
@@ -129,18 +132,21 @@ function ProxyAndSshTunnelTab({
   const options = useMemo(() => {
     if (showProxySettings) {
       return [
-        ...tabOptions,
+        ...getTabOptions(t),
         {
-          title: 'Application-level Proxy',
+          title: t(
+            'connections.form.proxy.applicationLevel',
+            'Application-level Proxy'
+          ),
           id: 'app-proxy',
           type: 'app-proxy',
           component: AppProxy,
         } as const,
       ];
     } else {
-      return [...tabOptions];
+      return getTabOptions(t);
     }
-  }, [showProxySettings]);
+  }, [showProxySettings, t]);
 
   const selectedOptionIndex =
     options.findIndex((x) => x.type === selectedTunnelType) ?? 0;
@@ -199,7 +205,7 @@ function ProxyAndSshTunnelTab({
     <>
       <FormFieldContainer>
         <Label htmlFor="ssh-options-radio-box-group">
-          SSH Tunnel/Proxy Method
+          {t('connections.form.proxy.method', 'SSH Tunnel/Proxy Method')}
         </Label>
         <RadioBoxGroup
           id="ssh-options-radio-box-group"

@@ -1,5 +1,11 @@
 import React, { useCallback } from 'react';
-import { css, Icon, spacing, TextInput } from '@mongodb-js/compass-components';
+import {
+  css,
+  Icon,
+  spacing,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 const passphraseInputStyles = css({
   display: 'flex',
@@ -26,6 +32,7 @@ export function Passphrase({
   disabled,
   onChange,
 }: PassphraseProps): React.ReactElement {
+  const t = useTranslation();
   const onChangePassphrase = useCallback(
     ({
       target: { value: passphrase },
@@ -50,7 +57,14 @@ export function Passphrase({
       type="password"
       data-testid="conn-import-export-passphrase-input"
       value={value}
-      errorMessage={required && !value ? 'Passphrase required' : undefined}
+      errorMessage={
+        required && !value
+          ? t(
+              'connections.importExport.passphraseRequired',
+              'Passphrase required'
+            )
+          : undefined
+      }
       state={required && !value ? 'error' : undefined}
       optional={!required}
     />

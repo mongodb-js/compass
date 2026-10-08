@@ -7,6 +7,7 @@ import {
   BannerVariant,
   Button,
   ButtonVariant,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { randomLocalKey } from '../../../utils/csfle-handler';
 import type { ConnectionOptions } from 'mongodb-data-service';
@@ -28,6 +29,7 @@ function KMSLocalKeyGenerator({
   handleFieldChanged: (key: 'key', value?: string) => void;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
+  const t = useTranslation();
   const kmsConfig = useMemo(() => {
     const autoEncryptionOptions =
       connectionOptions.fleOptions?.autoEncryption ?? {};
@@ -53,21 +55,25 @@ function KMSLocalKeyGenerator({
           disabled={Number(kmsConfig?.key?.length || 0) > 0}
           onClick={generateRandomKey}
         >
-          Generate Random Key
+          {t('connections.form.csfle.generateKey', 'Generate Random Key')}
         </Button>
         {generatedKeyMaterial === kmsConfig?.key && (
           <>
             <div className={bannerContainerStyles}>
               <Banner variant={BannerVariant.Info}>
-                This key will be used to encrypt data stored in the database.
-                Without it, encrypted data cannot be accessed.
+                {t(
+                  'connections.form.csfle.generatedKeyInfo',
+                  'This key will be used to encrypt data stored in the database. Without it, encrypted data cannot be accessed.'
+                )}
               </Banner>
             </div>
             {!connectionOptions?.fleOptions?.storeCredentials && (
               <div className={bannerContainerStyles}>
                 <Banner variant={BannerVariant.Warning}>
-                  Compass does not save KMS credentials by default. Copy and
-                  save the key in an external location.
+                  {t(
+                    'connections.form.csfle.generatedKeyWarning',
+                    'Compass does not save KMS credentials by default. Copy and save the key in an external location.'
+                  )}
                 </Banner>
               </div>
             )}

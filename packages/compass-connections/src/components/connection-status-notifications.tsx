@@ -11,6 +11,7 @@ import {
   Button,
   palette,
   AssistantSparkleIcon,
+  translate,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -25,18 +26,33 @@ export function isOIDCAuth(connectionString: string): boolean {
   return authMechanismString === 'MONGODB-OIDC';
 }
 
-export function getConnectingStatusText(connectionInfo: ConnectionInfo) {
+export function getConnectingStatusText(
+  connectionInfo: ConnectionInfo,
+  language = 'en'
+) {
   const connectionTitle = getConnectionTitle(connectionInfo);
   const isOIDC = isOIDCAuth(connectionInfo.connectionOptions.connectionString);
   return {
-    title: `Connecting to ${connectionTitle}`,
-    description: isOIDC ? 'Go to the browser to complete authentication' : '',
+    title: translate(
+      language,
+      'connections.notifications.connecting',
+      'Connecting to {title}',
+      { title: connectionTitle }
+    ),
+    description: isOIDC
+      ? translate(
+          language,
+          'connections.notifications.completeAuthInBrowser',
+          'Go to the browser to complete authentication'
+        )
+      : '',
   };
 }
 
 type ConnectionErrorToastBodyProps = {
   info?: ConnectionInfo | null;
   error: Error;
+  language: string;
   onReview?: () => void;
   onDebug?: () => void;
 };
@@ -102,6 +118,7 @@ const debugActionStyles = css({
 function ConnectionErrorToastBody({
   info,
   error,
+  language,
   onReview,
   onDebug,
 }: ConnectionErrorToastBodyProps): React.ReactElement {
@@ -112,7 +129,13 @@ function ConnectionErrorToastBody({
           data-testid="connection-error-title"
           className={connectionErrorTitleStyles}
         >
-          {info ? getConnectionTitle(info) : 'Connection failed'}
+          {info
+            ? getConnectionTitle(info)
+            : translate(
+                language,
+                'connections.notifications.connectionFailed',
+                'Connection failed'
+              )}
         </span>
         <span data-testid="connection-error-text">{error.message}</span>
       </span>
@@ -125,7 +148,7 @@ function ConnectionErrorToastBody({
             data-testid="connection-error-debug"
             leftGlyph={<AssistantSparkleIcon />}
           >
-            Debug
+            {translate(language, 'connections.notifications.debug', 'Debug')}
           </Button>
         )}
         {info && onReview && (
@@ -134,7 +157,7 @@ function ConnectionErrorToastBody({
             data-testid="connection-error-review"
             size="small"
           >
-            Review
+            {translate(language, 'connections.notifications.review', 'Review')}
           </Button>
         )}
       </span>
@@ -151,9 +174,13 @@ const deviceAuthModalContentStyles = css({
 
 const openConnectionStartedToast = (
   connectionInfo: ConnectionInfo,
-  onCancelClick: () => void
+  onCancelClick: () => void,
+  language: string
 ) => {
-  const { title, description } = getConnectingStatusText(connectionInfo);
+  const { title, description } = getConnectingStatusText(
+    connectionInfo,
+    language
+  );
   openToast(`connection-status--${connectionInfo.id}`, {
     title,
     description,
@@ -168,15 +195,23 @@ const openConnectionStartedToast = (
         }}
         data-testid="cancel-connection-button"
       >
-        CANCEL
+        {translate(language, 'connections.notifications.cancel', 'CANCEL')}
       </Link>
     ),
   });
 };
 
-const openConnectionSucceededToast = (connectionInfo: ConnectionInfo) => {
+const openConnectionSucceededToast = (
+  connectionInfo: ConnectionInfo,
+  language: string
+) => {
   openToast(`connection-status--${connectionInfo.id}`, {
-    title: `Connected to ${getConnectionTitle(connectionInfo)}`,
+    title: translate(
+      language,
+      'connections.notifications.connected',
+      'Connected to {title}',
+      { title: getConnectionTitle(connectionInfo) }
+    ),
     variant: 'success',
     timeout: 3_000,
   });
@@ -187,6 +222,7 @@ const openConnectionFailedToast = ({
   error,
   onReviewClick,
   onDebugClick,
+  language,
 }: {
   // Connection info might be missing if we failed connecting before we
   // could even resolve connection info. Currently the only case where this
@@ -195,6 +231,7 @@ const openConnectionFailedToast = ({
   error: Error;
   onReviewClick?: () => void;
   onDebugClick?: () => void;
+  language: string;
 }) => {
   const failedToastId = connectionInfo?.id ?? 'failed';
 
@@ -205,6 +242,7 @@ const openConnectionFailedToast = ({
       <ConnectionErrorToastBody
         info={connectionInfo}
         error={error}
+        language={language}
         onReview={
           onReviewClick
             ? () => {
@@ -229,14 +267,30 @@ const openConnectionFailedToast = ({
 };
 
 const openMaximumConnectionsReachedToast = (
-  maxConcurrentConnections: number
+  maxConcurrentConnections: number,
+  language: string
 ) => {
-  const message = `Only ${maxConcurrentConnections} connection${
-    maxConcurrentConnections > 1 ? 's' : ''
-  } can be connected to at the same time. First disconnect from another connection.`;
+  const message =
+    maxConcurrentConnections > 1
+      ? translate(
+          language,
+          'connections.notifications.maxConnections.other',
+          'Only {count} connections can be connected to at the same time. First disconnect from another connection.',
+          { count: maxConcurrentConnections }
+        )
+      : translate(
+          language,
+          'connections.notifications.maxConnections.one',
+          'Only {count} connection can be connected to at the same time. First disconnect from another connection.',
+          { count: maxConcurrentConnections }
+        );
 
   openToast('max-connections-reached', {
-    title: 'Maximum concurrent connections limit reached',
+    title: translate(
+      language,
+      'connections.notifications.maxConnectionsTitle',
+      'Maximum concurrent connections limit reached'
+    ),
     description: message,
     variant: 'warning',
     timeout: 5_000,
@@ -248,14 +302,23 @@ const openNotifyDeviceAuthModal = (
   verificationUrl: string,
   userCode: string,
   onCancel: () => void,
-  signal: AbortSignal
+  signal: AbortSignal,
+  language: string
 ) => {
   void showConfirmation({
-    title: `Complete authentication in the browser`,
+    title: translate(
+      language,
+      'connections.notifications.deviceAuthTitle',
+      'Complete authentication in the browser'
+    ),
     description: (
       <div className={deviceAuthModalContentStyles}>
         <Body>
-          Visit the following URL to complete authentication for{' '}
+          {translate(
+            language,
+            'connections.notifications.deviceAuthVisit',
+            'Visit the following URL to complete authentication for'
+          )}{' '}
           <b>{getConnectionTitle(connectionInfo)}</b>:
         </Body>
         <Body>
@@ -264,7 +327,13 @@ const openNotifyDeviceAuthModal = (
           </Link>
         </Body>
         <br></br>
-        <Body>Enter the following code on that page:</Body>
+        <Body>
+          {translate(
+            language,
+            'connections.notifications.deviceAuthEnterCode',
+            'Enter the following code on that page:'
+          )}
+        </Body>
         <Body as="div">
           <Code language="none">{userCode}</Code>
         </Body>
@@ -284,13 +353,34 @@ const openNotifyDeviceAuthModal = (
   );
 };
 
-export function getNotificationTriggers() {
+export function getNotificationTriggers(language = 'en') {
   return {
-    openNotifyDeviceAuthModal,
-    openConnectionStartedToast,
-    openConnectionSucceededToast,
-    openConnectionFailedToast,
-    openMaximumConnectionsReachedToast,
+    openNotifyDeviceAuthModal: (
+      connectionInfo: ConnectionInfo,
+      verificationUrl: string,
+      userCode: string,
+      onCancel: () => void,
+      signal: AbortSignal
+    ) =>
+      openNotifyDeviceAuthModal(
+        connectionInfo,
+        verificationUrl,
+        userCode,
+        onCancel,
+        signal,
+        language
+      ),
+    openConnectionStartedToast: (
+      connectionInfo: ConnectionInfo,
+      onCancelClick: () => void
+    ) => openConnectionStartedToast(connectionInfo, onCancelClick, language),
+    openConnectionSucceededToast: (connectionInfo: ConnectionInfo) =>
+      openConnectionSucceededToast(connectionInfo, language),
+    openConnectionFailedToast: (
+      options: Omit<Parameters<typeof openConnectionFailedToast>[0], 'language'>
+    ) => openConnectionFailedToast({ ...options, language }),
+    openMaximumConnectionsReachedToast: (maxConcurrentConnections: number) =>
+      openMaximumConnectionsReachedToast(maxConcurrentConnections, language),
     closeConnectionStatusToast: (connectionId: string) => {
       return closeToast(`connection-status--${connectionId}`);
     },

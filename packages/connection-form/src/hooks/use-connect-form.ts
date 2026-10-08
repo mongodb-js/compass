@@ -1,4 +1,11 @@
-import { useReducer, type Dispatch, useCallback, useEffect } from 'react';
+import {
+  useReducer,
+  type Dispatch,
+  useCallback,
+  useEffect,
+  useMemo,
+} from 'react';
+import { useTranslation } from '@mongodb-js/compass-components';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
@@ -14,6 +21,7 @@ import type {
   ConnectionFormWarning,
 } from '../utils/validation';
 import { validateConnectionOptionsWarnings } from '../utils/validation';
+import { translateValidationMessage } from '../utils/validation-messages';
 import { getNextHost } from '../utils/get-next-host';
 import {
   defaultConnectionString,
@@ -741,7 +749,22 @@ export function useConnectForm(
       derivedFormState.enableEditingConnectionString,
   };
 
+  const t = useTranslation();
   const [state, dispatch] = useReducer(connectFormReducer, initialFormState);
+  const translatedState = useMemo(
+    () => ({
+      ...state,
+      errors: state.errors.map((error) => ({
+        ...error,
+        message: translateValidationMessage(t, error.message),
+      })),
+      warnings: state.warnings.map((warning) => ({
+        ...warning,
+        message: translateValidationMessage(t, warning.message),
+      })),
+    }),
+    [state, t]
+  );
 
   const setErrors = useCallback((errors: ConnectionFormError[]) => {
     dispatch({
@@ -795,7 +818,7 @@ export function useConnectForm(
   });
 
   return [
-    state,
+    translatedState,
     {
       updateConnectionFormField,
       setEnableEditingConnectionString,

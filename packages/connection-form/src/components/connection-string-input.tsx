@@ -8,6 +8,7 @@ import {
   css,
   showConfirmation,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
@@ -84,6 +85,7 @@ function ConnectionStringInput({
   protectConnectionStrings: boolean;
   disableEditingConnectedConnection: boolean;
 }): React.ReactElement {
+  const t = useTranslation();
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
     useState(connectionString);
@@ -136,16 +138,21 @@ function ConnectionStringInput({
         return;
       }
       const confirmed = await showConfirmation({
-        title: 'Are you sure you want to edit your connection string?',
-        description:
-          'Editing this connection string will reveal your credentials.',
+        title: t(
+          'connections.form.connectionString.editConfirmTitle',
+          'Are you sure you want to edit your connection string?'
+        ),
+        description: t(
+          'connections.form.connectionString.editConfirmDescription',
+          'Editing this connection string will reveal your credentials.'
+        ),
       });
       if (!confirmed) {
         return;
       }
       setEnableEditingConnectionString(true);
     },
-    [setEnableEditingConnectionString]
+    [setEnableEditingConnectionString, t]
   );
 
   return (
@@ -156,7 +163,10 @@ function ConnectionStringInput({
             URI
           </Label>
           <InlineInfoLink
-            aria-label="Connection String Documentation"
+            aria-label={t(
+              'connections.form.connectionString.docsAriaLabel',
+              'Connection String Documentation'
+            )}
             data-testid="connectionStringDocsButton"
             href="https://docs.mongodb.com/manual/reference/connection-string/"
           />
@@ -168,7 +178,10 @@ function ConnectionStringInput({
               id="edit-connection-string-label"
               htmlFor="toggle-edit-connection-string"
             >
-              Edit Connection String
+              {t(
+                'connections.form.connectionString.edit',
+                'Edit Connection String'
+              )}
             </Label>
             <Toggle
               className={editToggleStyles}
@@ -198,7 +211,10 @@ function ConnectionStringInput({
           data-testid={connectionStringInputId}
           ref={textAreaEl}
           aria-labelledby={connectionStringLabelId}
-          placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
+          placeholder={t(
+            'connections.form.connectionString.placeholder',
+            'e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin'
+          )}
           spellCheck={false}
         />
       </div>

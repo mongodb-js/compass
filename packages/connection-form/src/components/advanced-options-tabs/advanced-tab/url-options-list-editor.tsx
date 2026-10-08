@@ -9,6 +9,7 @@ import {
   spacing,
   ListEditor,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -67,6 +68,7 @@ function UrlOptionsListEditor({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
+  const t = useTranslation();
   const [options, setOptions] = React.useState<Partial<UrlOption>[]>(() => {
     return appendEmptyOption(getUrlOptions(connectionStringUrl));
   });
@@ -135,7 +137,7 @@ function UrlOptionsListEditor({
           <Select
             id="select-key"
             className={optionSelectStyles}
-            placeholder="Select key"
+            placeholder={t('connections.form.advanced.selectKey', 'Select key')}
             name="select-url-options-key-name"
             aria-labelledby={
               uriOption.name ? `${uriOption.name} select` : 'new option select'
@@ -151,8 +153,8 @@ function UrlOptionsListEditor({
             allowDeselect={false}
             value={uriOption.name ?? ''}
           >
-            {editableUrlOptions.map(({ title, values }) => (
-              <OptionGroup key={title} label={title}>
+            {editableUrlOptions.map(({ title, titleKey, values }) => (
+              <OptionGroup key={title} label={t(titleKey, title)}>
                 {values.map((value) => (
                   <Option
                     key={value}
@@ -185,9 +187,16 @@ function UrlOptionsListEditor({
             }
             spellCheck={false}
             type={'text'}
-            placeholder={'Value'}
+            placeholder={t('connections.form.advanced.value', 'Value')}
             aria-label={
-              uriOption.name ? `${uriOption.name} Value` : 'URL Option Value'
+              uriOption.name
+                ? t('connections.form.advanced.namedValue', '{name} Value', {
+                    name: uriOption.name,
+                  })
+                : t(
+                    'connections.form.advanced.urlOptionValue',
+                    'URL Option Value'
+                  )
             }
             value={uriOption.value}
             className={valueInputStyles}

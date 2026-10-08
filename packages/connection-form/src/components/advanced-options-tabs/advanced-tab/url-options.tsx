@@ -5,6 +5,7 @@ import {
   Description,
   Link,
   css,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
@@ -28,17 +29,24 @@ function UrlOptions({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
+  const t = useTranslation();
   return (
     <div className={urlOptionsContainerStyles} data-testid="url-options">
-      <Body weight="medium">URI Options</Body>
+      <Body weight="medium">
+        {t('connections.form.advanced.uriOptions', 'URI Options')}
+      </Body>
       <Description className={urlOptionsDescriptionStyles}>
-        Add additional MongoDB URI options to customize your connection.&nbsp;
+        {t(
+          'connections.form.advanced.uriOptionsDescription',
+          'Add additional MongoDB URI options to customize your connection.'
+        )}
+        &nbsp;
         <Link
           href={
             'https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options'
           }
         >
-          Learn More
+          {t('connections.form.advanced.learnMore', 'Learn More')}
         </Link>
       </Description>
       <UrlOptionsListEditor

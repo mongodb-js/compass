@@ -6,6 +6,7 @@ import {
   Link,
   Subtitle,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
@@ -33,6 +34,7 @@ function ShellInfoModal({
   show: boolean;
   mongoshVersion: string;
 }) {
+  const t = useTranslation();
   useTrackOnChange(
     (track: TrackFunction) => {
       if (show) {
@@ -55,17 +57,26 @@ function ShellInfoModal({
       onClose={onClose}
     >
       <Banner>
-        For more information please visit the&nbsp;
+        {t(
+          'connections.shell.moreInfoPrefix',
+          'For more information please visit the'
+        )}
+        &nbsp;
         <Link
           id="mongosh-info-link"
           href="https://docs.mongodb.com/compass/beta/embedded-shell/"
           target="_blank"
         >
-          MongoDB Shell Documentation
+          {t(
+            'connections.shell.documentationLink',
+            'MongoDB Shell Documentation'
+          )}
         </Link>
         .
       </Banner>
-      <Subtitle className={shortcutsTitleStyles}>Keyboard Shortcuts</Subtitle>
+      <Subtitle className={shortcutsTitleStyles}>
+        {t('connections.shell.keyboardShortcuts', 'Keyboard Shortcuts')}
+      </Subtitle>
       <div className={shortcutsTableContainerStyles}>
         <KeyboardShortcutsTable />
       </div>

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Banner,
   Checkbox,
@@ -7,6 +7,7 @@ import {
   FormModal,
   openToast,
   SelectList,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
@@ -21,11 +22,6 @@ const tableStyles = css({
   overflow: 'auto',
 });
 
-const SelectListLabel = {
-  displayLabelKey: 'name',
-  name: 'Connection Name',
-} as const;
-
 export function ExportConnectionsModal({
   open,
   setOpen,
@@ -37,20 +33,32 @@ export function ExportConnectionsModal({
   afterExport?: () => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
+  const t = useTranslation();
+  const selectListLabel = useMemo(
+    () =>
+      ({
+        displayLabelKey: 'name',
+        name: t('connections.importExport.connectionName', 'Connection Name'),
+      }) as const,
+    [t]
+  );
   const finish = useCallback(
     (result: ImportExportResult) => {
       setOpen(false);
       if (result === 'succeeded') {
         openToast('compass-connection-import-export--export-succeeded', {
-          title: 'Export successful',
-          description: 'Connections successfully exported',
+          title: t('connections.export.successTitle', 'Export successful'),
+          description: t(
+            'connections.export.successDescription',
+            'Connections successfully exported'
+          ),
           variant: 'success',
           timeout: TOAST_TIMEOUT_MS,
         });
         afterExport?.();
       }
     },
-    [afterExport, setOpen]
+    [afterExport, setOpen, t]
   );
 
   const openModalThroughIpc = useCallback(() => {
@@ -90,8 +98,8 @@ export function ExportConnectionsModal({
       open={open}
       onCancel={onCancel}
       onSubmit={onSubmit}
-      title="Export saved connections"
-      submitButtonText="Export"
+      title={t('connections.export.title', 'Export saved connections')}
+      submitButtonText={t('connections.export.submit', 'Export')}
       submitDisabled={
         inProgress ||
         !!error ||
@@ -103,13 +111,13 @@ export function ExportConnectionsModal({
       <SelectList
         className={tableStyles}
         items={connectionList}
-        label={SelectListLabel}
+        label={selectListLabel}
         disabled={inProgress}
         onChange={onChangeConnectionList}
       />
       <FormFieldContainer>
         <FileInput
-          label="Target File"
+          label={t('connections.export.targetFile', 'Target File')}
           mode="save"
           disabled={inProgress}
           onChange={onChangeFilename}
@@ -120,23 +128,36 @@ export function ExportConnectionsModal({
         <Checkbox
           checked={removeSecrets}
           disabled={inProgress || protectConnectionStrings}
-          label="Remove Secrets"
-          description="Omit secrets such as passwords and access tokens"
+          label={t('connections.export.removeSecrets', 'Remove Secrets')}
+          description={t(
+            'connections.export.removeSecretsDescription',
+            'Omit secrets such as passwords and access tokens'
+          )}
           onChange={onChangeRemoveSecrets}
           data-testid="connection-export-remove-secrets"
         />
       </FormFieldContainer>
       <FormFieldContainer>
         <Passphrase
-          label="Encryption Password"
-          description="Optional passphrase to encrypt secrets such as passwords and access tokens"
+          label={t(
+            'connections.export.encryptionPassword',
+            'Encryption Password'
+          )}
+          description={t(
+            'connections.export.encryptionPasswordDescription',
+            'Optional passphrase to encrypt secrets such as passwords and access tokens'
+          )}
           required={false}
           disabled={inProgress || removeSecrets}
           onChange={onChangePassphrase}
           value={passphrase}
         />
       </FormFieldContainer>
-      {error && <Banner variant="danger">Error: {error}</Banner>}
+      {error && (
+        <Banner variant="danger">
+          {t('connections.importExport.error', 'Error: {error}', { error })}
+        </Banner>
+      )}
     </FormModal>
   );
 }

@@ -1,5 +1,9 @@
 import { useCallback } from 'react';
-import { palette, useDarkMode } from '@mongodb-js/compass-components';
+import {
+  palette,
+  useDarkMode,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 type ColorCode = `color${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
 export const DefaultColorCode = 'color10';
@@ -104,6 +108,7 @@ export function useConnectionColor(): {
   connectionColorToName: (colorCode: string | undefined) => string | undefined;
 } {
   const isDarkMode = useDarkMode();
+  const t = useTranslation();
 
   const colorCodeToHex = useCallback(
     (colorCode: string | undefined): string | undefined => {
@@ -139,9 +144,12 @@ export function useConnectionColor(): {
         return;
       }
 
-      return COLOR_CODE_TO_NAME[colorCode];
+      return t(
+        `connections.form.color.${colorCode}`,
+        COLOR_CODE_TO_NAME[colorCode]
+      );
     },
-    []
+    [t]
   );
 
   const connectionColorCodes = () => CONNECTION_COLOR_CODES.slice(0, 9);

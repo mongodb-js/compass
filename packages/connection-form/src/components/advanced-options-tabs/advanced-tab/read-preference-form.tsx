@@ -11,6 +11,7 @@ import {
   TextInput,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions, ReadPreferenceMode } from 'mongodb';
@@ -71,6 +72,7 @@ function ReadPreferenceForm({
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const searchParams =
     connectionStringUrl.typedSearchParams<MongoClientOptions>();
   const mode =
@@ -132,11 +134,17 @@ function ReadPreferenceForm({
   return (
     <>
       <FormFieldContainer>
-        <Label htmlFor="read-preferences">Read Preference</Label>
+        <Label htmlFor="read-preferences">
+          {t('connections.form.readPreference.title', 'Read Preference')}
+        </Label>
         <Description className={descriptionStyles}>
-          Choose which members your reads go to.&nbsp;
+          {t(
+            'connections.form.readPreference.description',
+            'Choose which members your reads go to.'
+          )}
+          &nbsp;
           <Link href="https://www.mongodb.com/docs/manual/core/read-preference/">
-            Learn More
+            {t('connections.form.advanced.learnMore', 'Learn More')}
           </Link>
         </Description>
         <RadioBoxGroup
@@ -153,7 +161,7 @@ function ReadPreferenceForm({
             value={defaultReadPreference}
             checked={!mode}
           >
-            Default
+            {t('connections.form.readPreference.default', 'Default')}
           </RadioBox>
           {readPreferences.map(({ title, id }) => {
             return (
@@ -177,13 +185,19 @@ function ReadPreferenceForm({
               htmlFor="read-preference-tags-input-0"
               id="read-preference-tags-label"
             >
-              Read Preference Tags
+              {t(
+                'connections.form.readPreference.tags',
+                'Read Preference Tags'
+              )}
             </Label>
             <Description className={descriptionStyles}>
-              Tried in order. Leave a set empty to fall back to any
-              member.&nbsp;
+              {t(
+                'connections.form.readPreference.tagsDescription',
+                'Tried in order. Leave a set empty to fall back to any member.'
+              )}
+              &nbsp;
               <Link href="https://www.mongodb.com/docs/manual/core/read-preference-tags/">
-                Learn More
+                {t('connections.form.advanced.learnMore', 'Learn More')}
               </Link>
             </Description>
             <ListEditor
@@ -204,7 +218,10 @@ function ReadPreferenceForm({
                     placeholder={
                       index === 0
                         ? 'nodeType:ANALYTICS,region:US_EAST_1'
-                        : 'Empty: any member'
+                        : t(
+                            'connections.form.readPreference.tagsEmpty',
+                            'Empty: any member'
+                          )
                     }
                     state={errorMessage ? 'error' : undefined}
                     errorMessage={errorMessage}
@@ -241,8 +258,14 @@ function ReadPreferenceForm({
             <TextInput
               type="number"
               data-testid="max-staleness-seconds-input"
-              label="Max Staleness Seconds"
-              description="Minimum 90 seconds."
+              label={t(
+                'connections.form.readPreference.maxStaleness',
+                'Max Staleness Seconds'
+              )}
+              description={t(
+                'connections.form.readPreference.maxStalenessDescription',
+                'Minimum 90 seconds.'
+              )}
               optional={true}
               min={90}
               value={maxStalenessSeconds}

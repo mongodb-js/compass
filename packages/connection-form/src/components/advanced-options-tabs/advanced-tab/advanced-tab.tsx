@@ -1,7 +1,11 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import { FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
+import {
+  FormFieldContainer,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
@@ -21,6 +25,7 @@ function AdvancedTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
+  const t = useTranslation();
   const { searchParams, pathname } = connectionStringUrl;
   const replicaSet = searchParams.get('replicaSet');
   const defaultDatabase = pathname.startsWith('/')
@@ -71,7 +76,10 @@ function AdvancedTab({
           }}
           name={'replica-set'}
           data-testid={'replica-set'}
-          label={'Replica Set Name'}
+          label={t(
+            'connections.form.advanced.replicaSetName',
+            'Replica Set Name'
+          )}
           type={'text'}
           optional={true}
           value={replicaSet ?? ''}
@@ -87,13 +95,17 @@ function AdvancedTab({
           }}
           name={'default-database'}
           data-testid={'default-database'}
-          label={'Default Authentication Database'}
+          label={t(
+            'connections.form.advanced.defaultDatabase',
+            'Default Authentication Database'
+          )}
           type={'text'}
           optional={true}
           value={defaultDatabase ?? ''}
-          description={
+          description={t(
+            'connections.form.advanced.defaultDatabaseDescription',
             'Authentication database used when authSource is not specified.'
-          }
+          )}
         />
       </FormFieldContainer>
       <FormFieldContainer>

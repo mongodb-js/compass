@@ -7,6 +7,7 @@ import {
   Body,
   BannerVariant,
   showConfirmation,
+  translate,
 } from '@mongodb-js/compass-components';
 import {
   getConnectionTitle,
@@ -19,31 +20,49 @@ const modalBodyStyles = css({
 });
 
 export function showNonGenuineMongoDBWarningModal(
-  connectionInfo?: ConnectionInfo
+  connectionInfo?: ConnectionInfo,
+  language = 'en'
 ) {
   return showConfirmation({
-    title: 'Non-Genuine MongoDB Detected',
+    title: translate(
+      language,
+      'connections.nonGenuine.title',
+      'Non-Genuine MongoDB Detected'
+    ),
     hideCancelButton: true,
     description: (
       <>
         <Banner variant={BannerVariant.Warning}>
           {connectionInfo
-            ? `Server or service "${getConnectionTitle(connectionInfo)}"`
-            : 'This server or service'}{' '}
-          appears to be an emulation of MongoDB rather than an official MongoDB
-          product.
+            ? translate(
+                language,
+                'connections.nonGenuine.namedWarning',
+                'Server or service "{title}" appears to be an emulation of MongoDB rather than an official MongoDB product.',
+                { title: getConnectionTitle(connectionInfo) }
+              )
+            : translate(
+                language,
+                'connections.nonGenuine.genericWarning',
+                'This server or service appears to be an emulation of MongoDB rather than an official MongoDB product.'
+              )}
         </Banner>
         <Body className={modalBodyStyles}>
-          Some documented MongoDB features may work differently, be entirely
-          missing or incomplete, or have unexpected performance
-          characteristics.{' '}
+          {translate(
+            language,
+            'connections.nonGenuine.body',
+            'Some documented MongoDB features may work differently, be entirely missing or incomplete, or have unexpected performance characteristics.'
+          )}{' '}
         </Body>
         <Link
           href="https://www.mongodb.com/docs/compass/master/faq/#why-am-i-seeing-a-warning-about-a-non-genuine-mongodb-server-"
           target="_blank"
           data-testid="non-genuine-warning-modal-learn-more-link"
         >
-          Learn more
+          {translate(
+            language,
+            'connections.nonGenuine.learnMore',
+            'Learn more'
+          )}
         </Link>
       </>
     ),

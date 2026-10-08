@@ -1,5 +1,9 @@
 import React from 'react';
-import { FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
+import {
+  FormFieldContainer,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -22,6 +26,7 @@ function AuthenticationPlain({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const username = getConnectionStringUsername(connectionStringUrl);
   const password = getConnectionStringPassword(connectionStringUrl);
   const usernameError = errorMessageByFieldName(errors, 'username');
@@ -40,7 +45,7 @@ function AuthenticationPlain({
               username: value,
             });
           }}
-          label={PLAIN_USERNAME_LABEL}
+          label={t('connections.form.auth.username', PLAIN_USERNAME_LABEL)}
           value={username || ''}
           errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
@@ -57,7 +62,7 @@ function AuthenticationPlain({
               password: value,
             });
           }}
-          label={PLAIN_PASSWORD_LABEL}
+          label={t('connections.form.auth.password', PLAIN_PASSWORD_LABEL)}
           type="password"
           value={password || ''}
           errorMessage={passwordError}

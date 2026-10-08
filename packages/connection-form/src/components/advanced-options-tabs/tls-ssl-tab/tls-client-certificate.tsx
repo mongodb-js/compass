@@ -3,6 +3,7 @@ import {
   FormFieldContainer,
   FilePickerDialog,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 function TLSClientCertificate({
@@ -24,16 +25,22 @@ function TLSClientCertificate({
   ) => void;
   updateTLSClientCertificatePassword: (newPassword: string | null) => void;
 }): React.ReactElement {
+  const t = useTranslation();
   return (
     <>
       <FormFieldContainer>
         <FilePickerDialog
           description={
-            displayDatabaseConnectionUserHints ? 'Learn More' : undefined
+            displayDatabaseConnectionUserHints
+              ? t('connections.form.tls.learnMore', 'Learn More')
+              : undefined
           }
           disabled={disabled}
           id="tlsCertificateKeyFile"
-          label="Client Certificate and Key (.pem)"
+          label={t(
+            'connections.form.tls.clientCertificate',
+            'Client Certificate and Key (.pem)'
+          )}
           dataTestId="tlsCertificateKeyFile-input"
           link={
             displayDatabaseConnectionUserHints
@@ -51,7 +58,10 @@ function TLSClientCertificate({
           optional={optional}
           optionalMessage={
             optional && displayDatabaseConnectionUserHints
-              ? 'Optional (required with X.509 auth)'
+              ? t(
+                  'connections.form.tls.clientCertificateOptional',
+                  'Optional (required with X.509 auth)'
+                )
               : undefined
           }
         />
@@ -66,7 +76,10 @@ function TLSClientCertificate({
           disabled={disabled}
           data-testid="tlsCertificateKeyFilePassword-input"
           id="tlsCertificateKeyFilePassword"
-          label="Client Key Password"
+          label={t(
+            'connections.form.tls.clientKeyPassword',
+            'Client Key Password'
+          )}
           type="password"
           value={tlsCertificateKeyFilePassword || ''}
           optional

@@ -6,6 +6,7 @@ import {
   css,
   cx,
   palette,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
@@ -71,28 +72,45 @@ function AdvancedOptionsTabs({
   connectionOptions: ConnectionOptions;
   openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
+  const t = useTranslation();
   const [activeTab, setActiveTab] = useState(0);
   const showCSFLE = useConnectionFormSetting('showCSFLE');
 
   const tabs: TabObject[] = [
-    { name: 'General', id: 'general', component: GeneralTab },
     {
-      name: 'Authentication',
+      name: t('connections.form.tabs.general', 'General'),
+      id: 'general',
+      component: GeneralTab,
+    },
+    {
+      name: t('connections.form.tabs.authentication', 'Authentication'),
       id: 'authentication',
       component: AuthenticationTab,
     },
-    { name: 'TLS/SSL', id: 'tls', component: TLSTab },
-    { name: 'Proxy/SSH', id: 'proxy', component: ProxyAndSshTunnelTab },
+    {
+      name: t('connections.form.tabs.tls', 'TLS/SSL'),
+      id: 'tls',
+      component: TLSTab,
+    },
+    {
+      name: t('connections.form.tabs.proxy', 'Proxy/SSH'),
+      id: 'proxy',
+      component: ProxyAndSshTunnelTab,
+    },
     ...(showCSFLE
       ? [
           {
-            name: 'In-Use Encryption',
+            name: t('connections.form.tabs.csfle', 'In-Use Encryption'),
             id: 'csfle',
             component: CSFLETab,
           } as const,
         ]
       : []),
-    { name: 'Advanced', id: 'advanced', component: AdvancedTab },
+    {
+      name: t('connections.form.tabs.advanced', 'Advanced'),
+      id: 'advanced',
+      component: AdvancedTab,
+    },
   ];
 
   const connectionStringUrl = useMemo(() => {
@@ -111,7 +129,7 @@ function AdvancedOptionsTabs({
       className={tabsStyles}
       onValueChange={setActiveTab}
       value={activeTab}
-      aria-label="Advanced Options Tabs"
+      aria-label={t('connections.form.tabs.ariaLabel', 'Advanced Options Tabs')}
     >
       {tabs.map((tabObject: TabObject, idx: number) => {
         const TabComponent = tabObject.component;
@@ -133,8 +151,18 @@ function AdvancedOptionsTabs({
             }
             aria-label={`${tabObject.name}${
               tabErrors.length > 0
-                ? ` (${tabErrors.length} error${
-                    tabErrors.length > 1 ? 's' : ''
+                ? ` (${
+                    tabErrors.length > 1
+                      ? t(
+                          'connections.form.tabs.errorCount.other',
+                          '{count} errors',
+                          { count: tabErrors.length }
+                        )
+                      : t(
+                          'connections.form.tabs.errorCount.one',
+                          '{count} error',
+                          { count: tabErrors.length }
+                        )
                   })`
                 : ''
             }`}

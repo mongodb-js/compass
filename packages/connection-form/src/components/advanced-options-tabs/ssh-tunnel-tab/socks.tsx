@@ -1,6 +1,10 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
-import { FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
+import {
+  FormFieldContainer,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { MongoClientOptions } from 'mongodb';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
@@ -33,6 +37,7 @@ function Socks({
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
+  const t = useTranslation();
   const typedSearchParams =
     connectionStringUrl.typedSearchParams<MongoClientOptions>();
 
@@ -56,7 +61,7 @@ function Socks({
   const fields: Field[] = [
     {
       name: 'proxyHost',
-      label: 'Proxy Hostname',
+      label: t('connections.form.proxy.hostname', 'Proxy Hostname'),
       type: 'text',
       optional: false,
       value: typedSearchParams.get('proxyHost') ?? '',
@@ -65,7 +70,7 @@ function Socks({
     },
     {
       name: 'proxyPort',
-      label: 'Proxy Tunnel Port',
+      label: t('connections.form.proxy.port', 'Proxy Tunnel Port'),
       type: 'number',
       optional: true,
       value: typedSearchParams.get('proxyPort') ?? '',
@@ -73,7 +78,7 @@ function Socks({
     },
     {
       name: 'proxyUsername',
-      label: 'Proxy Username',
+      label: t('connections.form.proxy.username', 'Proxy Username'),
       type: 'text',
       optional: true,
       value: typedSearchParams.get('proxyUsername') ?? '',
@@ -81,7 +86,7 @@ function Socks({
     },
     {
       name: 'proxyPassword',
-      label: 'Proxy Password',
+      label: t('connections.form.proxy.password', 'Proxy Password'),
       type: 'password',
       optional: true,
       value: typedSearchParams.get('proxyPassword') ?? '',

@@ -1,5 +1,10 @@
 import React, { useCallback } from 'react';
-import { Button, css, Icon } from '@mongodb-js/compass-components';
+import {
+  Button,
+  css,
+  Icon,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type {
   KMSField,
@@ -52,6 +57,7 @@ function KMSProviderContent<T extends KMSProviderType>({
   kmsProviderNames,
   ...restOfTheProps
 }: KMSProviderContentProps<T>): React.ReactElement {
+  const t = useTranslation();
   const onAddKmsProvider = useCallback(
     (name: KMSProviderName<T>) => {
       return updateConnectionFormField({
@@ -88,7 +94,7 @@ function KMSProviderContent<T extends KMSProviderType>({
           }}
         >
           <Icon size="xsmall" glyph="Plus" />
-          Add item
+          {t('connections.form.csfle.addItem', 'Add item')}
         </Button>
       </div>
     </>

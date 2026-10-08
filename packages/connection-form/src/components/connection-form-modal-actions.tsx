@@ -7,6 +7,7 @@ import {
   spacing,
   css,
   cx,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type {
   ConnectionFormError,
@@ -56,6 +57,7 @@ export function ConnectionFormModalActions({
   onSaveAndConnect,
   onConnect,
 }: ConnectionFormModalActionsProps): React.ReactElement {
+  const t = useTranslation();
   const saveAndConnectLabel = useConnectionFormSetting('saveAndConnectLabel');
   return (
     <div className={cx(formActionStyles)}>
@@ -83,7 +85,7 @@ export function ConnectionFormModalActions({
             disabled={false}
             onClick={onCancel}
           >
-            Cancel
+            {t('connections.form.actions.cancel', 'Cancel')}
           </Button>
         )}
 
@@ -99,7 +101,7 @@ export function ConnectionFormModalActions({
               disabled={false}
               onClick={onSave}
             >
-              Save
+              {t('connections.form.actions.save', 'Save')}
             </Button>
           </div>
         )}
@@ -110,7 +112,7 @@ export function ConnectionFormModalActions({
             variant={ButtonVariant.PrimaryOutline}
             onClick={onConnect}
           >
-            Connect
+            {t('connections.form.actions.connect', 'Connect')}
           </Button>
         )}
 
@@ -122,7 +124,9 @@ export function ConnectionFormModalActions({
             variant={ButtonVariant.Primary}
             onClick={onSaveAndConnect}
           >
-            {saveAndConnectLabel}
+            {saveAndConnectLabel === 'Save & Connect'
+              ? t('connections.form.actions.saveAndConnect', 'Save & Connect')
+              : saveAndConnectLabel}
           </Button>
         )}
       </div>

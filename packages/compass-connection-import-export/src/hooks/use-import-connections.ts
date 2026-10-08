@@ -20,6 +20,8 @@ import {
   useConnectionsList,
 } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import { useTranslation } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
   isExistingConnection: boolean;
@@ -44,7 +46,8 @@ async function loadFile(
   }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
     existingConnectionIds: string[];
   },
-  deserializeConnections: Required<ConnectionStorage>['deserializeConnections']
+  deserializeConnections: Required<ConnectionStorage>['deserializeConnections'],
+  t: TranslateFn
 ): Promise<Partial<ImportConnectionsState>> {
   if (!filename) {
     return INITIAL_STATE;
@@ -73,7 +76,12 @@ async function loadFile(
     }
 
     if (connectionList.length === 0) {
-      throw new Error('File does not contain any connections');
+      throw new Error(
+        t(
+          'connections.importExport.noConnectionsInFile',
+          'File does not contain any connections'
+        )
+      );
     }
     return {
       fileContents,
@@ -109,6 +117,7 @@ export function useImportConnections({
   const existingConnections = useConnectionsList((conn) => {
     return !conn.isBeingCreated && !conn.isAutoconnectInfo;
   });
+  const t = useTranslation();
   const { importConnections } = useConnectionActions();
   const connectionStorage = useConnectionStorageContext();
   const deserializeConnectionsImpl =
@@ -186,7 +195,8 @@ export function useImportConnections({
       timer = undefined;
       void loadFile(
         { filename, passphrase, existingConnectionIds },
-        deserializeConnectionsImpl
+        deserializeConnectionsImpl,
+        t
       ).then((stateUpdate) => {
         setState((prevState) => {
           if (

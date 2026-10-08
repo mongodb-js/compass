@@ -1,5 +1,8 @@
 import React, { useCallback } from 'react';
-import { FilePickerDialog } from '@mongodb-js/compass-components';
+import {
+  FilePickerDialog,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 type FileInputProps = {
   label: string;
@@ -16,6 +19,7 @@ export function FileInput({
   disabled,
   onChange,
 }: FileInputProps): React.ReactElement {
+  const t = useTranslation();
   const onChangeFiles = useCallback(
     (files: string[]) => {
       if (files.length > 0) onChange(files[0]);
@@ -32,10 +36,13 @@ export function FileInput({
       accept=".json"
       variant="vertical"
       values={value ? [value] : []}
-      title="Select connections file"
+      title={t(
+        'connections.importExport.selectFile',
+        'Select connections file'
+      )}
       defaultPath="compass-connections.json"
       mode={mode}
-      buttonLabel="Select"
+      buttonLabel={t('connections.importExport.select', 'Select')}
     />
   );
 }

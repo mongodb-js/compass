@@ -26,7 +26,11 @@ import {
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
 import { getNotificationTriggers } from '../components/connection-status-notifications';
-import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation,
+  translate,
+} from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import { isAtlasStream } from 'mongodb-build-info';
 import EventEmitter from 'events';
@@ -1213,7 +1217,7 @@ export const loadConnections = (): ConnectionsThunkAction<
   | ConnectionsLoadSuccessAction
   | ConnectionsLoadErrorAction
 > => {
-  return async (dispatch, getState, { connectionStorage }) => {
+  return async (dispatch, getState, { connectionStorage, preferences }) => {
     if (getState().connections.status !== 'initial') {
       return;
     }
@@ -1223,7 +1227,11 @@ export const loadConnections = (): ConnectionsThunkAction<
       dispatch({ type: ActionTypes.ConnectionsLoadSuccess, connections });
     } catch (err) {
       openToast('failed-to-load-connections', {
-        title: 'Failed to load connections',
+        title: translate(
+          preferences.getPreferences().language,
+          'connections.store.loadFailed',
+          'Failed to load connections'
+        ),
         description: (err as Error).message,
         variant: 'warning',
       });
@@ -1268,7 +1276,9 @@ const connectionAttemptError = (
     _getState,
     { track, getExtraConnectionData, compassAssistant, preferences }
   ) => {
-    const { openConnectionFailedToast } = getNotificationTriggers();
+    const { openConnectionFailedToast } = getNotificationTriggers(
+      preferences.getPreferences().language
+    );
 
     const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
     openConnectionFailedToast({
@@ -1401,14 +1411,31 @@ function getActiveConnectionsCount(connections: State['connections']) {
   }).length;
 }
 
-async function showOIDCReauthModal(connectionInfo: ConnectionInfo) {
+async function showOIDCReauthModal(
+  connectionInfo: ConnectionInfo,
+  language: string
+) {
   const confirmed = await showConfirmation({
-    title: `Authentication expired for ${getConnectionTitle(connectionInfo)}`,
-    description:
-      'You need to re-authenticate to the database in order to continue.',
+    title: translate(
+      language,
+      'connections.store.authExpired',
+      'Authentication expired for {title}',
+      { title: getConnectionTitle(connectionInfo) }
+    ),
+    description: translate(
+      language,
+      'connections.store.reauthenticate',
+      'You need to re-authenticate to the database in order to continue.'
+    ),
   });
   if (!confirmed) {
-    throw new Error('Reauthentication declined by user');
+    throw new Error(
+      translate(
+        language,
+        'connections.store.reauthDeclined',
+        'Reauthentication declined by user'
+      )
+    );
   }
 }
 
@@ -1438,12 +1465,27 @@ function isAtlasStreamsInstance(
 // https://github.com/10gen/mms/blob/de2a9c463cfe530efb8e2a0941033e8207b6cb11/server/src/main/com/xgen/cloud/services/clusterconnection/runtime/res/CustomCloseCodes.java
 const NonRetryableErrorCodes = [3000, 3003, 4004, 1008] as const;
 const NonRetryableErrorDescriptionFallbacks: {
-  [code in (typeof NonRetryableErrorCodes)[number]]: string;
+  [code in (typeof NonRetryableErrorCodes)[number]]: {
+    key: string;
+    english: string;
+  };
 } = {
-  3000: 'Unauthorized',
-  3003: 'Forbidden',
-  4004: 'Not Found',
-  1008: 'Violated policy',
+  3000: {
+    key: 'connections.store.nonRetryable.unauthorized',
+    english: 'Unauthorized',
+  },
+  3003: {
+    key: 'connections.store.nonRetryable.forbidden',
+    english: 'Forbidden',
+  },
+  4004: {
+    key: 'connections.store.nonRetryable.notFound',
+    english: 'Not Found',
+  },
+  1008: {
+    key: 'connections.store.nonRetryable.violatedPolicy',
+    english: 'Violated policy',
+  },
 };
 
 function isNonRetryableHeartbeatFailure(evt: ServerHeartbeatFailedEvent) {
@@ -1452,30 +1494,45 @@ function isNonRetryableHeartbeatFailure(evt: ServerHeartbeatFailedEvent) {
   );
 }
 
-function getDescriptionForNonRetryableError(error: Error): string {
+function getDescriptionForNonRetryableError(
+  error: Error,
+  language: string
+): string {
   // Give a description from the error message when provided, otherwise fallback
   // to the generic error description.
   const reason = error.message.match(/code: \d+, reason: (.*)$/)?.[1];
-  return reason && reason.length > 0
-    ? reason.endsWith('.')
-      ? reason.slice(0, -1)
-      : reason // Remove trailing period
-    : (NonRetryableErrorDescriptionFallbacks[
-        Number(
-          error.message.match(/code: (\d+),/)?.[1]
-        ) as (typeof NonRetryableErrorCodes)[number]
-      ] ?? 'Unknown');
+  if (reason && reason.length > 0) {
+    return reason.endsWith('.') ? reason.slice(0, -1) : reason; // Remove trailing period
+  }
+  const fallback =
+    NonRetryableErrorDescriptionFallbacks[
+      Number(
+        error.message.match(/code: (\d+),/)?.[1]
+      ) as (typeof NonRetryableErrorCodes)[number]
+    ];
+  return fallback
+    ? translate(language, fallback.key, fallback.english)
+    : translate(language, 'connections.store.nonRetryable.unknown', 'Unknown');
 }
 
 const openConnectionClosedWithNonRetryableErrorToast = (
   connectionInfo: ConnectionInfo,
-  error: Error
+  error: Error,
+  language: string
 ) => {
   openToast(`non-retryable-error-encountered--${connectionInfo.id}`, {
-    title: `Unable to connect to ${getConnectionTitle(connectionInfo)}`,
-    description: `Reason: ${getDescriptionForNonRetryableError(
-      error
-    )}. To continue to use this connection either disconnect and reconnect, or refresh your page.`,
+    title: translate(
+      language,
+      'connections.store.unableToConnect',
+      'Unable to connect to {title}',
+      { title: getConnectionTitle(connectionInfo) }
+    ),
+    description: translate(
+      language,
+      'connections.store.nonRetryableReason',
+      'Reason: {reason}. To continue to use this connection either disconnect and reconnect, or refresh your page.',
+      { reason: getDescriptionForNonRetryableError(error, language) }
+    ),
     variant: 'warning',
   });
 };
@@ -1550,7 +1607,9 @@ const performConnection = (
           getActiveConnectionsCount(getState().connections) >=
             maximumNumberOfActiveConnections
         ) {
-          getNotificationTriggers().openMaximumConnectionsReachedToast(
+          getNotificationTriggers(
+            preferences.getPreferences().language
+          ).openMaximumConnectionsReachedToast(
             maximumNumberOfActiveConnections
           );
           return;
@@ -1570,7 +1629,9 @@ const performConnection = (
         telemetryAnonymousId,
       } = preferences.getPreferences();
 
-      const connectionProgress = getNotificationTriggers();
+      const connectionProgress = getNotificationTriggers(
+        preferences.getPreferences().language
+      );
 
       dispatch({
         type: ActionTypes.ConnectionAttemptStart,
@@ -1642,7 +1703,11 @@ const performConnection = (
       // is done.
       if (isAtlasStreamsInstance(adjustedConnectionInfoForConnection)) {
         throw new Error(
-          'Atlas Stream Processing is not yet supported on MongoDB Compass. To work with your Stream Processing Instance, connect with mongosh or MongoDB for VS Code.'
+          translate(
+            preferences.getPreferences().language,
+            'connections.store.atlasStreamsUnsupported',
+            'Atlas Stream Processing is not yet supported on MongoDB Compass. To work with your Stream Processing Instance, connect with mongosh or MongoDB for VS Code.'
+          )
         );
       }
 
@@ -1720,7 +1785,8 @@ const performConnection = (
 
           openConnectionClosedWithNonRetryableErrorToast(
             connectionInfo,
-            evt.failure
+            evt.failure,
+            preferences.getPreferences().language
           );
           showedNonRetryableErrorToast = true;
           void dataService.disconnect();
@@ -1729,9 +1795,12 @@ const performConnection = (
 
       dataService.on('oidcAuthFailed', (error) => {
         openToast('oidc-auth-failed', {
-          title: `Failed to authenticate for ${getConnectionTitle(
-            connectionInfo
-          )}`,
+          title: translate(
+            preferences.getPreferences().language,
+            'connections.store.authFailed',
+            'Failed to authenticate for {title}',
+            { title: getConnectionTitle(connectionInfo) }
+          ),
           description: error,
           variant: 'important',
         });
@@ -1764,7 +1833,10 @@ const performConnection = (
       });
 
       dataService.addReauthenticationHandler(() => {
-        return showOIDCReauthModal(connectionInfo);
+        return showOIDCReauthModal(
+          connectionInfo,
+          preferences.getPreferences().language
+        );
       });
 
       DataServiceForConnection.set(connectionInfo.id, dataService);
@@ -1955,7 +2027,7 @@ const saveConnectionInfo = (
   return async (
     dispatch,
     getState,
-    { connectionStorage, track, logger: { debug } }
+    { connectionStorage, track, logger: { debug }, preferences }
   ) => {
     // Never save autoconnection info
     if (isAutoconnectInfo(getState(), connectionInfo.id)) {
@@ -1986,7 +2058,11 @@ const saveConnectionInfo = (
     } catch (err) {
       debug(`error saving connection with id ${connectionInfo.id}`, err);
       openToast(`save-connection-error-${connectionInfo.id}`, {
-        title: 'An error occurred while saving the connection',
+        title: translate(
+          preferences.getPreferences().language,
+          'connections.store.saveFailed',
+          'An error occurred while saving the connection'
+        ),
         description: (err as Error).message,
         variant: 'warning',
       });
@@ -2247,10 +2323,13 @@ export const removeAllRecentConnections = (): ConnectionsThunkAction<
 export const showNonGenuineMongoDBWarningModal = (
   connectionId: string
 ): ConnectionsThunkAction<void> => {
-  return (_dispatch, getState, { track }) => {
+  return (_dispatch, getState, { track, preferences }) => {
     const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);
     track('Screen', { name: 'non_genuine_mongodb_modal' }, connectionInfo);
-    void _showNonGenuineMongoDBWarningModal(connectionInfo);
+    void _showNonGenuineMongoDBWarningModal(
+      connectionInfo,
+      preferences.getPreferences().language
+    );
   };
 };
 
@@ -2296,7 +2375,8 @@ export const showEndOfLifeMongoDBWarningModal = (
     void _showEndOfLifeMongoDBWarningModal(
       connectionInfo,
       version,
-      abortController.signal
+      abortController.signal,
+      preferences.getPreferences().language
     );
   };
 };

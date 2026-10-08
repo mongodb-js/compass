@@ -8,6 +8,7 @@ import {
   TextInput,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { AuthMechanism } from 'mongodb';
@@ -51,6 +52,7 @@ function AuthenticationDefault({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const password = getConnectionStringPassword(connectionStringUrl);
   const username = getConnectionStringUsername(connectionStringUrl);
 
@@ -89,7 +91,7 @@ function AuthenticationDefault({
               username: value,
             });
           }}
-          label="Username"
+          label={t('connections.form.auth.username', 'Username')}
           data-testid="connection-username-input"
           errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
@@ -107,7 +109,7 @@ function AuthenticationDefault({
               password: value,
             });
           }}
-          label="Password"
+          label={t('connections.form.auth.password', 'Password')}
           type="password"
           data-testid="connection-password-input"
           value={password || ''}
@@ -118,10 +120,13 @@ function AuthenticationDefault({
       </FormFieldContainer>
       <FormFieldContainer>
         <Label htmlFor="authSourceInput" id="authSourceLabel">
-          Authentication Database
+          {t('connections.form.auth.database', 'Authentication Database')}
         </Label>
         <InlineInfoLink
-          aria-label="Authentication Database Documentation"
+          aria-label={t(
+            'connections.form.auth.databaseDocs',
+            'Authentication Database Documentation'
+          )}
           href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
         />
         <TextInput
@@ -150,7 +155,7 @@ function AuthenticationDefault({
       </FormFieldContainer>
       <FormFieldContainer>
         <Label htmlFor="authentication-mechanism-radio-box-group">
-          Authentication Mechanism
+          {t('connections.form.auth.mechanism', 'Authentication Mechanism')}
         </Label>
         <RadioBoxGroup
           onChange={onAuthMechanismSelected}
@@ -166,7 +171,9 @@ function AuthenticationDefault({
                 value={value}
                 key={value}
               >
-                {title}
+                {value === 'DEFAULT'
+                  ? t('connections.form.auth.mechanismDefault', title)
+                  : title}
               </RadioBox>
             );
           })}

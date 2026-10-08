@@ -8,6 +8,7 @@ import {
   SpinLoader,
   withDarkMode,
   useHotkeys,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
@@ -100,6 +101,7 @@ export const ShellHeader = ({
 }: {
   darkMode: boolean | undefined;
 } & ShellHeaderProps) => {
+  const t = useTranslation();
   useHotkeys(
     'ctrl + `',
     onShellToggleClicked ??
@@ -133,7 +135,11 @@ export const ShellHeader = ({
               shellHeaderToggleStyles,
               darkMode && shellHeaderToggleDarkModeStyles
             )}
-            aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
+            aria-label={
+              isExpanded
+                ? t('connections.shell.closeShell', 'Close Shell')
+                : t('connections.shell.openShell', 'Open Shell')
+            }
             onClick={onShellToggleClicked}
             aria-pressed={isExpanded}
           >
@@ -148,7 +154,11 @@ export const ShellHeader = ({
                 )}
               >
                 <SpinLoader darkMode={darkMode} />
-                &nbsp;Command in progress&hellip;
+                &nbsp;
+                {t(
+                  'connections.shell.commandInProgress',
+                  'Command in progress…'
+                )}
               </span>
             )}
           </button>
@@ -158,7 +168,7 @@ export const ShellHeader = ({
         {isExpanded && (
           <IconButton
             data-testid="shell-info-button"
-            aria-label="Shell Info"
+            aria-label={t('connections.shell.info', 'Shell Info')}
             aria-haspopup="dialog"
             onClick={showInfoModal}
           >
@@ -167,7 +177,11 @@ export const ShellHeader = ({
         )}
         {showCollapseExpandChevron && (
           <IconButton
-            aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
+            aria-label={
+              isExpanded
+                ? t('connections.shell.closeShell', 'Close Shell')
+                : t('connections.shell.openShell', 'Open Shell')
+            }
             data-testid={`shell-toggle-button${
               isExpanded ? '-close' : '-open'
             }`}

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   FormFieldContainer,
   FilePickerDialog,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 function TLSCertificateAuthority({
@@ -15,17 +16,23 @@ function TLSCertificateAuthority({
   displayDatabaseConnectionUserHints?: boolean;
   handleTlsOptionChanged: (key: 'tlsCAFile', value: string | null) => void;
 }): React.ReactElement {
+  const t = useTranslation();
   return (
     <>
       <FormFieldContainer>
         <FilePickerDialog
           description={
-            displayDatabaseConnectionUserHints ? 'Learn More' : undefined
+            displayDatabaseConnectionUserHints
+              ? t('connections.form.tls.learnMore', 'Learn More')
+              : undefined
           }
           disabled={disabled}
           id="tlsCAFile"
           dataTestId="tlsCAFile-input"
-          label="Certificate Authority (.pem)"
+          label={t(
+            'connections.form.tls.certificateAuthority',
+            'Certificate Authority (.pem)'
+          )}
           link={
             displayDatabaseConnectionUserHints
               ? 'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'

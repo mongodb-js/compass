@@ -5,6 +5,7 @@ import {
   css,
   rgba,
   palette,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
@@ -46,10 +47,14 @@ function AdvancedConnectionOptions({
   React.ComponentProps<typeof Accordion>,
   'open' | 'setOpen'
 >): React.ReactElement {
+  const t = useTranslation();
   return (
     <Accordion
       data-testid="advanced-connection-options"
-      text="Advanced Connection Options"
+      text={t(
+        'connections.form.advancedOptions',
+        'Advanced Connection Options'
+      )}
       open={open}
       setOpen={setOpen}
     >
@@ -57,7 +62,10 @@ function AdvancedConnectionOptions({
         {disabled && (
           <div
             className={disabledOverlayStyles}
-            title="The connection form is disabled when the connection string cannot be parsed."
+            title={t(
+              'connections.form.disabledOverlay',
+              'The connection form is disabled when the connection string cannot be parsed.'
+            )}
           />
         )}
         <AdvancedOptionsTabs

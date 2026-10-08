@@ -10,6 +10,7 @@ import {
   Body,
   Label,
   cx,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -54,6 +55,7 @@ function KMSNameComponent<T extends KMSProviderType>({
   validateName: (name: string) => string | undefined;
   onRename: (newName: KMSProviderName<T>) => void;
 }) {
+  const t = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [validationError, setValidationError] = useState<string | undefined>();
   const [name, setName] = useState(() => {
@@ -83,12 +85,17 @@ function KMSNameComponent<T extends KMSProviderType>({
   if (!isEditing) {
     return (
       <div>
-        <Label htmlFor="kms-name">KMS Name</Label>
+        <Label htmlFor="kms-name">
+          {t('connections.form.csfle.kmsName', 'KMS Name')}
+        </Label>
         <div className={cx(flexContainerStyles, editKmsContainerStyles)}>
           <Body>{kmsProviderName}</Body>
           <IconButton
             data-testid="csfle-edit-kms-name"
-            aria-label="Edit KMS provider name"
+            aria-label={t(
+              'connections.form.csfle.editKmsName',
+              'Edit KMS provider name'
+            )}
             onClick={onEdit}
           >
             <Icon glyph="Edit" />
@@ -100,7 +107,9 @@ function KMSNameComponent<T extends KMSProviderType>({
 
   return (
     <div>
-      <Label htmlFor={kmsProviderName}>KMS Name</Label>
+      <Label htmlFor={kmsProviderName}>
+        {t('connections.form.csfle.kmsName', 'KMS Name')}
+      </Label>
       <div className={flexContainerStyles}>
         <Body>{kmsProviderType}:</Body>
         <TextInput
@@ -111,7 +120,7 @@ function KMSNameComponent<T extends KMSProviderType>({
           id={kmsProviderName}
           onBlur={onSave}
           data-testid="csfle-kms-card-name"
-          aria-label={'KMS Name'}
+          aria-label={t('connections.form.csfle.kmsName', 'KMS Name')}
           type={'text'}
           state={validationError ? 'error' : 'none'}
           errorMessage={validationError}
@@ -153,6 +162,7 @@ function KMSProviderCard<T extends KMSProviderType>({
   noTLS,
   index,
 }: KMSProviderCardProps<T>) {
+  const t = useTranslation();
   const [hoverProps, isHovered] = useHoverState();
   const onRenameKmsProvider = useCallback(
     (newName: KMSProviderName<T>) => {
@@ -184,22 +194,25 @@ function KMSProviderCard<T extends KMSProviderType>({
         name === '' &&
         withoutCurrentKMSProviderNames.some((n) => n === maybeProviderName)
       ) {
-        return 'Name cannot be empty';
+        return t('connections.form.csfle.nameEmpty', 'Name cannot be empty');
       }
       if (
         withoutCurrentKMSProviderNames.includes(
           maybeProviderName as KMSProviderName<T>
         )
       ) {
-        return 'Name already exists';
+        return t('connections.form.csfle.nameExists', 'Name already exists');
       }
       const regex = new RegExp(`^${kmsProviderType}(:[a-zA-Z0-9_]+)?$`);
       if (!maybeProviderName.match(regex)) {
-        return 'Name must be alphanumeric and may contain underscores';
+        return t(
+          'connections.form.csfle.nameInvalid',
+          'Name must be alphanumeric and may contain underscores'
+        );
       }
       return undefined;
     },
-    [kmsProviderNames, kmsProviderName, kmsProviderType]
+    [kmsProviderNames, kmsProviderName, kmsProviderType, t]
   );
 
   return (
@@ -218,7 +231,10 @@ function KMSProviderCard<T extends KMSProviderType>({
         />
         {kmsProviderNames.length > 1 && isHovered && (
           <IconButton
-            aria-label="Remove KMS provider"
+            aria-label={t(
+              'connections.form.csfle.removeKms',
+              'Remove KMS provider'
+            )}
             className={pushRightStyles}
             onClick={onRemoveKmsProvider}
           >

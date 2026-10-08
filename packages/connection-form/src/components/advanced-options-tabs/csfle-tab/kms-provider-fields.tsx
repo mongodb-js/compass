@@ -4,6 +4,7 @@ import {
   FormFieldContainer,
   TextInput,
   TextArea,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import KMSTLSOptions from './kms-tls-options';
@@ -37,6 +38,7 @@ function KMSProviderFieldsForm<T extends KMSProviderType>({
   clientCertIsOptional?: boolean;
   noTLS?: boolean;
 }): React.ReactElement {
+  const t = useTranslation();
   const autoEncryptionOptions =
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
@@ -78,14 +80,23 @@ function KMSProviderFieldsForm<T extends KMSProviderType>({
                 }}
                 name={name}
                 data-testid={`csfle-kms-${kmsProviderType}-${name}`}
-                label={label}
+                label={t(
+                  `connections.form.csfle.field.${kmsProviderType}.${name}.label`,
+                  label
+                )}
                 type={type === 'textarea' ? undefined : type}
                 optional={type === 'textarea' ? undefined : optional}
                 value={value(autoEncryptionOptions, kmsProviderName)}
                 errorMessage={errorMessage?.(errors, kmsProviderName)}
                 state={typeof state === 'string' ? state : state(errors)}
                 spellCheck={false}
-                description={description}
+                description={
+                  description &&
+                  t(
+                    `connections.form.csfle.field.${kmsProviderType}.${name}.description`,
+                    description
+                  )
+                }
               />
             </FormFieldContainer>
           );

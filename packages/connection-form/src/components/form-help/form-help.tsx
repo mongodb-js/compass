@@ -7,6 +7,7 @@ import {
   css,
   palette,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const sectionContainerStyles = css({
@@ -40,6 +41,7 @@ const sectionLightModeStyles = css({
 });
 
 function FormHelp(): React.ReactElement {
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const themeStyles = darkMode ? sectionDarkModeStyles : sectionLightModeStyles;
 
@@ -47,29 +49,36 @@ function FormHelp(): React.ReactElement {
     <div className={themeStyles}>
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
-          How do I find my connection string in Atlas?
+          {t(
+            'connections.form.help.findTitle',
+            'How do I find my connection string in Atlas?'
+          )}
         </Subtitle>
         <Body className={descriptionStyles}>
-          If you have an Atlas cluster, go to the Cluster view. Click the
-          &apos;Connect&apos; button for the cluster to which you wish to
-          connect.
+          {t(
+            'connections.form.help.findBody',
+            "If you have an Atlas cluster, go to the Cluster view. Click the 'Connect' button for the cluster to which you wish to connect."
+          )}
         </Body>
         <Link
           href="https://docs.atlas.mongodb.com/compass-connection/"
           target="_blank"
         >
-          See example
+          {t('connections.form.help.seeExample', 'See example')}
         </Link>
       </div>
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
-          How do I format my connection string?
+          {t(
+            'connections.form.help.formatTitle',
+            'How do I format my connection string?'
+          )}
         </Subtitle>
         <Link
           href="https://docs.mongodb.com/manual/reference/connection-string/"
           target="_blank"
         >
-          See example
+          {t('connections.form.help.seeExample', 'See example')}
         </Link>
       </div>
     </div>

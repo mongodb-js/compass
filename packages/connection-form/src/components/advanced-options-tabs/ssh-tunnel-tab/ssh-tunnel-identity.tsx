@@ -4,6 +4,7 @@ import {
   FormFieldContainer,
   TextInput,
   FilePickerDialog,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -46,6 +47,7 @@ function SshTunnelIdentity({
   updateConnectionFormField: UpdateConnectionFormField;
   errors: ConnectionFormError[];
 }): React.ReactElement {
+  const t = useTranslation();
   const formFieldChanged = useCallback(
     (key: IdentityFormKeys, value: string | undefined) => {
       return updateConnectionFormField({
@@ -60,7 +62,7 @@ function SshTunnelIdentity({
   const fields: Array<TextInputField | FileInputField> = [
     {
       name: 'host',
-      label: 'SSH Hostname',
+      label: t('connections.form.ssh.hostname', 'SSH Hostname'),
       type: 'text',
       optional: false,
       value: sshTunnelOptions?.host,
@@ -69,7 +71,7 @@ function SshTunnelIdentity({
     },
     {
       name: 'port',
-      label: 'SSH Port',
+      label: t('connections.form.ssh.port', 'SSH Port'),
       type: 'number',
       optional: false,
       value: sshTunnelOptions?.port?.toString(),
@@ -78,7 +80,7 @@ function SshTunnelIdentity({
     },
     {
       name: 'username',
-      label: 'SSH Username',
+      label: t('connections.form.ssh.username', 'SSH Username'),
       type: 'text',
       optional: false,
       value: sshTunnelOptions?.username,
@@ -87,7 +89,7 @@ function SshTunnelIdentity({
     },
     {
       name: 'identityKeyFile',
-      label: 'SSH Identity File',
+      label: t('connections.form.ssh.identityFile', 'SSH Identity File'),
       type: 'file',
       errorMessage: errorMessageByFieldName(errors, 'sshIdentityKeyFile'),
       state: fieldNameHasError(errors, 'sshIdentityKeyFile') ? 'error' : 'none',
@@ -98,7 +100,7 @@ function SshTunnelIdentity({
     },
     {
       name: 'identityKeyPassphrase',
-      label: 'SSH Passphrase',
+      label: t('connections.form.ssh.passphrase', 'SSH Passphrase'),
       type: 'password',
       optional: true,
       value: sshTunnelOptions?.identityKeyPassphrase,

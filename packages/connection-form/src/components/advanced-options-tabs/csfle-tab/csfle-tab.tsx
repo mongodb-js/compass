@@ -13,6 +13,7 @@ import {
   TextInput,
   spacing,
   css,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { Document, AutoEncryptionOptions } from 'mongodb';
 
@@ -93,6 +94,7 @@ function CSFLETab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
+  const t = useTranslation();
   const autoEncryptionOptions =
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
@@ -166,11 +168,14 @@ function CSFLETab({
     <>
       <FormFieldContainer>
         <Banner>
-          In-Use Encryption is an Enterprise/Atlas-only feature of
-          MongoDB.&nbsp;
+          {t(
+            'connections.form.csfle.enterpriseOnly',
+            'In-Use Encryption is an Enterprise/Atlas-only feature of MongoDB.'
+          )}
+          &nbsp;
           {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
           <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields">
-            Learn More
+            {t('connections.form.advanced.learnMore', 'Learn More')}
           </Link>
         </Banner>
       </FormFieldContainer>
@@ -182,7 +187,10 @@ function CSFLETab({
           }}
           name="csfle-keyvault"
           data-testid="csfle-keyvault"
-          label="Key Vault Namespace"
+          label={t(
+            'connections.form.csfle.keyVaultNamespace',
+            'Key Vault Namespace'
+          )}
           type="text"
           optional={false}
           value={autoEncryptionOptions.keyVaultNamespace || ''}
@@ -191,13 +199,21 @@ function CSFLETab({
             fieldNameHasError(errors, 'keyVaultNamespace') ? 'error' : 'none'
           }
           spellCheck={false}
-          description="Specify a collection in which data encryption keys are stored in the format <db>.<collection>."
+          description={t(
+            'connections.form.csfle.keyVaultNamespaceDescription',
+            'Specify a collection in which data encryption keys are stored in the format <db>.<collection>.'
+          )}
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Body weight="medium">KMS Providers</Body>
+        <Body weight="medium">
+          {t('connections.form.csfle.kmsProviders', 'KMS Providers')}
+        </Body>
         <Description>
-          Specify one or more Key Management Systems to use.
+          {t(
+            'connections.form.csfle.kmsProvidersDescription',
+            'Specify one or more Key Management Systems to use.'
+          )}
         </Description>
       </FormFieldContainer>
       <FormFieldContainer>
@@ -210,11 +226,16 @@ function CSFLETab({
           label={
             <>
               <Label htmlFor="csfle-store-credentials-input">
-                Store KMS provider secrets
+                {t(
+                  'connections.form.csfle.storeSecrets',
+                  'Store KMS provider secrets'
+                )}
               </Label>
               <Description>
-                Control whether KMS secrets are stored on disk (protected by the
-                OS keychain) or discarded after disconnecting.
+                {t(
+                  'connections.form.csfle.storeSecretsDescription',
+                  'Control whether KMS secrets are stored on disk (protected by the OS keychain) or discarded after disconnecting.'
+                )}
               </Description>
             </>
           }
@@ -226,7 +247,9 @@ function CSFLETab({
           ({ title, kmsProviderType, ...kmsFieldComponentOptions }) => {
             const accordionTitle = (
               <span className={titleStyles}>
-                {title}
+                {kmsProviderType === 'local'
+                  ? t('connections.form.csfle.localKms', 'Local KMS')
+                  : title}
                 {(kmsProviders[kmsProviderType]?.length ?? 0) > 1 && (
                   <span>({kmsProviders[kmsProviderType]?.length})</span>
                 )}
@@ -273,7 +296,10 @@ function CSFLETab({
       <FormFieldContainer>
         <EncryptedFieldConfigInput
           label="EncryptedFieldsMap"
-          description="Add an optional client-side EncryptedFieldsMap for enhanced security."
+          description={t(
+            'connections.form.csfle.encryptedFieldsMapDescription',
+            'Add an optional client-side EncryptedFieldsMap for enhanced security.'
+          )}
           encryptedFieldsMap={autoEncryptionOptions?.encryptedFieldsMap}
           errorMessage={errorMessageByFieldName(errors, 'encryptedFieldsMap')}
           onChange={(value: Document | undefined) => {

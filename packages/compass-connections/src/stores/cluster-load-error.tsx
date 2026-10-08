@@ -1,5 +1,12 @@
 import React from 'react';
-import { css, spacing, Button, Body, H3 } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Button,
+  Body,
+  H3,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   width: '100%',
@@ -133,14 +140,25 @@ const ErrorGraphic = () => {
 };
 
 const ClusterLoadError = () => {
+  const t = useTranslation();
   return (
     <div className={containerStyles}>
       <ErrorGraphic />
       <div className={contentStyles}>
-        <H3>An error occurred while querying your MongoDB deployment</H3>
-        <Body>Please try again in a few minutes.</Body>
+        <H3>
+          {t(
+            'connections.clusterLoadError.title',
+            'An error occurred while querying your MongoDB deployment'
+          )}
+        </H3>
+        <Body>
+          {t(
+            'connections.clusterLoadError.tryAgain',
+            'Please try again in a few minutes.'
+          )}
+        </Body>
         <Button as="a" href="#/clusters" variant="default">
-          Back to Clusters
+          {t('connections.clusterLoadError.backToClusters', 'Back to Clusters')}
         </Button>
       </div>
     </div>

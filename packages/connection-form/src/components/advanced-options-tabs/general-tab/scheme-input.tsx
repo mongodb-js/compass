@@ -8,6 +8,7 @@ import {
   Label,
   spacing,
   css,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
@@ -27,11 +28,6 @@ const descriptionStyles = css({
   marginTop: spacing[200],
 });
 
-const regularSchemeDescription =
-  'Standard Connection String Format. The standard format of the MongoDB connection URI is used to connect to a MongoDB deployment: standalone, replica set, or a sharded cluster.';
-const srvSchemeDescription =
-  'DNS Seed List Connection Format. The +srv indicates to the client that the hostname that follows corresponds to a DNS SRV record.';
-
 function SchemeInput({
   connectionStringUrl,
   errors,
@@ -41,6 +37,7 @@ function SchemeInput({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const { isSRV } = connectionStringUrl;
 
   const onChangeConnectionScheme = useCallback(
@@ -56,7 +53,7 @@ function SchemeInput({
   return (
     <>
       <Label htmlFor="connection-scheme-radio-box-group">
-        Connection String Scheme
+        {t('connections.form.general.scheme', 'Connection String Scheme')}
       </Label>
       <RadioBoxGroup
         id="connection-scheme-radio-box-group"
@@ -79,7 +76,15 @@ function SchemeInput({
         </RadioBox>
       </RadioBoxGroup>
       <Description className={descriptionStyles}>
-        {isSRV ? srvSchemeDescription : regularSchemeDescription}
+        {isSRV
+          ? t(
+              'connections.form.general.srvSchemeDescription',
+              'DNS Seed List Connection Format. The +srv indicates to the client that the hostname that follows corresponds to a DNS SRV record.'
+            )
+          : t(
+              'connections.form.general.regularSchemeDescription',
+              'Standard Connection String Format. The standard format of the MongoDB connection URI is used to connect to a MongoDB deployment: standalone, replica set, or a sharded cluster.'
+            )}
       </Description>
       {fieldNameHasError(errors, 'isSrv') && (
         <Banner variant={BannerVariant.Danger}>

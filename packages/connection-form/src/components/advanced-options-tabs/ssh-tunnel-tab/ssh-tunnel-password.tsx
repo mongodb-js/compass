@@ -1,6 +1,10 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
-import { FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
+import {
+  FormFieldContainer,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
@@ -23,6 +27,7 @@ function SshTunnelPassword({
   updateConnectionFormField: UpdateConnectionFormField;
   errors: ConnectionFormError[];
 }): React.ReactElement {
+  const t = useTranslation();
   const formFieldChanged = useCallback(
     (key: PasswordFormKeys, value: string) => {
       return updateConnectionFormField({
@@ -45,7 +50,7 @@ function SshTunnelPassword({
   }[] = [
     {
       name: 'host',
-      label: 'SSH Hostname',
+      label: t('connections.form.ssh.hostname', 'SSH Hostname'),
       type: 'text',
       optional: false,
       value: sshTunnelOptions?.host,
@@ -54,7 +59,7 @@ function SshTunnelPassword({
     },
     {
       name: 'port',
-      label: 'SSH Port',
+      label: t('connections.form.ssh.port', 'SSH Port'),
       type: 'number',
       optional: false,
       value: sshTunnelOptions?.port?.toString(),
@@ -63,7 +68,7 @@ function SshTunnelPassword({
     },
     {
       name: 'username',
-      label: 'SSH Username',
+      label: t('connections.form.ssh.username', 'SSH Username'),
       type: 'text',
       optional: false,
       value: sshTunnelOptions?.username,
@@ -72,7 +77,7 @@ function SshTunnelPassword({
     },
     {
       name: 'password',
-      label: 'SSH Password',
+      label: t('connections.form.ssh.password', 'SSH Password'),
       type: 'password',
       optional: true,
       value: sshTunnelOptions?.password,

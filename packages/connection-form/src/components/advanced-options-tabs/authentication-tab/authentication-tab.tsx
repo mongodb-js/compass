@@ -6,6 +6,7 @@ import {
   RadioBoxGroup,
   css,
   FormFieldContainer,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { AuthMechanism } from 'mongodb';
@@ -99,6 +100,7 @@ function AuthenticationTab({
   connectionOptions: ConnectionOptions;
   openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
+  const t = useTranslation();
   // enableOIDC is the feature flag, showOIDC is the connection form preference.
   const enableOIDC = !!useConnectionFormSetting('enableOidc');
   const showOIDC = useConnectionFormSetting('showOIDCAuth');
@@ -143,7 +145,7 @@ function AuthenticationTab({
     <>
       <FormFieldContainer>
         <Label htmlFor="authentication-method-radio-box-group">
-          Authentication Method
+          {t('connections.form.auth.method', 'Authentication Method')}
         </Label>
         <RadioBoxGroup
           id="authentication-method-radio-box-group"
@@ -161,7 +163,9 @@ function AuthenticationTab({
                 value={id}
                 key={id}
               >
-                {title}
+                {id === 'DEFAULT'
+                  ? t('connections.form.auth.usernamePassword', title)
+                  : title}
               </RadioBox>
             );
           })}

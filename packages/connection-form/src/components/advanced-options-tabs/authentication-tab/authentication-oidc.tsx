@@ -7,6 +7,7 @@ import {
   Label,
   Link,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
@@ -43,6 +44,7 @@ function AuthenticationOIDC({
   connectionOptions: ConnectionOptions;
   openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
+  const t = useTranslation();
   const username = getConnectionStringUsername(connectionStringUrl);
   const usernameError = errorMessageByFieldName(errors, 'username');
 
@@ -83,7 +85,7 @@ function AuthenticationOIDC({
               username: value,
             });
           }}
-          label="Username"
+          label={t('connections.form.auth.username', 'Username')}
           optional
           value={username || ''}
           errorMessage={usernameError}
@@ -91,7 +93,10 @@ function AuthenticationOIDC({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Accordion text="OIDC Options" data-testid="oidc-advanced-options">
+        <Accordion
+          text={t('connections.form.auth.oidc.options', 'OIDC Options')}
+          data-testid="oidc-advanced-options"
+        >
           <FormFieldContainer>
             <TextInput
               data-testid="connection-oidc-auth-code-flow-redirect-uri-input"
@@ -101,9 +106,15 @@ function AuthenticationOIDC({
                 handleFieldChanged('redirectURI', value);
               }}
               optional
-              label="Auth Code Flow Redirect URI"
+              label={t(
+                'connections.form.auth.oidc.redirectUri',
+                'Auth Code Flow Redirect URI'
+              )}
               value={connectionOptions?.oidc?.redirectURI || ''}
-              description="This value needs to match the configuration of the Identity Provider used by the server."
+              description={t(
+                'connections.form.auth.oidc.redirectUriDescription',
+                'This value needs to match the configuration of the Identity Provider used by the server.'
+              )}
             />
           </FormFieldContainer>
 
@@ -127,12 +138,16 @@ function AuthenticationOIDC({
               label={
                 <>
                   <Label htmlFor="oidc-allow-untrusted-endpoint-input">
-                    Consider Target Endpoint Trusted
+                    {t(
+                      'connections.form.auth.oidc.trustedEndpoint',
+                      'Consider Target Endpoint Trusted'
+                    )}
                   </Label>
                   <Description>
-                    Allow connecting when the target endpoint is not in the list
-                    of endpoints that are considered trusted by default. Only
-                    use this option when connecting to servers that you trust.
+                    {t(
+                      'connections.form.auth.oidc.trustedEndpointDescription',
+                      'Allow connecting when the target endpoint is not in the list of endpoints that are considered trusted by default. Only use this option when connecting to servers that you trust.'
+                    )}
                   </Description>
                 </>
               }
@@ -159,12 +174,16 @@ function AuthenticationOIDC({
               label={
                 <>
                   <Label htmlFor="oidc-pass-id-token-as-access-token">
-                    Use ID token instead of Access Token
+                    {t(
+                      'connections.form.auth.oidc.idToken',
+                      'Use ID token instead of Access Token'
+                    )}
                   </Label>
                   <Description>
-                    Use ID tokens instead of access tokens to work around
-                    misconfigured or broken identity providers. This will only
-                    work if the server is configured correspondingly.
+                    {t(
+                      'connections.form.auth.oidc.idTokenDescription',
+                      'Use ID tokens instead of access tokens to work around misconfigured or broken identity providers. This will only work if the server is configured correspondingly.'
+                    )}
                   </Description>
                 </>
               }
@@ -188,13 +207,16 @@ function AuthenticationOIDC({
               label={
                 <>
                   <Label htmlFor="oidc-send-nonce-in-auth-code-request">
-                    Send a nonce in the Auth Code Request
+                    {t(
+                      'connections.form.auth.oidc.nonce',
+                      'Send a nonce in the Auth Code Request'
+                    )}
                   </Label>
                   <Description>
-                    Include a random nonce as part of the auth code request to
-                    prevent replay attacks. This should only be disabled in
-                    cases where the OIDC provider doesn&apos;t support it as the
-                    nonce is an important security component.
+                    {t(
+                      'connections.form.auth.oidc.nonceDescription',
+                      "Include a random nonce as part of the auth code request to prevent replay attacks. This should only be disabled in cases where the OIDC provider doesn't support it as the nonce is an important security component."
+                    )}
                   </Description>
                 </>
               }
@@ -218,16 +240,26 @@ function AuthenticationOIDC({
                 label={
                   <>
                     <Label htmlFor="oidc-use-application-level-proxy">
-                      Use Application-Level Proxy Settings
+                      {t(
+                        'connections.form.auth.oidc.appProxy',
+                        'Use Application-Level Proxy Settings'
+                      )}
                     </Label>
                     <Description>
-                      Use the{' '}
+                      {t(
+                        'connections.form.auth.oidc.appProxyPrefix',
+                        'Use the'
+                      )}{' '}
                       <Link onClick={openProxySettings}>
-                        application-level proxy settings
+                        {t(
+                          'connections.form.auth.oidc.appProxyLink',
+                          'application-level proxy settings'
+                        )}
                       </Link>{' '}
-                      for communicating with the identity provider. If not
-                      chosen, the same proxy (if any) is used for connecting to
-                      both the cluster and the identity provider.
+                      {t(
+                        'connections.form.auth.oidc.appProxySuffix',
+                        'for communicating with the identity provider. If not chosen, the same proxy (if any) is used for connecting to both the cluster and the identity provider.'
+                      )}
                     </Description>
                   </>
                 }
@@ -265,11 +297,16 @@ function AuthenticationOIDC({
                 label={
                   <>
                     <Label htmlFor="oidc-enable-device-auth-flow-input">
-                      Enable Device Authentication Flow
+                      {t(
+                        'connections.form.auth.oidc.deviceAuth',
+                        'Enable Device Authentication Flow'
+                      )}
                     </Label>
                     <Description>
-                      Less secure authentication flow that can be used as a
-                      fallback when browser-based authentication is unavailable.
+                      {t(
+                        'connections.form.auth.oidc.deviceAuthDescription',
+                        'Less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.'
+                      )}
                     </Description>
                   </>
                 }

@@ -5,6 +5,7 @@ import {
   Label,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -22,6 +23,7 @@ function DirectConnectionInput({
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const isDirectConnection =
     connectionStringUrl
       .typedSearchParams<MongoClientOptions>()
@@ -50,11 +52,18 @@ function DirectConnectionInput({
       id="direct-connection-checkbox"
       label={
         <>
-          <Label htmlFor="direct-connection-checkbox">Direct Connection</Label>
+          <Label htmlFor="direct-connection-checkbox">
+            {t(
+              'connections.form.general.directConnection',
+              'Direct Connection'
+            )}
+          </Label>
 
           <Description className={descriptionStyles}>
-            Specifies whether to force dispatch all operations to the specified
-            host.
+            {t(
+              'connections.form.general.directConnectionDescription',
+              'Specifies whether to force dispatch all operations to the specified host.'
+            )}
           </Description>
         </>
       }

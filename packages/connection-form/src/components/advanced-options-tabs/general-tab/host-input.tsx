@@ -7,6 +7,7 @@ import {
   css,
   spacing,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -32,6 +33,7 @@ function HostInput({
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const [hosts, setHosts] = useState([...connectionStringUrl.hosts]);
   const { isSRV } = connectionStringUrl;
 
@@ -70,7 +72,9 @@ function HostInput({
           htmlFor="connection-host-input-0"
           id="connection-host-input-label"
         >
-          {isSRV ? 'Hostname' : 'Host'}
+          {isSRV
+            ? t('connections.form.general.hostname', 'Hostname')
+            : t('connections.form.general.host', 'Host')}
         </Label>
         <ListEditor
           items={hosts}

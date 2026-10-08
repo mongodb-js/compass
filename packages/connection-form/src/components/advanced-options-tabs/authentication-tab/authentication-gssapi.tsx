@@ -7,6 +7,7 @@ import {
   RadioBox,
   Checkbox,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -41,6 +42,7 @@ function AuthenticationGSSAPI({
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const kerberosPrincipalError = errorMessageByFieldName(
     errors,
     'kerberosPrincipal'
@@ -81,7 +83,7 @@ function AuthenticationGSSAPI({
             });
           }}
           data-testid="gssapi-principal-input"
-          label="Principal"
+          label={t('connections.form.auth.principal', 'Principal')}
           errorMessage={kerberosPrincipalError}
           state={kerberosPrincipalError ? 'error' : undefined}
           value={principal || ''}
@@ -101,14 +103,17 @@ function AuthenticationGSSAPI({
             });
           }}
           optional
-          label="Service Name"
+          label={t('connections.form.auth.serviceName', 'Service Name')}
           value={serviceName || ''}
         />
       </FormFieldContainer>
 
       <FormFieldContainer>
         <Label htmlFor="canonicalize-hostname-select">
-          Canonicalize Host Name
+          {t(
+            'connections.form.auth.canonicalizeHostName',
+            'Canonicalize Host Name'
+          )}
         </Label>
         <RadioBoxGroup
           name="canonicalize-hostname"
@@ -131,7 +136,7 @@ function AuthenticationGSSAPI({
                 key={value}
                 value={value}
               >
-                {label}
+                {t(`connections.form.auth.canonicalize.${key}`, label)}
               </RadioBox>
             )
           )}
@@ -149,7 +154,7 @@ function AuthenticationGSSAPI({
             });
           }}
           data-testid="gssapi-service-realm-input"
-          label="Service Realm"
+          label={t('connections.form.auth.serviceRealm', 'Service Realm')}
           value={serviceRealm || ''}
           optional
         />
@@ -160,7 +165,10 @@ function AuthenticationGSSAPI({
             <Checkbox
               data-testid="gssapi-password-checkbox"
               checked={showPassword}
-              label="Provide password directly"
+              label={t(
+                'connections.form.auth.providePassword',
+                'Provide password directly'
+              )}
               onChange={({ target: { checked } }) => {
                 if (!checked) {
                   updateConnectionFormField({
@@ -185,7 +193,7 @@ function AuthenticationGSSAPI({
                   });
                 }}
                 data-testid="gssapi-password-input"
-                label="Password"
+                label={t('connections.form.auth.password', 'Password')}
                 value={password}
                 type="password"
                 optional

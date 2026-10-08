@@ -15,6 +15,7 @@ import {
   rafraf,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import ShellInfoModal from '../shell-info-modal';
@@ -100,6 +101,7 @@ export const CompassShell: React.FC<CompassShellProps> = ({
   initialEvaluate: _initialEvaluate,
   initialInput,
 }) => {
+  const t = useTranslation();
   const enableShell = usePreference('enableShell');
   const darkMode = useDarkMode();
   const shellClassName = cx(
@@ -201,12 +203,14 @@ export const CompassShell: React.FC<CompassShellProps> = ({
     return (
       <div className={infoBannerContainerStyles}>
         <Banner variant="info">
-          MongoDB Shell is disabled in your Settings. If this was not intended,
-          we recommend you to review your{' '}
+          {t(
+            'connections.shell.disabledPrefix',
+            'MongoDB Shell is disabled in your Settings. If this was not intended, we recommend you to review your'
+          )}{' '}
           <Link href="https://www.mongodb.com/docs/compass/current/settings/settings-reference/#interface-settings">
-            settings
+            {t('connections.shell.disabledSettingsLink', 'settings')}
           </Link>{' '}
-          and enable shell.
+          {t('connections.shell.disabledSuffix', 'and enable shell.')}
         </Banner>
       </div>
     );

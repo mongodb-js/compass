@@ -7,7 +7,13 @@ import type {
   KMSProviderType,
 } from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
-import { css, Icon, spacing, palette } from '@mongodb-js/compass-components';
+import {
+  css,
+  Icon,
+  spacing,
+  palette,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 const iconStyles = css({
   marginLeft: spacing[200],
@@ -25,6 +31,7 @@ function KMSProviderStatusIndicator<T extends KMSProviderType>({
   fields: KMSField<T>[];
   kmsProviders: KMSProviderName<T>[];
 }): React.ReactElement {
+  const t = useTranslation();
   const hasAnyFieldSet = kmsProviders.some((kmsProviderName) =>
     fields.some(({ value }) => value(autoEncryptionOptions, kmsProviderName))
   );
@@ -43,7 +50,7 @@ function KMSProviderStatusIndicator<T extends KMSProviderType>({
 
   if (hasFieldWithError) {
     return (
-      <span title="Error">
+      <span title={t('connections.form.csfle.statusError', 'Error')}>
         <Icon
           glyph="XWithCircle"
           className={iconStyles}
@@ -53,13 +60,20 @@ function KMSProviderStatusIndicator<T extends KMSProviderType>({
     );
   } else if (hasAnyFieldSet && isMissingRequiredField) {
     return (
-      <span title="Incomplete configuration">
+      <span
+        title={t(
+          'connections.form.csfle.statusIncomplete',
+          'Incomplete configuration'
+        )}
+      >
         <Icon glyph="QuestionMarkWithCircle" className={iconStyles} />
       </span>
     );
   } else if (hasAnyFieldSet) {
     return (
-      <span title="Fully configured">
+      <span
+        title={t('connections.form.csfle.statusConfigured', 'Fully configured')}
+      >
         <Icon
           glyph="CheckmarkWithCircle"
           className={iconStyles}

@@ -11,6 +11,7 @@ import {
   css,
   cx,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -89,6 +90,7 @@ function TLSTab({
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const t = useTranslation();
   const tlsOption = getTLSOptionForConnectionString(connectionStringUrl);
 
   const onChangeTLS = useCallback(
@@ -110,19 +112,26 @@ function TLSTab({
   }[] = [
     {
       name: 'tlsInsecure',
-      description:
-        'This includes tlsAllowInvalidHostnames and tlsAllowInvalidCertificates.',
+      description: t(
+        'connections.form.tls.insecureDescription',
+        'This includes tlsAllowInvalidHostnames and tlsAllowInvalidCertificates.'
+      ),
       checked: searchParams.get('tlsInsecure') === 'true',
     },
     {
       name: 'tlsAllowInvalidHostnames',
-      description:
-        'Disable the validation of the hostnames in the certificate presented by the mongod/mongos instance.',
+      description: t(
+        'connections.form.tls.invalidHostnamesDescription',
+        'Disable the validation of the hostnames in the certificate presented by the mongod/mongos instance.'
+      ),
       checked: searchParams.get('tlsAllowInvalidHostnames') === 'true',
     },
     {
       name: 'tlsAllowInvalidCertificates',
-      description: 'Disable the validation of the server certificates.',
+      description: t(
+        'connections.form.tls.invalidCertificatesDescription',
+        'Disable the validation of the server certificates.'
+      ),
       checked: searchParams.get('tlsAllowInvalidCertificates') === 'true',
     },
   ];
@@ -143,10 +152,15 @@ function TLSTab({
   return (
     <>
       <FormFieldContainer>
-        <Label htmlFor="tls-radio-box-group">SSL/TLS Connection</Label>
+        <Label htmlFor="tls-radio-box-group">
+          {t('connections.form.tls.connection', 'SSL/TLS Connection')}
+        </Label>
         <InlineInfoLink
           href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
-          aria-label="TLS/SSL Option Documentation"
+          aria-label={t(
+            'connections.form.tls.docsAriaLabel',
+            'TLS/SSL Option Documentation'
+          )}
         />
         <RadioBoxGroup
           id="tls-radio-box-group"
@@ -160,7 +174,7 @@ function TLSTab({
               value={tlsType.value}
               key={tlsType.value}
             >
-              {tlsType.label}
+              {t(`connections.form.tls.type.${tlsType.value}`, tlsType.label)}
             </RadioBox>
           ))}
         </RadioBoxGroup>
