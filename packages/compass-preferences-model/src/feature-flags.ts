@@ -165,7 +165,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /*
-   * Feature flag gating VectorX support (e.g. indexNamespace) in the
+   * Feature flag for VectorX private preview support in the
    * vector search index schema.
    */
   {
