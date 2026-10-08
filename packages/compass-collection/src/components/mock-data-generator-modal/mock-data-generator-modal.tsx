@@ -12,6 +12,7 @@ import {
   Modal,
   ModalFooter,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { type MockDataGeneratorStep, MockDataGeneratorSteps } from './types';
@@ -82,11 +83,27 @@ const MockDataGeneratorModal = ({
   fakerSchemaGenerationStatus,
   documentCount,
 }: Props) => {
+  const t = useTranslation();
   const track = useTelemetry();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const isSampleDocumentPassingEnabled = usePreference(
     'enableGenAISampleDocumentPassing'
   );
+
+  const stepButtonLabels = {
+    [MockDataGeneratorSteps.SCHEMA_CONFIRMATION]: t(
+      'collection.mockData.confirm',
+      StepButtonLabelMap[MockDataGeneratorSteps.SCHEMA_CONFIRMATION]
+    ),
+    [MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT]: t(
+      'collection.mockData.generateScript',
+      StepButtonLabelMap[MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT]
+    ),
+    [MockDataGeneratorSteps.SCRIPT_RESULT]: t(
+      'collection.mockData.done',
+      StepButtonLabelMap[MockDataGeneratorSteps.SCRIPT_RESULT]
+    ),
+  };
 
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
@@ -162,7 +179,12 @@ const MockDataGeneratorModal = ({
       }}
       data-testid="generate-mock-data-modal"
     >
-      <ModalHeader title="Generate Mock Data Script With AI" />
+      <ModalHeader
+        title={t(
+          'collection.mockData.modalTitle',
+          'Generate Mock Data Script With AI'
+        )}
+      />
       <ModalBody>
         {shouldShowNamespace && (
           <Body className={namespaceStyles}>{namespace}</Body>
@@ -176,10 +198,12 @@ const MockDataGeneratorModal = ({
           onClick={onPreviousStep}
           disabled={currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION}
         >
-          Back
+          {t('collection.mockData.back', 'Back')}
         </Button>
         <div className={rightButtonsStyles}>
-          <Button onClick={onModalClose}>Cancel</Button>
+          <Button onClick={onModalClose}>
+            {t('collection.mockData.cancel', 'Cancel')}
+          </Button>
           <Button
             variant={ButtonVariant.Primary}
             onClick={handleNextClick}
@@ -191,7 +215,7 @@ const MockDataGeneratorModal = ({
               ) : undefined
             }
           >
-            {StepButtonLabelMap[currentStep]}
+            {stepButtonLabels[currentStep]}
           </Button>
         </div>
       </ModalFooter>

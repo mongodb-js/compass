@@ -7,6 +7,7 @@ import {
   css,
   Body,
   Link,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useConnectionIds } from '@mongodb-js/compass-connections/provider';
 import { WelcomeTabImage } from './welcome-image';
@@ -29,6 +30,7 @@ const contentBodyStyles = css({
 });
 
 export default function WebWelcomeTab() {
+  const t = useTranslation();
   const numConnections = useConnectionIds().length;
   const activeConnectionIds = useActiveConnectionIds();
 
@@ -36,13 +38,19 @@ export default function WebWelcomeTab() {
     <div className={welcomeTabStyles}>
       {activeConnectionIds.length ? <ConnectionPlug /> : <WelcomeTabImage />}
       <div>
-        <H3>Welcome! Explore your data</H3>
+        <H3>{t('welcome.web.title', 'Welcome! Explore your data')}</H3>
         {!activeConnectionIds.length && (
           <div className={contentBodyStyles}>
             <Body>
               {numConnections === 0
-                ? 'To get started, create your first MongoDB Cluster.'
-                : 'To get started, connect to an existing cluster.'}
+                ? t(
+                    'welcome.web.createFirstCluster',
+                    'To get started, create your first MongoDB Cluster.'
+                  )
+                : t(
+                    'welcome.web.connectExistingCluster',
+                    'To get started, connect to an existing cluster.'
+                  )}
             </Body>
             {numConnections === 0 && (
               <>
@@ -57,12 +65,12 @@ export default function WebWelcomeTab() {
                   variant={ButtonVariant.Primary}
                   href={'#/clusters/starterTemplates'}
                 >
-                  Create a Cluster
+                  {t('welcome.web.createCluster', 'Create a Cluster')}
                 </Button>
                 <Body>
-                  Need more help?{' '}
+                  {t('welcome.web.needHelp', 'Need more help?')}{' '}
                   <Link href="https://www.mongodb.com/docs/atlas/create-connect-deployments/">
-                    View documentation
+                    {t('welcome.web.viewDocumentation', 'View documentation')}
                   </Link>
                 </Body>
               </>

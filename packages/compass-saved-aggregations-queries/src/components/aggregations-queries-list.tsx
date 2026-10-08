@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useContext } from 'react';
+import React, { useEffect, useCallback, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   VirtualGrid,
@@ -7,6 +7,7 @@ import {
   usePersistedState,
   useSortControls,
   useSortedItems,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
@@ -34,17 +35,6 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-
-const sortBy: { name: keyof Item; label: string }[] = [
-  {
-    name: 'name',
-    label: 'Name',
-  },
-  {
-    name: 'lastModified',
-    label: 'Last Modified',
-  },
-];
 
 const headerStyles = css({
   padding: spacing[400],
@@ -106,6 +96,20 @@ export const AggregationsQueriesList = ({
   onDeleteItem,
   onCopyToClipboard,
 }: AggregationsQueriesListProps) => {
+  const t = useTranslation();
+  const sortBy = useMemo<{ name: keyof Item; label: string }[]>(
+    () => [
+      {
+        name: 'name',
+        label: t('savedQueries.list.sortName', 'Name'),
+      },
+      {
+        name: 'lastModified',
+        label: t('savedQueries.list.sortLastModified', 'Last Modified'),
+      },
+    ],
+    [t]
+  );
   useEffect(() => {
     void onMount();
   }, [onMount]);
@@ -161,9 +165,9 @@ export const AggregationsQueriesList = ({
   );
 
   const [initialSortState, setSortState] = usePersistedState<{
-    name: (typeof sortBy)[number]['name'] | null;
+    name: keyof Item | null;
     order: 1 | -1;
-  }>('saved-queries-list-controls', { name: sortBy[0].name, order: 1 });
+  }>('saved-queries-list-controls', { name: 'name', order: 1 });
   // If a user is searching, we disable the sort as
   // search results are sorted by match score
   const [sortControls, sortState] = useSortControls(sortBy, {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Body } from '@mongodb-js/compass-components';
+import { Body, useTranslation } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 
 function DocumentMinichart({
@@ -9,12 +9,22 @@ function DocumentMinichart({
     fields?: Document[];
   };
 }) {
+  const t = useTranslation();
   let docFieldsMessage = '';
   if (nestedDocType) {
     const numFields = nestedDocType.fields?.length ?? 0;
-    docFieldsMessage = `Document with ${numFields} nested field${
-      numFields === 1 ? '' : 's'
-    }.`;
+    docFieldsMessage =
+      numFields === 1
+        ? t(
+            'schema.documentMinichart.nestedFieldOne',
+            'Document with {count} nested field.',
+            { count: numFields }
+          )
+        : t(
+            'schema.documentMinichart.nestedFieldOther',
+            'Document with {count} nested fields.',
+            { count: numFields }
+          );
   }
 
   return <Body>{docFieldsMessage}</Body>;

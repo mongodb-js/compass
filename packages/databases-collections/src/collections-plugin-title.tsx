@@ -3,7 +3,7 @@ import {
   useConnectionInfo,
   useConnectionsListRef,
 } from '@mongodb-js/compass-connections/provider';
-import { WorkspaceTab } from '@mongodb-js/compass-components';
+import { WorkspaceTab, useTranslation } from '@mongodb-js/compass-components';
 import type { PluginHeaderProps } from '@mongodb-js/workspace-info';
 
 import { CollectionsWorkspaceName } from './collections-plugin';
@@ -15,6 +15,7 @@ export function CollectionsPluginTitleComponent({
   inferredFromPrivileges,
   ...tabProps
 }: PluginTitleProps) {
+  const t = useTranslation();
   const { id: connectionId } = useConnectionInfo();
   const { getConnectionById } = useConnectionsListRef();
 
@@ -27,8 +28,11 @@ export function CollectionsPluginTitleComponent({
       type={CollectionsWorkspaceName}
       title={database}
       tooltip={[
-        ['Connection', connectionName || ''],
-        ['Database', database],
+        [
+          t('databasesCollections.tab.connection', 'Connection'),
+          connectionName,
+        ],
+        [t('databasesCollections.tab.database', 'Database'), database],
       ]}
       iconGlyph={inferredFromPrivileges ? 'EmptyDatabase' : 'Database'}
       data-namespace={database}

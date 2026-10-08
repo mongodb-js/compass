@@ -1,6 +1,10 @@
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import type { AssistantMessage } from './compass-assistant-provider';
+import { translateEnglish } from './utils';
 
-export const NON_GENUINE_WARNING_MESSAGE: AssistantMessage = {
+export const getNonGenuineWarningMessage = (
+  t: TranslateFn = translateEnglish
+): AssistantMessage => ({
   id: 'non-genuine-warning',
   parts: [
     {
@@ -9,9 +13,11 @@ export const NON_GENUINE_WARNING_MESSAGE: AssistantMessage = {
     },
   ],
   metadata: {
-    displayText:
-      'You are connected to **a non-genuine MongoDB server**. MongoDB Assistant will not provide accurate guidance for non-genuine hosts, and we encourage users to use real MongoDB deployments to take full advantage of our developer tools.',
+    displayText: t(
+      'assistant.preset.nonGenuineWarning',
+      'You are connected to **a non-genuine MongoDB server**. MongoDB Assistant will not provide accurate guidance for non-genuine hosts, and we encourage users to use real MongoDB deployments to take full advantage of our developer tools.'
+    ),
     isPermanent: true,
   },
   role: 'system',
-};
+});

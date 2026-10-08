@@ -1,6 +1,10 @@
 import React from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
-import { LgChatMessage, css } from '@mongodb-js/compass-components';
+import {
+  LgChatMessage,
+  css,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
@@ -56,6 +60,7 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
     onToolApproval,
     onFollowUpSend,
   }) {
+    const t = useTranslation();
     const { id, role, metadata, parts } = message;
 
     if (metadata?.confirmation) {
@@ -65,7 +70,10 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
         <ConfirmationMessage
           // Show as rejected if it's not the last message
           state={!isLastMessage && state === 'pending' ? 'rejected' : state}
-          title="Please confirm your request"
+          title={t(
+            'assistant.chatMessage.confirmRequest',
+            'Please confirm your request'
+          )}
           description={description}
           onConfirm={() => onConfirmation(message, 'confirmed')}
           onReject={() => onConfirmation(message, 'rejected')}

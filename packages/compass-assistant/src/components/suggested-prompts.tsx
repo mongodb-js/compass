@@ -4,7 +4,9 @@ import {
   LgChatMessagePrompts,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -18,6 +20,7 @@ export type SuggestedPromptConfig = {
 };
 
 function getSuggestedPromptsForTab(
+  t: TranslateFn,
   activeWorkspaceType: string | undefined,
   activeCollectionSubTab: string | null,
   hasMessages: boolean
@@ -32,63 +35,103 @@ function getSuggestedPromptsForTab(
       case 'Documents':
         return [
           {
-            text: 'How can I modify or delete multiple documents at once?',
+            text: t(
+              'assistant.suggested.modifyDelete',
+              'How can I modify or delete multiple documents at once?'
+            ),
           },
           {
             text: "How can I improve the performance of my query in Compass? Use the `explain` tool to get the query's explain output and include it in your analysis.",
             metadata: {
-              displayText:
-                'How can I improve the performance of my query in Compass?',
+              displayText: t(
+                'assistant.suggested.queryPerformance',
+                'How can I improve the performance of my query in Compass?'
+              ),
             },
           },
           {
-            text: 'Why is my query returning no results?',
+            text: t(
+              'assistant.suggested.queryNoResults',
+              'Why is my query returning no results?'
+            ),
           },
           {
-            text: 'How can I export my query code?',
+            text: t(
+              'assistant.suggested.exportQuery',
+              'How can I export my query code?'
+            ),
           },
         ];
       case 'Aggregations':
         return [
           {
-            text: 'What is an aggregation pipeline?',
+            text: t(
+              'assistant.suggested.whatIsPipeline',
+              'What is an aggregation pipeline?'
+            ),
           },
           {
             text: "How can I improve the performance of my aggregation in Compass? Use the `explain` tool to get the aggregation's explain output and include it in your analysis.",
             metadata: {
-              displayText:
-                'How can I improve the performance of my aggregation in Compass?',
+              displayText: t(
+                'assistant.suggested.aggregationPerformance',
+                'How can I improve the performance of my aggregation in Compass?'
+              ),
             },
           },
           {
-            text: 'Why is my aggregation pipeline returning no results?',
+            text: t(
+              'assistant.suggested.aggNoResults',
+              'Why is my aggregation pipeline returning no results?'
+            ),
           },
           {
-            text: 'How can I export my aggregation pipeline code?',
+            text: t(
+              'assistant.suggested.exportPipeline',
+              'How can I export my aggregation pipeline code?'
+            ),
           },
         ];
       case 'Schema':
         return [
           {
-            text: 'What are some MongoDB data modeling best practices and anti-patterns?',
+            text: t(
+              'assistant.suggested.dataModelingBestPractices',
+              'What are some MongoDB data modeling best practices and anti-patterns?'
+            ),
           },
           {
-            text: 'How can I visualize the relationships between fields in Compass?',
+            text: t(
+              'assistant.suggested.visualizeRelationships',
+              'How can I visualize the relationships between fields in Compass?'
+            ),
           },
           {
-            text: "How can I export my collection's schema?",
+            text: t(
+              'assistant.suggested.exportSchema',
+              "How can I export my collection's schema?"
+            ),
           },
         ];
       case 'Validation':
         return [
           {
-            text: 'What are validation rules?',
+            text: t(
+              'assistant.suggested.whatAreValidationRules',
+              'What are validation rules?'
+            ),
           },
           {
-            text: 'When is it helpful to set validation rules?',
+            text: t(
+              'assistant.suggested.whenValidation',
+              'When is it helpful to set validation rules?'
+            ),
           },
           {
-            text: 'Can you show examples of JSON Schema for validation?',
+            text: t(
+              'assistant.suggested.jsonSchemaExamples',
+              'Can you show examples of JSON Schema for validation?'
+            ),
           },
         ];
     }
@@ -98,13 +141,22 @@ function getSuggestedPromptsForTab(
   if (activeWorkspaceType === 'Data Modeling') {
     return [
       {
-        text: 'What are some MongoDB data modeling best practices and anti-patterns?',
+        text: t(
+          'assistant.suggested.dataModelingBestPractices',
+          'What are some MongoDB data modeling best practices and anti-patterns?'
+        ),
       },
       {
-        text: 'Can I plan changes to my data model without affecting actual data?',
+        text: t(
+          'assistant.suggested.planChanges',
+          'Can I plan changes to my data model without affecting actual data?'
+        ),
       },
       {
-        text: 'How do I share my Compass data model with others?',
+        text: t(
+          'assistant.suggested.shareModel',
+          'How do I share my Compass data model with others?'
+        ),
       },
     ];
   }
@@ -112,13 +164,22 @@ function getSuggestedPromptsForTab(
   // Default to generic prompts for other tabs
   return [
     {
-      text: 'What can I do with MongoDB Compass, and what are some usage tips?',
+      text: t(
+        'assistant.suggested.whatCanIDo',
+        'What can I do with MongoDB Compass, and what are some usage tips?'
+      ),
     },
     {
-      text: 'How can I optimize performance in MongoDB Compass?',
+      text: t(
+        'assistant.suggested.optimizePerf',
+        'How can I optimize performance in MongoDB Compass?'
+      ),
     },
     {
-      text: 'How do I connect to my MongoDB deployment?',
+      text: t(
+        'assistant.suggested.connect',
+        'How do I connect to my MongoDB deployment?'
+      ),
     },
   ];
 }
@@ -135,6 +196,7 @@ export const SuggestedPrompts: React.FunctionComponent<{
   onMessageSend: (options: SendMessageOptions) => Promise<void>;
 }> = ({ chat, onMessageSend }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   const { activeWorkspace, activeCollectionSubTab } = useAssistantGlobalState();
   const activeWorkspaceType = activeWorkspace?.type;
@@ -145,11 +207,12 @@ export const SuggestedPrompts: React.FunctionComponent<{
   const prompts = useMemo(
     () =>
       getSuggestedPromptsForTab(
+        t,
         activeWorkspaceType,
         activeCollectionSubTab,
         hasMessages
       ),
-    [activeWorkspaceType, activeCollectionSubTab, hasMessages]
+    [t, activeWorkspaceType, activeCollectionSubTab, hasMessages]
   );
 
   // Create a unique key based on workspace type, subtab, and chat ID
@@ -170,7 +233,7 @@ export const SuggestedPrompts: React.FunctionComponent<{
   return (
     <MessagePrompts
       key={promptsKey}
-      label="Suggested Actions"
+      label={t('assistant.suggested.label', 'Suggested Actions')}
       enableHideOnSelect={true}
       darkMode={darkMode}
       className={suggestedPromptsStyles}

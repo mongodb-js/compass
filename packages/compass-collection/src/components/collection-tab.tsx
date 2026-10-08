@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
-import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
+import {
+  css,
+  ErrorBoundary,
+  TabNavBar,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import toNS from 'mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
@@ -194,6 +199,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   subTab: currentTab,
   onTabClick,
 }) => {
+  const t = useTranslation();
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   useEffect(() => {
@@ -257,7 +263,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
         ></CollectionHeader>
         <TabNavBar
           data-testid="collection-tabs"
-          aria-label="Collection Tabs"
+          aria-label={t('collection.tab.tabsAriaLabel', 'Collection Tabs')}
           activeTabIndex={activeTabIndex}
           onTabClicked={(id) => {
             onTabClick(tabs[id].name);
@@ -285,6 +291,7 @@ function useCollectionTabApplicationMenu(
   const globalAppRegistry = useGlobalAppRegistry();
   const connectionInfoRef = useConnectionInfoRef();
   const preferencesReadOnly = usePreference('readOnly');
+  const t = useTranslation();
 
   const shareSchemaClick = useCallback(() => {
     localAppRegistry.emit('menu-share-schema-json');
@@ -323,10 +330,13 @@ function useCollectionTabApplicationMenu(
   useApplicationMenu({
     menu: collectionMetadata
       ? {
-          label: '&Collection',
+          label: t('collection.tab.menu.collection', '&Collection'),
           submenu: [
             {
-              label: '&Share Schema as JSON (Legacy)',
+              label: t(
+                'collection.tab.menu.shareSchema',
+                '&Share Schema as JSON (Legacy)'
+              ),
               accelerator: 'Alt+CmdOrCtrl+S',
               click: shareSchemaClick,
             },
@@ -337,12 +347,15 @@ function useCollectionTabApplicationMenu(
               ? []
               : [
                   {
-                    label: '&Import Data',
+                    label: t('collection.tab.menu.importData', '&Import Data'),
                     click: importClick,
                   },
                 ]),
             {
-              label: '&Export Collection',
+              label: t(
+                'collection.tab.menu.exportCollection',
+                '&Export Collection'
+              ),
               click: exportClick,
             },
           ],

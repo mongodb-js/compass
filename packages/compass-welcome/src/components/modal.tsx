@@ -7,6 +7,7 @@ import {
   css,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { WelcomeModalState } from '../stores/welcome-modal-store';
@@ -32,6 +33,7 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
   onClose,
   onOpenSettingsClick,
 }) => {
+  const t = useTranslation();
   const networkTraffic = usePreference('networkTraffic');
   const darkMode = useDarkMode();
 
@@ -40,26 +42,34 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
       data-testid="welcome-modal"
       open={isOpen}
       onClose={onClose}
-      buttonProps={{ onClick: onClose, children: 'Start' }}
-      title="Welcome to Compass"
+      buttonProps={{
+        onClick: onClose,
+        children: t('welcome.modal.start', 'Start'),
+      }}
+      title={t('welcome.modal.title', 'Welcome to Compass')}
       showBlob
       blobPosition="top right"
       disclaimer={
         networkTraffic ? (
           <div className={disclaimer}>
-            To help improve our products, anonymous usage data is collected and
-            sent to MongoDB in accordance with MongoDB&apos;s privacy policy.
+            {t(
+              'welcome.modal.disclaimer',
+              "To help improve our products, anonymous usage data is collected and sent to MongoDB in accordance with MongoDB's privacy policy."
+            )}
             <br />
-            Manage this behaviour on the Compass{' '}
+            {t(
+              'welcome.modal.manageBefore',
+              'Manage this behaviour on the Compass'
+            )}{' '}
             <Link
               data-testid="open-settings-link"
               hideExternalIcon
               className={link}
               onClick={onOpenSettingsClick}
             >
-              Settings
+              {t('welcome.modal.settings', 'Settings')}
             </Link>{' '}
-            page.
+            {t('welcome.modal.manageAfter', 'page.')}
           </div>
         ) : undefined
       }
@@ -68,8 +78,10 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
       darkMode={darkMode}
     >
       <Body>
-        Build aggregation pipelines, optimize queries, analyze schemas,
-        and&nbsp;more. All with the GUI built by - and for - MongoDB.
+        {t(
+          'welcome.modal.body',
+          'Build aggregation pipelines, optimize queries, analyze schemas, and more. All with the GUI built by - and for - MongoDB.'
+        )}
       </Body>
     </MarketingModal>
   );

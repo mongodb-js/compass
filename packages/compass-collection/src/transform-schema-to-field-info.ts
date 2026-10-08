@@ -7,7 +7,11 @@ import type {
   PrimitiveSchemaType,
   ConstantSchemaType,
 } from '@mongodb-js/mongodb-schema';
-import type { FieldInfo, SampleValue } from './schema-analysis-types';
+import type {
+  FieldInfo,
+  SampleValue,
+  SchemaAnalysisErrorTranslation,
+} from './schema-analysis-types';
 import type { ArrayLengthMap } from './components/mock-data-generator-modal/script-generation-utils';
 import type {
   ObjectId,
@@ -86,9 +90,12 @@ export interface ProcessSchemaResult {
 }
 
 export class ProcessSchemaUnsupportedStateError extends Error {
-  constructor(message: string) {
+  translation?: SchemaAnalysisErrorTranslation;
+
+  constructor(message: string, translation?: SchemaAnalysisErrorTranslation) {
     super(message);
     this.name = 'ProcessSchemaUnsupportedStateError';
+    this.translation = translation;
   }
 }
 
@@ -229,13 +236,25 @@ function processNamedField(
 
   if (field.name.includes(FIELD_NAME_SEPARATOR)) {
     throw new ProcessSchemaUnsupportedStateError(
-      `Feature is unsupported for field names that contain a '${FIELD_NAME_SEPARATOR}'; field name: '${field.name}'`
+      `Feature is unsupported for field names that contain a '${FIELD_NAME_SEPARATOR}'; field name: '${field.name}'`,
+      {
+        key: 'collection.mockData.unsupportedFieldNameSeparator',
+        english:
+          "Feature is unsupported for field names that contain a '{separator}'; field name: '{fieldName}'",
+        vars: { separator: FIELD_NAME_SEPARATOR, fieldName: field.name },
+      }
     );
   }
 
   if (field.name.endsWith('[]')) {
     throw new ProcessSchemaUnsupportedStateError(
-      `Feature is unsupported for field names that end with '[]'; field name: '${field.name}'`
+      `Feature is unsupported for field names that end with '[]'; field name: '${field.name}'`,
+      {
+        key: 'collection.mockData.unsupportedFieldNameArraySuffix',
+        english:
+          "Feature is unsupported for field names that end with '[]'; field name: '{fieldName}'",
+        vars: { fieldName: field.name },
+      }
     );
   }
 

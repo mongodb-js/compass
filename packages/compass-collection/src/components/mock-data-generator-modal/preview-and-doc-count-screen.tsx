@@ -13,6 +13,7 @@ import {
   Banner,
   BannerVariant,
   compactBytes,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { CollectionState } from '../../modules/collection-tab';
@@ -105,9 +106,10 @@ const PreviewAndDocCountScreen = ({
   arrayLengthMap,
   onDocumentCountChanged,
 }: PreviewAndDocCountScreenProps) => {
+  const t = useTranslation();
   const track = useTelemetry();
   const valueOnFocusRef = useRef(documentCount);
-  const validationState = validateDocumentCount(documentCount);
+  const validationState = validateDocumentCount(documentCount, t);
 
   const estimatedDiskSize = useMemo(() => {
     if (
@@ -115,10 +117,10 @@ const PreviewAndDocCountScreen = ({
       !avgDocumentSize ||
       !validationState.parsedValue
     ) {
-      return 'Not available';
+      return t('collection.mockData.notAvailable', 'Not available');
     }
     return formatBytes(avgDocumentSize * validationState.parsedValue);
-  }, [validationState, avgDocumentSize]);
+  }, [validationState, avgDocumentSize, t]);
 
   const errorState = useMemo(() => {
     if (validationState.isValid) {
@@ -170,16 +172,25 @@ const PreviewAndDocCountScreen = ({
     <div className={containerStyles} data-testid="preview-and-doc-count-screen">
       <section className={docCountSectionStyles}>
         <Body className={sectionTitleStyles}>
-          Specify Number of Documents to Generate
+          {t(
+            'collection.mockData.specifyCount',
+            'Specify Number of Documents to Generate'
+          )}
         </Body>
         <Description className={docCountDescriptionStyles}>
-          Indicate the amount of documents you want to generate below.
+          {t(
+            'collection.mockData.indicateCount',
+            'Indicate the amount of documents you want to generate below.'
+          )}
         </Description>
         <div className={inputContainerStyles}>
           <TextInput
             id="document-count-input"
             className={documentCountInputStyles}
-            label="Documents to generate in current collection"
+            label={t(
+              'collection.mockData.documentsToGenerate',
+              'Documents to generate in current collection'
+            )}
             type="number"
             value={documentCount}
             onChange={handleDocumentCountChange}
@@ -194,7 +205,12 @@ const PreviewAndDocCountScreen = ({
             data-testid="document-count-input"
           />
           <div>
-            <Body weight="medium">Estimated Disk Size</Body>
+            <Body weight="medium">
+              {t(
+                'collection.mockData.estimatedDiskSize',
+                'Estimated Disk Size'
+              )}
+            </Body>
             <Body
               className={estimatedDiskSizeValueStyles}
               data-testid="estimated-disk-size"
@@ -205,16 +221,21 @@ const PreviewAndDocCountScreen = ({
         </div>
       </section>
       <section className={previewSectionStyles}>
-        <Body className={sectionTitleStyles}>Preview Mock Data</Body>
+        <Body className={sectionTitleStyles}>
+          {t('collection.mockData.previewTitle', 'Preview Mock Data')}
+        </Body>
         <Body>
-          Below are examples of documents that will be generated when you run
-          your script. If you&apos;d like to make any changes to the script (for
-          ex. what{' '}
+          {t(
+            'collection.mockData.previewIntro',
+            "Below are examples of documents that will be generated when you run your script. If you'd like to make any changes to the script (for ex. what"
+          )}{' '}
           <Link href={FAKER_API_LINK} target="_blank">
-            faker functions
+            {t('collection.mockData.fakerFunctionsLower', 'faker functions')}
           </Link>{' '}
-          are being used to generate the documents) you can do so in the next
-          step.
+          {t(
+            'collection.mockData.previewOutro',
+            'are being used to generate the documents) you can do so in the next step.'
+          )}
         </Body>
         {sampleDocuments.length > 0 ? (
           <div
@@ -229,7 +250,10 @@ const PreviewAndDocCountScreen = ({
           </div>
         ) : (
           <Banner variant={BannerVariant.Warning}>
-            No faker schema available. Please go back and confirm your schema.
+            {t(
+              'collection.mockData.noFakerSchema',
+              'No faker schema available. Please go back and confirm your schema.'
+            )}
           </Banner>
         )}
       </section>

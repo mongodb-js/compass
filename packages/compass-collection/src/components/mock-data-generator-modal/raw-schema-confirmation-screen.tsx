@@ -14,6 +14,7 @@ import {
   cx,
   Link,
   SpinLoaderWithLabel,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { usePreference } from 'compass-preferences-model/provider';
@@ -85,6 +86,7 @@ const RawSchemaConfirmationScreen = ({
   onOpenSettings,
   onRetryAnalysis,
 }: RawSchemaConfirmationScreenProps) => {
+  const t = useTranslation();
   const enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
   );
@@ -117,7 +119,10 @@ const RawSchemaConfirmationScreen = ({
       >
         <SpinLoaderWithLabel
           data-testid="raw-schema-confirmation-loader"
-          progressText="Generating mock data mappings..."
+          progressText={t(
+            'collection.mockData.generatingMappings',
+            'Generating mock data mappings...'
+          )}
         />
       </div>
     );
@@ -132,12 +137,32 @@ const RawSchemaConfirmationScreen = ({
         >
           <div className={bannerContentStyles}>
             <div className={bannerTextStyles}>
-              <Body weight="medium">Schema Analysis Failed</Body>
-              <Body>{schemaAnalysis.error.errorMessage}</Body>
+              <Body weight="medium">
+                {t(
+                  'collection.mockData.analysisFailed',
+                  'Schema Analysis Failed'
+                )}
+              </Body>
+              <Body>
+                {schemaAnalysis.error.errorType === 'empty'
+                  ? t(
+                      'collection.mockData.noDocuments',
+                      'No documents found in the collection to analyze.'
+                    )
+                  : schemaAnalysis.error.translation
+                    ? t(
+                        schemaAnalysis.error.translation.key,
+                        schemaAnalysis.error.translation.english,
+                        schemaAnalysis.error.translation.vars
+                      )
+                    : schemaAnalysis.error.errorMessage}
+              </Body>
               {schemaAnalysis.error.errorType === 'empty' && (
                 <Body>
-                  Insert or import some documents into this collection, then
-                  retry.
+                  {t(
+                    'collection.mockData.insertDocuments',
+                    'Insert or import some documents into this collection, then retry.'
+                  )}
                 </Body>
               )}
             </div>
@@ -146,7 +171,7 @@ const RawSchemaConfirmationScreen = ({
               onClick={onRetryAnalysis}
               data-testid="retry-analysis-button"
             >
-              Retry
+              {t('collection.mockData.retry', 'Retry')}
             </Button>
           </div>
         </Banner>
@@ -162,7 +187,10 @@ const RawSchemaConfirmationScreen = ({
       >
         <SpinLoaderWithLabel
           data-testid="raw-schema-confirmation-loader"
-          progressText="Analyzing collection..."
+          progressText={t(
+            'collection.mockData.analyzingCollection',
+            'Analyzing collection...'
+          )}
         />
       </div>
     );
@@ -171,13 +199,17 @@ const RawSchemaConfirmationScreen = ({
   return (
     <div data-testid="raw-schema-confirmation">
       <Body className={descriptionStyles}>
-        We&apos;ll use the identified schema and AI to generate a mock data
-        script for your collection. You can customize the script and its{' '}
+        {t(
+          'collection.mockData.confirmIntro',
+          "We'll use the identified schema and AI to generate a mock data script for your collection. You can customize the script and its"
+        )}{' '}
         <Link href={FAKER_API_LINK} target="_blank" hideExternalIcon>
-          Faker functions
+          {t('collection.mockData.fakerFunctions', 'Faker functions')}
         </Link>{' '}
-        before running it and/or reuse it for your other clusters and
-        collections.
+        {t(
+          'collection.mockData.confirmOutro',
+          'before running it and/or reuse it for your other clusters and collections.'
+        )}
       </Body>
       <div
         className={cx(
@@ -207,17 +239,25 @@ const RawSchemaConfirmationScreen = ({
         >
           <div className={bannerContentStyles}>
             <div className={bannerTextStyles}>
-              <Body weight="medium">Enable Sending Sample Field Values</Body>
+              <Body weight="medium">
+                {t(
+                  'collection.mockData.enableSampleValues',
+                  'Enable Sending Sample Field Values'
+                )}
+              </Body>
               {isAtlas ? (
                 <Body>
-                  To improve mock data quality, Project Owners can enable
-                  sending sample field values to the AI model. Refresh Data
-                  Explorer for changes to take effect.
+                  {t(
+                    'collection.mockData.enableSampleValuesAtlas',
+                    'To improve mock data quality, Project Owners can enable sending sample field values to the AI model. Refresh Data Explorer for changes to take effect.'
+                  )}
                 </Body>
               ) : (
                 <Body>
-                  To improve mock data quality, enable sending sample field
-                  values in Settings → Artificial Intelligence.
+                  {t(
+                    'collection.mockData.enableSampleValuesDesktop',
+                    'To improve mock data quality, enable sending sample field values in Settings → Artificial Intelligence.'
+                  )}
                 </Body>
               )}
             </div>
@@ -235,7 +275,7 @@ const RawSchemaConfirmationScreen = ({
                 }}
                 data-testid="sample-values-banner-settings-button"
               >
-                Project Settings
+                {t('collection.mockData.projectSettings', 'Project Settings')}
               </Button>
             ) : (
               <Button
@@ -243,7 +283,7 @@ const RawSchemaConfirmationScreen = ({
                 onClick={onOpenSettings}
                 data-testid="sample-values-banner-settings-button"
               >
-                Open Settings
+                {t('collection.mockData.openSettings', 'Open Settings')}
               </Button>
             )}
           </div>
@@ -255,7 +295,10 @@ const RawSchemaConfirmationScreen = ({
           className={bannerStyles}
           data-testid="error-banner"
         >
-          LLM Request failed. Please confirm again.
+          {t(
+            'collection.mockData.llmFailed',
+            'LLM Request failed. Please confirm again.'
+          )}
         </Banner>
       )}
     </div>

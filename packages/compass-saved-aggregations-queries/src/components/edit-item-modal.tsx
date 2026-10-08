@@ -3,6 +3,7 @@ import {
   FormModal,
   TextInput,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -24,6 +25,15 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const t = useTranslation();
+  const title =
+    item?.type === 'query'
+      ? t('savedQueries.edit.titleQuery', 'Rename query')
+      : item?.type === 'aggregation'
+        ? t('savedQueries.edit.titleAggregation', 'Rename aggregation')
+        : t('savedQueries.edit.title', 'Rename {type}', {
+            type: item?.type ?? '',
+          });
   const [name, setName] = useState(item?.name ?? '');
   useSyncStateOnPropChange(() => {
     setName(item?.name ?? '');
@@ -44,14 +54,14 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
       open={isModalOpen}
       onCancel={onCancel}
       onSubmit={onSubmitForm}
-      submitButtonText="Update"
+      submitButtonText={t('savedQueries.edit.update', 'Update')}
       submitDisabled={isSubmitDisabled()}
-      title={`Rename ${item?.type ?? ''}`}
+      title={title}
       data-testid="edit-item-modal"
     >
       <TextInput
-        aria-label="Name"
-        label="Name"
+        aria-label={t('savedQueries.edit.name', 'Name')}
+        label={t('savedQueries.edit.name', 'Name')}
         name="name"
         value={name}
         onChange={(event) => {

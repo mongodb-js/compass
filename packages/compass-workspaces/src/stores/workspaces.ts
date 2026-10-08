@@ -20,7 +20,8 @@ import {
   canReplaceTab,
 } from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { showConfirmation } from '@mongodb-js/compass-components';
+import { showConfirmation, translate } from '@mongodb-js/compass-components';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -889,12 +890,20 @@ export const duplicateTab = (atIndex: number): DuplicateTabAction => {
   };
 };
 
-async function confirmClosingTab() {
+async function confirmClosingTab(preferences: PreferencesAccess) {
+  const language = preferences.getPreferences().language ?? 'en';
   return await showConfirmation({
-    title: 'Are you sure you want to close the tab?',
-    description:
-      'The content of this tab has been modified. You will lose your changes if you close it.',
-    buttonText: 'Close tab',
+    title: translate(
+      language,
+      'workspaces.closeTab.title',
+      'Are you sure you want to close the tab?'
+    ),
+    description: translate(
+      language,
+      'workspaces.closeTab.description',
+      'The content of this tab has been modified. You will lose your changes if you close it.'
+    ),
+    buttonText: translate(language, 'workspaces.closeTab.button', 'Close tab'),
     variant: 'danger',
     'data-testid': 'confirm-tab-close',
   });
@@ -909,10 +918,10 @@ type CloseTabsAction = {
 export const closeTab = (
   atIndex: number
 ): WorkspacesThunkAction<Promise<void>, CloseTabsAction> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { preferences }) => {
     const { tabs } = getState();
     const tab = tabs[atIndex];
-    if (canCloseTab(tab) || (await confirmClosingTab())) {
+    if (canCloseTab(tab) || (await confirmClosingTab(preferences))) {
       dispatch({ type: WorkspacesActions.CloseTabs, tabIds: [tab.id] });
       cleanupRemovedTabs(tabs, getState().tabs);
     }
@@ -922,7 +931,7 @@ export const closeTab = (
 export const closeAllOtherTabs = (
   atIndex: number
 ): WorkspacesThunkAction<Promise<void>, CloseTabsAction | SelectTabAction> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { preferences }) => {
     const { tabs } = getState();
     const remainingTab = tabs[atIndex];
     const tabsToClose = [];
@@ -933,7 +942,7 @@ export const closeAllOtherTabs = (
       if (!canCloseTab(tab)) {
         // Select the closing tab - to show the confirmation dialog in context
         dispatch({ type: WorkspacesActions.SelectTab, atIndex: tabIndex });
-        if (!(await confirmClosingTab())) {
+        if (!(await confirmClosingTab(preferences))) {
           continue; // Skip this tab
         }
       }
@@ -1000,11 +1009,23 @@ export const loadSavedWorkspaces = (): WorkspacesThunkAction<
       ignoreErrors: true,
     });
     if (savedState && savedState.tabs.length > 0) {
+      const language = preferences.getPreferences().language ?? 'en';
       const confirm = await showConfirmation({
-        title: 'Reopen closed tabs?',
-        description:
-          'Your connection and tabs were closed, this action will reopen your previous session',
-        buttonText: 'Reopen tabs',
+        title: translate(
+          language,
+          'workspaces.reopenTabs.title',
+          'Reopen closed tabs?'
+        ),
+        description: translate(
+          language,
+          'workspaces.reopenTabs.description',
+          'Your connection and tabs were closed, this action will reopen your previous session'
+        ),
+        buttonText: translate(
+          language,
+          'workspaces.reopenTabs.button',
+          'Reopen tabs'
+        ),
       });
 
       if (confirm) {

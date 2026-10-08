@@ -9,6 +9,7 @@ import {
   Badge,
   Button,
   Checkbox,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { RootState, SchemaThunkDispatch } from '../stores/store';
@@ -478,6 +479,7 @@ const ExportSchemaLegacyModal: React.FunctionComponent<{
   setShowLegacyExportTooltip,
   stopShowingLegacyModal,
 }) => {
+  const t = useTranslation();
   const [dontShowAgainChecked, setDontShowAgainChecked] = useState(false);
   const handleLegacyShare = useCallback(() => {
     if (dontShowAgainChecked) stopShowingLegacyModal('legacy');
@@ -507,37 +509,60 @@ const ExportSchemaLegacyModal: React.FunctionComponent<{
             <div className={imageContainerStyles}>
               <SchemaExportSVG />
             </div>
-            New &amp; Improved Export Schema Experience
+            {t(
+              'schema.legacyModal.title',
+              'New & Improved Export Schema Experience'
+            )}
           </>
         }
-        subtitle={`
+        subtitle={t(
+          'schema.legacyModal.subtitle',
+          `
           Try the new Export Schema to generate your collection schema in multiple formats.
           The previous 'Share Schema' experience will not be receiving future updates moving forward.
-          `}
+          `
+        )}
       />
       <ModalBody>
         <div className={comparisonContainerStyles}>
-          <Badge variant="yellow">Legacy</Badge>
-          <Badge variant="green">New</Badge>
-          <h4 className={optionHeaderStyles}>Share JSON Schema</h4>
-          <h4 className={optionHeaderStyles}>Export JSON Schema</h4>
+          <Badge variant="yellow">
+            {t('schema.legacyModal.legacy', 'Legacy')}
+          </Badge>
+          <Badge variant="green">{t('schema.legacyModal.new', 'New')}</Badge>
+          <h4 className={optionHeaderStyles}>
+            {t('schema.legacyModal.shareJsonSchema', 'Share JSON Schema')}
+          </h4>
+          <h4 className={optionHeaderStyles}>
+            {t('schema.legacyModal.exportJsonSchema', 'Export JSON Schema')}
+          </h4>
           <div>
-            Non-standard schema format without customization capabilities.
+            {t(
+              'schema.legacyModal.legacyDescription',
+              'Non-standard schema format without customization capabilities.'
+            )}
           </div>
           <div>
-            3 standardized schema formats designed for schema validation and
-            analysis use cases.
+            {t(
+              'schema.legacyModal.newDescription',
+              '3 standardized schema formats designed for schema validation and analysis use cases.'
+            )}
           </div>
           <Button variant="default" size="small" onClick={handleLegacyShare}>
-            Continue with legacy Share
+            {t(
+              'schema.legacyModal.continueLegacy',
+              'Continue with legacy Share'
+            )}
           </Button>
           <Button variant="primary" size="small" onClick={handleSwitchToNew}>
-            Try new Export
+            {t('schema.legacyModal.tryNew', 'Try new Export')}
           </Button>
         </div>
         <div className={checkboxContainerStyles}>
           <Checkbox
-            label="Do not show me this message again"
+            label={t(
+              'schema.legacyModal.doNotShowAgain',
+              'Do not show me this message again'
+            )}
             checked={dontShowAgainChecked}
             onChange={(e) => setDontShowAgainChecked(e.currentTarget.checked)}
           />

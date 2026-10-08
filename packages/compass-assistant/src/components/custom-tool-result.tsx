@@ -6,6 +6,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { mapAtlasConnectionDebugResult } from '../tool-result-mapper';
 import type { ToolResultField, ToolResultFields } from '../tool-result-mapper';
@@ -49,6 +50,12 @@ const rightStyle = css({
   textAlign: 'right',
 });
 
+const TOOL_RESULT_LABEL_KEYS: Record<string, string> = {
+  Cluster: 'cluster',
+  State: 'state',
+  'IP Access': 'ipAccess',
+};
+
 function hasCustomToolResult(toolType: string): boolean {
   return isDebuggerToolCall(toolType);
 }
@@ -63,12 +70,23 @@ function getToolResultFields(
   return [];
 }
 
+const IP_ACCESS_VALUE_KEYS: Record<string, string> = {
+  'Client IP Allowed': 'ipAllowed',
+  'Client IP Not Allowed': 'ipNotAllowed',
+  'Could not confirm': 'couldNotConfirm',
+};
+
 function FieldValue({ field }: { field: ToolResultField }) {
+  const t = useTranslation();
+  const valueKey = IP_ACCESS_VALUE_KEYS[field.value];
+  const value = valueKey
+    ? t(`assistant.toolResult.${valueKey}`, field.value)
+    : field.value;
   switch (field.type) {
     case 'link':
-      return <Link href={field.href}>{field.value}</Link>;
+      return <Link href={field.href}>{value}</Link>;
     case 'text':
-      return <>{field.value}</>;
+      return <>{value}</>;
   }
 }
 
@@ -78,6 +96,7 @@ export const CustomToolResult: React.FC<{
   output: unknown;
 }> = ({ title, toolType, output }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   const fields = React.useMemo(
     () => getToolResultFields(toolType, output),
     [toolType, output]
@@ -99,7 +118,14 @@ export const CustomToolResult: React.FC<{
         <div className={gridStyle}>
           {fields.map((field) => (
             <React.Fragment key={field.label}>
-              <span className={cx(rowStyle, leftStyle)}>{field.label}</span>
+              <span className={cx(rowStyle, leftStyle)}>
+                {t(
+                  `assistant.toolResult.${
+                    TOOL_RESULT_LABEL_KEYS[field.label] ?? field.label
+                  }`,
+                  field.label
+                )}
+              </span>
               <span className={cx(rowStyle, rightStyle)}>
                 <FieldValue field={field} />
               </span>

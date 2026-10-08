@@ -76,6 +76,7 @@ function getErrorDetails(error: Error): SchemaAnalysisError {
     return {
       errorType: 'unsupportedState',
       errorMessage: error.message,
+      translation: error.translation,
     };
   }
 
@@ -731,7 +732,16 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       // hiding the menu item, since it's only known after analysis runs.
       if (maxNestingDepth > MAX_COLLECTION_NESTING_DEPTH) {
         throw new ProcessSchemaUnsupportedStateError(
-          `Schema nesting depth (${maxNestingDepth}) exceeds the maximum supported depth of ${MAX_COLLECTION_NESTING_DEPTH}.`
+          `Schema nesting depth (${maxNestingDepth}) exceeds the maximum supported depth of ${MAX_COLLECTION_NESTING_DEPTH}.`,
+          {
+            key: 'collection.mockData.nestingDepthExceeded',
+            english:
+              'Schema nesting depth ({depth}) exceeds the maximum supported depth of {maxDepth}.',
+            vars: {
+              depth: maxNestingDepth,
+              maxDepth: MAX_COLLECTION_NESTING_DEPTH,
+            },
+          }
         );
       }
       const validation = collectionModel.validation as

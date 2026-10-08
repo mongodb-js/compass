@@ -16,6 +16,8 @@ import {
   CancelLoader,
   SpinLoader,
   Link,
+  useTranslation,
+  Translated,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
@@ -79,34 +81,41 @@ const exportSchemaFormatOptions: SupportedFormat[] = [
 const exportSchemaFormatOptionDetails: Record<
   SupportedFormat,
   {
-    title: string;
+    title: JSX.Element;
     description: JSX.Element;
   }
 > = {
   standardJSON: {
-    title: 'Standard',
+    title: <Translated id="schema.exportModal.standard">Standard</Translated>,
     description: (
       <div>
-        For broad compatibility with tools and systems that rely on
-        standard&nbsp;
+        <Translated id="schema.exportModal.standardDescription">
+          For broad compatibility with tools and systems that rely on standard
+        </Translated>
+        &nbsp;
         <Link href="https://json-schema.org/specification">JSON Schema</Link>
       </div>
     ),
   },
   mongoDBJSON: {
-    title: 'MongoDB',
+    title: <>MongoDB</>,
     description: (
       <div>
-        For MongoDB-specific data validation at the database level (includes
-        BSON data types)
+        <Translated id="schema.exportModal.mongodbDescription">
+          For MongoDB-specific data validation at the database level (includes
+          BSON data types)
+        </Translated>
       </div>
     ),
   },
   expandedJSON: {
-    title: 'Expanded',
+    title: <Translated id="schema.exportModal.expanded">Expanded</Translated>,
     description: (
       <div>
-        For schema analysis to help with understanding and documenting your data
+        <Translated id="schema.exportModal.expandedDescription">
+          For schema analysis to help with understanding and documenting your
+          data
+        </Translated>
       </div>
     ),
   },
@@ -140,6 +149,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   onExportedSchemaCopied,
   onSchemaDownload,
 }) => {
+  const t = useTranslation();
   const onFormatOptionSelected = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       event.preventDefault();
@@ -151,13 +161,15 @@ const ExportSchemaModal: React.FunctionComponent<{
 
   return (
     <Modal open={isOpen} setOpen={onClose} className={modalStyles}>
-      <ModalHeader title="Export JSON Schema" />
+      <ModalHeader
+        title={t('schema.exportModal.title', 'Export JSON Schema')}
+      />
       <ModalBody>
         <Label
           htmlFor={formatTypeRadioBoxGroupId}
           id={formatTypeRadioBoxGroupLabelId}
         >
-          Select format:
+          {t('schema.exportModal.selectFormat', 'Select format:')}
         </Label>
         <RadioBoxGroup
           aria-labelledby={formatTypeRadioBoxGroupLabelId}
@@ -191,8 +203,11 @@ const ExportSchemaModal: React.FunctionComponent<{
             <CancelLoader
               className={loaderStyles}
               data-testid="schema-export-loader"
-              progressText="Formatting Schema"
-              cancelText="Stop"
+              progressText={t(
+                'schema.exportModal.formatting',
+                'Formatting Schema'
+              )}
+              cancelText={t('schema.exportModal.stop', 'Stop')}
               onCancel={onCancelSchemaExport}
             />
           )}
@@ -217,7 +232,10 @@ const ExportSchemaModal: React.FunctionComponent<{
             <ErrorSummary
               data-testid="schema-export-error-message"
               errors={[
-                `An error occurred during schema export: ${errorMessage}`,
+                `${t(
+                  'schema.exportModal.error',
+                  'An error occurred during schema export'
+                )}: ${errorMessage}`,
               ]}
             />
           )}
@@ -225,7 +243,7 @@ const ExportSchemaModal: React.FunctionComponent<{
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button onClick={onClose} variant="default">
-          Cancel
+          {t('schema.exportModal.cancel', 'Cancel')}
         </Button>
         <Button
           variant="primary"
@@ -235,7 +253,7 @@ const ExportSchemaModal: React.FunctionComponent<{
           onClick={onSchemaDownload}
           data-testid="schema-export-download-button"
         >
-          Export..
+          {t('schema.exportModal.export', 'Export..')}
         </Button>
       </ModalFooter>
     </Modal>

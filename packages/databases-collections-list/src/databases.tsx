@@ -17,6 +17,8 @@ import {
   useDarkMode,
   compactBytes,
   compactNumber,
+  useTranslation,
+  type TranslateFn,
 } from '@mongodb-js/compass-components';
 
 const databaseNameWrapStyles = css({
@@ -66,16 +68,18 @@ function isReady(
 }
 
 function databaseColumns({
+  t,
   darkMode,
   enableDbAndCollStats,
 }: {
+  t: TranslateFn;
   darkMode: boolean | undefined;
   enableDbAndCollStats: boolean;
 }): LGColumnDef<DatabaseProps>[] {
   return [
     {
       accessorKey: 'name',
-      header: 'Database name',
+      header: t('databasesCollectionsList.databaseName', 'Database name'),
       enableSorting: true,
       sortUndefined: 'last',
       minSize: 300,
@@ -107,8 +111,10 @@ function databaseColumns({
                   </div>
                 }
               >
-                Your privileges grant you access to this namespace, but it might
-                not currently exist
+                {t(
+                  'databasesCollectionsList.inferredFromPrivileges',
+                  'Your privileges grant you access to this namespace, but it might not currently exist'
+                )}
               </Tooltip>
             )}
           </span>
@@ -117,7 +123,7 @@ function databaseColumns({
     },
     {
       accessorKey: 'storage_size',
-      header: 'Storage size',
+      header: t('databasesCollectionsList.storageSize', 'Storage size'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 110,
@@ -136,7 +142,7 @@ function databaseColumns({
     },
     {
       accessorKey: 'data_size',
-      header: 'Data size',
+      header: t('databasesCollectionsList.dataSize', 'Data size'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 80,
@@ -153,7 +159,7 @@ function databaseColumns({
     },
     {
       accessorKey: 'collectionsLength',
-      header: 'Collections',
+      header: t('databasesCollectionsList.collections', 'Collections'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 110,
@@ -181,7 +187,7 @@ function databaseColumns({
     },
     {
       accessorKey: 'index_count',
-      header: 'Indexes',
+      header: t('databasesCollectionsList.indexes', 'Indexes'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 110,
@@ -220,10 +226,11 @@ const DatabasesList: React.FunctionComponent<{
   }
 
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const columns = React.useMemo(
-    () => databaseColumns({ darkMode, enableDbAndCollStats }),
-    [darkMode, enableDbAndCollStats]
+    () => databaseColumns({ t, darkMode, enableDbAndCollStats }),
+    [t, darkMode, enableDbAndCollStats]
   );
 
   const TableComponent = virtual ? VirtualItemsTable : ItemsTable;

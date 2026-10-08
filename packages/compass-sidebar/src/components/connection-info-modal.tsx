@@ -1,6 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { InfoModal, Body, css, spacing } from '@mongodb-js/compass-components';
+import {
+  InfoModal,
+  Body,
+  css,
+  spacing,
+  useTranslation,
+  Translated,
+} from '@mongodb-js/compass-components';
 import { ServerType, TopologyType } from 'mongodb-instance-model';
 import type { ConnectionInfo as ConnectionStorageConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootState } from '../modules';
@@ -9,7 +16,7 @@ import type { SingleConnectionOptionsState } from '../modules/connection-options
 import type { SingleInstanceState } from '../modules/instance';
 
 type ConnectionInfo = {
-  term: string;
+  term: React.ReactChild;
   description: React.ReactChild;
 };
 
@@ -53,9 +60,10 @@ export function ConnectionInfoModal({
   close: () => void;
   infos?: ConnectionInfo[];
 }) {
+  const t = useTranslation();
   return (
     <InfoModal
-      title="Connection info"
+      title={t('sidebar.connectionInfo.title', 'Connection info')}
       open={isVisible}
       onClose={close}
       size="small"
@@ -104,6 +112,40 @@ type InfoParameters = {
   connectionInfo: Partial<ConnectionStorageConnectionInfo>;
 };
 
+function StatsDescription({
+  numDbs,
+  numCollections,
+}: {
+  numDbs: number | string;
+  numCollections: number | string;
+}) {
+  const t = useTranslation();
+  return (
+    <div>
+      <div>
+        {numDbs === 1
+          ? t('sidebar.connectionInfo.dbs.one', '{count} DB', {
+              count: numDbs,
+            })
+          : t('sidebar.connectionInfo.dbs.other', '{count} DBs', {
+              count: numDbs,
+            })}
+      </div>
+      <div>
+        {numCollections === 1
+          ? t('sidebar.connectionInfo.collections.one', '{count} Collection', {
+              count: numCollections,
+            })
+          : t(
+              'sidebar.connectionInfo.collections.other',
+              '{count} Collections',
+              { count: numCollections }
+            )}
+      </div>
+    </div>
+  );
+}
+
 function getStatsInfo({ instance, databases }: InfoParameters): ConnectionInfo {
   const isReady = instance?.refreshingStatus === 'ready';
 
@@ -112,25 +154,45 @@ function getStatsInfo({ instance, databases }: InfoParameters): ConnectionInfo {
     ? databases.map((db) => db.collectionsLength).reduce((acc, n) => acc + n, 0)
     : '-';
   return {
-    term: 'Stats',
+    term: <Translated id="sidebar.connectionInfo.stats">Stats</Translated>,
     description: (
-      <div>
-        <div>{`${numDbs} DB${numDbs === 1 ? '' : 's'}`}</div>
-        <div>{`${numCollections} Collection${
-          numCollections === 1 ? '' : 's'
-        }`}</div>
-      </div>
+      <StatsDescription numDbs={numDbs} numCollections={numCollections} />
     ),
   };
+}
+
+function HostHeading({
+  isSingleHost,
+  isLoadBalanced,
+}: {
+  isSingleHost: boolean;
+  isLoadBalanced: boolean;
+}) {
+  const t = useTranslation();
+  const heading = isSingleHost
+    ? t('sidebar.connectionInfo.host', 'Host')
+    : t('sidebar.connectionInfo.hosts', 'Hosts');
+  return (
+    <>
+      {isLoadBalanced
+        ? `${heading} ${t(
+            'sidebar.connectionInfo.loadBalancer',
+            '(Load Balancer)'
+          )}`
+        : heading}
+    </>
+  );
 }
 
 function getHostInfo({ instance }: InfoParameters): ConnectionInfo {
   const { type, servers = [] } = instance?.topologyDescription ?? {};
 
-  let heading = servers.length === 1 ? 'Host' : 'Hosts';
-  if (type === TopologyType.LOAD_BALANCED) {
-    heading += ' (Load Balancer)';
-  }
+  const heading = (
+    <HostHeading
+      isSingleHost={servers.length === 1}
+      isLoadBalanced={type === TopologyType.LOAD_BALANCED}
+    />
+  );
 
   const hosts =
     servers.length === 1 ? (
@@ -149,38 +211,83 @@ function getHostInfo({ instance }: InfoParameters): ConnectionInfo {
   };
 }
 
-function makeNodesInfo(
-  numNodes: number,
-  single: string,
-  plural: string
-): string {
-  return numNodes === 1 ? `1 ${single}` : `${numNodes} ${plural}`;
+function NodesInfo({
+  kind,
+  numNodes,
+}: {
+  kind: 'mongos' | 'node';
+  numNodes: number;
+}) {
+  const t = useTranslation();
+  const count = numNodes;
+  if (kind === 'mongos') {
+    return (
+      <>
+        {numNodes === 1
+          ? t('sidebar.connectionInfo.mongos.one', '{count} Mongos', { count })
+          : t('sidebar.connectionInfo.mongos.other', '{count} Mongoses', {
+              count,
+            })}
+      </>
+    );
+  }
+  return (
+    <>
+      {numNodes === 1
+        ? t('sidebar.connectionInfo.node.one', '{count} Node', { count })
+        : t('sidebar.connectionInfo.node.other', '{count} Nodes', { count })}
+    </>
+  );
+}
+
+function ClusterType({
+  type,
+  setName,
+  serverType,
+}: {
+  type?: string;
+  setName?: string | null;
+  serverType?: string;
+}) {
+  const t = useTranslation();
+  switch (type) {
+    case TopologyType.SHARDED:
+      return <>{t('sidebar.connectionInfo.sharded', 'Sharded')}</>;
+    case TopologyType.REPLICA_SET_NO_PRIMARY:
+    case TopologyType.REPLICA_SET_WITH_PRIMARY:
+      return (
+        <>
+          {t('sidebar.connectionInfo.replicaSet', 'Replica Set {name}', {
+            name: setName ?? '',
+          })}
+        </>
+      );
+    default:
+      return <>{ServerType.humanize(serverType ?? 'Unknown')}</>;
+  }
 }
 
 function getClusterInfo({ instance }: InfoParameters): ConnectionInfo {
   const { type, setName, servers = [] } = instance?.topologyDescription ?? {};
 
-  let clusterType: string;
-  let nodesInfo;
+  const clusterType = (
+    <ClusterType type={type} setName={setName} serverType={servers[0]?.type} />
+  );
+
+  let nodesInfo: React.ReactElement | undefined;
   switch (type) {
     case TopologyType.SHARDED:
-      clusterType = 'Sharded';
-      nodesInfo = makeNodesInfo(servers.length, 'Mongos', 'Mongoses');
+      nodesInfo = <NodesInfo kind="mongos" numNodes={servers.length} />;
       break;
 
     case TopologyType.REPLICA_SET_NO_PRIMARY:
     case TopologyType.REPLICA_SET_WITH_PRIMARY:
-      clusterType = `Replica Set ${setName}`;
-      nodesInfo = makeNodesInfo(servers.length, 'Node', 'Nodes');
-      break;
-
-    default:
-      clusterType = ServerType.humanize(servers[0]?.type ?? 'Unknown');
+      nodesInfo = <NodesInfo kind="node" numNodes={servers.length} />;
       break;
   }
 
   return {
-    term: 'Cluster',
+    term: <Translated id="sidebar.connectionInfo.cluster">Cluster</Translated>,
     description: nodesInfo ? (
       <div>
         <div>{clusterType}</div>
@@ -194,7 +301,7 @@ function getClusterInfo({ instance }: InfoParameters): ConnectionInfo {
 
 function getVersionInfo({ instance }: InfoParameters): ConnectionInfo {
   return {
-    term: 'Edition',
+    term: <Translated id="sidebar.connectionInfo.edition">Edition</Translated>,
     description: instance?.dataLake.isDataLake
       ? `Atlas Data Federation ${instance?.dataLake.version ?? ''}`
       : `MongoDB ${instance?.build.version} ${getVersionDistro({
@@ -210,7 +317,11 @@ function getSSHTunnelInfo({
 }: InfoParameters): ConnectionInfo {
   const { sshTunnelHostPortString } = connectionOptions;
   return {
-    term: 'SSH Connection Via',
+    term: (
+      <Translated id="sidebar.connectionInfo.sshVia">
+        SSH Connection Via
+      </Translated>
+    ),
     description: sshTunnelHostPortString,
   };
 }

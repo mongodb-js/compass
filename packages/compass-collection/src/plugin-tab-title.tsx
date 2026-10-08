@@ -5,7 +5,7 @@ import {
   useConnectionInfo,
   useConnectionsListRef,
 } from '@mongodb-js/compass-connections/provider';
-import { WorkspaceTab } from '@mongodb-js/compass-components';
+import { WorkspaceTab, useTranslation } from '@mongodb-js/compass-components';
 import type { PluginHeaderProps } from '@mongodb-js/workspace-info';
 
 import { type CollectionState } from './modules/collection-tab';
@@ -27,6 +27,7 @@ function PluginTitle({
   namespace,
   ...tabProps
 }: PluginTitleProps) {
+  const t = useTranslation();
   const { getConnectionById } = useConnectionsListRef();
   const { id: connectionId } = useConnectionInfo();
 
@@ -39,17 +40,32 @@ function PluginTitle({
       : 'collection';
   // Similar to what we have in the collection breadcrumbs.
   const tooltip: [string, string][] = [
-    ['Connection', connectionName || ''],
-    ['Database', database],
+    [
+      t('collection.pluginTitle.connection', 'Connection'),
+      connectionName || '',
+    ],
+    [t('collection.pluginTitle.database', 'Database'), database],
   ];
   if (sourceName) {
-    tooltip.push(['View', collection]);
-    tooltip.push(['Derived from', toNS(sourceName).collection]);
+    tooltip.push([t('collection.pluginTitle.view', 'View'), collection]);
+    tooltip.push([
+      t('collection.pluginTitle.derivedFrom', 'Derived from'),
+      toNS(sourceName).collection,
+    ]);
   } else if (editViewName) {
-    tooltip.push(['View', toNS(editViewName).collection]);
-    tooltip.push(['Derived from', collection]);
+    tooltip.push([
+      t('collection.pluginTitle.view', 'View'),
+      toNS(editViewName).collection,
+    ]);
+    tooltip.push([
+      t('collection.pluginTitle.derivedFrom', 'Derived from'),
+      collection,
+    ]);
   } else {
-    tooltip.push(['Collection', collection]);
+    tooltip.push([
+      t('collection.pluginTitle.collection', 'Collection'),
+      collection,
+    ]);
   }
 
   return (

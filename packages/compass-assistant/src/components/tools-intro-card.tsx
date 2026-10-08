@@ -9,6 +9,7 @@ import {
   spacing,
   cx,
   Description,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useAssistantProjectId } from '../compass-assistant-provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
@@ -84,11 +85,18 @@ interface ToolsIntroCardProps {
 export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
   onDismiss,
 }) => {
+  const t = useTranslation();
   const projectId = useAssistantProjectId();
 
   const settingsText = projectId
-    ? 'Toggle them for this chat or Project Owners can manage them project-wide in Project Settings.'
-    : 'Toggle them for this chat or manage them in Settings.';
+    ? t(
+        'assistant.toolsIntro.settingsProject',
+        'Toggle them for this chat or Project Owners can manage them project-wide in Project Settings.'
+      )
+    : t(
+        'assistant.toolsIntro.settings',
+        'Toggle them for this chat or manage them in Settings.'
+      );
   const learnMoreUrl = projectId
     ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
     : 'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/';
@@ -98,13 +106,15 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
       <Card className={cx(cardStyles)} data-testid="tools-intro-card">
         <div className={headerStyles}>
           <div className={titleContainerStyles}>
-            <h4>Tools to talk to your data</h4>
-            <Badge variant="blue">New</Badge>
+            <h4>
+              {t('assistant.toolsIntro.title', 'Tools to talk to your data')}
+            </h4>
+            <Badge variant="blue">{t('assistant.toolsIntro.new', 'New')}</Badge>
           </div>
           <button
             className={closeButtonStyles}
             onClick={onDismiss}
-            aria-label="Dismiss"
+            aria-label={t('assistant.toolsIntro.dismiss', 'Dismiss')}
             data-testid="tools-intro-card-close"
           >
             <Icon glyph="X" size="small" />
@@ -112,8 +122,10 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
         </div>
 
         <Description className={descriptionStyles}>
-          Explore your data effortlessly with natural language. These read-only
-          tools never make changes and only run with your approval.{' '}
+          {t(
+            'assistant.toolsIntro.description',
+            'Explore your data effortlessly with natural language. These read-only tools never make changes and only run with your approval.'
+          )}{' '}
           {settingsText}
         </Description>
 
@@ -127,11 +139,11 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
               }}
               data-testid="tools-intro-card-view-settings"
             >
-              View Settings
+              {t('assistant.toolsIntro.viewSettings', 'View Settings')}
             </Button>
           )}
           <Link href={learnMoreUrl} data-testid="tools-intro-card-learn-more">
-            Learn more
+            {t('assistant.toolsIntro.learnMore', 'Learn more')}
           </Link>
         </div>
       </Card>

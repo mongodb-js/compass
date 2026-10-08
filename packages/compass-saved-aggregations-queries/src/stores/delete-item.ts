@@ -2,6 +2,7 @@ import type { SavedQueryAggregationThunkAction } from '.';
 import {
   showConfirmation,
   ConfirmationModalVariant,
+  translate,
 } from '@mongodb-js/compass-components';
 
 export const ActionTypes = {
@@ -21,7 +22,7 @@ export const confirmDeleteItem = (
   return async (
     dispatch,
     getState,
-    { pipelineStorage, queryStorage, track }
+    { pipelineStorage, queryStorage, track, preferencesAccess }
   ) => {
     const {
       savedItems: { items },
@@ -31,14 +32,28 @@ export const confirmDeleteItem = (
       return;
     }
 
-    const title = `Are you sure you want to delete your ${
-      item.type === 'query' ? 'query' : 'aggregation'
-    }?`;
+    const language = preferencesAccess.getPreferences().language ?? 'en';
+    const title =
+      item.type === 'query'
+        ? translate(
+            language,
+            'savedQueries.delete.titleQuery',
+            'Are you sure you want to delete your query?'
+          )
+        : translate(
+            language,
+            'savedQueries.delete.titleAggregation',
+            'Are you sure you want to delete your aggregation?'
+          );
     const confirmed = await showConfirmation({
       title,
-      description: 'This action can not be undone.',
+      description: translate(
+        language,
+        'savedQueries.delete.description',
+        'This action can not be undone.'
+      ),
       variant: ConfirmationModalVariant.Danger,
-      buttonText: 'Delete',
+      buttonText: translate(language, 'savedQueries.delete.button', 'Delete'),
     });
     if (!confirmed) {
       return;

@@ -7,6 +7,7 @@ import {
   css,
   palette,
   keyframes,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   useConnectionIds,
@@ -61,6 +62,7 @@ interface ConnectionStatusProps {
 }
 
 function ConnectionStatus({ connectionId }: ConnectionStatusProps) {
+  const t = useTranslation();
   const connectionInfo = useConnectionInfoForId(connectionId);
   const connection = useConnectionForId(connectionId);
 
@@ -77,16 +79,30 @@ function ConnectionStatus({ connectionId }: ConnectionStatusProps) {
           icon: (
             <Icon glyph="Checkmark" size="small" color={palette.green.dark2} />
           ),
-          statusText: `Connected to ${connectionName}`,
+          statusText: t(
+            'welcome.connectionList.connected',
+            'Connected to {name}',
+            {
+              name: connectionName,
+            }
+          ),
         }
       : status === 'failed'
         ? {
             icon: <Icon glyph="X" size="small" color={palette.red.base} />,
-            statusText: `Failed to connect to ${connectionName}`,
+            statusText: t(
+              'welcome.connectionList.failed',
+              'Failed to connect to {name}',
+              { name: connectionName }
+            ),
           }
         : {
             icon: <SpinLoader size={16} />,
-            statusText: `Connecting to ${connectionName}`,
+            statusText: t(
+              'welcome.connectionList.connecting',
+              'Connecting to {name}',
+              { name: connectionName }
+            ),
           };
 
   return (

@@ -1,4 +1,4 @@
-import type { ItemAction } from '@mongodb-js/compass-components';
+import type { ItemAction, TranslateFn } from '@mongodb-js/compass-components';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { type ItemSeparator } from '@mongodb-js/compass-components';
 import { type NotConnectedConnectionStatus } from './tree-data';
@@ -18,8 +18,10 @@ function stripNullActions(
 }
 
 export const commonConnectionItemActions = ({
+  t,
   connectionInfo,
 }: {
+  t: TranslateFn;
   connectionInfo: ConnectionInfo;
 }): NavigationItemAction[] => {
   const isAtlas = !!connectionInfo.atlasMetadata;
@@ -28,19 +30,28 @@ export const commonConnectionItemActions = ({
       ? null
       : {
           action: 'edit-connection',
-          label: 'Edit connection',
+          label: t(
+            'connectionsNavigation.actions.editConnection',
+            'Edit connection'
+          ),
           icon: 'Edit',
-          disabledDescription: 'Cannot edit an active connection',
+          disabledDescription: t(
+            'connectionsNavigation.actions.cannotEditActive',
+            'Cannot edit an active connection'
+          ),
         },
     isAtlas
       ? {
           action: 'show-connect-via-modal',
-          label: 'Connect via …',
+          label: t('connectionsNavigation.actions.connectVia', 'Connect via …'),
           icon: 'Connect',
         }
       : {
           action: 'copy-connection-string',
-          label: 'Copy connection string',
+          label: t(
+            'connectionsNavigation.actions.copyConnectionString',
+            'Copy connection string'
+          ),
           icon: 'Copy',
         },
     isAtlas
@@ -49,22 +60,34 @@ export const commonConnectionItemActions = ({
           action: 'connection-toggle-favorite',
           label:
             connectionInfo.savedConnectionType === 'favorite'
-              ? 'Unfavorite connection'
-              : 'Favorite connection',
+              ? t(
+                  'connectionsNavigation.actions.unfavoriteConnection',
+                  'Unfavorite connection'
+                )
+              : t(
+                  'connectionsNavigation.actions.favoriteConnection',
+                  'Favorite connection'
+                ),
           icon: 'Favorite',
         },
     isAtlas
       ? null
       : {
           action: 'duplicate-connection',
-          label: 'Duplicate connection',
+          label: t(
+            'connectionsNavigation.actions.duplicateConnection',
+            'Duplicate connection'
+          ),
           icon: 'Clone',
         },
     isAtlas
       ? null
       : {
           action: 'remove-connection',
-          label: 'Remove connection',
+          label: t(
+            'connectionsNavigation.actions.removeConnection',
+            'Remove connection'
+          ),
           icon: 'Trash',
           variant: 'destructive',
         },
@@ -72,12 +95,14 @@ export const commonConnectionItemActions = ({
 };
 
 export const connectedConnectionItemActions = ({
+  t,
   connectionInfo,
   hasWriteActionsDisabled,
   isPerformanceTabAvailable,
   isPerformanceTabSupported,
   isShellEnabled,
 }: {
+  t: TranslateFn;
   connectionInfo: ConnectionInfo;
   hasWriteActionsDisabled: boolean;
   // Indicates whether or not performance workspace is available in the
@@ -90,12 +115,16 @@ export const connectedConnectionItemActions = ({
 }): NavigationItemActions => {
   const isAtlas = !!connectionInfo.atlasMetadata;
   const connectionManagementActions = commonConnectionItemActions({
+    t,
     connectionInfo,
   });
   return stripNullActions([
     {
       action: 'refresh-databases',
-      label: 'Refresh databases',
+      label: t(
+        'connectionsNavigation.actions.refreshDatabases',
+        'Refresh databases'
+      ),
       icon: 'Refresh',
     },
     hasWriteActionsDisabled
@@ -103,22 +132,34 @@ export const connectedConnectionItemActions = ({
       : {
           action: 'create-database',
           icon: 'Plus',
-          label: 'Create database',
+          label: t(
+            'connectionsNavigation.actions.createDatabase',
+            'Create database'
+          ),
         },
     isShellEnabled
       ? {
           action: 'open-shell',
           icon: 'Shell',
-          label: 'Open MongoDB shell',
+          label: t(
+            'connectionsNavigation.actions.openShell',
+            'Open MongoDB shell'
+          ),
         }
       : null,
     isPerformanceTabAvailable
       ? {
           action: 'connection-performance-metrics',
           icon: 'Gauge',
-          label: 'View performance metrics',
+          label: t(
+            'connectionsNavigation.actions.viewPerformanceMetrics',
+            'View performance metrics'
+          ),
           isDisabled: !isPerformanceTabSupported,
-          disabledDescription: 'Not supported',
+          disabledDescription: t(
+            'connectionsNavigation.actions.notSupported',
+            'Not supported'
+          ),
         }
       : null,
     // The following are just links to other parts of Atlas
@@ -126,28 +167,40 @@ export const connectedConnectionItemActions = ({
       ? {
           action: 'connection-atlas-performance-metrics',
           icon: 'Gauge',
-          label: 'View performance metrics',
+          label: t(
+            'connectionsNavigation.actions.viewPerformanceMetrics',
+            'View performance metrics'
+          ),
         }
       : null,
     connectionInfo.atlasMetadata
       ? {
           action: 'connection-cluster-overview',
           icon: 'Dashboard',
-          label: 'View cluster overview',
+          label: t(
+            'connectionsNavigation.actions.viewClusterOverview',
+            'View cluster overview'
+          ),
         }
       : null,
     connectionInfo.atlasMetadata
       ? {
           action: 'connection-view-monitoring',
           icon: 'TimeSeries',
-          label: 'View monitoring',
+          label: t(
+            'connectionsNavigation.actions.viewMonitoring',
+            'View monitoring'
+          ),
         }
       : null,
     connectionInfo.atlasMetadata
       ? {
           action: 'connection-query-insights',
           icon: 'Bulb',
-          label: 'View query insights',
+          label: t(
+            'connectionsNavigation.actions.viewQueryInsights',
+            'View query insights'
+          ),
         }
       : null,
     isAtlas
@@ -155,12 +208,15 @@ export const connectedConnectionItemActions = ({
       : {
           action: 'open-connection-info',
           icon: 'InfoWithCircle',
-          label: 'Show connection info',
+          label: t(
+            'connectionsNavigation.actions.showConnectionInfo',
+            'Show connection info'
+          ),
         },
     {
       action: 'connection-disconnect',
       icon: 'Disconnect',
-      label: 'Disconnect',
+      label: t('connectionsNavigation.actions.disconnect', 'Disconnect'),
       variant: 'destructive',
     },
     { separator: true },
@@ -169,20 +225,22 @@ export const connectedConnectionItemActions = ({
 };
 
 export const notConnectedConnectionItemActions = ({
+  t,
   connectionInfo,
   connectionStatus,
 }: {
+  t: TranslateFn;
   connectionInfo: ConnectionInfo;
   connectionStatus: NotConnectedConnectionStatus;
 }): NavigationItemActions => {
-  const commonActions = commonConnectionItemActions({ connectionInfo });
+  const commonActions = commonConnectionItemActions({ t, connectionInfo });
   if (connectionStatus === 'connecting') {
     return commonActions;
   } else {
     return [
       {
         action: 'connection-connect',
-        label: 'Connect',
+        label: t('connectionsNavigation.actions.connect', 'Connect'),
         icon: 'Connect',
         expandedAs: ConnectButton,
       },
@@ -192,9 +250,11 @@ export const notConnectedConnectionItemActions = ({
 };
 
 export const databaseItemActions = ({
+  t,
   hasWriteActionsDisabled,
   canDeleteDatabase,
 }: {
+  t: TranslateFn;
   hasWriteActionsDisabled: boolean;
   canDeleteDatabase: boolean;
 }): NavigationItemActions => {
@@ -205,24 +265,32 @@ export const databaseItemActions = ({
     {
       action: 'create-collection',
       icon: 'Plus',
-      label: 'Create collection',
+      label: t(
+        'connectionsNavigation.actions.createCollection',
+        'Create collection'
+      ),
     },
     canDeleteDatabase
       ? {
           action: 'drop-database',
           icon: 'Trash',
-          label: 'Drop database',
+          label: t(
+            'connectionsNavigation.actions.dropDatabase',
+            'Drop database'
+          ),
         }
       : null,
   ]);
 };
 
 export const collectionItemActions = ({
+  t,
   hasWriteActionsDisabled,
   canEditCollection,
   type,
   isRenameCollectionEnabled,
 }: {
+  t: TranslateFn;
   hasWriteActionsDisabled: boolean;
   canEditCollection: boolean;
   type: 'collection' | 'view' | 'timeseries';
@@ -231,7 +299,7 @@ export const collectionItemActions = ({
   const actions: NullableNavigationItemActions = [
     {
       action: 'open-in-new-tab',
-      label: 'Open in new tab',
+      label: t('connectionsNavigation.actions.openInNewTab', 'Open in new tab'),
       icon: 'OpenNewTab',
     },
   ];
@@ -245,20 +313,23 @@ export const collectionItemActions = ({
     actions.push(
       {
         action: 'duplicate-view',
-        label: 'Duplicate view',
+        label: t(
+          'connectionsNavigation.actions.duplicateView',
+          'Duplicate view'
+        ),
         icon: 'Copy',
       },
       canEditCollection
         ? {
             action: 'modify-view',
-            label: 'Modify view',
+            label: t('connectionsNavigation.actions.modifyView', 'Modify view'),
             icon: 'Edit',
           }
         : null,
       canEditCollection
         ? {
             action: 'drop-collection',
-            label: 'Drop view',
+            label: t('connectionsNavigation.actions.dropView', 'Drop view'),
             icon: 'Trash',
           }
         : null
@@ -271,7 +342,10 @@ export const collectionItemActions = ({
     actions.push({ separator: true });
     actions.push({
       action: 'rename-collection',
-      label: 'Rename collection',
+      label: t(
+        'connectionsNavigation.actions.renameCollection',
+        'Rename collection'
+      ),
       icon: 'Edit',
     });
   }
@@ -279,7 +353,10 @@ export const collectionItemActions = ({
   if (canEditCollection) {
     actions.push({
       action: 'drop-collection',
-      label: 'Drop collection',
+      label: t(
+        'connectionsNavigation.actions.dropCollection',
+        'Drop collection'
+      ),
       icon: 'Trash',
     });
   }
@@ -288,6 +365,7 @@ export const collectionItemActions = ({
 };
 
 export const connectionContextMenuActions = ({
+  t,
   isPerformanceTabAvailable,
   isPerformanceTabSupported,
   isAtlas,
@@ -295,6 +373,7 @@ export const connectionContextMenuActions = ({
   hasWriteActionsDisabled,
   connectionInfo,
 }: {
+  t: TranslateFn;
   isPerformanceTabAvailable: boolean;
   isPerformanceTabSupported: boolean;
   isAtlas: boolean;
@@ -306,23 +385,32 @@ export const connectionContextMenuActions = ({
     ...(hasWriteActionsDisabled || !connectionInfo
       ? []
       : [
-          ...commonConnectionItemActions({ connectionInfo }),
+          ...commonConnectionItemActions({ t, connectionInfo }),
           { separator: true } as NavigationItemAction,
         ]),
     isShellEnabled
       ? {
           action: 'open-shell',
           icon: 'Shell',
-          label: 'Open MongoDB shell',
+          label: t(
+            'connectionsNavigation.actions.openShell',
+            'Open MongoDB shell'
+          ),
         }
       : null,
     isPerformanceTabAvailable
       ? {
           action: 'connection-performance-metrics',
           icon: 'Gauge',
-          label: 'View performance metrics',
+          label: t(
+            'connectionsNavigation.actions.viewPerformanceMetrics',
+            'View performance metrics'
+          ),
           isDisabled: !isPerformanceTabSupported,
-          disabledDescription: 'Not supported',
+          disabledDescription: t(
+            'connectionsNavigation.actions.notSupported',
+            'Not supported'
+          ),
         }
       : null,
     isAtlas
@@ -330,24 +418,31 @@ export const connectionContextMenuActions = ({
       : {
           action: 'open-connection-info',
           icon: 'InfoWithCircle',
-          label: 'Show connection info',
+          label: t(
+            'connectionsNavigation.actions.showConnectionInfo',
+            'Show connection info'
+          ),
         },
     {
       action: 'refresh-databases',
-      label: 'Refresh databases',
+      label: t(
+        'connectionsNavigation.actions.refreshDatabases',
+        'Refresh databases'
+      ),
       icon: 'Refresh',
     },
     { separator: true },
     {
       action: 'connection-disconnect',
       icon: 'Disconnect',
-      label: 'Disconnect',
+      label: t('connectionsNavigation.actions.disconnect', 'Disconnect'),
       variant: 'destructive',
     },
   ]);
 };
 
 export const databaseContextMenuActions = ({
+  t,
   hasWriteActionsDisabled,
   canDeleteDatabase,
   isShellEnabled,
@@ -355,6 +450,7 @@ export const databaseContextMenuActions = ({
   isPerformanceTabSupported,
   isAtlas,
 }: {
+  t: TranslateFn;
   hasWriteActionsDisabled: boolean;
   canDeleteDatabase: boolean;
   isShellEnabled: boolean;
@@ -369,7 +465,10 @@ export const databaseContextMenuActions = ({
       : {
           action: 'create-collection',
           icon: 'Plus',
-          label: 'Create collection',
+          label: t(
+            'connectionsNavigation.actions.createCollection',
+            'Create collection'
+          ),
         },
     { separator: true },
     hasWriteActionsDisabled
@@ -377,18 +476,25 @@ export const databaseContextMenuActions = ({
       : {
           action: 'create-database',
           icon: 'Plus',
-          label: 'Create database',
+          label: t(
+            'connectionsNavigation.actions.createDatabase',
+            'Create database'
+          ),
         },
     hasWriteActionsDisabled || !canDeleteDatabase
       ? null
       : {
           action: 'drop-database',
           icon: 'Trash',
-          label: 'Drop database',
+          label: t(
+            'connectionsNavigation.actions.dropDatabase',
+            'Drop database'
+          ),
         },
     { separator: true },
 
     ...connectionContextMenuActions({
+      t,
       isShellEnabled,
       isPerformanceTabAvailable,
       isPerformanceTabSupported,
@@ -400,6 +506,7 @@ export const databaseContextMenuActions = ({
 };
 
 export const collectionContextMenuActions = ({
+  t,
   hasWriteActionsDisabled,
   canEditCollection,
   type,
@@ -409,6 +516,7 @@ export const collectionContextMenuActions = ({
   isAtlas,
   isShellEnabled,
 }: {
+  t: TranslateFn;
   hasWriteActionsDisabled: boolean;
   canEditCollection: boolean;
   type: 'collection' | 'view' | 'timeseries';
@@ -422,7 +530,7 @@ export const collectionContextMenuActions = ({
     // Collection-specific actions
     {
       action: 'open-in-new-tab',
-      label: 'Open in new tab',
+      label: t('connectionsNavigation.actions.openInNewTab', 'Open in new tab'),
       icon: 'OpenNewTab',
     },
   ];
@@ -435,17 +543,20 @@ export const collectionContextMenuActions = ({
         { separator: true },
         {
           action: 'duplicate-view',
-          label: 'Duplicate view',
+          label: t(
+            'connectionsNavigation.actions.duplicateView',
+            'Duplicate view'
+          ),
           icon: 'Copy',
         },
         {
           action: 'modify-view',
-          label: 'Modify view',
+          label: t('connectionsNavigation.actions.modifyView', 'Modify view'),
           icon: 'Edit',
         },
         {
           action: 'drop-collection',
-          label: 'Drop view',
+          label: t('connectionsNavigation.actions.dropView', 'Drop view'),
           icon: 'Trash',
         },
       ];
@@ -455,19 +566,28 @@ export const collectionContextMenuActions = ({
         type !== 'timeseries' && canEditCollection && isRenameCollectionEnabled
           ? {
               action: 'rename-collection',
-              label: 'Rename collection',
+              label: t(
+                'connectionsNavigation.actions.renameCollection',
+                'Rename collection'
+              ),
               icon: 'Edit',
             }
           : null,
         {
           action: 'create-collection',
           icon: 'Plus',
-          label: 'Create collection',
+          label: t(
+            'connectionsNavigation.actions.createCollection',
+            'Create collection'
+          ),
         },
         canEditCollection
           ? {
               action: 'drop-collection',
-              label: 'Drop collection',
+              label: t(
+                'connectionsNavigation.actions.dropCollection',
+                'Drop collection'
+              ),
               icon: 'Trash',
             }
           : null,
@@ -480,6 +600,7 @@ export const collectionContextMenuActions = ({
     ...writeActions,
     { separator: true },
     ...connectionContextMenuActions({
+      t,
       isShellEnabled,
       isPerformanceTabAvailable,
       isPerformanceTabSupported,

@@ -4,6 +4,7 @@ import {
   css,
   InlineDefinition,
   ServerIcon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { getToolDescription } from '../utils';
 import type { ToolUIPart } from 'ai';
@@ -42,6 +43,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   onApprove,
   onDeny,
 }) => {
+  const t = useTranslation();
   const chips = [];
 
   if (connection && doesToolUseConnection(getToolDisplayName(toolCall.type))) {
@@ -65,7 +67,9 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const expandableContentText = getExpandableContentText(
     toolCall,
     hasOutput,
-    cleanedOutput
+    cleanedOutput,
+    undefined,
+    t
   );
 
   const toolNameElement = toolDescription ? (
@@ -90,7 +94,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
     <ActionCardMessage
       initialIsExpanded={initialIsExpanded}
       state={toolCallState}
-      title={getToolCallTitle(toolCall, toolNameElement)}
+      title={getToolCallTitle(toolCall, toolNameElement, undefined, t)}
       chips={chips}
       contentClassName={expandableContentStyles}
       showActions={isAwaitingApproval}
@@ -98,12 +102,12 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
       {...(approvalId && {
         buttons: [
           {
-            label: 'Cancel',
+            label: t('assistant.toolCall.cancel', 'Cancel'),
             variant: 'default',
             onClick: () => onDeny?.(approvalId, TOOL_DENIAL_REASONS.userDenied),
           },
           {
-            label: 'Run',
+            label: t('assistant.toolCall.runButton', 'Run'),
             variant: 'primary',
             onClick: () => onApprove?.(approvalId),
             isPrimary: true,

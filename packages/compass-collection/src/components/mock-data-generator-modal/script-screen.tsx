@@ -14,6 +14,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
@@ -90,6 +91,7 @@ const ScriptScreen = ({
   arrayLengthMap,
   documentCount,
 }: ScriptScreenProps) => {
+  const t = useTranslation();
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
@@ -107,7 +109,10 @@ const ScriptScreen = ({
     if (!fakerSchema) {
       return {
         success: false as const,
-        error: 'Faker schema not available',
+        error: t(
+          'collection.mockData.fakerSchemaUnavailable',
+          'Faker schema not available'
+        ),
       };
     }
 
@@ -117,7 +122,7 @@ const ScriptScreen = ({
       collectionName: collection,
       arrayLengthMap,
     });
-  }, [fakerSchema, documentCount, database, collection, arrayLengthMap]);
+  }, [fakerSchema, documentCount, database, collection, arrayLengthMap, t]);
 
   const onScriptCopy = useCallback(
     ({ step }: { step: DataGenerationStep }) => {
@@ -143,33 +148,44 @@ const ScriptScreen = ({
   return (
     <section className={outerSectionStyles}>
       <Body>
-        We&apos;ve created the following script for your use. The script can be
-        edited to generate mock data for any collection you specify.
+        {t(
+          'collection.mockData.scriptIntro',
+          "We've created the following script for your use. The script can be edited to generate mock data for any collection you specify."
+        )}
       </Body>
       {!scriptResult.success && (
         <Banner variant="danger">
-          <strong>Script Generation Failed:</strong> {scriptResult.error}
+          <strong>
+            {t('collection.mockData.scriptFailed', 'Script Generation Failed:')}
+          </strong>{' '}
+          {scriptResult.error}
           <br />
-          Please go back to the start screen to re-submit the collection schema.
+          {t(
+            'collection.mockData.scriptFailedHint',
+            'Please go back to the start screen to re-submit the collection schema.'
+          )}
         </Banner>
       )}
       <section>
         <Body as="h2" baseFontSize={16} weight="medium">
-          Prerequisites
+          {t('collection.mockData.prerequisites', 'Prerequisites')}
         </Body>
         <Body className={instructionTextStyle}>
-          To run the generated script, you must:
+          {t(
+            'collection.mockData.prerequisitesIntro',
+            'To run the generated script, you must:'
+          )}
         </Body>
         <ul className={listStyles}>
           <li>
-            Install{' '}
+            {t('collection.mockData.install', 'Install')}{' '}
             <Link href="https://www.mongodb.com/docs/mongodb-shell/install/">
               mongosh
             </Link>{' '}
-            (2.5 or later)
+            {t('collection.mockData.mongoshVersion', '(2.5 or later)')}
           </li>
           <li>
-            Install{' '}
+            {t('collection.mockData.install', 'Install')}{' '}
             <Link href="https://fakerjs.dev/guide/#installation">faker.js</Link>
             <Copyable
               className={copyableStyles}
@@ -184,13 +200,21 @@ const ScriptScreen = ({
       </section>
       <section data-testid="mock-data-script">
         <Body as="h2" baseFontSize={16} weight="medium">
-          1. Create a .js file with the following script
+          {t(
+            'collection.mockData.step1Title',
+            '1. Create a .js file with the following script'
+          )}
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the directory that you created, create a file named{' '}
-          <strong>mockdatascript.js</strong> (or any name you&apos;d like).
-          Change the DB_NAME and COLL_NAME in the below script to any database
-          or collection you&apos;d like to add mock data to.
+          {t(
+            'collection.mockData.step1Before',
+            'In the directory that you created, create a file named'
+          )}{' '}
+          <strong>mockdatascript.js</strong>{' '}
+          {t(
+            'collection.mockData.step1After',
+            "(or any name you'd like). Change the DB_NAME and COLL_NAME in the below script to any database or collection you'd like to add mock data to."
+          )}
         </Body>
         <Code
           copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
@@ -202,21 +226,37 @@ const ScriptScreen = ({
         >
           {scriptResult.success
             ? scriptResult.script
-            : '// Script generation failed.'}
+            : t(
+                'collection.mockData.scriptFailedComment',
+                '// Script generation failed.'
+              )}
         </Code>
       </section>
       <section data-testid="mock-data-run-command">
         <Body as="h2" baseFontSize={16} weight="medium">
-          2. Run the script with <InlineCode>mongosh</InlineCode>
+          {t('collection.mockData.step2Title', '2. Run the script with')}{' '}
+          <InlineCode>mongosh</InlineCode>
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the same working directory, run the command below.
+          {t(
+            'collection.mockData.step2Instruction',
+            'In the same working directory, run the command below.'
+          )}
           {needsUsername &&
-            ' Please replace <your-username> with your database username.'}
-          {promptsForPassword && ' mongosh will prompt for your password.'}{' '}
+            ` ${t(
+              'collection.mockData.replaceUsername',
+              'Please replace <your-username> with your database username.'
+            )}`}
+          {promptsForPassword &&
+            ` ${t(
+              'collection.mockData.promptsPassword',
+              'mongosh will prompt for your password.'
+            )}`}{' '}
           <em>
-            Note that this will add data to your cluster and will not be
-            reversible.
+            {t(
+              'collection.mockData.irreversible',
+              'Note that this will add data to your cluster and will not be reversible.'
+            )}
           </em>
         </Body>
         <Code
@@ -227,9 +267,15 @@ const ScriptScreen = ({
         </Code>
         {!connectionInfo.atlasMetadata && (
           <Body className={sectionInstructionStyles}>
-            If you have trouble connecting, see the{' '}
+            {t(
+              'collection.mockData.troubleConnecting',
+              'If you have trouble connecting, see the'
+            )}{' '}
             <Link href="https://www.mongodb.com/docs/mongodb-shell/connect/">
-              mongosh connection guide
+              {t(
+                'collection.mockData.connectionGuide',
+                'mongosh connection guide'
+              )}
             </Link>
             .
           </Body>
@@ -241,16 +287,24 @@ const ScriptScreen = ({
           isDarkMode ? resourceSectionDarkStyles : resourceSectionLightStyles
         )}
       >
-        <Overline className={resourceSectionHeader}>Resources</Overline>
+        <Overline className={resourceSectionHeader}>
+          {t('collection.mockData.resources', 'Resources')}
+        </Overline>
         <ul>
           <li>
             <Link href="https://www.mongodb.com/docs/atlas/synthetic-data/">
-              Generating Synthetic Data with MongoDB
+              {t(
+                'collection.mockData.syntheticData',
+                'Generating Synthetic Data with MongoDB'
+              )}
             </Link>
           </li>
           <li>
             <Link href="https://www.mongodb.com/docs/mongodb-shell/">
-              Learn About the MongoDB Shell
+              {t(
+                'collection.mockData.learnShell',
+                'Learn About the MongoDB Shell'
+              )}
             </Link>
           </li>
           {connectionInfo.atlasMetadata &&
@@ -261,7 +315,10 @@ const ScriptScreen = ({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Access your Database Users
+                  {t(
+                    'collection.mockData.databaseUsers',
+                    'Access your Database Users'
+                  )}
                 </Link>
               </li>
             )}

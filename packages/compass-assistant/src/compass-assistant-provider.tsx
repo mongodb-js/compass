@@ -13,6 +13,7 @@ import {
   atlasServiceLocator,
 } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import {
   useCurrentValueRef,
   useDrawerActions,
@@ -81,6 +82,7 @@ import type {
 import { UUID } from 'bson';
 import {
   getHashedActiveUserId,
+  getTranslator,
   partIsApprovalRequest,
   stopChat,
 } from './utils';
@@ -534,13 +536,21 @@ function handleEntryPoint<T>(
     | 'analyze output'
     | 'search stage error'
     | 'search stage diagnose',
-  builder: (props: T, preferences: PreferencesAccess) => EntryPointMessage,
+  builder: (
+    props: T,
+    t: TranslateFn,
+    preferences: PreferencesAccess
+  ) => EntryPointMessage,
   props: T,
   globalState: GlobalState,
   openDrawer: (id: string) => void
 ): AssistantThunkAction<void> {
   return (dispatch, _getState, { track, preferences }) => {
-    const { prompt, metadata } = builder(props, preferences);
+    const { prompt, metadata } = builder(
+      props,
+      getTranslator(preferences),
+      preferences
+    );
     void dispatch(
       ensureOptInAndSendThunk(
         {
@@ -599,11 +609,14 @@ function interpretConnectionErrorThunk(
 ): AssistantThunkAction<void> {
   return handleEntryPoint(
     'connection error',
-    (entryPointProps, preferences) =>
-      buildConnectionErrorPrompt({
-        ...entryPointProps,
-        enableAtlasSignIn: preferences.getPreferences().enableAtlasSignIn,
-      }),
+    (entryPointProps, t, preferences) =>
+      buildConnectionErrorPrompt(
+        {
+          ...entryPointProps,
+          enableAtlasSignIn: preferences.getPreferences().enableAtlasSignIn,
+        },
+        t
+      ),
     props,
     globalState,
     openDrawer

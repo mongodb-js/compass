@@ -10,6 +10,7 @@ import {
   WarningSummary,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { AnalysisState } from '../constants/analysis-states';
 import { ANALYSIS_STATE_COMPLETE } from '../constants/analysis-states';
@@ -50,14 +51,6 @@ const schemaToolbarActionBarRightStyles = css({
   paddingLeft: spacing[200],
 });
 
-const ERROR_WARNING = 'An error occurred during schema analysis';
-const INCREASE_MAX_TIME_MS_HINT_MESSAGE =
-  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
-const OUTDATED_WARNING_MESSAGE =
-  'The schema content is outdated and no longer in sync' +
-  ' with the documents view. Press "Analyze" again to see the schema for the' +
-  ' current query.';
-
 const SCHEMA_ANALYSIS_DOCS_LINK =
   'https://docs.mongodb.com/compass/current/sampling#sampling';
 
@@ -88,9 +81,13 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   setShowLegacyExportTooltip,
   showLegacyExportTooltip,
 }) => {
+  const t = useTranslation();
   const documentsNoun = useMemo(
-    () => (sampleSize === 1 ? 'document' : 'documents'),
-    [sampleSize]
+    () =>
+      sampleSize === 1
+        ? t('schema.toolbar.documentOne', 'document')
+        : t('schema.toolbar.documentOther', 'documents'),
+    [sampleSize, t]
   );
 
   return (
@@ -98,7 +95,7 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       <div className={schemaQueryBarStyles}>
         <QueryBar
           source="schema"
-          buttonLabel="Analyze"
+          buttonLabel={t('schema.toolbar.analyze', 'Analyze')}
           resultId={schemaResultId}
           onApply={onAnalyzeSchemaClicked}
           onReset={onResetClicked}
@@ -121,12 +118,14 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
                     size="xsmall"
                     leftGlyph={<Icon glyph="Export" />}
                   >
-                    Export Schema
+                    {t('schema.toolbar.exportSchema', 'Export Schema')}
                   </Button>
                 }
               >
-                Next time, export the schema directly from Compass&apos; Schema
-                tab.
+                {t(
+                  'schema.toolbar.exportTooltip',
+                  "Next time, export the schema directly from Compass' Schema tab."
+                )}
               </Tooltip>
             </div>
           )}
@@ -135,15 +134,22 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
             data-testid="schema-document-count"
           >
             <Body data-testid="schema-analysis-message">
-              This report is based on a sample of&nbsp;<b>{sampleSize}</b>&nbsp;
+              {t(
+                'schema.toolbar.sampleBefore',
+                'This report is based on a sample of'
+              )}
+              &nbsp;<b>{sampleSize}</b>&nbsp;
               {documentsNoun}.
             </Body>
             <Link
-              aria-label="Schema sampling documentation"
+              aria-label={t(
+                'schema.toolbar.samplingDocsAriaLabel',
+                'Schema sampling documentation'
+              )}
               href={SCHEMA_ANALYSIS_DOCS_LINK}
               target="_blank"
             >
-              Learn more
+              {t('schema.toolbar.learnMore', 'Learn more')}
             </Link>
           </div>
         </div>
@@ -151,7 +157,12 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       {error?.errorType === 'general' && (
         <ErrorSummary
           data-testid="schema-toolbar-error-message"
-          errors={[`${ERROR_WARNING}: ${error.errorMessage}`]}
+          errors={[
+            `${t(
+              'schema.toolbar.analysisError',
+              'An error occurred during schema analysis'
+            )}: ${error.errorMessage}`,
+          ]}
           dismissible={true}
           onClose={onDismissError}
         />
@@ -159,13 +170,25 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       {error?.errorType === 'timeout' && (
         <WarningSummary
           data-testid="schema-toolbar-timeout-message"
-          warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]}
+          warnings={[
+            t(
+              'schema.toolbar.timeoutHint',
+              'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.'
+            ),
+          ]}
           dismissible={true}
           onClose={onDismissError}
         />
       )}
       {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
-        <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />
+        <WarningSummary
+          warnings={[
+            t(
+              'schema.toolbar.outdated',
+              'The schema content is outdated and no longer in sync with the documents view. Press "Analyze" again to see the schema for the current query.'
+            ),
+          ]}
+        />
       )}
     </div>
   );

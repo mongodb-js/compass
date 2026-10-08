@@ -1,6 +1,6 @@
 import React from 'react';
 import numeral from 'numeral';
-import { Body } from '@mongodb-js/compass-components';
+import { Body, useTranslation } from '@mongodb-js/compass-components';
 
 function ArrayMinichart({
   nestedDocType,
@@ -14,12 +14,22 @@ function ArrayMinichart({
     averageLength: number;
   };
 }) {
+  const t = useTranslation();
   let arrayOfFieldsMessage = '';
   if (nestedDocType) {
     const numFields = nestedDocType.fields?.length ?? 0;
-    arrayOfFieldsMessage = `Array of documents with ${numFields} nested field${
-      numFields === 1 ? '' : 's'
-    }.`;
+    arrayOfFieldsMessage =
+      numFields === 1
+        ? t(
+            'schema.arrayMinichart.nestedFieldOne',
+            'Array of documents with {count} nested field.',
+            { count: numFields }
+          )
+        : t(
+            'schema.arrayMinichart.nestedFieldOther',
+            'Array of documents with {count} nested fields.',
+            { count: numFields }
+          );
   }
 
   const minLength = Math.min(...type.lengths);
@@ -32,12 +42,18 @@ function ArrayMinichart({
 
       <Body as="div">
         <dl>
-          <dt>Array lengths</dt>
+          <dt>{t('schema.arrayMinichart.arrayLengths', 'Array lengths')}</dt>
           <dd>
             <ul>
-              <li>min: {minLength}</li>
-              <li>average: {averageLength}</li>
-              <li>max: {maxLength}</li>
+              <li>
+                {t('schema.arrayMinichart.min', 'min')}: {minLength}
+              </li>
+              <li>
+                {t('schema.arrayMinichart.average', 'average')}: {averageLength}
+              </li>
+              <li>
+                {t('schema.arrayMinichart.max', 'max')}: {maxLength}
+              </li>
             </ul>
           </dd>
         </dl>

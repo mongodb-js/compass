@@ -6,7 +6,11 @@ import {
 } from 'react-redux';
 import { type RootState } from '../stores';
 import { closeModal } from '../stores/open-item';
-import { Banner, InfoModal } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  InfoModal,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 type NoActiveConnectionsModalProps = {
   isOpened: boolean;
@@ -16,17 +20,20 @@ type NoActiveConnectionsModalProps = {
 const NoActiveConnectionsModal: React.FunctionComponent<
   NoActiveConnectionsModalProps
 > = ({ isOpened, onClose }) => {
+  const t = useTranslation();
   return (
     <InfoModal
-      title="Connect to a cluster"
+      title={t('savedQueries.noConnections.title', 'Connect to a cluster')}
       open={isOpened}
       onClose={onClose}
       showCloseButton={false}
       data-testid="no-active-connection-modal"
     >
       <Banner variant="warning">
-        It appears that you are not connected to a cluster. Establish a
-        connection first.
+        {t(
+          'savedQueries.noConnections.message',
+          'It appears that you are not connected to a cluster. Establish a connection first.'
+        )}
       </Banner>
     </InfoModal>
   );

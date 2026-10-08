@@ -18,6 +18,7 @@ import {
   css,
   spacing,
   useId,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
@@ -63,6 +64,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   } = usePreferences(['enableShell', 'readOnly', 'readWrite']);
   const isRenameCollectionEnabled = !preferencesReadWrite;
 
+  const t = useTranslation();
   const id = useId();
   const getConnectable = useConnectable();
 
@@ -179,6 +181,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'connection': {
           if (item.connectionStatus === 'connected') {
             const actions = connectedConnectionItemActions({
+              t,
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
@@ -194,6 +197,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           } else {
             return {
               actions: notConnectedConnectionItemActions({
+                t,
                 connectionInfo: item.connectionInfo,
                 connectionStatus: item.connectionStatus,
               }),
@@ -206,6 +210,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'database':
           return {
             actions: databaseItemActions({
+              t,
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               canDeleteDatabase: item.canDeleteDatabase,
             }),
@@ -213,6 +218,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         default:
           return {
             actions: collectionItemActions({
+              t,
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               type: item.type,
               isRenameCollectionEnabled,
@@ -222,6 +228,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       }
     },
     [
+      t,
       isRenameCollectionEnabled,
       getCollapseAfterForConnectedItem,
       getConnectable,
@@ -242,6 +249,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             onItemAction,
             item.connectionStatus === 'connected'
               ? connectionContextMenuActions({
+                  t,
                   hasWriteActionsDisabled: item.hasWriteActionsDisabled,
                   isShellEnabled: item.isShellEnabled,
                   connectionInfo: item.connectionInfo,
@@ -250,6 +258,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                   isAtlas: !!item.connectionInfo.atlasMetadata,
                 })
               : notConnectedConnectionItemActions({
+                  t,
                   connectionInfo: item.connectionInfo,
                   connectionStatus: item.connectionStatus,
                 })
@@ -267,6 +276,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             item,
             onItemAction,
             databaseContextMenuActions({
+              t,
               hasWriteActionsDisabled,
               isShellEnabled,
               isPerformanceTabAvailable,
@@ -289,6 +299,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             item,
             onItemAction,
             collectionContextMenuActions({
+              t,
               hasWriteActionsDisabled,
               type: item.type,
               isRenameCollectionEnabled,
@@ -302,14 +313,19 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, isRenameCollectionEnabled]
+    [onItemAction, isRenameCollectionEnabled, t]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
     <div className={ConnectionsNavigationContainerStyles}>
-      <VisuallyHidden id={id}>Databases and Collections</VisuallyHidden>
+      <VisuallyHidden id={id}>
+        {t(
+          'connectionsNavigation.tree.databasesAndCollections',
+          'Databases and Collections'
+        )}
+      </VisuallyHidden>
       {/* AutoSizer types does not allow both width and height to be disabled
         considering that to be a pointless usecase and hence the type
         definitions are pretty strict. We require these disabled to avoid

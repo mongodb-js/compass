@@ -11,6 +11,7 @@ import {
   palette,
   rgba,
   useHotkeys,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
@@ -87,6 +88,7 @@ function FindInPageInput({
   searchTerm,
   searching,
 }: FindInPageInputProps) {
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const findInPageInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -145,7 +147,7 @@ function FindInPageInput({
         )}
         id="find-in-page-label"
       >
-        Use (Shift+) Enter to navigate results.
+        {t('findInPage.hint', 'Use (Shift+) Enter to navigate results.')}
       </Body>
       <div className={findStyles}>
         <form
@@ -155,7 +157,7 @@ function FindInPageInput({
         >
           <TextInput
             type="text"
-            aria-label="Find in page"
+            aria-label={t('findInPage.inputLabel', 'Find in page')}
             aria-labelledby="find-in-page-label"
             ref={findInPageInputRef}
             onChange={onSearchChange}
@@ -164,7 +166,7 @@ function FindInPageInput({
         </form>
         <IconButton
           className={closeButtonStyles}
-          aria-label="Close find box"
+          aria-label={t('findInPage.close', 'Close find box')}
           onClick={onClose}
           onKeyDown={(evt: React.KeyboardEvent) => {
             // So that enter / space works as a trigger on the button instead of

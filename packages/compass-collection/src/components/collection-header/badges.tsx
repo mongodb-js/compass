@@ -1,4 +1,11 @@
-import { Badge, BadgeVariant, Icon, css } from '@mongodb-js/compass-components';
+import {
+  Badge,
+  BadgeVariant,
+  Icon,
+  css,
+  useTranslation,
+} from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import React from 'react';
 
 const collectionHeaderBadgeStyles = css({
@@ -8,29 +15,40 @@ const collectionHeaderBadgeStyles = css({
 export type CollectionBadgeType =
   'readonly' | 'timeseries' | 'view' | 'fle' | 'clustered';
 
-const badges: Readonly<
+const getBadges = (
+  t: TranslateFn
+): Readonly<
   Record<
     CollectionBadgeType,
     { label: React.ReactNode; variant?: BadgeVariant }
   >
-> = {
+> => ({
   readonly: {
-    label: 'READ-ONLY',
+    label: t('collection.badges.readOnly', 'READ-ONLY'),
     variant: BadgeVariant.LightGray,
   },
   timeseries: {
     label: (
       <>
-        <Icon glyph="TimeSeries" title="Time-Series Collection" />
-        &nbsp;TIME-SERIES
+        <Icon
+          glyph="TimeSeries"
+          title={t(
+            'collection.badges.timeSeriesCollection',
+            'Time-Series Collection'
+          )}
+        />
+        &nbsp;{t('collection.badges.timeSeries', 'TIME-SERIES')}
       </>
     ),
   },
   view: {
     label: (
       <>
-        <Icon glyph="Visibility" title="View" />
-        &nbsp;VIEW
+        <Icon
+          glyph="Visibility"
+          title={t('collection.badges.viewTitle', 'View')}
+        />
+        &nbsp;{t('collection.badges.view', 'VIEW')}
       </>
     ),
   },
@@ -44,12 +62,13 @@ const badges: Readonly<
     ),
   },
   clustered: {
-    label: 'CLUSTERED',
+    label: t('collection.badges.clustered', 'CLUSTERED'),
   },
-};
+});
 
 export const CollectionBadge = ({ type }: { type: CollectionBadgeType }) => {
-  const { label, variant } = badges[type];
+  const t = useTranslation();
+  const { label, variant } = getBadges(t)[type];
   return (
     <Badge
       data-testid={`collection-badge-${type}`}

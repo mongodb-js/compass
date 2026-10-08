@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Subtitle,
   spacing,
@@ -6,6 +6,7 @@ import {
   type ItemAction,
   ItemActionControls,
   Badge,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -24,14 +25,6 @@ const sidebarHeaderTextStyles = css({
 
 type Action = 'open-compass-settings';
 
-const actions: ItemAction<Action>[] = [
-  {
-    action: 'open-compass-settings',
-    label: 'Compass Settings',
-    icon: 'Settings',
-  },
-];
-
 const SHOULD_SHOW_COMMIT_HASH =
   process.env.APP_ENV === 'webdriverio' ||
   process.env.NODE_ENV === 'development';
@@ -44,11 +37,24 @@ export function SidebarHeader({
   onAction(actionName: Action): void;
   isCompassWeb?: boolean;
 }): React.ReactElement {
+  const t = useTranslation();
   const enableCompassWebSettings = usePreference('enableCompassWebSettings');
+  const actions = useMemo<ItemAction<Action>[]>(
+    () => [
+      {
+        action: 'open-compass-settings',
+        label: t('sidebar.header.compassSettings', 'Compass Settings'),
+        icon: 'Settings',
+      },
+    ],
+    [t]
+  );
   return (
     <div className={sidebarHeaderStyles} data-testid="sidebar-header">
       <Subtitle className={sidebarHeaderTextStyles}>
-        {isCompassWeb ? 'Data Explorer' : 'Compass'}
+        {isCompassWeb
+          ? t('sidebar.header.dataExplorer', 'Data Explorer')
+          : 'Compass'}
         {SHOULD_SHOW_COMMIT_HASH && COMMIT_HASH && (
           <>
             &nbsp;<Badge variant="blue">{COMMIT_HASH}</Badge>

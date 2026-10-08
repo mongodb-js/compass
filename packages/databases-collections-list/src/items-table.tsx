@@ -32,6 +32,8 @@ import {
   Cell,
   ItemActionGroup,
   useLeafyGreenTable,
+  useTranslation,
+  type TranslateFn,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -122,6 +124,7 @@ const TableControls: React.FunctionComponent<{
   onRefreshClick,
   renderLoadSampleDataBanner,
 }) => {
+  const t = useTranslation();
   const connectionInfo = useConnectionInfo();
   const connectionTitle = getConnectionTitle(connectionInfo);
   const {
@@ -189,7 +192,7 @@ const TableControls: React.FunctionComponent<{
               }}
               leftGlyph={<Icon glyph="Shell"></Icon>}
             >
-              Open MongoDB shell
+              {t('databasesCollectionsList.openShell', 'Open MongoDB shell')}
             </Button>
           )}
           {connectionInfo.atlasMetadata && (
@@ -201,7 +204,7 @@ const TableControls: React.FunctionComponent<{
               rel="noopener noreferrer"
               leftGlyph={<Icon glyph="TimeSeries" />}
             >
-              View monitoring
+              {t('databasesCollectionsList.viewMonitoring', 'View monitoring')}
             </Button>
           )}
           {connectionInfo.atlasMetadata && (
@@ -213,7 +216,10 @@ const TableControls: React.FunctionComponent<{
               rel="noopener noreferrer"
               leftGlyph={<Icon glyph="Charts" />}
             >
-              Visualize your data
+              {t(
+                'databasesCollectionsList.visualizeData',
+                'Visualize your data'
+              )}
             </Button>
           )}
 
@@ -226,7 +232,15 @@ const TableControls: React.FunctionComponent<{
                 className={createButtonStyles}
                 size="small"
               >
-                {`Create ${itemType}`}
+                {itemType === 'collection'
+                  ? t(
+                      'databasesCollectionsList.createCollection',
+                      'Create collection'
+                    )
+                  : t(
+                      'databasesCollectionsList.createDatabase',
+                      'Create database'
+                    )}
               </Button>
             </div>
           )}
@@ -239,7 +253,7 @@ const TableControls: React.FunctionComponent<{
                 onClick={onRefreshClick}
                 size="small"
               >
-                Refresh
+                {t('databasesCollectionsList.refresh', 'Refresh')}
               </Button>
             </div>
           )}
@@ -291,6 +305,7 @@ type ItemAction = 'delete';
 
 // Helper: Build actions array based on item state
 const buildItemActions = (
+  t: TranslateFn,
   item: Item,
   {
     readOnly,
@@ -301,8 +316,12 @@ const buildItemActions = (
   if (!readOnly && hasDeleteHandler && !item.inferred_from_privileges) {
     actions.push({
       action: 'delete',
-      label: `Delete ${item.name}`,
-      tooltip: `Delete ${item.name}`,
+      label: t('databasesCollectionsList.deleteItem', 'Delete {name}', {
+        name: item.name,
+      }),
+      tooltip: t('databasesCollectionsList.deleteItem', 'Delete {name}', {
+        name: item.name,
+      }),
       icon: 'Trash',
     });
   }
@@ -319,14 +338,15 @@ const ItemActions: React.FunctionComponent<ItemActionsProps> = ({
   item,
   onDeleteItemClick,
 }) => {
+  const t = useTranslation();
   const { readOnly } = usePreferences(['readOnly']);
   const itemActions = useMemo(
     () =>
-      buildItemActions(item, {
+      buildItemActions(t, item, {
         readOnly,
         hasDeleteHandler: !!onDeleteItemClick,
       }),
-    [item, onDeleteItemClick, readOnly]
+    [t, item, onDeleteItemClick, readOnly]
   );
 
   const onAction = useCallback(

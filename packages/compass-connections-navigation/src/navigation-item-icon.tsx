@@ -1,12 +1,15 @@
 import React from 'react';
 import type { SidebarTreeItem } from './tree-data';
-import { css, Icon, ServerIcon, Tooltip } from '@mongodb-js/compass-components';
+import {
+  css,
+  Icon,
+  ServerIcon,
+  Tooltip,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { GlyphName } from '@mongodb-js/compass-components';
 import { WithStatusMarker } from './with-status-marker';
 import { isLocalhost } from 'mongodb-build-info';
-
-const INFERRED_FROM_PRIVILEGES_TEXT =
-  'Your privileges grant you access to this namespace, but it might not currently exist';
 
 const tooltipTriggerStyles = css({
   display: 'flex',
@@ -33,26 +36,29 @@ const IconWithTooltip = ({
   );
 };
 
+const InferredFromPrivilegesIcon = ({ glyph }: { glyph: GlyphName }) => {
+  const t = useTranslation();
+  return (
+    <IconWithTooltip
+      text={t(
+        'connectionsNavigation.inferredFromPrivileges',
+        'Your privileges grant you access to this namespace, but it might not currently exist'
+      )}
+      glyph={glyph}
+    />
+  );
+};
+
 export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
   if (item.type === 'database') {
     if (item.inferredFromPrivileges) {
-      return (
-        <IconWithTooltip
-          text={INFERRED_FROM_PRIVILEGES_TEXT}
-          glyph="EmptyDatabase"
-        />
-      );
+      return <InferredFromPrivilegesIcon glyph="EmptyDatabase" />;
     }
     return <Icon glyph="Database" />;
   }
   if (item.type === 'collection') {
     if (item.inferredFromPrivileges) {
-      return (
-        <IconWithTooltip
-          text={INFERRED_FROM_PRIVILEGES_TEXT}
-          glyph="EmptyFolder"
-        />
-      );
+      return <InferredFromPrivilegesIcon glyph="EmptyFolder" />;
     }
     return <Icon glyph="Folder" />;
   }

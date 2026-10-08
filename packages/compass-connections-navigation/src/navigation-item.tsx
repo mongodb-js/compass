@@ -8,6 +8,7 @@ import {
   useContextMenuGroups,
   type ItemAction,
   type ContextMenuItemGroup,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
@@ -115,6 +116,7 @@ export function NavigationItem({
   getItemActions,
   getContextMenuGroups,
 }: NavigationItemProps) {
+  const t = useTranslation();
   const isDarkMode = useDarkMode();
   const onAction = useCallback(
     (action: Actions) => {
@@ -186,8 +188,14 @@ export function NavigationItem({
     if (!item.isGenuineMongoDB) {
       actions.push({
         action: 'open-non-genuine-mongodb-modal',
-        label: 'Non-Genuine MongoDB',
-        tooltip: 'Non-Genuine MongoDB detected',
+        label: t(
+          'connectionsNavigation.nonGenuine.label',
+          'Non-Genuine MongoDB'
+        ),
+        tooltip: t(
+          'connectionsNavigation.nonGenuine.tooltip',
+          'Non-Genuine MongoDB detected'
+        ),
         icon: 'Warning',
         className: cx(nonGenuineBtnStyles, {
           [nonGenuineBtnStylesDarkMode]: isDarkMode,
@@ -198,8 +206,11 @@ export function NavigationItem({
     if (item.csfleMode && item.csfleMode !== 'unavailable') {
       actions.push({
         action: 'open-csfle-modal',
-        label: 'In-Use Encryption',
-        tooltip: 'Configure In-Use Encryption',
+        label: t('connectionsNavigation.csfle.label', 'In-Use Encryption'),
+        tooltip: t(
+          'connectionsNavigation.csfle.tooltip',
+          'Configure In-Use Encryption'
+        ),
         icon: item.csfleMode === 'enabled' ? 'Lock' : 'Unlock',
         className: cx(csfleBtnStyles, {
           [csfleBtnStylesDarkMode]: isDarkMode,
@@ -208,7 +219,7 @@ export function NavigationItem({
     }
 
     return actions;
-  }, [item, isDarkMode]);
+  }, [item, isDarkMode, t]);
 
   const toggleExpand = useCallback(() => {
     if (item.type !== 'placeholder') {

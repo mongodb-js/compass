@@ -5,6 +5,7 @@ import {
   RadioGroup,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   type MapDispatchToProps,
@@ -12,6 +13,7 @@ import {
   connect,
 } from 'react-redux';
 import { type RootState } from '../stores';
+import { useItemTypeLabel } from '../hooks/use-item-type-label';
 import {
   closeModal,
   connectionSelectedForPreSelectedNamespace,
@@ -64,6 +66,8 @@ const SelectConnectionModal: React.FunctionComponent<
   onSubmit,
   onClose,
 }) => {
+  const t = useTranslation();
+  const itemTypeLabel = useItemTypeLabel(itemType);
   const handleConnectionSelect: React.ChangeEventHandler<HTMLInputElement> =
     useCallback(
       (event) => {
@@ -76,21 +80,40 @@ const SelectConnectionModal: React.FunctionComponent<
       open={isModalOpen}
       onCancel={onClose}
       onSubmit={() => onSubmit()}
-      title={'Select a Connection'}
-      submitButtonText="Run Query"
+      title={t('savedQueries.selectConnection.title', 'Select a Connection')}
+      submitButtonText={t(
+        'savedQueries.selectConnection.runQuery',
+        'Run Query'
+      )}
       submitDisabled={isSubmitDisabled}
       scroll={false} // this is so that the selects can hang over the footer and out of the modal
       data-testid="select-connection-modal"
     >
       <div className={modalContent}>
         <div className={description}>
-          The namespace <strong>{namespace}</strong> for the saved {itemType}{' '}
+          {t('savedQueries.selectConnection.namespace', 'The namespace')}{' '}
+          <strong>{namespace}</strong>{' '}
+          {t(
+            'savedQueries.selectConnection.forSaved',
+            'for the saved {itemType}',
+            {
+              itemType: itemTypeLabel,
+            }
+          )}{' '}
           <strong>{itemName}</strong>
           <br />
-          exists in multiple active connections. Please select which connection
-          you&rsquo;d like to
+          {t(
+            'savedQueries.selectConnection.existsInMultiple',
+            'exists in multiple active connections. Please select which connection you\u2019d like to'
+          )}
           <br />
-          run the {itemType} against.
+          {t(
+            'savedQueries.selectConnection.runAgainst',
+            'run the {itemType} against.',
+            {
+              itemType: itemTypeLabel,
+            }
+          )}
         </div>
         <div className={connection}>
           <RadioGroup

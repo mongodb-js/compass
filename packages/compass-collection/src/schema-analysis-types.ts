@@ -20,8 +20,15 @@ export type SchemaAnalysisStartedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_ANALYZING;
 };
 
+export type SchemaAnalysisErrorTranslation = {
+  key: string;
+  english: string;
+  vars: Record<string, string | number>;
+};
+
 export type SchemaAnalysisError = {
   errorMessage: string;
+  translation?: SchemaAnalysisErrorTranslation;
   errorType: 'timeout' | 'general' | 'unsupportedState' | 'empty';
 };
 

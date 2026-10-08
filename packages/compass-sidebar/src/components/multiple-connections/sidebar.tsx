@@ -12,6 +12,8 @@ import {
   spacing,
   openToast,
   HorizontalRule,
+  useTranslation,
+  type TranslateFn,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
 import { type RootState, type SidebarThunkAction } from '../../modules';
@@ -68,20 +70,22 @@ const sidebarStyles = css({
   gap: spacing[200],
 });
 
-async function copyConnectionString(connectionString: string) {
+async function copyConnectionString(connectionString: string, t: TranslateFn) {
   try {
     await navigator.clipboard.writeText(connectionString);
     openToast('copy-to-clipboard', {
-      title: 'Success',
-      description: 'Copied to clipboard.',
+      title: t('sidebar.copyToast.successTitle', 'Success'),
+      description: t('sidebar.copyToast.success', 'Copied to clipboard.'),
       variant: 'success',
       timeout: TOAST_TIMEOUT_MS,
     });
   } catch {
     openToast('copy-to-clipboard', {
-      title: 'Error',
-      description:
-        'An error occurred when copying to clipboard. Please try again.',
+      title: t('sidebar.copyToast.errorTitle', 'Error'),
+      description: t(
+        'sidebar.copyToast.error',
+        'An error occurred when copying to clipboard. Please try again.'
+      ),
       variant: 'warning',
       timeout: TOAST_TIMEOUT_MS,
     });
@@ -95,6 +99,7 @@ export function MultipleConnectionSidebar({
   onOpenConnectViaModal,
   isCompassWeb,
 }: MultipleConnectionSidebarProps) {
+  const t = useTranslation();
   const [csfleModalConnectionId, setCsfleModalConnectionId] = useState<
     string | undefined
   >(undefined);
@@ -142,10 +147,11 @@ export function MultipleConnectionSidebar({
       void copyConnectionString(
         maybeProtectConnectionString(
           connectionInfo?.connectionOptions.connectionString
-        )
+        ),
+        t
       );
     },
-    [maybeProtectConnectionString]
+    [maybeProtectConnectionString, t]
   );
 
   const onOpenCsfleModal = useCallback((connectionId: string) => {

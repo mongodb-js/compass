@@ -7,6 +7,7 @@ import {
   showConfirmation,
   spacing,
   Tooltip,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { AssistantChat } from './components/assistant-chat';
 import {
@@ -57,6 +58,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
   hasNonGenuineConnections?: boolean;
 }> = ({ appName, autoOpen, hasNonGenuineConnections = false }) => {
   const chat = useContext(AssistantContext);
+  const t = useTranslation();
 
   const enableAIAssistant = usePreference('enableAIAssistant');
   const isAiFeatureEnabled = useIsAIFeatureEnabled();
@@ -77,19 +79,25 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       title={
         <div className={assistantTitleStyles}>
           <div className={assistantTitleTextWrapperStyles}>
-            <span className={assistantTitleTextStyles}>MongoDB Assistant</span>
+            <span className={assistantTitleTextStyles}>
+              {t('assistant.drawer.title', 'MongoDB Assistant')}
+            </span>
           </div>
           <ClearChatButton chat={chat} />
         </div>
       }
-      label="MongoDB Assistant"
+      label={t('assistant.drawer.title', 'MongoDB Assistant')}
       glyph={'Assistant'}
       autoOpen={autoOpen}
       guideCue={{
         cueId: 'assistant-drawer',
-        title: 'Introducing MongoDB Assistant',
-        description: `AI-powered assistant to intelligently guide you through your database tasks. Get expert MongoDB help and streamline your workflow directly within ${appName}.`,
-        buttonText: 'Got it',
+        title: t('assistant.drawer.cueTitle', 'Introducing MongoDB Assistant'),
+        description: t(
+          'assistant.drawer.cueDescription',
+          'AI-powered assistant to intelligently guide you through your database tasks. Get expert MongoDB help and streamline your workflow directly within {appName}.',
+          { appName }
+        ),
+        buttonText: t('assistant.drawer.cueButton', 'Got it'),
         tooltipAlign: 'left',
         tooltipJustify: 'start',
       }}
@@ -106,13 +114,16 @@ export const ClearChatButton: React.FunctionComponent<{
   chat: Chat<AssistantMessage>;
 }> = ({ chat }) => {
   const { clearError } = useChat({ chat });
+  const t = useTranslation();
 
   const handleClearChat = useCallback(async () => {
     const confirmed = await showConfirmation({
-      title: 'Clear this chat?',
-      description:
-        'The current chat will be cleared, and chat history will not be retrievable.',
-      buttonText: 'Clear chat',
+      title: t('assistant.drawer.clearTitle', 'Clear this chat?'),
+      description: t(
+        'assistant.drawer.clearDescription',
+        'The current chat will be cleared, and chat history will not be retrievable.'
+      ),
+      buttonText: t('assistant.drawer.clearChat', 'Clear chat'),
       variant: 'danger',
       'data-testid': 'assistant-confirm-clear-chat-modal',
     });
@@ -134,7 +145,7 @@ export const ClearChatButton: React.FunctionComponent<{
         (message) => message.metadata?.isPermanent
       );
     }
-  }, [clearError, chat]);
+  }, [clearError, chat, t]);
 
   const isChatEmpty =
     chat.messages.filter((message) => !message.metadata?.isPermanent).length ===
@@ -151,8 +162,8 @@ export const ClearChatButton: React.FunctionComponent<{
           onClick={() => {
             void handleClearChat();
           }}
-          title="Clear chat"
-          aria-label="Clear chat"
+          title={t('assistant.drawer.clearChat', 'Clear chat')}
+          aria-label={t('assistant.drawer.clearChat', 'Clear chat')}
           aria-hidden={true}
           data-testid="assistant-clear-chat"
         >
@@ -160,7 +171,7 @@ export const ClearChatButton: React.FunctionComponent<{
         </IconButton>
       }
     >
-      Clear chat
+      {t('assistant.drawer.clearChat', 'Clear chat')}
     </Tooltip>
   );
 };

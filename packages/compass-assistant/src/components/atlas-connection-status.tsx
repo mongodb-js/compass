@@ -10,6 +10,7 @@ import {
   showConfirmation,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   useAtlasLoginActions,
@@ -72,6 +73,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
   AtlasConnectionStatusProps
 > = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   const atlasAdminApi = useAtlasAdminApi();
   const signInStatus = useAtlasSignInStatus();
   const { signOut } = useAtlasLoginActions();
@@ -108,18 +110,23 @@ export const AtlasConnectionStatus: React.FunctionComponent<
   const handleDisconnect = useCallback(() => {
     void (async () => {
       const confirmedLogout = await showConfirmation({
-        title: 'Are you sure you want to disconnect Atlas?',
-        description:
-          "Once Atlas is disconnected you won't have context from Atlas anymore.",
+        title: t(
+          'assistant.atlasStatus.confirmTitle',
+          'Are you sure you want to disconnect Atlas?'
+        ),
+        description: t(
+          'assistant.atlasStatus.confirmDescription',
+          "Once Atlas is disconnected you won't have context from Atlas anymore."
+        ),
         variant: ConfirmationModalVariant.Danger,
-        buttonText: 'Disconnect',
+        buttonText: t('assistant.atlasStatus.disconnect', 'Disconnect'),
       });
       if (!confirmedLogout) {
         return;
       }
       await signOut();
     })();
-  }, [signOut]);
+  }, [signOut, t]);
 
   if (!signInStatus.user) {
     return null;
@@ -144,7 +151,8 @@ export const AtlasConnectionStatus: React.FunctionComponent<
           )}
           data-testid={`${dataTestId}-label`}
         >
-          {username ?? 'Signed in to Atlas'}
+          {username ??
+            t('assistant.atlasStatus.signedIn', 'Signed in to Atlas')}
         </Body>
       </div>
       <Link
@@ -155,7 +163,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
         className={cx(linkStyles)}
       >
         <Icon glyph="Disconnect" />
-        Disconnect Atlas
+        {t('assistant.atlasStatus.disconnectAtlas', 'Disconnect Atlas')}
       </Link>
     </div>
   );

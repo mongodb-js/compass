@@ -28,6 +28,7 @@ import {
   Body,
   Badge,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -257,11 +258,15 @@ const minichartStylesDark = minichartStyles(true);
 const InitialScreen: React.FunctionComponent<{
   onApplyClicked: () => void;
 }> = ({ onApplyClicked }) => {
+  const t = useTranslation();
   return (
     <EmptyContent
       icon={ZeroGraphic}
-      title="Explore your schema"
-      subTitle="Quickly visualize your schema to understand the frequency, types and ranges of fields in your data set."
+      title={t('schema.compassSchema.exploreTitle', 'Explore your schema')}
+      subTitle={t(
+        'schema.compassSchema.exploreSubtitle',
+        'Quickly visualize your schema to understand the frequency, types and ranges of fields in your data set.'
+      )}
       callToAction={
         <Button
           onClick={onApplyClicked}
@@ -269,7 +274,7 @@ const InitialScreen: React.FunctionComponent<{
           variant="primary"
           size="small"
         >
-          Analyze schema
+          {t('schema.compassSchema.analyzeSchema', 'Analyze schema')}
         </Button>
       }
       callToActionLink={
@@ -277,7 +282,10 @@ const InitialScreen: React.FunctionComponent<{
           href="https://docs.mongodb.com/compass/master/schema/"
           target="_blank"
         >
-          Learn more about schema analysis
+          {t(
+            'schema.compassSchema.learnMore',
+            'Learn more about schema analysis'
+          )}
         </Link>
       }
     />
@@ -287,12 +295,16 @@ const InitialScreen: React.FunctionComponent<{
 const AnalyzingScreen: React.FunctionComponent<{
   onCancelClicked: () => void;
 }> = ({ onCancelClicked }) => {
+  const t = useTranslation();
   return (
     <div className={loaderStyles}>
       <CancelLoader
         data-testid="analyzing-documents"
-        progressText="Analyzing Documents"
-        cancelText="Stop"
+        progressText={t(
+          'schema.compassSchema.analyzingDocuments',
+          'Analyzing Documents'
+        )}
+        cancelText={t('schema.compassSchema.stop', 'Stop')}
         onCancel={onCancelClicked}
       />
     </div>
@@ -307,6 +319,7 @@ const FieldList: React.FunctionComponent<{
   analysisState: AnalysisState;
 }> = ({ schema, analysisState }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   if (analysisState !== ANALYSIS_STATE_COMPLETE) {
     return null;
@@ -318,8 +331,11 @@ const FieldList: React.FunctionComponent<{
     return (
       <EmptyContent
         icon={DocumentIcon}
-        title="No results"
-        subTitle="Try modifying your query to get results."
+        title={t('schema.compassSchema.noResults', 'No results')}
+        subTitle={t(
+          'schema.compassSchema.noResultsSubtitle',
+          'Try modifying your query to get results.'
+        )}
       />
     );
   }
@@ -341,10 +357,14 @@ const FieldList: React.FunctionComponent<{
 };
 
 const nbsp = '\u00a0';
-const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
+  const t = useTranslation();
+  const title = t(
+    'schema.compassSchema.performanceAdvisor',
+    'Atlas’ Performance Advisor.'
+  );
 
   const [dismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
@@ -357,13 +377,23 @@ const PerformanceAdvisorBanner = () => {
 
   return (
     <Banner variant="info" dismissible onClose={() => setDismissed(true)}>
-      <Body weight="medium">Looking for schema anti-patterns?</Body>
-      In its place, you may refer to Data Explorer’s performance insights{' '}
+      <Body weight="medium">
+        {t(
+          'schema.compassSchema.bannerTitle',
+          'Looking for schema anti-patterns?'
+        )}
+      </Body>
+      {t(
+        'schema.compassSchema.bannerText',
+        'In its place, you may refer to Data Explorer’s performance insights'
+      )}{' '}
       <Badge className={insightsBadgeStyles} variant="blue">
         <Icon glyph="Bulb" size="small" />
-        Insight
+        {t('schema.compassSchema.insight', 'Insight')}
       </Badge>
-      {nbsp}or{nbsp}
+      {nbsp}
+      {t('schema.compassSchema.or', 'or')}
+      {nbsp}
       {connectionInfo.atlasMetadata ? (
         <Link
           href={getAtlasPerformanceAdvisorLink(connectionInfo.atlasMetadata)}

@@ -11,6 +11,7 @@ import {
   WarningSummary,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
@@ -42,22 +43,6 @@ const loaderStyles = css({
   display: 'flex',
   justifyContent: 'center',
 });
-
-/**
- * Warnings for the banner.
- */
-const READ_ONLY_WARNING = {
-  collectionTimeSeries:
-    'Schema validation for time-series collections is not supported.',
-  collectionReadOnly: 'Schema validation for readonly views is not supported.',
-  writeStateStoreReadOnly: 'This action is not available on a secondary node.',
-  constraintValidationActive:
-    'This collection uses the "constraint" validation level, which guarantees every document matches the validator. The rules cannot be changed while it is in effect.',
-  constraintValidationPrepared:
-    'This collection is prepared for an upgrade to the "constraint" validation level. The rules cannot be changed until the upgrade completes, or until the prepared state is cleared by running collMod with prepareConstraintValidationLevel: false.',
-  oldServerReadOnly:
-    'Compass no longer supports the visual rule builder for server versions below 3.2. To use the visual rule builder, please',
-};
 
 /**
  * Link to the schema validation documentation.
@@ -95,10 +80,15 @@ function ValidationBanners({
 }: {
   editMode: ValidationStatesProps['editMode'];
 }) {
+  const t = useTranslation();
+
   if (editMode.collectionTimeSeries) {
     return (
       <WarningSummary
-        warnings={READ_ONLY_WARNING.collectionTimeSeries}
+        warnings={t(
+          'schemaValidation.states.timeSeries',
+          'Schema validation for time-series collections is not supported.'
+        )}
         data-testid="collection-validation-warning"
       />
     );
@@ -107,7 +97,10 @@ function ValidationBanners({
   if (editMode.collectionReadOnly) {
     return (
       <WarningSummary
-        warnings={READ_ONLY_WARNING.collectionReadOnly}
+        warnings={t(
+          'schemaValidation.states.readOnlyView',
+          'Schema validation for readonly views is not supported.'
+        )}
         data-testid="collection-validation-warning"
       />
     );
@@ -116,7 +109,10 @@ function ValidationBanners({
   if (editMode.writeStateStoreReadOnly) {
     return (
       <WarningSummary
-        warnings={READ_ONLY_WARNING.writeStateStoreReadOnly}
+        warnings={t(
+          'schemaValidation.states.secondaryNode',
+          'This action is not available on a secondary node.'
+        )}
         data-testid="collection-validation-warning"
       />
     );
@@ -125,7 +121,10 @@ function ValidationBanners({
   if (editMode.constraintValidation === 'active') {
     return (
       <WarningSummary
-        warnings={READ_ONLY_WARNING.constraintValidationActive}
+        warnings={t(
+          'schemaValidation.states.constraintActive',
+          'This collection uses the "constraint" validation level, which guarantees every document matches the validator. The rules cannot be changed while it is in effect.'
+        )}
         data-testid="collection-validation-warning"
       />
     );
@@ -134,7 +133,10 @@ function ValidationBanners({
   if (editMode.constraintValidation === 'prepared') {
     return (
       <WarningSummary
-        warnings={READ_ONLY_WARNING.constraintValidationPrepared}
+        warnings={t(
+          'schemaValidation.states.constraintPrepared',
+          'This collection is prepared for an upgrade to the "constraint" validation level. The rules cannot be changed until the upgrade completes, or until the prepared state is cleared by running collMod with prepareConstraintValidationLevel: false.'
+        )}
         data-testid="collection-validation-warning"
       />
     );
@@ -144,9 +146,13 @@ function ValidationBanners({
     return (
       <Banner variant="warning">
         <div data-testid="old-server-read-only">
-          {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
+          {t(
+            'schemaValidation.states.oldServer',
+            'Compass no longer supports the visual rule builder for server versions below 3.2. To use the visual rule builder, please'
+          )}
+          &nbsp;
           <Link target="_blank" href={DOC_UPGRADE_REVISION}>
-            upgrade to MongoDB 3.2.
+            {t('schemaValidation.states.upgrade', 'upgrade to MongoDB 3.2.')}
           </Link>
         </div>
       </Banner>
@@ -159,12 +165,16 @@ function ValidationBanners({
 const GeneratingScreen: React.FunctionComponent<{
   onCancelClicked: () => void;
 }> = ({ onCancelClicked }) => {
+  const t = useTranslation();
   return (
     <div className={loaderStyles}>
       <CancelLoader
         data-testid="generating-rules"
-        progressText="Generating rules"
-        cancelText="Stop"
+        progressText={t(
+          'schemaValidation.states.generating',
+          'Generating rules'
+        )}
+        cancelText={t('schemaValidation.states.stop', 'Stop')}
         onCancel={onCancelClicked}
       />
     </div>
@@ -175,12 +185,16 @@ const RulesGenerationErrorBanner: React.FunctionComponent<{
   error: RulesGenerationError;
   onDismissError: () => void;
 }> = ({ error, onDismissError }) => {
+  const t = useTranslation();
   if (error?.errorType === 'timeout') {
     return (
       <WarningSummary
         data-testid="rules-generation-timeout-message"
         warnings={[
-          'Operation exceeded time limit. Please try increasing the maxTimeMS in Compass Settings.',
+          t(
+            'schemaValidation.states.timeout',
+            'Operation exceeded time limit. Please try increasing the maxTimeMS in Compass Settings.'
+          ),
         ]}
         dismissible={true}
         onClose={onDismissError}
@@ -190,7 +204,12 @@ const RulesGenerationErrorBanner: React.FunctionComponent<{
   return (
     <ErrorSummary
       data-testid="rules-generation-error-message"
-      errors={[`Error occured during rules generation: ${error.errorMessage}`]}
+      errors={[
+        `${t(
+          'schemaValidation.states.generationError',
+          'Error occured during rules generation'
+        )}: ${error.errorMessage}`,
+      ]}
       dismissible={true}
       onClose={onDismissError}
     />
@@ -208,6 +227,7 @@ export function ValidationStates({
   stopRulesGeneration,
   editMode,
 }: ValidationStatesProps) {
+  const t = useTranslation();
   const { readOnly } = usePreferences(['readOnly']);
 
   const isEditable =
@@ -232,7 +252,12 @@ export function ValidationStates({
       <ValidationBanners editMode={editMode} />
       {!isLoaded && (
         <div className={loaderStyles}>
-          <SpinLoaderWithLabel progressText="Loading Validation" />
+          <SpinLoaderWithLabel
+            progressText={t(
+              'schemaValidation.states.loading',
+              'Loading Validation'
+            )}
+          />
         </div>
       )}
       {isLoaded && (
@@ -240,10 +265,14 @@ export function ValidationStates({
           {isZeroState && !isRulesGenerationInProgress && (
             <EmptyContent
               icon={ZeroGraphic}
-              title="Create validation rules"
-              subTitle={
+              title={t(
+                'schemaValidation.states.createTitle',
+                'Create validation rules'
+              )}
+              subTitle={t(
+                'schemaValidation.states.createSubtitle',
                 'Generate rules via schema analysis from existing sample data or add them manually to enforce document structure during updates and inserts'
-              }
+              )}
               callToAction={
                 <div className={zeroStateButtonsStyles}>
                   <Button
@@ -253,7 +282,7 @@ export function ValidationStates({
                     variant={ButtonVariant.Primary}
                     size="small"
                   >
-                    Generate rules
+                    {t('schemaValidation.states.generate', 'Generate rules')}
                   </Button>
                   <Button
                     data-testid="add-rule-button"
@@ -262,13 +291,16 @@ export function ValidationStates({
                     variant={ButtonVariant.PrimaryOutline}
                     size="small"
                   >
-                    Add rule
+                    {t('schemaValidation.states.addRule', 'Add rule')}
                   </Button>
                 </div>
               }
               callToActionLink={
                 <Link href={DOC_SCHEMA_VALIDATION} target="_blank">
-                  Learn more about validations
+                  {t(
+                    'schemaValidation.states.learnMore',
+                    'Learn more about validations'
+                  )}
                 </Link>
               }
             />

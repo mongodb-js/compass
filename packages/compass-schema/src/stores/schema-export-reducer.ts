@@ -7,7 +7,7 @@ import type {
   ExpandedJSONSchema,
   SchemaAccessor,
 } from '@mongodb-js/mongodb-schema';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, translate } from '@mongodb-js/compass-components';
 
 import type { SchemaThunkAction } from './store';
 import { isAction } from '../utils';
@@ -306,6 +306,7 @@ export const changeExportSchemaFormat = (
       namespace,
       track,
       connectionInfoRef,
+      preferences,
     }
   ) => {
     // If we're already in progress we abort their current operation.
@@ -333,7 +334,11 @@ export const changeExportSchemaFormat = (
       const schemaAccessor = schemaAccessorRef.current;
       if (!schemaAccessor) {
         throw new Error(
-          "No schema analysis available. Please analyze the collection's schema before exporting."
+          translate(
+            preferences?.getPreferences?.().language ?? 'en',
+            'schema.exportModal.noSchemaAnalysis',
+            "No schema analysis available. Please analyze the collection's schema before exporting."
+          )
         );
       }
 
@@ -563,10 +568,15 @@ export const switchToSchemaExport = (): SchemaThunkAction<void> => {
 
 export const confirmedExportLegacySchemaToClipboard =
   (): SchemaThunkAction<void> => {
-    return (dispatch, getState, { namespace, track, connectionInfoRef }) => {
+    return (
+      dispatch,
+      getState,
+      { namespace, track, connectionInfoRef, preferences }
+    ) => {
       const {
         schemaAnalysis: { schema },
       } = getState();
+      const language = preferences.getPreferences().language ?? 'en';
       const hasSchema = schema !== null;
       if (hasSchema) {
         void navigator.clipboard.writeText(JSON.stringify(schema, null, '  '));
@@ -584,15 +594,31 @@ export const confirmedExportLegacySchemaToClipboard =
         hasSchema
           ? {
               variant: 'success',
-              title: 'Schema Copied',
-              description: `The schema definition of ${namespace} has been copied to your clipboard in JSON format.`,
+              title: translate(
+                language,
+                'schema.toast.copied',
+                'Schema Copied'
+              ),
+              description: translate(
+                language,
+                'schema.toast.copiedDescription',
+                'The schema definition of {namespace} has been copied to your clipboard in JSON format.',
+                { namespace }
+              ),
               timeout: 5_000,
             }
           : {
               variant: 'warning',
-              title: 'Analyze Schema First',
-              description:
-                'Please analyze the schema in the schema tab before sharing the schema.',
+              title: translate(
+                language,
+                'schema.toast.analyzeFirst',
+                'Analyze Schema First'
+              ),
+              description: translate(
+                language,
+                'schema.toast.analyzeFirstDescription',
+                'Please analyze the schema in the schema tab before sharing the schema.'
+              ),
             }
       );
     };

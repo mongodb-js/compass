@@ -5,6 +5,7 @@ import {
   css,
   cx,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
@@ -28,6 +29,7 @@ const noPreviewTextStyles = css({
 });
 
 function DocumentPreview({ document }: { document?: Record<string, unknown> }) {
+  const t = useTranslation();
   return (
     <KeylineCard
       className={cx(previewStyles, document ? undefined : noPreviewStyles)}
@@ -40,7 +42,10 @@ function DocumentPreview({ document }: { document?: Record<string, unknown> }) {
           data-testid="load-sample-no-preview"
           className={noPreviewTextStyles}
         >
-          No Preview Documents
+          {t(
+            'schemaValidation.documentPreview.noPreview',
+            'No Preview Documents'
+          )}
         </Body>
       )}
     </KeylineCard>

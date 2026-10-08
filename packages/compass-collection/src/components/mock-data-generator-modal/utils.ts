@@ -1,6 +1,8 @@
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { FakerArg } from './script-generation-utils';
 import { faker } from '@faker-js/faker/locale/en';
+import { translate } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import { MAX_DOCUMENT_COUNT } from './constants';
 
 const MAX_FAKER_ARGS_COUNT = 2;
@@ -202,28 +204,51 @@ function prepareFakerArgs(args: FakerArg[]) {
   });
 }
 
-export function validateDocumentCount(documentCount?: string): {
+export function validateDocumentCount(
+  documentCount?: string,
+  t: TranslateFn = (key, english, vars) => translate('en', key, english, vars)
+): {
   isValid: boolean;
   errorMessage?: string;
   parsedValue?: number;
 } {
+  const requiredMessage = t(
+    'collection.mockData.countRequired',
+    'Document count is required'
+  );
+
   if (!documentCount) {
-    return { isValid: false, errorMessage: 'Document count is required' };
+    return { isValid: false, errorMessage: requiredMessage };
   }
 
   const trimmed = documentCount.trim();
   const num = Number(documentCount);
 
-  if (!trimmed)
-    return { isValid: false, errorMessage: 'Document count is required' };
+  if (!trimmed) return { isValid: false, errorMessage: requiredMessage };
   if (isNaN(num))
-    return { isValid: false, errorMessage: 'Please enter a valid number' };
+    return {
+      isValid: false,
+      errorMessage: t(
+        'collection.mockData.countInvalid',
+        'Please enter a valid number'
+      ),
+    };
   if (documentCount.includes('.'))
-    return { isValid: false, errorMessage: 'Please enter a whole number' };
+    return {
+      isValid: false,
+      errorMessage: t(
+        'collection.mockData.countWhole',
+        'Please enter a whole number'
+      ),
+    };
   if (num < 1 || num > MAX_DOCUMENT_COUNT)
     return {
       isValid: false,
-      errorMessage: `Document count must be between 1 and ${MAX_DOCUMENT_COUNT}`,
+      errorMessage: t(
+        'collection.mockData.countRange',
+        'Document count must be between 1 and {max}',
+        { max: MAX_DOCUMENT_COUNT }
+      ),
     };
 
   return { isValid: true, parsedValue: num };

@@ -9,6 +9,7 @@ import {
   useDarkMode,
   Subtitle,
   Overline,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../modules';
 import type { Database } from '../modules/databases';
@@ -62,6 +63,7 @@ export function DBStats({
   refreshingStatus: RefreshingStatus;
   databases: Database[];
 }) {
+  const t = useTranslation();
   const isReady = refreshingStatus === 'ready';
 
   const numDbs = isReady ? databases.length : '-';
@@ -71,8 +73,11 @@ export function DBStats({
 
   return (
     <div className={dbStats}>
-      <DBStat name="DBs" stat={numDbs} />
-      <DBStat name="Collections" stat={numCollections} />
+      <DBStat name={t('sidebar.dbStats.dbs', 'DBs')} stat={numDbs} />
+      <DBStat
+        name={t('sidebar.dbStats.collections', 'Collections')}
+        stat={numCollections}
+      />
     </div>
   );
 }

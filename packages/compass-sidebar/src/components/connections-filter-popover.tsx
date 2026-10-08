@@ -13,6 +13,7 @@ import {
   Toggle,
   Tooltip,
   useId,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { ConnectionsFilter } from './use-filtered-connections';
 
@@ -54,6 +55,7 @@ export default function ConnectionsFilterPopover({
   onFilterChange,
   disabled = false,
 }: ConnectionsFilterPopoverProps) {
+  const t = useTranslation();
   const track = useTelemetry();
   const onExcludeInactiveChange = useCallback(
     (excludeInactive: boolean) => {
@@ -94,7 +96,7 @@ export default function ConnectionsFilterPopover({
         open={isTooltipOpen && !open}
         setOpen={setTooltipOpen}
       >
-        Filter connections
+        {t('sidebar.filter.filterConnections', 'Filter connections')}
       </Tooltip>
       <InteractivePopover<HTMLButtonElement>
         open={open}
@@ -108,7 +110,10 @@ export default function ConnectionsFilterPopover({
               onMouseEnter={handleButtonMouseEnter}
               onMouseLeave={handleButtonMouseLeave}
               active={open}
-              aria-label="Filter connections"
+              aria-label={t(
+                'sidebar.filter.filterConnections',
+                'Filter connections'
+              )}
               ref={ref}
               disabled={disabled}
             >
@@ -130,7 +135,7 @@ export default function ConnectionsFilterPopover({
           </>
         )}
       >
-        <Overline>Filter Options</Overline>
+        <Overline>{t('sidebar.filter.options', 'Filter Options')}</Overline>
         <div className={groupStyles}>
           <Toggle
             id={excludeInactiveToggleId}
@@ -140,7 +145,7 @@ export default function ConnectionsFilterPopover({
             size="small"
           />
           <Label htmlFor={excludeInactiveToggleId} id={excludeInactiveLabelId}>
-            Show only active connections
+            {t('sidebar.filter.onlyActive', 'Show only active connections')}
           </Label>
         </div>
       </InteractivePopover>

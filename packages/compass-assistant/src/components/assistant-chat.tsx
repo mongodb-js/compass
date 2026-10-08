@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useContext, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useContext,
+  useMemo,
+  useRef,
+} from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -16,12 +22,13 @@ import {
   useDarkMode,
   Icon,
   usePersistedState,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   useTelemetry,
   useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
-import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { getNonGenuineWarningMessage } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
@@ -170,10 +177,6 @@ const welcomeMessageStyles = css({
   paddingRight: spacing[400],
 });
 
-function makeErrorMessage() {
-  return `An error occurred. Try clearing the chat if the error persists.`;
-}
-
 const errorBannerWrapperStyles = css({
   padding: spacing[400],
   maxWidth: '100%',
@@ -205,10 +208,6 @@ const sparkleIconOverrideStyle = {
   color: palette.green.dark1,
 };
 
-const inputBarTextareaProps = {
-  placeholder: 'Ask a question',
-};
-
 // Type guard to check if activeWorkspace has a connectionId property
 function hasConnectionId(
   obj: WorkspaceTab | null
@@ -232,6 +231,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   hasNonGenuineConnections,
 }) => {
   const track = useTelemetry();
+  const t = useTranslation();
+  const inputBarTextareaProps = useMemo(
+    () => ({
+      placeholder: t('assistant.chat.askQuestion', 'Ask a question'),
+    }),
+    [t]
+  );
   const darkMode = useDarkMode();
   const isToolCallingEnabled = usePreference('enableToolCalling');
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
@@ -292,7 +298,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     );
     if (hasNonGenuineConnections && !hasExistingNonGenuineWarning) {
       setMessages((messages) => {
-        return [NON_GENUINE_WARNING_MESSAGE, ...messages];
+        return [getNonGenuineWarningMessage(t), ...messages];
       });
     } else if (hasExistingNonGenuineWarning && !hasNonGenuineConnections) {
       setMessages((messages) => {
@@ -301,7 +307,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         );
       });
     }
-  }, [hasNonGenuineConnections, chat, setMessages]);
+  }, [hasNonGenuineConnections, chat, setMessages, t]);
 
   const { activeConnections, activeWorkspace } = useAssistantGlobalState();
 
@@ -634,13 +640,20 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                         size="large"
                         style={sparkleIconOverrideStyle}
                       />
-                      <span>MongoDB Assistant</span>
+                      <span>
+                        {t('assistant.chat.title', 'MongoDB Assistant')}
+                      </span>
                     </h4>
                     <p className={welcomeTextStyles}>
-                      Welcome to the MongoDB Assistant!
+                      {t(
+                        'assistant.chat.welcome',
+                        'Welcome to the MongoDB Assistant!'
+                      )}
                       <br />
-                      Ask any question about MongoDB to receive expert guidance
-                      and documentation.
+                      {t(
+                        'assistant.chat.welcomeHint',
+                        'Ask any question about MongoDB to receive expert guidance and documentation.'
+                      )}
                     </p>
                   </div>
                   <SuggestedPrompts
@@ -657,7 +670,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           {error && (
             <div className={errorBannerWrapperStyles}>
               <Banner variant="danger" dismissible onClose={clearError}>
-                {makeErrorMessage()}
+                {t(
+                  'assistant.chat.error',
+                  'An error occurred. Try clearing the chat if the error persists.'
+                )}
               </Banner>
             </div>
           )}

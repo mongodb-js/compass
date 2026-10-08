@@ -15,6 +15,8 @@ import {
   compactNumber,
   InlineDefinition,
   nbsp,
+  useTranslation,
+  type TranslateFn,
 } from '@mongodb-js/compass-components';
 import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { CollectionProps } from 'mongodb-collection-model';
@@ -97,6 +99,7 @@ const CollectionBadge: React.FunctionComponent<BadgeProp> = ({
 };
 
 function collectionPropertyToBadge(
+  t: TranslateFn,
   collection: CollectionProps,
   darkMode: boolean | undefined,
   {
@@ -133,7 +136,7 @@ function collectionPropertyToBadge(
         icon: 'Visibility',
         hint: (
           <>
-            Derived from{' '}
+            {t('databasesCollectionsList.derivedFrom', 'Derived from')}{' '}
             <span
               className={cx(
                 viewOnStyles,
@@ -157,13 +160,20 @@ function collectionPropertyToBadge(
           <>
             {collection.bucket_count !== undefined && (
               <div>
-                <strong>Bucket count:</strong>{' '}
+                <strong>
+                  {t('databasesCollectionsList.bucketCount', 'Bucket count:')}
+                </strong>{' '}
                 {compactNumber(collection.bucket_count)}
               </div>
             )}
             {collection.avg_bucket_size !== undefined && (
               <div>
-                <strong>Avg. bucket size:</strong>{' '}
+                <strong>
+                  {t(
+                    'databasesCollectionsList.avgBucketSize',
+                    'Avg. bucket size:'
+                  )}
+                </strong>{' '}
                 {compactBytes(collection.avg_bucket_size)}
               </div>
             )}
@@ -224,16 +234,18 @@ function isReady(
 }
 
 function collectionColumns({
+  t,
   darkMode,
   enableDbAndCollStats,
 }: {
+  t: TranslateFn;
   darkMode: boolean | undefined;
   enableDbAndCollStats: boolean;
 }): LGColumnDef<CollectionProps>[] {
   return [
     {
       accessorKey: 'name',
-      header: 'Collection name',
+      header: t('databasesCollectionsList.collectionName', 'Collection name'),
       enableSorting: true,
       sortUndefined: 'last',
       minSize: 250,
@@ -265,8 +277,10 @@ function collectionColumns({
                   </div>
                 }
               >
-                Your privileges grant you access to this namespace, but it might
-                not currently exist
+                {t(
+                  'databasesCollectionsList.inferredFromPrivileges',
+                  'Your privileges grant you access to this namespace, but it might not currently exist'
+                )}
               </Tooltip>
             )}
           </div>
@@ -275,7 +289,7 @@ function collectionColumns({
     },
     {
       accessorKey: 'properties',
-      header: 'Properties',
+      header: t('databasesCollectionsList.properties', 'Properties'),
       enableSorting: true,
       sortUndefined: 'last',
       cell: (info) => {
@@ -286,7 +300,7 @@ function collectionColumns({
         }
 
         const badges = collection.properties.map((prop) => {
-          return collectionPropertyToBadge(collection, darkMode, prop);
+          return collectionPropertyToBadge(t, collection, darkMode, prop);
         });
 
         if (badges.length === 0) {
@@ -306,7 +320,7 @@ function collectionColumns({
     },
     {
       accessorKey: 'storage_size',
-      header: 'Storage size',
+      header: t('databasesCollectionsList.storageSize', 'Storage size'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 110,
@@ -340,14 +354,25 @@ function collectionColumns({
         const definition = (
           <div>
             <div>
-              <strong>Storage Size:</strong> {compactBytes(storageSize)} (total
-              allocated)
+              <strong>
+                {t(
+                  'databasesCollectionsList.storageSizeLabel',
+                  'Storage Size:'
+                )}
+              </strong>{' '}
+              {compactBytes(storageSize)}{' '}
+              {t(
+                'databasesCollectionsList.totalAllocated',
+                '(total allocated)'
+              )}
             </div>
             <div>
-              <strong>Used:</strong> {compactBytes(usedStorageSize)}
+              <strong>{t('databasesCollectionsList.used', 'Used:')}</strong>{' '}
+              {compactBytes(usedStorageSize)}
             </div>
             <div>
-              <strong>Free:</strong> {compactBytes(freeStorageSize)}
+              <strong>{t('databasesCollectionsList.free', 'Free:')}</strong>{' '}
+              {compactBytes(freeStorageSize)}
             </div>
           </div>
         );
@@ -364,7 +389,7 @@ function collectionColumns({
     },
     {
       accessorKey: 'document_size',
-      header: 'Data size',
+      header: t('databasesCollectionsList.dataSize', 'Data size'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 80,
@@ -386,7 +411,7 @@ function collectionColumns({
     },
     {
       accessorKey: 'document_count',
-      header: 'Documents',
+      header: t('databasesCollectionsList.documents', 'Documents'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 110,
@@ -408,7 +433,10 @@ function collectionColumns({
     },
     {
       accessorKey: 'avg_document_size',
-      header: 'Avg. document size',
+      header: t(
+        'databasesCollectionsList.avgDocumentSize',
+        'Avg. document size'
+      ),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 140,
@@ -431,7 +459,7 @@ function collectionColumns({
     },
     {
       accessorKey: 'index_count',
-      header: 'Indexes',
+      header: t('databasesCollectionsList.indexes', 'Indexes'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 90,
@@ -453,7 +481,7 @@ function collectionColumns({
     },
     {
       accessorKey: 'index_size',
-      header: 'Total index size',
+      header: t('databasesCollectionsList.totalIndexSize', 'Total index size'),
       enableSorting: true,
       sortUndefined: 'last',
       maxSize: 120,
@@ -497,10 +525,11 @@ const CollectionsList: React.FunctionComponent<{
   }
 
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const columns = React.useMemo(
-    () => collectionColumns({ darkMode, enableDbAndCollStats }),
-    [darkMode, enableDbAndCollStats]
+    () => collectionColumns({ t, darkMode, enableDbAndCollStats }),
+    [t, darkMode, enableDbAndCollStats]
   );
 
   const TableComponent = virtual ? VirtualItemsTable : ItemsTable;

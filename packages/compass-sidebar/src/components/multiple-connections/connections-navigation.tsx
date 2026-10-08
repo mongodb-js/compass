@@ -21,6 +21,7 @@ import {
   cx,
   Placeholder,
   useContextMenuGroups,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -215,6 +216,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
+  const t = useTranslation();
   const { hasWorkspacePlugin } = useWorkspacePlugins();
   const track = useTelemetry();
   const connections = useMemo(() => {
@@ -296,7 +298,10 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       const actions: ItemAction<ConnectionListTitleActions>[] = [
         {
           action: 'collapse-all-connections',
-          label: 'Collapse all connections',
+          label: t(
+            'sidebar.connections.collapseAll',
+            'Collapse all connections'
+          ),
           icon: <ChevronCollapse width={14} height={14} />,
         },
       ];
@@ -304,7 +309,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       if (enableCreatingNewConnections) {
         actions.push({
           action: 'add-new-connection',
-          label: 'Add new connection',
+          label: t('sidebar.connections.addNew', 'Add new connection'),
           icon: 'Plus',
         });
       }
@@ -313,19 +318,19 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         actions.push(
           {
             action: 'import-saved-connections',
-            label: 'Import connections',
+            label: t('sidebar.connections.import', 'Import connections'),
             icon: 'Download',
           },
           {
             action: 'export-saved-connections',
-            label: 'Export connections',
+            label: t('sidebar.connections.export', 'Export connections'),
             icon: 'Export',
           }
         );
       }
 
       return actions;
-    }, [supportsConnectionImportExport, enableCreatingNewConnections]);
+    }, [supportsConnectionImportExport, enableCreatingNewConnections, t]);
 
   const onItemAction = useCallback(
     (item: SidebarItem, action: Actions) => {
@@ -598,7 +603,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         ref={contextMenuRef}
       >
         <Subtitle className={connectionListHeaderTitleStyles}>
-          {isAtlasConnectionStorage ? 'Clusters' : 'Connections'}
+          {isAtlasConnectionStorage
+            ? t('sidebar.connections.clusters', 'Clusters')
+            : t('sidebar.connections.connections', 'Connections')}
           {connectionsCount}
         </Subtitle>
         <ItemActionControls<ConnectionListTitleActions>
@@ -612,7 +619,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       </div>
       <NavigationItemsFilter
         placeholder={
-          isAtlasConnectionStorage ? 'Search clusters' : 'Search connections'
+          isAtlasConnectionStorage
+            ? t('sidebar.connections.searchClusters', 'Search clusters')
+            : t('sidebar.connections.searchConnections', 'Search connections')
         }
         filter={filter}
         onFilterChange={onFilterChange}
@@ -626,7 +635,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
             className={noSearchResultsStyles}
             data-testid="no-search-results"
           >
-            <Body>No results found.</Body>
+            <Body>
+              {t('sidebar.connections.noResults', 'No results found.')}
+            </Body>
           </div>
         ) : (
           <ConnectionsNavigationTree
@@ -640,7 +651,10 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       ) : connections.length === 0 ? (
         <div className={noDeploymentStyles}>
           <Body data-testid="no-deployments-text">
-            You have not connected to any deployments.
+            {t(
+              'sidebar.connections.noDeployments',
+              'You have not connected to any deployments.'
+            )}
           </Body>
           {enableCreatingNewConnections && (
             <Button
@@ -649,7 +663,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
               leftGlyph={<Icon glyph="Plus" />}
               onClick={onNewConnection}
             >
-              Add new connection
+              {t('sidebar.connections.addNew', 'Add new connection')}
             </Button>
           )}
         </div>

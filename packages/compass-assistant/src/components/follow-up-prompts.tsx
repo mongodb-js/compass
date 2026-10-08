@@ -4,6 +4,7 @@ import {
   LgChatMessagePrompts,
   spacing,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { FOLLOW_UP_QUESTIONS_HEADER } from '../prompts';
 
@@ -66,6 +67,7 @@ export const FollowUpPrompts: React.FunctionComponent<{
   onSend: (question: string) => void;
 }> = ({ questions, onSend }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   if (questions.length === 0) {
     return null;
@@ -73,7 +75,7 @@ export const FollowUpPrompts: React.FunctionComponent<{
 
   return (
     <MessagePrompts
-      label="Suggested Prompts"
+      label={t('assistant.followUp.suggestedPrompts', 'Suggested Prompts')}
       enableHideOnSelect={true}
       darkMode={darkMode}
       className={followUpPromptsStyles}

@@ -12,6 +12,7 @@ import {
   Link,
   useDarkMode,
   fontFamilies,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   usePreference,
@@ -117,6 +118,7 @@ const toolDescriptionStyles = css({
 });
 
 export const ToolToggle: React.FunctionComponent = () => {
+  const t = useTranslation();
   const enableGenAIToolCallingAtlasProject = usePreference(
     'enableGenAIToolCallingAtlasProject'
   );
@@ -166,7 +168,10 @@ export const ToolToggle: React.FunctionComponent = () => {
             ref={ref}
             data-testid="tool-toggle-button"
             onClick={onClick}
-            aria-label="Configure tool calling"
+            aria-label={t(
+              'assistant.toolToggle.configure',
+              'Configure tool calling'
+            )}
             aria-expanded={popoverOpen}
             darkMode={darkMode}
             size="small"
@@ -174,7 +179,7 @@ export const ToolToggle: React.FunctionComponent = () => {
               enableGenAIToolCalling ? <ActiveBoltIcon /> : <DisabledBoltIcon />
             }
           >
-            Tools
+            {t('assistant.toolToggle.tools', 'Tools')}
             {children}
           </Button>
         )}
@@ -186,7 +191,9 @@ export const ToolToggle: React.FunctionComponent = () => {
           >
             <div className={headerSectionStyles}>
               <div className={readOnlyToolsStyles}>
-                <Body weight="medium">Read-only tools</Body>
+                <Body weight="medium">
+                  {t('assistant.toolToggle.readOnlyTools', 'Read-only tools')}
+                </Body>
                 <Toggle
                   id="enable-tool-calling-toggle"
                   aria-labelledby="enable-tool-calling-label"
@@ -199,27 +206,38 @@ export const ToolToggle: React.FunctionComponent = () => {
               </div>
               <Description>
                 {areToolCallsEnabled ? (
-                  'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
+                  t(
+                    'assistant.toolToggle.enabledDescription',
+                    'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
+                  )
                 ) : projectId && !enableGenAIToolCallingAtlasProject ? (
                   <>
-                    These are disabled for project users with data access.
-                    Project Owners can enable this feature in{' '}
+                    {t(
+                      'assistant.toolToggle.disabledForProject',
+                      'These are disabled for project users with data access. Project Owners can enable this feature in'
+                    )}{' '}
                     <Link href={buildProjectSettingsUrl({ projectId })}>
-                      Project Settings.
+                      {t(
+                        'assistant.toolToggle.projectSettings',
+                        'Project Settings.'
+                      )}
                     </Link>
                   </>
                 ) : (
-                  'These are currently disabled. Enable them to use natural language to explore data and generate queries.'
+                  t(
+                    'assistant.toolToggle.disabledDescription',
+                    'These are currently disabled. Enable them to use natural language to explore data and generate queries.'
+                  )
                 )}
               </Description>
             </div>
             <Link href={learnMoreUrl} target="_blank">
-              Learn more
+              {t('assistant.toolToggle.learnMore', 'Learn more')}
             </Link>
             <div className={toolsContainerStyles}>
               <div className={toolsHeaderStyles}>
                 <div className={toolsHeaderTextStyles}>
-                  Available tools{' '}
+                  {t('assistant.toolToggle.availableTools', 'Available tools')}{' '}
                   <span className={toolsHeaderTextCountStyles}>
                     ({availableTools.length})
                   </span>
@@ -230,7 +248,10 @@ export const ToolToggle: React.FunctionComponent = () => {
                   <div key={tool.name} className={toolItemStyles}>
                     <div className={toolNameStyles}>{tool.name}</div>
                     <div className={toolDescriptionStyles}>
-                      {tool.description}
+                      {t(
+                        `assistant.toolDescription.${tool.name}`,
+                        tool.description
+                      )}
                     </div>
                   </div>
                 ))}

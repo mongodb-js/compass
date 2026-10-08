@@ -12,6 +12,7 @@ import {
   type GlyphName,
   type ItemComponentProps,
   type MenuItemProps,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { Actions } from './constants';
 
@@ -58,6 +59,7 @@ export function ConnectButtonWithMenu({
   className,
   'data-testid': testId,
 }: ItemComponentProps<Actions>) {
+  const t = useTranslation();
   const [isOpen, setOpen] = useState(false);
 
   // Opening the menu should keep it visible
@@ -83,7 +85,10 @@ export function ConnectButtonWithMenu({
       darkMode={false}
       open={isOpen}
       setOpen={setOpen}
-      triggerAriaLabel="see more connection options"
+      triggerAriaLabel={t(
+        'connectionsNavigation.connectButton.moreOptions',
+        'see more connection options'
+      )}
       menuItems={[
         <ConnectMenuItem
           key="connection-connect"
@@ -91,7 +96,7 @@ export function ConnectButtonWithMenu({
           glyph="Connect"
           onClick={onClick}
         >
-          Connect
+          {t('connectionsNavigation.connectButton.connect', 'Connect')}
         </ConnectMenuItem>,
         <ConnectMenuItem
           key="connection-connect-in-new-window"
@@ -99,7 +104,10 @@ export function ConnectButtonWithMenu({
           glyph="OpenNewTab"
           onClick={onClick}
         >
-          In New Window
+          {t(
+            'connectionsNavigation.connectButton.inNewWindow',
+            'In New Window'
+          )}
         </ConnectMenuItem>,
       ]}
     >

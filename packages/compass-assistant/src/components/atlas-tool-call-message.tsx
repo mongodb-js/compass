@@ -4,6 +4,7 @@ import {
   InlineDefinition,
   ServerIcon,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import {
@@ -26,8 +27,9 @@ import {
   useAtlasSignInStatus,
 } from '@mongodb-js/atlas-service/provider';
 import { CustomToolResult } from './custom-tool-result';
-import { getToolCallTitle } from './tool-call-title';
+import { getToolCallTitle, withToolName } from './tool-call-title';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 
 /**
@@ -57,6 +59,7 @@ const expandableContentStyles = css({
 });
 
 function getApprovalMessage(
+  t: TranslateFn,
   toolNameElement: React.ReactNode,
   isUserSignedIn: boolean,
   isSignInInProgress: boolean
@@ -65,20 +68,35 @@ function getApprovalMessage(
     return undefined;
   }
   if (isSignInInProgress) {
-    return <>Connecting with Atlas to run {toolNameElement}...</>;
+    return withToolName(
+      t(
+        'assistant.atlasTool.connecting',
+        'Connecting with Atlas to run {tool}...'
+      ),
+      toolNameElement
+    );
   }
-  return <>Connect with Atlas and run {toolNameElement}?</>;
+  return withToolName(
+    t('assistant.atlasTool.connect', 'Connect with Atlas and run {tool}?'),
+    toolNameElement
+  );
 }
 
 const readonlyNoteStyles = css({
   paddingTop: spacing[200],
 });
 
-const ReadonlyNote: React.FunctionComponent = () => (
-  <div className={readonlyNoteStyles}>
-    {"This is read-only and won't change your cluster."}
-  </div>
-);
+const ReadonlyNote: React.FunctionComponent = () => {
+  const t = useTranslation();
+  return (
+    <div className={readonlyNoteStyles}>
+      {t(
+        'assistant.atlasTool.readOnly',
+        "This is read-only and won't change your cluster."
+      )}
+    </div>
+  );
+};
 
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
@@ -92,6 +110,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const isSignInInProgress = atlasSignInStatus.state === 'in-progress';
   const { signIn } = useAtlasLoginActions();
   const track = useTelemetry();
+  const t = useTranslation();
 
   const isSignInStateResolved =
     atlasSignInStatus.state !== 'initial' &&
@@ -166,7 +185,9 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const expandableContentText = getExpandableContentText(
     toolCall,
     hasOutput,
-    cleanedOutput
+    cleanedOutput,
+    undefined,
+    t
   );
 
   const toolNameElement = toolDescription ? (
@@ -178,6 +199,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   );
 
   const approvalMessage = getApprovalMessage(
+    t,
     toolNameElement,
     isUserSignedIn,
     isSignInInProgress
@@ -195,7 +217,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     <>
       <ActionCardMessage
         state={isSignInInProgress ? 'running' : toolCallState}
-        title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
+        title={getToolCallTitle(toolCall, toolNameElement, approvalMessage, t)}
         chips={chips}
         description={actionCardDescription}
         showActions={isAwaitingApproval && !isSignInInProgress}
@@ -204,12 +226,16 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         {...(approvalId && {
           buttons: [
             {
-              label: isUserSignedIn ? 'Cancel' : 'Skip',
+              label: isUserSignedIn
+                ? t('assistant.toolCall.cancel', 'Cancel')
+                : t('assistant.atlasTool.skip', 'Skip'),
               variant: 'default',
               onClick: () => onDeny(approvalId, TOOL_DENIAL_REASONS.userDenied),
             },
             {
-              label: isUserSignedIn ? 'Run' : 'Connect to Atlas',
+              label: isUserSignedIn
+                ? t('assistant.toolCall.runButton', 'Run')
+                : t('assistant.atlasTool.connectButton', 'Connect to Atlas'),
               variant: 'primary',
               onClick: () => handleAtlasToolApproval(approvalId),
               isPrimary: true,
@@ -221,7 +247,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
       </ActionCardMessage>
       {hasOutput && (
         <CustomToolResult
-          title="Atlas Check Result:"
+          title={t('assistant.atlasTool.checkResult', 'Atlas Check Result:')}
           toolType={toolCall.type}
           output={cleanedOutput}
         />

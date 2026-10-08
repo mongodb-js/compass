@@ -4,15 +4,11 @@ import {
   CollapsibleFieldSet,
   TextInput,
   FormFieldContainer,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const HELP_URL_CLUSTERED =
   'https://www.mongodb.com/docs/manual/core/clustered-collections/';
-
-const EXPIRE_AFTER_SECONDS_DESCRIPTION =
-  'The expireAfterSeconds field enables ' +
-  'automatic deletion of documents older than the specified number of seconds. ' +
-  'The _id field must be a date or an array that contains date values.';
 
 function ClusteredCollectionFields({
   isTimeSeries,
@@ -22,6 +18,7 @@ function ClusteredCollectionFields({
   onChangeField,
   expireAfterSeconds,
 }) {
+  const t = useTranslation();
   const onInputChange = useCallback(
     (e) => {
       const { name, value } = e.currentTarget;
@@ -35,10 +32,16 @@ function ClusteredCollectionFields({
       toggled={isClustered}
       disabled={isTimeSeries}
       onToggle={(checked) => onChangeIsClustered(checked)}
-      label="Clustered Collection"
+      label={t(
+        'databasesCollections.fields.clusteredCollection',
+        'Clustered Collection'
+      )}
       data-testid="clustered-collection-fields"
       helpUrl={HELP_URL_CLUSTERED}
-      description="Clustered collections store documents ordered by a user-defined cluster key."
+      description={t(
+        'databasesCollections.fields.clusteredDescription',
+        'Clustered collections store documents ordered by a user-defined cluster key.'
+      )}
     >
       <FormFieldContainer>
         <TextInput
@@ -47,7 +50,10 @@ function ClusteredCollectionFields({
           label="name"
           data-testid="clustered-index-name"
           type="text"
-          description="The clustered index name is optional, otherwise automatically generated."
+          description={t(
+            'databasesCollections.fields.clusteredIndexName',
+            'The clustered index name is optional, otherwise automatically generated.'
+          )}
           optional
           onChange={onInputChange}
           spellCheck={false}
@@ -59,7 +65,10 @@ function ClusteredCollectionFields({
           value={expireAfterSeconds}
           label="expireAfterSeconds"
           name="expireAfterSeconds"
-          description={EXPIRE_AFTER_SECONDS_DESCRIPTION}
+          description={t(
+            'databasesCollections.fields.clusteredExpireAfterSeconds',
+            'The expireAfterSeconds field enables automatic deletion of documents older than the specified number of seconds. The _id field must be a date or an array that contains date values.'
+          )}
           optional
           type="number"
           onChange={onInputChange}

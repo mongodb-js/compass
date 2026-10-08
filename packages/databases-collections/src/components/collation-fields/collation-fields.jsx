@@ -6,6 +6,7 @@ import {
   Option,
   SelectSize,
   FormFieldContainer,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { css } from '@mongodb-js/compass-components';
 
@@ -58,6 +59,7 @@ function getCollationValue(value) {
  * @returns {React.ReactNode} The rendered component.
  */
 function CollationFields({ collation, changeCollationOption }) {
+  const t = useTranslation();
   return COLLATION_OPTIONS.map((element) => {
     return (
       <FormFieldContainer key={element.field}>
@@ -66,7 +68,14 @@ function CollationFields({ collation, changeCollationOption }) {
           className={optionsSelectDropdownStyles}
           label={element.field}
           name={element.field}
-          placeholder={`Select a value${element.required ? '' : ' [optional]'}`}
+          placeholder={
+            element.required
+              ? t('databasesCollections.fields.selectValue', 'Select a value')
+              : t(
+                  'databasesCollections.fields.selectValueOptional',
+                  'Select a value [optional]'
+                )
+          }
           onChange={(val) =>
             changeCollationOption(element.field, getCollationValue(val))
           }

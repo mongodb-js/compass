@@ -11,6 +11,8 @@ import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 import { isAtlas } from 'mongodb-build-info';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { translateEnglish } from './utils';
 
 export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
 
@@ -75,10 +77,10 @@ export type ExplainPlanContext = {
   operationType: 'query' | 'aggregation';
 };
 
-export const buildExplainPlanPrompt = ({
-  explainPlan,
-  operationType,
-}: ExplainPlanContext): EntryPointMessage => {
+export const buildExplainPlanPrompt = (
+  { explainPlan, operationType }: ExplainPlanContext,
+  t: TranslateFn = translateEnglish
+): EntryPointMessage => {
   const actionName =
     operationType === 'aggregation' ? 'Aggregation Pipeline' : 'Query';
   return {
@@ -162,10 +164,15 @@ ${
     </guidelines>
 `,
 
-      displayText: 'Interpret this explain plan output for me.',
+      displayText: t(
+        'assistant.prompts.explainPlan.displayText',
+        'Interpret this explain plan output for me.'
+      ),
       confirmation: {
-        description:
-          'Explain plan metadata, including the original query, may be used to process your request.',
+        description: t(
+          'assistant.prompts.explainPlan.confirmation',
+          'Explain plan metadata, including the original query, may be used to process your request.'
+        ),
         state: 'pending',
       },
     },
@@ -186,7 +193,8 @@ export type ProactiveInsightsContext =
     };
 
 export const buildProactiveInsightsPrompt = (
-  context: ProactiveInsightsContext
+  context: ProactiveInsightsContext,
+  t: TranslateFn = translateEnglish
 ): EntryPointMessage => {
   switch (context.id) {
     case 'aggregation-executed-without-index': {
@@ -198,8 +206,10 @@ Consider the type of collection (e.g. view v. not). If tools are available, use 
 ${context.stages.join('\n')}
 </input>`,
         metadata: {
-          displayText:
-            'Help me understand the performance impact of running aggregations without an index.',
+          displayText: t(
+            'assistant.prompts.insights.aggregationWithoutIndex',
+            'Help me understand the performance impact of running aggregations without an index.'
+          ),
         },
       };
     }
@@ -215,8 +225,10 @@ Respond with as much concision and clarity as possible.
 ${context.query}
 </input>`,
         metadata: {
-          displayText:
-            'Help me understand the performance impact of running queries without an index.',
+          displayText: t(
+            'assistant.prompts.insights.queryWithoutIndex',
+            'Help me understand the performance impact of running queries without an index.'
+          ),
         },
       };
     case 'rerank-first-stage':
@@ -231,7 +243,10 @@ Your explanation must cover the following points:
 Where relevant, flag if the pipeline in question does not follow these practices.
 Respond with as much concision and clarity as possible. Do not recommend changes without briefly explaining the tradeoff.`,
         metadata: {
-          displayText: 'What are best practices for using $rerank?',
+          displayText: t(
+            'assistant.prompts.insights.rerankFirstStage',
+            'What are best practices for using $rerank?'
+          ),
         },
       };
   }
@@ -243,11 +258,10 @@ export type DebugSearchErrorContext = {
   errorMessage: string;
 };
 
-export const buildDebugSearchErrorPrompt = ({
-  stageOperator,
-  stageValue,
-  errorMessage,
-}: DebugSearchErrorContext): EntryPointMessage => ({
+export const buildDebugSearchErrorPrompt = (
+  { stageOperator, stageValue, errorMessage }: DebugSearchErrorContext,
+  t: TranslateFn = translateEnglish
+): EntryPointMessage => ({
   prompt: `The user's ${stageOperator} stage failed with the following error:
 
 <error>
@@ -264,8 +278,10 @@ Respond with two sections:
 **Solution:** provide the corrected ${stageOperator} stage as one code block the user can paste in directly, plus an explanation of what changed.
 Diagnose why the aggregation pipeline is failing and provide step-by-step guidance to fix it.`,
   metadata: {
-    displayText:
-      'Diagnose why my aggregation pipeline is failing and help me debug it.',
+    displayText: t(
+      'assistant.prompts.debugSearchError.displayText',
+      'Diagnose why my aggregation pipeline is failing and help me debug it.'
+    ),
   },
 });
 
@@ -275,18 +291,26 @@ export type AnalyzeOutputContext = {
   documentCount: number;
 };
 
-export const buildAnalyzeOutputPrompt = ({
-  pipeline,
-  output,
-  documentCount,
-}: AnalyzeOutputContext): EntryPointMessage => {
+export const buildAnalyzeOutputPrompt = (
+  { pipeline, output, documentCount }: AnalyzeOutputContext,
+  t: TranslateFn = translateEnglish
+): EntryPointMessage => {
   const docCount = Math.min(documentCount, 3);
   const displayText =
     docCount > 2
-      ? 'Analyze the top 3 results after $search stage.'
+      ? t(
+          'assistant.prompts.analyzeOutput.top3',
+          'Analyze the top 3 results after $search stage.'
+        )
       : docCount === 2
-        ? 'Analyze these 2 results after $search stage.'
-        : 'Analyze this result after $search stage.';
+        ? t(
+            'assistant.prompts.analyzeOutput.two',
+            'Analyze these 2 results after $search stage.'
+          )
+        : t(
+            'assistant.prompts.analyzeOutput.one',
+            'Analyze this result after $search stage.'
+          );
 
   return {
     prompt: `<goal>
@@ -344,8 +368,10 @@ ${FOLLOW_UP_QUESTIONS_HEADER}
 </guidelines>
 `,
       confirmation: {
-        description:
-          'Search result documents, including document fields and score details, may be used to process your request.',
+        description: t(
+          'assistant.prompts.analyzeOutput.confirmation',
+          'Search result documents, including document fields and score details, may be used to process your request.'
+        ),
         state: 'pending',
       },
     },
@@ -357,15 +383,18 @@ export type ConnectionErrorContext = {
   connectionError: string;
 };
 
-export const buildConnectionErrorPrompt = ({
-  connectionInfo,
-  error,
-  enableAtlasSignIn = true,
-}: {
-  connectionInfo: ConnectionInfo;
-  error: Error;
-  enableAtlasSignIn?: boolean;
-}) => {
+export const buildConnectionErrorPrompt = (
+  {
+    connectionInfo,
+    error,
+    enableAtlasSignIn = true,
+  }: {
+    connectionInfo: ConnectionInfo;
+    error: Error;
+    enableAtlasSignIn?: boolean;
+  },
+  t: TranslateFn = translateEnglish
+) => {
   const connectionString = redactConnectionString(
     connectionInfo.connectionOptions.connectionString
   );
@@ -408,7 +437,11 @@ This is an Atlas connection, but Atlas Login is not allowed in this user's organ
     : ''
 }`,
     metadata: {
-      displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
+      displayText: t(
+        'assistant.prompts.connectionError.displayText',
+        'Diagnose why my {product} connection is failing and help me debug it.',
+        { product: productDisplayName }
+      ),
     },
   };
 };
@@ -419,11 +452,10 @@ export type DiagnoseSearchStageContext = {
   stageValue: string;
 };
 
-export const buildDiagnoseSearchStagePrompt = ({
-  stageOperator,
-  indexName,
-  stageValue,
-}: DiagnoseSearchStageContext): EntryPointMessage => {
+export const buildDiagnoseSearchStagePrompt = (
+  { stageOperator, indexName, stageValue }: DiagnoseSearchStageContext,
+  t: TranslateFn = translateEnglish
+): EntryPointMessage => {
   const indexClause = indexName ? ` with index "${indexName}"` : '';
   return {
     prompt: `The user's ${stageOperator} stage${indexClause} returned no results.
@@ -438,8 +470,10 @@ Respond with two sections:
 **Diagnosis:** explain concisely why the ${stageOperator} stage returned no results.
 **Solution:** provide the specific actionable steps to fix it. If the root cause is a missing or misconfigured Atlas Search index, include a concrete suggested index definition (JSON) that maps the specific fields referenced by the ${stageOperator} stage to appropriate field types, rather than only instructing the user to create one manually.`,
     metadata: {
-      displayText:
-        'Diagnose why my aggregation pipeline is not returning results.',
+      displayText: t(
+        'assistant.prompts.diagnoseSearchStage.displayText',
+        'Diagnose why my aggregation pipeline is not returning results.'
+      ),
     },
   };
 };

@@ -9,6 +9,7 @@ import {
   useDarkMode,
   Button,
   ButtonVariant,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { fetchSampleDocuments } from '../modules/sample-documents';
 import { DocumentPreview } from './document-preview';
@@ -140,6 +141,7 @@ const InitialState: React.FC<{
   onPreviewClick: () => void;
 }> = ({ onPreviewClick }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   return (
     <div className={initialStateContainerStyles}>
       <DocumentGraphic />
@@ -149,18 +151,26 @@ const InitialState: React.FC<{
           darkMode && previewHeaderDarkModeStyles
         )}
       >
-        Preview sample documents
+        {t(
+          'schemaValidation.sampleDocuments.previewTitle',
+          'Preview sample documents'
+        )}
       </div>
       <div>
-        This section displays one document that passed validation and one that
-        failed validation.
+        {t(
+          'schemaValidation.sampleDocuments.previewDescription',
+          'This section displays one document that passed validation and one that failed validation.'
+        )}
       </div>
       <Button
         onClick={onPreviewClick}
         variant={ButtonVariant.PrimaryOutline}
         data-testid="load-sample-documents"
       >
-        Preview documents
+        {t(
+          'schemaValidation.sampleDocuments.previewButton',
+          'Preview documents'
+        )}
       </Button>
     </div>
   );
@@ -178,6 +188,7 @@ function SampleDocuments({
   fetchSampleDocuments: () => void;
 }) {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   return (
     <div
@@ -203,7 +214,10 @@ function SampleDocuments({
             >
               <Icon glyph="CheckmarkWithCircle" size="small" />
               <Body className={documentHeadingTextStyles}>
-                Passed validation
+                {t(
+                  'schemaValidation.sampleDocuments.passed',
+                  'Passed validation'
+                )}
               </Body>
             </div>
             <DocumentPreview document={validDocument} />
@@ -222,7 +236,10 @@ function SampleDocuments({
             >
               <Icon glyph="XWithCircle" size="small" />
               <Body className={documentHeadingTextStyles}>
-                Failed validation
+                {t(
+                  'schemaValidation.sampleDocuments.failed',
+                  'Failed validation'
+                )}
               </Body>
             </div>
             <DocumentPreview document={invalidDocument} />

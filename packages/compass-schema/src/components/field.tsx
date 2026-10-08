@@ -9,6 +9,7 @@ import {
   KeylineCard,
   SignalPopover,
   PerformanceSignals,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { debounce, find } from 'lodash';
 import { withPreferences } from 'compass-preferences-model/provider';
@@ -194,6 +195,7 @@ export function shouldShowUnboundArrayInsight(
 }
 
 function Field({ name, path, types, enableMaps }: FieldProps) {
+  const t = useTranslation();
   const query = useQueryBarQuery();
   const changeQuery = useChangeQueryBarQuery();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -251,8 +253,14 @@ function Field({ name, path, types, enableMaps }: FieldProps) {
                   type="button"
                   aria-label={
                     isExpanded
-                      ? 'Collapse Document Schema'
-                      : 'Expand Document Schema'
+                      ? t(
+                          'schema.field.collapseDocumentSchema',
+                          'Collapse Document Schema'
+                        )
+                      : t(
+                          'schema.field.expandDocumentSchema',
+                          'Expand Document Schema'
+                        )
                   }
                   aria-expanded={isExpanded}
                   aria-controls={fieldListRegionId}

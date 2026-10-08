@@ -9,6 +9,7 @@ import {
   cx,
   palette,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const confirmationMessageStyles = css({
@@ -60,6 +61,7 @@ export const ConfirmationMessage: React.FunctionComponent<
   ConfirmationMessageProps
 > = ({ state, title, description, onConfirm, onReject }) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   return (
     <div
@@ -79,14 +81,14 @@ export const ConfirmationMessage: React.FunctionComponent<
             onClick={onReject}
             size="default"
           >
-            Cancel
+            {t('assistant.confirmation.cancel', 'Cancel')}
           </Button>
           <Button
             variant={ButtonVariant.Primary}
             onClick={onConfirm}
             size="default"
           >
-            Confirm
+            {t('assistant.confirmation.confirm', 'Confirm')}
           </Button>
         </div>
       )}
@@ -99,7 +101,9 @@ export const ConfirmationMessage: React.FunctionComponent<
             color={palette.gray.dark1}
           />
           <Body className={confirmationStatusTextStyles} weight="medium">
-            Request {state === 'confirmed' ? 'confirmed' : 'cancelled'}
+            {state === 'confirmed'
+              ? t('assistant.confirmation.confirmed', 'Request confirmed')
+              : t('assistant.confirmation.cancelled', 'Request cancelled')}
           </Body>
         </div>
       )}

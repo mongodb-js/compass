@@ -9,7 +9,22 @@ import type { AssistantMessage } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { translate } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
+
+export const translateEnglish: TranslateFn = (key, english, vars) =>
+  translate('en', key, english, vars);
+
+export function getTranslator(preferences: PreferencesAccess): TranslateFn {
+  return (key, english, vars) =>
+    translate(
+      preferences?.getPreferences?.().language ?? 'en',
+      key,
+      english,
+      vars
+    );
+}
 
 export const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';
@@ -292,12 +307,13 @@ export function getExpandableContentText(
   toolCall: ToolUIPart,
   hasOutput: boolean,
   cleanedOutput?: unknown,
-  toolDescription?: string
+  toolDescription?: string,
+  t: TranslateFn = (_key, english) => english
 ): string {
   const toolCallState = getToolState(toolCall.state);
 
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
-  const argumentsText = `### Arguments
+  const argumentsText = `### ${t('assistant.toolCall.arguments', 'Arguments')}
 
 \`\`\`json
 ${inputJSON}
@@ -314,7 +330,7 @@ ${inputJSON}
       ? JSON.stringify(cleanedOutput, null, 2)
       : '';
 
-    expandableContent.push(`### Response
+    expandableContent.push(`### ${t('assistant.toolCall.response', 'Response')}
 
 \`\`\`json
 ${outputText}
@@ -322,7 +338,7 @@ ${outputText}
   }
 
   if (toolCall.errorText) {
-    expandableContent.push(`### Error
+    expandableContent.push(`### ${t('assistant.toolCall.error', 'Error')}
 
 \`\`\`
 ${toolCall.errorText}

@@ -3,6 +3,7 @@ import {
   EmptyContent,
   Link,
   NoSavedItemsIcon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const SearchResultsIcon = () => {
@@ -31,19 +32,23 @@ const SearchResultsIcon = () => {
 };
 
 export const NoSavedItems: React.FunctionComponent = () => {
+  const t = useTranslation();
   return (
     <EmptyContent
       icon={NoSavedItemsIcon}
-      title="No saved queries yet."
-      subTitle="Start saving your aggregations and find queries, you'll see them here."
+      title={t('savedQueries.empty.title', 'No saved queries yet.')}
+      subTitle={t(
+        'savedQueries.empty.subtitle',
+        "Start saving your aggregations and find queries, you'll see them here."
+      )}
       callToAction={
         <div>
-          Not sure where to start? &nbsp;
+          {t('savedQueries.empty.notSure', 'Not sure where to start?')} &nbsp;
           <Link
             hideExternalIcon
             href="https://docs.mongodb.com/compass/current/query/queries/"
           >
-            Visit our Docs &#8594;
+            {t('savedQueries.empty.visitDocs', 'Visit our Docs')} &#8594;
           </Link>
         </div>
       }
@@ -52,11 +57,15 @@ export const NoSavedItems: React.FunctionComponent = () => {
 };
 
 export const NoSearchResults: React.FunctionComponent = () => {
+  const t = useTranslation();
   return (
     <EmptyContent
       icon={SearchResultsIcon}
-      title="No results found."
-      subTitle="We can't find any item matching your search."
+      title={t('savedQueries.noResults.title', 'No results found.')}
+      subTitle={t(
+        'savedQueries.noResults.subtitle',
+        "We can't find any item matching your search."
+      )}
     />
   );
 };

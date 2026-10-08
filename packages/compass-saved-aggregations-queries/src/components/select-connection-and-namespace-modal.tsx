@@ -7,12 +7,14 @@ import {
   css,
   cx,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   ColorCircleGlyph,
   useConnectionColor,
 } from '@mongodb-js/connection-form';
 import { connect } from 'react-redux';
+import { useItemTypeLabel } from '../hooks/use-item-type-label';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type { RootState } from '../stores';
 import {
@@ -89,6 +91,7 @@ const mapConnectionState: MapStateToProps<
 const ConnectionSelect = connect(mapConnectionState, {
   onChange: connectionSelected,
 })(({ items, selectedItem, onChange: _onChange }: ConnectionSelectProps) => {
+  const t = useTranslation();
   const { connectionColorToHex } = useConnectionColor();
   const onChange = useCallback(
     (connectionId: string) => _onChange(connectionId),
@@ -97,7 +100,7 @@ const ConnectionSelect = connect(mapConnectionState, {
   return (
     <Select
       name="connection"
-      label="Connection"
+      label={t('savedQueries.selectNamespace.connection', 'Connection')}
       value={selectedItem ?? ''}
       onChange={onChange}
       className={selectStyles}
@@ -227,20 +230,44 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
   onClose,
   onUpdateNamespaceChecked,
 }) => {
+  const t = useTranslation();
+  const itemTypeLabel = useItemTypeLabel(itemType);
   const { isOpened, title, description } = useMemo(() => {
     const namespaceNotFoundDescription = showConnectionSelect ? (
       <>
-        The namespace <strong>{namespace}</strong> for the saved {itemType}{' '}
-        <strong>{itemName}</strong> doesn&rsquo;t exist in&nbsp;any of the
-        active connections. Please select another target to&nbsp;open saved{' '}
-        {itemType}
+        {t('savedQueries.selectNamespace.namespace', 'The namespace')}{' '}
+        <strong>{namespace}</strong>{' '}
+        {t(
+          'savedQueries.selectNamespace.forSaved',
+          'for the saved {itemType}',
+          {
+            itemType: itemTypeLabel,
+          }
+        )}{' '}
+        <strong>{itemName}</strong>{' '}
+        {t(
+          'savedQueries.selectNamespace.notFoundAnyConnection',
+          'doesn\u2019t exist in\u00a0any of the active connections. Please select another target to\u00a0open saved {itemType}',
+          { itemType: itemTypeLabel }
+        )}
       </>
     ) : (
       <>
-        The namespace <strong>{namespace}</strong> for the saved {itemType}{' '}
-        <strong>{itemName}</strong> doesn&rsquo;t exist in&nbsp;the current
-        connection. Please select another namespace to&nbsp;open saved{' '}
-        {itemType}.
+        {t('savedQueries.selectNamespace.namespace', 'The namespace')}{' '}
+        <strong>{namespace}</strong>{' '}
+        {t(
+          'savedQueries.selectNamespace.forSaved',
+          'for the saved {itemType}',
+          {
+            itemType: itemTypeLabel,
+          }
+        )}{' '}
+        <strong>{itemName}</strong>{' '}
+        {t(
+          'savedQueries.selectNamespace.notFoundCurrentConnection',
+          'doesn\u2019t exist in\u00a0the current connection. Please select another namespace to\u00a0open saved {itemType}.',
+          { itemType: itemTypeLabel }
+        )}
       </>
     );
 
@@ -249,14 +276,27 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
         openedModal === 'namespace-not-found-modal' ||
         openedModal === 'select-connection-and-namespace-modal',
       title: showConnectionSelect
-        ? 'Select a Connection and Namespace'
-        : 'Select a Namespace',
+        ? t(
+            'savedQueries.selectNamespace.titleConnectionAndNamespace',
+            'Select a Connection and Namespace'
+          )
+        : t(
+            'savedQueries.selectNamespace.titleNamespace',
+            'Select a Namespace'
+          ),
       description:
         openedModal === 'namespace-not-found-modal'
           ? namespaceNotFoundDescription
           : null,
     };
-  }, [showConnectionSelect, openedModal, itemName, itemType, namespace]);
+  }, [
+    showConnectionSelect,
+    openedModal,
+    itemName,
+    itemTypeLabel,
+    namespace,
+    t,
+  ]);
 
   return (
     <FormModal
@@ -264,7 +304,7 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
       onCancel={onClose}
       onSubmit={() => onSubmit()}
       title={title}
-      submitButtonText="Run Query"
+      submitButtonText={t('savedQueries.selectNamespace.runQuery', 'Run Query')}
       submitDisabled={isSubmitDisabled}
       scroll={false} // this is so that the selects can hang over the footer and out of the modal
       data-testid="open-item-modal"
@@ -293,7 +333,10 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
           className={databaseSelectStyles}
           data-testid="database-select-field"
         >
-          <DatabaseSelect name="database" label="Database"></DatabaseSelect>
+          <DatabaseSelect
+            name="database"
+            label={t('savedQueries.selectNamespace.database', 'Database')}
+          ></DatabaseSelect>
         </div>
         <div
           className={collectionSelectStyles}
@@ -301,7 +344,7 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
         >
           <CollectionSelect
             name="collection"
-            label="Collection"
+            label={t('savedQueries.selectNamespace.collection', 'Collection')}
           ></CollectionSelect>
         </div>
         <Checkbox
@@ -310,7 +353,11 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
           onChange={(event) => {
             onUpdateNamespaceChecked(event.target.checked);
           }}
-          label={`Update this ${itemType} with the newly selected namespace`}
+          label={t(
+            'savedQueries.selectNamespace.updateWithNamespace',
+            'Update this {itemType} with the newly selected namespace',
+            { itemType: itemTypeLabel }
+          )}
           data-testid="update-query-aggregation-checkbox"
         />
       </div>

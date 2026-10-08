@@ -1,7 +1,7 @@
 import type { RootAction, SchemaValidationThunkAction } from '.';
 import type { Document } from 'bson';
 import { parseFilter, toJSString } from 'mongodb-query-parser';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, translate } from '@mongodb-js/compass-components';
 import { VALIDATION_TEMPLATE } from '@mongodb-js/mongodb-constants';
 import { isEqual, pick } from 'lodash';
 import { disableEditRules } from './edit-mode';
@@ -132,6 +132,8 @@ const DEFAULT_VALIDATION: Pick<
   validationLevel: 'strict',
 };
 
+export const EMPTY_VALIDATOR_MESSAGE = 'The validator must be an object.';
+
 /**
  * Check validator as a simple query.
  */
@@ -148,7 +150,7 @@ export const checkValidator = (
 
   if (validator === '') {
     validation.syntaxError = {
-      message: 'The validator must be an object.',
+      message: EMPTY_VALIDATOR_MESSAGE,
     };
   } else {
     try {
@@ -476,7 +478,7 @@ export const saveValidation = (
   return async (
     dispatch,
     getState,
-    { dataService, track, connectionInfoRef }
+    { dataService, track, connectionInfoRef, preferences }
   ) => {
     const state = getState();
     const namespace = state.namespace;
@@ -507,7 +509,11 @@ export const saveValidation = (
       );
       void dispatch(fetchValidation(namespace));
       openToast(toastId, {
-        title: 'New validation rules applied',
+        title: translate(
+          preferences.getPreferences().language ?? 'en',
+          'schemaValidation.toast.applied',
+          'New validation rules applied'
+        ),
         variant: 'success',
       });
       dispatch(disableEditRules());

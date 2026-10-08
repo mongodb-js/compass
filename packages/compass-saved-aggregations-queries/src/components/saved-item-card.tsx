@@ -1,6 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { MenuAction } from '@mongodb-js/compass-components';
-import { cx, useDarkMode } from '@mongodb-js/compass-components';
+import {
+  cx,
+  useDarkMode,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import {
   Card,
   css,
@@ -133,18 +137,21 @@ const lastModifiedLabel = css({
 
 type SavedItemAction = 'copy' | 'rename' | 'delete' | 'open-in';
 
-const savedItemActions: MenuAction<SavedItemAction>[] = [
-  { action: 'copy', label: 'Copy' },
-  { action: 'rename', label: 'Rename' },
-  { action: 'delete', label: 'Delete' },
-  { action: 'open-in', label: 'Open in' },
-];
-
 const CardActions: React.FunctionComponent<{
   itemId: string;
   isVisible: boolean;
   onAction: SavedItemCardProps['onAction'];
 }> = ({ itemId, isVisible, onAction }) => {
+  const t = useTranslation();
+  const savedItemActions = useMemo<MenuAction<SavedItemAction>[]>(
+    () => [
+      { action: 'copy', label: t('savedQueries.card.copy', 'Copy') },
+      { action: 'rename', label: t('savedQueries.card.rename', 'Rename') },
+      { action: 'delete', label: t('savedQueries.card.delete', 'Delete') },
+      { action: 'open-in', label: t('savedQueries.card.openIn', 'Open in') },
+    ],
+    [t]
+  );
   const onMenuItemClick = useCallback(
     (action: SavedItemAction) => {
       onAction(itemId, action);
@@ -174,6 +181,7 @@ export const SavedItemCard: React.FunctionComponent<
   onAction,
   ...containerProps
 }) => {
+  const t = useTranslation();
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
   const defaultActionProps = useDefaultAction(() => {
@@ -242,7 +250,8 @@ export const SavedItemCard: React.FunctionComponent<
         <NamespacePart type="collection" name={collection}></NamespacePart>
       </div>
       <div className={lastModifiedLabel}>
-        Last&nbsp;modified: {formattedDate}
+        {t('savedQueries.card.lastModified', 'Last\u00a0modified:')}{' '}
+        {formattedDate}
       </div>
     </Card>
   );

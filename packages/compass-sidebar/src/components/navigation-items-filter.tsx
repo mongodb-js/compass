@@ -1,5 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { css, spacing, TextInput } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { ConnectionsFilter } from './use-filtered-connections';
 import ConnectionsFilterPopover from './connections-filter-popover';
 
@@ -25,9 +30,9 @@ function createRegExp(input: string) {
 }
 
 export default function NavigationItemsFilter({
-  placeholder = 'Search',
-  ariaLabel = 'Search',
-  title = 'Search',
+  placeholder,
+  ariaLabel,
+  title,
   filter,
   onFilterChange,
   disabled = false,
@@ -41,6 +46,8 @@ export default function NavigationItemsFilter({
   ): void;
   disabled?: boolean;
 }): React.ReactElement {
+  const t = useTranslation();
+  const searchLabel = t('sidebar.filter.search', 'Search');
   const onChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (event) => {
       onFilterChange((filter) => ({
@@ -62,10 +69,10 @@ export default function NavigationItemsFilter({
     <form noValidate className={filterContainerStyles} onSubmit={onSubmit}>
       <TextInput
         data-testid="sidebar-filter-input"
-        placeholder={placeholder}
+        placeholder={placeholder ?? searchLabel}
         type="search"
-        aria-label={ariaLabel}
-        title={title}
+        aria-label={ariaLabel ?? searchLabel}
+        title={title ?? searchLabel}
         onChange={onChange}
         className={textInputStyles}
         disabled={disabled}

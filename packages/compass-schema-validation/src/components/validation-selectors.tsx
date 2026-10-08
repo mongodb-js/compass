@@ -9,6 +9,7 @@ import {
   useId,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { hasErrorAndLogValidationActionSupport } from '../modules/validation';
 import type {
@@ -45,16 +46,22 @@ export function ActionSelector({
   validationAction,
   serverVersion,
 }: ActionSelectorProps) {
+  const t = useTranslation();
   const labelId = useId();
   const controlId = useId();
 
   return (
     <div className={validationOptionStyles}>
-      <Label htmlFor={controlId}>Action</Label>
+      <Label htmlFor={controlId}>
+        {t('schemaValidation.selectors.action', 'Action')}
+      </Label>
       <IconButton
         href={ACTION_HELP_URL}
         target="_blank"
-        aria-label="More information on validation actions"
+        aria-label={t(
+          'schemaValidation.selectors.actionInfo',
+          'More information on validation actions'
+        )}
       >
         <Icon glyph="InfoWithCircle" size="small" />
       </IconButton>
@@ -68,14 +75,18 @@ export function ActionSelector({
         className={selectStyles}
         size="small"
       >
-        <Option value="warn">Warning</Option>
-        <Option value="error">Error</Option>
+        <Option value="warn">
+          {t('schemaValidation.selectors.warning', 'Warning')}
+        </Option>
+        <Option value="error">
+          {t('schemaValidation.selectors.error', 'Error')}
+        </Option>
         {hasErrorAndLogValidationActionSupport(serverVersion) && (
           <Option
             value="errorAndLog"
             data-testid="validation-action-option-error-and-log"
           >
-            Error and Log
+            {t('schemaValidation.selectors.errorAndLog', 'Error and Log')}
           </Option>
         )}
       </Select>
@@ -94,16 +105,22 @@ export function LevelSelector({
   validationLevelChanged,
   validationLevel,
 }: LevelSelectorProps) {
+  const t = useTranslation();
   const labelId = useId();
   const controlId = useId();
 
   return (
     <div className={validationOptionStyles}>
-      <Label htmlFor={controlId}>Level</Label>
+      <Label htmlFor={controlId}>
+        {t('schemaValidation.selectors.level', 'Level')}
+      </Label>
       <IconButton
         href={LEVEL_HELP_URL}
         target="_blank"
-        aria-label="More information on validation levels"
+        aria-label={t(
+          'schemaValidation.selectors.levelInfo',
+          'More information on validation levels'
+        )}
       >
         <Icon glyph="InfoWithCircle" size="small" />
       </IconButton>
@@ -117,9 +134,15 @@ export function LevelSelector({
         className={selectStyles}
         size="small"
       >
-        <Option value="off">Off</Option>
-        <Option value="moderate">Moderate</Option>
-        <Option value="strict">Strict</Option>
+        <Option value="off">
+          {t('schemaValidation.selectors.off', 'Off')}
+        </Option>
+        <Option value="moderate">
+          {t('schemaValidation.selectors.moderate', 'Moderate')}
+        </Option>
+        <Option value="strict">
+          {t('schemaValidation.selectors.strict', 'Strict')}
+        </Option>
         {/* Upgrading to "constraint" requires a separate two-command collMod
             workflow that Compass does not drive, so the option is only ever
             rendered to display a level that is already in effect. */}
@@ -128,7 +151,7 @@ export function LevelSelector({
             value="constraint"
             data-testid="validation-level-option-constraint"
           >
-            Constraint
+            {t('schemaValidation.selectors.constraint', 'Constraint')}
           </Option>
         )}
       </Select>

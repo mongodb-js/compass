@@ -9,6 +9,7 @@ import {
   Link,
   Toggle,
   InfoModal,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   useTrackOnChange,
@@ -43,6 +44,7 @@ export default function CSFLEConnectionModal({
   onClose,
   setConnectionIsCSFLEEnabled,
 }: CSFLEConnectionModalProps) {
+  const t = useTranslation();
   const onChange = useCallback(
     (checked: boolean) => {
       setConnectionIsCSFLEEnabled(checked);
@@ -62,12 +64,20 @@ export default function CSFLEConnectionModal({
 
   return (
     <InfoModal
-      title="In-Use Encryption Connection Options"
+      title={t(
+        'sidebar.csfleModal.title',
+        'In-Use Encryption Connection Options'
+      )}
       open={open}
       onClose={onClose}
       data-testid="csfle-connection-modal"
     >
-      <Body>This connection is configured with In-Use Encryption enabled.</Body>
+      <Body>
+        {t(
+          'sidebar.csfleModal.configured',
+          'This connection is configured with In-Use Encryption enabled.'
+        )}
+      </Body>
       <div className={toggleContainerStyles}>
         <Toggle
           className={toggleStyles}
@@ -79,19 +89,27 @@ export default function CSFLEConnectionModal({
           onChange={onChange}
         />
         <Label id="set-csfle-enabled-label" htmlFor="set-csfle-enabled">
-          Enable In-Use Encryption for this connection
+          {t(
+            'sidebar.csfleModal.enable',
+            'Enable In-Use Encryption for this connection'
+          )}
         </Label>
       </div>
       <Description>
-        Disabling In-Use Encryption only affects how Compass accesses data. In
-        order to make Compass forget KMS credentials, the connection must be
-        fully closed.
+        {t(
+          'sidebar.csfleModal.disableDescription',
+          'Disabling In-Use Encryption only affects how Compass accesses data. In order to make Compass forget KMS credentials, the connection must be fully closed.'
+        )}
       </Description>
       <Banner className={csfleBannerStyles}>
-        In-Use Encryption is an Enterprise/Atlas-only feature of MongoDB.&nbsp;
+        {t(
+          'sidebar.csfleModal.enterpriseOnly',
+          'In-Use Encryption is an Enterprise/Atlas-only feature of MongoDB.'
+        )}
+        &nbsp;
         {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
         <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields">
-          Learn More
+          {t('sidebar.csfleModal.learnMore', 'Learn More')}
         </Link>
       </Banner>
     </InfoModal>

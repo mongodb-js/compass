@@ -6,6 +6,7 @@ import {
   mergeProps,
   useDefaultAction,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   useOpenWorkspace,
@@ -98,6 +99,7 @@ export function Navigation({
 }: {
   currentLocation: string | null;
 }): React.ReactElement {
+  const t = useTranslation();
   const { hasWorkspacePlugin } = useWorkspacePlugins();
   const { openMyQueriesWorkspace, openDataModelingWorkspace } =
     useOpenWorkspace();
@@ -108,14 +110,14 @@ export function Navigation({
         <NavigationItem
           onClick={openMyQueriesWorkspace}
           glyph="CurlyBraces"
-          label="My Queries"
+          label={t('sidebar.navigation.myQueries', 'My Queries')}
           isActive={currentLocation === 'My Queries'}
         />
       )}
       <NavigationItem
         onClick={openDataModelingWorkspace}
         glyph="Diagram"
-        label="Data Modeling"
+        label={t('sidebar.navigation.dataModeling', 'Data Modeling')}
         isActive={currentLocation === 'Data Modeling'}
       />
     </div>

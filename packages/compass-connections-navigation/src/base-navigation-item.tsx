@@ -11,6 +11,7 @@ import {
   useDarkMode,
   Body,
   nbsp,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { type Actions, ROW_HEIGHT } from './constants';
 import { ExpandButton } from './tree-item';
@@ -107,12 +108,17 @@ const ClusterStateBadge: React.FunctionComponent<{
       : state === 'DELETED'
         ? BadgeVariant.Red
         : BadgeVariant.LightGray;
+  const t = useTranslation();
   const badgeText =
     state === 'DELETING'
-      ? 'TERMINATING'
+      ? t('connectionsNavigation.clusterState.terminating', 'TERMINATING')
       : state === 'DELETED'
-        ? 'TERMINATED'
-        : state;
+        ? t('connectionsNavigation.clusterState.terminated', 'TERMINATED')
+        : state === 'CREATING'
+          ? t('connectionsNavigation.clusterState.creating', 'CREATING')
+          : state === 'PAUSED'
+            ? t('connectionsNavigation.clusterState.paused', 'PAUSED')
+            : state;
 
   return (
     <Badge variant={badgeVariant} data-testid="navigation-item-state-badge">
@@ -124,6 +130,7 @@ const ClusterStateBadge: React.FunctionComponent<{
 const ClusterStateBadgeWithTooltip: React.FunctionComponent<{
   item: ConnectedConnectionTreeItem | NotConnectedConnectionTreeItem;
 }> = ({ item }) => {
+  const t = useTranslation();
   const isDarkMode = useDarkMode();
 
   const atlasClusterState = item.connectionInfo.atlasMetadata?.clusterState;
@@ -142,7 +149,12 @@ const ClusterStateBadgeWithTooltip: React.FunctionComponent<{
           </div>
         )}
       >
-        <Body>Unpause your cluster to connect to it</Body>
+        <Body>
+          {t(
+            'connectionsNavigation.unpauseCluster',
+            'Unpause your cluster to connect to it'
+          )}
+        </Body>
       </Tooltip>
     );
   } else if (

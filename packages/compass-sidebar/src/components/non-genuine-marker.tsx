@@ -8,6 +8,7 @@ import {
   cx,
   spacing,
   focusRing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const nonGenuineMarkerContainer = css({
@@ -32,6 +33,7 @@ export default function NonGenuineMarker({
   isGenuine?: boolean;
   showNonGenuineModal: () => void;
 }) {
+  const t = useTranslation();
   // isGenuine === undefined means we haven't loaded the info yet
   if (isGenuine !== false) {
     return null;
@@ -47,7 +49,7 @@ export default function NonGenuineMarker({
       >
         <Badge variant={BadgeVariant.Yellow}>
           <Icon glyph="Warning" />
-          Non-genuine MongoDB
+          {t('sidebar.nonGenuine.badge', 'Non-genuine MongoDB')}
         </Badge>
       </button>
     </div>

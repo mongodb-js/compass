@@ -7,6 +7,7 @@ import {
   BadgeVariant,
   focusRing,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const badgeContainerStyles = css({
@@ -31,6 +32,7 @@ export default function CSFLEMarker({
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   toggleCSFLEModalVisible: () => void;
 }) {
+  const t = useTranslation();
   if (!csfleMode || csfleMode === 'unavailable') {
     return null;
   }
@@ -40,8 +42,14 @@ export default function CSFLEMarker({
       <button
         type="button"
         data-testid="fle-connection-configuration"
-        aria-label="Open connection In-Use Encryption configuration"
-        title="Connection In-Use Encryption configuration"
+        aria-label={t(
+          'sidebar.csfleMarker.openConfiguration',
+          'Open connection In-Use Encryption configuration'
+        )}
+        title={t(
+          'sidebar.csfleMarker.configuration',
+          'Connection In-Use Encryption configuration'
+        )}
         className={cx(badgeButtonStyles, focusRing)}
         onClick={toggleCSFLEModalVisible}
       >
@@ -53,7 +61,7 @@ export default function CSFLEMarker({
           }
         >
           <Icon glyph="Key" />
-          In-Use Encryption
+          {t('sidebar.csfleMarker.badge', 'In-Use Encryption')}
         </Badge>
       </button>
     </div>

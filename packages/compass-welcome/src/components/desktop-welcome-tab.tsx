@@ -14,6 +14,7 @@ import {
   cx,
   useDarkMode,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
@@ -68,6 +69,7 @@ const createClusterButtonLightModeStyles = css({
 });
 
 function AtlasHelpSection(): React.ReactElement {
+  const t = useTranslation();
   const track = useTelemetry();
   const darkMode = useDarkMode();
 
@@ -81,11 +83,16 @@ function AtlasHelpSection(): React.ReactElement {
       data-testid="welcome-tab-atlas-help-section"
     >
       <Subtitle className={titleStyles}>
-        New to Compass and don&apos;t have a cluster?
+        {t(
+          'welcome.desktop.newToCompass',
+          "New to Compass and don't have a cluster?"
+        )}
       </Subtitle>
       <Body className={descriptionStyles}>
-        If you don&apos;t already have a cluster, you can create one for free
-        using{' '}
+        {t(
+          'welcome.desktop.createFree',
+          "If you don't already have a cluster, you can create one for free using"
+        )}{' '}
         <Link href="https://www.mongodb.com/atlas/database" target="_blank">
           MongoDB Atlas
         </Link>
@@ -103,7 +110,7 @@ function AtlasHelpSection(): React.ReactElement {
           target="_blank"
           size={ButtonSize.Small}
         >
-          CREATE FREE CLUSTER
+          {t('welcome.desktop.createFreeCluster', 'CREATE FREE CLUSTER')}
         </Button>
       </div>
     </div>
@@ -123,6 +130,7 @@ const firstConnectionBtnStyles = css({
 });
 
 export default function DesktopWelcomeTab() {
+  const t = useTranslation();
   const { createNewConnection } = useConnectionActions();
   const enableCreatingNewConnections = usePreference(
     'enableCreatingNewConnections'
@@ -134,10 +142,15 @@ export default function DesktopWelcomeTab() {
     <div className={welcomeTabStyles}>
       {activeConnectionIds.length ? <ConnectionPlug /> : <WelcomeTabImage />}
       <div>
-        <H3>Welcome to MongoDB Compass</H3>
+        <H3>{t('welcome.desktop.title', 'Welcome to MongoDB Compass')}</H3>
         {!activeConnectionIds.length && enableCreatingNewConnections ? (
           <>
-            <Body>To get started, connect to an existing server or</Body>
+            <Body>
+              {t(
+                'welcome.desktop.getStarted',
+                'To get started, connect to an existing server or'
+              )}
+            </Body>
             <Button
               className={firstConnectionBtnStyles}
               data-testid="add-new-connection-button"
@@ -145,7 +158,7 @@ export default function DesktopWelcomeTab() {
               leftGlyph={<Icon glyph="Plus" />}
               onClick={createNewConnection}
             >
-              Add new connection
+              {t('welcome.desktop.addNewConnection', 'Add new connection')}
             </Button>
             <AtlasHelpSection />
           </>

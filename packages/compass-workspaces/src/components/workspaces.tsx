@@ -7,6 +7,7 @@ import {
   css,
   spacing,
   useDarkMode,
+  useTranslation,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
 import type { WorkspacesState } from '../stores/workspaces';
@@ -108,6 +109,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseAllOtherTabs,
   onNamespaceNotFound,
 }) => {
+  const t = useTranslation();
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
 
@@ -208,7 +210,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       data-testid="workspace-tabs-container"
     >
       <WorkspaceTabs
-        aria-label="Workspace Tabs"
+        aria-label={t('workspaces.tabs.ariaLabel', 'Workspace Tabs')}
         onSelectTab={onSelectTab}
         onSelectNextTab={onSelectNextTab}
         onSelectPrevTab={onSelectPrevTab}

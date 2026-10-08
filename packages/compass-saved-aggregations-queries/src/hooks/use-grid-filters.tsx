@@ -7,6 +7,7 @@ import {
   Select,
   Option,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { Item } from '../stores/aggregations-queries-items';
@@ -72,15 +73,16 @@ const FilterSelect: React.FunctionComponent<{
 };
 
 function useSearchFilter(): [React.ReactElement, string] {
+  const t = useTranslation();
   const track = useTelemetry();
   const [search, setSearch] = useState('');
   const searchControls = useMemo(() => {
     return (
       <TextInput
         className={searchInputStyles}
-        aria-label="Search"
+        aria-label={t('savedQueries.filters.search', 'Search')}
         type="search"
-        placeholder="Search"
+        placeholder={t('savedQueries.filters.search', 'Search')}
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -95,12 +97,13 @@ function useSearchFilter(): [React.ReactElement, string] {
         spellCheck={false}
       />
     );
-  }, [search, track]);
+  }, [search, track, t]);
 
   return [searchControls, search];
 }
 
 function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
+  const t = useTranslation();
   const [selectedDatabase, setSelectedDatabase] = useState<
     string | undefined
   >();
@@ -138,13 +141,16 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
       <div className={selectContainer}>
         <FilterSelect
           options={databases}
-          placeholder={'All databases'}
+          placeholder={t('savedQueries.filters.allDatabases', 'All databases')}
           onSelect={onDatabaseSelect}
           value={selectedDatabase ?? ''}
         />
         <FilterSelect
           options={collections}
-          placeholder={'All collections'}
+          placeholder={t(
+            'savedQueries.filters.allCollections',
+            'All collections'
+          )}
           onSelect={onCollectionSelect}
           value={selectedCollection ?? ''}
         />
@@ -157,6 +163,7 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
     collections,
     onCollectionSelect,
     selectedCollection,
+    t,
   ]);
 
   const selectState = useMemo(() => {

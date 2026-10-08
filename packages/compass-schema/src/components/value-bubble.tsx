@@ -8,6 +8,7 @@ import {
   spacing,
   palette,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { ChangeQueryFn } from '@mongodb-js/compass-query-bar';
 
@@ -75,6 +76,7 @@ function ValueBubble({
   onQueryChanged,
 }: ValueBubbleProps) {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   const onBubbleClicked = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -101,9 +103,17 @@ function ValueBubble({
       <Body>
         <button
           type="button"
-          aria-label={`${
-            isValueInQuery ? 'Remove' : 'Add'
-          } ${extractedStringValue} ${isValueInQuery ? 'from' : 'to'} query`}
+          aria-label={
+            isValueInQuery
+              ? t(
+                  'schema.valueBubble.removeFromQuery',
+                  'Remove {value} from query',
+                  { value: extractedStringValue }
+                )
+              : t('schema.valueBubble.addToQuery', 'Add {value} to query', {
+                  value: extractedStringValue,
+                })
+          }
           className={cx(
             valueBubbleValueStyles,
             isString(value) && valueBubblePreWrapStyles,

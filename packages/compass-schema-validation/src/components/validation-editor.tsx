@@ -18,6 +18,7 @@ import {
   SpinLoader,
   Tooltip,
   useCurrentValueRef,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -35,6 +36,7 @@ import { ActionSelector, LevelSelector } from './validation-selectors';
 import type { RootState } from '../modules';
 import {
   checkValidator,
+  EMPTY_VALIDATOR_MESSAGE,
   validatorChanged,
   cancelValidation,
   saveValidation,
@@ -189,6 +191,7 @@ export const ValidationEditor: React.FunctionComponent<
   isSavingInProgress,
   isValidatorGenerated,
 }) => {
+  const t = useTranslation();
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const clearSampleDocumentsRef = useCurrentValueRef(clearSampleDocuments);
@@ -240,16 +243,21 @@ export const ValidationEditor: React.FunctionComponent<
 
   const onClickApplyValidation = useCallback(async () => {
     const confirmed = await showConfirmation({
-      title: 'Are you sure you want to apply these validation rules?',
-      description:
-        'These rules will be enforced on updates & inserts of your document. Please make sure you have reviewed the rules before applying them.',
+      title: t(
+        'schemaValidation.editor.applyConfirmTitle',
+        'Are you sure you want to apply these validation rules?'
+      ),
+      description: t(
+        'schemaValidation.editor.applyConfirmDescription',
+        'These rules will be enforced on updates & inserts of your document. Please make sure you have reviewed the rules before applying them.'
+      ),
     });
     if (!confirmed) {
       return;
     }
 
     saveValidationRef.current(validationRef.current);
-  }, [saveValidationRef, validationRef]);
+  }, [saveValidationRef, validationRef, t]);
 
   const isEmpty = useMemo<boolean>(() => {
     if (!validation.validator || validation.validator.length === 0) return true;
@@ -279,11 +287,14 @@ export const ValidationEditor: React.FunctionComponent<
                 variant={ButtonVariant.Primary}
                 size="small"
               >
-                Generate rules
+                {t('schemaValidation.editor.generateRules', 'Generate rules')}
               </Button>
             }
           >
-            Clear existing rules before generating new ones
+            {t(
+              'schemaValidation.editor.clearBeforeGenerating',
+              'Clear existing rules before generating new ones'
+            )}
           </Tooltip>
         </div>
         <ActionSelector
@@ -314,7 +325,16 @@ export const ValidationEditor: React.FunctionComponent<
           serverVersion={serverVersion}
         />
       </div>
-      {syntaxError && <Banner variant="danger">{syntaxError.message}</Banner>}
+      {syntaxError && (
+        <Banner variant="danger">
+          {syntaxError.message === EMPTY_VALIDATOR_MESSAGE
+            ? t(
+                'schemaValidation.validatorMustBeObject',
+                EMPTY_VALIDATOR_MESSAGE
+              )
+            : syntaxError.message}
+        </Banner>
+      )}
       {!syntaxError && error && (
         <Banner variant="danger">{error.message}</Banner>
       )}
@@ -330,8 +350,11 @@ export const ValidationEditor: React.FunctionComponent<
                   )}
                   data-testid="validation-action-message"
                 >
-                  <Icon glyph="InfoWithCircle" /> Rules are modified &amp; not
-                  applied. Please review before applying.
+                  <Icon glyph="InfoWithCircle" />{' '}
+                  {t(
+                    'schemaValidation.editor.modified',
+                    'Rules are modified & not applied. Please review before applying.'
+                  )}
                 </Body>
               )}
               {isValidatorGenerated && (
@@ -342,8 +365,11 @@ export const ValidationEditor: React.FunctionComponent<
                   )}
                   data-testid="validation-action-message"
                 >
-                  <Icon glyph="Checkmark" /> Rules generated. Please review
-                  before applying.
+                  <Icon glyph="Checkmark" />{' '}
+                  {t(
+                    'schemaValidation.editor.generated',
+                    'Rules generated. Please review before applying.'
+                  )}
                 </Body>
               )}
               <Button
@@ -353,7 +379,7 @@ export const ValidationEditor: React.FunctionComponent<
                 data-testid="cancel-validation-button"
                 onClick={cancelValidation}
               >
-                Cancel
+                {t('schemaValidation.editor.cancel', 'Cancel')}
               </Button>
               {isChanged && (
                 <Button
@@ -365,10 +391,17 @@ export const ValidationEditor: React.FunctionComponent<
                     void onClickApplyValidation();
                   }}
                   isLoading={isSavingInProgress}
-                  loadingIndicator={<SpinLoader title="Updating validation…" />}
+                  loadingIndicator={
+                    <SpinLoader
+                      title={t(
+                        'schemaValidation.editor.updating',
+                        'Updating validation…'
+                      )}
+                    />
+                  }
                   disabled={!!syntaxError}
                 >
-                  Apply
+                  {t('schemaValidation.editor.apply', 'Apply')}
                 </Button>
               )}
             </>
@@ -380,7 +413,7 @@ export const ValidationEditor: React.FunctionComponent<
               data-testid="enable-edit-validation-button"
               onClick={onClickEnableEditRules}
             >
-              Edit rules
+              {t('schemaValidation.editor.editRules', 'Edit rules')}
             </Button>
           )}
         </div>

@@ -4,6 +4,7 @@ import {
   Icon,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -40,6 +41,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
 }: CollectionHeaderActionsProps) => {
+  const t = useTranslation();
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
   const { openCollectionWorkspace, openEditViewWorkspace, openShellWorkspace } =
@@ -72,7 +74,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           }}
           leftGlyph={<Icon glyph="Shell"></Icon>}
         >
-          Open MongoDB shell
+          {t('collection.headerActions.openShell', 'Open MongoDB shell')}
         </Button>
       )}
 
@@ -85,7 +87,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           rel="noopener noreferrer"
           leftGlyph={<Icon glyph="TimeSeries" />}
         >
-          View monitoring
+          {t('collection.headerActions.viewMonitoring', 'View monitoring')}
         </Button>
       )}
       {atlasMetadata && (
@@ -97,7 +99,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           rel="noopener noreferrer"
           leftGlyph={<Icon glyph="Charts" />}
         >
-          Visualize Your Data
+          {t('collection.headerActions.visualize', 'Visualize Your Data')}
         </Button>
       )}
       {showViewEdit && (
@@ -114,7 +116,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           }}
         >
           <Icon glyph="Edit" />
-          Edit Pipeline
+          {t('collection.headerActions.editPipeline', 'Edit Pipeline')}
         </Button>
       )}
       {editViewName && (
@@ -128,7 +130,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           }}
         >
           <Icon glyph="ArrowLeft" />
-          Return to View
+          {t('collection.headerActions.returnToView', 'Return to View')}
         </Button>
       )}
     </div>
