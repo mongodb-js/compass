@@ -170,7 +170,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableVectorXPrivatePreview',
-    stage: 'preview',
+    stage: 'development',
     atlasCloudFeatureScope: 'group',
     description: {
       short:
