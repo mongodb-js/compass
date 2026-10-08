@@ -1,5 +1,10 @@
 import React, { useCallback } from 'react';
-import { css, Overline, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  Overline,
+  spacing,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
@@ -49,6 +54,7 @@ export const PipelineResultsHeader: React.FunctionComponent<
   onExpand,
   onCollapse,
 }) => {
+  const t = useTranslation();
   const handlePipelineOutputOptionsMenuChange = useCallback(
     (option: PipelineOutputOption) => {
       if (option === 'expand') {
@@ -66,7 +72,9 @@ export const PipelineResultsHeader: React.FunctionComponent<
   return (
     <div className={containerStyles} data-testid="pipeline-results-header">
       <div className={pipelineOptionsStyles}>
-        <Overline>All Results</Overline>
+        <Overline>
+          {t('aggregations.results.allResults', 'All Results')}
+        </Overline>
         <PipelineExportActions />
       </div>
       <div className={pipelinePaginationStyles}>

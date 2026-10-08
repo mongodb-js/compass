@@ -1,6 +1,12 @@
+import { renderTemplate } from '../../utils/render-template';
 import React from 'react';
 import { connect } from 'react-redux';
-import { Body, Link, Tooltip } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Link,
+  Tooltip,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import { usePreferences } from 'compass-preferences-model/provider';
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
@@ -47,27 +53,49 @@ function StagePreviewHeaderInner({
   link,
   destination,
 }: StagePreviewHeaderProps) {
+  const t = useTranslation();
   if (!stageOperator) {
     return null;
   }
   return (
     <Body>
       {destination ? (
-        `Documents will be saved to ${destination}.`
+        t(
+          'aggregations.preview.documentsSavedTo',
+          'Documents will be saved to {destination}.',
+          { destination }
+        )
       ) : (
         <>
           <span>
-            Output preview after{' '}
-            <OperatorLink
-              stageOperator={stageOperator}
-              description={description}
-              link={link ?? undefined}
-            ></OperatorLink>{' '}
-            stage
+            {renderTemplate(
+              t(
+                'aggregations.preview.outputAfterStage',
+                'Output preview after {operator} stage'
+              ),
+              {
+                operator: (
+                  <OperatorLink
+                    stageOperator={stageOperator}
+                    description={description}
+                    link={link ?? undefined}
+                  ></OperatorLink>
+                ),
+              }
+            )}
           </span>{' '}
           <span data-testid="stage-preview-toolbar-tooltip">
-            (Sample of {previewSize}{' '}
-            {previewSize !== 1 ? 'documents' : 'document'})
+            {previewSize !== 1
+              ? t(
+                  'aggregations.preview.sampleOther',
+                  '(Sample of {count} documents)',
+                  { count: previewSize ?? 0 }
+                )
+              : t(
+                  'aggregations.preview.sampleOne',
+                  '(Sample of {count} document)',
+                  { count: previewSize ?? 0 }
+                )}
           </span>
         </>
       )}

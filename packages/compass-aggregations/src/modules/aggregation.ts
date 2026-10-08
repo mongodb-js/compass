@@ -1,3 +1,4 @@
+import { getTranslator } from '../utils/i18n';
 import HadronDocument from 'hadron-document';
 import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
@@ -247,6 +248,7 @@ const confirmWriteOperationIfNeeded = async ({
   dataService,
   namespace,
   pipeline,
+  preferences,
 }: {
   instance: MongoDBInstance;
   dataService: DataService;
@@ -287,12 +289,17 @@ const confirmWriteOperationIfNeeded = async ({
     typeOfWrite = WriteOperation.Alter;
   }
 
+  const t = getTranslator(preferences);
+
   return await showConfirmation({
     variant:
       typeOfWrite === WriteOperation.Overwrite
         ? ConfirmationModalVariant.Danger
         : ConfirmationModalVariant.Default,
-    title: 'A write operation will occur',
+    title: t(
+      'aggregations.writeConfirmation.title',
+      'A write operation will occur'
+    ),
     description: runPipelineConfirmationDescription({
       typeOfWrite,
       stage: {
@@ -303,7 +310,10 @@ const confirmWriteOperationIfNeeded = async ({
       },
       ns: destinationNamespace,
     }),
-    buttonText: 'Yes, run pipeline',
+    buttonText: t(
+      'aggregations.writeConfirmation.confirm',
+      'Yes, run pipeline'
+    ),
     'data-testid': `write-operation-confirmation-modal`,
   });
 };

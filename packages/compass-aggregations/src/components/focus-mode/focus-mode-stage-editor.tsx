@@ -1,5 +1,11 @@
 import React, { useRef } from 'react';
-import { css, spacing, Link, rafraf } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Link,
+  rafraf,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import StageEditor from '../stage-editor/stage-editor';
@@ -39,6 +45,7 @@ export const FocusModeStageEditor = ({
   operator: string | null;
 }) => {
   const editorRef = useRef<EditorRef>(null);
+  const t = useTranslation();
 
   if (index === -1) {
     return null;
@@ -61,7 +68,7 @@ export const FocusModeStageEditor = ({
           index={index}
         />
         <Link hideExternalIcon={false} href={link} target="_blank">
-          Open docs
+          {t('aggregations.focusMode.openDocs', 'Open docs')}
         </Link>
       </div>
       <div className={editorStyles}>

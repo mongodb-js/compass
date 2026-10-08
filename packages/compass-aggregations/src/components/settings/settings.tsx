@@ -11,6 +11,7 @@ import {
   spacing,
   cx,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
@@ -130,6 +131,7 @@ function Settings({
     'enableAggregationBuilderExtraOptions'
   );
   const darkMode = useDarkMode();
+  const t = useTranslation();
   const onSampleSizeChanged = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       setSettingsSampleSize(parseInt(evt.currentTarget.value, 10));
@@ -172,14 +174,16 @@ function Settings({
   return (
     <div className={cx(containerStyles, darkMode && containerDarkStyles)}>
       <div className={cx(headerStyles, darkMode && headerDarkStyles)}>
-        <Body weight="medium">Settings</Body>
+        <Body weight="medium">
+          {t('aggregations.settings.title', 'Settings')}
+        </Body>
         <div className={headerButtonGroupStyles}>
           <Button
             data-testid="aggregation-settings-cancel"
             size="xsmall"
             onClick={toggleSettingsIsExpanded}
           >
-            Cancel
+            {t('aggregations.settings.cancel', 'Cancel')}
           </Button>
           <Button
             data-testid="aggregation-settings-apply"
@@ -187,7 +191,7 @@ function Settings({
             variant="primary"
             onClick={onApplyClicked}
           >
-            Apply
+            {t('aggregations.settings.apply', 'Apply')}
           </Button>
         </div>
       </div>
@@ -197,14 +201,16 @@ function Settings({
             htmlFor={aggregationCommentModeId}
             id={aggregationCommentModeLabelId}
           >
-            Comment Mode
+            {t('aggregations.settings.commentMode', 'Comment Mode')}
           </Label>
           <Description
             className={descriptionStyles}
             id={aggregationCommentModeDescriptionId}
           >
-            When enabled, adds helper comments to each stage. Only applies to
-            new stages.
+            {t(
+              'aggregations.settings.commentModeDescription',
+              'When enabled, adds helper comments to each stage. Only applies to new stages.'
+            )}
           </Description>
         </div>
         <div className={inputControlStyles}>
@@ -224,13 +230,19 @@ function Settings({
             htmlFor={aggregationSampleSizeId}
             id={aggregationSampleSizeLabelId}
           >
-            Number of Preview Documents
+            {t(
+              'aggregations.settings.previewDocuments',
+              'Number of Preview Documents'
+            )}
           </Label>
           <Description
             className={descriptionStyles}
             id={aggregationSampleSizeDescriptionId}
           >
-            Specify the number of documents to show in the preview.
+            {t(
+              'aggregations.settings.previewDocumentsDescription',
+              'Specify the number of documents to show in the preview.'
+            )}
           </Description>
         </div>
         <div className={inputControlStyles}>
@@ -250,16 +262,20 @@ function Settings({
         <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
           <div>
             <Label htmlFor={aggregationLimitId} id={aggregationLimitLabelId}>
-              Limit
+              {t('aggregations.settings.limit', 'Limit')}
             </Label>
             <div id={aggregationLimitDescriptionId}>
               <Description className={descriptionStyles}>
-                Limits input documents before $group, $bucket, and $bucketAuto
-                stages. Set a limit to make the preview run faster.
+                {t(
+                  'aggregations.settings.limitDescription',
+                  'Limits input documents before $group, $bucket, and $bucketAuto stages. Set a limit to make the preview run faster.'
+                )}
               </Description>
               <Description className={descriptionStyles}>
-                Note: this setting is only applied for the document previews, it
-                is not applied when the pipeline is run.
+                {t(
+                  'aggregations.settings.limitNote',
+                  'Note: this setting is only applied for the document previews, it is not applied when the pipeline is run.'
+                )}
               </Description>
             </div>
           </div>

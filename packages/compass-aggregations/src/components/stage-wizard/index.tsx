@@ -14,6 +14,7 @@ import {
   spacing,
   Badge,
   WarningSummary,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { StageWizardUseCase } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { STAGE_WIZARD_USE_CASES } from '../aggregation-side-panel/stage-wizard-use-cases';
@@ -29,6 +30,7 @@ import type {
   Wizard,
 } from '../../modules/pipeline-builder/stage-editor';
 import { getSchema } from '../../utils/get-schema';
+import { translateParserMessage } from '../../utils/i18n';
 import { getStageHelpLink } from '../../utils/stage';
 import type { SortableProps } from '../pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 import type { DocumentSchema } from '../../utils/get-schema';
@@ -161,6 +163,7 @@ export const StageWizard = ({
   onApply,
   ...sortableProps
 }: StageWizardProps) => {
+  const t = useTranslation();
   const { returnFocus, focusContainerRef } = useGrabFocus<HTMLDivElement>();
   const fieldsSchema = useFieldsSchema(namespace);
   const fields: DocumentSchema = useMemo(() => {
@@ -222,7 +225,9 @@ export const StageWizard = ({
         <div {...listeners}>
           <div className={headerStyles}>
             <div className={headingStyles}>
-              <Body weight="medium">{useCase.title}</Body>
+              <Body weight="medium">
+                {t(`aggregations.wizard.useCase.${useCase.id}`, useCase.title)}
+              </Body>
               <Link
                 target="_blank"
                 href={getStageHelpLink(useCase.stageOperator) as string}
@@ -230,7 +235,9 @@ export const StageWizard = ({
                 {useCase.stageOperator}
               </Link>
             </div>
-            {useCase.isAtlasOnly && <Badge>Atlas only</Badge>}
+            {useCase.isAtlasOnly && (
+              <Badge>{t('aggregations.wizard.atlasOnly', 'Atlas only')}</Badge>
+            )}
           </div>
         </div>
         <div ref={focusContainerRef}>
@@ -244,12 +251,14 @@ export const StageWizard = ({
             <div className={cardFooterStyles}>
               <div className={warningStyles}>
                 {value && error && (
-                  <WarningSummary warnings={[error?.message]} />
+                  <WarningSummary
+                    warnings={[translateParserMessage(t, error.message)]}
+                  />
                 )}
               </div>
               <div className={cardActionStyles}>
                 <Button data-testid="wizard-cancel-action" onClick={onCancel}>
-                  Cancel
+                  {t('aggregations.wizard.cancel', 'Cancel')}
                 </Button>
                 <Button
                   data-testid="wizard-apply-action"
@@ -257,7 +266,7 @@ export const StageWizard = ({
                   variant="primary"
                   disabled={isApplyDisabled}
                 >
-                  Apply
+                  {t('aggregations.wizard.apply', 'Apply')}
                 </Button>
               </div>
             </div>

@@ -5,6 +5,7 @@ import {
   Icon,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildUpgradeClusterUrl } from '@mongodb-js/atlas-service/provider';
@@ -31,6 +32,7 @@ export const RerankVersionWarningBanner = ({
 }) => {
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
+  const t = useTranslation();
 
   useEffect(() => {
     track('Rerank Version Warning Banner Shown', {
@@ -46,8 +48,11 @@ export const RerankVersionWarningBanner = ({
     <Banner variant="danger" data-testid={dataTestId}>
       <div className={bannerContentStyles}>
         <span>
-          Upgrade your cluster to MongoDB {RERANK_MIN_SERVER_VERSION}+ to use
-          $rerank.
+          {t(
+            'aggregations.rerank.upgradeCluster',
+            'Upgrade your cluster to MongoDB {version}+ to use $rerank.',
+            { version: RERANK_MIN_SERVER_VERSION }
+          )}
         </span>
         <Button
           size="xsmall"
@@ -60,7 +65,7 @@ export const RerankVersionWarningBanner = ({
           rightGlyph={<Icon glyph="OpenNewTab" />}
           className={bannerButtonStyles}
         >
-          Upgrade Cluster
+          {t('aggregations.rerank.upgradeClusterButton', 'Upgrade Cluster')}
         </Button>
       </div>
     </Banner>

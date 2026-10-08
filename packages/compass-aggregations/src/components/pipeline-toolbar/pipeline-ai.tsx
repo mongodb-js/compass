@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback } from 'react';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, useTranslation } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai/provider';
 import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -20,6 +20,7 @@ import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
   const logger = useLogger('AI-PIPELINE-UI');
   const track = useTelemetry();
+  const t = useTranslation();
   const connectionInfoRef = useConnectionInfoRef();
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
@@ -47,11 +48,14 @@ const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
 
       openToast('pipeline-ai-feedback-submitted', {
         variant: 'success',
-        title: 'Your feedback has been submitted.',
+        title: t(
+          'aggregations.ai.feedbackSubmitted',
+          'Your feedback has been submitted.'
+        ),
         timeout: 10_000,
       });
     },
-    [logger, track, lastAIPipelineRequestId, connectionInfoRef]
+    [logger, track, lastAIPipelineRequestId, connectionInfoRef, t]
   );
 };
 
@@ -88,6 +92,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
   lastAIPipelineRequestId,
   onResetIsAggregationGeneratedFromQuery,
 }) => {
+  const t = useTranslation();
   // Don't show the feedback options if telemetry is disabled.
   const enableTelemetry = usePreference('trackUsageStatistics');
   const onResetIsAggregationGeneratedFromQueryRef = useRef(
@@ -118,7 +123,10 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       onResetIsAggregationGeneratedFromQuery={
         onResetIsAggregationGeneratedFromQuery
       }
-      placeholder="Tell us what aggregation to build (e.g. count movies made each year) or paste one in another language (SQL, Java, etc.)"
+      placeholder={t(
+        'aggregations.ai.placeholder',
+        'Tell us what aggregation to build (e.g. count movies made each year) or paste one in another language (SQL, Java, etc.)'
+      )}
       onSubmitFeedback={enableTelemetry ? onSubmitFeedback : undefined}
     />
   );

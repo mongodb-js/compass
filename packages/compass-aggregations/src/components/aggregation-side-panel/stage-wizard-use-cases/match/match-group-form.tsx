@@ -13,6 +13,7 @@ import {
   cx,
   Tooltip,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import MatchConditionForm, { createCondition } from './match-condition-form';
 import type { CreateConditionFn } from './match-condition-form';
@@ -144,6 +145,7 @@ const MatchGroupForm = ({
   onGroupRemoved,
 }: MatchGroupFormProps) => {
   const isDarkMode = useDarkMode();
+  const t = useTranslation();
   const disableAddNestedGroupBtn = nestingLevel === MAX_ALLOWED_NESTING;
   const showRemoveGroup = nestingLevel > 0;
 
@@ -255,8 +257,12 @@ const MatchGroupForm = ({
             handleOperatorChange(operator as LogicalOperator);
           }}
         >
-          <SegmentedControlOption value="$and">AND</SegmentedControlOption>
-          <SegmentedControlOption value="$or">OR</SegmentedControlOption>
+          <SegmentedControlOption value="$and">
+            {t('aggregations.wizard.match.and', 'AND')}
+          </SegmentedControlOption>
+          <SegmentedControlOption value="$or">
+            {t('aggregations.wizard.match.or', 'OR')}
+          </SegmentedControlOption>
         </SegmentedControl>
         <Tooltip
           align="top"
@@ -267,21 +273,30 @@ const MatchGroupForm = ({
               <Button
                 size="xsmall"
                 disabled={disableAddNestedGroupBtn}
-                aria-label="Add nested group"
+                aria-label={t(
+                  'aggregations.wizard.match.addNestedGroup',
+                  'Add nested group'
+                )}
                 leftGlyph={<Icon glyph="Plus" />}
                 data-testid={TEST_IDS.addNestedGroupBtn(group.id)}
                 onClick={handleAddNestedGroupClick}
               >
-                Nested Group
+                {t('aggregations.wizard.match.nestedGroup', 'Nested Group')}
               </Button>
             </div>
           }
         >
-          Compass does not support more than three nested match conditions.
+          {t(
+            'aggregations.wizard.match.nestingLimit',
+            'Compass does not support more than three nested match conditions.'
+          )}
         </Tooltip>
         {showRemoveGroup && (
           <IconButton
-            aria-label="Remove group"
+            aria-label={t(
+              'aggregations.wizard.match.removeGroup',
+              'Remove group'
+            )}
             onClick={onGroupRemoved}
             data-testid={TEST_IDS.removeGroupBtn(group.id)}
           >

@@ -1,5 +1,11 @@
 import React from 'react';
-import { css, Icon, Link, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  Icon,
+  Link,
+  spacing,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 const FEEDBACK_URL = 'https://feedback.mongodb.com/';
 
@@ -16,12 +22,18 @@ const linkContentStyles = css({
 });
 
 export const FeedbackLink = () => {
+  const t = useTranslation();
   return (
     <div className={linkContainerStyles}>
       <Link target={'blank'} href={FEEDBACK_URL} hideExternalIcon>
         <div className={linkContentStyles}>
           <Icon glyph="Megaphone" />
-          <span>Suggest a new use case</span>
+          <span>
+            {t(
+              'aggregations.sidePanel.suggestUseCase',
+              'Suggest a new use case'
+            )}
+          </span>
         </div>
       </Link>
     </div>

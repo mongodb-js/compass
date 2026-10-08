@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Menu, IconButton, Icon } from '@mongodb-js/compass-components';
+import {
+  Menu,
+  IconButton,
+  Icon,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import {
   addStage,
   removeStage,
@@ -24,6 +29,7 @@ export const OptionMenu = ({
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
 }) => {
+  const t = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -37,8 +43,8 @@ export const OptionMenu = ({
             <IconButton
               data-testid="stage-option-menu-button"
               onClick={onClick}
-              aria-label="Options"
-              title="Options"
+              aria-label={t('aggregations.stageMenu.options', 'Options')}
+              title={t('aggregations.stageMenu.options', 'Options')}
             >
               <Icon glyph="Ellipsis" size="small"></Icon>
             </IconButton>
@@ -48,31 +54,34 @@ export const OptionMenu = ({
       }}
     >
       <OptionMenuItem
-        label="Add stage after"
+        label={t('aggregations.stageMenu.addAfter', 'Add stage after')}
         icon="PlusWithCircle"
         onClick={() => onAddStageClick(index)}
         setMenuOpen={setMenuOpen}
       />
       <OptionMenuItem
-        label="Add stage before"
+        label={t('aggregations.stageMenu.addBefore', 'Add stage before')}
         icon="PlusWithCircle"
         onClick={() => onAddStageClick(index - 1)}
         setMenuOpen={setMenuOpen}
       />
       <OptionMenuItem
-        label="Delete stage"
+        label={t('aggregations.stageMenu.delete', 'Delete stage')}
         icon="Trash"
         onClick={() => onDeleteStageClick(index)}
         setMenuOpen={setMenuOpen}
       />
       <OptionMenuItem
-        label="Expand documents"
+        label={t('aggregations.stageMenu.expandDocuments', 'Expand documents')}
         icon="ChevronDown"
         onClick={() => onExpand(index)}
         setMenuOpen={setMenuOpen}
       />
       <OptionMenuItem
-        label="Collapse documents"
+        label={t(
+          'aggregations.stageMenu.collapseDocuments',
+          'Collapse documents'
+        )}
         icon="ChevronUp"
         onClick={() => onCollapse(index)}
         setMenuOpen={setMenuOpen}

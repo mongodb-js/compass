@@ -10,6 +10,7 @@ import {
   SpinLoader,
   IconButton,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
@@ -47,11 +48,8 @@ const spinnerStyles = css({
   alignItems: 'center',
 });
 
-const countDefinition = `
-  In order to have the final count of documents we need to run the
-  aggregation again. This will be the equivalent of adding a
-  $count as the last stage of the pipeline.
-`;
+const countDefinition =
+  'In order to have the final count of documents we need to run the aggregation again. This will be the equivalent of adding a $count as the last stage of the pipeline.';
 const testId = 'pipeline-pagination-count';
 
 const StyledSpinner = ({ title }: { title: string }) => (
@@ -63,11 +61,14 @@ const StyledSpinner = ({ title }: { title: string }) => (
 export const PipelinePaginationCount: React.FunctionComponent<
   PipelinePaginationCountProps
 > = ({ loading, count, onCount, onRefresh }) => {
+  const t = useTranslation();
   // User has clicked on the count results button. Show the count loader.
   if (loading && count === undefined) {
     return (
       <div data-testid={testId}>
-        <StyledSpinner title="Counting documents" />
+        <StyledSpinner
+          title={t('aggregations.pagination.counting', 'Counting documents')}
+        />
       </div>
     );
   }
@@ -76,13 +77,26 @@ export const PipelinePaginationCount: React.FunctionComponent<
   if (count !== undefined) {
     return (
       <div data-testid={testId} className={countDocsContainerStyles}>
-        <Body>of {count}</Body>
+        <Body>
+          {t('aggregations.pagination.ofCount', 'of {count}', { count })}
+        </Body>
         {loading ? (
-          <StyledSpinner title="Refreshing document count" />
+          <StyledSpinner
+            title={t(
+              'aggregations.pagination.refreshing',
+              'Refreshing document count'
+            )}
+          />
         ) : (
           <IconButton
-            aria-label="Refresh document count"
-            title="Refresh document count"
+            aria-label={t(
+              'aggregations.pagination.refresh',
+              'Refresh document count'
+            )}
+            title={t(
+              'aggregations.pagination.refresh',
+              'Refresh document count'
+            )}
             data-testid="pipeline-pagination-refresh-count-action"
             onClick={onRefresh}
           >
@@ -99,18 +113,23 @@ export const PipelinePaginationCount: React.FunctionComponent<
       <Tooltip
         trigger={
           <Link
-            aria-label={'count results'}
+            aria-label={t(
+              'aggregations.pagination.countResults',
+              'count results'
+            )}
             as="button"
             data-testid="pipeline-pagination-count-action"
             hideExternalIcon={true}
             className={countButtonStyles}
             onClick={() => onCount()}
           >
-            count results
+            {t('aggregations.pagination.countResults', 'count results')}
           </Link>
         }
       >
-        <Body>{countDefinition}</Body>
+        <Body>
+          {t('aggregations.pagination.countDefinition', countDefinition)}
+        </Body>
       </Tooltip>
     </div>
   );

@@ -3,6 +3,7 @@ import {
   EmptyContent,
   palette,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const ZeroGraphic: React.FunctionComponent = () => {
@@ -48,12 +49,16 @@ const ZeroGraphic: React.FunctionComponent = () => {
 };
 
 export const PipelineEmptyResults: React.FunctionComponent = () => {
+  const t = useTranslation();
   return (
     <div data-testid="pipeline-empty-results">
       <EmptyContent
         icon={ZeroGraphic}
-        title="No results"
-        subTitle="Try to modify your pipeline to get results"
+        title={t('aggregations.results.noResults', 'No results')}
+        subTitle={t(
+          'aggregations.results.noResultsHint',
+          'Try to modify your pipeline to get results'
+        )}
       />
     </div>
   );

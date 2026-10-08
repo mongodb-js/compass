@@ -1,3 +1,4 @@
+import { translateEnglish } from '../../../../utils/i18n';
 import {
   Select,
   Option,
@@ -7,7 +8,9 @@ import {
   TextInput,
   ComboboxWithCustomOption,
   ComboboxOption,
+  useTranslation,
 } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type Document } from 'mongodb';
@@ -71,22 +74,36 @@ const mapTextSearchDataToStageValue = (formData: TextSearchState): Document => {
   };
 };
 
-const getFormValidationError = (formData: TextSearchState): Error | null => {
+const getFormValidationError = (
+  formData: TextSearchState,
+  t: TranslateFn = translateEnglish
+): Error | null => {
   if (formData.type === 'fuzzy') {
     if (formData.maxEdits === undefined) {
-      return new Error('No max edits provided.');
+      return new Error(
+        t('aggregations.wizard.search.noMaxEdits', 'No max edits provided.')
+      );
     }
     if (formData.maxEdits < 1 || formData.maxEdits > 2) {
-      return new Error('Max edits must be either 1 or 2.');
+      return new Error(
+        t(
+          'aggregations.wizard.search.maxEditsRange',
+          'Max edits must be either 1 or 2.'
+        )
+      );
     }
   }
 
   if (formData.path === 'fields' && !formData.fields?.length) {
-    return new Error('No fields provided.');
+    return new Error(
+      t('aggregations.wizard.search.noFields', 'No fields provided.')
+    );
   }
 
   if (!formData.text) {
-    return new Error('No search text provided');
+    return new Error(
+      t('aggregations.wizard.search.noText', 'No search text provided')
+    );
   }
 
   return null;
@@ -103,6 +120,7 @@ export const TextSearch = ({
   indexesStatus: SearchIndexesStatus;
   onFetchIndexes: () => void;
 }) => {
+  const t = useTranslation();
   const [formData, setFormData] = useState<TextSearchState>({
     type: 'text',
     path: 'fields',
@@ -117,7 +135,7 @@ export const TextSearch = ({
 
   const onSetFormData = (data: TextSearchState) => {
     const stageValue = mapTextSearchDataToStageValue(data);
-    onChange(JSON.stringify(stageValue), getFormValidationError(data));
+    onChange(JSON.stringify(stageValue), getFormValidationError(data, t));
     setFormData(data);
   };
 
@@ -135,26 +153,36 @@ export const TextSearch = ({
   return (
     <div className={containerStyles}>
       <div className={rowStyles}>
-        <Body className={labelStyles}>Perform a</Body>
+        <Body className={labelStyles}>
+          {t('aggregations.wizard.search.performA', 'Perform a')}
+        </Body>
         <Select
           className={inputStyles}
           allowDeselect={false}
-          aria-label={'Select search type'}
+          aria-label={t(
+            'aggregations.wizard.search.selectType',
+            'Select search type'
+          )}
           value={formData.type}
           onChange={(value) => onChangeProperty('type', value)}
         >
-          <Option value="text">text search</Option>
-          <Option value="fuzzy">fuzzy search</Option>
+          <Option value="text">
+            {t('aggregations.wizard.search.textSearch', 'text search')}
+          </Option>
+          <Option value="fuzzy">
+            {t('aggregations.wizard.search.fuzzySearch', 'fuzzy search')}
+          </Option>
         </Select>
         <div className={inputWithLabelStyles}>
           <Body>
-            with <span id="maxEdits-input-label">maxEdits</span>
+            {t('aggregations.wizard.search.with', 'with')}{' '}
+            <span id="maxEdits-input-label">maxEdits</span>
           </Body>
           <TextInput
             type="number"
             aria-labelledby="maxEdits-input-label"
             data-testid="maxEdits-input"
-            placeholder="e.g 2"
+            placeholder={t('aggregations.wizard.search.example', 'e.g 2')}
             className={inputStyles}
             value={formData.maxEdits?.toString()}
             min={1}
@@ -167,16 +195,28 @@ export const TextSearch = ({
         </div>
       </div>
       <div className={rowStyles}>
-        <Body className={labelStyles}>for all documents where</Body>
+        <Body className={labelStyles}>
+          {t(
+            'aggregations.wizard.search.forAllDocuments',
+            'for all documents where'
+          )}
+        </Body>
         <Select
           className={inputStyles}
           allowDeselect={false}
-          aria-label={'Select search path'}
+          aria-label={t(
+            'aggregations.wizard.search.selectPath',
+            'Select search path'
+          )}
           value={formData.path}
           onChange={(value) => onChangeProperty('path', value)}
         >
-          <Option value="fields">field names</Option>
-          <Option value="wildcard">any fields</Option>
+          <Option value="fields">
+            {t('aggregations.wizard.search.fieldNames', 'field names')}
+          </Option>
+          <Option value="wildcard">
+            {t('aggregations.wizard.search.anyFields', 'any fields')}
+          </Option>
         </Select>
         <FieldCombobox
           className={inputStyles}
@@ -188,23 +228,31 @@ export const TextSearch = ({
         />
       </div>
       <div className={rowStyles}>
-        <Body className={labelStyles}>contains</Body>
+        <Body className={labelStyles}>
+          {t('aggregations.wizard.search.contains', 'contains')}
+        </Body>
         <TextInput
-          placeholder={'text'}
+          placeholder={t('aggregations.wizard.search.text', 'text')}
           // NOTE: LeafyGreen doesn't support aria-label and only understands "aria-labelledby" and "label".
           aria-labelledby=""
           data-testid="text-search-contains-input"
-          aria-label={'text'}
+          aria-label={t('aggregations.wizard.search.text', 'text')}
           value={formData.text}
           className={inputStyles}
           onChange={(e) => onChangeProperty('text', e.target.value)}
         />
         <div className={inputWithLabelStyles}>
-          <Body>using</Body>
+          <Body>{t('aggregations.wizard.search.using', 'using')}</Body>
           <ComboboxWithCustomOption
             className={inputStyles}
-            aria-label="Select or type a search index"
-            placeholder="Select or type a search index"
+            aria-label={t(
+              'aggregations.wizard.search.selectIndex',
+              'Select or type a search index'
+            )}
+            placeholder={t(
+              'aggregations.wizard.search.selectIndex',
+              'Select or type a search index'
+            )}
             size="default"
             clearable={false}
             onChange={(value: string | null) =>
@@ -219,10 +267,14 @@ export const TextSearch = ({
               }
               return 'unset';
             })()}
-            searchLoadingMessage="Fetching search indexes ..."
-            searchErrorMessage={
+            searchLoadingMessage={t(
+              'aggregations.wizard.search.fetchingIndexes',
+              'Fetching search indexes ...'
+            )}
+            searchErrorMessage={t(
+              'aggregations.wizard.search.fetchIndexesFailed',
               'Failed to fetch the search indexes. Type the index name manually.'
-            }
+            )}
             options={indexes.map((x) => ({ value: x.name }))}
             renderOption={(option, index, isCustom) => {
               return (
@@ -230,7 +282,13 @@ export const TextSearch = ({
                   key={index}
                   value={option.value}
                   displayName={
-                    isCustom ? `Index: "${option.value}"` : option.value
+                    isCustom
+                      ? t(
+                          'aggregations.wizard.search.customIndex',
+                          'Index: "{name}"',
+                          { name: option.value }
+                        )
+                      : option.value
                   }
                 />
               );

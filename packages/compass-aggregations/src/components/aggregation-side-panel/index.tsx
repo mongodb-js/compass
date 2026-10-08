@@ -10,6 +10,7 @@ import {
   spacing,
   useDarkMode,
   SearchInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { toggleSidePanel } from '../../modules/side-panel';
@@ -83,12 +84,17 @@ export const AggregationSidePanel = ({
   const connectionInfoRef = useConnectionInfoRef();
   const [searchText, setSearchText] = useState<string>('');
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   const filteredUseCases = useMemo(() => {
-    return STAGE_WIZARD_USE_CASES.filter(({ title, stageOperator }) => {
-      return title.includes(searchText) || stageOperator.includes(searchText);
+    return STAGE_WIZARD_USE_CASES.filter(({ id, title, stageOperator }) => {
+      return (
+        title.includes(searchText) ||
+        t(`aggregations.wizard.useCase.${id}`, title).includes(searchText) ||
+        stageOperator.includes(searchText)
+      );
     }).map(({ id, title, stageOperator }) => ({ id, title, stageOperator }));
-  }, [searchText]);
+  }, [searchText, t]);
 
   const handleSearchTextChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,12 +135,12 @@ export const AggregationSidePanel = ({
             weight="medium"
             className={darkMode ? titleStylesDark : titleStylesLight}
           >
-            Stage Wizard
+            {t('aggregations.sidePanel.title', 'Stage Wizard')}
           </Body>
           <IconButton
             className={closeButtonStyles}
-            title="Hide Stage Wizard"
-            aria-label="Hide Stage Wizard"
+            title={t('aggregations.sidePanel.hide', 'Hide Stage Wizard')}
+            aria-label={t('aggregations.sidePanel.hide', 'Hide Stage Wizard')}
             onClick={() => onCloseSidePanel()}
           >
             <Icon glyph="X" />
@@ -143,8 +149,8 @@ export const AggregationSidePanel = ({
         <SearchInput
           value={searchText}
           onChange={handleSearchTextChange}
-          placeholder="Search for a Stage"
-          aria-label="Search for a Stage"
+          placeholder={t('aggregations.sidePanel.search', 'Search for a Stage')}
+          aria-label={t('aggregations.sidePanel.search', 'Search for a Stage')}
         />
       </div>
 

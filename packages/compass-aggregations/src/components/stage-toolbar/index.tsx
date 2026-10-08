@@ -13,6 +13,7 @@ import {
   Button,
   Link,
   useDrawerActions,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
@@ -139,10 +140,6 @@ type StageToolbarProps = {
   onClickViewSearchIndexes: (indexName?: string) => void;
 };
 
-const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
-const COLLAPSED_TEXT =
-  'A sample of the aggregated results from this stage will be shown below.';
-
 export function StageToolbar({
   index,
   stage,
@@ -158,6 +155,7 @@ export function StageToolbar({
   onStageOperatorChange,
   onClickViewSearchIndexes,
 }: StageToolbarProps) {
+  const t = useTranslation();
   const enableRerank = usePreference('enableRerank');
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const darkMode = useDarkMode();
@@ -217,7 +215,11 @@ export function StageToolbar({
       <div className={leftStyles}>
         <div className={shortSpacedStyles}>
           <StageCollapser index={index} />
-          <Body weight="medium">Stage {stage.idxInPipeline + 1}</Body>
+          <Body weight="medium">
+            {t('aggregations.stageToolbar.stageNumber', 'Stage {number}', {
+              number: stage.idxInPipeline + 1,
+            })}
+          </Body>
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
         <ToggleStage index={index} />
@@ -233,7 +235,10 @@ export function StageToolbar({
               });
             }}
           >
-            View $rerank Usage and Rate Limits
+            {t(
+              'aggregations.stageToolbar.viewRerankUsage',
+              'View $rerank Usage and Rate Limits'
+            )}
           </Link>
         )}
         {enableSearchActivationProgramP1 &&
@@ -254,9 +259,9 @@ export function StageToolbar({
                   ) ?? undefined
                 );
               }}
-              title="View Indexes"
+              title={t('aggregations.stageToolbar.viewIndexes', 'View Indexes')}
             >
-              View Indexes
+              {t('aggregations.stageToolbar.viewIndexes', 'View Indexes')}
             </Button>
           )}
         {insight && (
@@ -268,16 +273,28 @@ export function StageToolbar({
       </div>
       <div className={textStyles}>
         {stage.disabled
-          ? DISABLED_TEXT
+          ? t(
+              'aggregations.stageToolbar.disabled',
+              'Stage disabled. Results not passed in the pipeline.'
+            )
           : stage.collapsed
-            ? COLLAPSED_TEXT
+            ? t(
+                'aggregations.stageToolbar.collapsed',
+                'A sample of the aggregated results from this stage will be shown below.'
+              )
             : null}
       </div>
       <div className={rightStyles}>
         <IconButton
           onClick={() => onOpenFocusMode(index)}
-          aria-label="Open stage in focus mode"
-          title="Open stage in focus mode"
+          aria-label={t(
+            'aggregations.stageToolbar.openFocusMode',
+            'Open stage in focus mode'
+          )}
+          title={t(
+            'aggregations.stageToolbar.openFocusMode',
+            'Open stage in focus mode'
+          )}
           data-testid="focus-mode-button"
           data-guide-cue-ref="focus-mode-button"
         >

@@ -12,6 +12,7 @@ import {
   Body,
   IconButton,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
@@ -82,12 +83,15 @@ function PipelineBuilderInputDocuments({
   refreshInputDocuments,
 }: InputProps) {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   const toggleExpanded = () => {
     toggleInputDocumentsCollapsed(!isExpanded);
   };
 
-  const expandTooltipText = isExpanded ? 'Collapse' : 'Expand';
+  const expandTooltipText = isExpanded
+    ? t('aggregations.inputDocuments.collapse', 'Collapse')
+    : t('aggregations.inputDocuments.expand', 'Expand');
 
   return (
     <KeylineCard>
@@ -104,14 +108,22 @@ function PipelineBuilderInputDocuments({
         </IconButton>
         <Body className={headerTextStyles}>
           <b>
-            {count ?? 'N/A'} Document{count === 1 ? '' : 's'}
+            {count === 1
+              ? t('aggregations.inputDocuments.countOne', '{count} Document', {
+                  count,
+                })
+              : t(
+                  'aggregations.inputDocuments.countOther',
+                  '{count} Documents',
+                  { count: count ?? 'N/A' }
+                )}
           </b>{' '}
-          in the collection
+          {t('aggregations.inputDocuments.inCollection', 'in the collection')}
         </Body>
         <IconButton
           onClick={refreshInputDocuments}
-          aria-label="Refresh"
-          title="Refresh"
+          aria-label={t('aggregations.inputDocuments.refresh', 'Refresh')}
+          title={t('aggregations.inputDocuments.refresh', 'Refresh')}
         >
           <Icon glyph="Refresh" size="small" />
         </IconButton>
@@ -123,8 +135,17 @@ function PipelineBuilderInputDocuments({
             darkMode ? bodyStylesDark : bodyStylesLight
           )}
         >
-          <Body>Preview of documents</Body>
-          {isLoading ? <LoadingOverlay text="Sampling Documents..." /> : null}
+          <Body>
+            {t('aggregations.inputDocuments.preview', 'Preview of documents')}
+          </Body>
+          {isLoading ? (
+            <LoadingOverlay
+              text={t(
+                'aggregations.inputDocuments.sampling',
+                'Sampling Documents...'
+              )}
+            />
+          ) : null}
           <div className={documentsContainerStyles}>
             {documents.map((doc, i) => {
               return (

@@ -6,6 +6,7 @@ import {
   focusRing,
   spacing,
   InteractivePopover,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -68,6 +69,7 @@ const containedElements = [
 ];
 
 const SavedPipelinesButton: React.FunctionComponent = () => {
+  const t = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   return (
     <InteractivePopover<HTMLButtonElement>
@@ -80,10 +82,13 @@ const SavedPipelinesButton: React.FunctionComponent = () => {
             data-testid="pipeline-toolbar-open-pipelines-button"
             onClick={onClick}
             className={openSavedPipelinesStyles}
-            aria-label="Open saved pipelines"
+            aria-label={t(
+              'aggregations.savedPipelines.openAria',
+              'Open saved pipelines'
+            )}
             aria-haspopup="true"
             aria-expanded={isVisible ? true : undefined}
-            title="Saved Pipelines"
+            title={t('aggregations.savedPipelines.title', 'Saved Pipelines')}
             type="button"
             ref={ref}
           >

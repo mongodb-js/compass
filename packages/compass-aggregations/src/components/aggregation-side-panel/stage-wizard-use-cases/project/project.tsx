@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 
-import { Select, Option, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Select,
+  Option,
+  css,
+  spacing,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 
@@ -58,6 +64,7 @@ const selectStyles = css({ minWidth: '120px' });
 const comboboxStyles = css({ width: '350px' });
 
 const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
+  const t = useTranslation();
   const [projectFormState, setProjectFormState] = useState<ProjectFormState>({
     projectionType: 'include',
     projectionFields: [],
@@ -77,7 +84,9 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
     onChange(
       JSON.stringify(stageValue),
       Object.keys(stageValue).length === 0
-        ? new Error('No field selected')
+        ? new Error(
+            t('aggregations.wizard.noFieldSelected', 'No field selected')
+          )
         : null
     );
   };
@@ -89,14 +98,21 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
           data-testid="project-form-projection"
           className={selectStyles}
           allowDeselect={false}
-          aria-label={SELECT_PLACEHOLDER_TEXT}
+          aria-label={t(
+            'aggregations.wizard.project.selectType',
+            SELECT_PLACEHOLDER_TEXT
+          )}
           value={projectFormState.projectionType}
           onChange={(value) =>
             handleProjectFormStateChange('projectionType', value)
           }
         >
-          <Option value="include">Include</Option>
-          <Option value="exclude">Exclude</Option>
+          <Option value="include">
+            {t('aggregations.wizard.project.include', 'Include')}
+          </Option>
+          <Option value="exclude">
+            {t('aggregations.wizard.project.exclude', 'Exclude')}
+          </Option>
         </Select>
         <FieldCombobox
           data-testid="project-form-field"

@@ -6,6 +6,7 @@ import {
   Icon,
   spacing,
   useId,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { ResultsViewType } from './pipeline-results-list';
@@ -21,6 +22,7 @@ const PipelineResultsViewControls: React.FunctionComponent<{
   value: ResultsViewType;
   onChange(viewType: ResultsViewType): void;
 }> = ({ value, onChange }) => {
+  const t = useTranslation();
   const labelId = useId();
   const controlId = useId();
   return (
@@ -36,12 +38,12 @@ const PipelineResultsViewControls: React.FunctionComponent<{
         onChange={onChange as (newValue: string) => void}
       >
         <SegmentedControlOption
-          aria-label="Document list"
+          aria-label={t('aggregations.results.documentList', 'Document list')}
           value="document"
           glyph={<Icon glyph="Menu"></Icon>}
         />
         <SegmentedControlOption
-          aria-label="JSON list"
+          aria-label={t('aggregations.results.jsonList', 'JSON list')}
           value="json"
           glyph={<Icon glyph="CurlyBraces"></Icon>}
         />

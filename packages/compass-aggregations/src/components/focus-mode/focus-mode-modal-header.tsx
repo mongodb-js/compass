@@ -14,6 +14,7 @@ import {
   useHotkeys,
   formatHotkey,
   SignalPopover,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
@@ -124,6 +125,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onRefreshSearchIndexes,
   onCloseFocusMode,
 }) => {
+  const t = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const enableRerank = usePreference('enableRerank');
   const { atlasMetadata } = useConnectionInfo();
@@ -218,7 +220,15 @@ export const FocusModeModalHeader: React.FunctionComponent<
   const stageSelectLabels = stages.map(
     ({ stageOperator, idxInStore }, index) => {
       return {
-        label: `Stage ${index + 1}: ${stageOperator ?? 'select'}`,
+        label: t(
+          'aggregations.focusMode.stageLabel',
+          'Stage {number}: {operator}',
+          {
+            number: index + 1,
+            operator:
+              stageOperator ?? t('aggregations.focusMode.select', 'select'),
+          }
+        ),
         value: idxInStore,
       };
     }
@@ -245,7 +255,10 @@ export const FocusModeModalHeader: React.FunctionComponent<
               disabled={isFirst}
               onClick={onPreviousStage}
               data-testid="previous-stage-button"
-              aria-label="Edit previous stage"
+              aria-label={t(
+                'aggregations.focusMode.editPrevious',
+                'Edit previous stage'
+              )}
             >
               <Icon
                 size="xsmall"
@@ -258,7 +271,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
         >
           <Body className={tooltipContentStyles}>
             <span className={tooltipContentItemStyles}>
-              Go to previous stage
+              {t('aggregations.focusMode.goPrevious', 'Go to previous stage')}
             </span>
             <span className={tooltipContentItemStyles}>
               {formatHotkey(PREVIOUS_STAGE_HOTKEY)}
@@ -271,7 +284,10 @@ export const FocusModeModalHeader: React.FunctionComponent<
           style={stageSelectStyle}
           size="xsmall"
           value={String(stageIndex)}
-          aria-label="Select stage to edit"
+          aria-label={t(
+            'aggregations.focusMode.selectStage',
+            'Select stage to edit'
+          )}
           onChange={(newVal: string) => {
             onStageSelect(Number(newVal));
           }}
@@ -292,7 +308,10 @@ export const FocusModeModalHeader: React.FunctionComponent<
               size="xsmall"
               disabled={isLast}
               onClick={onNextStage}
-              aria-label="Edit next stage"
+              aria-label={t(
+                'aggregations.focusMode.editNext',
+                'Edit next stage'
+              )}
               data-testid="next-stage-button"
             >
               <Icon
@@ -305,7 +324,9 @@ export const FocusModeModalHeader: React.FunctionComponent<
           }
         >
           <Body className={tooltipContentStyles}>
-            <span>Go to next stage</span>
+            <span>
+              {t('aggregations.focusMode.goNext', 'Go to next stage')}
+            </span>
             <span className={tooltipContentItemStyles}>
               {formatHotkey(NEXT_STAGE_HOTKEY)}
             </span>
@@ -315,11 +336,17 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
       <div className={controlContainerStyles}>
         <span aria-hidden="true" className={fakeToggleLabelStyles}>
-          {isEnabled ? 'Enabled' : 'Disabled'}
+          {isEnabled
+            ? t('aggregations.focusMode.enabled', 'Enabled')
+            : t('aggregations.focusMode.disabled', 'Disabled')}
         </span>
         <Toggle
           size="xsmall"
-          aria-label={isEnabled ? 'Disable stage' : 'Enable stage'}
+          aria-label={
+            isEnabled
+              ? t('aggregations.focusMode.disableStage', 'Disable stage')
+              : t('aggregations.focusMode.enableStage', 'Enable stage')
+          }
           checked={isEnabled}
           onChange={(checked) => {
             onStageDisabledToggleClick(stageIndex, !checked);
@@ -356,7 +383,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
                   }
                   onClick={onClick}
                 >
-                  Add stage
+                  {t('aggregations.addStage', 'Add stage')}
                 </Button>
                 {children}
               </div>
@@ -368,14 +395,14 @@ export const FocusModeModalHeader: React.FunctionComponent<
             description={formatHotkey(ADD_STAGE_AFTER_HOTKEY)}
             data-text="Add stage after"
           >
-            Add stage after
+            {t('aggregations.stageMenu.addAfter', 'Add stage after')}
           </MenuItem>
           <MenuItem
             onClick={onAddStageBefore}
             description={formatHotkey(ADD_STAGE_BEFORE_HOTKEY)}
             data-text="Add stage before"
           >
-            Add stage before
+            {t('aggregations.stageMenu.addBefore', 'Add stage before')}
           </MenuItem>
         </Menu>
       </div>
@@ -391,7 +418,10 @@ export const FocusModeModalHeader: React.FunctionComponent<
             });
           }}
         >
-          View $rerank Usage and Rate Limits
+          {t(
+            'aggregations.stageToolbar.viewRerankUsage',
+            'View $rerank Usage and Rate Limits'
+          )}
         </Link>
       )}
 

@@ -10,6 +10,7 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   Button,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../../modules/settings';
 import { toggleAutoPreview } from '../../../modules/auto-preview';
@@ -75,6 +76,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleSettings,
   onToggleSidePanel,
 }) => {
+  const t = useTranslation();
   return (
     <div
       className={containerStyles}
@@ -84,7 +86,10 @@ export const PipelineExtraSettings: React.FunctionComponent<
         <Toggle
           id="auto-preview"
           size="xsmall"
-          aria-label="Toggle Auto Preview"
+          aria-label={t(
+            'aggregations.extraSettings.toggleAutoPreview',
+            'Toggle Auto Preview'
+          )}
           onChange={(checked) => {
             onToggleAutoPreview(checked);
           }}
@@ -92,7 +97,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
           checked={isAutoPreview}
         />
         <Label className={toggleLabelStyles} htmlFor="auto-preview">
-          Preview
+          {t('aggregations.extraSettings.preview', 'Preview')}
         </Label>
       </div>
       <SegmentedControl
@@ -110,7 +115,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
           glyph={<Icon data-segmented-control-icon glyph="CurlyBraces"></Icon>}
           className={segmentControlStyles}
         >
-          Stages
+          {t('aggregations.extraSettings.stages', 'Stages')}
         </SegmentedControlOption>
         <SegmentedControlOption
           disabled={isPipelineModeDisabled}
@@ -119,24 +124,35 @@ export const PipelineExtraSettings: React.FunctionComponent<
           glyph={<Icon data-segmented-control-icon glyph="Code"></Icon>}
           className={segmentControlStyles}
         >
-          Text
+          {t('aggregations.extraSettings.text', 'Text')}
         </SegmentedControlOption>
       </SegmentedControl>
       <Button
         size="xsmall"
         leftGlyph={<Icon glyph="Wizard" />}
         onClick={onToggleSidePanel}
-        title="Toggle Stage Wizard"
-        aria-label="Toggle Stage Wizard"
+        title={t(
+          'aggregations.extraSettings.toggleWizard',
+          'Toggle Stage Wizard'
+        )}
+        aria-label={t(
+          'aggregations.extraSettings.toggleWizard',
+          'Toggle Stage Wizard'
+        )}
         data-testid="pipeline-toolbar-side-panel-button"
         className={toggleStageWizardStyles}
         disabled={pipelineMode === 'as-text'}
       >
-        <span className={hiddenOnNarrowPipelineToolbarStyles}>Wizard</span>
+        <span className={hiddenOnNarrowPipelineToolbarStyles}>
+          {t('aggregations.extraSettings.wizard', 'Wizard')}
+        </span>
       </Button>
       <IconButton
-        title="More Settings"
-        aria-label="More Settings"
+        title={t('aggregations.extraSettings.moreSettings', 'More Settings')}
+        aria-label={t(
+          'aggregations.extraSettings.moreSettings',
+          'More Settings'
+        )}
         onClick={() => onToggleSettings()}
         data-testid="pipeline-toolbar-settings-button"
       >

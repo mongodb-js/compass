@@ -7,6 +7,7 @@ import {
   Link,
   Button,
   SpinLoader,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
 import { viewOutResults } from '../../modules/out-results-fn';
@@ -57,24 +58,26 @@ type OutputStageProps = {
   onGoToOutputResults: () => void;
 };
 
-const documentsPersistedText = (destination: string | null) => {
-  const location = destination
-    ? `collection: ${destination}`
-    : `specified collection`;
-  return `Documents persisted to ${location}`;
-};
-
 const Loader = ({
   destinationNamespace,
 }: {
   destinationNamespace: string | null;
 }) => {
+  const t = useTranslation();
   return (
     <div className={stagePreviewStyles}>
       <div className={loaderStyles}>
         <SpinLoader />
-        Persisting Documents{' '}
-        {destinationNamespace ? `to ${destinationNamespace}` : '...'}
+        {destinationNamespace
+          ? t(
+              'aggregations.outputStage.persistingTo',
+              'Persisting Documents to {destination}',
+              { destination: destinationNamespace }
+            )
+          : t(
+              'aggregations.outputStage.persisting',
+              'Persisting Documents ...'
+            )}
       </div>
     </div>
   );
@@ -91,6 +94,7 @@ export const OutputStage = ({
 }: OutputStageProps) => {
   // When explicit pipeline run is not enabled, we allow to run output stage
   // from the preview
+  const t = useTranslation();
   const showOutputActions = !usePreference(
     'enableAggregationBuilderRunPipeline'
   );
@@ -115,7 +119,16 @@ export const OutputStage = ({
       return (
         <div className={stagePreviewStyles}>
           <Body className={stagePreviewTextStyles}>
-            {documentsPersistedText(destinationNamespace)}
+            {destinationNamespace
+              ? t(
+                  'aggregations.outputStage.persistedToCollection',
+                  'Documents persisted to collection: {destination}',
+                  { destination: destinationNamespace }
+                )
+              : t(
+                  'aggregations.outputStage.persistedToSpecified',
+                  'Documents persisted to specified collection'
+                )}
           </Body>
           <Link
             data-testid="goto-output-collection"
@@ -123,7 +136,10 @@ export const OutputStage = ({
             className={stagePreviewLinkStyles}
             onClick={onGoToOutputResults}
           >
-            Go to collection.
+            {t(
+              'aggregations.outputStage.goToCollectionPeriod',
+              'Go to collection.'
+            )}
           </Link>
         </div>
       );
@@ -134,8 +150,8 @@ export const OutputStage = ({
     <div className={stagePreviewStyles}>
       <div className={stagePreviewTextStyles} data-testid="output-stage-text">
         {operator === '$merge'
-          ? MERGE_STAGE_PREVIEW_TEXT
-          : OUT_STAGE_PREVIEW_TEXT}
+          ? t('aggregations.outputStage.mergePreview', MERGE_STAGE_PREVIEW_TEXT)
+          : t('aggregations.outputStage.outPreview', OUT_STAGE_PREVIEW_TEXT)}
       </div>
       {showOutputActions && (
         <Button
@@ -143,7 +159,12 @@ export const OutputStage = ({
           data-testid="save-output-documents"
           onClick={onRunOutputStage}
         >
-          {operator === '$merge' ? 'Merge Documents' : 'Save Documents'}
+          {operator === '$merge'
+            ? t('aggregations.outputStage.mergeDocuments', 'Merge Documents')
+            : t(
+                'aggregations.outputStage.saveDocumentsTitle',
+                'Save Documents'
+              )}
         </Button>
       )}
     </div>

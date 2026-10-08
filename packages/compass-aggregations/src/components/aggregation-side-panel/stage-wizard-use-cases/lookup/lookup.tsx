@@ -6,6 +6,7 @@ import {
   Combobox,
   ComboboxWithCustomOption,
   ComboboxOption,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
@@ -14,8 +15,6 @@ import { fetchCollectionFields } from '../../../../modules/collections-fields';
 import type { CollectionData } from '../../../../modules/collections-fields';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
-
-const LOOKUP_TITLE = 'Join documents from';
 
 type LookupFormState = {
   from: string;
@@ -29,6 +28,8 @@ const containerStyles = css({
   flexDirection: 'column',
   gap: spacing[200],
 });
+
+const LOOKUP_TITLE = 'Join documents from';
 
 const titleStyles = css({
   minWidth: `${LOOKUP_TITLE.length}ch`,
@@ -58,6 +59,7 @@ export const LookupForm = ({
   onSelectCollection,
   onChange,
 }: LookupProps) => {
+  const t = useTranslation();
   const [formData, setFormData] = useState<LookupFormState>({
     as: '',
     from: '',
@@ -87,7 +89,14 @@ export const LookupForm = ({
       const anyEmptyValue = Object.values(newData).some((x) => !x);
       onChange(
         JSON.stringify(newData),
-        anyEmptyValue ? new Error('Enter all the fields') : null
+        anyEmptyValue
+          ? new Error(
+              t(
+                'aggregations.wizard.lookup.enterAllFields',
+                'Enter all the fields'
+              )
+            )
+          : null
       );
 
       // Fetch the fields of the selected collection if it was changed
@@ -97,7 +106,7 @@ export const LookupForm = ({
 
       setFormData(newData);
     },
-    [formData, setFormData, onChange, onSelectCollection]
+    [formData, setFormData, onChange, onSelectCollection, t]
   );
 
   const collectionInfo = useMemo(
@@ -108,10 +117,18 @@ export const LookupForm = ({
   return (
     <div className={containerStyles}>
       <div className={formGroup}>
-        <Body className={titleStyles}>{LOOKUP_TITLE}</Body>
+        <Body className={titleStyles}>
+          {t('aggregations.wizard.lookup.joinFrom', LOOKUP_TITLE)}
+        </Body>
         <Combobox
-          aria-label="Select collection"
-          placeholder="Select collection"
+          aria-label={t(
+            'aggregations.wizard.lookup.selectCollection',
+            'Select collection'
+          )}
+          placeholder={t(
+            'aggregations.wizard.lookup.selectCollection',
+            'Select collection'
+          )}
           value={formData.from}
           clearable={false}
           className={inputFieldStyles}
@@ -123,11 +140,19 @@ export const LookupForm = ({
         </Combobox>
       </div>
       <div className={formGroup}>
-        <Body className={titleStyles}>where</Body>
+        <Body className={titleStyles}>
+          {t('aggregations.wizard.lookup.where', 'where')}
+        </Body>
         <ComboboxWithCustomOption
           className={inputFieldStyles}
-          aria-label="Select foreign field"
-          placeholder="Select foreign field"
+          aria-label={t(
+            'aggregations.wizard.lookup.selectForeignField',
+            'Select foreign field'
+          )}
+          placeholder={t(
+            'aggregations.wizard.lookup.selectForeignField',
+            'Select foreign field'
+          )}
           size="default"
           clearable={false}
           onChange={(value: string | null) =>
@@ -142,12 +167,21 @@ export const LookupForm = ({
             }
             return 'unset';
           })()}
-          searchLoadingMessage="Fetching fields ..."
-          searchErrorMessage={
+          searchLoadingMessage={t(
+            'aggregations.wizard.lookup.fetchingFields',
+            'Fetching fields ...'
+          )}
+          searchErrorMessage={t(
+            'aggregations.wizard.lookup.fetchFieldsFailed',
             'Failed to fetch the fields. Type the field name manually.'
-          }
+          )}
           searchEmptyMessage={
-            !formData.from ? 'Select a collection first.' : undefined
+            !formData.from
+              ? t(
+                  'aggregations.wizard.lookup.selectCollectionFirst',
+                  'Select a collection first.'
+                )
+              : undefined
           }
           options={(collectionInfo?.fields ?? []).map((x) => ({ value: x }))}
           renderOption={(option, index) => {
@@ -162,11 +196,19 @@ export const LookupForm = ({
         />
       </div>
       <div className={formGroup}>
-        <Body className={titleStyles}>matches</Body>
+        <Body className={titleStyles}>
+          {t('aggregations.wizard.lookup.matches', 'matches')}
+        </Body>
         <FieldCombobox
           className={inputFieldStyles}
-          aria-label="Select local field"
-          placeholder="Select local field"
+          aria-label={t(
+            'aggregations.wizard.lookup.selectLocalField',
+            'Select local field'
+          )}
+          placeholder={t(
+            'aggregations.wizard.lookup.selectLocalField',
+            'Select local field'
+          )}
           clearable={false}
           onChange={(value: string | null) =>
             onSelectOption('localField', value)
@@ -176,19 +218,28 @@ export const LookupForm = ({
       </div>
       <div className={formGroup}>
         <Body
-          aria-label="Name of the array"
+          aria-label={t(
+            'aggregations.wizard.lookup.arrayName',
+            'Name of the array'
+          )}
           id="lookup-stage-as-input-label"
           className={titleStyles}
         >
-          as
+          {t('aggregations.wizard.lookup.as', 'as')}
         </Body>
         <div className={inputFieldStyles}>
           <TextInput
             value={formData.as}
-            title="Name of the array"
+            title={t(
+              'aggregations.wizard.lookup.arrayName',
+              'Name of the array'
+            )}
             aria-labelledby="lookup-stage-as-input-label"
             data-testid="name-of-the-array-input"
-            placeholder="Name of the array"
+            placeholder={t(
+              'aggregations.wizard.lookup.arrayName',
+              'Name of the array'
+            )}
             onChange={(e) => onSelectOption('as', e.target.value)}
           />
         </div>

@@ -9,7 +9,9 @@ import {
   cx,
   useRequiredURLSearchParams,
   useCurrentValueRef,
+  useTranslation,
 } from '@mongodb-js/compass-components';
+import { translateParserMessage } from '../../../utils/i18n';
 import {
   createAggregationAutocompleter,
   CodemirrorMultilineEditor,
@@ -126,6 +128,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   onCreateSearchIndexClick,
   onEditSearchIndexClick,
 }) => {
+  const t = useTranslation();
   const namespaceType = isTimeSeries
     ? TIME_SERIES
     : sourceName
@@ -175,7 +178,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           return null;
         }
         return {
-          message: error.message,
+          message: translateParserMessage(t, error.message),
           severity: 'error',
           from: error.loc.index,
           to: error.loc.index,
@@ -184,7 +187,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       .filter((annotation): annotation is Annotation => {
         return !!annotation;
       });
-  }, [syntaxErrors]);
+  }, [syntaxErrors, t]);
 
   const darkMode = useDarkMode();
 

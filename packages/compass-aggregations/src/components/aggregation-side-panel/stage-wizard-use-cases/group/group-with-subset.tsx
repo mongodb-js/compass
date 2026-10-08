@@ -1,3 +1,4 @@
+import { translateEnglish } from '../../../../utils/i18n';
 import {
   css,
   Body,
@@ -5,7 +6,9 @@ import {
   Option,
   spacing,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { ACCUMULATORS, Completion } from '@mongodb-js/mongodb-constants';
@@ -176,22 +179,45 @@ export const mapGroupFormStateToStageValue = (
 };
 
 // Exported for tests
-export const getValidationError = (data: GroupWithSubsetFormData) => {
+export const getValidationError = (
+  data: GroupWithSubsetFormData,
+  t: TranslateFn = translateEnglish
+) => {
   if (!data.accumulator) {
-    return new Error('Accumulator is required.');
+    return new Error(
+      t(
+        'aggregations.wizard.subset.accumulatorRequired',
+        'Accumulator is required.'
+      )
+    );
   }
   if (data.numberOfRecords < 1) {
-    return new Error('Number of records is not valid.');
+    return new Error(
+      t(
+        'aggregations.wizard.subset.recordsInvalid',
+        'Number of records is not valid.'
+      )
+    );
   }
   if (data.projectFields.length === 0) {
-    return new Error('Accumulator fields are required.');
+    return new Error(
+      t(
+        'aggregations.wizard.subset.fieldsRequired',
+        'Accumulator fields are required.'
+      )
+    );
   }
   const sortFieldsRequired = data.accumulator
     ? SUBSET_ACCUMULATORS[data.accumulator].needsSortFields
     : false;
 
   if (sortFieldsRequired && data.sortFields.length === 0) {
-    return new Error('Sort fields are required.');
+    return new Error(
+      t(
+        'aggregations.wizard.subset.sortFieldsRequired',
+        'Sort fields are required.'
+      )
+    );
   }
 
   return null;
@@ -202,6 +228,7 @@ export const GroupWithSubset = ({
   serverVersion,
   onChange,
 }: WizardComponentProps & { serverVersion: string }) => {
+  const t = useTranslation();
   const [formData, setFormData] = useState<GroupWithSubsetFormData>({
     groupFields: [],
     projectFields: [],
@@ -222,7 +249,7 @@ export const GroupWithSubset = ({
     setFormData(newData);
     onChange(
       JSON.stringify(mapGroupFormStateToStageValue(newData)),
-      getValidationError(newData)
+      getValidationError(newData, t)
     );
   };
 
@@ -258,11 +285,16 @@ export const GroupWithSubset = ({
   return (
     <div className={containerStyles}>
       <div className={formGroupStyles}>
-        <Body className={groupLabelStyles}>Return the</Body>
+        <Body className={groupLabelStyles}>
+          {t('aggregations.wizard.subset.returnThe', 'Return the')}
+        </Body>
         <Select
           className={selectStyles}
           allowDeselect={false}
-          aria-label={'Select accumulator'}
+          aria-label={t(
+            'aggregations.wizard.selectAccumulator',
+            'Select accumulator'
+          )}
           value={formData.accumulator ?? ''}
           onChange={(value) => {
             onChangeValue(
@@ -274,7 +306,10 @@ export const GroupWithSubset = ({
           {accumulators.map((x) => {
             return (
               <Option value={x.value} key={x.value}>
-                {SUBSET_ACCUMULATORS[x.value].label}
+                {t(
+                  `aggregations.wizard.subset.accumulator.${x.value}`,
+                  SUBSET_ACCUMULATORS[x.value].label
+                )}
               </Option>
             );
           })}
@@ -283,9 +318,15 @@ export const GroupWithSubset = ({
           <>
             <TextInput
               type="number"
-              aria-label="Number of records"
+              aria-label={t(
+                'aggregations.wizard.subset.numberOfRecords',
+                'Number of records'
+              )}
               data-testid="number-of-records-input"
-              placeholder="Number of records"
+              placeholder={t(
+                'aggregations.wizard.subset.numberOfRecords',
+                'Number of records'
+              )}
               className={recordInputStyles}
               value={formData.numberOfRecords.toString()}
               min={1}
@@ -293,13 +334,19 @@ export const GroupWithSubset = ({
                 onChangeValue('numberOfRecords', Number(e.target.value))
               }
             />
-            <Body>of</Body>
+            <Body>{t('aggregations.wizard.of', 'of')}</Body>
           </>
         )}
         <FieldCombobox
           className={groupFieldscomboboxStyles}
-          aria-label={'Select project field names'}
-          placeholder={'Select project field names'}
+          aria-label={t(
+            'aggregations.wizard.subset.selectProjectFields',
+            'Select project field names'
+          )}
+          placeholder={t(
+            'aggregations.wizard.subset.selectProjectFields',
+            'Select project field names'
+          )}
           multiselect={true}
           value={formData.projectFields}
           onChange={(val: string[]) => onChangeValue('projectFields', val)}
@@ -307,11 +354,19 @@ export const GroupWithSubset = ({
         />
       </div>
       <div className={formGroupStyles}>
-        <Body className={groupLabelStyles}>from a group of</Body>
+        <Body className={groupLabelStyles}>
+          {t('aggregations.wizard.subset.fromGroupOf', 'from a group of')}
+        </Body>
         <FieldCombobox
           className={groupFieldscomboboxStyles}
-          aria-label={'Select group field names'}
-          placeholder={'Select group field names'}
+          aria-label={t(
+            'aggregations.wizard.subset.selectGroupFields',
+            'Select group field names'
+          )}
+          placeholder={t(
+            'aggregations.wizard.subset.selectGroupFields',
+            'Select group field names'
+          )}
           multiselect={true}
           value={formData.groupFields}
           onChange={(val: string[]) => onChangeValue('groupFields', val)}
@@ -321,22 +376,34 @@ export const GroupWithSubset = ({
       {selectedAccumulatorMeta?.needsSortFields && (
         <div className={formGroupStyles}>
           <Body className={groupLabelStyles}>
-            documents from a list sorted by
+            {t(
+              'aggregations.wizard.subset.sortedBy',
+              'documents from a list sorted by'
+            )}
           </Body>
           <FieldCombobox
             className={groupFieldscomboboxStyles}
-            aria-label={'Select sort field names'}
-            placeholder={'Select sort field names'}
+            aria-label={t(
+              'aggregations.wizard.subset.selectSortFields',
+              'Select sort field names'
+            )}
+            placeholder={t(
+              'aggregations.wizard.subset.selectSortFields',
+              'Select sort field names'
+            )}
             multiselect={true}
             value={formData.sortFields}
             onChange={(val: string[]) => onChangeValue('sortFields', val)}
             fields={fields}
           />
-          <Body>in</Body>
+          <Body>{t('aggregations.wizard.in', 'in')}</Body>
           <Select
             className={selectStyles}
             allowDeselect={false}
-            aria-label="Select direction"
+            aria-label={t(
+              'aggregations.wizard.selectDirection',
+              'Select direction'
+            )}
             value={formData.sortDirection}
             onChange={(value: string) =>
               onChangeValue('sortDirection', value as SortDirection)
@@ -345,12 +412,12 @@ export const GroupWithSubset = ({
             {SORT_DIRECTION_OPTIONS.map((sort, index) => {
               return (
                 <Option key={index} value={sort.value}>
-                  {sort.label}
+                  {t(`aggregations.wizard.direction.${sort.value}`, sort.label)}
                 </Option>
               );
             })}
           </Select>
-          <Body>order</Body>
+          <Body>{t('aggregations.wizard.subset.order', 'order')}</Body>
         </div>
       )}
     </div>

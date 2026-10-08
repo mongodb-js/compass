@@ -3,6 +3,7 @@ import {
   AssistantSparkleIcon,
   Button,
   css,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
@@ -36,6 +37,7 @@ type SearchStageDiagnoseButtonProps = {
 export const SearchStageDiagnoseButton: React.FunctionComponent<
   SearchStageDiagnoseButtonProps
 > = ({ onClick, 'data-testid': dataTestId }) => {
+  const t = useTranslation();
   return (
     <Button
       data-testid={dataTestId}
@@ -45,7 +47,7 @@ export const SearchStageDiagnoseButton: React.FunctionComponent<
       leftGlyph={<AssistantSparkleIcon />}
       onClick={onClick}
     >
-      Investigate no results
+      {t('aggregations.search.investigateNoResults', 'Investigate no results')}
     </Button>
   );
 };

@@ -1,6 +1,7 @@
 import {
   ComboboxWithCustomOption,
   ComboboxOption,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import type { ComponentProps } from 'react';
@@ -66,9 +67,13 @@ export const FieldCombobox = ({
     [schemaFields]
   );
 
+  const t = useTranslation();
   const label = useMemo(
-    () => (multiselect ? MULTI_SELECT_LABEL : SINGLE_SELECT_LABEL),
-    [multiselect]
+    () =>
+      multiselect
+        ? t('aggregations.wizard.field.selectFields', MULTI_SELECT_LABEL)
+        : t('aggregations.wizard.field.selectField', SINGLE_SELECT_LABEL),
+    [multiselect, t]
   );
 
   return (
@@ -86,8 +91,16 @@ export const FieldCombobox = ({
           <ComboboxOption
             key={`field-option-${index}`}
             value={option.value}
-            displayName={isCustom ? `Field: "${option.value}"` : option.value}
-            description={option.type ?? 'Unknown'}
+            displayName={
+              isCustom
+                ? t('aggregations.wizard.field.custom', 'Field: "{name}"', {
+                    name: option.value,
+                  })
+                : option.value
+            }
+            description={
+              option.type ?? t('aggregations.wizard.field.unknown', 'Unknown')
+            }
             disabled={
               isRelatedFieldDisabled && multiselect
                 ? isOptionDisabled((value ?? []) as string[], option.value)

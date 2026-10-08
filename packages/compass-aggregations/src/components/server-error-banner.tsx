@@ -9,6 +9,7 @@ import {
   css,
   spacing,
   useDrawerActions,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   useSearchActivationProgramP1,
@@ -73,6 +74,7 @@ export default function ServerErrorBanner({
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
   const { debugSearchError } = useAssistantActions();
+  const t = useTranslation();
   const rerankNotEnabled = isRerankNotEnabledError(message);
 
   useEffect(() => {
@@ -129,10 +131,20 @@ export default function ServerErrorBanner({
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
       {rerankNotEnabled ? (
         <>
-          <strong>$rerank not enabled</strong>
+          <strong>
+            {t(
+              'aggregations.serverError.rerankNotEnabled',
+              '$rerank not enabled'
+            )}
+          </strong>
           <br />
           <div className={bannerContentStyles}>
-            <span>Enable native reranking in project settings.</span>
+            <span>
+              {t(
+                'aggregations.serverError.enableReranking',
+                'Enable native reranking in project settings.'
+              )}
+            </span>
             {projectSettingsHref && (
               <Button
                 size="xsmall"
@@ -149,7 +161,10 @@ export default function ServerErrorBanner({
                 rightGlyph={<Icon glyph="OpenNewTab" />}
                 className={bannerButtonStyles}
               >
-                Project Settings
+                {t(
+                  'aggregations.serverError.projectSettings',
+                  'Project Settings'
+                )}
               </Button>
             )}
           </div>
@@ -170,7 +185,10 @@ export default function ServerErrorBanner({
                     onEditSearchIndexClick?.(searchIndexName ?? '');
                   }}
                 >
-                  Edit Search Index
+                  {t(
+                    'aggregations.serverError.editSearchIndex',
+                    'Edit Search Index'
+                  )}
                 </Link>
               </>
             )}
@@ -184,7 +202,7 @@ export default function ServerErrorBanner({
               leftGlyph={<AssistantSparkleIcon />}
               data-testid="server-error-banner-debug-button"
             >
-              Debug
+              {t('aggregations.serverError.debug', 'Debug')}
             </Button>
           )}
         </div>

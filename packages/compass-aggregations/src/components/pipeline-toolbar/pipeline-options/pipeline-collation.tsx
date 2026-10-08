@@ -9,6 +9,7 @@ import {
   TextInput,
   palette,
   Tooltip,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../../modules';
@@ -59,6 +60,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
   maxTimeMSValue,
   maxTimeMSChanged,
 }) => {
+  const t = useTranslation();
   const maxTimeMSEnvLimit = usePreference('maxTimeMSEnvLimit');
 
   const onMaxTimeMSChanged = useCallback(
@@ -112,7 +114,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
         id={collationLabelId}
         className={labelStyles}
       >
-        Collation
+        {t('aggregations.options.collation', 'Collation')}
       </Label>
       <TextInput
         aria-labelledby={collationLabelId}
@@ -138,7 +140,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
         id={maxTimeMSLabelId}
         className={labelStyles}
       >
-        Max Time MS
+        {t('aggregations.options.maxTimeMS', 'Max Time MS')}
       </Label>
       <Tooltip
         enabled={exceedsLimit}
@@ -176,8 +178,10 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
           </div>
         )}
       >
-        Operations longer than 5 minutes are not supported in the web
-        environment
+        {t(
+          'aggregations.options.maxTimeMSWebLimit',
+          'Operations longer than 5 minutes are not supported in the web environment'
+        )}
       </Tooltip>
     </div>
   );

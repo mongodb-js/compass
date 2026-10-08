@@ -2,7 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
 
-import { css, spacing, Link, Banner } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Link,
+  Banner,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { RootState } from '../modules';
@@ -27,8 +33,11 @@ function SearchIndexStaleResultsBanner({
   const [showBanner, setShowBanner] = React.useState(true);
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
-  const message =
-    'Results shown are based on the most recently built index version.';
+  const t = useTranslation();
+  const message = t(
+    'aggregations.searchIndex.staleResults',
+    'Results shown are based on the most recently built index version.'
+  );
 
   const href =
     atlasMetadata && searchIndexName
@@ -58,7 +67,10 @@ function SearchIndexStaleResultsBanner({
             });
           }}
         >
-          View Index Definition
+          {t(
+            'aggregations.searchIndex.viewDefinition',
+            'View Index Definition'
+          )}
         </Link>
       )}
     </Banner>

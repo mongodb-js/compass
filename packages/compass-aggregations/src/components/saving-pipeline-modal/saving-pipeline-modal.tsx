@@ -1,8 +1,19 @@
 import type { ChangeEvent } from 'react';
 import React, { PureComponent } from 'react';
-import { FormModal, TextInput } from '@mongodb-js/compass-components';
+import {
+  FormModal,
+  TextInput,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
+
+const WithTranslation: React.FunctionComponent<{
+  children: (t: TranslateFn) => React.ReactElement;
+}> = ({ children }) => {
+  return children(useTranslation());
+};
 
 export interface SavingPipelineModalProps {
   isOpen: boolean;
@@ -59,25 +70,35 @@ class SavingPipelineModal extends PureComponent<SavingPipelineModalProps> {
    * @returns {React.Component} The component.
    */
   render() {
-    const title = this.props.isSaveAs ? 'Save Pipeline As...' : 'Save Pipeline';
     return (
-      <FormModal
-        title={title}
-        open={this.props.isOpen}
-        onSubmit={this.save.bind(this)}
-        onCancel={this.props.savingPipelineCancel}
-        submitButtonText="Save"
-        submitDisabled={this.props.name === ''}
-        data-testid="save-pipeline-modal"
-      >
-        <TextInput
-          id="save-pipeline-name"
-          value={this.props.name}
-          onChange={this.onNameChanged.bind(this)}
-          label="Name"
-          name="name"
-        />
-      </FormModal>
+      <WithTranslation>
+        {(t) => (
+          <FormModal
+            title={
+              this.props.isSaveAs
+                ? t(
+                    'aggregations.savePipeline.titleSaveAs',
+                    'Save Pipeline As...'
+                  )
+                : t('aggregations.savePipeline.title', 'Save Pipeline')
+            }
+            open={this.props.isOpen}
+            onSubmit={this.save.bind(this)}
+            onCancel={this.props.savingPipelineCancel}
+            submitButtonText={t('aggregations.savePipeline.save', 'Save')}
+            submitDisabled={this.props.name === ''}
+            data-testid="save-pipeline-modal"
+          >
+            <TextInput
+              id="save-pipeline-name"
+              value={this.props.name}
+              onChange={this.onNameChanged.bind(this)}
+              label={t('aggregations.savePipeline.name', 'Name')}
+              name="name"
+            />
+          </FormModal>
+        )}
+      </WithTranslation>
     );
   }
 }

@@ -5,6 +5,7 @@ import {
   Option,
   spacing,
   ListEditor,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
@@ -134,6 +135,7 @@ const GroupAccumulatorForm = ({
   data: GroupAccumulators[];
   onChange: (value: GroupAccumulators[]) => void;
 }) => {
+  const t = useTranslation();
   const onChangeGroup = <T extends keyof GroupAccumulators>(
     index: number,
     key: T,
@@ -192,12 +194,17 @@ const GroupAccumulatorForm = ({
           return (
             <div className={groupRowStyles}>
               <Body className={groupLabelStyles}>
-                {index === 0 ? 'Calculate' : 'and'}
+                {index === 0
+                  ? t('aggregations.wizard.statistics.calculate', 'Calculate')
+                  : t('aggregations.wizard.and', 'and')}
               </Body>
               <Select
                 className={selectStyles}
                 allowDeselect={false}
-                aria-label={'Select accumulator'}
+                aria-label={t(
+                  'aggregations.wizard.selectAccumulator',
+                  'Select accumulator'
+                )}
                 value={item.accumulator}
                 onChange={(value: string) =>
                   onChangeGroup(index, 'accumulator', value)
@@ -206,14 +213,17 @@ const GroupAccumulatorForm = ({
                 {accumulators.map((x) => {
                   return (
                     <Option value={x.value} key={x.value}>
-                      {ACCUMULATOR_LABELS[x.value]}
+                      {t(
+                        `aggregations.wizard.accumulator.${x.value}`,
+                        ACCUMULATOR_LABELS[x.value]
+                      )}
                     </Option>
                   );
                 })}
               </Select>
               {item.accumulator !== '$count' && (
                 <>
-                  <Body>of</Body>
+                  <Body>{t('aggregations.wizard.of', 'of')}</Body>
                   <FieldCombobox
                     className={accumulatorFieldcomboboxStyles}
                     value={item.field}
@@ -237,6 +247,7 @@ export const GroupWithStatistics = ({
   serverVersion,
   onChange,
 }: GroupOwnProps & MapStateProps) => {
+  const t = useTranslation();
   const [formData, setFormData] = useState<GroupWithStatisticsFormData>({
     groupFields: [],
     groupAccumulators: [
@@ -265,7 +276,14 @@ export const GroupWithStatistics = ({
 
     onChange(
       JSON.stringify(mapGroupFormStateToStageValue(newData)),
-      isValuesEmpty ? new Error('Select one group accumulator') : null
+      isValuesEmpty
+        ? new Error(
+            t(
+              'aggregations.wizard.statistics.selectOne',
+              'Select one group accumulator'
+            )
+          )
+        : null
     );
   };
 
@@ -278,7 +296,9 @@ export const GroupWithStatistics = ({
         onChange={(val) => onChangeValue('groupAccumulators', val)}
       />
       <div className={groupRowStyles}>
-        <Body className={groupLabelStyles}>grouped by</Body>
+        <Body className={groupLabelStyles}>
+          {t('aggregations.wizard.statistics.groupedBy', 'grouped by')}
+        </Body>
         <FieldCombobox
           className={groupFieldscomboboxStyles}
           value={formData.groupFields}

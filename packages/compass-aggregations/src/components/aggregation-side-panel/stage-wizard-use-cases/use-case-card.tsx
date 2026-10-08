@@ -6,6 +6,7 @@ import {
   Badge,
   KeylineCard,
   cx,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { StageWizardUseCase } from '.';
@@ -57,6 +58,7 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
   }: UseCaseCardLayoutProps,
   ref: React.ForwardedRef<HTMLDivElement>
 ) {
+  const t = useTranslation();
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (event.key === 'Enter' || event.code === 'Enter') {
@@ -80,7 +82,8 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
       {...props}
     >
       <Body as="div" data-testid={`use-case-${id}`} className={cardBodyStyles}>
-        {title} <Badge>{stageOperator}</Badge>
+        {t(`aggregations.wizard.useCase.${id}`, title)}{' '}
+        <Badge>{stageOperator}</Badge>
       </Body>
     </KeylineCard>
   );

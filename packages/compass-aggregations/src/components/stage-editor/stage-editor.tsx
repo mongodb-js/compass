@@ -1,3 +1,5 @@
+import { renderTemplate } from '../../utils/render-template';
+import { translateParserMessage } from '../../utils/i18n';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import type { MongoServerError } from 'mongodb';
@@ -17,6 +19,7 @@ import {
   useDarkMode,
   useRequiredURLSearchParams,
   useCurrentValueRef,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   changeStageValue,
@@ -137,6 +140,7 @@ export const StageEditor = ({
   editorRef,
 }: StageEditorProps) => {
   const track = useTelemetry();
+  const t = useTranslation();
   const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
@@ -163,7 +167,7 @@ export const StageEditor = ({
     if (syntaxError?.loc?.index) {
       return [
         {
-          message: syntaxError.message,
+          message: translateParserMessage(t, syntaxError.message),
           severity: 'error',
           from: syntaxError.loc.index,
           to: syntaxError.loc.index,
@@ -172,7 +176,7 @@ export const StageEditor = ({
     }
 
     return [];
-  }, [syntaxError]);
+  }, [syntaxError, t]);
 
   const onBlurEditor = useCallback(() => {
     if (
@@ -256,14 +260,20 @@ export const StageEditor = ({
         <Banner
           variant="warning"
           data-testid="stage-editor-syntax-error"
-          title={syntaxError.message}
+          title={translateParserMessage(t, syntaxError.message)}
           className={bannerStyles}
         >
           {!stageOperator
-            ? 'Stage operator is required'
+            ? t(
+                'aggregations.stageEditor.operatorRequired',
+                'Stage operator is required'
+              )
             : !stageValue
-              ? 'Stage value can not be empty'
-              : syntaxError.message}
+              ? t(
+                  'aggregations.stageEditor.valueEmpty',
+                  'Stage value can not be empty'
+                )
+              : translateParserMessage(t, syntaxError.message)}
         </Banner>
       )}
       {serverError && !isServerErrorUpstream && (
@@ -291,11 +301,21 @@ export const StageEditor = ({
           data-testid="stage-editor-upstream-error-message"
           className={bannerStyles}
         >
-          An error occurred on{' '}
-          <Link as="button" onClick={onClickStageWithError}>
-            Stage {serverErrorStageIdx + 1}
-          </Link>
-          .
+          {renderTemplate(
+            t(
+              'aggregations.stageEditor.errorOnStage',
+              'An error occurred on {stage}.'
+            ),
+            {
+              stage: (
+                <Link as="button" onClick={onClickStageWithError}>
+                  {t('aggregations.stageEditor.stageNumber', 'Stage {number}', {
+                    number: serverErrorStageIdx + 1,
+                  })}
+                </Link>
+              ),
+            }
+          )}
         </Banner>
       )}
       {enableSearchActivationProgramP1 &&

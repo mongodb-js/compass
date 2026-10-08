@@ -1,5 +1,5 @@
 import React from 'react';
-import { Toggle } from '@mongodb-js/compass-components';
+import { Toggle, useTranslation } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
@@ -16,9 +16,10 @@ const ToggleStage = ({
   className?: string;
   onChange: (index: number, isEnabled: boolean) => void;
 }) => {
+  const t = useTranslation();
   const TOOLTIP = isEnabled
-    ? 'Exclude stage from pipeline'
-    : 'Include stage in pipeline';
+    ? t('aggregations.stage.exclude', 'Exclude stage from pipeline')
+    : t('aggregations.stage.include', 'Include stage in pipeline');
   return (
     <Toggle
       className={className}

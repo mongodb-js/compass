@@ -1,3 +1,4 @@
+import { renderTemplate } from '../utils/render-template';
 import React, { useCallback, useMemo } from 'react';
 import {
   AssistantSparkleIcon,
@@ -9,6 +10,7 @@ import {
   cx,
   spacing,
   usePersistedState,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
@@ -25,51 +27,44 @@ export const useRerankInsightAction = () => {
   return tellMoreAboutInsight ? action : undefined;
 };
 
-const searchStageLinks = (
-  <>
-    <Link
-      href={`${STAGE_HELP_BASE_URL}/search/`}
-      target="_blank"
-      hideExternalIcon
-    >
-      $search
-    </Link>
-    {', '}
-    <Link
-      href={`${STAGE_HELP_BASE_URL}/vectorSearch/`}
-      target="_blank"
-      hideExternalIcon
-    >
-      $vectorSearch
-    </Link>
-    {', '}
-    <Link
-      href={`${STAGE_HELP_BASE_URL}/rankFusion/`}
-      target="_blank"
-      hideExternalIcon
-    >
-      $rankFusion
-    </Link>
-    {', or '}
-    <Link
-      href={`${STAGE_HELP_BASE_URL}/scoreFusion/`}
-      target="_blank"
-      hideExternalIcon
-    >
-      $scoreFusion
-    </Link>
-  </>
-);
-
-const rerankInsightDescription = (
-  <>
-    {
-      "You're attempting to run a query with $rerank as the first stage. This is expensive and increases strain. We recommend using $rerank as the second stage to "
-    }
-    {searchStageLinks}
-    {'.'}
-  </>
-);
+const SearchStageLinks = () => {
+  const t = useTranslation();
+  return (
+    <>
+      <Link
+        href={`${STAGE_HELP_BASE_URL}/search/`}
+        target="_blank"
+        hideExternalIcon
+      >
+        $search
+      </Link>
+      {', '}
+      <Link
+        href={`${STAGE_HELP_BASE_URL}/vectorSearch/`}
+        target="_blank"
+        hideExternalIcon
+      >
+        $vectorSearch
+      </Link>
+      {', '}
+      <Link
+        href={`${STAGE_HELP_BASE_URL}/rankFusion/`}
+        target="_blank"
+        hideExternalIcon
+      >
+        $rankFusion
+      </Link>
+      {t('aggregations.rerank.listLastSeparator', ', or ')}
+      <Link
+        href={`${STAGE_HELP_BASE_URL}/scoreFusion/`}
+        target="_blank"
+        hideExternalIcon
+      >
+        $scoreFusion
+      </Link>
+    </>
+  );
+};
 
 export const useRerankInsight = ({
   isRerankFirstStage,
@@ -84,6 +79,7 @@ export const useRerankInsight = ({
 }) => {
   const enableRerank = usePreference('enableRerank');
   const track = useTelemetry();
+  const t = useTranslation();
   const rawOnAssistantButtonClick = useRerankInsightAction();
   const { atlasMetadata } = useConnectionInfo();
 
@@ -117,13 +113,23 @@ export const useRerankInsight = ({
 
     return {
       ...PerformanceSignals.get('rerank-without-search'),
-      description: rerankInsightDescription,
+      description: (
+        <>
+          {renderTemplate(
+            t(
+              'aggregations.rerank.insightDescription',
+              "You're attempting to run a query with $rerank as the first stage. This is expensive and increases strain. We recommend using $rerank as the second stage to {searchStages}."
+            ),
+            { searchStages: <SearchStageLinks /> }
+          )}
+        </>
+      ),
       primaryActionButtonIsLoading: isSearchIndexesLoading,
       primaryActionButtonLabel: isSearchIndexesLoading
         ? undefined
         : hasSearchIndex
-          ? 'Add $search stage'
-          : 'Learn about search',
+          ? t('aggregations.rerank.addSearchStage', 'Add $search stage')
+          : t('aggregations.rerank.learnAboutSearch', 'Learn about search'),
       ...(hasSearchIndex && !isSearchIndexesLoading
         ? { onPrimaryActionButtonClick: onAddSearchStageBeforeWithTracking }
         : !isSearchIndexesLoading
@@ -142,6 +148,7 @@ export const useRerankInsight = ({
     onLearnAboutSearchWithTracking,
     rawOnAssistantButtonClick,
     onAssistantButtonClickWithTracking,
+    t,
   ]);
 };
 
@@ -179,6 +186,7 @@ export const RerankFirstStageBanner = ({
 }) => {
   const enableRerank = usePreference('enableRerank');
   const track = useTelemetry();
+  const t = useTranslation();
   const [isDismissed, setIsDismissed] = usePersistedState(
     'mongodb_compass_dismissed_rerank_first_stage_banner',
     false
@@ -214,13 +222,20 @@ export const RerankFirstStageBanner = ({
     >
       <div className={bannerContentStyles}>
         <div className={bannerTextStyles}>
-          <strong>$rerank works better following a search stage</strong>
+          <strong>
+            {t(
+              'aggregations.rerank.worksBetter',
+              '$rerank works better following a search stage'
+            )}
+          </strong>
           <br />
-          {
-            'Optimize performance and cost by using $rerank after retrieving preliminary results from a stage like '
-          }
-          {searchStageLinks}
-          {'.'}
+          {renderTemplate(
+            t(
+              'aggregations.rerank.optimize',
+              'Optimize performance and cost by using $rerank after retrieving preliminary results from a stage like {searchStages}.'
+            ),
+            { searchStages: <SearchStageLinks /> }
+          )}
         </div>
         {onInsightAction && (
           <Button
@@ -235,7 +250,7 @@ export const RerankFirstStageBanner = ({
             leftGlyph={<AssistantSparkleIcon />}
             data-testid="rerank-first-stage-learn-more-button"
           >
-            Learn more
+            {t('aggregations.rerank.learnMore', 'Learn more')}
           </Button>
         )}
       </div>

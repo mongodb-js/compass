@@ -8,6 +8,7 @@ import {
   css,
   spacing,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { createView, changeViewName, close } from '../../modules/create-view';
 import type { CreateViewRootState } from '../../stores/create-view';
@@ -45,6 +46,7 @@ const CreateViewModal: React.FunctionComponent<CreateViewModalProps> = ({
   error,
 }) => {
   const track = useTelemetry();
+  const t = useTranslation();
   const { getConnectionById } = useConnectionsListRef();
 
   useEffect(() => {
@@ -59,11 +61,15 @@ const CreateViewModal: React.FunctionComponent<CreateViewModalProps> = ({
 
   return (
     <FormModal
-      title={isDuplicating ? 'Duplicate View' : 'Create a View'}
+      title={
+        isDuplicating
+          ? t('aggregations.createView.duplicate', 'Duplicate View')
+          : t('aggregations.createView.create', 'Create a View')
+      }
       open={isVisible}
       onSubmit={createView}
       onCancel={closeModal}
-      submitButtonText="Create"
+      submitButtonText={t('aggregations.createView.submit', 'Create')}
       data-testid="create-view-modal"
     >
       <TextInput
@@ -72,14 +78,14 @@ const CreateViewModal: React.FunctionComponent<CreateViewModalProps> = ({
         onChange={(evt) => {
           changeViewName(evt.currentTarget.value);
         }}
-        label="Name"
+        label={t('aggregations.createView.name', 'Name')}
         name="name"
       />
       {error ? <Banner variant="danger">{error}</Banner> : null}
       {isRunning ? (
         <Body className={progressContainerStyles}>
           <SpinLoader />
-          <span>Creating view&hellip;</span>
+          <span>{t('aggregations.createView.creating', 'Creating view…')}</span>
         </Body>
       ) : null}
     </FormModal>

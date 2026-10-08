@@ -8,6 +8,7 @@ import {
   spacing,
   Overline,
   WarningSummary,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 import { DocumentListView } from '@mongodb-js/compass-crud';
@@ -108,6 +109,7 @@ const PreviewResults = ({
   }, []);
 
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const t = useTranslation();
 
   if (isLoading) {
     return (
@@ -130,8 +132,10 @@ const PreviewResults = ({
       <div className={centerStyles}>
         <DocumentIcon />
         <Body className={messageStyles}>
-          Preview results to see a sample of the aggregated results from this
-          pipeline.
+          {t(
+            'aggregations.pipelinePreview.previewResults',
+            'Preview results to see a sample of the aggregated results from this pipeline.'
+          )}
         </Body>
       </div>
     );
@@ -144,7 +148,12 @@ const PreviewResults = ({
     return (
       <div className={centerStyles}>
         <DocumentIcon />
-        <Body className={messageStyles}>No preview documents</Body>
+        <Body className={messageStyles}>
+          {t(
+            'aggregations.pipelinePreview.noDocuments',
+            'No preview documents'
+          )}
+        </Body>
       </div>
     );
   }
@@ -152,7 +161,14 @@ const PreviewResults = ({
   return (
     <>
       {isPreviewStale && (
-        <WarningSummary warnings={['Output outdated and no longer in sync.']} />
+        <WarningSummary
+          warnings={[
+            t(
+              'aggregations.pipelinePreview.outdated',
+              'Output outdated and no longer in sync.'
+            ),
+          ]}
+        />
       )}
       <DocumentListView
         docs={previewDocs}
@@ -180,8 +196,8 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   onExpand,
   onCollapse,
 }) => {
+  const t = useTranslation();
   const docCount = previewDocs?.length ?? 0;
-  const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
   const stageOperator = isMergeStage ? '$merge' : isOutStage ? '$out' : null;
 
@@ -200,10 +216,22 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
     <div className={containerStyles} data-testid="pipeline-as-text-preview">
       <div className={previewHeaderStyles}>
         <div>
-          <Overline>Pipeline Output Preview</Overline>
+          <Overline>
+            {t('aggregations.pipelinePreview.title', 'Pipeline Output Preview')}
+          </Overline>
           {shouldShowCount && (
             <Body>
-              Sample of {docCount} {docText}
+              {docCount === 1
+                ? t(
+                    'aggregations.pipelinePreview.sampleOne',
+                    'Sample of {count} document',
+                    { count: docCount }
+                  )
+                : t(
+                    'aggregations.pipelinePreview.sampleOther',
+                    'Sample of {count} documents',
+                    { count: docCount }
+                  )}
             </Body>
           )}
         </div>

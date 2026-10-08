@@ -5,6 +5,7 @@ import {
   spacing,
   css,
   ListEditor,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import {
@@ -75,10 +76,13 @@ const SortFormGroup = ({
     value: SortFieldState[T]
   ) => void;
 }) => {
+  const t = useTranslation();
   return (
     <div className={formGroupStyles}>
       <Body className={labelStyles}>
-        {index === 0 ? 'Sort documents by' : 'and'}
+        {index === 0
+          ? t('aggregations.wizard.sort.sortBy', 'Sort documents by')
+          : t('aggregations.wizard.and', 'and')}
       </Body>
       <div data-testid={`sort-form-${index}-field`}>
         <FieldCombobox
@@ -92,12 +96,15 @@ const SortFormGroup = ({
           fields={fields}
         />
       </div>
-      <Body>in</Body>
+      <Body>{t('aggregations.wizard.in', 'in')}</Body>
       <div data-testid={`sort-form-${index}-direction`}>
         <Select
           className={sortDirectionStyles}
           allowDeselect={false}
-          aria-label="Select direction"
+          aria-label={t(
+            'aggregations.wizard.selectDirection',
+            'Select direction'
+          )}
           value={sortDirection}
           onChange={(value: string) =>
             onChange('direction', value as SortDirection)
@@ -106,7 +113,7 @@ const SortFormGroup = ({
           {SORT_DIRECTION_OPTIONS.map((sort, index) => {
             return (
               <Option key={index} value={sort.value}>
-                {sort.label}
+                {t(`aggregations.wizard.direction.${sort.value}`, sort.label)}
               </Option>
             );
           })}
@@ -117,6 +124,7 @@ const SortFormGroup = ({
 };
 
 export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
+  const t = useTranslation();
   const [formData, setFormData] = useState<SortFieldState[]>([
     {
       id: getNextId(),
@@ -130,7 +138,9 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
     onChange(
       JSON.stringify(stageValue),
       Object.keys(stageValue).length === 0
-        ? new Error('No field selected')
+        ? new Error(
+            t('aggregations.wizard.noFieldSelected', 'No field selected')
+          )
         : null
     );
 

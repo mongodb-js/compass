@@ -5,6 +5,7 @@ import {
   spacing,
   AtlasNavGraphic,
   Body,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
@@ -29,6 +30,7 @@ export const AtlasStagePreview = ({
   stageOperator: string;
 }) => {
   const track = useTelemetry();
+  const t = useTranslation();
   return (
     <div
       className={atlasContainerStyles}
@@ -39,10 +41,11 @@ export const AtlasStagePreview = ({
         data-testid="stage-preview-missing-search-support"
         className={atlasTextStyles}
       >
-        The {stageOperator} stage is only available with MongoDB Atlas. Create a
-        free cluster or connect to an Atlas cluster to build search indexes and
-        use {stageOperator} aggregation stage to run fast, relevant search
-        queries.
+        {t(
+          'aggregations.atlasStagePreview',
+          'The {stageOperator} stage is only available with MongoDB Atlas. Create a free cluster or connect to an Atlas cluster to build search indexes and use {stageOperator} aggregation stage to run fast, relevant search queries.',
+          { stageOperator }
+        )}
       </Body>
       <Button
         href={ATLAS_LINK}
@@ -52,7 +55,7 @@ export const AtlasStagePreview = ({
         }}
         variant="primary"
       >
-        Create free cluster
+        {t('aggregations.createFreeCluster', 'Create free cluster')}
       </Button>
     </div>
   );

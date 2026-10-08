@@ -1,6 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { IconButton, Icon } from '@mongodb-js/compass-components';
+import {
+  IconButton,
+  Icon,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import { changeStageCollapsed } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
@@ -14,7 +18,10 @@ const StageCollapser = ({
   isExpanded: boolean;
   onChange: (index: number, isExpanded: boolean) => void;
 }) => {
-  const title = isExpanded ? 'Collapse' : 'Expand';
+  const t = useTranslation();
+  const title = isExpanded
+    ? t('aggregations.stage.collapse', 'Collapse')
+    : t('aggregations.stage.expand', 'Expand');
   return (
     <IconButton
       onClick={() => onChange(index, isExpanded)}

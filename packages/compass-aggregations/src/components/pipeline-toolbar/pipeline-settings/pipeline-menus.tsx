@@ -1,7 +1,11 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import semver from 'semver';
-import { Icon, DropdownMenuButton } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  DropdownMenuButton,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
@@ -41,22 +45,29 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
         return onCreateView();
     }
   };
+  const t = useTranslation();
   const menuActions = useMemo(() => {
     const actions: MenuAction<SaveMenuActions>[] = [];
     if (isSaveEnabled) {
       actions.push(
-        { action: 'save' as const, label: 'Save' },
-        { action: 'saveAs' as const, label: 'Save as' }
+        {
+          action: 'save' as const,
+          label: t('aggregations.saveMenu.save', 'Save'),
+        },
+        {
+          action: 'saveAs' as const,
+          label: t('aggregations.saveMenu.saveAs', 'Save as'),
+        }
       );
     }
     if (isCreateViewEnabled) {
       actions.push({
         action: 'createView',
-        label: 'Create view',
+        label: t('aggregations.saveMenu.createView', 'Create view'),
       });
     }
     return actions;
-  }, [isSaveEnabled, isCreateViewEnabled]);
+  }, [isSaveEnabled, isCreateViewEnabled, t]);
 
   if (menuActions.length === 0) {
     return null;
@@ -67,7 +78,7 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
       data-testid="save-menu"
       actions={menuActions}
       onAction={onAction}
-      buttonText="Save"
+      buttonText={t('aggregations.saveMenu.save', 'Save')}
       buttonProps={{
         size: 'xsmall',
         variant: 'primary',

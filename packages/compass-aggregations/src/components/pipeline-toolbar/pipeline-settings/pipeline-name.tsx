@@ -1,6 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { css, Body, Tooltip } from '@mongodb-js/compass-components';
+import {
+  css,
+  Body,
+  Tooltip,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 
 const containerStyles = css({
@@ -29,16 +34,21 @@ export const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
   name,
   isModified,
 }) => {
+  const t = useTranslation();
   return (
     <Body className={containerStyles} data-testid="pipeline-name">
       {name === '' ? (
-        'Untitled'
+        t('aggregations.pipelineName.untitled', 'Untitled')
       ) : (
         <Tooltip trigger={<span className={nameStyles}>{name}</span>}>
           <Body>{name}</Body>
         </Tooltip>
       )}
-      {isModified && <span className={modifiedStyles}>&nbsp;– modified</span>}
+      {isModified && (
+        <span className={modifiedStyles}>
+          &nbsp;– {t('aggregations.pipelineName.modified', 'modified')}
+        </span>
+      )}
     </Body>
   );
 };

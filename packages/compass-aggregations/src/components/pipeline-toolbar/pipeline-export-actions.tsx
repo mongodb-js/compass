@@ -5,6 +5,7 @@ import {
   Icon,
   css,
   WorkspaceContainer,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -46,6 +47,7 @@ export const PipelineExportActions: React.FunctionComponent<
   onExportData,
 }) => {
   const enableImportExport = usePreference('enableImportExport');
+  const t = useTranslation();
 
   return (
     <>
@@ -56,10 +58,15 @@ export const PipelineExportActions: React.FunctionComponent<
           disabled={!isExportDataEnabled}
           onClick={onExportData}
           data-testid="pipeline-toolbar-export-data-button"
-          title="Export pipeline results"
+          title={t(
+            'aggregations.export.resultsTitle',
+            'Export pipeline results'
+          )}
           className={exportDataButtonStyles}
         >
-          <span className={exportCodeButtonTextStyles}>Export Data</span>
+          <span className={exportCodeButtonTextStyles}>
+            {t('aggregations.export.data', 'Export Data')}
+          </span>
         </Button>
       )}
       <Button
@@ -68,10 +75,15 @@ export const PipelineExportActions: React.FunctionComponent<
         onClick={onExportToLanguage}
         data-testid="pipeline-toolbar-export-code-button"
         disabled={!isExportToLanguageEnabled}
-        title="Export query to language"
+        title={t(
+          'aggregations.export.queryToLanguage',
+          'Export query to language'
+        )}
         className={exportDataButtonStyles}
       >
-        <span className={exportCodeButtonTextStyles}>Export Code</span>
+        <span className={exportCodeButtonTextStyles}>
+          {t('aggregations.export.code', 'Export Code')}
+        </span>
       </Button>
     </>
   );

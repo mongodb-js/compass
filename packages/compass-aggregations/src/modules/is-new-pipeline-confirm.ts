@@ -1,3 +1,4 @@
+import { getTranslator } from '../utils/i18n';
 import type { PipelineBuilderThunkAction } from '.';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import { showConfirmation } from '@mongodb-js/compass-components';
@@ -23,14 +24,20 @@ export type NewPipelineConfirmedAction = {
  */
 export const confirmNewPipeline =
   (): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineBuilder, track }) => {
+  async (dispatch, getState, { pipelineBuilder, track, preferences }) => {
+    const t = getTranslator(preferences);
     const isModified = getState().isModified;
     if (isModified) {
       track('Screen', { name: 'confirm_new_pipeline_modal' }, undefined);
       const confirmed = await showConfirmation({
-        title: 'Are you sure you want to create a new pipeline?',
-        description:
-          'Creating this pipeline will abandon unsaved changes to the current pipeline.',
+        title: t(
+          'aggregations.newPipelineConfirm.title',
+          'Are you sure you want to create a new pipeline?'
+        ),
+        description: t(
+          'aggregations.newPipelineConfirm.description',
+          'Creating this pipeline will abandon unsaved changes to the current pipeline.'
+        ),
       });
       if (!confirmed) {
         return;

@@ -1,3 +1,4 @@
+import { renderTemplate } from '../../utils/render-template';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import type { Document as DocumentType } from 'mongodb';
@@ -11,6 +12,7 @@ import {
   KeylineCard,
   Link,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
@@ -86,6 +88,7 @@ const emptyStylesLight = css({
 
 function NoPreviewDocuments({ children }: { children?: React.ReactNode }) {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   return (
     <div className={centeredContent}>
@@ -97,7 +100,12 @@ function NoPreviewDocuments({ children }: { children?: React.ReactNode }) {
           )}
         >
           <Body>
-            <span data-testid="stage-preview-empty">No Preview Documents</span>
+            <span data-testid="stage-preview-empty">
+              {t(
+                'aggregations.stagePreview.noDocuments',
+                'No Preview Documents'
+              )}
+            </span>
           </Body>
         </div>
         {children}
@@ -180,6 +188,7 @@ function StagePreviewBody({
     trackIsInSample: false,
   });
   const { interpretAnalyzeOutput, diagnoseSearchStage } = useAssistantActions();
+  const t = useTranslation();
 
   const handleAnalyzeOutput = useCallback(() => {
     if (!interpretAnalyzeOutput || !stageMetadata) return;
@@ -236,7 +245,12 @@ function StagePreviewBody({
   if (isLoading) {
     return (
       <div className={centeredContent}>
-        <LoadingOverlay text="Loading Preview Documents..." />
+        <LoadingOverlay
+          text={t(
+            'aggregations.stagePreview.loading',
+            'Loading Preview Documents...'
+          )}
+        />
       </div>
     );
   }
@@ -246,18 +260,35 @@ function StagePreviewBody({
       <div className={centeredContent}>
         <Body>
           <span data-testid="stage-preview-upstream-error">
-            Preview unavailable — error on{' '}
-            <Link
-              as="button"
-              onClick={() => {
-                document
-                  .querySelector(`[data-stage-index="${serverErrorStageIdx}"]`)
-                  ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }}
-            >
-              Stage {serverErrorStageIdx + 1}
-            </Link>
-            .
+            {renderTemplate(
+              t(
+                'aggregations.stagePreview.unavailable',
+                'Preview unavailable — error on {stage}.'
+              ),
+              {
+                stage: (
+                  <Link
+                    as="button"
+                    onClick={() => {
+                      document
+                        .querySelector(
+                          `[data-stage-index="${serverErrorStageIdx}"]`
+                        )
+                        ?.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'center',
+                        });
+                    }}
+                  >
+                    {t(
+                      'aggregations.stageEditor.stageNumber',
+                      'Stage {number}',
+                      { number: serverErrorStageIdx + 1 }
+                    )}
+                  </Link>
+                ),
+              }
+            )}
           </span>
         </Body>
       </div>
@@ -284,7 +315,9 @@ function StagePreviewBody({
             <Chip
               className={scoreChipStyles}
               variant="green"
-              label={`Score: ${score.value}`}
+              label={t('aggregations.stagePreview.score', 'Score: {score}', {
+                score: score.value,
+              })}
               data-testid="stage-preview-search-score-chip"
             />
           )}

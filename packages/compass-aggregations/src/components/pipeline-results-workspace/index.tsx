@@ -13,6 +13,7 @@ import {
   Banner,
   BannerVariant,
   showErrorDetails,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -121,11 +122,17 @@ const OutResultBanner: React.FunctionComponent<{
   namespace?: string | null;
   onClick?: () => void;
 }> = ({ namespace, onClick }) => {
+  const t = useTranslation();
   return (
     <div className={outResult}>
       <Subtitle className={outResultText}>
-        Results persisted
-        {namespace ? ` in ${namespace} namespace` : ''}
+        {namespace
+          ? t(
+              'aggregations.results.persistedIn',
+              'Results persisted in {namespace} namespace',
+              { namespace }
+            )
+          : t('aggregations.results.persisted', 'Results persisted')}
       </Subtitle>
       {namespace && (
         <Button
@@ -133,7 +140,7 @@ const OutResultBanner: React.FunctionComponent<{
           variant="primaryOutline"
           onClick={onClick}
         >
-          Go to collection
+          {t('aggregations.results.goToCollection', 'Go to collection')}
         </Button>
       )}
     </div>
@@ -177,6 +184,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   hasRerankStage,
   searchExtensionType,
 }) => {
+  const t = useTranslation();
   const { atlasMetadata } = useConnectionInfo();
   const enableRerank = usePreference('enableRerank');
   const track = useTelemetry();
@@ -203,10 +211,20 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
           variant={BannerVariant.Danger}
           className={errorBannerStyles}
         >
-          <b>$rerank not enabled</b>
+          <b>
+            {t(
+              'aggregations.serverError.rerankNotEnabled',
+              '$rerank not enabled'
+            )}
+          </b>
           <br />
           <div className={rerankBannerContentStyles}>
-            <span>Enable native reranking in project settings.</span>
+            <span>
+              {t(
+                'aggregations.serverError.enableReranking',
+                'Enable native reranking in project settings.'
+              )}
+            </span>
             {projectSettingsHref && (
               <Button
                 size="xsmall"
@@ -222,7 +240,10 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
                 }}
                 rightGlyph={<Icon glyph="OpenNewTab" />}
               >
-                Project Settings
+                {t(
+                  'aggregations.serverError.projectSettings',
+                  'Project Settings'
+                )}
               </Button>
             )}
           </div>
@@ -255,7 +276,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
               data-testid="pipeline-results-error-retry-button"
               className={errorDetailsBtnStyles}
             >
-              RETRY
+              {t('aggregations.results.retry', 'RETRY')}
             </Button>
             {error?.info && (
               <Button
@@ -269,7 +290,10 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
                 data-testid="pipeline-results-error-details-button"
                 className={errorDetailsBtnStyles}
               >
-                VIEW ERROR DETAILS
+                {t(
+                  'aggregations.results.viewErrorDetails',
+                  'VIEW ERROR DETAILS'
+                )}
               </Button>
             )}
           </div>
@@ -283,14 +307,16 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
           data-testid="pipeline-results-loader"
           progressText={
             isMergeOrOutPipeline
-              ? `Persisting documents${
-                  mergeOrOutDestination
-                    ? ` to ${mergeOrOutDestination} namespace`
-                    : ''
-                }`
-              : 'Running aggregation'
+              ? mergeOrOutDestination
+                ? t(
+                    'aggregations.results.persistingTo',
+                    'Persisting documents to {namespace} namespace',
+                    { namespace: mergeOrOutDestination }
+                  )
+                : t('aggregations.results.persisting', 'Persisting documents')
+              : t('aggregations.results.running', 'Running aggregation')
           }
-          cancelText="Stop"
+          cancelText={t('aggregations.results.stop', 'Stop')}
           onCancel={onCancel}
         />
       </ResultsContainer>

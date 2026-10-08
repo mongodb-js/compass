@@ -9,6 +9,7 @@ import {
   spacing,
   Button,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai/provider';
 import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
@@ -69,19 +70,34 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   onShowAIInputClick,
 }) => {
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const t = useTranslation();
 
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
       {stages.length === 0 ? (
         <Description className={descriptionStyles}>
-          Your pipeline is currently empty.
+          {t(
+            'aggregations.pipelineStages.empty',
+            'Your pipeline is currently empty.'
+          )}
           {showAddNewStage && (
             <>
               {isAIFeatureEnabled && showAIEntry ? (
-                <>{nbsp}Need help getting started?</>
+                <>
+                  {nbsp}
+                  {t(
+                    'aggregations.pipelineStages.needHelp',
+                    'Need help getting started?'
+                  )}
+                </>
               ) : (
                 <>
-                  {nbsp}To get started add the{nbsp}
+                  {nbsp}
+                  {t(
+                    'aggregations.pipelineStages.toGetStarted',
+                    'To get started add the'
+                  )}
+                  {nbsp}
                   <Link
                     className={addStageStyles}
                     as="button"
@@ -89,7 +105,10 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
                     hideExternalIcon
                     data-testid="pipeline-toolbar-add-stage-button"
                   >
-                    first stage.
+                    {t(
+                      'aggregations.pipelineStages.firstStage',
+                      'first stage.'
+                    )}
                   </Link>
                 </>
               )}
@@ -119,7 +138,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
           onClick={() => onEditPipelineClick('builder')}
           leftGlyph={<Icon glyph="Edit" />}
         >
-          Edit
+          {t('aggregations.pipelineStages.edit', 'Edit')}
         </Button>
       )}
     </div>

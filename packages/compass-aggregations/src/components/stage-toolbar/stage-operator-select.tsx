@@ -1,3 +1,4 @@
+import { translateEnglish } from '../../utils/i18n';
 import React, { useCallback, useEffect, useRef } from 'react';
 import {
   withPreferences,
@@ -14,7 +15,9 @@ import {
   Description,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
+import type { TranslateFn } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
@@ -47,16 +50,23 @@ const rerankStageNameRowStyles = css({
   gap: spacing[200],
 });
 
-const RerankStageOption = ({ description }: { description: string }) => (
-  <div className={rerankStageOptionStyles}>
-    <div className={rerankStageNameRowStyles}>
-      <span>$rerank</span>
-      <Badge variant={BadgeVariant.Blue}>Preview</Badge>
-      <Badge variant={BadgeVariant.Blue}>Start Free</Badge>
+const RerankStageOption = ({ description }: { description: string }) => {
+  const t = useTranslation();
+  return (
+    <div className={rerankStageOptionStyles}>
+      <div className={rerankStageNameRowStyles}>
+        <span>$rerank</span>
+        <Badge variant={BadgeVariant.Blue}>
+          {t('aggregations.stageSelect.preview', 'Preview')}
+        </Badge>
+        <Badge variant={BadgeVariant.Blue}>
+          {t('aggregations.stageSelect.startFree', 'Start Free')}
+        </Badge>
+      </div>
+      <Description>{description}</Description>
     </div>
-    <Description>{description}</Description>
-  </div>
-);
+  );
+};
 
 const comboboxStyles = css({
   width: inputWidth,
@@ -108,8 +118,10 @@ export const getStageDescription = (
   sourceName: string | null,
   serverVersion: string,
   versionIncompatibleCompass: boolean,
-  isPipelineSearchQueryable: boolean
+  isPipelineSearchQueryable: boolean,
+  t: TranslateFn = translateEnglish
 ) => {
+  const atlasOnly = t('aggregations.stageSelect.atlasOnly', 'Atlas only.');
   const isReadonlyView = !!sourceName;
   if (isReadonlyView && isSearchStage(stage.name)) {
     const minVersionCompatibility =
@@ -124,25 +136,39 @@ export const getStageDescription = (
       if (sourceCollectionSupportsViewIndex(serverVersion)) {
         // version is 8.0
         return (
-          `Atlas only. Requires MongoDB ${minVersionCompatibility}+ to run on a view. To use a search index on a view on MongoDB 8.0, query the view’s source collection ${sourceName}. ` +
+          t(
+            'aggregations.stageSelect.viewSearch80',
+            'Atlas only. Requires MongoDB {version}+ to run on a view. To use a search index on a view on MongoDB 8.0, query the view’s source collection {sourceName}.',
+            { version: minVersionCompatibility, sourceName }
+          ) +
+          ' ' +
           stage.description
         );
       }
 
       return (
-        `Atlas only. Requires MongoDB ${minVersionCompatibility}+ to run on a view. ` +
+        t(
+          'aggregations.stageSelect.viewSearchRequires',
+          'Atlas only. Requires MongoDB {version}+ to run on a view.',
+          { version: minVersionCompatibility }
+        ) +
+        ' ' +
         stage.description
       );
     }
 
     if (!isPipelineSearchQueryable) {
       return (
-        `Atlas only. Only views containing $match stages with the $expr operator, $addFields, or $set are compatible with search indexes. ` +
+        t(
+          'aggregations.stageSelect.viewSearchCompatible',
+          'Atlas only. Only views containing $match stages with the $expr operator, $addFields, or $set are compatible with search indexes.'
+        ) +
+        ' ' +
         stage.description
       );
     }
   }
-  return (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') + stage.description;
+  return (isAtlasOnly(stage.env) ? atlasOnly + ' ' : '') + stage.description;
 };
 
 // exported for tests
@@ -162,6 +188,7 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
+  const t = useTranslation();
   const enableRerank = usePreference('enableRerank');
   // TODO(COMPASS-10681): Remove $rerank top-of-list sort after marketing period.
   const visibleStages = enableRerank
@@ -202,7 +229,10 @@ export const StageOperatorSelect = ({
       <Combobox
         value={selectedStage}
         disabled={isDisabled}
-        aria-label="Select a stage operator"
+        aria-label={t(
+          'aggregations.stageSelect.selectOperator',
+          'Select a stage operator'
+        )}
         onChange={onStageOperatorSelected}
         size="xsmall"
         clearable={false}
@@ -215,7 +245,8 @@ export const StageOperatorSelect = ({
             sourceName,
             serverVersion,
             versionIncompatibleCompass,
-            pipelineIsSearchQueryable
+            pipelineIsSearchQueryable,
+            t
           );
           return (
             <ComboboxOption

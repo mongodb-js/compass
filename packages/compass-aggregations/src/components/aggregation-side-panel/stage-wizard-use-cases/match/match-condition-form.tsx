@@ -5,6 +5,7 @@ import {
   Select,
   TextInput,
   Option,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import TypeChecker from 'hadron-type-checker';
 import type { TypeCastTypes } from 'hadron-type-checker';
@@ -122,6 +123,15 @@ const MatchConditionForm = ({
   condition,
   onConditionChange,
 }: MatchConditionFormProps) => {
+  const t = useTranslation();
+  const labels = {
+    operatorSelect: t(
+      'aggregations.wizard.match.selectOperator',
+      LABELS.operatorSelect
+    ),
+    valueInput: t('aggregations.wizard.match.expectedValue', LABELS.valueInput),
+    typeSelect: t('aggregations.wizard.match.selectType', LABELS.typeSelect),
+  };
   const handleFieldChange = (field: string | null) => {
     if (field !== null && field !== condition.field) {
       const bsonType =
@@ -166,8 +176,8 @@ const MatchConditionForm = ({
         <Select
           size="default"
           allowDeselect={false}
-          placeholder={LABELS.operatorSelect}
-          aria-label={LABELS.operatorSelect}
+          placeholder={labels.operatorSelect}
+          aria-label={labels.operatorSelect}
           value={condition.operator}
           onChange={handleOperatorChange}
           data-testid="match-condition-operator-select"
@@ -183,9 +193,9 @@ const MatchConditionForm = ({
       </div>
       <div className={valueInputStyles}>
         <TextInput
-          placeholder={LABELS.valueInput}
+          placeholder={labels.valueInput}
           data-testid="match-stage-expected-value-input"
-          aria-label={LABELS.valueInput}
+          aria-label={labels.valueInput}
           value={condition.value}
           onChange={handleValueChange}
         />
@@ -193,8 +203,8 @@ const MatchConditionForm = ({
       <div className={bsonTypeSelectStyles}>
         <Select
           allowDeselect={false}
-          placeholder={LABELS.typeSelect}
-          aria-label={LABELS.typeSelect}
+          placeholder={labels.typeSelect}
+          aria-label={labels.typeSelect}
           value={condition.bsonType}
           onChange={handleBsonTypeChange}
           data-testid="match-condition-type-select"

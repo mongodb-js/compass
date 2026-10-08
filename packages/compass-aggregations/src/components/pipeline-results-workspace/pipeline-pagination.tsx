@@ -6,6 +6,7 @@ import {
   spacing,
   Icon,
   Body,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
@@ -51,12 +52,16 @@ export const PipelinePagination: React.FunctionComponent<
   onPrev,
   onNext,
 }) => {
+  const t = useTranslation();
   return (
     <div className={containerStyles} data-testid="pipeline-pagination">
       {!isCountDisabled && (
         <div className={paginationStyles}>
           <Body data-testid="pipeline-pagination-desc">
-            Showing {showingFrom} – {showingTo}
+            {t('aggregations.pagination.showing', 'Showing {from} – {to}', {
+              from: showingFrom,
+              to: showingTo,
+            })}
           </Body>
           <PipelinePaginationCount />
         </div>
@@ -64,7 +69,7 @@ export const PipelinePagination: React.FunctionComponent<
       <div className={prevNextStyles}>
         <IconButton
           data-testid="pipeline-pagination-prev-action"
-          aria-label="Previous page"
+          aria-label={t('aggregations.pagination.previous', 'Previous page')}
           disabled={isPrevDisabled}
           onClick={() => onPrev()}
         >
@@ -72,7 +77,7 @@ export const PipelinePagination: React.FunctionComponent<
         </IconButton>
         <IconButton
           data-testid="pipeline-pagination-next-action"
-          aria-label="Next page"
+          aria-label={t('aggregations.pagination.next', 'Next page')}
           disabled={isNextDisabled}
           onClick={() => onNext()}
         >

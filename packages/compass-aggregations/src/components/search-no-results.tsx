@@ -7,6 +7,7 @@ import {
   Body,
   useDarkMode,
   Subtitle,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 const centeredContent = css({
@@ -29,6 +30,7 @@ const missingAtlasIndexDarkStyles = css({
 
 export default function SearchNoResults() {
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   return (
     <div className={centeredContent}>
@@ -37,11 +39,13 @@ export default function SearchNoResults() {
           darkMode ? missingAtlasIndexDarkStyles : missingAtlasIndexLightStyles
         }
       >
-        No preview documents
+        {t('aggregations.search.noPreviewDocuments', 'No preview documents')}
       </Subtitle>
       <Body>
-        This may be because your search has no results or your search index does
-        not exist.
+        {t(
+          'aggregations.search.noPreviewDocumentsHint',
+          'This may be because your search has no results or your search index does not exist.'
+        )}
       </Body>
     </div>
   );

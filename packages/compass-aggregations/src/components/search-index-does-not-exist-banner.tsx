@@ -5,6 +5,7 @@ import {
   Link,
   Banner,
   useDrawerActions,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { mapSearchStageOperatorToSearchIndexType } from '../utils/stage';
@@ -34,13 +35,19 @@ export default function SearchIndexDoesNotExistBanner({
 }: SearchIndexDoesNotExistBannerProps) {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
+  const t = useTranslation();
   const searchIndexType =
     mapSearchStageOperatorToSearchIndexType(searchStageOperator);
   const indexLabel =
     searchIndexType === 'vectorSearch' ? 'Vector search' : 'Search';
+  const messageKey = `aggregations.searchIndex.doesNotExist.${
+    searchIndexType === 'vectorSearch' ? 'vector' : 'search'
+  }${searchIndexName ? 'Named' : ''}`;
   const message = searchIndexName
-    ? `${indexLabel} index '${searchIndexName}' doesn't exist.`
-    : `${indexLabel} index doesn't exist.`;
+    ? t(messageKey, `${indexLabel} index '{name}' doesn't exist.`, {
+        name: searchIndexName,
+      })
+    : t(messageKey, `${indexLabel} index doesn't exist.`);
 
   return (
     <Banner
@@ -61,9 +68,12 @@ export default function SearchIndexDoesNotExistBanner({
               onViewIndexesClick();
             }}
           >
-            View Search Indexes
+            {t(
+              'aggregations.searchIndex.viewSearchIndexes',
+              'View Search Indexes'
+            )}
           </Link>
-          {' or '}
+          {` ${t('aggregations.searchIndex.or', 'or')} `}
           <Link
             onClick={() => {
               track('Search Index Create Link Clicked', {
@@ -74,7 +84,7 @@ export default function SearchIndexDoesNotExistBanner({
               onCreateSearchIndexClick(searchIndexType);
             }}
           >
-            Create a New Index
+            {t('aggregations.searchIndex.createNew', 'Create a New Index')}
           </Link>
         </>
       )}

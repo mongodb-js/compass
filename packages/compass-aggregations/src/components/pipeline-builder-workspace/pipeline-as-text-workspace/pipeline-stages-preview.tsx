@@ -9,6 +9,7 @@ import {
   SpinLoader,
   ButtonVariant,
   ButtonSize,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
@@ -84,6 +85,7 @@ export const OutputStagePreview = ({
 }: OutputStageProps) => {
   // When explicit pipeline run is not enabled, we allow to run output stage
   // from the preview
+  const t = useTranslation();
   const showOutputActions = !usePreference(
     'enableAggregationBuilderRunPipeline'
   );
@@ -96,24 +98,30 @@ export const OutputStagePreview = ({
     return (
       <PipelineStageBanner
         data-testid={`${stageOperator}-is-complete-banner`}
-        text={`Documents persisted to collection specified by ${stageOperator}.`}
+        text={t(
+          'aggregations.outputStage.persistedBy',
+          'Documents persisted to collection specified by {stageOperator}.',
+          { stageOperator }
+        )}
         actionButton={
           <Button {...buttonProps} onClick={onOpenCollection}>
-            Go to collection
+            {t('aggregations.outputStage.goToCollection', 'Go to collection')}
           </Button>
         }
       />
     );
   }
 
-  const icon = isLoading ? <SpinLoader title="Loading" /> : undefined;
+  const icon = isLoading ? (
+    <SpinLoader title={t('aggregations.outputStage.loading', 'Loading')} />
+  ) : undefined;
   return (
     <PipelineStageBanner
       data-testid={`${stageOperator}-preview-banner`}
       text={
         stageOperator === '$out'
-          ? OUT_STAGE_PREVIEW_TEXT
-          : MERGE_STAGE_PREVIEW_TEXT
+          ? t('aggregations.outputStage.outPreview', OUT_STAGE_PREVIEW_TEXT)
+          : t('aggregations.outputStage.mergePreview', MERGE_STAGE_PREVIEW_TEXT)
       }
       actionButton={
         showOutputActions ? (
@@ -123,7 +131,7 @@ export const OutputStagePreview = ({
             onClick={onSaveCollection}
             leftGlyph={icon}
           >
-            Save documents
+            {t('aggregations.outputStage.saveDocuments', 'Save documents')}
           </Button>
         ) : null
       }

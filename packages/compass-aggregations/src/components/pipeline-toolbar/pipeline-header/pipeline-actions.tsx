@@ -10,6 +10,7 @@ import {
   SpinLoader,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai/provider';
 import type { RootState } from '../../../modules';
@@ -80,6 +81,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isInterpretLoading = false,
   stages,
 }) => {
+  const t = useTranslation();
   const {
     readWrite: preferencesReadWrite,
     enableAggregationBuilderExtraOptions,
@@ -98,37 +100,54 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     (): MenuAction<ExplainMode>[] => [
       {
         action: 'interpret',
-        label: 'Interpret',
+        label: t('aggregations.actions.interpret', 'Interpret'),
         icon: isInterpretLoading ? (
-          <SpinLoader title="Loading interpret" />
+          <SpinLoader
+            title={t(
+              'aggregations.actions.loadingInterpret',
+              'Loading interpret'
+            )}
+          />
         ) : (
           'Sparkle'
         ),
         isDisabled: !isAssistantEnabled || hasSearchStage || isInterpretLoading,
         disabledDescription: isInterpretLoading
-          ? 'Interpret in progress'
+          ? t(
+              'aggregations.actions.interpretInProgress',
+              'Interpret in progress'
+            )
           : hasSearchStage
-            ? 'Not supported for this query'
+            ? t(
+                'aggregations.actions.notSupported',
+                'Not supported for this query'
+              )
             : !isAssistantEnabled
-              ? 'Assistant is not available'
+              ? t(
+                  'aggregations.actions.assistantUnavailable',
+                  'Assistant is not available'
+                )
               : undefined,
       },
       {
         action: 'visual-tree',
-        label: 'Visual tree',
+        label: t('aggregations.actions.visualTree', 'Visual tree'),
         icon: 'Diagram',
         isDisabled: hasSearchStage,
         disabledDescription: hasSearchStage
-          ? 'Not supported for this query'
+          ? t(
+              'aggregations.actions.notSupported',
+              'Not supported for this query'
+            )
           : undefined,
       },
       {
         action: 'raw-output',
-        label: 'Raw output',
+        label: t('aggregations.actions.rawOutput', 'Raw output'),
         icon: 'CurlyBraces',
       },
     ],
-    [isAssistantEnabled, hasSearchStage, isInterpretLoading]
+    [isAssistantEnabled, hasSearchStage, isInterpretLoading, t]
   );
 
   const onExplainAction = useCallback(
@@ -171,32 +190,35 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
       )}
       {showUpdateViewButton && (
         <Button
-          aria-label="Update view"
+          aria-label={t('aggregations.actions.updateView', 'Update view')}
           data-testid="pipeline-toolbar-update-view-aggregation-button"
           variant="primary"
           size="small"
           onClick={onUpdateView}
           disabled={isUpdateViewButtonDisabled}
         >
-          Update view
+          {t('aggregations.actions.updateView', 'Update view')}
         </Button>
       )}
       {showExplainButton &&
         (isSearchActivationProgramP2Loading ? (
           <Button
-            aria-label="Explain aggregation"
+            aria-label={t(
+              'aggregations.actions.explainAggregation',
+              'Explain aggregation'
+            )}
             data-testid="pipeline-toolbar-explain-aggregation-button-loading"
             variant="default"
             size="small"
             disabled
             leftGlyph={<SpinLoader />}
           >
-            Explain
+            {t('aggregations.actions.explain', 'Explain')}
           </Button>
         ) : enableSearchActivationProgramP2 ? (
           <DropdownMenuButton
             data-testid="pipeline-toolbar-explain-aggregation-dropdown-button"
-            buttonText="Explain"
+            buttonText={t('aggregations.actions.explain', 'Explain')}
             buttonProps={{
               size: 'small',
               variant: 'default',
@@ -209,26 +231,32 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           />
         ) : (
           <Button
-            aria-label="Explain aggregation"
+            aria-label={t(
+              'aggregations.actions.explainAggregation',
+              'Explain aggregation'
+            )}
             data-testid="pipeline-toolbar-explain-aggregation-button"
             variant="default"
             size="small"
             onClick={() => onExplainAggregation('visual-tree')}
             disabled={isExplainButtonDisabled}
           >
-            Explain
+            {t('aggregations.actions.explain', 'Explain')}
           </Button>
         ))}
       {!showUpdateViewButton && showRunButton && (
         <Button
-          aria-label="Run aggregation"
+          aria-label={t(
+            'aggregations.actions.runAggregation',
+            'Run aggregation'
+          )}
           data-testid="pipeline-toolbar-run-button"
           variant="primary"
           size="small"
           onClick={onRunAggregation}
           disabled={isRunButtonDisabled}
         >
-          Run
+          {t('aggregations.actions.run', 'Run')}
         </Button>
       )}
       {enableAggregationBuilderExtraOptions && (

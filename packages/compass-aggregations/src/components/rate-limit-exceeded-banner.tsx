@@ -1,9 +1,11 @@
+import { renderTemplate } from '../utils/render-template';
 import React, { useEffect } from 'react';
 import {
   Banner,
   BannerVariant,
   Link,
   css,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -39,6 +41,7 @@ export default function RateLimitExceededBanner({
 }: RateLimitExceededBannerProps) {
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
+  const t = useTranslation();
 
   useEffect(() => {
     track('Search Extension Rate Limit Banner Shown', {
@@ -58,30 +61,53 @@ export default function RateLimitExceededBanner({
         data-testid={dataTestId}
         className={bannerStyles}
       >
-        <strong>Query rate limits exceeded</strong>
+        <strong>
+          {t(
+            'aggregations.rateLimit.queryLimitsExceeded',
+            'Query rate limits exceeded'
+          )}
+        </strong>
         <br />
-        You are currently on Tier 0 with reduced rate limits of{' '}
-        {rateLimitInfo.limits}.{' '}
-        {billingHref ? (
-          <Link
-            href={billingHref}
-            target="_blank"
-            onClick={() =>
-              track('Search Extension Rate Limit Billing Link Clicked', {
-                context: 'Search Extension Rate Limit Banner',
-                search_extension_type: searchExtensionType ?? null,
-              })
-            }
-          >
-            Add a payment method
-          </Link>
-        ) : (
-          'Add a payment method'
-        )}{' '}
-        for your organization to unlock the higher tier.
+        {renderTemplate(
+          t(
+            'aggregations.rateLimit.billing',
+            'You are currently on Tier 0 with reduced rate limits of {limits}. {paymentLink} for your organization to unlock the higher tier.',
+            { limits: rateLimitInfo.limits }
+          ),
+          {
+            paymentLink: billingHref ? (
+              <Link
+                href={billingHref}
+                target="_blank"
+                onClick={() =>
+                  track('Search Extension Rate Limit Billing Link Clicked', {
+                    context: 'Search Extension Rate Limit Banner',
+                    search_extension_type: searchExtensionType ?? null,
+                  })
+                }
+              >
+                {t(
+                  'aggregations.rateLimit.addPaymentMethod',
+                  'Add a payment method'
+                )}
+              </Link>
+            ) : (
+              t(
+                'aggregations.rateLimit.addPaymentMethod',
+                'Add a payment method'
+              )
+            ),
+          }
+        )}
       </Banner>
     );
   }
+
+  const extensionLabel = searchExtensionType
+    ? searchExtensionType === 'autoEmbedding'
+      ? t('aggregations.rateLimit.autoEmbedding', 'auto embedding')
+      : SEARCH_EXTENSION_LABELS[searchExtensionType]
+    : '';
 
   const rateLimitsHref =
     searchExtensionType && atlasMetadata
@@ -100,22 +126,37 @@ export default function RateLimitExceededBanner({
     >
       <strong>
         {searchExtensionType === 'autoEmbedding'
-          ? 'Query rate limit exceeded'
-          : 'Rate limit exceeded'}
+          ? t(
+              'aggregations.rateLimit.queryLimitExceeded',
+              'Query rate limit exceeded'
+            )
+          : t('aggregations.rateLimit.exceeded', 'Rate limit exceeded')}
       </strong>
       <br />
       <span>
         {rateLimitInfo.type === 'rpm'
-          ? `Exceeded ${rateLimitInfo.limit}${
-              searchExtensionType
-                ? ` ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
-                : ''
-            } requests per minute rate limit`
-          : `Exceeded ${rateLimitInfo.limit} tokens per minute rate limit${
-              searchExtensionType
-                ? ` for ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
-                : ''
-            }`}
+          ? searchExtensionType
+            ? t(
+                'aggregations.rateLimit.rpmWithExtension',
+                'Exceeded {limit} {extension} requests per minute rate limit',
+                { limit: rateLimitInfo.limit, extension: extensionLabel }
+              )
+            : t(
+                'aggregations.rateLimit.rpm',
+                'Exceeded {limit} requests per minute rate limit',
+                { limit: rateLimitInfo.limit }
+              )
+          : searchExtensionType
+            ? t(
+                'aggregations.rateLimit.tpmWithExtension',
+                'Exceeded {limit} tokens per minute rate limit for {extension}',
+                { limit: rateLimitInfo.limit, extension: extensionLabel }
+              )
+            : t(
+                'aggregations.rateLimit.tpm',
+                'Exceeded {limit} tokens per minute rate limit',
+                { limit: rateLimitInfo.limit }
+              )}
         {'.'}
         {rateLimitsHref && (
           <>
@@ -131,7 +172,7 @@ export default function RateLimitExceededBanner({
                 })
               }
             >
-              View Rate Limit
+              {t('aggregations.rateLimit.view', 'View Rate Limit')}
             </Link>
           </>
         )}

@@ -7,6 +7,7 @@ import {
   Icon,
   KeylineCard,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 type SavePipelineCardProps = {
@@ -49,6 +50,7 @@ const button = css({
 export const SavePipelineCard: React.FunctionComponent<
   SavePipelineCardProps
 > = ({ id, name, onOpenPipeline, onDeletePipeline }) => {
+  const t = useTranslation();
   return (
     <div className={containerStyles}>
       <KeylineCard
@@ -67,13 +69,13 @@ export const SavePipelineCard: React.FunctionComponent<
             onClick={onOpenPipeline}
             data-testid="saved-pipeline-card-open-action"
           >
-            Open
+            {t('aggregations.savedPipelines.open', 'Open')}
           </Button>
           <Button
             className={button}
             size="xsmall"
             onClick={onDeletePipeline}
-            aria-label="Delete"
+            aria-label={t('aggregations.savedPipelines.delete', 'Delete')}
             data-testid="saved-pipeline-card-delete-action"
           >
             <Icon size="small" glyph="Trash"></Icon>

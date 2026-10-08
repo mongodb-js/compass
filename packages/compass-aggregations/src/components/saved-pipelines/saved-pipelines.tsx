@@ -5,6 +5,7 @@ import {
   palette,
   Body,
   useDarkMode,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { SavePipelineCard } from './saved-pipeline-card';
@@ -72,6 +73,7 @@ export const SavedPipelines = ({
   onMount,
 }: SavedPipelinesProps) => {
   const darkMode = useDarkMode();
+  const t = useTranslation();
   const onMountRef = useRef(onMount);
   useEffect(() => {
     onMountRef.current();
@@ -84,7 +86,7 @@ export const SavedPipelines = ({
           data-testid="saved-pipeline-header-title"
           id="saved-pipeline-header-title"
         >
-          Saved Pipelines in{' '}
+          {t('aggregations.savedPipelines.savedIn', 'Saved Pipelines in')}{' '}
           <span
             className={darkMode ? titleStylesDark : titleStylesLight}
             title={namespace}
@@ -112,7 +114,10 @@ export const SavedPipelines = ({
             className={emptyMessageStyles}
             data-testid="saved-pipelines-empty-state"
           >
-            No saved pipelines found.
+            {t(
+              'aggregations.savedPipelines.empty',
+              'No saved pipelines found.'
+            )}
           </Body>
         )}
       </div>

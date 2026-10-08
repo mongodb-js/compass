@@ -5,6 +5,7 @@ import {
   SpinLoader,
   spacing,
   Overline,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type HadronDocument from 'hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
@@ -131,6 +132,7 @@ export const FocusModePreview = ({
   emptyStateAction,
   resultsAction,
 }: FocusModePreviewProps) => {
+  const t = useTranslation();
   const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
     void navigator.clipboard.writeText(str);
@@ -150,7 +152,6 @@ export const FocusModePreview = ({
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   const docCount = documents?.length ?? 0;
-  const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
 
   const hasDocuments = documents && documents.length > 0;
@@ -173,8 +174,11 @@ export const FocusModePreview = ({
     content = (
       <div className={centerStyles}>
         <div className={loaderStyles}>
-          <SpinLoader title="Loading" />
-          Loading Preview Documents...
+          <SpinLoader title={t('aggregations.focusMode.loading', 'Loading')} />
+          {t(
+            'aggregations.stagePreview.loading',
+            'Loading Preview Documents...'
+          )}
         </div>
       </div>
     );
@@ -202,7 +206,12 @@ export const FocusModePreview = ({
   } else {
     content = (
       <div className={centerStyles}>
-        <Body className={messageStyles}>No preview documents</Body>
+        <Body className={messageStyles}>
+          {t(
+            'aggregations.pipelinePreview.noDocuments',
+            'No preview documents'
+          )}
+        </Body>
         {emptyStateAction}
       </div>
     );
@@ -215,14 +224,24 @@ export const FocusModePreview = ({
           <Overline>{title}</Overline>
           {shouldShowCount && (
             <Body>
-              Sample of {docCount} {docText}
+              {docCount === 1
+                ? t(
+                    'aggregations.pipelinePreview.sampleOne',
+                    'Sample of {count} document',
+                    { count: docCount }
+                  )
+                : t(
+                    'aggregations.pipelinePreview.sampleOther',
+                    'Sample of {count} documents',
+                    { count: docCount }
+                  )}
             </Body>
           )}
         </div>
         <div className={pipelineOutputMenuStyles}>
           {hasDocuments && (
             <PipelineOutputOptionsMenu
-              buttonText="Options"
+              buttonText={t('aggregations.focusMode.options', 'Options')}
               onChangeOption={handlePipelineOutputOptionChanged}
             />
           )}
@@ -237,7 +256,13 @@ export const FocusModePreview = ({
 };
 
 export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  return <FocusModePreview {...props} title="Stage Input" />;
+  const t = useTranslation();
+  return (
+    <FocusModePreview
+      {...props}
+      title={t('aggregations.focusMode.stageInput', 'Stage Input')}
+    />
+  );
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
@@ -250,6 +275,7 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
     pipeline = null,
     documents,
   } = props;
+  const t = useTranslation();
   const { diagnoseSearchStage, interpretAnalyzeOutput } = useAssistantActions();
   const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
     stageOperator,
@@ -298,7 +324,7 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
   return (
     <FocusModePreview
       {...props}
-      title="Stage Output"
+      title={t('aggregations.focusMode.stageOutput', 'Stage Output')}
       emptyStateAction={
         showDiagnoseSearchStage ? (
           <SearchStageDiagnoseButton

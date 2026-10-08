@@ -7,6 +7,7 @@ import {
   Tooltip,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
@@ -49,6 +50,7 @@ export const PipelineSettings: React.FunctionComponent<
   PipelineSettingsProps
 > = ({ editViewName, isCreateNewPipelineDisabled, onCreateNewPipeline }) => {
   const enableSavedAggregationsQueries = usePreference('enableMyQueries');
+  const t = useTranslation();
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
 
@@ -71,11 +73,16 @@ export const PipelineSettings: React.FunctionComponent<
                 disabled={isCreateNewPipelineDisabled}
                 data-testid="pipeline-toolbar-create-new-button"
               >
-                Create new
+                {t('aggregations.pipelineSettings.createNew', 'Create new')}
               </Button>
             }
           >
-            <Body>This pipeline is already empty.</Body>
+            <Body>
+              {t(
+                'aggregations.pipelineSettings.alreadyEmpty',
+                'This pipeline is already empty.'
+              )}
+            </Body>
           </Tooltip>
         )}
         <PipelineExportActions />

@@ -3,6 +3,7 @@ import {
   AssistantSparkleIcon,
   Button,
   css,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
@@ -72,6 +73,7 @@ type AnalyzeAndRefineResultsButtonProps = {
 export const AnalyzeAndRefineResultsButton: React.FunctionComponent<
   AnalyzeAndRefineResultsButtonProps
 > = ({ onClick, 'data-testid': dataTestId }) => {
+  const t = useTranslation();
   return (
     <Button
       data-testid={dataTestId}
@@ -81,7 +83,7 @@ export const AnalyzeAndRefineResultsButton: React.FunctionComponent<
       leftGlyph={<AssistantSparkleIcon />}
       onClick={onClick}
     >
-      Analyze &amp; Refine Results
+      {t('aggregations.search.analyzeAndRefine', 'Analyze & Refine Results')}
     </Button>
   );
 };

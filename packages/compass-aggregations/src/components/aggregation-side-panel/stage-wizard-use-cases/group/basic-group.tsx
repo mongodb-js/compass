@@ -1,4 +1,9 @@
-import { Body, spacing, css } from '@mongodb-js/compass-components';
+import {
+  Body,
+  spacing,
+  css,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { mapFieldsToAccumulatorValue } from '../utils';
 import type { WizardComponentProps } from '..';
@@ -19,6 +24,7 @@ const mapGroupFormStateToStageValue = (formState: string[]) => {
 };
 
 export const BasicGroup = ({ fields, onChange }: WizardComponentProps) => {
+  const t = useTranslation();
   const [groupFields, setGroupFields] = useState<string[]>([]);
 
   const onChangeFields = (data: string[]) => {
@@ -26,13 +32,22 @@ export const BasicGroup = ({ fields, onChange }: WizardComponentProps) => {
 
     onChange(
       JSON.stringify(mapGroupFormStateToStageValue(data)),
-      data.length === 0 ? new Error('Group fields cannot be empty') : null
+      data.length === 0
+        ? new Error(
+            t(
+              'aggregations.wizard.group.fieldsEmpty',
+              'Group fields cannot be empty'
+            )
+          )
+        : null
     );
   };
 
   return (
     <div className={containerStyles}>
-      <Body>Group documents based on</Body>
+      <Body>
+        {t('aggregations.wizard.group.basedOn', 'Group documents based on')}
+      </Body>
       <FieldCombobox
         className={comboboxStyles}
         multiselect={true}

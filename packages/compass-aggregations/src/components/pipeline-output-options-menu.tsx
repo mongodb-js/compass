@@ -1,12 +1,12 @@
 import React from 'react';
-import { css, DropdownMenuButton } from '@mongodb-js/compass-components';
+import {
+  css,
+  DropdownMenuButton,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 
 export type PipelineOutputOption = 'expand' | 'collapse';
-const pipelineOptionsActions: MenuAction<PipelineOutputOption>[] = [
-  { action: 'collapse', label: 'Collapse all fields' },
-  { action: 'expand', label: 'Expand all fields' },
-];
 
 const containerStyles = css({
   display: 'flex',
@@ -14,12 +14,22 @@ const containerStyles = css({
   flex: 'none',
 });
 
-const defaultTitle = 'Output Options';
-
 export const PipelineOutputOptionsMenu: React.FunctionComponent<{
   onChangeOption: (option: PipelineOutputOption) => void;
   buttonText?: string;
 }> = ({ onChangeOption, buttonText }) => {
+  const t = useTranslation();
+  const pipelineOptionsActions: MenuAction<PipelineOutputOption>[] = [
+    {
+      action: 'collapse',
+      label: t('aggregations.outputOptions.collapseAll', 'Collapse all fields'),
+    },
+    {
+      action: 'expand',
+      label: t('aggregations.outputOptions.expandAll', 'Expand all fields'),
+    },
+  ];
+  const defaultTitle = t('aggregations.outputOptions.title', 'Output Options');
   return (
     <div className={containerStyles}>
       <DropdownMenuButton<PipelineOutputOption>
