@@ -6,6 +6,7 @@ import {
   BannerVariant,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import {
   refreshCollections,
@@ -22,8 +23,6 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-
-const ERROR_WARNING = 'An error occurred while loading collections';
 
 const collectionsErrorStyles = css({
   padding: spacing[400],
@@ -50,6 +49,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   onCreateCollectionClick: _onCreateCollectionClick,
   onRefreshClick,
 }) => {
+  const t = useTranslation();
   const isCompassInWritableMode = !usePreference('readOnly');
   const isEditable = useMemo(() => {
     return isCompassInWritableMode && isInstanceWritable;
@@ -84,12 +84,16 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   );
 
   if (collectionsLoadingStatus === 'error') {
+    const errorWarning = t(
+      'databasesCollections.collections.loadError',
+      'An error occurred while loading collections'
+    );
     return (
       <div className={collectionsErrorStyles}>
         <Banner variant={BannerVariant.Danger}>
           {collectionsLoadingError
-            ? `${ERROR_WARNING}: ${collectionsLoadingError}`
-            : ERROR_WARNING}
+            ? `${errorWarning}: ${collectionsLoadingError}`
+            : errorWarning}
         </Banner>
       </div>
     );

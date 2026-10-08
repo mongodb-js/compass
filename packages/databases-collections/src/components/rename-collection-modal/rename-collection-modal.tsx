@@ -8,6 +8,7 @@ import {
   css,
   spacing,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
@@ -52,17 +53,22 @@ function ConfirmationModalContent({
 }: {
   areSavedQueriesAndAggregationsImpacted: boolean;
 }) {
+  const t = useTranslation();
   return (
     <Banner variant="warning" data-testid="rename-collection-modal-warning">
       <p className={bannerTextStyles}>
-        Renaming collection will result in loss of any unsaved queries, filters
-        or aggregation pipelines.
+        {t(
+          'databasesCollections.renameCollection.warning',
+          'Renaming collection will result in loss of any unsaved queries, filters or aggregation pipelines.'
+        )}
       </p>
       {areSavedQueriesAndAggregationsImpacted && (
         <p className={bannerTextStyles}>
           <b>
-            Additionally, any saved queries or aggregations targeting this
-            collection will need to be remapped to the new namespace.
+            {t(
+              'databasesCollections.renameCollection.savedImpacted',
+              'Additionally, any saved queries or aggregations targeting this collection will need to be remapped to the new namespace.'
+            )}
           </b>
         </p>
       )}
@@ -81,6 +87,7 @@ function RenameCollectionModal({
   submitModal,
   clearError,
 }: RenameCollectionModalProps) {
+  const t = useTranslation();
   const [newName, setNewName] = useState(initialCollectionName);
   const isVisible = useMemo(() => modalState !== 'hidden', [modalState]);
   useSyncStateOnPropChange(() => {
@@ -117,30 +124,46 @@ function RenameCollectionModal({
     collections.filter(
       ({ name }) => name !== initialCollectionName && name === newName
     ).length > 0;
+  const nameExistsMessage = t(
+    'databasesCollections.renameCollection.nameExists',
+    'This collection name already exists in this database.'
+  );
   const errorMessage = error
     ? // it's conceivable that while a collection is  being renamed, the collections on the server change.  the rename collection
       // modal won't have access to the new collections.  we handle this scenario specially to provide a better error to users
       error.message.match(/target namespace exists/i)
-      ? 'This collection name already exists in this database.'
+      ? nameExistsMessage
       : error.message
     : doesCollectionExistInDB
-      ? 'This collection name already exists in this database.'
+      ? nameExistsMessage
       : undefined;
 
   return (
     <FormModal
       title={
         modalState === 'confirmation-screen'
-          ? 'Confirm rename collection'
-          : 'Rename collection'
+          ? t(
+              'databasesCollections.renameCollection.confirmTitle',
+              'Confirm rename collection'
+            )
+          : t(
+              'databasesCollections.renameCollection.title',
+              'Rename collection'
+            )
       }
       open={modalState !== 'hidden'}
       onSubmit={onFormSubmit}
       onCancel={onHide}
       submitButtonText={
         modalState === 'input-form'
-          ? 'Proceed to Rename'
-          : 'Yes, rename collection'
+          ? t(
+              'databasesCollections.renameCollection.proceed',
+              'Proceed to Rename'
+            )
+          : t(
+              'databasesCollections.renameCollection.confirmButton',
+              'Yes, rename collection'
+            )
       }
       variant="primary"
       submitDisabled={
@@ -155,7 +178,10 @@ function RenameCollectionModal({
         <FormFieldContainer>
           <TextInput
             data-testid="rename-collection-name-input"
-            label="New collection name"
+            label={t(
+              'databasesCollections.renameCollection.newName',
+              'New collection name'
+            )}
             value={newName}
             onChange={onNameConfirmationChange}
           />
@@ -164,7 +190,11 @@ function RenameCollectionModal({
       {modalState === 'confirmation-screen' && (
         <FormFieldContainer>
           <div data-testid="rename-collection-confirmation-screen">
-            {`Are you sure you want to rename "${initialCollectionName}" to "${newName}"?`}
+            {t(
+              'databasesCollections.renameCollection.confirmQuestion',
+              'Are you sure you want to rename "{from}" to "{to}"?',
+              { from: initialCollectionName, to: newName }
+            )}
           </div>
         </FormFieldContainer>
       )}
@@ -183,7 +213,12 @@ function RenameCollectionModal({
       {isRunning && (
         <Body className={progressContainerStyles}>
           <SpinLoader />
-          <span>Renaming Collection&hellip;</span>
+          <span>
+            {t(
+              'databasesCollections.renameCollection.renaming',
+              'Renaming Collection…'
+            )}
+          </span>
         </Body>
       )}
     </FormModal>

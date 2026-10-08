@@ -1,13 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TextInput, FormFieldContainer } from '@mongodb-js/compass-components';
+import {
+  TextInput,
+  FormFieldContainer,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 function DatabaseName({ databaseName, onChangeDatabaseName }) {
+  const t = useTranslation();
   return (
     <FormFieldContainer>
       <TextInput
         required
-        label="Database Name"
+        label={t('databasesCollections.fields.databaseName', 'Database Name')}
         data-testid="database-name"
         onChange={(e) => onChangeDatabaseName(e.target.value)}
         value={databaseName}

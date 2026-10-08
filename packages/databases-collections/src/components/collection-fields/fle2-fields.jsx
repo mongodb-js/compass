@@ -7,6 +7,7 @@ import {
   Label,
   RadioBox,
   RadioBoxGroup,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
@@ -78,6 +79,7 @@ function FLE2Fields({
   fle2,
   configuredKMSProviders,
 }) {
+  const t = useTranslation();
   const [keyEncryptionKeyEditorText, setKeyEncryptionKeyEditorText] = useState(
     fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]
   );
@@ -91,15 +93,20 @@ function FLE2Fields({
       label="Queryable Encryption"
       data-testid="fle2-fields"
       helpUrl={HELP_URL_FLE2}
-      description="Encrypt a subset of the fields using Queryable Encryption."
+      description={t(
+        'databasesCollections.fields.fle2Description',
+        'Encrypt a subset of the fields using Queryable Encryption.'
+      )}
     >
       <FormFieldContainer>
         <Label htmlFor={queryableEncryptedFieldsEditorId}>
-          Encrypted fields
+          {t('databasesCollections.fields.encryptedFields', 'Encrypted fields')}
         </Label>
         <Description>
-          Indicate which fields should be encrypted and whether they should be
-          queryable.
+          {t(
+            'databasesCollections.fields.encryptedFieldsDescription',
+            'Indicate which fields should be encrypted and whether they should be queryable.'
+          )}
         </Description>
         <CodemirrorMultilineEditor
           id={queryableEncryptedFieldsEditorId}
@@ -112,11 +119,14 @@ function FLE2Fields({
       </FormFieldContainer>
 
       <FormFieldContainer>
-        <Label htmlFor="createcollection-radioboxgroup">KMS Provider</Label>
+        <Label htmlFor="createcollection-radioboxgroup">
+          {t('databasesCollections.fields.kmsProvider', 'KMS Provider')}
+        </Label>
         <Description>
-          Optional. If no keyId is specified in the encrypted fields config,
-          Compass will create new data keys for each encrypted field using the
-          specified KMS.
+          {t(
+            'databasesCollections.fields.kmsProviderDescription',
+            'Optional. If no keyId is specified in the encrypted fields config, Compass will create new data keys for each encrypted field using the specified KMS.'
+          )}
         </Description>
         <RadioBoxGroup
           onChange={(ev) => {
@@ -148,10 +158,17 @@ function FLE2Fields({
       </FormFieldContainer>
 
       <FormFieldContainer>
-        <Label htmlFor={keyEncryptionKeyEditorId}>Key Encryption Key</Label>
+        <Label htmlFor={keyEncryptionKeyEditorId}>
+          {t(
+            'databasesCollections.fields.keyEncryptionKey',
+            'Key Encryption Key'
+          )}
+        </Label>
         <Description>
-          Specify which key encryption key to use for creating new data
-          encryption keys.
+          {t(
+            'databasesCollections.fields.keyEncryptionKeyDescription',
+            'Specify which key encryption key to use for creating new data encryption keys.'
+          )}
         </Description>
         <CodemirrorMultilineEditor
           id={keyEncryptionKeyEditorId}

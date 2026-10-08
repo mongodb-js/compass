@@ -6,6 +6,7 @@ import {
   Link,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { CreateNamespaceRootState } from '../stores/create-namespace';
 import type { CreateNamespaceOptions } from '../modules/create-namespace';
@@ -26,6 +27,49 @@ const collectionNameInfoBanner = css({
 // The more information url.
 const INFO_URL_CREATE_DB =
   'https://www.mongodb.com/docs/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection-';
+
+type NamespaceFormModalProps = Omit<
+  React.ComponentProps<typeof FormModal>,
+  'title' | 'submitButtonText'
+> & { isCreateCollection: boolean };
+
+function NamespaceFormModal({
+  isCreateCollection,
+  ...props
+}: NamespaceFormModalProps) {
+  const t = useTranslation();
+  const modalLabel = isCreateCollection
+    ? t(
+        'databasesCollections.createNamespace.createCollection',
+        'Create Collection'
+      )
+    : t(
+        'databasesCollections.createNamespace.createDatabase',
+        'Create Database'
+      );
+  return (
+    <FormModal title={modalLabel} submitButtonText={modalLabel} {...props} />
+  );
+}
+
+function CollectionNameRequiredNotice() {
+  const t = useTranslation();
+  return (
+    <Banner className={collectionNameInfoBanner} variant="info">
+      {t(
+        'databasesCollections.createNamespace.collectionNameRequired',
+        'Before MongoDB can save your new database, a collection name must also be specified at the time of creation.'
+      )}
+      &nbsp;
+      <Link href={INFO_URL_CREATE_DB} target="_blank">
+        {t(
+          'databasesCollections.createNamespace.moreInformation',
+          'More Information'
+        )}
+      </Link>
+    </Banner>
+  );
+}
 
 type CreateNamespaceModalProps = {
   databaseName?: string | null;
@@ -86,18 +130,6 @@ class CreateDatabaseModal extends PureComponent<
     );
   }
 
-  renderCollectionNameRequiredNotice() {
-    return (
-      <Banner className={collectionNameInfoBanner} variant="info">
-        Before MongoDB can save your new database, a collection name must also
-        be specified at the time of creation.&nbsp;
-        <Link href={INFO_URL_CREATE_DB} target="_blank">
-          More Information
-        </Link>
-      </Banner>
-    );
-  }
-
   /**
    * Render the modal dialog.
    */
@@ -109,17 +141,12 @@ class CreateDatabaseModal extends PureComponent<
       ''
     ).trim();
     const hasCollectionName = !!(this.state.data.collection ?? '').trim();
-    const modalLabel = isCreateCollection
-      ? 'Create Collection'
-      : 'Create Database';
-
     return (
-      <FormModal
-        title={modalLabel}
+      <NamespaceFormModal
+        isCreateCollection={isCreateCollection}
         open={this.props.isVisible}
         onSubmit={this.onConfirm}
         onCancel={this.onCancel}
-        submitButtonText={modalLabel}
         submitDisabled={!hasCollectionName || !hasDatabaseName}
         data-testid={
           isCreateCollection
@@ -134,11 +161,11 @@ class CreateDatabaseModal extends PureComponent<
           configuredKMSProviders={this.props.configuredKMSProviders}
           currentTopologyType={this.props.currentTopologyType}
         />
-        {!isCreateCollection &&
-          !hasCollectionName &&
-          this.renderCollectionNameRequiredNotice()}
+        {!isCreateCollection && !hasCollectionName && (
+          <CollectionNameRequiredNotice />
+        )}
         {this.renderError()}
-      </FormModal>
+      </NamespaceFormModal>
     );
   }
 

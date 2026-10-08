@@ -2,7 +2,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Accordion, spacing, css } from '@mongodb-js/compass-components';
+import {
+  Accordion,
+  spacing,
+  css,
+  useTranslation,
+} from '@mongodb-js/compass-components';
 
 import CollectionName from './collection-name';
 import DatabaseName from './database-name';
@@ -18,6 +23,29 @@ import Collation from './collation';
 const advancedCollectionOptionsContainerStyles = css({
   paddingLeft: spacing[400],
 });
+
+function AdditionalPreferences({ children }) {
+  const t = useTranslation();
+  return (
+    <Accordion
+      data-testid="additional-collection-preferences"
+      text={t(
+        'databasesCollections.fields.additionalPreferences',
+        'Additional preferences'
+      )}
+      hintText={t(
+        'databasesCollections.fields.additionalPreferencesHint',
+        '(e.g. Custom collation, Clustered collections)'
+      )}
+    >
+      {children}
+    </Accordion>
+  );
+}
+
+AdditionalPreferences.propTypes = {
+  children: PropTypes.node,
+};
 
 function asNumber(value) {
   return !_.isNil(value) && `${value}` ? +value : undefined;
@@ -187,11 +215,7 @@ export default class CollectionFields extends PureComponent {
             )}
           />
         )}
-        <Accordion
-          data-testid="additional-collection-preferences"
-          text="Additional preferences"
-          hintText="(e.g. Custom collation, Clustered collections)"
-        >
+        <AdditionalPreferences>
           <div className={advancedCollectionOptionsContainerStyles}>
             <Collation
               collation={collation}
@@ -250,7 +274,7 @@ export default class CollectionFields extends PureComponent {
               />
             )}
           </div>
-        </Accordion>
+        </AdditionalPreferences>
       </>
     );
   }

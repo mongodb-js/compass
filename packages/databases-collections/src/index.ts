@@ -1,6 +1,7 @@
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import {
@@ -59,6 +60,7 @@ export const CreateNamespacePlugin = registerCompassPlugin(
     connections: connectionsLocator,
     instancesManager: mongoDBInstancesManagerLocator,
     workspaces: workspacesServiceLocator,
+    preferences: preferencesLocator,
   }
 );
 
@@ -72,6 +74,7 @@ export const DropNamespacePlugin = registerCompassPlugin(
     logger: createLoggerLocator('COMPASS-DROP-NAMESPACE-UI'),
     track: telemetryLocator,
     connections: connectionsLocator,
+    preferences: preferencesLocator,
   }
 );
 
@@ -89,5 +92,6 @@ export const RenameCollectionPlugin = registerCompassPlugin(
     instancesManager: mongoDBInstancesManagerLocator,
     queryStorage: favoriteQueryStorageAccessLocator,
     pipelineStorage: pipelineStorageLocator,
+    preferences: preferencesLocator,
   }
 );

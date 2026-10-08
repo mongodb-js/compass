@@ -4,6 +4,8 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
 import { connectionSupports } from '@mongodb-js/compass-connections';
 import toNS from 'mongodb-ns';
+import type { TranslateFn } from '@mongodb-js/compass-components';
+import { getTranslate, translateToEnglish } from '../utils/get-translate';
 
 /**
  * No dots in DB name error message.
@@ -301,7 +303,8 @@ export type CreateNamespaceOptions = {
 
 export async function handleFLE2Options(
   ds: Pick<DataService, 'createDataKey'>,
-  options?: CreateNamespaceOptions['options']
+  options?: CreateNamespaceOptions['options'],
+  t: TranslateFn = translateToEnglish
 ) {
   if (!options) {
     return options;
@@ -314,7 +317,11 @@ export async function handleFLE2Options(
       options.encryptedFields = parseFilter(options.encryptedFields);
     } catch (err) {
       throw new Error(
-        `Could not parse encryptedFields config: ${(err as Error).message}`
+        t(
+          'databasesCollections.createNamespace.parseEncryptedFieldsError',
+          'Could not parse encryptedFields config: {message}',
+          { message: (err as Error).message }
+        )
       );
     }
 
@@ -328,7 +335,11 @@ export async function handleFLE2Options(
         keyEncryptionKey = parseFilter(options.keyEncryptionKey || '{}');
       } catch (err) {
         throw new Error(
-          `Could not parse keyEncryptionKey: ${(err as Error).message}`
+          t(
+            'databasesCollections.createNamespace.parseKeyEncryptionKeyError',
+            'Could not parse keyEncryptionKey: {message}',
+            { message: (err as Error).message }
+          )
         );
       }
 
@@ -364,8 +375,16 @@ export const createNamespace = (
   return async (
     dispatch,
     getState,
-    { globalAppRegistry, connections, logger: { debug }, track, workspaces }
+    {
+      globalAppRegistry,
+      connections,
+      logger: { debug },
+      track,
+      workspaces,
+      preferences,
+    }
   ) => {
+    const t = getTranslate(preferences);
     const { databaseName, connectionId } = getState();
     const kind = databaseName !== null ? 'Collection' : 'Database';
 
@@ -376,14 +395,18 @@ export const createNamespace = (
     dispatch(clearError());
 
     if (dbName && dbName.includes('.')) {
-      dispatch(handleError(new Error(NO_DOT)));
+      dispatch(
+        handleError(
+          new Error(t('databasesCollections.createNamespace.noDot', NO_DOT))
+        )
+      );
     }
 
     try {
       dispatch(toggleIsRunning(true));
       const ds = connections.getDataServiceForConnection(connectionId);
 
-      const options = await handleFLE2Options(ds, data.options);
+      const options = await handleFLE2Options(ds, data.options, t);
 
       await ds.createCollection(namespace, (options as any) ?? {});
 

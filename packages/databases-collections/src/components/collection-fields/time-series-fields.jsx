@@ -5,6 +5,7 @@ import {
   Select,
   Option,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { css, CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
@@ -15,33 +16,10 @@ const optionsSelectDropdownStyles = css({
   },
 });
 
-const TIME_FIELD_INPUT_DESCRIPTION =
-  'Specify which field should be used ' +
-  'as timeField for the time-series collection. ' +
-  'This field must have a BSON type date.';
-
 const HELP_URL_TIME_FIELD =
   'https://www.mongodb.com/docs/manual/core/timeseries-collections/';
 
-const META_FIELD_INPUT_DESCRIPTION =
-  'The metaField is the designated field ' + 'for metadata.';
-
-const EXPIRE_AFTER_SECONDS_DESCRIPTION =
-  'The expireAfterSeconds field enables ' +
-  'automatic deletion of documents older than the specified number of seconds.';
-
-const GRANULARITY_DESCRIPTION =
-  'The granularity field allows specifying a ' +
-  'coarser granularity so measurements over a longer time span can be ' +
-  'more efficiently stored and queried.';
-
 const GRANULARITY_OPTIONS = ['seconds', 'minutes', 'hours'];
-
-const BUCKET_MAX_SPAN_SECONDS_DESCRIPTION =
-  'The maximum time span between measurements in a bucket.';
-
-const BUCKET_ROUNDING_SECONDS_DESCRIPTION =
-  'The time interval that determines the starting timestamp for a new bucket.';
 
 function TimeSeriesFields({
   isTimeSeries,
@@ -53,6 +31,7 @@ function TimeSeriesFields({
   expireAfterSeconds,
   supportsFlexibleBucketConfiguration,
 }) {
+  const t = useTranslation();
   const {
     granularity,
     metaField,
@@ -74,17 +53,23 @@ function TimeSeriesFields({
       disabled={isClustered || isFLE2}
       onToggle={(checked) => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
-      label="Time-Series"
+      label={t('databasesCollections.fields.timeSeries', 'Time-Series')}
       data-testid="time-series-fields"
       helpUrl={HELP_URL_TIME_FIELD}
-      description="Time-series collections efficiently store sequences of measurements over a period of time."
+      description={t(
+        'databasesCollections.fields.timeSeriesDescription',
+        'Time-series collections efficiently store sequences of measurements over a period of time.'
+      )}
     >
       <FormFieldContainer>
         <TextInput
           value={timeField}
           label="timeField"
           name="timeSeries.timeField"
-          description={TIME_FIELD_INPUT_DESCRIPTION}
+          description={t(
+            'databasesCollections.fields.timeFieldDescription',
+            'Specify which field should be used as timeField for the time-series collection. This field must have a BSON type date.'
+          )}
           required
           onChange={onInputChange}
           spellCheck={false}
@@ -95,7 +80,10 @@ function TimeSeriesFields({
         <TextInput
           label="metaField"
           name="timeSeries.metaField"
-          description={META_FIELD_INPUT_DESCRIPTION}
+          description={t(
+            'databasesCollections.fields.metaFieldDescription',
+            'The metaField is the designated field for metadata.'
+          )}
           optional
           value={metaField}
           onChange={onInputChange}
@@ -109,8 +97,14 @@ function TimeSeriesFields({
           className={optionsSelectDropdownStyles}
           label="granularity"
           name="timeSeries.granularity"
-          placeholder="Select a value [optional]"
-          description={GRANULARITY_DESCRIPTION}
+          placeholder={t(
+            'databasesCollections.fields.selectValueOptional',
+            'Select a value [optional]'
+          )}
+          description={t(
+            'databasesCollections.fields.granularityDescription',
+            'The granularity field allows specifying a coarser granularity so measurements over a longer time span can be more efficiently stored and queried.'
+          )}
           onChange={(val) => onChangeField('timeSeries.granularity', val)}
           allowDeselect={true}
           value={granularity}
@@ -131,7 +125,10 @@ function TimeSeriesFields({
               value={bucketMaxSpanSeconds}
               label="bucketMaxSpanSeconds"
               name="timeSeries.bucketMaxSpanSeconds"
-              description={BUCKET_MAX_SPAN_SECONDS_DESCRIPTION}
+              description={t(
+                'databasesCollections.fields.bucketMaxSpanDescription',
+                'The maximum time span between measurements in a bucket.'
+              )}
               optional
               type="number"
               onChange={onInputChange}
@@ -145,7 +142,10 @@ function TimeSeriesFields({
               value={bucketRoundingSeconds}
               label="bucketRoundingSeconds"
               name="timeSeries.bucketRoundingSeconds"
-              description={BUCKET_ROUNDING_SECONDS_DESCRIPTION}
+              description={t(
+                'databasesCollections.fields.bucketRoundingDescription',
+                'The time interval that determines the starting timestamp for a new bucket.'
+              )}
               optional
               type="number"
               onChange={onInputChange}
@@ -161,7 +161,10 @@ function TimeSeriesFields({
           value={expireAfterSeconds}
           label="expireAfterSeconds"
           name="expireAfterSeconds"
-          description={EXPIRE_AFTER_SECONDS_DESCRIPTION}
+          description={t(
+            'databasesCollections.fields.timeSeriesExpireAfterSeconds',
+            'The expireAfterSeconds field enables automatic deletion of documents older than the specified number of seconds.'
+          )}
           optional
           type="number"
           onChange={onInputChange}

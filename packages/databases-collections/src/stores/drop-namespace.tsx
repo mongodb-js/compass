@@ -4,6 +4,7 @@ import {
   showConfirmation,
   ConfirmationModalArea,
   ToastArea,
+  translate,
 } from '@mongodb-js/compass-components';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
@@ -11,6 +12,7 @@ import toNS from 'mongodb-ns';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -19,11 +21,12 @@ type DropNamespaceServices = {
   connections: ConnectionsService;
   logger: Logger;
   track: TrackFunction;
+  preferences: PreferencesAccess;
 };
 
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, connections, track }: DropNamespaceServices,
+  { globalAppRegistry, connections, track, preferences }: DropNamespaceServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
   const onDropNamespace = async (
@@ -49,7 +52,7 @@ export function activatePlugin(
       database,
       collection,
     } = namespace;
-    const namespaceLabel = isCollection ? 'Collection' : 'Database';
+    const language = preferences.getPreferences().language ?? 'en';
     track(
       'Screen',
       {
@@ -59,10 +62,42 @@ export function activatePlugin(
     );
     const confirmed = await showConfirmation({
       variant: 'danger',
-      title: `Drop ${namespaceLabel}?`,
-      description: `Are you sure you want to drop ${namespaceLabel.toLocaleLowerCase()} "${ns}"?`,
+      title: isCollection
+        ? translate(
+            language,
+            'databasesCollections.drop.collectionTitle',
+            'Drop Collection?'
+          )
+        : translate(
+            language,
+            'databasesCollections.drop.databaseTitle',
+            'Drop Database?'
+          ),
+      description: isCollection
+        ? translate(
+            language,
+            'databasesCollections.drop.collectionDescription',
+            'Are you sure you want to drop collection "{ns}"?',
+            { ns }
+          )
+        : translate(
+            language,
+            'databasesCollections.drop.databaseDescription',
+            'Are you sure you want to drop database "{ns}"?',
+            { ns }
+          ),
       requiredInputText: isCollection ? collection : database,
-      buttonText: `Drop ${namespaceLabel}`,
+      buttonText: isCollection
+        ? translate(
+            language,
+            'databasesCollections.drop.collectionButton',
+            'Drop Collection'
+          )
+        : translate(
+            language,
+            'databasesCollections.drop.databaseButton',
+            'Drop Database'
+          ),
       'data-testid': 'drop-namespace-confirmation-modal',
       signal,
     });
@@ -86,7 +121,19 @@ export function activatePlugin(
         );
         openToast('drop-namespace-success', {
           variant: 'success',
-          title: `${namespaceLabel} "${ns}" dropped`,
+          title: isCollection
+            ? translate(
+                language,
+                'databasesCollections.drop.collectionDropped',
+                'Collection "{ns}" dropped',
+                { ns }
+              )
+            : translate(
+                language,
+                'databasesCollections.drop.databaseDropped',
+                'Database "{ns}" dropped',
+                { ns }
+              ),
           timeout: 3000,
         });
       } catch (err) {
@@ -95,7 +142,19 @@ export function activatePlugin(
         }
         openToast('drop-namespace-error', {
           variant: 'important',
-          title: `Failed to drop ${namespaceLabel.toLocaleLowerCase()} "${ns}"`,
+          title: isCollection
+            ? translate(
+                language,
+                'databasesCollections.drop.collectionFailed',
+                'Failed to drop collection "{ns}"',
+                { ns }
+              )
+            : translate(
+                language,
+                'databasesCollections.drop.databaseFailed',
+                'Failed to drop database "{ns}"',
+                { ns }
+              ),
           description: (err as Error).message,
           timeout: 3000,
         });

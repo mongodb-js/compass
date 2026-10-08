@@ -21,6 +21,7 @@ import {
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -31,6 +32,7 @@ export type CreateNamespaceServices = {
   logger: Logger;
   track: TrackFunction;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
+  preferences?: PreferencesAccess;
 };
 
 function configureStore(services: CreateNamespaceServices) {

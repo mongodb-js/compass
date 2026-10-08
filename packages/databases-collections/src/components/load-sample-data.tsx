@@ -6,6 +6,7 @@ import {
   css,
   spacing,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { LoadSampleDataZeroGraphic } from './zero-graphic';
 
@@ -38,21 +39,29 @@ export function LoadSampleDataZeroState({
   canCreateDatabase: boolean;
   onCreateDatabase: () => void;
 }) {
+  const t = useTranslation();
   return (
     <div className={addDataContainerStyles} data-testid="add-data-zero-state">
       <EmptyContent
         icon={LoadSampleDataZeroGraphic}
-        title="Looks like your cluster is empty"
+        title={t(
+          'databasesCollections.sampleData.emptyTitle',
+          'Looks like your cluster is empty'
+        )}
         subTitle={
           canCreateDatabase ? (
             <>
-              Create database or load sample data to your cluster to quickly get
-              started experimenting with data in MongoDB.
+              {t(
+                'databasesCollections.sampleData.createOrLoad',
+                'Create database or load sample data to your cluster to quickly get started experimenting with data in MongoDB.'
+              )}
             </>
           ) : (
             <>
-              You can load sample data to quickly get started experimenting with
-              data in MongoDB.
+              {t(
+                'databasesCollections.sampleData.loadOnly',
+                'You can load sample data to quickly get started experimenting with data in MongoDB.'
+              )}
             </>
           )
         }
@@ -60,7 +69,10 @@ export function LoadSampleDataZeroState({
           <div className={loadSampleDataActionsStyles}>
             {canCreateDatabase && (
               <Button variant="default" onClick={onCreateDatabase}>
-                Create database
+                {t(
+                  'databasesCollections.sampleData.createDatabase',
+                  'Create database'
+                )}
               </Button>
             )}
             <Button
@@ -69,7 +81,7 @@ export function LoadSampleDataZeroState({
               target="_blank"
               rel="noopener noreferrer"
             >
-              Load sample data
+              {t('databasesCollections.sampleData.load', 'Load sample data')}
             </Button>
           </div>
         }
@@ -99,12 +111,15 @@ export function LoadSampleDataZeroBanner({
   projectId: string;
   clusterName: string;
 }) {
+  const t = useTranslation();
   return (
     <Banner image={<EmptyElement></EmptyElement>}>
       <div className={addDataBannerContent}>
         <span>
-          Working with MongoDB is easy, but first you’ll need some data to get
-          started. Sample data is available for loading.
+          {t(
+            'databasesCollections.sampleData.banner',
+            'Working with MongoDB is easy, but first you’ll need some data to get started. Sample data is available for loading.'
+          )}
         </span>
         <div>
           <Button
@@ -123,7 +138,7 @@ export function LoadSampleDataZeroBanner({
             leftGlyph={<Icon glyph="Upload"></Icon>}
             size="small"
           >
-            Load sample data
+            {t('databasesCollections.sampleData.load', 'Load sample data')}
           </Button>
         </div>
       </div>

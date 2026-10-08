@@ -1,5 +1,5 @@
 import React from 'react';
-import { WorkspaceTab } from '@mongodb-js/compass-components';
+import { WorkspaceTab, useTranslation } from '@mongodb-js/compass-components';
 import {
   useConnectionInfo,
   useConnectionsListRef,
@@ -11,6 +11,7 @@ import { DatabasesWorkspaceName } from './databases-plugin';
 type PluginTitleProps = PluginHeaderProps<typeof DatabasesWorkspaceName>;
 
 export function DatabasesPluginTitleComponent(props: PluginTitleProps) {
+  const t = useTranslation();
   const { id: connectionId } = useConnectionInfo();
   const { getConnectionById } = useConnectionsListRef();
 
@@ -21,7 +22,12 @@ export function DatabasesPluginTitleComponent(props: PluginTitleProps) {
       connectionName={connectionName}
       type={DatabasesWorkspaceName}
       title={connectionName}
-      tooltip={[['Connection', connectionName || '']]}
+      tooltip={[
+        [
+          t('databasesCollections.tab.connection', 'Connection'),
+          connectionName,
+        ],
+      ]}
       iconGlyph="Server"
     />
   );

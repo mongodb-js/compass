@@ -7,6 +7,7 @@ import {
   Link,
   css,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -37,18 +38,10 @@ const nonGenuineErrorContainerStyles = css({
   width: '100%',
 });
 
-const NON_GENUINE_SUBTEXT =
-  'This server or service appears to be emulating' +
-  ' MongoDB. Some documented MongoDB features may work differently, may be' +
-  ' entirely missing or incomplete, or may have unexpectedly different' +
-  ' performance characteristics than would be found when connecting to a' +
-  ' real MongoDB server or service.';
-
 const DOCUMENTATION_LINK = 'https://www.mongodb.com/atlas/database';
 
-const ERROR_WARNING = 'An error occurred while loading databases';
-
 function NonGenuineZeroState() {
+  const t = useTranslation();
   return (
     <div
       className={nonGenuineErrorContainerStyles}
@@ -56,10 +49,18 @@ function NonGenuineZeroState() {
     >
       <EmptyContent
         icon={ZeroGraphic}
-        title="Unable to display databases and collections"
-        subTitle={NON_GENUINE_SUBTEXT}
+        title={t(
+          'databasesCollections.databases.nonGenuineTitle',
+          'Unable to display databases and collections'
+        )}
+        subTitle={t(
+          'databasesCollections.databases.nonGenuineSubtitle',
+          'This server or service appears to be emulating MongoDB. Some documented MongoDB features may work differently, may be entirely missing or incomplete, or may have unexpectedly different performance characteristics than would be found when connecting to a real MongoDB server or service.'
+        )}
         callToActionLink={
-          <Link href={DOCUMENTATION_LINK}>Try MongoDB Atlas</Link>
+          <Link href={DOCUMENTATION_LINK}>
+            {t('databasesCollections.databases.tryAtlas', 'Try MongoDB Atlas')}
+          </Link>
         }
       />
     </div>
@@ -89,6 +90,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   onCreateDatabaseClick: _onCreateDatabaseClick,
   onRefreshClick: _onRefreshClick,
 }) => {
+  const t = useTranslation();
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
   const isPreferencesReadOnly = usePreference('readOnly');
@@ -148,12 +150,16 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   }
 
   if (databasesLoadingStatus === 'error') {
+    const errorWarning = t(
+      'databasesCollections.databases.loadError',
+      'An error occurred while loading databases'
+    );
     return (
       <div className={errorContainerStyles}>
         <Banner variant={BannerVariant.Danger}>
           {databasesLoadingError
-            ? `${ERROR_WARNING}: ${databasesLoadingError}`
-            : ERROR_WARNING}
+            ? `${errorWarning}: ${databasesLoadingError}`
+            : errorWarning}
         </Banner>
       </div>
     );
