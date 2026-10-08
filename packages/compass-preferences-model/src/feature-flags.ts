@@ -164,6 +164,20 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
+  /*
+   * Feature flag gating VectorX support (e.g. indexNamespace) in the
+   * vector search index schema.
+   */
+  {
+    name: 'enableVectorXPrivatePreview',
+    stage: 'preview',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short:
+        'Enable VectorX support for vector search indexes (private preview)',
+    },
+  },
+
   {
     name: 'enableCompassWebSettings',
     stage: 'development',
