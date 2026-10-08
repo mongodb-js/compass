@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '@mongodb-js/compass-components';
 import SettingsList from './settings-list';
 
 export const generalFields = [
@@ -17,14 +18,18 @@ export const generalFields = [
   'enableDbAndCollStats',
   'inferNamespacesFromPrivileges',
   'legacyUUIDDisplayEncoding',
+  'language',
 ] as const;
 
 export const GeneralSettings: React.FunctionComponent = () => {
+  const t = useTranslation();
   return (
     <div data-testid="general-settings">
       <div>
-        To enhance the user experience, Compass can enable or disable particular
-        features. Please choose from the settings below:
+        {t(
+          'settings.general.intro',
+          'To enhance the user experience, Compass can enable or disable particular features. Please choose from the settings below:'
+        )}
       </div>
       <SettingsList fields={generalFields} />
     </div>

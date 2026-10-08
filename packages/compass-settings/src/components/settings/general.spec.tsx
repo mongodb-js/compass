@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
+import { LanguageProvider } from '@mongodb-js/compass-components';
 import { GeneralSettings } from './general';
 import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
@@ -166,6 +167,46 @@ describe('GeneralSettings', function () {
       expect(getSettings()).to.have.property('timezone', 'Europe/Berlin');
       expect(getTimezoneInput().value).to.include('Europe/Berlin');
       expect(getTimezoneDescription()).to.match(/observes daylight savings/i);
+    });
+  });
+
+  context('language', function () {
+    it('changes the language value when selecting an option', function () {
+      const input = within(container).getByLabelText('Language');
+      userEvent.click(input);
+      const menu = document.querySelector(
+        `#${input.getAttribute('aria-controls') as string}`
+      ) as HTMLElement;
+      userEvent.click(
+        within(menu).getByRole('option', { name: /Deutsch/ }),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
+      expect(getSettings()).to.have.property('language', 'de');
+    });
+
+    it('renders the settings in the selected language', function () {
+      cleanup();
+      render(
+        <Provider store={store}>
+          <LanguageProvider language="de">
+            <GeneralSettings />
+          </LanguageProvider>
+        </Provider>
+      );
+      expect(screen.getByText('Schreibgeschützten Modus aktivieren')).to.exist;
+    });
+
+    it('falls back to English for languages without a translation', function () {
+      cleanup();
+      render(
+        <Provider store={store}>
+          <LanguageProvider language="xx">
+            <GeneralSettings />
+          </LanguageProvider>
+        </Provider>
+      );
+      expect(screen.getByText('Set Read-Only Mode')).to.exist;
     });
   });
 });

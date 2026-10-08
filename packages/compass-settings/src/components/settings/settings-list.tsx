@@ -7,6 +7,7 @@ import {
 import {
   SORT_ORDER_VALUES,
   LEGACY_UUID_ENCODINGS,
+  LANGUAGES,
   TIMEZONES,
 } from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
@@ -24,6 +25,7 @@ import {
   Combobox,
   ComboboxOption,
   Icon,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
@@ -34,6 +36,7 @@ import { SETTINGS_DESCRIPTIONS_MAP } from '../settings-descriptions';
 const ENUM_PREFERENCE_CONFIG = {
   defaultSortOrder: SORT_ORDER_VALUES,
   legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS,
+  language: LANGUAGES,
   timezone: TIMEZONES,
 } as const;
 
@@ -91,6 +94,7 @@ function SettingLabel<PreferenceName extends SupportedPreferences>({
   name: PreferenceName;
   value: UserConfigurablePreferences[PreferenceName] | undefined;
 }) {
+  const t = useTranslation();
   const { short, long } = getSettingDescription(name).description;
   const SettingDescription = SETTINGS_DESCRIPTIONS_MAP[
     name
@@ -102,7 +106,7 @@ function SettingLabel<PreferenceName extends SupportedPreferences>({
   return (
     <>
       <Label htmlFor={name} id={`${name}-label`}>
-        {short}
+        {t(`pref.${name}.short`, short)}
         {featureFlagDefinition?.stage === 'development' && (
           <span>
             <Badge className={devBadgeStyles}>dev</Badge>
@@ -111,7 +115,11 @@ function SettingLabel<PreferenceName extends SupportedPreferences>({
       </Label>
       {(SettingDescription || long) && (
         <Description>
-          {SettingDescription ? <SettingDescription value={value} /> : long}
+          {SettingDescription ? (
+            <SettingDescription value={value} />
+          ) : (
+            long && t(`pref.${name}.long`, long)
+          )}
         </Description>
       )}
     </>
@@ -202,6 +210,7 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
   value: string;
   disabled: boolean;
 }) {
+  const t = useTranslation();
   const { short, options: optionDescriptions } =
     getSettingDescription(name).description;
 
@@ -240,16 +249,23 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
             key={option}
             value={option}
             glyph={details.glyph ? <Icon glyph={details.glyph} /> : undefined}
-            description={details.description}
+            description={
+              details.description === undefined
+                ? undefined
+                : t(
+                    `pref.${name}.option.${option}.description`,
+                    details.description
+                  )
+            }
           >
-            {details.label}
+            {t(`pref.${name}.option.${option}.label`, details.label)}
           </Option>
         ))}
       </Select>
     ) : (
       <Combobox
         className={inputStyles}
-        aria-label={short}
+        aria-label={t(`pref.${name}.short`, short)}
         id={name}
         data-testid={name}
         value={value}
@@ -263,8 +279,18 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
             key={option}
             value={option}
             glyph={details.glyph ? <Icon glyph={details.glyph} /> : undefined}
-            displayName={details.label}
-            description={details.description}
+            displayName={t(
+              `pref.${name}.option.${option}.label`,
+              details.label
+            )}
+            description={
+              details.description === undefined
+                ? undefined
+                : t(
+                    `pref.${name}.option.${option}.description`,
+                    details.description
+                  )
+            }
           />
         ))}
       </Combobox>

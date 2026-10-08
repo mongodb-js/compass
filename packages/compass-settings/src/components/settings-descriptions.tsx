@@ -5,6 +5,7 @@ import {
   InlineDefinition,
   Icon,
   spacing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { UserConfigurablePreferences } from 'compass-preferences-model';
 import { timezoneObservesDaylightSavings } from 'compass-preferences-model/provider';
@@ -32,17 +33,26 @@ export type PreferencesDescriptionProps<
 export function TimezoneDescription({
   value,
 }: PreferencesDescriptionProps<'timezone'>) {
+  const t = useTranslation();
   return (
     <div className={containerStyles} data-testid="timezone-description">
-      <span>The data will still always be stored in UTC.</span>
+      <span>
+        {t(
+          'settings.desc.timezone.utc',
+          'The data will still always be stored in UTC.'
+        )}
+      </span>
       {!!value && timezoneObservesDaylightSavings(value) && (
         <InlineDefinition
           className={timezoneDaylightSavingsStyles}
           tooltipProps={{ align: 'top', justify: 'start' }}
-          definition="This timezone observes daylight savings."
+          definition={t(
+            'settings.desc.timezone.dstTooltip',
+            'This timezone observes daylight savings.'
+          )}
         >
           <Icon glyph="Sun" />
-          Observes daylight savings
+          {t('settings.desc.timezone.dst', 'Observes daylight savings')}
         </InlineDefinition>
       )}
     </div>
@@ -50,42 +60,59 @@ export function TimezoneDescription({
 }
 
 export function EnableDbAndCollStatsDescription() {
+  const t = useTranslation();
   return (
     <>
-      When enabled, Compass occasionally calls the{' '}
+      {t(
+        'settings.desc.dbStats.before',
+        'When enabled, Compass occasionally calls the'
+      )}{' '}
       <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
         dbStats
       </Link>{' '}
-      and{' '}
+      {t('settings.desc.dbStats.and', 'and')}{' '}
       <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
         collStats
       </Link>{' '}
-      commands to access storage statistics for a given database or collection.
-      Disabling this setting can help reduce Compass&apos; overhead on your
-      MongoDB deployments.
+      {t(
+        'settings.desc.dbStats.after',
+        "commands to access storage statistics for a given database or collection. Disabling this setting can help reduce Compass' overhead on your MongoDB deployments."
+      )}
     </>
   );
 }
 
 export function DefaultSortDescription() {
+  const t = useTranslation();
   return (
     <>
-      All queries executed from the query bar will apply this sort.{' '}
-      <strong>Not available for views and timeseries.</strong>
+      {t(
+        'settings.desc.defaultSort.main',
+        'All queries executed from the query bar will apply this sort.'
+      )}{' '}
+      <strong>
+        {t(
+          'settings.desc.defaultSort.note',
+          'Not available for views and timeseries.'
+        )}
+      </strong>
     </>
   );
 }
 
 export function EnableGenAIToolCallingDescription() {
+  const t = useTranslation();
   return (
     <>
-      Allow the MongoDB Assistant to interact with your databases. All actions
-      require your approval before running. Learn more about{' '}
+      {t(
+        'settings.desc.toolCalling.main',
+        'Allow the MongoDB Assistant to interact with your databases. All actions require your approval before running. Learn more about'
+      )}{' '}
       <Link
         href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
         target="_blank"
       >
-        MongoDB database tools
+        {t('settings.desc.toolCalling.link', 'MongoDB database tools')}
       </Link>
     </>
   );

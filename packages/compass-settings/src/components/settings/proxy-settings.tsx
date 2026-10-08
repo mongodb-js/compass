@@ -18,6 +18,7 @@ import {
   RadioBox,
   RadioBoxGroup,
   TextInput,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import { settingStateLabels } from './state-labels';
 import { ProxySettingsCustom } from './proxy-settings-custom';
@@ -37,6 +38,7 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
   proxy,
   proxySettingsState,
 }) => {
+  const t = useTranslation();
   const [proxyOptions] = useMemo(() => {
     const proxyOptions = proxyPreferenceToProxyOptions(proxy);
     return [proxyOptions];
@@ -97,17 +99,17 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
             disabled={disabled}
             data-testid="no-proxy-radio"
           >
-            No Proxy
+            {t('settings.proxy.none', 'No Proxy')}
           </RadioBox>
           <RadioBox value="env" disabled={disabled} data-testid="env-radio">
-            System Proxy
+            {t('settings.proxy.system', 'System Proxy')}
           </RadioBox>
           <RadioBox
             value="custom"
             disabled={disabled}
             data-testid="custom-radio"
           >
-            Manual Configuration
+            {t('settings.proxy.manual', 'Manual Configuration')}
           </RadioBox>
         </RadioBoxGroup>
       </FormFieldContainer>
@@ -121,11 +123,13 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
       {(proxyType === 'env' || proxyType === 'custom') && (
         <FormFieldContainer>
           <Label htmlFor="proxy-no-proxy-hosts" id="proxy-no-proxy-hosts-label">
-            Excluded hosts
+            {t('settings.proxy.excluded', 'Excluded hosts')}
           </Label>
           <Description>
-            Comma-separated list of hostnames and IP addresses. Connections to
-            these hosts will not be forwarded through the proxy.
+            {t(
+              'settings.proxy.excludedDescription',
+              'Comma-separated list of hostnames and IP addresses. Connections to these hosts will not be forwarded through the proxy.'
+            )}
           </Description>
           <TextInput
             id="proxy-no-proxy-hosts"

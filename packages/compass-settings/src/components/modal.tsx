@@ -7,6 +7,7 @@ import {
   css,
   spacing,
   focusRing,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 
 import GeneralSettings, { generalFields } from './settings/general';
@@ -86,50 +87,51 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     onMountRef.current?.();
   }, []);
 
+  const t = useTranslation();
   const hasFeaturePreviewSettings = useShouldShowFeaturePreviewSettings();
   const settings: Settings[] = useMemo(() => {
     const settings: Settings[] = [
       {
         tabId: 'general' as SettingsTabId,
         preferences: generalFields,
-        name: 'General',
+        name: t('settings.tab.general', 'General'),
         component: GeneralSettings,
       },
       {
         tabId: 'theme' as SettingsTabId,
         preferences: themeFields,
-        name: 'Theme',
+        name: t('settings.tab.theme', 'Theme'),
         component: ThemeSettings,
       },
       {
         tabId: 'privacy' as SettingsTabId,
         preferences: privacyFields,
-        name: 'Privacy',
+        name: t('settings.tab.privacy', 'Privacy'),
         component: PrivacySettings,
       },
       {
         tabId: 'proxy' as SettingsTabId,
         preferences: proxyFields,
-        name: 'Proxy Configuration',
+        name: t('settings.tab.proxy', 'Proxy Configuration'),
         component: ProxySettings,
       },
       {
         tabId: 'oidc' as SettingsTabId,
         preferences: oidcFields,
-        name: 'OIDC',
+        name: t('settings.tab.oidc', 'OIDC'),
         component: OIDCSettings,
       },
       {
         tabId: 'ai' as SettingsTabId,
         preferences: genaiFields,
-        name: 'Artificial Intelligence',
+        name: t('settings.tab.ai', 'Artificial Intelligence'),
         component: GenAISettings,
       },
       ...(hasFeaturePreviewSettings
         ? [
             {
               tabId: 'preview' as SettingsTabId,
-              name: 'Feature Preview',
+              name: t('settings.tab.preview', 'Feature Preview'),
               preferences: [
                 ...previewFeatureFlagFields,
                 ...developmentFeatureFlagFields,
@@ -145,7 +147,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     });
 
     return settings;
-  }, [userConfigurableSettings, hasFeaturePreviewSettings]);
+  }, [userConfigurableSettings, hasFeaturePreviewSettings, t]);
 
   selectedTab ??= settings[0]?.tabId;
   const SettingComponent =
@@ -154,9 +156,10 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   return (
     <FormModal
       size="large"
-      title="Settings"
+      title={t('settings.title', 'Settings')}
       open={isOpen}
-      submitButtonText="Save"
+      submitButtonText={t('settings.save', 'Save')}
+      cancelButtonText={t('settings.cancel', 'Cancel')}
       onSubmit={onSave}
       submitDisabled={!hasChangedSettings}
       onCancel={onClose}

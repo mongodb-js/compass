@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '@mongodb-js/compass-components';
 import SettingsList from './settings-list';
 import type { FeatureFlagDefinition } from 'compass-preferences-model/provider';
 import {
@@ -45,14 +46,17 @@ export function useShouldShowFeaturePreviewSettings(): boolean {
 }
 
 export const FeaturePreviewSettings: React.FunctionComponent = () => {
+  const t = useTranslation();
   const showPreviewFeatures = useShouldShowPreviewFeatures();
   const showDevFeatures = useShouldShowDevFeatures();
 
   return (
     <div data-testid="feature-flag-settings">
       <div>
-        These settings control experimental behavior of Compass. Use them at
-        your own risk!
+        {t(
+          'settings.preview.intro',
+          'These settings control experimental behavior of Compass. Use them at your own risk!'
+        )}
       </div>
       <div>
         {showPreviewFeatures && (

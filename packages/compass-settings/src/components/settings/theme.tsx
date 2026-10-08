@@ -10,6 +10,7 @@ import {
   RadioBoxGroup,
   RadioBox,
   palette,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/settings';
@@ -93,6 +94,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
   preferenceStates,
   onChange,
 }) => {
+  const t = useTranslation();
   const handleOSCheckboxChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onChange('theme', event.target.checked ? 'OS_THEME' : 'LIGHT');
@@ -108,7 +110,9 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
 
   return (
     <div data-testid="theme-settings">
-      <div>Change the appearance of Compass.</div>
+      <div>
+        {t('settings.theme.intro', 'Change the appearance of Compass.')}
+      </div>
 
       <FormFieldContainer>
         <Checkbox
@@ -118,10 +122,14 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           data-testid="use-os-theme"
           label={
             <>
-              <Label htmlFor="use-os-theme">Sync with OS</Label>
+              <Label htmlFor="use-os-theme">
+                {t('settings.theme.syncWithOS', 'Sync with OS')}
+              </Label>
               <Description>
-                Automatically switch between light and dark themes based on your
-                OS settings
+                {t(
+                  'settings.theme.syncWithOSDescription',
+                  'Automatically switch between light and dark themes based on your OS settings'
+                )}
               </Description>
             </>
           }
@@ -146,7 +154,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
             disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
           >
             <ThemeIcon theme="LIGHT" />
-            Light Theme
+            {t('settings.theme.light', 'Light Theme')}
           </RadioBox>
           <RadioBox
             id="theme-selector-dark"
@@ -156,7 +164,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
             disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
           >
             <ThemeIcon theme="DARK" />
-            Dark Theme
+            {t('settings.theme.dark', 'Dark Theme')}
           </RadioBox>
         </RadioBoxGroup>
       </FormFieldContainer>

@@ -5,6 +5,7 @@ import {
   Label,
   TextInput,
   useSyncStateOnPropChange,
+  useTranslation,
 } from '@mongodb-js/compass-components';
 import type { DevtoolsProxyOptions } from 'compass-preferences-model';
 import type { ChangeEvent } from 'react';
@@ -70,6 +71,7 @@ export interface ProxySettingsCustomProps {
 export const ProxySettingsCustom: React.FunctionComponent<
   ProxySettingsCustomProps
 > = ({ disabled, proxyOptions, setProxyOptions }) => {
+  const t = useTranslation();
   // Sync between the external (settings) state containing just a URL
   // to represent these options, and the component-internal state
   // that uses different fields to represent the different part of the URL.
@@ -155,12 +157,15 @@ export const ProxySettingsCustom: React.FunctionComponent<
     <div data-testid="proxy-settings-custom">
       <FormFieldContainer>
         <Label htmlFor="proxy-url" id="proxy-url-label">
-          Proxy URL
+          {t('settings.proxy.url', 'Proxy URL')}
         </Label>
         <Description>
-          Specify a <code>http://</code>, <code>https://</code>,{' '}
-          <code>socks5://</code>
-          or <code>pac+https://</code> URL.
+          {t(
+            'settings.proxy.urlDescription',
+            'Specify a URL using one of these schemes:'
+          )}{' '}
+          <code>http://</code>, <code>https://</code>, <code>socks5://</code>,{' '}
+          <code>pac+https://</code>
         </Description>
         <TextInput
           id="proxy-url"
@@ -176,7 +181,7 @@ export const ProxySettingsCustom: React.FunctionComponent<
       </FormFieldContainer>
       <FormFieldContainer>
         <Label htmlFor="proxy-username" id="proxy-username-label">
-          Username
+          {t('settings.proxy.username', 'Username')}
         </Label>
         <TextInput
           id="proxy-username"
@@ -190,7 +195,7 @@ export const ProxySettingsCustom: React.FunctionComponent<
       </FormFieldContainer>
       <FormFieldContainer>
         <Label htmlFor="proxy-password" id="proxy-password-label">
-          Password
+          {t('settings.proxy.password', 'Password')}
         </Label>
         <TextInput
           type="password"
@@ -205,8 +210,10 @@ export const ProxySettingsCustom: React.FunctionComponent<
       </FormFieldContainer>
       {(proxyPassword || proxyUsername) && (
         <Banner variant="warning">
-          Some resources, such as map data for geographic visualizations, cannot
-          currently be loaded through proxies which require authentication.
+          {t(
+            'settings.proxy.authWarning',
+            'Some resources, such as map data for geographic visualizations, cannot currently be loaded through proxies which require authentication.'
+          )}
         </Banner>
       )}
     </div>
