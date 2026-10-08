@@ -91,6 +91,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableAtlasConnectionErrorDebuggerTool: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
+    showHiddenNamespaces: boolean;
     // Features that are enabled by default in Date Explorer, but are disabled in Compass
     maxTimeMSEnvLimit?: number;
     timezone: string;
@@ -1224,6 +1225,18 @@ export const storedUserPreferencesProps: Required<{
       long: "Show databases and collections implied by your roles and privileges, in addition to those returned by listDatabases and listCollections. This may include namespaces that don't exist yet.",
     },
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  showHiddenNamespaces: {
+    ui: true,
+    exposedInSettingsUI: '*',
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Hidden Namespaces',
+      long: 'Reveal namespaces reserved for internal server or Atlas use. Modifications to these namespaces could lead to unknown issues.',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   maxTimeMSEnvLimit: {

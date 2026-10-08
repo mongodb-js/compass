@@ -138,10 +138,10 @@ describe('Instance sidebar', function () {
 
     // wait for something that didn't match the previous search to show up to make sure that it reset
     // (otherwise future tests will fail because the new dbs/collections won't match the filter)
-    const adminElement = browser.$(
-      Selectors.sidebarDatabase(connectionId, 'admin')
+    const testDbElement = browser.$(
+      Selectors.sidebarDatabase(connectionId, 'test')
     );
-    await adminElement.waitForDisplayed();
+    await testDbElement.waitForDisplayed();
   });
 
   it('can create a database and drop it', async function () {
