@@ -15,6 +15,7 @@ import { Tooltip } from '../leafygreen';
 import { ServerIcon } from '../icons/server-icon';
 import { useTabTheme } from './use-tab-theme';
 import { useContextMenuGroups } from '../context-menu';
+import { useTranslation } from '../../i18n';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -218,6 +219,7 @@ function Tab({
   className: tabClassName,
   ...props
 }: TabProps & Omit<React.HTMLProps<HTMLDivElement>, 'title'>) {
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const defaultActionProps = useDefaultAction(onSelect);
   const { listeners, setNodeRef, transform, transition } = useSortable({
@@ -245,12 +247,21 @@ function Tab({
       {
         telemetryLabel: 'Workspace Tab',
         items: [
-          { label: 'Close all other tabs', onAction: onCloseAllOthers },
-          { label: 'Duplicate', onAction: onDuplicate },
+          {
+            label: t(
+              'components.workspaceTab.closeAllOthers',
+              'Close all other tabs'
+            ),
+            onAction: onCloseAllOthers,
+          },
+          {
+            label: t('components.workspaceTab.duplicate', 'Duplicate'),
+            onAction: onDuplicate,
+          },
         ],
       },
     ],
-    [onCloseAllOthers, onDuplicate]
+    [onCloseAllOthers, onDuplicate, t]
   );
 
   const mergedRef = useMergeRefs([setNodeRef, contextMenuRef]);
@@ -346,7 +357,7 @@ function Tab({
               e.stopPropagation();
               onClose();
             }}
-            aria-label="Close Tab"
+            aria-label={t('components.workspaceTab.close', 'Close Tab')}
             data-testid="close-workspace-tab"
           >
             <Icon glyph="X" role="presentation" />

@@ -24,6 +24,7 @@ import {
 } from '@dnd-kit/sortable';
 
 import { useDarkMode } from '../../hooks/use-theme';
+import { useTranslation } from '../../i18n';
 import type { FocusState } from '../../hooks/use-focus-hover';
 import { FocusStates, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
@@ -352,6 +353,7 @@ function WorkspaceTabs({
   tabs,
   selectedTabIndex,
 }: WorkspaceTabsProps) {
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const rovingFocusProps = useRovingTabIndex<HTMLDivElement>({
     currentTabbable: selectedTabIndex,
@@ -450,7 +452,10 @@ function WorkspaceTabs({
         <div className={newTabContainerStyles}>
           <IconButton
             className={createNewTabButtonStyles}
-            aria-label="Create new tab"
+            aria-label={t(
+              'components.workspaceTabs.createNewTab',
+              'Create new tab'
+            )}
             onClick={onCreateNewTab}
           >
             <Icon role="presentation" glyph="Plus" />

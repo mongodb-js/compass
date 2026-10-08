@@ -3,6 +3,7 @@ import { Code, ConfirmationModalVariant } from '../components/leafygreen';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
+import { Translated } from '../i18n';
 
 const errorDetailsContentStyles = css({
   paddingTop: spacing[400], // small gap above JSON
@@ -18,7 +19,7 @@ export const showErrorDetails = function showErrorDetails({
   closeAction: 'back' | 'close';
 }) {
   void showConfirmation({
-    title: 'Error details',
+    title: (t) => t('components.errorDetails.title', 'Error details'),
     description: (
       <div className={errorDetailsContentStyles}>
         <Code
@@ -31,7 +32,12 @@ export const showErrorDetails = function showErrorDetails({
       </div>
     ),
     hideCancelButton: true,
-    buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
+    buttonText:
+      closeAction === 'back' ? (
+        <Translated id="components.errorDetails.back">Back</Translated>
+      ) : (
+        <Translated id="components.errorDetails.close">Close</Translated>
+      ),
     variant: ConfirmationModalVariant.Default,
   });
 };

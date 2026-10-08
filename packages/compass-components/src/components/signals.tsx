@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Signal } from './signal-popover';
+import { Translated } from '../i18n';
 
 const SIGNALS: Pick<
   Signal,
@@ -16,9 +17,18 @@ const SIGNALS: Pick<
     title: 'Aggregation executed without index',
     description: (
       <>
-        This aggregation ran without an index. If you plan on using this query{' '}
-        <strong>heavily</strong> in your application, you should create an index
-        that covers this aggregation.
+        <Translated id="components.signals.aggregation-executed-without-index.description.start">
+          This aggregation ran without an index. If you plan on using this query
+        </Translated>{' '}
+        <strong>
+          <Translated id="components.signals.description.heavily">
+            heavily
+          </Translated>
+        </strong>{' '}
+        <Translated id="components.signals.aggregation-executed-without-index.description.end">
+          in your application, you should create an index that covers this
+          aggregation.
+        </Translated>
       </>
     ),
     learnMoreLink:
@@ -96,9 +106,18 @@ const SIGNALS: Pick<
     title: 'Query executed without index',
     description: (
       <>
-        This query ran without an index. If you plan on using this query{' '}
-        <strong>heavily</strong> in your application, you should create an index
-        that covers this query.
+        <Translated id="components.signals.query-executed-without-index.description.start">
+          This query ran without an index. If you plan on using this query
+        </Translated>{' '}
+        <strong>
+          <Translated id="components.signals.description.heavily">
+            heavily
+          </Translated>
+        </strong>{' '}
+        <Translated id="components.signals.query-executed-without-index.description.end">
+          in your application, you should create an index that covers this
+          query.
+        </Translated>
       </>
     ),
     learnMoreLink:
@@ -127,9 +146,18 @@ const SIGNALS: Pick<
     title: 'Query executed without index',
     description: (
       <>
-        This query ran without an index. If you plan on using this query{' '}
-        <strong>heavily</strong> in your application, you should create an index
-        that covers this aggregation.
+        <Translated id="components.signals.explain-plan-without-index.description.start">
+          This query ran without an index. If you plan on using this query
+        </Translated>{' '}
+        <strong>
+          <Translated id="components.signals.description.heavily">
+            heavily
+          </Translated>
+        </strong>{' '}
+        <Translated id="components.signals.explain-plan-without-index.description.end">
+          in your application, you should create an index that covers this
+          aggregation.
+        </Translated>
       </>
     ),
     learnMoreLink:

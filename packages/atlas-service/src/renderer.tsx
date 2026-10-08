@@ -3,6 +3,7 @@ import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { activatePlugin } from './store/atlas-signin-store';
 import { atlasAuthServiceLocator } from './provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const AtlasAuthComponent: React.FunctionComponent<{
   children?: React.ReactNode;
@@ -19,6 +20,7 @@ export const AtlasAuthPlugin = registerCompassPlugin(
   {
     atlasAuthService: atlasAuthServiceLocator,
     track: telemetryLocator,
+    preferences: preferencesLocator,
   }
 );
 export default AtlasAuthPlugin;

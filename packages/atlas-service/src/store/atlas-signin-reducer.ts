@@ -1,6 +1,6 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, translate } from '@mongodb-js/compass-components';
 import type {
   AtlasSignInEntrypoint,
   TrackFunction,
@@ -8,6 +8,12 @@ import type {
 import type { AtlasUserInfo } from '../util';
 import type { AtlasAuthService } from '../provider';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
+
+function getTranslator(preferences?: PreferencesAccess) {
+  return (key: string, english: string) =>
+    translate(preferences?.getPreferences?.().language ?? 'en', key, english);
+}
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -48,7 +54,11 @@ export type AtlasSignInThunkAction<
 > = ThunkAction<
   R,
   AtlasSignInState,
-  { atlasAuthService: AtlasAuthService; track: TrackFunction },
+  {
+    atlasAuthService: AtlasAuthService;
+    track: TrackFunction;
+    preferences?: PreferencesAccess;
+  },
   A
 >;
 
@@ -400,7 +410,8 @@ export const signIn =
   }: {
     entrypoint: AtlasSignInEntrypoint;
   }): AtlasSignInThunkAction<Promise<void>> =>
-  async (dispatch, getState, { atlasAuthService, track }) => {
+  async (dispatch, getState, { atlasAuthService, track, preferences }) => {
+    const t = getTranslator(preferences);
     const {
       id: currentAttemptId,
       controller,
@@ -423,7 +434,7 @@ export const signIn =
         }
         openToast('atlas-sign-in-success', {
           variant: 'success',
-          title: `Atlas sign in successful`,
+          title: t('atlasService.signIn.success', 'Atlas sign in successful'),
           timeout: 10_000,
         });
         dispatch({ type: AtlasSignInActions.Success, userInfo });
@@ -445,7 +456,10 @@ export const signIn =
           return;
         } else if (signal.reason instanceof TimeoutError) {
           openToast('atlas-timed-out', {
-            title: 'The login to Atlas has timed out, please try again.',
+            title: t(
+              'atlasService.signIn.timedOut',
+              'The login to Atlas has timed out, please try again.'
+            ),
             variant: 'note',
             timeout: 5000,
           });
@@ -456,7 +470,7 @@ export const signIn =
       } else {
         openToast('atlas-sign-in-error', {
           variant: 'important',
-          title: 'Sign in failed',
+          title: t('atlasService.signIn.failed', 'Sign in failed'),
           description: (err as Error).message,
         });
         dispatch({
@@ -496,18 +510,22 @@ export const tokenRefreshFailed = (): AtlasSignInThunkAction<void> => {
 };
 
 export const signOut = (): AtlasSignInThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasAuthService }) => {
+  return async (dispatch, _getState, { atlasAuthService, preferences }) => {
+    const t = getTranslator(preferences);
     try {
       await atlasAuthService.signOut();
       dispatch({ type: AtlasSignInActions.SignedOut });
       openToast('atlas-disconnected', {
-        title: 'Disconnected from Atlas',
+        title: t('atlasService.signOut.success', 'Disconnected from Atlas'),
         variant: 'note',
         timeout: 5000,
       });
     } catch (err) {
       openToast('atlas-disconnect-error', {
-        title: 'Failed to disconnect from Atlas',
+        title: t(
+          'atlasService.signOut.failed',
+          'Failed to disconnect from Atlas'
+        ),
         description: (err as Error).message,
         variant: 'warning',
         timeout: 5000,

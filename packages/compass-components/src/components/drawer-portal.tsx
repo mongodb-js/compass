@@ -449,7 +449,7 @@ export const DrawerAnchor: React.FunctionComponent<{
         const clickedToolbarItem = toolbarData.find(
           (item) => item.label === label
         );
-        const isCloseButton = label === 'Close drawer';
+        const isCloseButton = button.matches('[data-lgid$="-close_button"]');
 
         if (!clickedToolbarItem && !isCloseButton) {
           return;

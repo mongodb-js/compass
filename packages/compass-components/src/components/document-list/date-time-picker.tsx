@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { Icon } from '../leafygreen';
+import { useTranslation } from '../../i18n';
 import { useDarkMode } from '../../hooks/use-theme';
 import {
   convertFromPickerDateTime,
@@ -51,6 +52,7 @@ export function DateTimePicker({
   value: string;
   onChange(newValue: string): void;
 }) {
+  const t = useTranslation();
   const pickerInputRef = useRef<HTMLInputElement>(null);
   const darkMode = useDarkMode();
 
@@ -80,7 +82,10 @@ export function DateTimePicker({
     <span className={containerStyles}>
       <button
         type="button"
-        aria-label="Select date and time"
+        aria-label={t(
+          'components.dateTimePicker.selectDateAndTime',
+          'Select date and time'
+        )}
         data-testid="hadron-document-date-picker-button"
         // The picker is only reachable by clicking its button, so that tabbing
         // keeps moving between the editors.

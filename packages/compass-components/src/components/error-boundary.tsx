@@ -4,6 +4,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { Banner } from './leafygreen';
+import { useTranslation } from '../i18n';
 
 const errorContainerStyles = css({
   padding: spacing[400],
@@ -19,6 +20,28 @@ type Props = {
   displayName?: string;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   children?: React.ReactNode;
+};
+
+const ErrorBoundaryMessage: React.FunctionComponent<{
+  displayName?: string;
+  message: string;
+}> = ({ displayName, message }) => {
+  const t = useTranslation();
+  return (
+    <>
+      {displayName
+        ? t(
+            'components.errorBoundary.messageWithName',
+            'An error occurred while rendering {name}: {message}',
+            { name: displayName, message }
+          )
+        : t(
+            'components.errorBoundary.message',
+            'An error occurred while rendering: {message}',
+            { message }
+          )}
+    </>
+  );
 };
 
 class ErrorBoundary extends React.Component<Props> {
@@ -46,8 +69,10 @@ class ErrorBoundary extends React.Component<Props> {
       return (
         <div className={cx(errorContainerStyles, className)}>
           <Banner variant="danger">
-            An error occurred while rendering
-            {displayName ? ` ${displayName}` : ''}: {error.message}
+            <ErrorBoundaryMessage
+              displayName={displayName}
+              message={error.message}
+            />
           </Banner>
         </div>
       );

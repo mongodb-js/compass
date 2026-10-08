@@ -20,6 +20,7 @@ import {
   Description,
 } from './leafygreen';
 import { useInitialValue } from '../hooks/use-initial-value';
+import { useTranslation } from '../i18n';
 
 const { base: redBaseColor } = palette.red;
 
@@ -381,6 +382,7 @@ function FilePickerDialog({
   values?: string[];
   className?: string;
 } & FileChooserOptions): React.ReactElement {
+  const t = useTranslation();
   const darkMode = useDarkMode();
 
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -395,8 +397,10 @@ function FilePickerDialog({
       return values.map((file) => basename(file)).join(', ');
     }
 
-    return multi ? 'Select files…' : 'Select a file…';
-  }, [values, multi]);
+    return multi
+      ? t('components.filePicker.selectFiles', 'Select files…')
+      : t('components.filePicker.selectFile', 'Select a file…');
+  }, [values, multi, t]);
 
   const onFilesChanged = React.useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -511,7 +515,9 @@ function FilePickerDialog({
           </Label>
           {optional && (
             <div className={optionalLabelStyles}>
-              {optionalMessage ? optionalMessage : 'Optional'}
+              {optionalMessage
+                ? optionalMessage
+                : t('components.filePicker.optional', 'Optional')}
             </div>
           )}
           {renderDescription()}
@@ -540,7 +546,7 @@ function FilePickerDialog({
           }
           disabled={disabled}
           onClick={handleOpenFileInput}
-          title="Select a file"
+          title={t('components.filePicker.selectFileTitle', 'Select a file')}
           leftGlyph={leftGlyph}
           rightGlyph={rightGlyph}
         >
@@ -555,7 +561,7 @@ function FilePickerDialog({
             <div>{value}</div>
             <IconButton
               className={removeFileButtonStyles}
-              aria-label="Remove file"
+              aria-label={t('components.filePicker.removeFile', 'Remove file')}
               onClick={() => {
                 const newValues = [...values];
                 newValues.splice(index, 1);

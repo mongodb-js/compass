@@ -5,6 +5,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { useId } from '@react-aria/utils';
 
 import { TextArea } from './leafygreen';
+import { useTranslation } from '../i18n';
 
 const guideCueStyles = css({
   minWidth: spacing[7] * 4,
@@ -29,6 +30,7 @@ export const FeedbackPopover = ({
   open,
   ...props
 }: FeedbackPopoverProps) => {
+  const t = useTranslation();
   const [feedbackText, setFeedbackText] = useState('');
   const feedbackPopoverId = useId();
 
@@ -86,7 +88,7 @@ export const FeedbackPopover = ({
       tooltipAlign="bottom"
       refEl={refEl}
       onPrimaryButtonClick={() => onSubmitFeedback(feedbackText)}
-      buttonText="Submit"
+      buttonText={t('components.feedbackPopover.submit', 'Submit')}
       setOpen={setOpen}
       open={open}
       {...props}

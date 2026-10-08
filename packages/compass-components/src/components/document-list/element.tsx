@@ -21,6 +21,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
+import { useTranslation } from '../../i18n';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { useContextMenuGroups } from '../context-menu';
@@ -39,6 +40,7 @@ function useElementEditor(
 }
 
 function useHadronElement(el: HadronElementType) {
+  const t = useTranslation();
   const forceUpdate = useForceUpdate();
   const { legacyUUIDDisplayEncoding } = useBSONDisplayOptions();
   const displayType = getDisplayType(el, legacyUUIDDisplayEncoding);
@@ -138,7 +140,11 @@ function useHadronElement(el: HadronElementType) {
       editable: el.isKeyEditable() && el.parent?.currentType !== 'Array',
       valid: !isDuplicateKey,
       validationMessage: isDuplicateKey
-        ? `Duplicate key "${el.currentKey}" - this will overwrite previous values`
+        ? t(
+            'components.element.duplicateKey',
+            'Duplicate key "{key}" - this will overwrite previous values',
+            { key: String(el.currentKey) }
+          )
         : null,
     },
     value: {
@@ -508,6 +514,7 @@ export const HadronElement: React.FunctionComponent<{
   onUpdateQuery,
   query,
 }) => {
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
 
@@ -555,8 +562,8 @@ export const HadronElement: React.FunctionComponent<{
                   getNestedKeyPathForElement(element),
                   element.generateObject()
                 )
-                  ? 'Remove from query'
-                  : 'Add to query',
+                  ? t('components.element.removeFromQuery', 'Remove from query')
+                  : t('components.element.addToQuery', 'Add to query'),
                 onAction: () => {
                   onUpdateQuery(
                     getNestedKeyPathForElement(element),
@@ -566,13 +573,16 @@ export const HadronElement: React.FunctionComponent<{
               }
             : undefined,
           {
-            label: 'Copy value',
+            label: t('components.element.copyValue', 'Copy value'),
             onAction: () => {
               void navigator.clipboard.writeText(element.toShellSyntax());
             },
           },
           {
-            label: 'Copy field & value',
+            label: t(
+              'components.element.copyFieldAndValue',
+              'Copy field & value'
+            ),
             onAction: () => {
               void navigator.clipboard.writeText(
                 `${key.value}: ${element.toShellSyntax()}`
@@ -581,7 +591,7 @@ export const HadronElement: React.FunctionComponent<{
           },
           type.value === 'String' && isValidUrl(value.value)
             ? {
-                label: 'Open URL in browser',
+                label: t('components.element.openUrl', 'Open URL in browser'),
                 onAction: () => {
                   window.open(value.value, '_blank', 'noopener');
                 },
@@ -590,7 +600,15 @@ export const HadronElement: React.FunctionComponent<{
         ],
       },
     ],
-    [element, key.value, value.value, type.value, onUpdateQuery, isFieldInQuery]
+    [
+      element,
+      key.value,
+      value.value,
+      type.value,
+      onUpdateQuery,
+      isFieldInQuery,
+      t,
+    ]
   );
 
   // Dragging a field name puts "field: value" on the drag data, so it can be
@@ -786,7 +804,12 @@ export const HadronElement: React.FunctionComponent<{
               className={expandButton}
               aria-pressed={expanded}
               aria-label={
-                expanded ? 'Collapse field items' : 'Expand field items'
+                expanded
+                  ? t(
+                      'components.element.collapseItems',
+                      'Collapse field items'
+                    )
+                  : t('components.element.expandItems', 'Expand field items')
               }
               onClick={(evt) => {
                 evt.stopPropagation();
@@ -836,7 +859,7 @@ export const HadronElement: React.FunctionComponent<{
             <span
               className={elementDecryptedIcon}
               data-testid="hadron-document-element-decrypted-icon"
-              title="Encrypted Field"
+              title={t('components.element.encryptedField', 'Encrypted Field')}
             >
               <Icon glyph="Key" size="small" />
             </span>

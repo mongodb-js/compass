@@ -27,6 +27,7 @@ import {
   onAutoupdateStarted,
   onAutoupdateSuccess,
 } from './components/update-toasts';
+import { t } from './utils/translate';
 
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
@@ -203,8 +204,10 @@ class Application {
     if (!isSecretStorageAvailable) {
       openToast('secret-storage-not-available', {
         variant: 'warning',
-        title:
-          'Compass cannot access credential storage. You can still connect, but please note that passwords will not be saved.',
+        title: t(
+          'app.secretStorageUnavailable',
+          'Compass cannot access credential storage. You can still connect, but please note that passwords will not be saved.'
+        ),
       });
       track('Secret Storage Not Available', {});
     }
@@ -222,15 +225,15 @@ class Application {
     const fileDownloadCompleteToastId = 'file-download-complete';
     ipcRenderer?.on('download-finished', (event, { path }) => {
       openToast(fileDownloadCompleteToastId, {
-        title: 'Success',
+        title: t('app.download.success', 'Success'),
         description: (
           <ToastBody
-            statusMessage="File download complete"
+            statusMessage={t('app.download.complete', 'File download complete')}
             actionHandler={() => {
               ipcRenderer?.send('show-file', path);
               closeToast(fileDownloadCompleteToastId);
             }}
-            actionText="show file"
+            actionText={t('app.download.showFile', 'show file')}
           />
         ),
         variant: 'success',
@@ -239,10 +242,12 @@ class Application {
 
     ipcRenderer?.on('download-failed', (event, { filename }) => {
       openToast('file-download-failed', {
-        title: 'Failure',
+        title: t('app.download.failure', 'Failure'),
         description: filename
-          ? `Failed to download ${filename}`
-          : 'Download failed',
+          ? t('app.download.failedWithName', 'Failed to download {filename}', {
+              filename,
+            })
+          : t('app.download.failed', 'Download failed'),
         variant: 'warning',
       });
     });

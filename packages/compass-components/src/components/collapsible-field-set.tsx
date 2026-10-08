@@ -4,6 +4,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { useId } from '@react-aria/utils';
 import { Link, Checkbox, Label } from './leafygreen';
 import FormFieldContainer from './form-field-container';
+import { useTranslation } from '../i18n';
 
 const infoLinkStyles = css({
   marginLeft: spacing[100],
@@ -36,6 +37,7 @@ export const CollapsibleFieldSet = ({
   'data-testid': testId,
   id: _id,
 }: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
+  const t = useTranslation();
   const checkboxId = useId();
   const id = _id ?? checkboxId;
   return (
@@ -64,7 +66,10 @@ export const CollapsibleFieldSet = ({
                       href={helpUrl}
                       aria-label={label}
                     >
-                      Learn More
+                      {t(
+                        'components.collapsibleFieldSet.learnMore',
+                        'Learn More'
+                      )}
                     </Link>
                   )}
                 </>

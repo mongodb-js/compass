@@ -11,7 +11,7 @@ import type {
   AppRegistry,
 } from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, translate } from '@mongodb-js/compass-components';
 import { MongoDBInstancesManager } from '../instances-manager';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
@@ -137,7 +137,11 @@ export function createInstancesStore(
       if (refreshOptions.firstRun) {
         const { name, message } = err as Error;
         openToast('instance-refresh-failed', {
-          title: 'Failed to retrieve server info',
+          title: translate(
+            preferences.getPreferences().language ?? 'en',
+            'appStores.instanceRefreshFailed',
+            'Failed to retrieve server info'
+          ),
           description: `${name}: ${message}`,
           variant: 'important',
         });

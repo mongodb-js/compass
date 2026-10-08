@@ -5,6 +5,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Icon } from '../leafygreen';
 import { documentTypography } from './typography';
+import { useTranslation } from '../../i18n';
 
 const buttonReset = css({
   margin: 0,
@@ -25,6 +26,7 @@ export const EditActions: React.FunctionComponent<{
   onRevert?: (() => void) | null;
   editing?: boolean;
 }> = ({ editing, onRemove, onRevert }) => {
+  const t = useTranslation();
   return (
     <>
       {editing &&
@@ -33,8 +35,8 @@ export const EditActions: React.FunctionComponent<{
             type="button"
             data-testid="hadron-document-revert"
             className={buttonReset}
-            aria-label="Revert changes"
-            title="Revert changes"
+            aria-label={t('components.elementActions.revert', 'Revert changes')}
+            title={t('components.elementActions.revert', 'Revert changes')}
             onClick={(evt) => {
               evt.stopPropagation();
               onRevert();
@@ -51,8 +53,11 @@ export const EditActions: React.FunctionComponent<{
             type="button"
             data-testid="hadron-document-remove"
             className={buttonReset}
-            title="Remove field"
-            aria-label="Remove field"
+            title={t('components.elementActions.removeField', 'Remove field')}
+            aria-label={t(
+              'components.elementActions.removeField',
+              'Remove field'
+            )}
             onClick={(evt) => {
               evt.stopPropagation();
               onRemove();
@@ -94,11 +99,12 @@ const AddFieldButton = forwardRef(function AddFieldButton(
   { onClick, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>,
   ref: React.Ref<HTMLButtonElement>
 ) {
+  const t = useTranslation();
   return (
     <button
       type="button"
       data-testid="hadron-document-add-element"
-      title="Add field"
+      title={t('components.elementActions.addField', 'Add field')}
       className={cx(buttonReset, addFieldButton)}
       onClick={(evt) => {
         evt.stopPropagation();
@@ -127,6 +133,7 @@ export const AddFieldActions: React.FunctionComponent<{
   onAddFieldToElement,
   onAddFieldAfterElement,
 }) => {
+  const t = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
@@ -169,7 +176,10 @@ export const AddFieldActions: React.FunctionComponent<{
           className={menuItem}
         >
           <div>
-            Add {type === 'Array' ? 'item' : 'field'} to <b>{keyName}</b>
+            {type === 'Array'
+              ? t('components.elementActions.addItemTo', 'Add item to')
+              : t('components.elementActions.addFieldTo', 'Add field to')}{' '}
+            <b>{keyName}</b>
           </div>
         </MenuItem>
       )}
@@ -183,7 +193,13 @@ export const AddFieldActions: React.FunctionComponent<{
         className={menuItem}
       >
         <div>
-          Add {parentType === 'Array' ? 'item' : 'field'} after <b>{keyName}</b>
+          {parentType === 'Array'
+            ? t('components.elementActions.addItemAfter', 'Add item after')
+            : t(
+                'components.elementActions.addFieldAfter',
+                'Add field after'
+              )}{' '}
+          <b>{keyName}</b>
         </div>
       </MenuItem>
     </Menu>

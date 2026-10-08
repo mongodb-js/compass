@@ -6,6 +6,7 @@ import type { InferredPolymorphicComponentType } from '@leafygreen-ui/polymorphi
 import { useFocusRing } from '../hooks/use-focus-ring';
 import { Link, Icon } from './leafygreen';
 import { mergeProps } from '../utils/merge-props';
+import { useTranslation } from '../i18n';
 
 const optionContainerStyles = css({
   textAlign: 'center',
@@ -42,11 +43,18 @@ export const OptionsToggle: React.FunctionComponent<OptionsToggleProps> = ({
   id,
   'data-testid': dataTestId,
   onToggleOptions,
-  label = () => 'Options',
-  'aria-label': ariaLabel = (expanded) => {
-    return expanded ? 'Fewer Options' : 'More Options';
-  },
+  label: labelProp,
+  'aria-label': ariaLabelProp,
 }) => {
+  const t = useTranslation();
+  const label =
+    labelProp ?? (() => t('components.optionsToggle.options', 'Options'));
+  const ariaLabel =
+    ariaLabelProp ??
+    ((expanded: boolean) =>
+      expanded
+        ? t('components.optionsToggle.fewerOptions', 'Fewer Options')
+        : t('components.optionsToggle.moreOptions', 'More Options'));
   const optionsIcon = useMemo(
     () => (isExpanded ? 'CaretDown' : 'CaretRight'),
     [isExpanded]

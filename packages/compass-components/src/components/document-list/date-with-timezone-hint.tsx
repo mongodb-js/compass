@@ -4,6 +4,7 @@ import { css } from '@leafygreen-ui/emotion';
 import { InlineDefinition } from '../inline-definition';
 import { useBSONDisplayOptions } from './bson-display-options-context';
 import { bsonValueDisplayVar } from './bson-utils';
+import { useTranslation } from '../../i18n';
 
 function isValidTimezone(timezone: string): boolean {
   try {
@@ -21,12 +22,13 @@ function isValidTimezone(timezone: string): boolean {
 export function formatDateWithTimezone(
   value: Date | number | string,
   timezone = 'UTC',
-  locale?: string
+  locale?: string,
+  invalidDateLabel = 'Invalid Date'
 ): string {
   const date = value instanceof Date ? value : new Date(value);
 
   if (isNaN(date.valueOf())) {
-    return 'Invalid Date';
+    return invalidDateLabel;
   }
 
   const timeZone = isValidTimezone(timezone) ? timezone : 'UTC';
@@ -37,7 +39,7 @@ export function formatDateWithTimezone(
       timeStyle: 'long',
     }).format(date);
   } catch {
-    return 'Invalid Date';
+    return invalidDateLabel;
   }
 }
 
@@ -64,10 +66,16 @@ export function DateWithTimezoneHint({
   value: Date | number | string;
   children: React.ReactNode;
 }) {
+  const t = useTranslation();
   const { timezone } = useBSONDisplayOptions();
   const timezoneFormattedValue = useMemo(() => {
-    return formatDateWithTimezone(value, timezone);
-  }, [value, timezone]);
+    return formatDateWithTimezone(
+      value,
+      timezone,
+      undefined,
+      t('components.dateWithTimezoneHint.invalidDate', 'Invalid Date')
+    );
+  }, [value, timezone, t]);
   return (
     <span className={containerStyles}>
       <span className={valueStyles}>{children}</span>
@@ -75,7 +83,10 @@ export function DateWithTimezoneHint({
       <InlineDefinition
         className={dateWithTimezoneHintStyles}
         data-testid="date-with-timezone-hint"
-        definition="This personal timezone display preference may be configured in Compass Settings."
+        definition={t(
+          'components.dateWithTimezoneHint.definition',
+          'This personal timezone display preference may be configured in Compass Settings.'
+        )}
       >
         {timezoneFormattedValue}
       </InlineDefinition>

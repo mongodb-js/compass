@@ -5,6 +5,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 
 import { Modal } from './modal';
 import { Button, ModalFooter } from '../leafygreen';
+import { useTranslation } from '../../i18n';
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
 
@@ -22,11 +23,12 @@ function InfoModal({
   title,
   subtitle,
   showCloseButton = true,
-  closeButtonText = 'Close',
+  closeButtonText,
   onClose,
   children,
   ...modalProps
 }: InfoModalProps) {
+  const t = useTranslation();
   return (
     <Modal
       setOpen={onClose}
@@ -42,7 +44,7 @@ function InfoModal({
             onClick={onClose}
             variant="default"
           >
-            {closeButtonText}
+            {closeButtonText ?? t('components.infoModal.close', 'Close')}
           </Button>
         </ModalFooter>
       )}

@@ -14,6 +14,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useDarkMode } from '../../hooks/use-theme';
 import { showErrorDetails } from '../../hooks/use-error-details';
+import { useTranslation } from '../../i18n';
 
 type Status =
   | 'Initial'
@@ -327,6 +328,7 @@ const EditActionsFooter: React.FunctionComponent<{
     error,
   } = useHadronDocumentStatus(doc, editing, deleting, initialError);
   const darkMode = useDarkMode();
+  const t = useTranslation();
 
   // Allow props to override event based status of the document (helpful for
   // JSON editor where changing the document text doesn't really generate any
@@ -337,7 +339,10 @@ const EditActionsFooter: React.FunctionComponent<{
       ? 'Modified'
       : _status;
 
-  const statusMessage = StatusMessages[status];
+  const englishStatusMessage = StatusMessages[status];
+  const statusMessage = englishStatusMessage
+    ? t(`components.documentFooter.status.${status}`, englishStatusMessage)
+    : '';
 
   if (status === 'Initial') {
     return null;
@@ -367,7 +372,10 @@ const EditActionsFooter: React.FunctionComponent<{
               }
               data-testid="edit-actions-footer-error-details-button"
             >
-              VIEW ERROR DETAILS
+              {t(
+                'components.documentFooter.viewErrorDetails',
+                'VIEW ERROR DETAILS'
+              )}
             </Button>
           )}
           <Button
@@ -382,7 +390,7 @@ const EditActionsFooter: React.FunctionComponent<{
             }}
             disabled={isCancelDisabled(status)}
           >
-            Cancel
+            {t('components.documentFooter.cancel', 'Cancel')}
           </Button>
           <Button
             type="button"
@@ -399,10 +407,10 @@ const EditActionsFooter: React.FunctionComponent<{
             disabled={isPrimaryActionDisabled(status)}
           >
             {isDeleting(status)
-              ? 'Delete'
+              ? t('components.documentFooter.delete', 'Delete')
               : alwaysForceUpdate || status === 'UpdateBlocked'
-                ? 'Replace'
-                : 'Update'}
+                ? t('components.documentFooter.replace', 'Replace')
+                : t('components.documentFooter.update', 'Update')}
           </Button>
         </div>
       )}

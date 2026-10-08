@@ -10,10 +10,12 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { ipcRenderer } from 'hadron-ipc';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
 export type AtlasAuthPluginServices = {
   atlasAuthService: AtlasAuthService;
   track?: TrackFunction;
+  preferences?: PreferencesAccess;
 };
 export function activatePlugin(
   _initialProps: unknown,
@@ -37,10 +39,13 @@ export function activatePlugin(
 export function configureStore({
   atlasAuthService,
   track = createNoopTrack(),
+  preferences,
 }: AtlasAuthPluginServices) {
   const store = createStore(
     reducer,
-    applyMiddleware(thunk.withExtraArgument({ atlasAuthService, track }))
+    applyMiddleware(
+      thunk.withExtraArgument({ atlasAuthService, track, preferences })
+    )
   );
   return store;
 }

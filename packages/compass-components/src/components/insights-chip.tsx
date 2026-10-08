@@ -1,5 +1,6 @@
 import React from 'react';
 import { Chip, Icon } from './leafygreen';
+import { useTranslation } from '../i18n';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { fontWeights } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
@@ -25,6 +26,7 @@ const chipStyles = css({
 });
 
 export const InsightsChip = () => {
+  const t = useTranslation();
   const isDarkMode = useDarkMode();
   return (
     <Chip
@@ -33,7 +35,7 @@ export const InsightsChip = () => {
           ? [chipDarkModeStyles, chipStyles]
           : [chipLightModeStyles, chipStyles]
       )}
-      label="insight"
+      label={t('components.insightsChip.label', 'insight')}
       glyph={<Icon glyph="Bulb" />}
     />
   );

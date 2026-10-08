@@ -3,6 +3,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Icon, Link } from '../leafygreen';
 import { documentTypography } from './typography';
+import { useTranslation } from '../../i18n';
 
 const container = css({
   display: 'flex',
@@ -47,6 +48,7 @@ const VisibleFieldsToggle: React.FunctionComponent<{
   style,
   onSizeChange,
 }) => {
+  const t = useTranslation();
   const showSizeDiff = useMemo(() => {
     return Math.min(totalSize - currentSize, step);
   }, [currentSize, step, totalSize]);
@@ -75,12 +77,48 @@ const VisibleFieldsToggle: React.FunctionComponent<{
     return null;
   }
 
-  const showButtonText = `Show ${showSizeDiff} more ${
-    showSizeDiff === 1 ? 'field' : 'fields'
-  }${parentFieldName ? ` in ${parentFieldName}` : ''}`;
-  const hideButtonText = `Hide ${hideSizeDiff} ${
-    hideSizeDiff === 1 ? 'field' : 'fields'
-  }${parentFieldName ? ` in ${parentFieldName}` : ''}`;
+  const showButtonText = parentFieldName
+    ? showSizeDiff === 1
+      ? t(
+          'components.visibleFields.showMoreIn.one',
+          'Show {count} more field in {parent}',
+          { count: showSizeDiff, parent: parentFieldName }
+        )
+      : t(
+          'components.visibleFields.showMoreIn.other',
+          'Show {count} more fields in {parent}',
+          { count: showSizeDiff, parent: parentFieldName }
+        )
+    : showSizeDiff === 1
+      ? t('components.visibleFields.showMore.one', 'Show {count} more field', {
+          count: showSizeDiff,
+        })
+      : t(
+          'components.visibleFields.showMore.other',
+          'Show {count} more fields',
+          {
+            count: showSizeDiff,
+          }
+        );
+  const hideButtonText = parentFieldName
+    ? hideSizeDiff === 1
+      ? t(
+          'components.visibleFields.hideIn.one',
+          'Hide {count} field in {parent}',
+          { count: hideSizeDiff, parent: parentFieldName }
+        )
+      : t(
+          'components.visibleFields.hideIn.other',
+          'Hide {count} fields in {parent}',
+          { count: hideSizeDiff, parent: parentFieldName }
+        )
+    : hideSizeDiff === 1
+      ? t('components.visibleFields.hide.one', 'Hide {count} field', {
+          count: hideSizeDiff,
+        })
+      : t('components.visibleFields.hide.other', 'Hide {count} fields', {
+          count: hideSizeDiff,
+        });
 
   return (
     <div className={container} style={style}>

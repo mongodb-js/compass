@@ -4,6 +4,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 
 import { InlineDefinition } from './inline-definition';
 import { Banner, Button } from './leafygreen';
+import { useTranslation } from '../i18n';
 
 const bannerStyle = css({
   width: '100%',
@@ -29,6 +30,7 @@ type DismissProps =
   | { dismissible?: false; onClose?: never };
 
 function Summary({ messages }: { messages: string[] }): React.ReactElement {
+  const t = useTranslation();
   if (messages.length === 1) {
     return <div>{messages[0]}</div>;
   }
@@ -60,7 +62,11 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
   return (
     <div>
       <span>
-        {firstMessageNoDot}, and other {messages.length - 1} problems.
+        {t(
+          'components.errorSummary.andOtherProblems',
+          '{first}, and other {count} problems.',
+          { first: firstMessageNoDot, count: messages.length - 1 }
+        )}
       </span>{' '}
       <InlineDefinition
         tooltipProps={{
@@ -69,7 +75,7 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
         }}
         definition={tooltipErrors}
       >
-        View all
+        {t('components.errorSummary.viewAll', 'View all')}
       </InlineDefinition>
     </div>
   );

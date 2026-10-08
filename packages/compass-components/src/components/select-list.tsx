@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { Checkbox } from './leafygreen';
+import { useTranslation } from '../i18n';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -58,6 +59,7 @@ export function SelectList<T extends SelectItem>(
   props: SelectListProps<T>
 ): React.ReactElement {
   const { items, label, disabled, onChange } = props;
+  const t = useTranslation();
 
   const isDarkMode = useDarkMode();
   const evenRowStyles = isDarkMode ? evenRowStylesDark : evenRowStylesLight;
@@ -101,7 +103,7 @@ export function SelectList<T extends SelectItem>(
           className={cx(checkboxStyles, checkboxSelectAllStyles)}
           id="select-list-all"
           data-testid="select-list-all-checkbox"
-          aria-label="Select all"
+          aria-label={t('components.selectList.selectAll', 'Select all')}
           onChange={handleSelectAllChange}
           checked={selectAll}
           indeterminate={!selectAll && !selectNone}

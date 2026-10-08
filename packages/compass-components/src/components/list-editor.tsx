@@ -2,6 +2,7 @@ import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { IconButton, Icon } from './leafygreen';
+import { useTranslation } from '../i18n';
 
 const listEditorStyles = css({
   display: 'flex',
@@ -60,6 +61,7 @@ function ListEditor<ItemType>({
   itemTestId,
   itemKey,
 }: ListEditorProps<ItemType>): React.ReactElement {
+  const t = useTranslation();
   return (
     <div className={cx(listEditorStyles, className)}>
       {items.map((item, itemIndex) => (
@@ -71,7 +73,7 @@ function ListEditor<ItemType>({
           <div className={itemContentStyles}>{renderItem(item, itemIndex)}</div>
           {!disableAddButton?.(item, itemIndex, items) ? (
             <IconButton
-              aria-label="Add"
+              aria-label={t('components.listEditor.add', 'Add')}
               type="button"
               data-testid={addButtonTestId}
               disabled={disableAddButton?.(item, itemIndex, items)}
@@ -83,7 +85,7 @@ function ListEditor<ItemType>({
           {!disableRemoveButton?.(item, itemIndex, items) &&
           items.length !== 1 ? (
             <IconButton
-              aria-label="Remove"
+              aria-label={t('components.listEditor.remove', 'Remove')}
               type="button"
               data-testid={removeButtonTestId}
               disabled={disableRemoveButton?.(item, itemIndex, items)}

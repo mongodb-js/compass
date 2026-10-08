@@ -13,6 +13,7 @@ import {
 } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { AnyAction } from 'redux';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { AtlasAuthService, AtlasUserInfo } from '../provider';
 import type {
   AtlasSignInEntrypoint,
@@ -30,7 +31,11 @@ const useSelector: TypedUseSelectorHook<AtlasSignInState> = createSelectorHook(
 
 type AtlasSignInDispatch = ThunkDispatch<
   AtlasSignInState,
-  { atlasAuthService: AtlasAuthService; track: TrackFunction },
+  {
+    atlasAuthService: AtlasAuthService;
+    track: TrackFunction;
+    preferences?: PreferencesAccess;
+  },
   AnyAction
 >;
 

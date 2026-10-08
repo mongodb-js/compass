@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useTranslation } from '../i18n';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 
@@ -78,27 +79,42 @@ function ResizeHandle({
   onChange: (newValue: number) => void;
   title: string;
 }): React.ReactElement {
+  const t = useTranslation();
   const isDragging = useRef(false);
 
   function boundSize(attemptedSize: number) {
     return Math.min(maxValue, Math.max(minValue, attemptedSize));
   }
 
-  let directionTitle = 'vertical';
-  let dimensionTitle = 'Width';
+  let roleDescription = t(
+    'components.resizeHandle.verticalSplitter',
+    'vertical splitter'
+  );
+  let ariaLabel = t(
+    'components.resizeHandle.widthLabel',
+    'Width of the {title}, resize using arrow keys',
+    { title }
+  );
   let resizerStyle = verticalResizerStyle;
 
   if (direction === ResizeDirections.TOP) {
-    directionTitle = 'horizontal';
-    dimensionTitle = 'Height';
+    roleDescription = t(
+      'components.resizeHandle.horizontalSplitter',
+      'horizontal splitter'
+    );
+    ariaLabel = t(
+      'components.resizeHandle.heightLabel',
+      'Height of the {title}, resize using arrow keys',
+      { title }
+    );
     resizerStyle = horizontalResizerStyle;
   }
 
   return (
     <input
       type="range"
-      aria-roledescription={`${directionTitle} splitter`}
-      aria-label={`${dimensionTitle} of the ${title}, resize using arrow keys`}
+      aria-roledescription={roleDescription}
+      aria-label={ariaLabel}
       className={cx(baseResizerStyles, resizerStyle)}
       min={minValue}
       max={maxValue}

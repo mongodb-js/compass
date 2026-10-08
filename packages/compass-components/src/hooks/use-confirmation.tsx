@@ -12,6 +12,8 @@ import FormFieldContainer from '../components/form-field-container';
 import { Banner, TextInput } from '../components/leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useId } from '@react-aria/utils';
+import { useTranslation } from '../i18n';
+import type { TranslateFn } from '../i18n';
 
 export { ConfirmationModalVariant };
 
@@ -20,13 +22,10 @@ type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;
 type ConfirmationProperties = Partial<
   Pick<
     ConfirmationModalProps,
-    | 'title'
-    | 'variant'
-    | 'requiredInputText'
-    | 'initialFocus'
-    | 'confirmButtonProps'
+    'variant' | 'requiredInputText' | 'initialFocus' | 'confirmButtonProps'
   >
 > & {
+  title?: string | ((t: TranslateFn) => string);
   buttonText?: React.ReactNode;
   hideConfirmButton?: boolean;
   hideCancelButton?: boolean;
@@ -137,6 +136,7 @@ const warningBannerStyles = css({
 const ConfirmationModalStateHandler: React.FunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
+  const t = useTranslation();
   const [confirmationProps, setConfirmationProps] = useState<
     Partial<ConfirmationProperties> & { open: boolean; confirmationId: number }
   >({
@@ -198,14 +198,21 @@ const ConfirmationModalStateHandler: React.FunctionComponent<{
         key={confirmationProps.confirmationId}
         data-testid={confirmationProps['data-testid'] ?? 'confirmation-modal'}
         open={confirmationProps.open}
-        title={confirmationProps.title ?? 'Are you sure?'}
+        title={
+          (typeof confirmationProps.title === 'function'
+            ? confirmationProps.title(t)
+            : confirmationProps.title) ??
+          t('components.confirmation.title', 'Are you sure?')
+        }
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
         confirmButtonProps={{
           id: confirmationProps.hideCancelButton ? initialFocusId : undefined,
           className: confirmationProps.hideConfirmButton
             ? hideButtonStyles
             : undefined,
-          children: confirmationProps.buttonText ?? 'Confirm',
+          children:
+            confirmationProps.buttonText ??
+            t('components.confirmation.confirm', 'Confirm'),
           onClick: handleConfirm,
           ...confirmationProps.confirmButtonProps,
         }}

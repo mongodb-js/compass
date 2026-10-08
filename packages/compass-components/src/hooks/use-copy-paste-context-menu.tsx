@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
 import { useContextMenuGroups } from '../components/context-menu';
+import { useTranslation } from '../i18n';
 
 const NON_TEXT_INPUT_TYPES = [
   'checkbox',
@@ -76,6 +77,7 @@ const getSelectionState = () => {
 };
 
 export function useCopyPasteContextMenu() {
+  const t = useTranslation();
   const [editCapabilities, setEditCapabilities] = useState({
     canCut: false,
     canCopy: false,
@@ -167,19 +169,19 @@ export function useCopyPasteContextMenu() {
         items: [
           editCapabilities.canCut
             ? {
-                label: 'Cut',
+                label: t('components.editMenu.cut', 'Cut'),
                 onAction: onCut,
               }
             : undefined,
           editCapabilities.canCopy
             ? {
-                label: 'Copy',
+                label: t('components.editMenu.copy', 'Copy'),
                 onAction: onCopy,
               }
             : undefined,
           editCapabilities.canPaste
             ? {
-                label: 'Paste',
+                label: t('components.editMenu.paste', 'Paste'),
                 onAction: onPaste,
               }
             : undefined,
@@ -193,6 +195,7 @@ export function useCopyPasteContextMenu() {
       onCut,
       onCopy,
       onPaste,
+      t,
     ]
   );
 }

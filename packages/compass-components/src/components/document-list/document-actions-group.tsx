@@ -10,6 +10,7 @@ import type { BaseButtonProps } from '@leafygreen-ui/button';
 import { Button, Icon, Tooltip } from '../leafygreen';
 import type { Signal } from '../signal-popover';
 import { SignalPopover } from '../signal-popover';
+import { useTranslation } from '../../i18n';
 
 const actionsGroupContainer = css({
   position: 'absolute',
@@ -133,6 +134,7 @@ const DocumentActionsGroup: React.FunctionComponent<
   onlyShowOnHover = true,
   insights,
 }) => {
+  const t = useTranslation();
   const [signalOpened, setSignalOpened] = useState(false);
   const conatinerRef = useRef<HTMLDivElement | null>(null);
   const isHovered = useElementParentHoverState(conatinerRef);
@@ -168,12 +170,20 @@ const DocumentActionsGroup: React.FunctionComponent<
               glyph={expanded ? 'CaretDown' : 'CaretRight'}
             ></Icon>
           }
-          aria-label={expanded ? 'Collapse all' : 'Expand all'}
+          aria-label={
+            expanded
+              ? t('components.documentActions.collapseAll', 'Collapse all')
+              : t('components.documentActions.expandAll', 'Expand all')
+          }
           aria-pressed={expanded}
           data-testid="expand-document-button"
           onClick={onExpand}
           className={cx(actionsGroupItem, expandButton)}
-          tooltipText={expanded ? 'Collapse all' : 'Expand all'}
+          tooltipText={
+            expanded
+              ? t('components.documentActions.collapseAll', 'Collapse all')
+              : t('components.documentActions.expandAll', 'Expand all')
+          }
         />
       )}
       <span className={actionsGroupItemSeparator}></span>
@@ -193,11 +203,11 @@ const DocumentActionsGroup: React.FunctionComponent<
           tooltipEnabled={isActive}
           size="xsmall"
           rightGlyph={<Icon role="presentation" glyph="Edit"></Icon>}
-          aria-label="Edit document"
+          aria-label={t('components.documentActions.edit', 'Edit document')}
           data-testid="edit-document-button"
           onClick={onEdit}
           className={actionsGroupItem}
-          tooltipText="Edit document"
+          tooltipText={t('components.documentActions.edit', 'Edit document')}
         />
       )}
       {onCopy && (
@@ -209,20 +219,26 @@ const DocumentActionsGroup: React.FunctionComponent<
                 tooltipEnabled={isActive}
                 size="xsmall"
                 rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
-                aria-label="Copy document to clipboard"
+                aria-label={t(
+                  'components.documentActions.copyAria',
+                  'Copy document to clipboard'
+                )}
                 data-testid="copy-document-button"
                 onClick={() => {
                   setShowCopyButtonTooltip(true);
                   onCopy();
                 }}
                 className={actionsGroupItem}
-                tooltipText="Copy to clipboard"
+                tooltipText={t(
+                  'components.documentActions.copy',
+                  'Copy to clipboard'
+                )}
               />
             </div>
           }
           justify="middle"
         >
-          Copied!
+          {t('components.documentActions.copied', 'Copied!')}
         </Tooltip>
       )}
       {onClone && (
@@ -230,11 +246,11 @@ const DocumentActionsGroup: React.FunctionComponent<
           size="xsmall"
           tooltipEnabled={isActive}
           rightGlyph={<Icon role="presentation" glyph="Clone"></Icon>}
-          aria-label="Clone document"
+          aria-label={t('components.documentActions.clone', 'Clone document')}
           data-testid="clone-document-button"
           onClick={onClone}
           className={actionsGroupItem}
-          tooltipText="Clone document"
+          tooltipText={t('components.documentActions.clone', 'Clone document')}
         />
       )}
       {onRemove && (
@@ -242,11 +258,14 @@ const DocumentActionsGroup: React.FunctionComponent<
           size="xsmall"
           tooltipEnabled={isActive}
           rightGlyph={<Icon role="presentation" glyph="Trash"></Icon>}
-          aria-label="Remove document"
+          aria-label={t('components.documentActions.remove', 'Remove document')}
           data-testid="remove-document-button"
           onClick={onRemove}
           className={actionsGroupItem}
-          tooltipText="Remove document"
+          tooltipText={t(
+            'components.documentActions.remove',
+            'Remove document'
+          )}
         />
       )}
     </div>

@@ -10,6 +10,7 @@ import {
   openToast,
   closeToast,
 } from '@mongodb-js/compass-components';
+import { t } from '../utils/translate';
 
 const containerStyles = css({
   display: 'flex',
@@ -48,14 +49,20 @@ const RestartCompassToastContent = ({
   return (
     <div className={containerStyles}>
       <Body className={textStyles}>
-        Compass is ready to update to {newVersion}!
+        {t(
+          'app.update.readyToUpdate',
+          'Compass is ready to update to {version}!',
+          {
+            version: newVersion,
+          }
+        )}
       </Body>
       <button
         className={cx(buttonStyles, darkmode && buttonDarkStyles)}
         onClick={onUpdateClicked}
         data-testid="auto-update-restart-button"
       >
-        Restart
+        {t('app.update.restart', 'Restart')}
       </button>
     </div>
   );
@@ -76,12 +83,17 @@ export function onAutoupdateExternally({
 }) {
   openToast(updateToastId, {
     variant: 'note',
-    title: `Compass ${newVersion} is available`,
+    title: t('app.update.available', 'Compass {version} is available', {
+      version: newVersion,
+    }),
     description: (
       <>
         <Body>
-          You are currently using {currentVersion}. Update now for the latest
-          Compass features.
+          {t(
+            'app.update.currentlyUsing',
+            'You are currently using {version}. Update now for the latest Compass features.',
+            { version: currentVersion }
+          )}
         </Body>
         <Link
           data-testid="auto-update-download-link"
@@ -92,7 +104,7 @@ export function onAutoupdateExternally({
             closeToast(updateToastId);
           }}
         >
-          Visit download center
+          {t('app.update.visitDownloadCenter', 'Visit download center')}
         </Link>
       </>
     ),
@@ -102,18 +114,23 @@ export function onAutoupdateExternally({
 export function onAutoupdateStarted({ newVersion }: { newVersion: string }) {
   openToast(updateToastId, {
     variant: 'progress',
-    title: `Compass ${newVersion} is downloading`,
+    title: t('app.update.downloading', 'Compass {version} is downloading', {
+      version: newVersion,
+    }),
   });
 }
 export function onAutoupdateFailed(reason?: 'outdated-operating-system') {
   openToast(updateToastId, {
     variant: 'warning',
-    title: 'Failed to download Compass update',
+    title: t('app.update.downloadFailed', 'Failed to download Compass update'),
     description:
       reason === 'outdated-operating-system' ? (
         <>
           <Body>
-            The version of your operating system is no longer supported.
+            {t(
+              'app.update.osUnsupported',
+              'The version of your operating system is no longer supported.'
+            )}
           </Body>
           <Link
             data-testid="system-requirements-link"
@@ -121,11 +138,17 @@ export function onAutoupdateFailed(reason?: 'outdated-operating-system') {
             target="_blank"
             href="https://www.mongodb.com/docs/compass/current/install/"
           >
-            See Documentation on System Requirements
+            {t(
+              'app.update.systemRequirements',
+              'See Documentation on System Requirements'
+            )}
           </Link>
         </>
       ) : (
-        'Downloading a newer Compass version failed'
+        t(
+          'app.update.downloadNewerFailed',
+          'Downloading a newer Compass version failed'
+        )
       ),
   });
 }
@@ -153,7 +176,11 @@ export function onAutoupdateSuccess({
 export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
   openToast(updateToastId, {
     variant: 'success',
-    title: `Compass ${newVersion} installed successfully`,
+    title: t(
+      'app.update.installed',
+      'Compass {version} installed successfully',
+      { version: newVersion }
+    ),
     description: (
       <Link
         data-testid="auto-update-release-notes-link"
@@ -164,7 +191,7 @@ export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
           closeToast(updateToastId);
         }}
       >
-        Release Notes
+        {t('app.update.releaseNotes', 'Release Notes')}
       </Link>
     ),
   });

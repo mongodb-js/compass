@@ -2,6 +2,7 @@ import React from 'react';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { Modal } from './modal';
 import { Button, ModalFooter } from '../leafygreen';
+import { useTranslation } from '../../i18n';
 
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
@@ -38,7 +39,7 @@ function FormModal({
   title,
   subtitle,
   submitButtonText,
-  cancelButtonText = 'Cancel',
+  cancelButtonText,
   submitDisabled = false,
   variant = Variant.Default,
   scroll = true,
@@ -49,6 +50,7 @@ function FormModal({
   children,
   ...modalProps
 }: FormModalProps) {
+  const t = useTranslation();
   return (
     <Modal setOpen={onCancel} {...modalProps}>
       <form
@@ -72,7 +74,7 @@ function FormModal({
             onClick={onCancel}
             variant="default"
           >
-            {cancelButtonText}
+            {cancelButtonText ?? t('components.formModal.cancel', 'Cancel')}
           </Button>
           <Button
             data-testid="submit-button"

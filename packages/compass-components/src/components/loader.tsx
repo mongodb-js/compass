@@ -4,6 +4,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { useDarkMode } from '../hooks/use-theme';
 import { Subtitle, Button, ProgressBar } from './leafygreen';
+import { useTranslation } from '../i18n';
 import type { ProgressBarProps } from '@leafygreen-ui/progress-bar';
 
 const loaderContainerStyles = css({
@@ -130,10 +131,11 @@ function SpinLoaderWithLabel({
 }
 
 function CancelLoader({
-  cancelText = 'Cancel',
+  cancelText,
   onCancel,
   ...props
 }: CancelLoaderProps): React.ReactElement {
+  const t = useTranslation();
   return (
     <SpinLoaderWithLabel {...props}>
       <Button
@@ -141,18 +143,19 @@ function CancelLoader({
         onClick={onCancel}
         data-testid={`${props['data-testid'] ?? 'spin-loader'}-button`}
       >
-        {cancelText}
+        {cancelText ?? t('components.loader.cancel', 'Cancel')}
       </Button>
     </SpinLoaderWithLabel>
   );
 }
 
 function ProgressLoaderWithCancel({
-  cancelText = 'Cancel',
+  cancelText,
   className,
   onCancel,
   ...props
 }: ProgressLoaderWithCancelProps): React.ReactElement {
+  const t = useTranslation();
   return (
     <div className={cx(progressContainerStyles, className)}>
       <ProgressBar {...props} />
@@ -161,7 +164,7 @@ function ProgressLoaderWithCancel({
         onClick={onCancel}
         data-testid={`${props['data-testid'] ?? 'spin-loader'}-button`}
       >
-        {cancelText}
+        {cancelText ?? t('components.loader.cancel', 'Cancel')}
       </Button>
     </div>
   );

@@ -9,6 +9,7 @@ import { ActionGlyph } from './action-glyph';
 import type { MenuAction } from './types';
 import { SmallIconButton } from './small-icon-button';
 import { actionTestId, isSeparatorMenuAction } from './utils';
+import { useTranslation } from '../../i18n';
 
 const containerStyle = css({
   flex: 'none',
@@ -51,6 +52,7 @@ export function ItemActionMenu<Action extends string>({
 }: ItemActionMenuProps<Action>) {
   // This ref is used by the Menu component to calculate the height and position
   // of the menu.
+  const t = useTranslation();
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -104,8 +106,8 @@ export function ItemActionMenu<Action extends string>({
               ref={menuTriggerRef}
               size={iconSize}
               glyph="Ellipsis"
-              label="Show actions"
-              title="Show actions"
+              label={t('components.itemActionMenu.showActions', 'Show actions')}
+              title={t('components.itemActionMenu.showActions', 'Show actions')}
               data-testid={
                 dataTestId ? `${dataTestId}-show-actions` : undefined
               }

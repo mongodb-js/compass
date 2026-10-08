@@ -20,6 +20,8 @@ import { useEffectOnChange } from '../hooks/use-effect-on-change';
 import { rafraf } from '../utils/rafraf';
 import { useCurrentValueRef } from '../hooks/use-current-value-ref';
 import { useInitialValue } from '../hooks/use-initial-value';
+import { useTranslation } from '../i18n';
+import { PerformanceSignals } from './signals';
 
 type SignalTrackingHooks = {
   onSignalMount(id: string): void;
@@ -218,6 +220,26 @@ const SignalCard: React.FunctionComponent<
 }) => {
   const darkMode = useDarkMode(_darkMode);
   const hooks = useContext(TrackingHooksContext);
+  const t = useTranslation();
+  const performanceSignal = PerformanceSignals.get(
+    id as Parameters<typeof PerformanceSignals.get>[0]
+  );
+  // Signals built from a performance signal can override its texts, in which
+  // case the override is shown as is.
+  const translateSignalText = (
+    field: 'title' | 'description' | 'primaryAction',
+    text: string
+  ) => {
+    const english =
+      field === 'primaryAction'
+        ? performanceSignal?.primaryActionButtonLabel
+        : performanceSignal?.[field];
+    return english === text
+      ? t(`components.signals.${id}.${field}`, text)
+      : text;
+  };
+  const learnMoreText =
+    learnMoreLabel ?? t('components.signalPopover.learnMore', 'Learn more');
 
   return (
     <div
@@ -233,10 +255,14 @@ const SignalCard: React.FunctionComponent<
           [signalCardTitleStylesWithOneSignal]: !hasMultiSignals,
         })}
       >
-        {title}
+        {typeof title === 'string'
+          ? translateSignalText('title', title)
+          : title}
       </strong>
       <Body as="div" baseFontSize={13} className={signalCardDescriptionStyles}>
-        {description}
+        {typeof description === 'string'
+          ? translateSignalText('description', description)
+          : description}
         {onAssistantButtonClick && learnMoreLink && (
           <>
             {' '}
@@ -249,7 +275,7 @@ const SignalCard: React.FunctionComponent<
                 hooks.onSignalLinkClick(id);
               }}
             >
-              {learnMoreLabel ?? 'Learn more'}
+              {learnMoreText}
             </Link>
           </>
         )}
@@ -277,7 +303,8 @@ const SignalCard: React.FunctionComponent<
               onPrimaryActionButtonClick?.(evt);
             }}
           >
-            {primaryActionButtonLabel}
+            {primaryActionButtonLabel &&
+              translateSignalText('primaryAction', primaryActionButtonLabel)}
           </Button>
         )}
         {onAssistantButtonClick ? (
@@ -289,7 +316,7 @@ const SignalCard: React.FunctionComponent<
             data-testid="tell-me-more-button"
             onClick={onAssistantButtonClick}
           >
-            Tell me more
+            {t('components.signalPopover.tellMeMore', 'Tell me more')}
           </Button>
         ) : learnMoreLink ? (
           <Link
@@ -301,7 +328,7 @@ const SignalCard: React.FunctionComponent<
               hooks.onSignalLinkClick(id);
             }}
           >
-            {learnMoreLabel ?? 'Learn more'}
+            {learnMoreText}
           </Link>
         ) : null}
       </div>
@@ -335,6 +362,7 @@ const MultiSignalHeader: React.FunctionComponent<{
   onIndexChange(newVal: number): void;
   darkMode?: boolean;
 }> = ({ currentIndex, total, onIndexChange, darkMode: _darkMode }) => {
+  const t = useTranslation();
   const darkMode = useDarkMode(_darkMode);
   return (
     <div
@@ -346,8 +374,14 @@ const MultiSignalHeader: React.FunctionComponent<{
       <IconButton
         as="button"
         data-testid="insight-signal-show-prev-button"
-        aria-label="Show previous insight"
-        title="Show previous insight"
+        aria-label={t(
+          'components.signalPopover.showPrevious',
+          'Show previous insight'
+        )}
+        title={t(
+          'components.signalPopover.showPrevious',
+          'Show previous insight'
+        )}
         onClick={(e) => {
           e.stopPropagation();
           onIndexChange(currentIndex - 1);
@@ -357,13 +391,15 @@ const MultiSignalHeader: React.FunctionComponent<{
         <Icon glyph="ChevronLeft"></Icon>
       </IconButton>
       <span>
-        Insight <strong>{currentIndex + 1}</strong> of <strong>{total}</strong>
+        {t('components.signalPopover.insight', 'Insight')}{' '}
+        <strong>{currentIndex + 1}</strong>{' '}
+        {t('components.signalPopover.of', 'of')} <strong>{total}</strong>
       </span>
       <IconButton
         as="button"
         data-testid="insight-signal-show-next-button"
-        aria-label="Show next insight"
-        title="Show next insight"
+        aria-label={t('components.signalPopover.showNext', 'Show next insight')}
+        title={t('components.signalPopover.showNext', 'Show next insight')}
         onClick={(e) => {
           e.stopPropagation();
           onIndexChange(currentIndex + 1);
@@ -497,6 +533,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   className,
 }) => {
   const hooks = useContext(TrackingHooksContext);
+  const t = useTranslation();
   const darkMode = useDarkMode(_darkMode);
   const [triggerVisible, setTriggerVisible] = useState(true);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -560,23 +597,28 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
     [_onPopoverOpenChange]
   );
 
+  const insightWord = t('components.signalPopover.insightBadge', 'insight');
+  const insightsWord = t('components.signalPopover.insightsBadge', 'insights');
+
   const badgeLabel = multiSignals ? (
-    <>{signals.length}&nbsp;insights</>
+    <>
+      {signals.length}&nbsp;{insightsWord}
+    </>
   ) : (
     <>
       {/* It's easier to have this icon in two places to account for animations */}
       {/* even though it's the same icon in the collapsed and expanded state    */}
       <Icon glyph="Bulb" size="small"></Icon>
-      &nbsp;insight
+      &nbsp;{insightWord}
     </>
   );
 
   const activeBadgeWidth = multiSignals
     ? // For multiple, the active width of the container is just the width of
       // the label
-      `${`${signals.length} insights`.length}ch`
+      `${`${signals.length} ${insightsWord}`.length}ch`
     : // For single, it's icon size plus space and label
-      `calc(14px + ${' insight'.length}ch)`;
+      `calc(14px + ${` ${insightWord}`.length}ch)`;
 
   return (
     <InteractivePopover<HTMLButtonElement>
@@ -605,9 +647,18 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
         return (
           <GuideCue<HTMLButtonElement>
             cueId="insights"
-            title="Introducing insights"
-            description="Across Compass, you may now see icons like this to clue you in on potential areas of improvement for your data."
-            buttonText="See insights in action"
+            title={t(
+              'components.signalPopover.introTitle',
+              'Introducing insights'
+            )}
+            description={t(
+              'components.signalPopover.introDescription',
+              'Across Compass, you may now see icons like this to clue you in on potential areas of improvement for your data.'
+            )}
+            buttonText={t(
+              'components.signalPopover.introButton',
+              'See insights in action'
+            )}
             onPrimaryButtonClick={() => {
               // Because the guide cue is currently in inactive state when this
               // button is clicked, the popover position can be calculated

@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from '../i18n';
 
 import { palette } from '@leafygreen-ui/palette';
 import { css, cx } from '@leafygreen-ui/emotion';
@@ -70,6 +71,7 @@ const ResizableSidebar = ({
   children: JSX.Element;
   useNewTheme?: boolean;
 } & React.HTMLProps<HTMLDivElement>): JSX.Element => {
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const [width, setWidth] = useState(initialWidth);
   const newThemeStyles = useNewTheme
@@ -121,7 +123,7 @@ const ResizableSidebar = ({
         value={width}
         minValue={minWidth}
         maxValue={getMaxSidebarWidth()}
-        title="sidebar"
+        title={t('components.resizableSidebar.title', 'sidebar')}
       />
     </div>
   );

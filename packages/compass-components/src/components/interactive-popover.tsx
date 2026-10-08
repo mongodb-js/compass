@@ -3,6 +3,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import FocusTrap from 'focus-trap-react';
 
 import { Icon, IconButton, Popover } from './leafygreen';
+import { useTranslation } from '../i18n';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
 import { rgba } from 'polished';
@@ -80,6 +81,7 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
   containerClassName,
   closeButtonClassName,
 }: InteractivePopoverProps<TriggerElement>): React.ReactElement {
+  const t = useTranslation();
   const darkMode = useDarkMode();
   const triggerRef = useRef<TriggerElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -209,7 +211,7 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
                   evt.stopPropagation();
                   onClose();
                 }}
-                aria-label="Close"
+                aria-label={t('components.interactivePopover.close', 'Close')}
                 id={closeButtonId}
                 ref={closeButtonRef}
               >
