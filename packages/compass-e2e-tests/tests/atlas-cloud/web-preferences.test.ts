@@ -81,9 +81,7 @@ describe('Web preferences', function () {
     // atlasServiceBackendPreset is derived from window.location.host inside
     // the API response handler; its value must match the test environment.
     expect(atlasServiceBackendPreset).to.equal(
-      ENVIRONMENT_TO_PRESET[
-        context.atlasCloudEnvironment as keyof typeof ENVIRONMENT_TO_PRESET
-      ]
+      ENVIRONMENT_TO_PRESET[context.atlasCloudEnvironment]
     );
     expect(preferenceStates.atlasServiceBackendPreset).to.equal(
       'set-cloud-user'

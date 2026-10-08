@@ -17,8 +17,7 @@ export type ShowCueEventDetail = CustomEvent<{
 }>;
 
 type CustomEventListenerOrEventListenerObject<E> =
-  | { handleEvent: (evt: E) => void }
-  | ((evt: E) => void);
+  { handleEvent: (evt: E) => void } | ((evt: E) => void);
 
 interface GuideCueEventMap {
   'show-cue': ShowCueEventDetail;

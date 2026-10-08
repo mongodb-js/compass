@@ -60,7 +60,7 @@ function createAuthFetchResponse<
   TResponse extends
     | ClusterDetailsApiResponse
     | AutomationAgentDeploymentStatusApiResponse
-    | Record<string, ShardZoneMapping>
+    | Record<string, ShardZoneMapping>,
 >(data: TResponse) {
   return {
     json: () => Promise.resolve(data),
@@ -193,8 +193,8 @@ function createStore({
                   },
                 ]
               : typeof shardKey === 'object'
-              ? [shardKey]
-              : [],
+                ? [shardKey]
+                : [],
         };
       }
     },

@@ -813,7 +813,7 @@ export function findBrokenCSVTypeExample(
 ) {
   for (const [type, info] of Object.entries(types) as [
     type: CSVParsableFieldType | 'undefined',
-    info: CSVFieldTypeInfo
+    info: CSVFieldTypeInfo,
   ][]) {
     if (!isCompatibleCSVFieldType(selectedType, type)) {
       return info;

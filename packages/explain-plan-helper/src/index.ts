@@ -122,7 +122,7 @@ export class ExplainPlan {
   get isClusteredScan(): boolean {
     return Boolean(
       this.findStageByName('EXPRESS_CLUSTERED_IXSCAN') ||
-        this.findStageByName('CLUSTERED_IXSCAN')
+      this.findStageByName('CLUSTERED_IXSCAN')
     );
   }
 
@@ -140,13 +140,16 @@ export class ExplainPlan {
       return 'UNAVAILABLE';
     }
 
-    const indexInfoByShard = indexes.reduce((acc, index) => {
-      if (index.shard) {
-        acc[index.shard] ??= [];
-        acc[index.shard].push(index.index);
-      }
-      return acc;
-    }, {} as Record<string, (string | null)[]>);
+    const indexInfoByShard = indexes.reduce(
+      (acc, index) => {
+        if (index.shard) {
+          acc[index.shard] ??= [];
+          acc[index.shard].push(index.index);
+        }
+        return acc;
+      },
+      {} as Record<string, (string | null)[]>
+    );
 
     const indexNamesForAllShards = Object.values(indexInfoByShard);
 

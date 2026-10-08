@@ -12,4 +12,4 @@ if (!fs.existsSync(path.resolve(process.cwd(), '.prettierignore'))) {
     path.resolve(__dirname, '..', '.prettierignore-default')
   );
 }
-require('prettier/bin-prettier.js');
+require('prettier/bin/prettier.cjs');

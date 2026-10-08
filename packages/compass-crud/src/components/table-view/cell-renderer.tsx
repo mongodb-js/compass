@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { DocumentList as DocumentListTypes } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
-import type { ICellRendererReactComp } from 'ag-grid-react';
+import type { ICellRenderer } from 'ag-grid-community';
 import type { ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
@@ -99,7 +99,7 @@ export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
  */
 class CellRenderer
   extends React.Component<CellRendererProps>
-  implements ICellRendererReactComp
+  implements ICellRenderer
 {
   element: Element;
   isEmpty: boolean;

@@ -6,11 +6,7 @@ const collectionHeaderBadgeStyles = css({
 });
 
 export type CollectionBadgeType =
-  | 'readonly'
-  | 'timeseries'
-  | 'view'
-  | 'fle'
-  | 'clustered';
+  'readonly' | 'timeseries' | 'view' | 'fle' | 'clustered';
 
 const badges: Readonly<
   Record<

@@ -89,7 +89,10 @@ import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
-import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  AI_MODEL_AGENT_VERSION,
+  AI_MODEL_CHAT_VERSION,
+} from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -137,6 +140,7 @@ export type AssistantMessage = UIMessage & {
      *  to (if any).
      */
     connectionInfo?: BasicConnectionInfo | null;
+
     /** Whether to enable or disable storage of this message in chatapi. */
     disableStorage?: boolean;
     /** SHA-256 hashed User ID. */
@@ -702,6 +706,9 @@ function activateAssistantPlugin(
       logger,
       track,
       getTools: () => toolsController.getActiveTools(),
+      modelVersion: preferences.getPreferences().enableSkillsInAssistant
+        ? AI_MODEL_AGENT_VERSION
+        : AI_MODEL_CHAT_VERSION,
     });
 
   const lastContextPromptRef = { current: null as string | null };
@@ -929,6 +936,7 @@ export function createDefaultChat({
   track,
   options,
   getTools,
+  modelVersion = AI_MODEL_CHAT_VERSION,
 }: {
   originForPrompt: string;
   appNameForPrompt: string;
@@ -939,6 +947,7 @@ export function createDefaultChat({
     transport: Chat<AssistantMessage>['transport'];
   };
   getTools?: () => ToolSet;
+  modelVersion?: string;
 }): Chat<AssistantMessage> {
   const initialBaseUrl = 'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
   return new Chat<AssistantMessage>({
@@ -981,7 +990,7 @@ export function createDefaultChat({
               init
             );
           },
-        }).responses(AI_MODEL_CHAT_VERSION),
+        }).responses(modelVersion),
       }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (err: Error) => {

@@ -5,4 +5,5 @@
 // control when we want to update to newer models and we can make sure that
 // we're using versions that work with the bundled versions of ai sdk libraries.
 export const AI_MODEL_CHAT_VERSION = 'mongodb-chat-2.1-mini-reasoning';
+export const AI_MODEL_AGENT_VERSION = 'mongodb-agent-2.2-mini-reasoning';
 export const AI_MODEL_SLIM_VERSION = 'mongodb-slim-2.1-mini';

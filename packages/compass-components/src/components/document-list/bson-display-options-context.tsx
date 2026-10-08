@@ -1,10 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 
 export type LegacyUUIDDisplay =
-  | ''
-  | 'LegacyJavaUUID'
-  | 'LegacyCSharpUUID'
-  | 'LegacyPythonUUID';
+  '' | 'LegacyJavaUUID' | 'LegacyCSharpUUID' | 'LegacyPythonUUID';
 
 export type BSONDisplayOptions = {
   legacyUUIDDisplayEncoding: LegacyUUIDDisplay;

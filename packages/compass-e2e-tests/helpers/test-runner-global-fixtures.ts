@@ -1,4 +1,5 @@
 import gunzip from './gunzip.ts';
+import delay from './delay.ts';
 import fs from 'fs';
 import {
   assertTestingWebAtlasCloud,
@@ -21,6 +22,11 @@ import {
   type WarningFilter,
 } from '@mongodb-js/compass-test-server';
 import { MongoClient } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
+// @ts-expect-error types exist but aren't reachable through the package "exports"
+import resolveMongodbSrv from 'resolve-mongodb-srv';
+// @ts-expect-error no types for this package
+import logRunning from 'why-is-node-running';
 import { isEnterprise } from 'mongodb-build-info';
 import {
   buildCompass,
@@ -31,6 +37,7 @@ import {
   serverSatisfies,
   startBrowser,
 } from './compass.ts';
+import { ConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   spawnCompassWebSandbox,
@@ -78,7 +85,7 @@ export function allowServerWarnings(...filters: WarningFilter[]): () => void {
   };
 }
 
-async function createAtlasCloudResources() {
+async function createWebAtlasCloudResources() {
   assertTestingWebAtlasCloud(context);
 
   debug('Creating Atlas Cloud resources...');
@@ -187,10 +194,12 @@ async function createAtlasCloudResources() {
   const atlasCloudDbuserUsername = `dbusr-${RUN_ID}`;
   const atlasCloudDbuserPassword = randomBytes(20).toString('hex');
 
-  await compass.browser.configureDefaultProjectDbAccess(
-    atlasCloudDbuserUsername,
-    atlasCloudDbuserPassword
-  );
+  await compass.browser.configureProjectDbAccess({
+    env: getAtlasCloudEnvironmentFromContext(context),
+    projectId: context.atlasCloudProjectId,
+    dbuserUsername: atlasCloudDbuserUsername,
+    dbuserPassword: atlasCloudDbuserPassword,
+  });
 
   throwIfAborted();
 
@@ -209,17 +218,20 @@ async function createAtlasCloudResources() {
       // resources are provisioned automatically
       const testClusterName = `e2e-${RUN_ID}`;
 
-      const connectionString =
-        await compass.browser.createAtlasClusterForDefaultProject(
-          atlasCloudDbuserUsername,
-          atlasCloudDbuserPassword,
-          testClusterName,
-          context.atlasCloudDefaultClusterType as ClusterTypes
-        );
+      const connectionString = new ConnectionString(
+        await compass.browser.createAtlasCluster({
+          env: getAtlasCloudEnvironmentFromContext(context),
+          projectId: context.atlasCloudProjectId,
+          clusterName: testClusterName,
+          clusterType: context.atlasCloudDefaultClusterType as ClusterTypes,
+        })
+      );
+      connectionString.username = atlasCloudDbuserUsername;
+      connectionString.password = atlasCloudDbuserPassword;
 
       DEFAULT_CONNECTIONS.push({
         id: testClusterName,
-        connectionOptions: { connectionString },
+        connectionOptions: { connectionString: connectionString.toString() },
         favorite: { name: testClusterName },
       });
     } else {
@@ -252,7 +264,34 @@ async function createAtlasCloudResources() {
 
   throwIfAborted();
 
+  for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
+    await waitForClusterToBeReachable(connectionOptions.connectionString);
+  }
+
   await compass.stop();
+}
+
+async function waitForClusterToBeReachable(connectionString: string) {
+  const directConnectionString =
+    await makeDirectConnectionString(connectionString);
+  const deadline = Date.now() + 5 * 60_000;
+  for (let attempt = 1; ; attempt++) {
+    throwIfAborted();
+    const client = new MongoClient(directConnectionString);
+    try {
+      await client.db('admin').command({ ping: 1 });
+      debug('Cluster reachable after %d ping attempt(s)', attempt);
+      return;
+    } catch (err) {
+      if (Date.now() >= deadline) {
+        throw err;
+      }
+      debug('Ping attempt %d failed: %O', attempt, err);
+    } finally {
+      await client.close();
+    }
+    await delay(5_000);
+  }
 }
 
 /**
@@ -313,7 +352,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
           cleanupFns.push(cleanupServer);
         }
 
-        await createAtlasCloudResources();
+        await createWebAtlasCloudResources();
 
         debug('Waiting for the compass-web assets to be available ...');
         await waitForCompassWebStaticAssetsToBeReady(
@@ -420,22 +459,48 @@ export async function mochaGlobalTeardown() {
   );
 }
 
+async function makeDirectConnectionString(
+  connectionString: string
+): Promise<string> {
+  let url = new ConnectionString(connectionString);
+  if (url.isSRV) {
+    url = new ConnectionString(
+      (await resolveMongodbSrv(url.toString())) as string
+    );
+  }
+  url.hosts = url.hosts.slice(0, 1);
+  const params = url.typedSearchParams<MongoClientOptions>();
+  params.delete('replicaSet');
+  params.set('directConnection', 'true');
+  return url.toString();
+}
+
 async function updateMongoDBServerInfo() {
   try {
     for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
       let client: MongoClient | undefined;
       try {
-        client = new MongoClient(connectionOptions.connectionString);
+        client = new MongoClient(
+          await makeDirectConnectionString(connectionOptions.connectionString)
+        );
         const info = await client.db('admin').command({ buildInfo: 1 });
         DEFAULT_CONNECTIONS_SERVER_INFO.push({
           version: info.version,
           enterprise: isEnterprise(info),
         });
       } finally {
-        void client?.close(true);
+        await client?.close();
       }
     }
   } catch (err) {
-    debug('Failed to get MongoDB server info:', err);
+    // The runner has been seen hanging for an hour after this failure instead
+    // of exiting. Give the normal cleanup a chance, then report whatever is
+    // keeping the process alive and bail.
+    setTimeout(() => {
+      debug('Still running 30s after failing to get server info:');
+      logRunning(console);
+      process.exit(1);
+    }, 30_000).unref();
+    throw err;
   }
 }

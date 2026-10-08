@@ -9,7 +9,7 @@ export { useActiveConnections } from './hooks/use-active-connections';
 
 export type DataServiceLocator<
   K extends keyof DataService = keyof DataService,
-  L extends keyof DataService = K
+  L extends keyof DataService = K,
 > = () => Pick<DataService, K> & Partial<Pick<DataService, L>>;
 
 /**
@@ -20,7 +20,7 @@ export type DataServiceLocator<
 export const dataServiceLocator = createServiceLocator(
   function dataServiceLocator<
     K extends keyof DataService = keyof DataService,
-    L extends keyof DataService = K
+    L extends keyof DataService = K,
   >(): Pick<DataService, K> & Partial<Pick<DataService, L>> {
     const connectionInfo = useConnectionInfo();
     if (!connectionInfo) {

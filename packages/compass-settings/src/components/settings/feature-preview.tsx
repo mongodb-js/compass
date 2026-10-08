@@ -6,7 +6,7 @@ import {
   featureFlags,
 } from 'compass-preferences-model/provider';
 
-const previewFeatureFlagFields = featureFlags
+export const previewFeatureFlagFields = featureFlags
   .filter((definition) => {
     return (definition as FeatureFlagDefinition).stage === 'preview'; // asserting to a more generic type as we don't currently have `preview` flags
   })
@@ -14,7 +14,7 @@ const previewFeatureFlagFields = featureFlags
     return definition.name;
   });
 
-const developmentFeatureFlagFields = featureFlags
+export const developmentFeatureFlagFields = featureFlags
   .filter((definition) => {
     return definition.stage === 'development';
   })

@@ -24,7 +24,7 @@ export type AtlasOptInState = {
 
 export type GenAIAtlasOptInThunkAction<
   R,
-  A extends AnyAction = AnyAction
+  A extends AnyAction = AnyAction,
 > = ThunkAction<
   R,
   RootState,

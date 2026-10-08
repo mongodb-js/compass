@@ -55,9 +55,7 @@ type StringPreferences = KeysMatching<
 >;
 type StringEnumPreferences = keyof typeof ENUM_PREFERENCE_CONFIG;
 export type SupportedPreferences =
-  | BooleanPreferences
-  | NumericPreferences
-  | StringPreferences;
+  BooleanPreferences | NumericPreferences | StringPreferences;
 
 const inputStyles = css({
   marginTop: spacing[400],
@@ -76,7 +74,7 @@ const fieldContainerStyles = css({
 });
 
 type HandleChange<PreferenceName extends SupportedPreferences> = <
-  N extends PreferenceName
+  N extends PreferenceName,
 >(
   field: N,
   value: UserConfigurablePreferences[N]

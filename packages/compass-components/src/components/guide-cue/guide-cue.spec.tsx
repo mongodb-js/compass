@@ -240,9 +240,8 @@ describe('GuideCue', function () {
 
       const popover1 = within(getGuideCuePopover());
       expect(popover1.getByText('Login with Atlas')).to.exist;
-      expect(
-        popover1.getByText('Now you can login with your atlas account')
-      ).to.exist;
+      expect(popover1.getByText('Now you can login with your atlas account')).to
+        .exist;
       expect(popover1.getByText('1 of 2')).to.exist;
 
       // on next to cue 2

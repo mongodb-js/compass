@@ -4,8 +4,10 @@ import { css } from '@mongodb-js/compass-components';
 import type { FlextreeNode } from 'd3-flextree';
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy';
 
-interface TreeLayoutProps<T, X>
-  extends Omit<React.HTMLProps<HTMLDivElement>, 'data' | 'children'> {
+interface TreeLayoutProps<T, X> extends Omit<
+  React.HTMLProps<HTMLDivElement>,
+  'data' | 'children'
+> {
   data: T;
   getNodeSize: (node: T) => [number, number];
   getNodeKey: (node: T) => string;

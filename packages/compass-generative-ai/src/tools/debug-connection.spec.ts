@@ -484,7 +484,7 @@ describe('debugConnection', function () {
     const stateCases: [
       string,
       Parameters<typeof mockAtlasAdminApi>[0],
-      { cluster_state: string; ip_access_status?: string }
+      { cluster_state: string; ip_access_status?: string },
     ][] = [
       [
         'a paused cluster',

@@ -62,9 +62,7 @@ function progressHandler(
   }
 }
 
-export class WebpackPluginMulticompilerProgress
-  implements WebpackPluginInstance
-{
+export class WebpackPluginMulticompilerProgress implements WebpackPluginInstance {
   params!: ConstructorParameters<typeof ProgressPlugin>;
 
   private static instance?: WebpackPluginMulticompilerProgress;

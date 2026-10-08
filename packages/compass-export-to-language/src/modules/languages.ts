@@ -1,12 +1,5 @@
 export type OutputLanguage =
-  | 'java'
-  | 'javascript'
-  | 'csharp'
-  | 'python'
-  | 'ruby'
-  | 'go'
-  | 'rust'
-  | 'php';
+  'java' | 'javascript' | 'csharp' | 'python' | 'ruby' | 'go' | 'rust' | 'php';
 
 export function outputLanguageToCodeLanguage(language: OutputLanguage) {
   if (language === 'csharp') {

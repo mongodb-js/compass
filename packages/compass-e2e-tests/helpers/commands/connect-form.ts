@@ -42,9 +42,8 @@ export async function getConnectFormState(
     Selectors.ConnectionFormAdvancedToggle
   );
 
-  const connectionString = await browser.getConnectFormConnectionString(
-    isFocused
-  );
+  const connectionString =
+    await browser.getConnectFormConnectionString(isFocused);
 
   // General
   const initialTab = await browser.navigateToConnectTab('General');

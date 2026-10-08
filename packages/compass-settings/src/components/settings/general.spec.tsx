@@ -125,9 +125,8 @@ describe('GeneralSettings', function () {
     }
 
     function getTimezoneDescription() {
-      return within(timezoneContainer).getByTestId(
-        'timezone-description'
-      ).textContent;
+      return within(timezoneContainer).getByTestId('timezone-description')
+        .textContent;
     }
 
     beforeEach(function () {

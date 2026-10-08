@@ -33,10 +33,7 @@ type ToggleStatusAction = {
   type: 'TOGGLE_STATUS';
 };
 type FindInPageActions =
-  | SetSearchTermAction
-  | StopFindAction
-  | ToggleStatusAction
-  | FindAction;
+  SetSearchTermAction | StopFindAction | ToggleStatusAction | FindAction;
 
 function find(state: State, action: FindAction): State {
   const opts = {

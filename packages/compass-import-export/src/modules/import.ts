@@ -315,8 +315,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         bytesProcessed,
         bytesTotal: fileSize,
       });
-    },
-    1000);
+    }, 1000);
 
     let dataService: DataService | undefined;
     let result: ImportResult;
@@ -362,7 +361,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         'Import Completed',
         {
           duration: Date.now() - startTime,
-          delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+          delimiter: fileType === 'csv' ? (delimiter ?? ',') : undefined,
           newline: fileType === 'csv' ? newline : undefined,
           file_type: fileType,
           all_fields: exclude.length === 0,
@@ -406,7 +405,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       'Import Completed',
       {
         duration: Date.now() - startTime,
-        delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+        delimiter: fileType === 'csv' ? (delimiter ?? ',') : undefined,
         newline: fileType === 'csv' ? newline : undefined,
         file_type: fileType,
         all_fields: exclude.length === 0,
@@ -609,8 +608,7 @@ const loadTypes = (
         type: ANALYZE_PROGRESS,
         analyzeBytesProcessed: bytesProcessed,
       });
-    },
-    1000);
+    }, 1000);
 
     try {
       const result = await analyzeCSVFields({

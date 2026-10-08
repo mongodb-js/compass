@@ -42,7 +42,7 @@ export const ThemeProvider = ({
 // High Order Component(HOC) used to inject Compass' theme pulled from the available
 // theme on the React context from LeafyGreen's provider into the wrapped component.
 const withDarkMode = function <
-  ComponentProps extends WithDarkModeProps = WithDarkModeProps
+  ComponentProps extends WithDarkModeProps = WithDarkModeProps,
 >(
   WrappedComponent: React.ComponentType<ComponentProps>
 ): React.ComponentType<ComponentProps> {

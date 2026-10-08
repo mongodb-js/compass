@@ -253,7 +253,38 @@ describe('SearchIndexesTable Component', function () {
       }
     });
 
-    it('passes auto-embed pipeline text when opening aggregate and enableAutoEmbeddingPublicPreview is on', function () {
+    it('passes auto-embed pipeline text when opening aggregate on an autoEmbed index and enableAutoEmbeddingPublicPreview is on', function () {
+      const autoEmbedIndex = mockSearchIndex({
+        name: 'autoEmbedding123',
+        type: 'vectorSearch',
+        latestDefinition: {
+          fields: [{ type: 'autoEmbed', path: 'plot', model: 'voyage-3' }],
+        },
+      });
+      const { openCollectionWorkspace } = renderIndexList(
+        { indexes: [autoEmbedIndex] },
+        undefined,
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+
+      const indexRow = screen
+        .getByText('autoEmbedding123')
+        .closest('tr') as HTMLElement;
+      userEvent.click(
+        within(indexRow).getByTestId('search-index-actions-aggregate-action')
+      );
+
+      expect(openCollectionWorkspace.callCount).to.equal(1);
+      const workspaceOpts = openCollectionWorkspace.firstCall.args[2] as {
+        initialPipelineText?: string;
+      };
+      expect(workspaceOpts?.initialPipelineText).to.include('exact: false');
+      expect(workspaceOpts?.initialPipelineText).to.include(
+        'index: "autoEmbedding123"'
+      );
+    });
+
+    it('passes standard vector pipeline text for a non-autoEmbed index even when enableAutoEmbeddingPublicPreview is on', function () {
       const { openCollectionWorkspace } = renderIndexList(
         { indexes: vectorSearchIndexes },
         undefined,
@@ -271,9 +302,8 @@ describe('SearchIndexesTable Component', function () {
       const workspaceOpts = openCollectionWorkspace.firstCall.args[2] as {
         initialPipelineText?: string;
       };
-      expect(workspaceOpts?.initialPipelineText).to.include('exact: false');
       expect(workspaceOpts?.initialPipelineText).to.include(
-        'index: "vectorSearching123"'
+        '"queryVector": []'
       );
     });
 

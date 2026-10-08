@@ -40,7 +40,7 @@ describe('saving-pipeline module', function () {
         () =>
           ({
             savingPipeline: { name: 'test' },
-          } as any),
+          }) as any,
         {} as any
       );
       expect(dispatchSpy).to.be.calledOnceWith({

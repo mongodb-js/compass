@@ -22,7 +22,7 @@ import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { getAtlasConfig } from '@mongodb-js/atlas-service/provider';
+import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import {
   debugConnection,
@@ -299,12 +299,19 @@ export class ToolsController {
         inputSchema: z.object({
           connectionString: z.string(),
           errorMessage: z.string(),
+          connectionName: z
+            .string()
+            .optional()
+            .describe(
+              'The name of the connection the failed connection attempt was made to. Only used to display which connection is being debugged.'
+            ),
         }),
         needsApproval: true,
         strict: false,
         execute: async (args: {
           connectionString: string;
           errorMessage: string;
+          connectionName?: string;
         }) => {
           this.logger.log.info(
             this.logger.mongoLogId(1_001_000_436),
@@ -316,7 +323,9 @@ export class ToolsController {
             args.connectionString,
             this.atlasAdminApi,
             this.track,
-            getAtlasConfig(this.preferences).atlasUiBaseUrl
+            getAtlasConfigForPreset(
+              this.preferences.getPreferences().atlasServiceBackendPreset
+            ).atlasUiBaseUrl
           );
         },
       };
