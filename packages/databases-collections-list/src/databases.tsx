@@ -205,6 +205,7 @@ const DatabasesList: React.FunctionComponent<{
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
+  isRefreshing?: boolean;
   renderLoadSampleDataBanner?: () => React.ReactNode;
 }> = ({
   databases,
@@ -212,6 +213,7 @@ const DatabasesList: React.FunctionComponent<{
   onDeleteDatabaseClick,
   onCreateDatabaseClick,
   onRefreshClick,
+  isRefreshing,
   renderLoadSampleDataBanner,
 }) => {
   let virtual = true;
@@ -238,6 +240,7 @@ const DatabasesList: React.FunctionComponent<{
       onDeleteItemClick={onDeleteDatabaseClick}
       onCreateItemClick={onCreateDatabaseClick}
       onRefreshClick={onRefreshClick}
+      isRefreshing={isRefreshing}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}
     ></TableComponent>
   );

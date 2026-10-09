@@ -34,6 +34,7 @@ type CollectionsListProps = {
   collections: ReturnType<Collection['toJSON']>[];
   collectionsLoadingStatus: string;
   collectionsLoadingError?: string | null;
+  isRefreshing: boolean;
   isEditable: boolean;
   onDeleteCollectionClick(connectionId: string, ns: string): void;
   onCreateCollectionClick(connectionId: string, dbName: string): void;
@@ -45,6 +46,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   collections,
   collectionsLoadingStatus,
   collectionsLoadingError,
+  isRefreshing,
   isEditable: isInstanceWritable,
   onDeleteCollectionClick: _onDeleteCollectionClick,
   onCreateCollectionClick: _onCreateCollectionClick,
@@ -109,6 +111,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
     <CollectionsList
       namespace={namespace}
       collections={collections}
+      isRefreshing={isRefreshing}
       {...actions}
     />
   );
@@ -122,6 +125,7 @@ const ConnectedCollections = connect(
       collections: state.collections,
       collectionsLoadingStatus: state.collectionsLoadingStatus.status,
       collectionsLoadingError: state.collectionsLoadingStatus.error,
+      isRefreshing: state.collectionsLoadingStatus.status === 'refreshing',
       isEditable,
     };
   },
