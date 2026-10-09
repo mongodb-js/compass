@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { Binary, UUID } from 'bson';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 import reducer, {
   checkValidator,

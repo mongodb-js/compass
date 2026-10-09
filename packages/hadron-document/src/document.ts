@@ -3,7 +3,7 @@ import type { Element, ElementEventsType } from './element';
 import { ElementList } from './element';
 import EventEmitter from 'eventemitter3';
 import { EJSON, UUID } from 'bson';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import type {
   KeyInclusionOptions,
   ObjectGeneratorOptions,

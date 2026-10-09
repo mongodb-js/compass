@@ -1,4 +1,4 @@
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { flattenSchemaToObject } from './util';
 import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
 

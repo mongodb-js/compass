@@ -9,7 +9,8 @@ import HadronDocument, {
   Document,
   objectToIdiomaticEJSON,
 } from 'hadron-document';
-import { toJSString, validate } from 'mongodb-query-parser';
+import { validate } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
