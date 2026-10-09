@@ -4,7 +4,7 @@ import {
   Button,
   css,
 } from '@mongodb-js/compass-components';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import { isSearchStage } from '../utils/stage';

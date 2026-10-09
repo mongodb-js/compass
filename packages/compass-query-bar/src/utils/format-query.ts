@@ -1,4 +1,4 @@
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 /**
  * Format the provided attribute into a pretty-printed version

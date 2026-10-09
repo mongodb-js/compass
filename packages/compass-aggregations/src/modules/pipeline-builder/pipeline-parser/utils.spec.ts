@@ -1,7 +1,7 @@
 import * as babelParser from '@babel/parser';
 import { expect } from 'chai';
 import { Code } from 'bson';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { generate, parseShellBSON } from './utils';
 
 describe('PipelineParser Utils', function () {

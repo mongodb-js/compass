@@ -1,6 +1,7 @@
 import type { RootAction, SchemaValidationThunkAction } from '.';
 import type { Document } from 'bson';
-import { parseFilter, toJSString } from 'mongodb-query-parser';
+import { parseFilter } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { openToast } from '@mongodb-js/compass-components';
 import { VALIDATION_TEMPLATE } from '@mongodb-js/mongodb-constants';
 import { isEqual, pick } from 'lodash';
