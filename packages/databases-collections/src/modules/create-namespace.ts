@@ -1,5 +1,5 @@
 import type { Action, AnyAction, Reducer } from 'redux';
-import { parseFilter } from 'mongodb-query-parser';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
 import { connectionSupports } from '@mongodb-js/compass-connections';
@@ -311,7 +311,10 @@ export async function handleFLE2Options(
 
   if (options.encryptedFields) {
     try {
-      options.encryptedFields = parseFilter(options.encryptedFields);
+      options.encryptedFields = parse(options.encryptedFields, {
+        mode: ParseMode.Loose,
+        allowMethods: true,
+      });
     } catch (err) {
       throw new Error(
         `Could not parse encryptedFields config: ${(err as Error).message}`
@@ -325,7 +328,10 @@ export async function handleFLE2Options(
       // generate them as part of the collection creation operation.
       let keyEncryptionKey;
       try {
-        keyEncryptionKey = parseFilter(options.keyEncryptionKey || '{}');
+        keyEncryptionKey = parse(options.keyEncryptionKey || '{}', {
+          mode: ParseMode.Loose,
+          allowMethods: true,
+        });
       } catch (err) {
         throw new Error(
           `Could not parse keyEncryptionKey: ${(err as Error).message}`
