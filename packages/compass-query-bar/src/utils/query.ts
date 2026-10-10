@@ -1,4 +1,4 @@
-import { validate } from 'mongodb-query-parser';
+import { validateField } from './validate-query';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
 import type { UserPreferences } from 'compass-preferences-model';
 import { isEqual } from 'lodash';
@@ -121,59 +121,6 @@ export function isQueryValid(fields: QueryFormFields) {
 
 function isQueryProperty(field: string): field is QueryProperty {
   return (QUERY_PROPERTIES as readonly string[]).includes(field);
-}
-
-export function validateField(
-  field: string,
-  value: string,
-  {
-    maxTimeMS: preferencesMaxTimeMS,
-    maxTimeMSEnvLimit,
-  }: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
-) {
-  const validated = validate(field, value);
-  if ((field === 'filter' || field === 'hint') && validated === '') {
-    // TODO(COMPASS-5205): Things like { i: $} confuses queryParser and
-    // ultimately it sets filter to '' whereas it has to be a {} (if valid) or
-    // false (if invalid). Should probably be fixed in mongodb-query-parser,
-    // though.
-    return false;
-  }
-
-  // Additional validation for maxTimeMS to make sure that we are not over the
-  // upper bound set in preferences or environment limits
-  if (field === 'maxTimeMS') {
-    const maxTimeMS = Number(value);
-
-    // When environment limit is set (> 0), enforce it
-    if (
-      maxTimeMSEnvLimit &&
-      !Number.isNaN(maxTimeMS) &&
-      maxTimeMS > maxTimeMSEnvLimit
-    ) {
-      return false;
-    }
-
-    // Standard preference validation
-    if (
-      typeof preferencesMaxTimeMS !== 'undefined' &&
-      value &&
-      maxTimeMS > (preferencesMaxTimeMS ?? DEFAULT_FIELD_VALUES['maxTimeMS'])
-    ) {
-      return false;
-    }
-  }
-
-  return validated;
-}
-
-export function isQueryFieldsValid(
-  fields: QueryFormFields,
-  preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
-) {
-  return Object.entries(fields).every(
-    ([key, value]) => validateField(key, value.string, preferences) !== false
-  );
 }
 
 export function isEqualDefaultQuery(fields: QueryFormFields): boolean {

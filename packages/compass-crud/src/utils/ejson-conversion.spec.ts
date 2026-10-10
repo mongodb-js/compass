@@ -111,7 +111,7 @@ describe('ejson-conversion', function () {
       const converted = convert(EJSON.stringify(allTypes, { relaxed: false }));
 
       // At the time of writing, there are discrepancies between the generated
-      // shell syntax from mongodb-query-parser stringify and actual shell
+      // shell syntax from @mongodb-js/shell-bson-parser and actual shell
       // syntax.
       const expectedFields = [
         `'double': Double('1.2')`,

@@ -1,5 +1,6 @@
 import type { Signal } from '@mongodb-js/compass-components';
 import { PerformanceSignals } from '@mongodb-js/compass-components';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import type Document from 'hadron-document';
 import type { Element } from 'hadron-document';
 
@@ -81,4 +82,45 @@ export function getSafeIntegerViolationMessage(
   return numSafeIntegerViolations === 1
     ? 'Number exceeds the safe integer range.'
     : 'Numbers exceed the safe integer range.';
+}
+
+const ALLOWED_SORT_VALUES = new Set<unknown>([1, -1, 'asc', 'desc']);
+
+function isValidSortDirection(direction: unknown): boolean {
+  return (
+    ALLOWED_SORT_VALUES.has(direction) ||
+    (typeof direction === 'object' &&
+      direction !== null &&
+      '$meta' in direction &&
+      Boolean((direction as { $meta?: unknown }).$meta))
+  );
+}
+
+export function validateSort(input: string) {
+  try {
+    const value = parse(input, {
+      mode: ParseMode.Loose,
+    });
+    if (value === '') {
+      return null;
+    }
+    if (Array.isArray(value)) {
+      const isValid = value.every(
+        (entry) =>
+          Array.isArray(entry) &&
+          entry.length === 2 &&
+          typeof entry[0] === 'string' &&
+          isValidSortDirection(entry[1])
+      );
+      return isValid ? value : null;
+    }
+
+    const isValid =
+      typeof value === 'object' &&
+      value !== null &&
+      Object.values(value).every(isValidSortDirection);
+    return isValid ? value : null;
+  } catch {
+    return null;
+  }
 }

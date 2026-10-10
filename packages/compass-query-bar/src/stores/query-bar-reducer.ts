@@ -17,11 +17,10 @@ import type {
 import {
   mapFormFieldsToQuery,
   mapQueryToFormFields,
-  isQueryFieldsValid,
-  validateField,
   isEqualDefaultQuery,
   doesQueryHaveExtraOptionsSet,
 } from '../utils/query';
+import { isQueryFieldsValid, validateField } from '../utils/validate-query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
 import { getQueryAttributes, isAction, isQueryEqual } from '../utils';
