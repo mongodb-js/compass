@@ -1,5 +1,5 @@
 import type { CollationOptions } from 'mongodb';
-import { isCollationValid } from 'mongodb-query-parser';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import type { RestorePipelineAction } from './saved-pipeline';
@@ -38,12 +38,23 @@ export const INITIAL_STATE: CollationStringState = {
 export function getCollationStateFromString(
   collationString: string
 ): CollationStringState {
-  const collation = isCollationValid(collationString);
-  return {
-    text: collationString,
-    value: collation === false ? null : collation,
-    isValid: collation !== false,
-  };
+  try {
+    const collation = parse(collationString, {
+      mode: ParseMode.Loose,
+      allowMethods: true,
+    });
+    return {
+      text: collationString,
+      value: collation === '' ? null : collation,
+      isValid: true,
+    };
+  } catch {
+    return {
+      text: collationString,
+      value: null,
+      isValid: false,
+    };
+  }
 }
 
 /**

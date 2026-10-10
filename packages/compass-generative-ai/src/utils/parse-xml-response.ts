@@ -1,6 +1,5 @@
 import type { Logger } from '@mongodb-js/compass-logging';
-import parse from 'mongodb-query-parser';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { toJSString, parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
 type ParsedXmlJsonResponse = {
   content: {
@@ -57,7 +56,10 @@ export function parseXmlToJsonResponse(
     const value = xmlDoc.querySelector(tag)?.textContent?.trim();
     if (value) {
       try {
-        const tagValue = parse(value);
+        const tagValue = parse(value, {
+          mode: ParseMode.Loose,
+          allowMethods: true,
+        });
         if (
           !tagValue ||
           (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)

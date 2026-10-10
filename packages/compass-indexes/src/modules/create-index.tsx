@@ -1,7 +1,7 @@
 import type { Document } from 'mongodb';
 import { ObjectId } from 'bson';
 import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
-import { isCollationValid } from 'mongodb-query-parser';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import React from 'react';
 import type { Action, Dispatch, Reducer } from 'redux';
 import { Badge, Link } from '@mongodb-js/compass-components';
@@ -388,8 +388,15 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     const options: CreateIndexesOptions = {};
 
     // Check for collation errors.
-    const collation =
-      isCollationValid(formIndexOptions.collation.value ?? '') || undefined;
+    let collation: Record<string, unknown> | null;
+    try {
+      collation = parse(formIndexOptions.collation.value ?? '', {
+        mode: ParseMode.Loose,
+        allowMethods: true,
+      });
+    } catch {
+      collation = null;
+    }
 
     if (formIndexOptions.collation.enabled && !collation) {
       dispatch(errorEncountered('You must provide a valid collation object'));
@@ -397,7 +404,9 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     }
 
     if (formIndexOptions.collation.enabled) {
-      options.collation = collation;
+      // Let server handle the validation
+      options.collation =
+        collation as unknown as CreateIndexesOptions['collation'];
     }
 
     if (formIndexOptions.unique.enabled) {

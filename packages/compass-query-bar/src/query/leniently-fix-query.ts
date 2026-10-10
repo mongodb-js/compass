@@ -1,8 +1,8 @@
-import parseQuery from 'mongodb-query-parser';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
 function _isValidQuery(query: string): boolean {
   try {
-    return !!parseQuery(query);
+    return !!parse(query, { mode: ParseMode.Loose, allowMethods: true });
   } catch {
     return false;
   }
