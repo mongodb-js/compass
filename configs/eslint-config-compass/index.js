@@ -53,6 +53,8 @@ const tsRules = {
 
 const tsOverrides = {
   ...common.tsOverrides,
+  // Utility process code is ESM, written as `.mts`
+  files: [...common.tsOverrides.files, '**/*.mts'],
   rules: { ...tsRules },
 };
 
@@ -115,6 +117,8 @@ const testTsOverrides = {
     '**/*.spec.tsx',
     '**/*.test.tsx',
     '**/*.test.ts',
+    '**/*.spec.mts',
+    '**/*.test.mts',
     '**/test/**/*.ts',
   ],
   rules: {

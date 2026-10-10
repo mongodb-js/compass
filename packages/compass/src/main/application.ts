@@ -2,7 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
-import { app, safeStorage, session } from 'electron';
+import { app, safeStorage, session, utilityProcess } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
@@ -37,6 +37,7 @@ import {
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
 import { handleSquirrelWindowsStartup } from './squirrel-startup';
+import { utilityFileName, utilityPortChannel } from '../utilities/conventions';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
@@ -164,6 +165,7 @@ class CompassApplication {
     setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
+    this.setupUtilityProcesses();
     this.setupApplicationMenu();
     this.setupWindowManager();
     this.setupAutoUpdate();
@@ -198,6 +200,56 @@ class CompassApplication {
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
     });
+  }
+
+  private static setupUtilityProcesses(): void {
+    app.on('child-process-gone', (_event, details) => {
+      if (details.reason === 'clean-exit') {
+        log.info(
+          mongoLogId(1_001_000_443),
+          'Application',
+          'Child process gone',
+          details
+        );
+      } else {
+        log.error(
+          mongoLogId(1_001_000_444),
+          'Application',
+          'Child process crashed',
+          details
+        );
+      }
+    });
+
+    for (const name of ['embedded-shell']) {
+      const child = utilityProcess.fork(
+        path.join(__dirname, utilityFileName(name)),
+        [],
+        {
+          serviceName: `Compass ${name}`,
+          env: {
+            ...process.env,
+            NODE_OPTIONS: [
+              process.env.NODE_OPTIONS,
+              '--disallow-code-generation-from-strings',
+              '--disable-proto=throw',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          },
+        }
+      );
+      child.on('message', ({ channel, data }) => {
+        if (channel === 'compass:log') {
+          // @ts-expect-error electron types conflict with Node.js ones
+          process.emit('compass:log', data);
+        }
+      });
+      // Relay ports a renderer hands over (see src/preload/utility-ports.ts)
+      ipcMain?.on(utilityPortChannel(name), (event, message) => {
+        child.postMessage(message, event.ports);
+      });
+    }
   }
 
   private static setupJavaScriptArguments(): void {
