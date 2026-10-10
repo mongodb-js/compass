@@ -6,43 +6,8 @@ import type { MongoLogWriter } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
 import { EventEmitter } from 'events';
-
-declare const __webpack_require__: typeof require;
-declare const __non_webpack_require__: typeof require;
-
-// Workaround for webpack require that overrides global require
-function getRealRequire() {
-  // eslint-disable-next-line camelcase
-  return typeof __webpack_require__ === 'function'
-    ? // eslint-disable-next-line camelcase, no-undef
-      __non_webpack_require__
-    : require;
-}
-
-/**
- * @type {{ WorkerRuntime: .WorkerRuntime }}
- */
-const { WorkerRuntime } = (() => {
-  const require = getRealRequire();
-  const realModulePath = require.resolve('@mongosh/node-runtime-worker-thread');
-  // Runtime needs to be outside the asar bundle to function properly, so if we
-  // resolved it inside of one, we will try to import it from outside (and hard
-  // fail if this didn't work)
-  if (/\.asar(?!\.unpacked)/.test(realModulePath)) {
-    try {
-      return require(realModulePath.replace('.asar', '.asar.unpacked'));
-    } catch (e: any) {
-      e.message +=
-        '\n\n@mongosh/node-runtime-worker-thread module and all its dependencies needs to be unpacked before it can be used';
-      throw e;
-    }
-  }
-
-  return require(realModulePath);
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-})() as typeof import('@mongosh/node-runtime-worker-thread');
-
-export { WorkerRuntime };
+import { openUtilityPort } from '@mongodb-js/compass-utils';
+import { ShellRuntime } from './shell-runtime';
 
 export function createWorkerRuntime(
   dataService: DataService,
@@ -50,7 +15,7 @@ export function createWorkerRuntime(
   track: TrackFunction,
   connectionInfo: ConnectionInfoRef,
   deviceId: string
-): (typeof WorkerRuntime)['prototype'] {
+): ShellRuntime {
   const emitter = new EventEmitter();
 
   const loggingAndTelemetry = setupLoggingAndTelemetry({
@@ -106,7 +71,8 @@ export function createWorkerRuntime(
     );
   }
 
-  const runtime = new WorkerRuntime(
+  const runtime = new ShellRuntime(
+    openUtilityPort('embedded-shell'),
     driverUrl,
     driverOptions,
     cliOptions ?? {},
