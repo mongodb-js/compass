@@ -5,7 +5,7 @@ import {
   escapeUserInput,
   type PromptContextOptions,
 } from './gen-ai-prompt';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { ObjectId } from 'bson';
 import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
 

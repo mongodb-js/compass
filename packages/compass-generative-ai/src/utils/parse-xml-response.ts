@@ -1,5 +1,6 @@
 import type { Logger } from '@mongodb-js/compass-logging';
-import parse, { toJSString } from 'mongodb-query-parser';
+import parse from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 type ParsedXmlJsonResponse = {
   content: {

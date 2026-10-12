@@ -65,6 +65,7 @@
     "@mongodb-js/mongodb-schema": "^12.7.2",
     "@mongosh/service-provider-core": "^5.2.0",
     "@mongosh/service-provider-node-driver": "^5.2.0",
+    "@mongodb-js/shell-bson-parser": "^1.6.3",
     "ai": "^6.0.3",
     "compass-preferences-model": "^3.6.0",
     "ipaddr.js": "^2.5.0",
