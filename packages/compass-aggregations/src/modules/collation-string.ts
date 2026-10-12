@@ -38,6 +38,14 @@ export const INITIAL_STATE: CollationStringState = {
 export function getCollationStateFromString(
   collationString: string
 ): CollationStringState {
+  if (collationString.trim() === '') {
+    return {
+      text: collationString,
+      value: null,
+      isValid: true,
+    };
+  }
+
   try {
     const collation = parse(collationString, {
       mode: ParseMode.Loose,

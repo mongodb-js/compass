@@ -102,7 +102,7 @@ function isCollationValid(input: string) {
   }
   try {
     const parsed = parse(input, { mode: ParseMode.Loose });
-    return isObject(parsed) ? parsed : false;
+    return isObject(parsed) && !Array.isArray(parsed) ? parsed : false;
   } catch {
     return false;
   }

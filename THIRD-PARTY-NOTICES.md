@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Fri Oct 09 2026.
+This document was automatically generated on Mon Oct 12 2026.
 
 ## List of dependencies
 
@@ -126,7 +126,7 @@ This document was automatically generated on Fri Oct 09 2026.
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1        | MIT                                 |
 | **[@marijn/find-cluster-break](#7a9878a3598d1e6be1f069dc757f1d31e30ce66d313f5025cfd2521d68a24243)**                         | 1.0.2        | MIT                                 |
 | **[@mcp-ui/server](#d70b4227f081adf5b4b417eead88ba4303ccb03fcbef8a6c5b943f67fa5ca487)**                                     | 5.16.3       | Apache-2.0                          |
-| **[@modelcontextprotocol/sdk](#a4720b30fbdd1e940ca2aa74b23353b04aa2315130be8c1fe23ae414d8fd2e55)**                          | 1.29.0       | MIT                                 |
+| **[@modelcontextprotocol/sdk](#a87ede19dd988bc599975fc2f7c71f7e3b7e50359f8eef6e71ae4a234383d237)**                          | 1.32.1       | MIT                                 |
 | **[@opentelemetry/api](#78185a135ba748dc3c4764cf3f8bc9f1362c2de788184eb429e25fdbb6e4755a)**                                 | 1.9.0        | Apache-2.0                          |
 | **[@react-aria/interactions](#638eaf69f422aa3fbe2277f9e95b6b87e64569742134491d2653e9fc05c8f58a)**                           | 3.9.1        | Apache-2.0                          |
 | **[@react-aria/ssr](#d50578768741f1468c3d5dc0da1f585e37a01e7e13b44149ff094a0a5008d023)**                                    | 3.2.0        | Apache-2.0                          |
@@ -268,7 +268,7 @@ This document was automatically generated on Fri Oct 09 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#4dae2039c4132a6b702b86771e814096b5f1c27674e557030b68b73eb5d8b71e)**                                           | 44.6.0       | MIT                                 |
+| **[electron](#22e1c94da8dabff67d73e8b61e986135215ea40286951efc51bc58c62c25046c)**                                           | 44.7.0       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#d4ec33708205e0aab97e631fb8d69c095cd87da7c10128dcdac6b5ba2cc1395d)**                                      | 1.4.5        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -10286,9 +10286,9 @@ License files:
 
 License tags: Apache-2.0
 
-<a id="a4720b30fbdd1e940ca2aa74b23353b04aa2315130be8c1fe23ae414d8fd2e55"></a>
+<a id="a87ede19dd988bc599975fc2f7c71f7e3b7e50359f8eef6e71ae4a234383d237"></a>
 
-### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.29.0)
+### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.32.1)
 
 License tags: MIT
 
@@ -23330,9 +23330,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="4dae2039c4132a6b702b86771e814096b5f1c27674e557030b68b73eb5d8b71e"></a>
+<a id="22e1c94da8dabff67d73e8b61e986135215ea40286951efc51bc58c62c25046c"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 44.6.0)
+### [electron](https://www.npmjs.com/package/electron) (version 44.7.0)
 
 License tags: MIT
 
