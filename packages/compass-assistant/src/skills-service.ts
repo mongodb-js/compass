@@ -14,22 +14,17 @@ const SkillsResponseSchema = z.object({
 
 export type Skill = z.infer<typeof SkillSchema>;
 
-export class SkillsService {
-  private readonly atlasService: AtlasService;
-
-  constructor(atlasService: AtlasService) {
-    this.atlasService = atlasService;
-  }
-
-  async getSkills({ signal }: { signal?: AbortSignal } = {}): Promise<Skill[]> {
-    const res = await this.atlasService.fetch(
-      this.atlasService.assistantApiEndpoint('content/skills'),
-      { signal }
-    );
-    const { skills } = SkillsResponseSchema.parse(await res.json());
-    return (skills ?? []).flatMap((skill) => {
-      const parsed = SkillSchema.safeParse(skill);
-      return parsed.success ? [parsed.data] : [];
-    });
-  }
+export async function fetchSkills(
+  atlasService: AtlasService,
+  { signal }: { signal?: AbortSignal } = {}
+): Promise<Skill[]> {
+  const res = await atlasService.fetch(
+    atlasService.assistantApiEndpoint('content/skills'),
+    { signal }
+  );
+  const { skills } = SkillsResponseSchema.parse(await res.json());
+  return (skills ?? []).flatMap((skill) => {
+    const parsed = SkillSchema.safeParse(skill);
+    return parsed.success ? [parsed.data] : [];
+  });
 }

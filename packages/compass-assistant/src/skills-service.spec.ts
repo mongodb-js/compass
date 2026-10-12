@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
-import { SkillsService } from './skills-service';
+import { fetchSkills } from './skills-service';
 
 function createAtlasService(body: unknown) {
   return {
@@ -10,42 +10,38 @@ function createAtlasService(body: unknown) {
   } as unknown as AtlasService & { fetch: sinon.SinonStub };
 }
 
-describe('SkillsService', function () {
-  describe('getSkills', function () {
-    it('requests the skills endpoint and returns the skills', async function () {
-      const skill = {
-        name: 'mongodb-schema-design',
-        description: 'Guides schema design decisions for MongoDB...',
-        version: '1.2.0',
-        url: 'https://github.com/mongodb/agent-skills/blob/main/skills/mongodb-schema-design/SKILL.md',
-      };
-      const atlasService = createAtlasService({ skills: [skill] });
-      const service = new SkillsService(atlasService);
+describe('fetchSkills', function () {
+  it('requests the skills endpoint and returns the skills', async function () {
+    const skill = {
+      name: 'mongodb-schema-design',
+      description: 'Guides schema design decisions for MongoDB...',
+      version: '1.2.0',
+      url: 'https://github.com/mongodb/agent-skills/blob/main/skills/mongodb-schema-design/SKILL.md',
+    };
+    const atlasService = createAtlasService({ skills: [skill] });
 
-      expect(await service.getSkills()).to.deep.equal([skill]);
-      expect(atlasService.fetch.firstCall.args[0]).to.equal(
-        'http://example.com/api/v1/content/skills'
-      );
-    });
+    expect(await fetchSkills(atlasService)).to.deep.equal([skill]);
+    expect(atlasService.fetch.firstCall.args[0]).to.equal(
+      'http://example.com/api/v1/content/skills'
+    );
+  });
 
-    it('returns an empty array when the server has no skills', async function () {
-      const service = new SkillsService(createAtlasService({ skills: [] }));
-      expect(await service.getSkills()).to.deep.equal([]);
-    });
+  it('returns an empty array when the server has no skills', async function () {
+    expect(await fetchSkills(createAtlasService({ skills: [] }))).to.deep.equal(
+      []
+    );
+  });
 
-    it('drops invalid skills and keeps the valid ones', async function () {
-      const valid = {
-        name: 'mongodb-schema-design',
-        description: 'Guides schema design decisions for MongoDB...',
-        url: 'https://example.com/SKILL.md',
-        version: '1.2.0',
-      };
-      const service = new SkillsService(
-        createAtlasService({
-          skills: [{ name: 'no-url-or-description' }, valid, null],
-        })
-      );
-      expect(await service.getSkills()).to.deep.equal([valid]);
+  it('drops invalid skills and keeps the valid ones', async function () {
+    const valid = {
+      name: 'mongodb-schema-design',
+      description: 'Guides schema design decisions for MongoDB...',
+      url: 'https://example.com/SKILL.md',
+      version: '1.2.0',
+    };
+    const atlasService = createAtlasService({
+      skills: [{ name: 'no-url-or-description' }, valid, null],
     });
+    expect(await fetchSkills(atlasService)).to.deep.equal([valid]);
   });
 });
