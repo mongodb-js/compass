@@ -4,10 +4,10 @@ import {
   uuidHexToString,
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
+  isBsonValue,
 } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
-import { toJSString } from 'mongodb-query-parser';
 import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
@@ -476,11 +476,37 @@ const KeyValue: React.FunctionComponent<{
   );
 };
 
+function stringifyValue(value: unknown): string {
+  if (value === undefined) {
+    return 'undefined';
+  }
+  if (isBsonValue(value)) {
+    return value.inspect().replace(/^new /, '');
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(stringifyValue).join(',')}]`;
+  }
+  if (value !== null && typeof value === 'object') {
+    return `{${Object.entries(value)
+      .map(([k, v]) => `${JSON.stringify(k)}:${stringifyValue(v)}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
 const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
-    return toJSString(value, 0);
+    const args = [JSON.stringify(value.collection), stringifyValue(value.oid)];
+    const hasFields = Object.keys(value.fields ?? {}).length > 0;
+    if (value.db || hasFields) {
+      args.push(stringifyValue(value.db));
+    }
+    if (hasFields) {
+      args.push(stringifyValue(value.fields));
+    }
+    return `DBRef(${args.join(', ')})`;
   }, [value]);
 
   return (

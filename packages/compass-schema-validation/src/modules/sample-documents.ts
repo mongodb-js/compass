@@ -87,8 +87,7 @@ type SampleDocumentNonInitialAction =
   | FetchingValidDocumentFailedAction;
 
 export type SampleDocumentAction =
-  | SampleDocumentNonInitialAction
-  | FetchingSampleDocumentsAction;
+  SampleDocumentNonInitialAction | FetchingSampleDocumentsAction;
 
 /**
  * Action creators

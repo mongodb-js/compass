@@ -53,11 +53,7 @@ const BadgeWithTooltip: React.FunctionComponent<{
 
 type StatusFieldProps = {
   status:
-    | InProgressIndex['status']
-    | 'ready'
-    | 'building'
-    | 'inprogress'
-    | 'unknown';
+    InProgressIndex['status'] | 'ready' | 'building' | 'inprogress' | 'unknown';
   error?: InProgressIndex['error'];
   /** Optional tooltip to show on the status badge (used when detailed progress unavailable) */
   tooltip?: string;

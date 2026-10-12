@@ -8,14 +8,16 @@ import { connectionInfoRefLocator } from './connection-info-provider';
 
 export type ConnectionScopedAppRegistryLocator<
   T extends string,
-  K extends keyof ConnectionScopedAppRegistryImpl<T> = keyof ConnectionScopedAppRegistryImpl<T>,
-  L extends keyof ConnectionScopedAppRegistryImpl<T> = K
+  K extends keyof ConnectionScopedAppRegistryImpl<T> =
+    keyof ConnectionScopedAppRegistryImpl<T>,
+  L extends keyof ConnectionScopedAppRegistryImpl<T> = K,
 > = () => ConnectionScopedAppRegistry<T, K, L>;
 
 export type ConnectionScopedAppRegistry<
   T extends string,
-  K extends keyof ConnectionScopedAppRegistryImpl<T> = keyof ConnectionScopedAppRegistryImpl<T>,
-  L extends keyof ConnectionScopedAppRegistryImpl<T> = K
+  K extends keyof ConnectionScopedAppRegistryImpl<T> =
+    keyof ConnectionScopedAppRegistryImpl<T>,
+  L extends keyof ConnectionScopedAppRegistryImpl<T> = K,
 > = Pick<ConnectionScopedAppRegistryImpl<T>, K> &
   Partial<Pick<ConnectionScopedAppRegistryImpl<T>, L>>;
 
@@ -23,9 +25,9 @@ interface EventForwarder<T extends string> {
   emit(event: T, ...payload: unknown[]): void;
 }
 
-export class ConnectionScopedAppRegistryImpl<T extends string>
-  implements EventForwarder<T>
-{
+export class ConnectionScopedAppRegistryImpl<
+  T extends string,
+> implements EventForwarder<T> {
   private readonly appRegistryEmitter: AppRegistry['emit'];
   private readonly connectionInfoRef: ConnectionInfoRef;
   constructor(
@@ -57,8 +59,9 @@ export class ConnectionScopedAppRegistryImpl<T extends string>
 export const connectionScopedAppRegistryLocator = createServiceLocator(
   function useConnectionScopedAppRegistry<
     T extends string,
-    K extends keyof ConnectionScopedAppRegistryImpl<T> = keyof ConnectionScopedAppRegistryImpl<T>,
-    L extends keyof ConnectionScopedAppRegistryImpl<T> = K
+    K extends keyof ConnectionScopedAppRegistryImpl<T> =
+      keyof ConnectionScopedAppRegistryImpl<T>,
+    L extends keyof ConnectionScopedAppRegistryImpl<T> = K,
   >(): ConnectionScopedAppRegistry<T, K, L> {
     const appRegistry = useGlobalAppRegistry();
     const connectionInfoRef = connectionInfoRefLocator();

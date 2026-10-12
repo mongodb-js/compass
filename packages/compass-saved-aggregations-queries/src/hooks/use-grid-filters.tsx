@@ -220,10 +220,7 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
       // seem to always return an array, we will handle it as if we are not sure
       // excatly what is passed here
       const key = (Array.isArray(path) ? path[0] : path) as
-        | 'name'
-        | 'namespace'
-        | 'tags'
-        | 'data';
+        'name' | 'namespace' | 'tags' | 'data';
 
       if (key === 'namespace') {
         return `${item.database}.${item.collection}`;

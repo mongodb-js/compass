@@ -35,8 +35,7 @@ interface DismissViewUpdateErrorAction {
 }
 
 export type UpdateViewAction =
-  | ErrorUpdatingViewAction
-  | DismissViewUpdateErrorAction;
+  ErrorUpdatingViewAction | DismissViewUpdateErrorAction;
 
 export default function reducer(
   state: UpdateViewState = INITIAL_STATE,

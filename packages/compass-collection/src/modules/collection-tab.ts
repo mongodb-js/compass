@@ -735,9 +735,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         );
       }
       const validation = collectionModel.validation as
-        | { validator?: Document }
-        | null
-        | undefined;
+        { validator?: Document } | null | undefined;
       const schemaMetadata = {
         maxNestingDepth,
         validationRules: validation?.validator ?? null,

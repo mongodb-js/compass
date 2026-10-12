@@ -45,12 +45,12 @@ import { isEqual, memoize } from 'lodash';
 import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 import { useInitialValue } from '@mongodb-js/compass-components';
 
-type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
-  infer S,
-  infer A
-> & { dispatch: infer D }
-  ? { state: S; actions: A; dispatch: D }
-  : never;
+type ConnectionsStore =
+  ReturnType<typeof configureStore> extends Store<infer S, infer A> & {
+    dispatch: infer D;
+  }
+    ? { state: S; actions: A; dispatch: D }
+    : never;
 
 export const ConnectionsStoreContext = React.createContext<
   ReactReduxContextValue<ConnectionsStore['state']>

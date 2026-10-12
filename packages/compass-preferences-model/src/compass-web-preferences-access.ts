@@ -12,12 +12,14 @@ import type { AtlasPreferencesStorage } from './preferences-atlas';
 
 export class CompassWebPreferencesAccess implements PreferencesAccess {
   private _preferences: Preferences;
+  private _runningEnvironment: CompassRunningEnvironment;
   constructor(
     preferencesOverrides?: Partial<AllPreferences>,
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
     runningEnvironment: CompassRunningEnvironment = 'atlas',
     persistentStorage?: AtlasPreferencesStorage
   ) {
+    this._runningEnvironment = runningEnvironment;
     this._preferences = new Preferences({
       logger: createNoopLogger(),
       preferencesStorage:
@@ -66,7 +68,11 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
 
   createSandbox() {
     return Promise.resolve(
-      new CompassWebPreferencesAccess(this.getPreferences())
+      new CompassWebPreferencesAccess(
+        this.getPreferences(),
+        undefined,
+        this._runningEnvironment
+      )
     );
   }
 

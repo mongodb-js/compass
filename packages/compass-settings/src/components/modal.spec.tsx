@@ -83,7 +83,7 @@ describe('SettingsModal', function () {
       expect(sidebar).to.exist;
     });
 
-    for (const option of ['privacy']) {
+    for (const option of ['privacy', 'ai', 'preview']) {
       const button = within(sidebar).queryByTestId(`sidebar-${option}-item`);
       expect(button, `it renders ${option} button`).to.not.exist;
     }

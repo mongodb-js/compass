@@ -350,10 +350,10 @@ export function useJsonSchemaAutocompleter(
             documentation && typeof documentation === 'string'
               ? documentation
               : documentation &&
-                typeof documentation === 'object' &&
-                'value' in documentation
-              ? documentation.value
-              : undefined,
+                  typeof documentation === 'object' &&
+                  'value' in documentation
+                ? documentation.value
+                : undefined,
         };
 
         if (textEdit && 'range' in textEdit) {
@@ -552,10 +552,10 @@ export function useJsonSchemaAutocompleter(
             severity === 4
               ? 'hint'
               : severity === 3
-              ? 'info'
-              : severity === 2
-              ? 'warning'
-              : 'error',
+                ? 'info'
+                : severity === 2
+                  ? 'warning'
+                  : 'error',
         };
       });
 

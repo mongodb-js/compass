@@ -19,9 +19,8 @@ export function createNoopTrack(): TrackFunction {
   return noop;
 }
 
-export const TelemetryContext = React.createContext<TrackFunction>(
-  createNoopTrack()
-);
+export const TelemetryContext =
+  React.createContext<TrackFunction>(createNoopTrack());
 
 export const TelemetryProvider: React.FC<{
   options: Omit<TelemetryServiceOptions, 'logger'>;
@@ -80,15 +79,15 @@ export const experimentationServiceLocator = createServiceLocator(
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : F extends { new (...args: [infer A, ...any]): any }
-  ? A
-  : never;
+    ? A
+    : never;
 
 /**
  * @deprecated instead of using HOC, refactor class component to functional
  * component
  */
 function withTelemetry<
-  T extends ((...args: any[]) => any) | { new (...args: any[]): any }
+  T extends ((...args: any[]) => any) | { new (...args: any[]): any },
 >(ReactComponent: T): React.FunctionComponent<Omit<FirstArgument<T>, 'track'>> {
   const WithTelemetry = (
     props: Omit<FirstArgument<T>, 'track'> & React.Attributes

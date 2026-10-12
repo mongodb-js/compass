@@ -35,8 +35,8 @@ function PluginTitle({
   const collectionType = isTimeSeries
     ? 'timeseries'
     : isReadonly
-    ? 'view'
-    : 'collection';
+      ? 'view'
+      : 'collection';
   // Similar to what we have in the collection breadcrumbs.
   const tooltip: [string, string][] = [
     ['Connection', connectionName || ''],
@@ -63,10 +63,10 @@ function PluginTitle({
         collectionType === 'view'
           ? 'Visibility'
           : collectionType === 'timeseries'
-          ? 'TimeSeries'
-          : inferredFromPrivileges
-          ? 'EmptyFolder'
-          : 'Folder'
+            ? 'TimeSeries'
+            : inferredFromPrivileges
+              ? 'EmptyFolder'
+              : 'Folder'
       }
       data-namespace={ns}
       inferredFromPrivileges={inferredFromPrivileges}

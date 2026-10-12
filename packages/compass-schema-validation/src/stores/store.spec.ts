@@ -15,7 +15,7 @@ import {
   type ValidationLevel,
 } from '../modules/validation';
 import { fetchSampleDocuments } from '../modules/sample-documents';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import type { Store } from 'redux';
 import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
@@ -50,7 +50,7 @@ const fakeDataService = {
         await new Promise((resolve) => setTimeout(resolve, 0));
         yield* [{ prop1: 'abc' }];
       },
-    } as any),
+    }) as any,
 } as any;
 
 const fakeWorkspaces = {

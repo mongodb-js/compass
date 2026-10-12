@@ -142,8 +142,8 @@ function buildContextPromptText({
     activeCollectionSubTab: custom.currentQuery
       ? 'Documents'
       : custom.currentPipeline
-      ? 'Aggregations'
-      : null,
+        ? 'Aggregations'
+        : null,
     enableGenAIToolCalling: true,
   });
 

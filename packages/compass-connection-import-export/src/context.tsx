@@ -105,8 +105,7 @@ export const ConnectionImportExportProvider: React.FC<{
 };
 
 export type ConnectionImportExportAction =
-  | 'import-saved-connections'
-  | 'export-saved-connections';
+  'import-saved-connections' | 'export-saved-connections';
 
 export const useOpenConnectionImportExportModal = (
   trackingProps?: Record<string, unknown>

@@ -61,8 +61,8 @@ function generateEvalCaseFile(cases: SimpleEvalCase[]): string {
       return `  {
     input: \`${escapeString(evalCase.input)}\`,
     expected: \`${escapeString(evalCase.expected)}\`,${
-        sourcesPart ? '\n' + sourcesPart : ''
-      }${tagsPart ? '\n' + tagsPart : ''}
+      sourcesPart ? '\n' + sourcesPart : ''
+    }${tagsPart ? '\n' + tagsPart : ''}
   }`;
     })
     .join(',\n');

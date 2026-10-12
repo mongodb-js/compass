@@ -41,7 +41,7 @@ export const ConnectionFormSettingsContext = createContext<
 >({});
 
 export const useConnectionFormSetting = <
-  K extends keyof ConnectionFormSettings
+  K extends keyof ConnectionFormSettings,
 >(
   preferenceKey: K
 ): ConnectionFormSettings[K] => {

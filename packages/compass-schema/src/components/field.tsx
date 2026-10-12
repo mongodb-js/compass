@@ -137,8 +137,7 @@ function getNestedDocType(
   const arrType = find(types, { name: 'Array' });
   if (arrType) {
     return find((arrType as ArraySchemaType).types, { name: 'Document' }) as
-      | DocumentSchemaType
-      | undefined;
+      DocumentSchemaType | undefined;
   }
   return null;
 }

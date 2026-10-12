@@ -23,24 +23,45 @@ import type { Compass } from '../helpers/compass.ts';
 // shared-ini-file loader.
 //
 // These env vars must be set before Compass is spawned (init), because the
-// spawned process inherits process.env.
+// spawned process inherits process.env. They are set in the `before` hook
+// rather than at module scope: mocha loads every test file before running the
+// global fixture that downloads MongoDB from S3, and that download resolves
+// credentials through the default chain (the ~/.aws/credentials written by CI).
+// Setting AWS_SHARED_CREDENTIALS_FILE at module scope would redirect that
+// lookup to a non-existent fake file and break the download.
 const fakeAwsDir = path.join(
   os.tmpdir(),
   `compass-e2e-fake-aws-${process.pid}`
 );
-process.env.AWS_SHARED_CREDENTIALS_FILE = path.join(fakeAwsDir, 'credentials');
-process.env.AWS_CONFIG_FILE = path.join(fakeAwsDir, 'config');
-process.env.AWS_PROFILE = 'default';
-delete process.env.AWS_ACCESS_KEY_ID;
-delete process.env.AWS_SECRET_ACCESS_KEY;
-delete process.env.AWS_SESSION_TOKEN;
+const awsEnvKeys = [
+  'AWS_SHARED_CREDENTIALS_FILE',
+  'AWS_CONFIG_FILE',
+  'AWS_PROFILE',
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_SESSION_TOKEN',
+] as const;
 
 describe('AWS IAM credential chain', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let savedAwsEnv: Record<string, string | undefined>;
 
   before(async function () {
     skipForWeb(this, 'the AWS credential chain is stubbed out in compass-web');
+
+    savedAwsEnv = Object.fromEntries(
+      awsEnvKeys.map((key) => [key, process.env[key]])
+    );
+    process.env.AWS_SHARED_CREDENTIALS_FILE = path.join(
+      fakeAwsDir,
+      'credentials'
+    );
+    process.env.AWS_CONFIG_FILE = path.join(fakeAwsDir, 'config');
+    process.env.AWS_PROFILE = 'default';
+    delete process.env.AWS_ACCESS_KEY_ID;
+    delete process.env.AWS_SECRET_ACCESS_KEY;
+    delete process.env.AWS_SESSION_TOKEN;
 
     await fs.mkdir(fakeAwsDir, { recursive: true });
     await fs.writeFile(
@@ -60,6 +81,14 @@ describe('AWS IAM credential chain', function () {
   after(async function () {
     if (TEST_COMPASS_WEB) {
       return;
+    }
+
+    for (const [key, value] of Object.entries(savedAwsEnv ?? {})) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
     }
 
     await cleanup(compass);

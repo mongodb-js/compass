@@ -222,8 +222,8 @@ export default function reducer(
         action.reason === FetchReasons.POLL
           ? FetchStatuses.POLLING
           : action.reason === FetchReasons.REFRESH
-          ? FetchStatuses.REFRESHING
-          : FetchStatuses.FETCHING,
+            ? FetchStatuses.REFRESHING
+            : FetchStatuses.FETCHING,
     };
   }
 

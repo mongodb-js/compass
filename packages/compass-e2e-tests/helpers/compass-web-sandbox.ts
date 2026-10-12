@@ -1,4 +1,5 @@
 import crossSpawn from 'cross-spawn';
+import type { ChildProcess } from 'child_process';
 import Debug from 'debug';
 import treeKill from 'tree-kill';
 
@@ -40,12 +41,26 @@ const waitUntil = async (
   }
 };
 
+// Not passing `signal` to spawn: on abort it only kills the direct npm child,
+// orphaning webpack, which keeps our stdout/stderr pipes open and the runner
+// alive. The later treeKill can't find the orphan once npm is gone.
+function killTreeOnAbort(proc: ChildProcess, signal: AbortSignal) {
+  const kill = () => {
+    if (proc.pid) {
+      treeKill(proc.pid);
+    } else {
+      proc.kill();
+    }
+  };
+  signal.addEventListener('abort', kill, { once: true });
+  return kill;
+}
+
 export function spawnCompassWebSandbox(signal: AbortSignal) {
   const proc = crossSpawn.spawn(
     'npm',
     [
       'run',
-      '--unsafe-perm',
       'start',
       '--workspace',
       '@mongodb-js/compass-web',
@@ -54,17 +69,11 @@ export function spawnCompassWebSandbox(signal: AbortSignal) {
       'production',
       '--no-devtool',
     ],
-    { env: process.env, signal }
+    { env: process.env }
   );
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
-  return () => {
-    if (proc.pid) {
-      treeKill(proc.pid);
-    } else {
-      proc.kill();
-    }
-  };
+  return killTreeOnAbort(proc, signal);
 }
 
 export async function waitForCompassWebSandboxToBeReady(
@@ -93,7 +102,6 @@ export function spawnCompassWebStaticServer(signal: AbortSignal) {
     'npm',
     [
       'run',
-      '--unsafe-perm',
       'watch',
       '--workspace',
       '@mongodb-js/compass-web',
@@ -102,17 +110,11 @@ export function spawnCompassWebStaticServer(signal: AbortSignal) {
       'production',
       '--no-devtool',
     ],
-    { env: process.env, signal }
+    { env: process.env }
   );
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
-  return () => {
-    if (proc.pid) {
-      treeKill(proc.pid);
-    } else {
-      proc.kill();
-    }
-  };
+  return killTreeOnAbort(proc, signal);
 }
 
 export async function waitForCompassWebStaticAssetsToBeReady(

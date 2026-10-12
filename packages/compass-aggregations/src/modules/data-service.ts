@@ -16,10 +16,7 @@ export type RequiredDataServiceProps =
   | 'getCurrentTopologyType'
   | 'instance';
 export type OptionalDataServiceProps =
-  | 'explainAggregate'
-  | 'getSearchIndexes'
-  | 'find'
-  | 'sample';
+  'explainAggregate' | 'getSearchIndexes' | 'find' | 'sample';
 
 export type DataService = Pick<OriginalDataService, RequiredDataServiceProps> &
   // Optional methods for getting insights

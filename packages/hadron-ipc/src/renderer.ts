@@ -8,8 +8,7 @@ const debug = createDebug('hadron-ipc:renderer');
 
 export function call(
   ipcRenderer:
-    | Pick<IpcRenderer, 'on' | 'removeAllListeners' | 'send'>
-    | undefined,
+    Pick<IpcRenderer, 'on' | 'removeAllListeners' | 'send'> | undefined,
   debug: (...args: unknown[]) => void,
   methodName: string,
   ...args: any[]
@@ -67,7 +66,7 @@ const ipcRenderer = electron.ipcRenderer
         K extends Extract<
           keyof PickByValue<T, (options: any) => Promise<any>>,
           string
-        >
+        >,
       >(
         serviceName: string,
         methodNames: K[]
@@ -89,7 +88,7 @@ export function ipcInvoke<
   K extends Extract<
     keyof PickByValue<T, (options: any) => Promise<any>>,
     string
-  >
+  >,
 >(
   ipcRenderer: Pick<IpcRenderer, 'invoke'> | undefined,
   serviceName: string,

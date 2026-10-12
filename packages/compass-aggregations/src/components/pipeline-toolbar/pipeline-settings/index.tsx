@@ -1,11 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Button,
+  Icon,
+  Tooltip,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
+import { getIsNewPipelineFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import ModifySourceBanner from '../../modify-source-banner';
 
 import { usePreference } from 'compass-preferences-model/provider';
@@ -30,14 +38,16 @@ const extraSettingsStyles = css({
   display: 'flex',
   flex: 'none',
 });
+
 type PipelineSettingsProps = {
   editViewName?: string;
+  isCreateNewPipelineDisabled: boolean;
   onCreateNewPipeline: () => void;
 };
 
 export const PipelineSettings: React.FunctionComponent<
   PipelineSettingsProps
-> = ({ editViewName, onCreateNewPipeline }) => {
+> = ({ editViewName, isCreateNewPipelineDisabled, onCreateNewPipeline }) => {
   const enableSavedAggregationsQueries = usePreference('enableMyQueries');
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
@@ -50,15 +60,23 @@ export const PipelineSettings: React.FunctionComponent<
         {isPipelineNameDisplayed && <PipelineName />}
         <SaveMenu isSaveEnabled={!!enableSavedAggregationsQueries}></SaveMenu>
         {isCreatePipelineDisplayed && (
-          <Button
-            size="xsmall"
-            variant="primary"
-            leftGlyph={<Icon glyph="Plus" />}
-            onClick={onCreateNewPipeline}
-            data-testid="pipeline-toolbar-create-new-button"
+          <Tooltip
+            enabled={isCreateNewPipelineDisabled}
+            trigger={
+              <Button
+                size="xsmall"
+                variant="primary"
+                leftGlyph={<Icon glyph="Plus" />}
+                onClick={onCreateNewPipeline}
+                disabled={isCreateNewPipelineDisabled}
+                data-testid="pipeline-toolbar-create-new-button"
+              >
+                Create new
+              </Button>
+            }
           >
-            Create new
-          </Button>
+            <Body>This pipeline is already empty.</Body>
+          </Tooltip>
         )}
         <PipelineExportActions />
       </div>
@@ -76,6 +94,7 @@ export default connect(
   (state: RootState) => {
     return {
       editViewName: state.editViewName ?? undefined,
+      isCreateNewPipelineDisabled: getIsNewPipelineFromBuilderState(state),
     };
   },
   {

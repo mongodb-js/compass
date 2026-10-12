@@ -27,8 +27,8 @@ export const useStackedComponent = () => {
 type StackedComponentProps<T extends boolean> = T extends true
   ? { popoverZIndex?: number }
   : T extends false
-  ? { style?: React.CSSProperties }
-  : Record<string, never>;
+    ? { style?: React.CSSProperties }
+    : Record<string, never>;
 
 // TODO(LG-4109): This should be eventually supported by the LG design system
 export const withStackedComponentStyles = function <ComponentProps>(

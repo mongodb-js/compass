@@ -13,7 +13,7 @@ export type ConnectionShortInfo = {
 };
 
 export type CommonImportExportState<
-  ConnectionInfoType extends ConnectionShortInfo
+  ConnectionInfoType extends ConnectionShortInfo,
 > = {
   filename: string;
   passphrase: string;

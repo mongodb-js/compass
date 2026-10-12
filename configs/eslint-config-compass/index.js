@@ -11,6 +11,17 @@ const tempNewEslintRulesDisabled = {
 };
 
 const extraTsRules = {
+  // Same as the shared config, plus: a `using` declaration exists to be
+  // disposed at the end of its scope, so it is often never read
+  '@typescript-eslint/no-unused-vars': [
+    'error',
+    {
+      destructuredArrayIgnorePattern: '^_',
+      argsIgnorePattern: '^_',
+      ignoreRestSiblings: true,
+      ignoreUsingDeclarations: true,
+    },
+  ],
   // Newly converted plugins use `any` quite a lot, we can't enable the rule,
   // but we can warn so we can eventually address this
   '@typescript-eslint/no-unsafe-argument': 'warn',

@@ -9,7 +9,7 @@ export type WelcomeModalState = {
 
 export type WelcomeModalThunkAction<
   R,
-  A extends AnyAction = AnyAction
+  A extends AnyAction = AnyAction,
 > = ThunkAction<
   R,
   WelcomeModalState,

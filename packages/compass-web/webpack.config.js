@@ -83,9 +83,8 @@ module.exports = (env, args) => {
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
-        '@mongodb-js/devtools-proxy-support/proxy-options': require.resolve(
-          '@mongodb-js/devtools-proxy-support/proxy-options'
-        ),
+        '@mongodb-js/devtools-proxy-support/proxy-options':
+          require.resolve('@mongodb-js/devtools-proxy-support/proxy-options'),
         '@mongodb-js/devtools-proxy-support': localPolyfill(
           '@mongodb-js/devtools-proxy-support'
         ),

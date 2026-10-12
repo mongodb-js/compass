@@ -131,8 +131,8 @@ describe('Connection Import / Export', function () {
         variant === 'encrypted'
           ? [`--passphrase=${passphrase}`]
           : variant === 'protected'
-          ? ['--protectConnectionStrings']
-          : [];
+            ? ['--protectConnectionStrings']
+            : [];
 
       debug('Favoriting connection');
       {

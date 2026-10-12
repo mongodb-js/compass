@@ -67,8 +67,8 @@ export async function doCloudFetch<T = any>(
           body: body.json
             ? JSON.stringify(body.json)
             : body.form
-            ? new URLSearchParams(body.form)
-            : '',
+              ? new URLSearchParams(body.form)
+              : '',
         }),
         headers: {
           ...csrfHeaders,

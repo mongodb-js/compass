@@ -198,9 +198,9 @@ export const getInitialTabState = (
 
     const isAggregationsSubtab = Boolean(
       rest.initialAggregation ||
-        rest.initialPipeline ||
-        rest.initialPipelineText ||
-        rest.editViewName
+      rest.initialPipeline ||
+      rest.initialPipelineText ||
+      rest.editViewName
     );
 
     const subTab =
@@ -390,8 +390,8 @@ const reducer: Reducer<WorkspacesState, Action> = (
       ...(collection
         ? { type: 'Collection' as const, namespace }
         : database
-        ? { type: 'Collections' as const, namespace }
-        : { type: 'Databases' as const }),
+          ? { type: 'Collections' as const, namespace }
+          : { type: 'Databases' as const }),
       connectionId: action.toReplace.connectionId,
     };
     const newTab = getInitialTabState(fallbackWorkspaceOptions);

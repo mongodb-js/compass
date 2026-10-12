@@ -59,6 +59,19 @@ describe('AtlasPreferencesStorage', function () {
     );
   });
 
+  it('applies environment overrides over the schema/stored values so they stay non-configurable', async function () {
+    atlasService.authenticatedFetch.resolves(
+      mockResponse({ data: JSON.stringify({ enableImportExport: true }) })
+    );
+
+    const storage = new AtlasPreferencesStorage(atlasService, {
+      overrides: { enableImportExport: false },
+    });
+    await storage.setup();
+
+    expect(storage.getPreferences().enableImportExport).to.equal(false);
+  });
+
   it('persists merged preferences to the user-scoped endpoint and refreshes the cached value', async function () {
     let stored: { currentUserId?: string } = { currentUserId: 'old-user' };
     atlasService.authenticatedFetch.callsFake(

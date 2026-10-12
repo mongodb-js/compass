@@ -20,9 +20,9 @@ import {
 } from 'ai';
 import { throttle } from './throttle';
 
-class ReactChatState<UI_MESSAGE extends UIMessage>
-  implements ChatState<UI_MESSAGE>
-{
+class ReactChatState<
+  UI_MESSAGE extends UIMessage,
+> implements ChatState<UI_MESSAGE> {
   #messages: UI_MESSAGE[];
   #status: ChatStatus = 'ready';
   #error: Error | undefined = undefined;
@@ -125,7 +125,7 @@ class ReactChatState<UI_MESSAGE extends UIMessage>
 }
 
 export class Chat<
-  UI_MESSAGE extends UIMessage
+  UI_MESSAGE extends UIMessage,
 > extends AbstractChat<UI_MESSAGE> {
   #state: ReactChatState<UI_MESSAGE>;
 

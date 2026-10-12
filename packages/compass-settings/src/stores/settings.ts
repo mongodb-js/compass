@@ -6,13 +6,7 @@ import type {
 } from 'compass-preferences-model';
 
 export type SettingsTabId =
-  | 'general'
-  | 'theme'
-  | 'privacy'
-  | 'oidc'
-  | 'ai'
-  | 'proxy'
-  | 'preview';
+  'general' | 'theme' | 'privacy' | 'oidc' | 'ai' | 'proxy' | 'preview';
 
 export type State = { isModalOpen: boolean; tab: undefined | SettingsTabId } & (
   | {

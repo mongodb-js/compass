@@ -161,11 +161,7 @@ export type ConnectionState = {
 } & (
   | {
       status:
-        | 'initial'
-        | 'connecting'
-        | 'connected'
-        | 'disconnected'
-        | 'canceled';
+        'initial' | 'connecting' | 'connected' | 'disconnected' | 'canceled';
       error: null;
     }
   | { status: 'failed'; error: Error }
@@ -217,7 +213,7 @@ type ThunkExtraArg = {
 
 export type ConnectionsThunkAction<
   R,
-  A extends AnyAction = AnyAction
+  A extends AnyAction = AnyAction,
 > = ThunkAction<R, State, ThunkExtraArg, A>;
 
 export const ActionTypes = {
@@ -620,8 +616,8 @@ export type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
     ? RecursivePartial<U>[]
     : T[P] extends object | undefined
-    ? RecursivePartial<T[P]>
-    : T[P];
+      ? RecursivePartial<T[P]>
+      : T[P];
 };
 
 function mergeConnectionStateById(
@@ -1464,11 +1460,11 @@ function getDescriptionForNonRetryableError(error: Error): string {
     ? reason.endsWith('.')
       ? reason.slice(0, -1)
       : reason // Remove trailing period
-    : NonRetryableErrorDescriptionFallbacks[
+    : (NonRetryableErrorDescriptionFallbacks[
         Number(
           error.message.match(/code: (\d+),/)?.[1]
         ) as (typeof NonRetryableErrorCodes)[number]
-      ] ?? 'Unknown';
+      ] ?? 'Unknown');
 }
 
 const openConnectionClosedWithNonRetryableErrorToast = (
@@ -1811,9 +1807,8 @@ const performConnection = (
             isAtlas,
             isLocalAtlas,
           } = instanceInfo;
-          const [extraInfo, resolvedHostname] = await getExtraConnectionData(
-            connectionInfo
-          );
+          const [extraInfo, resolvedHostname] =
+            await getExtraConnectionData(connectionInfo);
 
           const connections = getState().connections;
           // Counting all connections, we need to filter out any connections currently being created

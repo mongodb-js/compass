@@ -16,10 +16,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 export type SchemaFormat =
-  | 'standardJSON'
-  | 'mongoDBJSON'
-  | 'expandedJSON'
-  | 'legacyJSON';
+  'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
 export type ExportStatus = 'inprogress' | 'complete' | 'error';
 export type SchemaExportState = {
   isOpen: boolean;

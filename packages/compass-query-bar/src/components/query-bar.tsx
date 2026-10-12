@@ -60,7 +60,7 @@ import {
   useSyncAssistantGlobalState,
   useAssistantActions,
 } from '@mongodb-js/compass-assistant';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -200,8 +200,8 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         disabledDescription: isInterpretLoading
           ? 'Interpret in progress'
           : !isAssistantEnabled
-          ? 'Assistant is not available'
-          : undefined,
+            ? 'Assistant is not available'
+            : undefined,
       },
       {
         action: 'visual-tree',

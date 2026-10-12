@@ -28,19 +28,18 @@ export class RendererDefinedMenuState {
   }
 
   menus(): CompassAppMenu[] {
-    return this.additionalMenus.map(
-      ({ menu }): CompassAppMenu =>
-        transformAppMenu(menu, (item) => {
-          const id = item.click;
-          if (!id) return { ...item, click: undefined };
-          return {
-            ...item,
-            click: () =>
-              this.ipcMain.broadcastFocused('application-menu:invoke-handler', {
-                id,
-              }),
-          };
-        })
+    return this.additionalMenus.map(({ menu }): CompassAppMenu =>
+      transformAppMenu(menu, (item) => {
+        const id = item.click;
+        if (!id) return { ...item, click: undefined };
+        return {
+          ...item,
+          click: () =>
+            this.ipcMain.broadcastFocused('application-menu:invoke-handler', {
+              id,
+            }),
+        };
+      })
     );
   }
 

@@ -1,3 +1,4 @@
+import util from 'node:util';
 import path from 'path';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
@@ -170,7 +171,7 @@ process.once('SIGTERM', () => {
 
 process.once('uncaughtException', (err: Error) => {
   debug('Uncaught exception:');
-  console.error(err.stack || err.message || err);
+  console.error(util.inspect(err, { depth: 100, colors: true }));
   debug('Waiting for mocha to abort and clean-up ...');
   process.exitCode = 1;
   void cleanupOnInterrupt();
@@ -178,7 +179,7 @@ process.once('uncaughtException', (err: Error) => {
 
 process.on('unhandledRejection', (err: Error) => {
   debug('Unhandled exception:');
-  console.error(err.stack || err.message || err);
+  console.error(util.inspect(err, { depth: 100, colors: true }));
   debug('Waiting for mocha to abort and clean-up ...');
   process.exitCode = 1;
   void cleanupOnInterrupt();

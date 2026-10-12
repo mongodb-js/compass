@@ -192,7 +192,7 @@ async function loadCompassWebPreferences(
   }
   const cloudPreferences = getPreferencesFromCloudApi(projectId, atlasService);
   const atlasStorage = new AtlasPreferencesStorage(atlasService, {
-    defaults: DEFAULT_COMPASS_WEB_PREFERENCES,
+    overrides: DEFAULT_COMPASS_WEB_PREFERENCES,
   });
   await atlasStorage.setup();
   const {

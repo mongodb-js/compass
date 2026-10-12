@@ -124,8 +124,8 @@ function RenameCollectionModal({
       ? 'This collection name already exists in this database.'
       : error.message
     : doesCollectionExistInDB
-    ? 'This collection name already exists in this database.'
-    : undefined;
+      ? 'This collection name already exists in this database.'
+      : undefined;
 
   return (
     <FormModal

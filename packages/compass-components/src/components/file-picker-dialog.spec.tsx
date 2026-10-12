@@ -262,7 +262,7 @@ describe('FileInput', function () {
               getPathForFile() {
                 return 'a/b/c';
               },
-            } as any)
+            }) as any
           }
         >
           <FileInput

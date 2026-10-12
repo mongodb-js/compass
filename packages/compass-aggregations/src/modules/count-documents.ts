@@ -31,9 +31,7 @@ type CountFailedAction = {
 };
 
 export type Actions =
-  | CountStartedAction
-  | CountFinishedAction
-  | CountFailedAction;
+  CountStartedAction | CountFinishedAction | CountFailedAction;
 
 export type State = {
   count?: number;

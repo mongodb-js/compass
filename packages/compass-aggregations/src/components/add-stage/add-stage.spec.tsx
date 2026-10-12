@@ -46,9 +46,8 @@ describe('AddStage', function () {
 
     it('renders help link when stage is not last', function () {
       renderAddStage();
-      expect(
-        screen.getByText('Learn more about aggregation pipeline stages')
-      ).to.exist;
+      expect(screen.getByText('Learn more about aggregation pipeline stages'))
+        .to.exist;
     });
 
     it('calls onAddStage with index when clicked', function () {

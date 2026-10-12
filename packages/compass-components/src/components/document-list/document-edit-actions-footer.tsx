@@ -87,8 +87,8 @@ function useHadronDocumentStatus(
         ? 'Modified'
         : 'Editing'
       : deleting
-      ? 'Deleting'
-      : 'Initial';
+        ? 'Deleting'
+        : 'Initial';
   });
   const [error, setError] = useState<{
     message: string;
@@ -334,8 +334,8 @@ const EditActionsFooter: React.FunctionComponent<{
   const status = initialError
     ? 'ContainsErrors'
     : modified
-    ? 'Modified'
-    : _status;
+      ? 'Modified'
+      : _status;
 
   const statusMessage = StatusMessages[status];
 
@@ -401,8 +401,8 @@ const EditActionsFooter: React.FunctionComponent<{
             {isDeleting(status)
               ? 'Delete'
               : alwaysForceUpdate || status === 'UpdateBlocked'
-              ? 'Replace'
-              : 'Update'}
+                ? 'Replace'
+                : 'Update'}
           </Button>
         </div>
       )}

@@ -105,14 +105,14 @@ const ClusterStateBadge: React.FunctionComponent<{
     state === 'CREATING'
       ? BadgeVariant.Blue
       : state === 'DELETED'
-      ? BadgeVariant.Red
-      : BadgeVariant.LightGray;
+        ? BadgeVariant.Red
+        : BadgeVariant.LightGray;
   const badgeText =
     state === 'DELETING'
       ? 'TERMINATING'
       : state === 'DELETED'
-      ? 'TERMINATED'
-      : state;
+        ? 'TERMINATED'
+        : state;
 
   return (
     <Badge variant={badgeVariant} data-testid="navigation-item-state-badge">

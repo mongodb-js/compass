@@ -26,10 +26,10 @@ async function getPublicCloudInfo(host: string): Promise<{
     const public_cloud_name = isAws
       ? 'AWS'
       : isAzure
-      ? 'Azure'
-      : isGcp
-      ? 'GCP'
-      : undefined;
+        ? 'Azure'
+        : isGcp
+          ? 'GCP'
+          : undefined;
 
     if (public_cloud_name === undefined) {
       return { is_public_cloud: false };
@@ -207,8 +207,8 @@ async function getConnectionData(
   const authType = authMechanism
     ? authMechanism
     : connectionStringData.username
-    ? 'DEFAULT'
-    : 'NONE';
+      ? 'DEFAULT'
+      : 'NONE';
   const proxyHost = searchParams.get('proxyHost');
 
   const connectionData = {
@@ -217,8 +217,8 @@ async function getConnectionData(
     tunnel: proxyHost
       ? ('socks5' as const)
       : sshTunnel
-      ? ('ssh' as const)
-      : ('none' as const),
+        ? ('ssh' as const)
+        : ('none' as const),
     is_srv: connectionStringData.isSRV,
     ...getCsfleInformation(fleOptions),
   };

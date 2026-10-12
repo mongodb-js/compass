@@ -393,9 +393,8 @@ async function onAppReady() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
-    const { default: installDevtools, REACT_DEVELOPER_TOOLS } = await import(
-      'electron-devtools-installer'
-    );
+    const { default: installDevtools, REACT_DEVELOPER_TOOLS } =
+      await import('electron-devtools-installer');
     try {
       // @ts-expect-error typescript is right and default export from
       // electron-devtools-installer is not a function, but because we're

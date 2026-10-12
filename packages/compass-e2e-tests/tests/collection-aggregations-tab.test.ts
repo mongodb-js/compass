@@ -154,8 +154,15 @@ describe('Collection aggregations tab', function () {
       'Aggregations'
     );
     // Get us back to the empty stage every time. Also test the Create New
-    // Pipeline flow while at it.
-    await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    // Pipeline flow while at it. The button is only disabled when the pipeline
+    // is already empty and unnamed, which is exactly the state we want.
+    if (
+      (await browser
+        .$(Selectors.CreateNewPipelineButton)
+        .getAttribute('aria-disabled')) !== 'true'
+    ) {
+      await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    }
 
     // This is kinda superfluous for the nested beforeEach hooks below where we
     // immediately navigate away anyway, but most tests expect there to already
@@ -1256,6 +1263,9 @@ describe('Collection aggregations tab', function () {
   it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
     await browser.selectStageOperator(0, '$match');
     await browser.clickConfirmationAction(Selectors.CreateNewPipelineButton);
+
+    // The pipeline is now empty, so there is nothing left to create anew.
+    await browser.waitForAriaDisabled(Selectors.CreateNewPipelineButton, true);
   });
 
   describe('aggregation builder in text mode', function () {

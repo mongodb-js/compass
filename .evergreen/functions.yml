@@ -86,8 +86,20 @@ parameters:
   - key: compass_web_release_commit
     description: Exact commit that will be deployed as a latest release for provided compass_web_publish_environment
 
+pre:
+  - command: ec2.assume_role
+    display_name: Assume IAM role with permissions to read private -latest server artifacts
+    params:
+      role_arn: ${private_atlas_artifacts_role_arn}
+      duration_seconds: 3600
+
 # This is here with the variables because anchors aren't supported across includes
 post:
+  - command: shell.exec
+    params:
+      shell: bash
+      script: |
+        rm -f "$HOME/.aws/credentials"
   - command: archive.targz_pack
     params:
       target: src/all-e2e-logs.tgz
@@ -162,12 +174,30 @@ functions:
       type: system
       params:
         directory: src
+    - command: subprocess.exec
+      display_name: Persist assumed-role credentials for the AWS SDK
+      params:
+        working_dir: src
+        binary: bash .evergreen/persist-assumed-role-credentials.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
 
   prepare:
     - command: git.get_project
       type: system
       params:
         directory: src
+    - command: subprocess.exec
+      display_name: Persist assumed-role credentials for the AWS SDK
+      params:
+        working_dir: src
+        binary: bash .evergreen/persist-assumed-role-credentials.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
 
     - command: shell.exec
       type: setup

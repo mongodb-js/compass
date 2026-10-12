@@ -116,13 +116,13 @@ function useHadronElement(el: HadronElementType) {
     el.currentType === 'Array'
       ? [...(el.elements || [])]
       : el.currentType === 'Object'
-      ? Object.fromEntries(
-          Array.from(el.elements || []).map((e) => [
-            e.currentKey,
-            e.currentValue,
-          ])
-        )
-      : el.currentValue;
+        ? Object.fromEntries(
+            Array.from(el.elements || []).map((e) => [
+              e.currentKey,
+              e.currentValue,
+            ])
+          )
+        : el.currentValue;
 
   return {
     id: el.uuid,
@@ -153,7 +153,7 @@ function useHadronElement(el: HadronElementType) {
         el.currentType !== 'Array',
       decrypted: el.isValueDecrypted(),
       valid: isValid,
-      validationMessage: !isValid ? el.invalidTypeMessage ?? null : null,
+      validationMessage: !isValid ? (el.invalidTypeMessage ?? null) : null,
       startEdit: editor.start.bind(editor),
       completeEdit: editor.complete.bind(editor),
     },
