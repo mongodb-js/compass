@@ -2,7 +2,7 @@ import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
 function _isValidQuery(query: string): boolean {
   try {
-    return !!parse(query, { mode: ParseMode.Loose, allowMethods: true });
+    return !!parse(query, { mode: ParseMode.Loose });
   } catch {
     return false;
   }

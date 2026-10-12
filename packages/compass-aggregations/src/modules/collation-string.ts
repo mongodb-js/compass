@@ -6,6 +6,7 @@ import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
+import { isObject } from 'lodash';
 
 /**
  * Collation string changed action.
@@ -49,12 +50,12 @@ export function getCollationStateFromString(
   try {
     const collation = parse(collationString, {
       mode: ParseMode.Loose,
-      allowMethods: true,
     });
+    const isValid = isObject(collation) && !Array.isArray(collation);
     return {
       text: collationString,
-      value: collation === '' ? null : collation,
-      isValid: true,
+      value: isValid ? (collation as CollationOptions) : null,
+      isValid,
     };
   } catch {
     return {

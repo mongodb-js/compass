@@ -58,7 +58,6 @@ export function parseXmlToJsonResponse(
       try {
         const tagValue = parse(value, {
           mode: ParseMode.Loose,
-          allowMethods: true,
         });
         if (
           !tagValue ||

@@ -154,7 +154,6 @@ export const checkValidator = (
     try {
       validation.validator = parse(validator, {
         mode: ParseMode.Loose,
-        allowMethods: true,
       });
     } catch (error) {
       validation.syntaxError = error as Error;

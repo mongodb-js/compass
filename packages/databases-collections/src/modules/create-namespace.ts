@@ -313,7 +313,6 @@ export async function handleFLE2Options(
     try {
       options.encryptedFields = parse(options.encryptedFields, {
         mode: ParseMode.Loose,
-        allowMethods: true,
       });
     } catch (err) {
       throw new Error(
@@ -330,7 +329,6 @@ export async function handleFLE2Options(
       try {
         keyEncryptionKey = parse(options.keyEncryptionKey || '{}', {
           mode: ParseMode.Loose,
-          allowMethods: true,
         });
       } catch (err) {
         throw new Error(

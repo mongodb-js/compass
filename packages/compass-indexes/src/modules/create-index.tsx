@@ -392,7 +392,6 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     try {
       collation = parse(formIndexOptions.collation.value ?? '', {
         mode: ParseMode.Loose,
-        allowMethods: true,
       });
     } catch {
       collation = null;

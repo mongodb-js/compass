@@ -35,7 +35,6 @@ function isFilterValid(input: string) {
   try {
     return parse(input, {
       mode: ParseMode.Loose,
-      allowMethods: true,
     });
   } catch {
     return false;
