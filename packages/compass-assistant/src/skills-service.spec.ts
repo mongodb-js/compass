@@ -32,5 +32,20 @@ describe('SkillsService', function () {
       const service = new SkillsService(createAtlasService({ skills: [] }));
       expect(await service.getSkills()).to.deep.equal([]);
     });
+
+    it('drops invalid skills and keeps the valid ones', async function () {
+      const valid = {
+        name: 'mongodb-schema-design',
+        description: 'Guides schema design decisions for MongoDB...',
+        url: 'https://example.com/SKILL.md',
+        version: '1.2.0',
+      };
+      const service = new SkillsService(
+        createAtlasService({
+          skills: [{ name: 'no-url-or-description' }, valid, null],
+        })
+      );
+      expect(await service.getSkills()).to.deep.equal([valid]);
+    });
   });
 });

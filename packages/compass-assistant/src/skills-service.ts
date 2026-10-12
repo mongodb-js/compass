@@ -1,11 +1,18 @@
+import { z } from 'zod';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
-export type Skill = {
-  name: string;
-  description: string;
-  url: string;
-  version?: string;
-};
+const SkillSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  url: z.string(),
+  version: z.string(),
+});
+
+const SkillsResponseSchema = z.object({
+  skills: z.array(z.unknown()).optional(),
+});
+
+export type Skill = z.infer<typeof SkillSchema>;
 
 export class SkillsService {
   private readonly atlasService: AtlasService;
@@ -19,7 +26,10 @@ export class SkillsService {
       this.atlasService.assistantApiEndpoint('content/skills'),
       { signal }
     );
-    const { skills } = (await res.json()) as { skills?: Skill[] };
-    return skills ?? [];
+    const { skills } = SkillsResponseSchema.parse(await res.json());
+    return (skills ?? []).flatMap((skill) => {
+      const parsed = SkillSchema.safeParse(skill);
+      return parsed.success ? [parsed.data] : [];
+    });
   }
 }
