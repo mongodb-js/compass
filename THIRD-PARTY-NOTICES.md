@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Oct 11 2026.
+This document was automatically generated on Mon Oct 12 2026.
 
 ## List of dependencies
 
@@ -126,7 +126,7 @@ This document was automatically generated on Sun Oct 11 2026.
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1        | MIT                                 |
 | **[@marijn/find-cluster-break](#7a9878a3598d1e6be1f069dc757f1d31e30ce66d313f5025cfd2521d68a24243)**                         | 1.0.2        | MIT                                 |
 | **[@mcp-ui/server](#d70b4227f081adf5b4b417eead88ba4303ccb03fcbef8a6c5b943f67fa5ca487)**                                     | 5.16.3       | Apache-2.0                          |
-| **[@modelcontextprotocol/sdk](#a4720b30fbdd1e940ca2aa74b23353b04aa2315130be8c1fe23ae414d8fd2e55)**                          | 1.29.0       | MIT                                 |
+| **[@modelcontextprotocol/sdk](#a87ede19dd988bc599975fc2f7c71f7e3b7e50359f8eef6e71ae4a234383d237)**                          | 1.32.1       | MIT                                 |
 | **[@opentelemetry/api](#78185a135ba748dc3c4764cf3f8bc9f1362c2de788184eb429e25fdbb6e4755a)**                                 | 1.9.0        | Apache-2.0                          |
 | **[@react-aria/interactions](#638eaf69f422aa3fbe2277f9e95b6b87e64569742134491d2653e9fc05c8f58a)**                           | 3.9.1        | Apache-2.0                          |
 | **[@react-aria/ssr](#d50578768741f1468c3d5dc0da1f585e37a01e7e13b44149ff094a0a5008d023)**                                    | 3.2.0        | Apache-2.0                          |
@@ -10286,9 +10286,9 @@ License files:
 
 License tags: Apache-2.0
 
-<a id="a4720b30fbdd1e940ca2aa74b23353b04aa2315130be8c1fe23ae414d8fd2e55"></a>
+<a id="a87ede19dd988bc599975fc2f7c71f7e3b7e50359f8eef6e71ae4a234383d237"></a>
 
-### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.29.0)
+### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.32.1)
 
 License tags: MIT
 
