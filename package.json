@@ -99,6 +99,7 @@
     "scripts"
   ],
   "overrides": {
+    "@ai-sdk/provider-utils": "4.0.33",
     "@mongodb-js/eslint-config-devtools": {
       "@typescript-eslint/eslint-plugin": "^8.71.1",
       "@typescript-eslint/parser": "^8.71.1",
