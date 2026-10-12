@@ -357,8 +357,12 @@ function ConnectionForm({
   onAdvancedOptionsToggle,
   openSettingsModal,
 }: ConnectionFormPropsWithoutSettings): React.ReactElement {
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
+  // Read preference lives in the advanced options, so start there when it is
+  // the only thing that can be edited.
+  const [advancedOpen, setAdvancedOpen] = useState(readPreferenceOnly);
   const isDarkMode = useDarkMode();
+  const isAtlas = !!initialConnectionInfo.atlasMetadata;
 
   const onAdvancedChange = useCallback(
     (newState: boolean) => {
@@ -446,7 +450,9 @@ function ConnectionForm({
       // TODO: this method throws on malformed connection strings instead of
       // returning errors
       const formErrors = validateConnectionOptionsErrors(
-        updatedConnectionOptions
+        updatedConnectionOptions,
+        undefined,
+        { isAtlas }
       );
       if (formErrors.length) {
         setErrors(formErrors);
@@ -484,6 +490,7 @@ function ConnectionForm({
       getConnectionInfoToSave,
       callOnSaveConnectionClickedAndStoreErrors,
       onSaveAndConnectClicked,
+      isAtlas,
     ]
   );
 
@@ -517,11 +524,15 @@ function ConnectionForm({
         <div className={formHeaderStyles}>
           <div className={formHeaderContentStyles}>
             <H3 className={headingWithHiddenButtonStyles}>
-              {(initialConnectionInfo.favorite?.name ?? 'New Connection') ||
-                'Edit Connection'}
+              {isAtlas
+                ? 'Edit Connection'
+                : (initialConnectionInfo.favorite?.name ?? 'New Connection') ||
+                  'Edit Connection'}
             </H3>
             <Description className={descriptionStyles}>
-              Manage your connection settings
+              {isAtlas
+                ? 'Manage your connection settings. Changes are not preserved across sessions.'
+                : 'Manage your connection settings'}
             </Description>
           </div>
         </div>
@@ -630,7 +641,7 @@ function ConnectionForm({
             warnings={connectionStringInvalidError ? [] : warnings}
             onCancel={onCancel}
             onSave={
-              onSaveClicked
+              onSaveClicked && !isAtlas
                 ? () =>
                     void callOnSaveConnectionClickedAndStoreErrors?.(
                       getConnectionInfoToSave()
@@ -638,7 +649,9 @@ function ConnectionForm({
                 : undefined
             }
             onConnect={
-              onConnectClicked ? () => onSubmitForm('connect') : undefined
+              onConnectClicked && !isAtlas
+                ? () => onSubmitForm('connect')
+                : undefined
             }
             onSaveAndConnect={
               onSaveAndConnectClicked
@@ -652,6 +665,17 @@ function ConnectionForm({
   );
   /* eslint-enable jsx-a11y/no-redundant-roles */
 }
+
+// Atlas connections come from the Atlas API and only last for the session, so
+// read preference is the only thing users can change and there is nothing to
+// name, favorite or save.
+const atlasConnectionSettings: Partial<ConnectionFormSettings> = {
+  readPreferenceOnly: true,
+  showPersonalisationForm: false,
+  showFavoriteActions: false,
+  showHelpCardsInForm: false,
+  saveAndConnectLabel: 'Connect',
+};
 
 const ConnectionFormWithSettings: React.FunctionComponent<
   ConnectionFormPropsWithoutSettings & Partial<ConnectionFormSettings>
@@ -671,8 +695,10 @@ const ConnectionFormWithSettings: React.FunctionComponent<
   showCSFLE,
   showProxySettings,
   saveAndConnectLabel,
+  readPreferenceOnly,
   ...rest
 }) => {
+  const isAtlas = !!rest.initialConnectionInfo.atlasMetadata;
   const value = useMemo(
     () => ({
       showFavoriteActions,
@@ -690,6 +716,8 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showCSFLE,
       showProxySettings,
       saveAndConnectLabel,
+      readPreferenceOnly,
+      ...(isAtlas && atlasConnectionSettings),
     }),
     [
       showFavoriteActions,
@@ -707,6 +735,8 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showCSFLE,
       showProxySettings,
       saveAndConnectLabel,
+      readPreferenceOnly,
+      isAtlas,
     ]
   );
 

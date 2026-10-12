@@ -71,19 +71,23 @@ function AdvancedOptionsTabs({
   connectionOptions: ConnectionOptions;
   openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
-  const [activeTab, setActiveTab] = useState(0);
   const showCSFLE = useConnectionFormSetting('showCSFLE');
+  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
 
   const tabs: TabObject[] = [
     { name: 'General', id: 'general', component: GeneralTab },
-    {
-      name: 'Authentication',
-      id: 'authentication',
-      component: AuthenticationTab,
-    },
-    { name: 'TLS/SSL', id: 'tls', component: TLSTab },
-    { name: 'Proxy/SSH', id: 'proxy', component: ProxyAndSshTunnelTab },
-    ...(showCSFLE
+    ...(readPreferenceOnly
+      ? []
+      : ([
+          {
+            name: 'Authentication',
+            id: 'authentication',
+            component: AuthenticationTab,
+          },
+          { name: 'TLS/SSL', id: 'tls', component: TLSTab },
+          { name: 'Proxy/SSH', id: 'proxy', component: ProxyAndSshTunnelTab },
+        ] as const)),
+    ...(showCSFLE && !readPreferenceOnly
       ? [
           {
             name: 'In-Use Encryption',
@@ -94,6 +98,10 @@ function AdvancedOptionsTabs({
       : []),
     { name: 'Advanced', id: 'advanced', component: AdvancedTab },
   ];
+
+  const [activeTab, setActiveTab] = useState(() =>
+    readPreferenceOnly ? tabs.findIndex((tab) => tab.id === 'advanced') : 0
+  );
 
   const connectionStringUrl = useMemo(() => {
     try {

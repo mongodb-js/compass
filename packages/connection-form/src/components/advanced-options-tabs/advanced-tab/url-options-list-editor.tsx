@@ -16,6 +16,7 @@ import type { MongoClientOptions } from 'mongodb';
 import type { UrlOption } from '../../../utils/url-options';
 import { editableUrlOptions } from '../../../utils/url-options';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 const optionInputContainerStyles = css({
   display: 'flex',
@@ -67,6 +68,7 @@ function UrlOptionsListEditor({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
+  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
   const [options, setOptions] = React.useState<Partial<UrlOption>[]>(() => {
     return appendEmptyOption(getUrlOptions(connectionStringUrl));
   });
@@ -149,6 +151,7 @@ function UrlOptionsListEditor({
               );
             }}
             allowDeselect={false}
+            disabled={readPreferenceOnly}
             value={uriOption.name ?? ''}
           >
             {editableUrlOptions.map(({ title, values }) => (
@@ -190,6 +193,7 @@ function UrlOptionsListEditor({
               uriOption.name ? `${uriOption.name} Value` : 'URL Option Value'
             }
             value={uriOption.value}
+            disabled={readPreferenceOnly}
             className={valueInputStyles}
           />
         </div>
@@ -200,7 +204,9 @@ function UrlOptionsListEditor({
       onAddItem={() => {
         /* no-op - the add item button is never shown. */
       }}
-      disableRemoveButton={(item: Partial<UrlOption>) => !item.name}
+      disableRemoveButton={(item: Partial<UrlOption>) =>
+        readPreferenceOnly || !item.name
+      }
       onRemoveItem={onRemoveUrlOption}
       removeButtonTestId="connection-url-options-remove-button"
     />

@@ -16,6 +16,8 @@ export type ConnectionFormSettings = {
   showCSFLE: boolean;
   showProxySettings: boolean;
   saveAndConnectLabel: string;
+  // Hides every tab and locks every field except the read preference options.
+  readPreferenceOnly: boolean;
 };
 
 const defaultSettings = {
@@ -34,6 +36,7 @@ const defaultSettings = {
   showCSFLE: true,
   showProxySettings: true,
   saveAndConnectLabel: 'Save & Connect',
+  readPreferenceOnly: false,
 };
 
 export const ConnectionFormSettingsContext = createContext<

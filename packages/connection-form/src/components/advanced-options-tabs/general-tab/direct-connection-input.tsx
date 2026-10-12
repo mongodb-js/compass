@@ -10,6 +10,7 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 const descriptionStyles = css({
   marginTop: spacing[100],
@@ -22,6 +23,7 @@ function DirectConnectionInput({
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
+  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
   const isDirectConnection =
     connectionStringUrl
       .typedSearchParams<MongoClientOptions>()
@@ -59,6 +61,7 @@ function DirectConnectionInput({
         </>
       }
       checked={isDirectConnection}
+      disabled={readPreferenceOnly}
     />
   );
 }
