@@ -1,12 +1,92 @@
 import {
   type ChatTransport,
-  type LanguageModel,
+  type LanguageModelMiddleware,
   type ToolSet,
   type UIMessageChunk,
   convertToModelMessages,
   streamText,
+  wrapLanguageModel,
 } from 'ai';
+import type {
+  LanguageModelV3,
+  LanguageModelV3StreamPart,
+} from '@ai-sdk/provider';
 import type { AssistantMessage } from './compass-assistant-provider';
+
+function parseSkillName(input: string): string | undefined {
+  try {
+    const { skillName } = JSON.parse(input) as { skillName?: unknown };
+    return typeof skillName === 'string' ? skillName : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The server runs skills itself, but streams each one as a `skill`
+ * function_call. Compass has no `skill` tool, so the AI SDK would treat these
+ * as failed tool calls (logging NoSuchToolError, rendering them, and sending
+ * them back in the history). This removes them from the model stream before
+ * the SDK sees them and reports the skill names instead.
+ */
+function createSkillsMiddleware(
+  onSkillUsed: (skillName: string) => void
+): LanguageModelMiddleware {
+  return {
+    specificationVersion: 'v3',
+    async wrapStream({ doStream }) {
+      const { stream, ...rest } = await doStream();
+      const skillToolCallIds = new Set<string>();
+      const transform = new TransformStream<
+        LanguageModelV3StreamPart,
+        LanguageModelV3StreamPart
+      >({
+        transform(part, controller) {
+          switch (part.type) {
+            case 'tool-input-start':
+              if (part.toolName === 'skill') {
+                skillToolCallIds.add(part.id);
+                return;
+              }
+              break;
+            case 'tool-input-delta':
+            case 'tool-input-end':
+              if (skillToolCallIds.has(part.id)) {
+                return;
+              }
+              break;
+            case 'tool-call': {
+              if (part.toolName === 'skill') {
+                const skillName = parseSkillName(part.input);
+                if (skillName) {
+                  onSkillUsed(skillName);
+                  // Surfaced as reasoning so the UI can show it live.
+                  controller.enqueue({
+                    type: 'reasoning-start',
+                    id: part.toolCallId,
+                  });
+                  controller.enqueue({
+                    type: 'reasoning-delta',
+                    id: part.toolCallId,
+                    delta: `Using skill: ${skillName}`,
+                  });
+                  controller.enqueue({
+                    type: 'reasoning-end',
+                    id: part.toolCallId,
+                  });
+                }
+                return;
+              }
+              break;
+            }
+          }
+          controller.enqueue(part);
+        },
+      });
+      return { ...rest, stream: stream.pipeThrough(transform) };
+    },
+  };
+}
 
 /** Returns true if the message should be excluded from being sent to the assistant API. */
 export function shouldExcludeMessage({ metadata }: AssistantMessage) {
@@ -17,7 +97,7 @@ export function shouldExcludeMessage({ metadata }: AssistantMessage) {
 }
 
 export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
-  private model: LanguageModel;
+  private model: LanguageModelV3;
   private origin: string;
   private getTools: () => ToolSet;
   private instructions: string;
@@ -28,7 +108,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     getTools,
     instructions,
   }: {
-    model: LanguageModel;
+    model: LanguageModelV3;
     origin: string;
     getTools?: () => ToolSet;
     instructions: string;
@@ -111,8 +191,20 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       }
       return msg;
     });
+
+    const usedSkills = new Set(
+      lastMessage.role === 'assistant'
+        ? (lastMessage.metadata?.skillsUsed ?? [])
+        : []
+    );
+
     const result = streamText({
-      model: this.model,
+      model: wrapLanguageModel({
+        model: this.model,
+        middleware: createSkillsMiddleware((skillName) =>
+          usedSkills.add(skillName)
+        ),
+      }),
       messages: finalMessages,
       abortSignal: abortSignal,
       headers: {
@@ -136,15 +228,21 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     return Promise.resolve(
       result.toUIMessageStream({
         sendSources: true,
-        messageMetadata() {
+        messageMetadata({ part }) {
+          const skillsMetadata =
+            part.type === 'finish' && usedSkills.size > 0
+              ? { skillsUsed: [...usedSkills] }
+              : undefined;
           if (lastMessage.metadata) {
             // Return the metadata that's relevant for telemetry tracking purposes.
             const { requestId, connectionInfo } = lastMessage.metadata;
             return {
               requestId,
               connectionInfo,
+              ...skillsMetadata,
             };
           }
+          return skillsMetadata;
         },
       })
     );

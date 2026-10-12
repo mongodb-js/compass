@@ -147,6 +147,8 @@ export type AssistantMessage = UIMessage & {
     analyticsId?: string;
     /** The request ID associated with this message. */
     requestId?: string;
+    /** Names of the skills the server used for this response. */
+    skillsUsed?: string[];
     /** Tool call IDs that have already had their connection ID registered. */
     registeredToolCallIds?: string[];
   };

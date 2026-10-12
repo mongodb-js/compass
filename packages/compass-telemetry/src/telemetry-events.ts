@@ -1763,6 +1763,7 @@ type AssistantFeedbackSubmittedEvent = ConnectionScopedEvent<{
     text: string | undefined;
     request_id?: string;
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
+    skills_used?: string[];
   };
 }>;
 

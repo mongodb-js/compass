@@ -6,7 +6,8 @@ import {
 } from './docs-provider-transport';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { MockLanguageModelV3 } from 'ai/test';
-import type { UIMessageChunk } from 'ai';
+import { jsonSchema, readUIMessageStream, tool, type UIMessageChunk } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 
 describe('DocsProviderTransport', function () {
@@ -261,6 +262,206 @@ describe('DocsProviderTransport', function () {
     });
 
     // We currently do not support reconnecting to streams but we may want to in the future
+    describe('skills', function () {
+      // Trimmed version of what the knowledge service streams when it uses skills
+      const sseEvent = (data: Record<string, unknown>) =>
+        `event: ${String(data.type)}\ndata: ${JSON.stringify(data)}\n\n`;
+      const skillCall = (callId: string, skillName: string) => ({
+        type: 'function_call',
+        id: 'msg_1',
+        call_id: callId,
+        name: 'skill',
+        arguments: JSON.stringify({ skillName }),
+      });
+      const skillEvents = (callId: string, skillName: string) => [
+        sseEvent({
+          type: 'response.output_item.added',
+          output_index: 0,
+          item: { ...skillCall(callId, skillName), status: 'in_progress' },
+        }),
+        sseEvent({
+          type: 'response.output_item.done',
+          output_index: 0,
+          item: { ...skillCall(callId, skillName), status: 'completed' },
+        }),
+      ];
+      const response = { id: 'resp_1', created_at: 0, model: 'test' };
+      const skillsStream = [
+        sseEvent({ type: 'response.created', response }),
+        ...skillEvents('call_1', 'mongodb-schema-design'),
+        ...skillEvents('call_2', 'mongodb-query-optimizer'),
+        ...skillEvents('call_3', 'mongodb-schema-design'),
+        sseEvent({
+          type: 'response.output_item.added',
+          output_index: 1,
+          item: { type: 'message', id: 'msg_1' },
+        }),
+        sseEvent({
+          type: 'response.output_text.delta',
+          item_id: 'msg_1',
+          delta: 'Embed comments in posts.',
+        }),
+        sseEvent({
+          type: 'response.output_item.done',
+          output_index: 1,
+          item: { type: 'message', id: 'msg_1' },
+        }),
+        sseEvent({
+          type: 'response.completed',
+          response: {
+            ...response,
+            usage: { input_tokens: 1, output_tokens: 1 },
+          },
+        }),
+      ].join('');
+
+      const toolCallStream = [
+        sseEvent({ type: 'response.created', response }),
+        ...skillEvents('call_1', 'mongodb-schema-design'),
+        sseEvent({
+          type: 'response.output_item.added',
+          output_index: 1,
+          item: {
+            type: 'function_call',
+            id: 'msg_1',
+            call_id: 'call_2',
+            name: 'list-databases',
+            arguments: '',
+            status: 'in_progress',
+          },
+        }),
+        sseEvent({
+          type: 'response.output_item.done',
+          output_index: 1,
+          item: {
+            type: 'function_call',
+            id: 'msg_1',
+            call_id: 'call_2',
+            name: 'list-databases',
+            arguments: '{}',
+            status: 'completed',
+          },
+        }),
+        sseEvent({
+          type: 'response.completed',
+          response: {
+            ...response,
+            usage: { input_tokens: 1, output_tokens: 1 },
+          },
+        }),
+      ].join('');
+
+      async function getAssistantMessage(
+        messages: AssistantMessage[],
+        stream = skillsStream
+      ) {
+        const skillsTransport = new DocsProviderTransport({
+          origin: 'mongodb-compass',
+          instructions: 'Test instructions',
+          getTools: () => ({
+            'list-databases': tool({
+              inputSchema: jsonSchema({ type: 'object' }),
+            }),
+          }),
+          model: createOpenAI({
+            apiKey: '',
+            baseURL: 'http://example.com',
+            fetch: () =>
+              Promise.resolve(
+                new Response(stream, {
+                  headers: { 'content-type': 'text/event-stream' },
+                })
+              ),
+          }).responses('test-model'),
+        });
+        const uiStream = await skillsTransport.sendMessages({
+          trigger: 'submit-message',
+          chatId: 'test-chat',
+          messageId: undefined,
+          abortSignal: undefined,
+          messages,
+        });
+        let message: AssistantMessage | undefined;
+        for await (message of readUIMessageStream<AssistantMessage>({
+          stream: uiStream,
+        })) {
+          // keep the latest message state
+        }
+        return message;
+      }
+
+      it('adds the skills from the stream to the message metadata', async function () {
+        const message = await getAssistantMessage([
+          {
+            id: 'user',
+            role: 'user',
+            parts: [{ type: 'text', text: 'Model blog posts' }],
+          },
+        ]);
+        expect(message?.metadata?.skillsUsed).to.deep.equal([
+          'mongodb-schema-design',
+          'mongodb-query-optimizer',
+        ]);
+      });
+
+      it('does not add the skill function calls as tool calls', async function () {
+        const message = await getAssistantMessage([
+          {
+            id: 'user',
+            role: 'user',
+            parts: [{ type: 'text', text: 'Model blog posts' }],
+          },
+        ]);
+        expect(message?.parts.map((part) => part.type)).to.deep.equal([
+          'step-start',
+          'text',
+        ]);
+      });
+
+      it('keeps client tool calls', async function () {
+        const message = await getAssistantMessage(
+          [
+            {
+              id: 'user',
+              role: 'user',
+              parts: [{ type: 'text', text: 'List my databases' }],
+            },
+          ],
+          toolCallStream
+        );
+        expect(message?.parts).to.have.lengthOf(2);
+        expect(message?.parts[1]).to.include({
+          type: 'tool-list-databases',
+          toolCallId: 'call_2',
+          state: 'input-available',
+        });
+        expect(message?.metadata?.skillsUsed).to.deep.equal([
+          'mongodb-schema-design',
+        ]);
+      });
+
+      it('keeps the skills from earlier requests of the same message', async function () {
+        const message = await getAssistantMessage([
+          {
+            id: 'user',
+            role: 'user',
+            parts: [{ type: 'text', text: 'Model blog posts' }],
+          },
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Listing databases' }],
+            metadata: { skillsUsed: ['mongodb-natural-language-querying'] },
+          },
+        ]);
+        expect(message?.metadata?.skillsUsed).to.deep.equal([
+          'mongodb-natural-language-querying',
+          'mongodb-schema-design',
+          'mongodb-query-optimizer',
+        ]);
+      });
+    });
+
     describe('reconnectToStream', function () {
       it('always returns null', async function () {
         const result = await transport.reconnectToStream();
