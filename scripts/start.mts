@@ -33,7 +33,7 @@ const targets = {
 let currentTarget: keyof typeof targets | null = null;
 
 for (const arg of args) {
-  if (validTargets.includes(arg as keyof typeof targets)) {
+  if (validTargets.includes(arg)) {
     // Switch to new target
     currentTarget = arg as keyof typeof targets;
     targets[currentTarget].enabled = true;
@@ -108,18 +108,18 @@ async function cleanup(signal: NodeJS.Signals) {
 }
 
 // Handle signals properly even when child processes inherit stdio
-process.on('SIGINT', () => cleanup('SIGINT'));
-process.on('SIGTERM', () => cleanup('SIGTERM'));
+process.on('SIGINT', () => void cleanup('SIGINT'));
+process.on('SIGTERM', () => void cleanup('SIGTERM'));
 
 // Ensure we exit cleanly on uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
-  cleanup('SIGTERM');
+  void cleanup('SIGTERM');
 });
 
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled rejection:', err);
-  cleanup('SIGTERM');
+  void cleanup('SIGTERM');
 });
 
 // Helper function to create a transform stream that prefixes lines
@@ -156,7 +156,7 @@ function spawnTarget(
   targetName: string
 ) {
   // Only set color-forcing env vars if user hasn't set color preferences
-  const colorEnv: Record<string, string> = {};
+  const colorEnv: Record<string, string> = Object.create(null);
   if (
     !process.env.NO_COLOR &&
     !process.env.FORCE_COLOR &&

@@ -1,0 +1,15 @@
+import type { IpcRenderer } from 'electron';
+import { isUtilityPortChannel } from '@mongodb-js/compass-utils';
+import { listen } from '@mongodb-js/compass-utils';
+
+export function forwardUtilityPorts(
+  target: Window,
+  ipcRenderer: Pick<IpcRenderer, 'postMessage'>
+): Disposable {
+  return listen(target, 'message', (event: MessageEvent) => {
+    const channel: unknown = event.data?.type;
+    if (event.source === target && isUtilityPortChannel(channel)) {
+      ipcRenderer.postMessage(channel, event.data, [...event.ports]);
+    }
+  });
+}
