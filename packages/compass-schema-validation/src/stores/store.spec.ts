@@ -15,7 +15,7 @@ import {
   type ValidationLevel,
 } from '../modules/validation';
 import { fetchSampleDocuments } from '../modules/sample-documents';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import type { Store } from 'redux';
 import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
