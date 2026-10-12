@@ -99,7 +99,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
 
   {
     name: 'enableMockDataGenerator',
-    stage: 'development',
+    stage: 'released',
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable generating mock data scripts with AI',

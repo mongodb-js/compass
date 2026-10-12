@@ -83,7 +83,6 @@ describe('Collection mock data generator (with mocked backend)', function () {
     assistant.setResponse(toolResponse);
     await createNestedDocumentsCollection(collName, 2);
     await browser.disconnectAll();
-    await browser.setFeature('enableMockDataGenerator', true);
     await browser.setFeature('enableGenAIFeatures', true);
     await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
     await browser.setFeature('optInGenAIFeatures', true);
@@ -102,7 +101,6 @@ describe('Collection mock data generator (with mocked backend)', function () {
     releaseResponse = undefined;
     await screenshotIfFailed(compass, this.currentTest);
     await browser.hideVisibleModal();
-    await browser.setFeature('enableMockDataGenerator', false);
   });
 
   after(async function () {
@@ -230,23 +228,5 @@ describe('Collection mock data generator (with mocked backend)', function () {
     expect(
       await browser.$(Selectors.MockDataGeneratorPreview).getText()
     ).to.include('name');
-  });
-
-  it('keeps the generator hidden while the feature flag is off', async function () {
-    await browser.disconnectAll();
-    await browser.setFeature('enableMockDataGenerator', false);
-    await browser.connectToDefaults();
-    await browser.navigateToCollectionTab(
-      getDefaultConnectionNames(0),
-      dbName,
-      collName,
-      'Documents'
-    );
-    await browser.clickVisible(Selectors.AddDataButton);
-    expect(
-      await browser.$(Selectors.GenerateMockDataOption).isExisting()
-    ).to.equal(false);
-    await browser.keys('Escape');
-    expect(assistant.getRequests()).to.have.lengthOf(0);
   });
 });
