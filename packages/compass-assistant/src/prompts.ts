@@ -192,7 +192,7 @@ export const buildProactiveInsightsPrompt = (
     case 'aggregation-executed-without-index': {
       return {
         prompt: `Provide a concise, human-readable explanation of why not using an index for this aggregation can degrade performance. Do not refer to the specifics of the explain plan output, but use it to contextualize your recommendations. Assess whether any existing indexes could optimize this operation, or if a new index could improve performance. Do not ever explicitly instruct to create an index. If a new index might help, mention important pros and cons of adding an index, not just benefits, and briefly describe how to create it in MongoDB Compass.
-Consider the type of collection (e.g. view v. not). If tools are available, use the \`explain\` tool to get the explain plan output, use the \`list-indexes\` tool to get the list of indexes for this collection.
+Consider the type of collection (e.g. view v. not). If tools are available, use the \`explain\` tool to get the explain plan output, use the \`collection-indexes\` tool to get the list of indexes for this collection.
 
 <input>
 ${context.stages.join('\n')}
