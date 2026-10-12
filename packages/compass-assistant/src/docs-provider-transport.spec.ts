@@ -356,7 +356,7 @@ describe('DocsProviderTransport', function () {
         requestBodies.length = 0;
       });
 
-      async function getAssistantMessage(
+      async function getUIStream(
         messages: AssistantMessage[],
         stream = skillsStream
       ) {
@@ -388,6 +388,14 @@ describe('DocsProviderTransport', function () {
           abortSignal: undefined,
           messages,
         });
+        return uiStream;
+      }
+
+      async function getAssistantMessage(
+        messages: AssistantMessage[],
+        stream = skillsStream
+      ) {
+        const uiStream = await getUIStream(messages, stream);
         let message: AssistantMessage | undefined;
         for await (message of readUIMessageStream<AssistantMessage>({
           stream: uiStream,
@@ -460,6 +468,32 @@ describe('DocsProviderTransport', function () {
         });
         expect(message?.metadata?.skillsUsed).to.deep.equal([
           'mongodb-schema-design',
+        ]);
+      });
+
+      it('reports the skills before the stream finishes', async function () {
+        const uiStream = await getUIStream([
+          {
+            id: 'user',
+            role: 'user',
+            parts: [{ type: 'text', text: 'Model blog posts' }],
+          },
+        ]);
+        const reportedSkills: unknown[] = [];
+        for await (const chunk of uiStream) {
+          if (chunk.type === 'text-start') {
+            break;
+          }
+          if (chunk.type === 'message-metadata') {
+            reportedSkills.push(
+              (chunk.messageMetadata as AssistantMessage['metadata'])
+                ?.skillsUsed
+            );
+          }
+        }
+        expect(reportedSkills.at(-1)).to.deep.equal([
+          'mongodb-schema-design',
+          'mongodb-query-optimizer',
         ]);
       });
 

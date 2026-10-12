@@ -233,11 +233,9 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     return Promise.resolve(
       result.toUIMessageStream({
         sendSources: true,
-        messageMetadata({ part }) {
+        messageMetadata() {
           const skillsMetadata =
-            part.type === 'finish' && usedSkills.size > 0
-              ? { skillsUsed: [...usedSkills] }
-              : undefined;
+            usedSkills.size > 0 ? { skillsUsed: [...usedSkills] } : undefined;
           if (lastMessage.metadata) {
             // Return the metadata that's relevant for telemetry tracking purposes.
             const { requestId, connectionInfo } = lastMessage.metadata;
