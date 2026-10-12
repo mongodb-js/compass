@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-10-07. Do not edit manually.
+> Auto-generated on 2026-10-12. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -678,6 +678,7 @@ This event is fired when a user submits feedback for the assistant.
 | `text`           | `string \| undefined`                                                                                                                                                            | No       |                                                    |
 | `request_id`     | `string \| undefined`                                                                                                                                                            | No       |                                                    |
 | `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose" \| "chat response"` | Yes      |                                                    |
+| `skills_used`    | `{} \| undefined`                                                                                                                                                                | No       |                                                    |
 | `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |                                                    |
 | `connection_id`  | `string \| undefined`                                                                                                                                                            | No       | The id of the connection associated to this event. |
 
