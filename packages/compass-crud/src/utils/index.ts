@@ -84,9 +84,9 @@ export function getSafeIntegerViolationMessage(
     : 'Numbers exceed the safe integer range.';
 }
 
-const ALLOWED_SORT_VALUES = new Set<unknown>([1, -1, 'asc', 'desc']);
+const ALLOWED_SORT_VALUES = new Set([1, -1, 'asc', 'desc']);
 
-function isValidSortDirection(direction: unknown): boolean {
+function isValidSortDirection(direction: any): boolean {
   return (
     ALLOWED_SORT_VALUES.has(direction) ||
     (typeof direction === 'object' &&
