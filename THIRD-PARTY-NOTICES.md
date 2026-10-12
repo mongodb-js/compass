@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Oct 11 2026.
+This document was automatically generated on Mon Oct 12 2026.
 
 ## List of dependencies
 
@@ -7,8 +7,8 @@ This document was automatically generated on Sun Oct 11 2026.
 | --------------------------------------------------------------------------------------------------------------------------- | ------------ | ----------------------------------- |
 | **[@ai-sdk/gateway](#1647a4deeaddf529b54d364c9cbfc6d40ea5780d111b6efa6aa03dfc4de08808)**                                    | 3.0.46       | Apache-2.0                          |
 | **[@ai-sdk/openai](#f46cb7ee06fef0f6860cca10defb7f50cca56e0fd6ff9217b0f1b21cea4b9386)**                                     | 3.0.9        | Apache-2.0                          |
-| **[@ai-sdk/provider-utils](#8ccf399c64642ce5e62e280fc93faa0fde60f9b81d0a90d6a9a5b938f6a236f6)**                             | 4.0.15       | Apache-2.0                          |
-| **[@ai-sdk/provider-utils](#3f029fadb4e1cf651f9ffead134111fb0596f12c11e0a3df08a2939d99f9a13c)**                             | 4.0.5        | Apache-2.0                          |
+| **[@ai-sdk/provider-utils](#58150bbd957e96820153e185aea8c82ef427322865ec278c4a9cb467ed08f086)**                             | 4.0.33       | Apache-2.0                          |
+| **[@ai-sdk/provider](#7672281656ad5c6a222701c06a207288b6a959fa31db2260cadf1c45ab29bd07)**                                   | 3.0.12       | Apache-2.0                          |
 | **[@ai-sdk/provider](#825803e06bd82aa6fe4f85e99ae9cc4d185001f1ef395937e77c452a0d817f20)**                                   | 3.0.2        | Apache-2.0                          |
 | **[@ai-sdk/provider](#edc3ebf5a91c3e43a68a2bccd4f33b836758187f029a63f549df0d297a21fe24)**                                   | 3.0.8        | Apache-2.0                          |
 | **[@aws-sdk/core](#ad0d827f4ab2fe72a2b0fff039d3b96fe7cbc7e1bc1c80f6480f71140a8d1b55)**                                      | 3.973.20     | Apache-2.0                          |
@@ -126,7 +126,7 @@ This document was automatically generated on Sun Oct 11 2026.
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1        | MIT                                 |
 | **[@marijn/find-cluster-break](#7a9878a3598d1e6be1f069dc757f1d31e30ce66d313f5025cfd2521d68a24243)**                         | 1.0.2        | MIT                                 |
 | **[@mcp-ui/server](#d70b4227f081adf5b4b417eead88ba4303ccb03fcbef8a6c5b943f67fa5ca487)**                                     | 5.16.3       | Apache-2.0                          |
-| **[@modelcontextprotocol/sdk](#a4720b30fbdd1e940ca2aa74b23353b04aa2315130be8c1fe23ae414d8fd2e55)**                          | 1.29.0       | MIT                                 |
+| **[@modelcontextprotocol/sdk](#a87ede19dd988bc599975fc2f7c71f7e3b7e50359f8eef6e71ae4a234383d237)**                          | 1.32.1       | MIT                                 |
 | **[@opentelemetry/api](#78185a135ba748dc3c4764cf3f8bc9f1362c2de788184eb429e25fdbb6e4755a)**                                 | 1.9.0        | Apache-2.0                          |
 | **[@react-aria/interactions](#638eaf69f422aa3fbe2277f9e95b6b87e64569742134491d2653e9fc05c8f58a)**                           | 3.9.1        | Apache-2.0                          |
 | **[@react-aria/ssr](#d50578768741f1468c3d5dc0da1f585e37a01e7e13b44149ff094a0a5008d023)**                                    | 3.2.0        | Apache-2.0                          |
@@ -176,7 +176,6 @@ This document was automatically generated on Sun Oct 11 2026.
 | **[@smithy/util-uri-escape](#94f2c04acec7dca1192771141b555626af8ada19c7e5de8820ac1512bfe4cce2)**                            | 4.2.2        | Apache-2.0                          |
 | **[@smithy/util-utf8](#d84c4080d717edfbcfd0a903fc554549c673091618969b1580ecda94c41bb0ba)**                                  | 4.2.2        | Apache-2.0                          |
 | **[@smithy/uuid](#6fb5f2722612f4fb79cdd6d2464b654f9bd645a13d3eacaefc80cd40bf52dc07)**                                       | 1.1.2        | Apache-2.0                          |
-| **[@standard-schema/spec](#9bfb5ac2eb33aa4c5906cda756fe918bdccd69a071a6714d0ed2fe1e4571dde8)**                              | 1.1.0        | MIT                                 |
 | **[@tanstack/react-table](#bba47b5b0942185bdbc44b7de6d8e54db9dd27d1645dad45380d3ddce7a936c4)**                              | 8.21.3       | MIT                                 |
 | **[@tanstack/react-virtual](#17072fc1922995da3ee32d92dd7557a30104f12ed1de4a6fec105e141be35083)**                            | 3.13.12      | MIT                                 |
 | **[@tanstack/table-core](#2e6a417576b1eb8dfb2c0453bc586001b2915f8ad6bb9142f959f8b2256ef8d1)**                               | 8.21.3       | MIT                                 |
@@ -206,7 +205,7 @@ This document was automatically generated on Sun Oct 11 2026.
 | **[ast-types](#b10f17e6889028ee16e1f388d24ed535333cd289f0871c70d99c6180f498c6e0)**                                          | 0.13.4       | MIT                                 |
 | **[bail](#7bb145b871ec0ce498fe08f97b015e1298676bc4b6584732692f919e426a34a1)**                                               | 2.0.2        | MIT                                 |
 | **[base64-js](#cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6)**                                          | 1.5.1        | MIT                                 |
-| **[basic-ftp](#b90cf716d4d99eb53bb2c9e2211b9236670a95ccda70b4472afcc7abdb72b369)**                                          | 5.3.1        | MIT                                 |
+| **[basic-ftp](#d05397370d77bee97474a4e1a22ebf59ae353de417521105785398ac26811be2)**                                          | 6.2.3        | MIT                                 |
 | **[bcrypt-pbkdf](#b6b5900f1e48a933591abc1c918fbcc9c890b3d071f607c59d704bc1c13b3937)**                                       | 1.0.2        | BSD-3-Clause                        |
 | **[bignumber.js](#72ac920aeb92af6ca1db48e34a5fb141e8e8e98ad9fab1e2223c1ecc8b539f73)**                                       | 9.3.1        | MIT                                 |
 | **[bintrees](#92dc6fdc6f493d9afcb140539293dd1b94e368d4792ec5165e9f061eab8db78a)**                                           | 1.0.2        | MIT                                 |
@@ -285,7 +284,7 @@ This document was automatically generated on Sun Oct 11 2026.
 | **[etag](#dfcb09916bd8554b4d5ec250d985c02174ddfe92cb0efaa97df51b903ce0adf8)**                                               | 1.8.1        | MIT                                 |
 | **[eventemitter3](#2845c3d706e174e51442028b5aada4c274955de08db3fc13005df746b5d6b3e6)**                                      | 1.2.0        | MIT                                 |
 | **[eventemitter3](#344ac4a1404cf0768bccce4529868ee2081bb2d49637269457647deab073e298)**                                      | 4.0.7        | MIT                                 |
-| **[eventsource-parser](#be5172a39e5498bedccbb65eebfd119ee0ee7ba12c4174c0b761fa7d1c5b0959)**                                 | 3.0.6        | MIT                                 |
+| **[eventsource-parser](#20af37513d93868b6db0b04e5a3e5e0773c09d0294b4d35e22c804872338ba94)**                                 | 3.1.1        | MIT                                 |
 | **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**                                    | 2.0.3        | (MIT OR WTFPL)                      |
 | **[express](#853506c29d44b710e3fdd837e1d337b744ada1b6e49f05f2597c08a5ba9c1b5a)**                                            | 5.2.1        | MIT                                 |
 | **[ext-list](#84470edae99e3ac5a9fdf9da513cd9a1ea7e479ca5fca13b6abecbb4c522f97c)**                                           | 2.2.2        | MIT                                 |
@@ -668,15 +667,15 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="8ccf399c64642ce5e62e280fc93faa0fde60f9b81d0a90d6a9a5b938f6a236f6"></a>
+<a id="58150bbd957e96820153e185aea8c82ef427322865ec278c4a9cb467ed08f086"></a>
 
-### [@ai-sdk/provider-utils](https://www.npmjs.com/package/@ai-sdk/provider-utils) (version 4.0.15)
+### [@ai-sdk/provider-utils](https://www.npmjs.com/package/@ai-sdk/provider-utils) (version 4.0.33)
 
 License tags: Apache-2.0
 
-<a id="3f029fadb4e1cf651f9ffead134111fb0596f12c11e0a3df08a2939d99f9a13c"></a>
+<a id="7672281656ad5c6a222701c06a207288b6a959fa31db2260cadf1c45ab29bd07"></a>
 
-### [@ai-sdk/provider-utils](https://www.npmjs.com/package/@ai-sdk/provider-utils) (version 4.0.5)
+### [@ai-sdk/provider](https://www.npmjs.com/package/@ai-sdk/provider) (version 3.0.12)
 
 License tags: Apache-2.0
 
@@ -10286,9 +10285,9 @@ License files:
 
 License tags: Apache-2.0
 
-<a id="a4720b30fbdd1e940ca2aa74b23353b04aa2315130be8c1fe23ae414d8fd2e55"></a>
+<a id="a87ede19dd988bc599975fc2f7c71f7e3b7e50359f8eef6e71ae4a234383d237"></a>
 
-### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.29.0)
+### [@modelcontextprotocol/sdk](https://www.npmjs.com/package/@modelcontextprotocol/sdk) (version 1.32.1)
 
 License tags: MIT
 
@@ -20166,38 +20165,6 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="9bfb5ac2eb33aa4c5906cda756fe918bdccd69a071a6714d0ed2fe1e4571dde8"></a>
-
-### [@standard-schema/spec](https://www.npmjs.com/package/@standard-schema/spec) (version 1.1.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (c) 2024 Colin McDonnell
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-
 <a id="bba47b5b0942185bdbc44b7de6d8e54db9dd27d1645dad45380d3ddce7a936c4"></a>
 
 ### [@tanstack/react-table](https://www.npmjs.com/package/@tanstack/react-table) (version 8.21.3)
@@ -21126,9 +21093,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="b90cf716d4d99eb53bb2c9e2211b9236670a95ccda70b4472afcc7abdb72b369"></a>
+<a id="d05397370d77bee97474a4e1a22ebf59ae353de417521105785398ac26811be2"></a>
 
-### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 5.3.1)
+### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 6.2.3)
 
 License tags: MIT
 
@@ -23851,9 +23818,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="be5172a39e5498bedccbb65eebfd119ee0ee7ba12c4174c0b761fa7d1c5b0959"></a>
+<a id="20af37513d93868b6db0b04e5a3e5e0773c09d0294b4d35e22c804872338ba94"></a>
 
-### [eventsource-parser](https://www.npmjs.com/package/eventsource-parser) (version 3.0.6)
+### [eventsource-parser](https://www.npmjs.com/package/eventsource-parser) (version 3.1.1)
 
 License tags: MIT
 
@@ -23863,7 +23830,7 @@ License files:
 
       MIT License
 
-      Copyright (c) 2025 Espen Hovlandsdal <espen@hovlandsdal.com>
+      Copyright (c) 2026 Espen Hovlandsdal <espen@hovlandsdal.com>
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal

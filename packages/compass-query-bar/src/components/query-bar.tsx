@@ -60,7 +60,7 @@ import {
   useSyncAssistantGlobalState,
   useAssistantActions,
 } from '@mongodb-js/compass-assistant';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 const queryBarFormStyles = css({
   display: 'flex',

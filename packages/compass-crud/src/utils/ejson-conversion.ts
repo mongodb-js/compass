@@ -1,5 +1,5 @@
 import { EJSON } from 'bson';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 const EJSON_SHELL_EQUIVALENTS = new Map([
   ['$oid', 'ObjectId()'],

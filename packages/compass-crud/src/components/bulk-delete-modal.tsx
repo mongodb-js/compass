@@ -13,7 +13,7 @@ import {
   useId,
 } from '@mongodb-js/compass-components';
 import type { BSONObject } from '../stores/crud-store';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
 import type { Document } from 'bson';
