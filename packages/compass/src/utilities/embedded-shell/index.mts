@@ -3,22 +3,28 @@ import process from 'node:process';
 import type { ParentPort } from 'electron';
 import { onPort } from '../ipc.mts';
 import { createUtilityLogger } from '../logging.mts';
+import { listen } from '@mongodb-js/compass-utils';
 
 export const name = 'embedded-shell';
 
 export function main(parentPort: ParentPort): Disposable {
-  process.on('unhandledRejection', (reason) => {
-    throw reason;
-  });
+  using ds = new DisposableStack();
 
-  const logger = createUtilityLogger(parentPort, name);
+  ds.use(
+    listen(process, 'unhandledRejection', (reason) => {
+      throw reason;
+    })
+  );
 
-  return onPort(parentPort, (port) => {
-    port.on('message', ({ data }) => {
-      logger.debug('echoing', data);
-      port.postMessage(data);
-    });
-  });
+  createUtilityLogger(parentPort, name);
+
+  ds.use(
+    onPort(parentPort, () => {
+      // Sessions arrive with the embedded shell implementation
+    })
+  );
+
+  return ds.move();
 }
 
 if (import.meta.main) {

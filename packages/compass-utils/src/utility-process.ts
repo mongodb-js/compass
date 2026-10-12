@@ -1,11 +1,7 @@
 /**
- * Everything about a utility process follows from its name rather than sharing constants.
+ * How renderer code reaches a utility process. Everything follows from the
+ * utility's name, which is its directory under packages/compass/src/utilities.
  */
-
-/** File main forks; webpack builds `<name>/index.mts` to it. */
-export function utilityFileName(name: string): string {
-  return `${name}.mjs`;
-}
 
 /**
  * Channel name the renderer posts its end of a MessageChannel on for the utility to pickup.
@@ -21,4 +17,14 @@ export function isUtilityPortChannel(
   return (
     typeof channel === 'string' && /^compass:utility:[^:]+:port$/.test(channel)
   );
+}
+
+/**
+ * Opens a channel to the named utility. The preload script forwards the other
+ * end to main, which hands it to the utility.
+ */
+export function openUtilityPort(name: string): MessagePort {
+  const { port1, port2 } = new MessageChannel();
+  window.postMessage({ type: utilityPortChannel(name) }, '*', [port2]);
+  return port1;
 }

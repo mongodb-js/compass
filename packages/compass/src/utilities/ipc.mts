@@ -1,5 +1,5 @@
 import type { MessageEvent, MessagePortMain, ParentPort } from 'electron';
-import { listen } from '../listen.ts';
+import { listen } from '@mongodb-js/compass-utils';
 
 /**
  * Main hands a utility its MessagePorts over `parentPort`, one per renderer
