@@ -99,7 +99,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
 
   {
     name: 'enableMockDataGenerator',
-    stage: 'development',
+    stage: 'released',
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable generating mock data scripts with AI',
@@ -197,7 +197,7 @@ function featureFlagToPreferenceDefinition(
     cli: true,
     global: true,
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     description: featureFlag.description,
     // Only show feature flags in 'preview' stage in --help output
     omitFromHelp: featureFlag.stage !== 'preview',

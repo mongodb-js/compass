@@ -5,11 +5,7 @@ import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
 import { faker } from '@faker-js/faker/locale/en';
 
 export type FakerArg =
-  | string
-  | number
-  | boolean
-  | { json: string }
-  | FakerArg[];
+  string | number | boolean | { json: string } | FakerArg[];
 
 const DEFAULT_ARRAY_LENGTH = 3;
 
@@ -28,8 +24,7 @@ export interface ScriptOptions {
 }
 
 export type ScriptResult =
-  | { script: string; success: true }
-  | { error: string; success: false };
+  { script: string; success: true } | { error: string; success: false };
 
 type DocumentStructure = {
   [fieldName: string]:

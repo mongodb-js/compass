@@ -49,8 +49,8 @@ function getKeyName(node: t.ObjectProperty['key']): string | null {
   return node.type === 'Identifier'
     ? node.name
     : node.type === 'StringLiteral'
-    ? node.value
-    : null;
+      ? node.value
+      : null;
 }
 
 export const StageAssertionErrorCodes = {

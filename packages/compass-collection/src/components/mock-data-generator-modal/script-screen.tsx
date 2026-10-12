@@ -182,7 +182,7 @@ const ScriptScreen = ({
           </li>
         </ul>
       </section>
-      <section>
+      <section data-testid="mock-data-script">
         <Body as="h2" baseFontSize={16} weight="medium">
           1. Create a .js file with the following script
         </Body>

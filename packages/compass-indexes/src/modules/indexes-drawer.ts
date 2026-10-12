@@ -22,9 +22,7 @@ import type {
 import type { FetchSearchIndexesActions } from './search-indexes';
 import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
 export type IndexesDrawerViewType =
-  | 'indexes-list'
-  | 'create-search-index'
-  | 'edit-search-index';
+  'indexes-list' | 'create-search-index' | 'edit-search-index';
 
 export type SearchIndexType = 'search' | 'vectorSearch';
 

@@ -57,8 +57,8 @@ const renderStagePreview = async (
   const experimentVariant = enableSearchActivationP1Experiment
     ? ExperimentTestGroups.searchActivationProgramP1Variant
     : enableSearchActivationP2Experiment
-    ? ExperimentTestGroups.searchActivationProgramP2Variant
-    : null;
+      ? ExperimentTestGroups.searchActivationProgramP2Variant
+      : null;
   const preferencesAccess = await createSandboxFromDefaultPreferences();
   if (enableAIAssistant) {
     await preferencesAccess.savePreferences(AI_ASSISTANT_PREFERENCES);

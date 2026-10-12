@@ -22,13 +22,9 @@ declare module 'process' {
       interface ProcessEnv {
         HADRON_APP_VERSION: string;
         HADRON_DISTRIBUTION:
-          | 'compass'
-          | 'compass-readonly'
-          | 'compass-isolated';
+          'compass' | 'compass-readonly' | 'compass-isolated';
         HADRON_PRODUCT:
-          | 'mongodb-compass'
-          | 'mongodb-compass-readonly'
-          | 'mongodb-isolated';
+          'mongodb-compass' | 'mongodb-compass-readonly' | 'mongodb-isolated';
         HADRON_PRODUCT_NAME:
           | 'MongoDB Compass'
           | 'MongoDB Compass Readonly'

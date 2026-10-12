@@ -629,8 +629,7 @@ type EditorProps = {
   initialJSONFoldAll?: boolean;
   autoFocus?: boolean;
 } & (
-  | { text: string; initialText?: never }
-  | { text?: never; initialText: string }
+  { text: string; initialText?: never } | { text?: never; initialText: string }
 ) &
   Pick<
     React.HTMLProps<HTMLDivElement>,
@@ -812,73 +811,69 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   });
   const initialJSONFoldAll = useRef(_initialJSONFoldAll);
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        foldAll() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return foldAll(editorViewRef.current);
-        },
-        unfoldAll() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return unfoldAll(editorViewRef.current);
-        },
-        copyAll() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return copyAll(editorViewRef.current);
-        },
-        prettify() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return prettify(editorViewRef.current);
-        },
-        applySnippet(template: string) {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return applySnippet(editorViewRef.current, template);
-        },
-        focus() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          editorViewRef.current.focus();
-          return true;
-        },
-        cursorDocEnd() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return cursorDocEnd(editorViewRef.current);
-        },
-        startCompletion() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return startCompletion(editorViewRef.current);
-        },
-        get editorContents() {
-          if (!editorViewRef.current) {
-            return null;
-          }
+  useImperativeHandle(ref, () => {
+    return {
+      foldAll() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return foldAll(editorViewRef.current);
+      },
+      unfoldAll() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return unfoldAll(editorViewRef.current);
+      },
+      copyAll() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return copyAll(editorViewRef.current);
+      },
+      prettify() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return prettify(editorViewRef.current);
+      },
+      applySnippet(template: string) {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return applySnippet(editorViewRef.current, template);
+      },
+      focus() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        editorViewRef.current.focus();
+        return true;
+      },
+      cursorDocEnd() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return cursorDocEnd(editorViewRef.current);
+      },
+      startCompletion() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return startCompletion(editorViewRef.current);
+      },
+      get editorContents() {
+        if (!editorViewRef.current) {
+          return null;
+        }
 
-          return getEditorContents(editorViewRef.current);
-        },
-        get editor() {
-          return editorViewRef.current ?? null;
-        },
-      };
-    },
-    []
-  );
+        return getEditorContents(editorViewRef.current);
+      },
+      get editor() {
+        return editorViewRef.current ?? null;
+      },
+    };
+  }, []);
 
   const languageExtension = useCodemirrorExtensionCompartment(
     () => {
@@ -1323,10 +1318,10 @@ function isTopNode(node?: any): boolean {
   return !node
     ? true
     : node.name === 'Array' || node.name === 'Property'
-    ? false
-    : node.name === 'JsonText'
-    ? true
-    : isTopNode(node.parent);
+      ? false
+      : node.name === 'JsonText'
+        ? true
+        : isTopNode(node.parent);
 }
 
 const applySnippet = (editor: EditorView, template: string): boolean => {
@@ -1528,45 +1523,41 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
 
     const onCopyRef = useCurrentValueRef(onCopy);
 
-    useImperativeHandle(
-      ref,
-      () => {
-        return {
-          foldAll() {
-            return editorRef.current?.foldAll() ?? false;
-          },
-          unfoldAll() {
-            return editorRef.current?.unfoldAll() ?? false;
-          },
-          copyAll() {
-            onCopyRef.current?.();
-            return editorRef.current?.copyAll() ?? false;
-          },
-          prettify() {
-            return editorRef.current?.prettify() ?? false;
-          },
-          focus() {
-            return editorRef.current?.focus() ?? false;
-          },
-          applySnippet(template: string) {
-            return editorRef.current?.applySnippet(template) ?? false;
-          },
-          cursorDocEnd() {
-            return editorRef.current?.cursorDocEnd() ?? false;
-          },
-          startCompletion() {
-            return editorRef.current?.startCompletion() ?? false;
-          },
-          get editorContents() {
-            return editorRef.current?.editorContents ?? null;
-          },
-          get editor() {
-            return editorRef.current?.editor ?? null;
-          },
-        };
-      },
-      []
-    );
+    useImperativeHandle(ref, () => {
+      return {
+        foldAll() {
+          return editorRef.current?.foldAll() ?? false;
+        },
+        unfoldAll() {
+          return editorRef.current?.unfoldAll() ?? false;
+        },
+        copyAll() {
+          onCopyRef.current?.();
+          return editorRef.current?.copyAll() ?? false;
+        },
+        prettify() {
+          return editorRef.current?.prettify() ?? false;
+        },
+        focus() {
+          return editorRef.current?.focus() ?? false;
+        },
+        applySnippet(template: string) {
+          return editorRef.current?.applySnippet(template) ?? false;
+        },
+        cursorDocEnd() {
+          return editorRef.current?.cursorDocEnd() ?? false;
+        },
+        startCompletion() {
+          return editorRef.current?.startCompletion() ?? false;
+        },
+        get editorContents() {
+          return editorRef.current?.editorContents ?? null;
+        },
+        get editor() {
+          return editorRef.current?.editor ?? null;
+        },
+      };
+    }, []);
 
     const hasCustomActions = customActions && customActions.length > 0;
     const hasActions = copyable || formattable || hasCustomActions;

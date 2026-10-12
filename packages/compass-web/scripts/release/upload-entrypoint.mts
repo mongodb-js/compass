@@ -55,14 +55,12 @@ try {
   assertResponseIsOk(res);
   const manifest = await res.json();
 
-  if (
-    !(
-      Array.isArray(manifest) &&
-      manifest.every((asset) => {
-        return typeof asset === 'string';
-      })
-    )
-  ) {
+  if (!(
+    Array.isArray(manifest) &&
+    manifest.every((asset) => {
+      return typeof asset === 'string';
+    })
+  )) {
     throw new Error(
       `Manifest schema is not matching: expected string[], got ${inspect(
         manifest

@@ -126,7 +126,7 @@ export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =
 
 export type PipelineBuilderThunkAction<
   R,
-  A extends Action = AnyAction
+  A extends Action = AnyAction,
 > = ThunkAction<R, RootState, PipelineBuilderExtraArgs, A>;
 
 export default rootReducer;

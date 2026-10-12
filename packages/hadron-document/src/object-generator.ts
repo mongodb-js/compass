@@ -390,7 +390,7 @@ export class ObjectGenerator {
     // Sometimes elements are removed or renamed, and then another
     // element is added or renamed to take its place. We filter out
     // the DoesNotExist entry for that case.
-    for (let i = 0; i < newFields.length; ) {
+    for (let i = 0; i < newFields.length;) {
       const entry = newFields[i];
       if (entry.value === DoesNotExist) {
         if (
@@ -435,39 +435,42 @@ export class ObjectGenerator {
     path: SubfieldDescription[],
     value: BSONValue | typeof DoesNotExist
   ): BSONValue {
-    return path.reduceRight((value, { key, isArrayIndex }, idx, array) => {
-      const input = ObjectGenerator.createGetFieldExpr(array.slice(0, idx));
-      if (!isArrayIndex) {
-        // 'Simple' case: Change a property of a document
+    return path.reduceRight(
+      (value, { key, isArrayIndex }, idx, array) => {
+        const input = ObjectGenerator.createGetFieldExpr(array.slice(0, idx));
+        if (!isArrayIndex) {
+          // 'Simple' case: Change a property of a document
+          return {
+            $setField: {
+              field: { $literal: key },
+              input,
+              value,
+            },
+          };
+        }
+
+        // Array case: concatenate the prefix of the array before the changed
+        // index, an array containing the new value at the changed index,
+        // and the suffix afterwards; use $let to avoid specifying the full
+        // input value expression multiple times.
         return {
-          $setField: {
-            field: { $literal: key },
-            input,
-            value,
+          $let: {
+            vars: { input },
+            in: {
+              $concatArrays: [
+                // The third argument to $slice must not be 0
+                ...(+key > 0 ? [{ $slice: ['$$input', 0, +key] }] : []),
+                [value],
+                // The third argument is required; 2^31-1 is the maximum
+                // accepted value, and well beyond what BSON can represent.
+                { $slice: ['$$input', +key + 1, 2 ** 31 - 1] },
+              ],
+            },
           },
         };
-      }
-
-      // Array case: concatenate the prefix of the array before the changed
-      // index, an array containing the new value at the changed index,
-      // and the suffix afterwards; use $let to avoid specifying the full
-      // input value expression multiple times.
-      return {
-        $let: {
-          vars: { input },
-          in: {
-            $concatArrays: [
-              // The third argument to $slice must not be 0
-              ...(+key > 0 ? [{ $slice: ['$$input', 0, +key] }] : []),
-              [value],
-              // The third argument is required; 2^31-1 is the maximum
-              // accepted value, and well beyond what BSON can represent.
-              { $slice: ['$$input', +key + 1, 2 ** 31 - 1] },
-            ],
-          },
-        },
-      };
-    }, (value === DoesNotExist ? '$$REMOVE' : { $literal: value }) as any);
+      },
+      (value === DoesNotExist ? '$$REMOVE' : { $literal: value }) as any
+    );
   }
 
   /**

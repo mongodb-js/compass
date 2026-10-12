@@ -81,7 +81,7 @@ function useExport(): [
     setJSONFormatVariant: (jsonFormatVariant: ExportJSONFormat) => void;
     setEscapeFormulae: (newVal: boolean) => void;
     resetExportFormState: () => void;
-  }
+  },
 ] {
   const [fileType, setFileType] = useState<ExportFileTypes>('json');
   const [fieldsToExportOption, setFieldsToExportOption] =

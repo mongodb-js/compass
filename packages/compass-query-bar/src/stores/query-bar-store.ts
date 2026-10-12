@@ -102,7 +102,7 @@ export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
 
 export type QueryBarThunkAction<
   R,
-  A extends AnyAction = AnyAction
+  A extends AnyAction = AnyAction,
 > = ThunkAction<R, RootState, QueryBarExtraArgs, A>;
 
 export function configureStore(

@@ -47,9 +47,8 @@ describe('CollectionHeaderActions [Component]', function () {
     });
 
     it('does not render any buttons', function () {
-      expect(
-        screen.queryByTestId('collection-header-actions-edit-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('collection-header-actions-edit-button')).to
+        .not.exist;
       expect(
         screen.queryByTestId('collection-header-actions-return-to-view-button')
       ).to.not.exist;
@@ -70,9 +69,8 @@ describe('CollectionHeaderActions [Component]', function () {
         { readWrite: true }
       );
 
-      expect(
-        screen.queryByTestId('collection-header-actions-edit-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('collection-header-actions-edit-button')).to
+        .not.exist;
       expect(
         screen.queryByTestId('collection-header-actions-return-to-view-button')
       ).to.not.exist;
@@ -86,9 +84,8 @@ describe('CollectionHeaderActions [Component]', function () {
         sourcePipeline: [{ $match: { a: 1 } }],
       });
 
-      expect(
-        screen.getByTestId('collection-header-actions-edit-button')
-      ).to.be.visible;
+      expect(screen.getByTestId('collection-header-actions-edit-button')).to.be
+        .visible;
     });
   });
 
@@ -110,9 +107,8 @@ describe('CollectionHeaderActions [Component]', function () {
     });
 
     it('shows a button to edit the view pipeline', function () {
-      expect(
-        screen.getByTestId('collection-header-actions-edit-button')
-      ).to.exist;
+      expect(screen.getByTestId('collection-header-actions-edit-button')).to
+        .exist;
     });
     it('calls openEditViewWorkspace when the edit button is clicked', function () {
       expect(openEditViewWorkspaceStub).to.not.have.been.called;

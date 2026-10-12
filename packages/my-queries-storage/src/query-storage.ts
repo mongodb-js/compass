@@ -10,15 +10,17 @@ interface QueryStorage<T extends typeof RecentQuerySchema> {
   delete(id: string): Promise<boolean>;
 }
 
-export interface RecentQueryStorage
-  extends QueryStorage<typeof RecentQuerySchema> {
+export interface RecentQueryStorage extends QueryStorage<
+  typeof RecentQuerySchema
+> {
   saveQuery(
     data: Omit<z.input<typeof RecentQuerySchema>, '_id' | '_lastExecuted'>
   ): Promise<void>;
 }
 
-export interface FavoriteQueryStorage
-  extends QueryStorage<typeof FavoriteQuerySchema> {
+export interface FavoriteQueryStorage extends QueryStorage<
+  typeof FavoriteQuerySchema
+> {
   saveQuery(
     data: Omit<
       z.input<typeof FavoriteQuerySchema>,

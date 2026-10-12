@@ -287,7 +287,7 @@ const EmptyWrapper = ({ children }: { children?: React.ReactNode }) => {
 function getConnectionsFromConnectionsOption(
   connections: TestConnectionsOptions['connections']
 ): Exclude<TestConnectionsOptions['connections'], 'no-preload'> {
-  return connections === 'no-preload' ? undefined : connections ?? [];
+  return connections === 'no-preload' ? undefined : (connections ?? []);
 }
 
 const TEST_ENV_CURRENT_CONNECTION = {
@@ -447,7 +447,7 @@ function createWrapper(
                                   (() => {
                                     return Promise.resolve([{}, null] as [
                                       any,
-                                      null
+                                      null,
                                     ]);
                                   })
                                 }
@@ -570,7 +570,7 @@ export type RenderHookConnectionsOptions<HookProps> = Omit<
 
 export type RenderWithConnectionsHookResult<
   HookProps = unknown,
-  HookResult = unknown
+  HookResult = unknown,
 > = ReturnType<typeof createWrapper>['wrapperState'] &
   RenderHookResult<HookResult, HookProps>;
 
@@ -682,7 +682,7 @@ async function renderHookWithActiveConnection<HookProps, HookResult>(
 function createPluginWrapper<
   Props,
   ServiceLocators extends Record<string, () => unknown>,
-  PluginContext extends CompassPlugin
+  PluginContext extends CompassPlugin,
 >(
   Plugin: CompassPluginComponent<Props, ServiceLocators, PluginContext>,
   initialPluginProps?: Props,
@@ -708,7 +708,7 @@ function createPluginWrapper<
 }
 
 export type RenderPluginWithConnectionsResult<
-  T extends CompassPluginComponent<any, any, any>
+  T extends CompassPluginComponent<any, any, any>,
 > = RenderWithConnectionsResult & {
   plugin: ReturnType<T['useActivate']>;
 };
@@ -716,7 +716,7 @@ export type RenderPluginWithConnectionsResult<
 function createPluginTestHelpers<
   Props,
   ServiceLocators extends Record<string, () => unknown>,
-  PluginContext extends CompassPlugin
+  PluginContext extends CompassPlugin,
 >(
   Plugin: CompassPluginComponent<Props, ServiceLocators, PluginContext>,
   defaultInitialPluginProps?: Props

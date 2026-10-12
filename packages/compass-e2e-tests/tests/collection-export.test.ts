@@ -594,9 +594,8 @@ describe('Collection export', function () {
       });
 
       it('can abort an in progress CSV export', async function () {
-        const telemetryEntry = await browser.listenForTelemetryEvents(
-          telemetry
-        );
+        const telemetryEntry =
+          await browser.listenForTelemetryEvents(telemetry);
 
         // Set a query that we'll use.
         await browser.runFindOperation(
@@ -695,9 +694,8 @@ describe('Collection export', function () {
       });
 
       it('can abort an in progress JSON export', async function () {
-        const telemetryEntry = await browser.listenForTelemetryEvents(
-          telemetry
-        );
+        const telemetryEntry =
+          await browser.listenForTelemetryEvents(telemetry);
 
         // Set a query that we'll use.
         await browser.runFindOperation(
@@ -786,9 +784,8 @@ describe('Collection export', function () {
       });
 
       it('aborts an in progress CSV export when disconnected', async function () {
-        const telemetryEntry = await browser.listenForTelemetryEvents(
-          telemetry
-        );
+        const telemetryEntry =
+          await browser.listenForTelemetryEvents(telemetry);
 
         // Set a query that we'll use.
         await browser.runFindOperation(

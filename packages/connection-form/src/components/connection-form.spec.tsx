@@ -136,9 +136,8 @@ describe('ConnectionForm Component', function () {
           onSaveAndConnectClicked,
         });
 
-        expect(
-          screen.getByTestId('disabled-connected-connection-banner')
-        ).to.exist;
+        expect(screen.getByTestId('disabled-connected-connection-banner')).to
+          .exist;
         expect(screen.getByRole('button', { name: 'Disconnect' })).to.exist;
         expect(() =>
           screen.getByTestId('toggle-edit-connection-string')
@@ -336,9 +335,8 @@ describe('ConnectionForm Component', function () {
   context('protectConnectionStrings', function () {
     it('should not render the banner by default', function () {
       renderForm();
-      expect(
-        screen.queryByTestId('protect-connection-strings-banner')
-      ).to.be.null;
+      expect(screen.queryByTestId('protect-connection-strings-banner')).to.be
+        .null;
     });
 
     it('renders a banner if protectConnectionStrings === true', function () {

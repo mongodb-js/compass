@@ -277,7 +277,7 @@ function StagePreviewBody({
     const showScoreChips =
       enableSearchActivationProgramP2 && stageMetadata?.type === '$search';
     const docs = documents.map((doc, i) => {
-      const score = showScoreChips ? stageMetadata?.scores[i] ?? null : null;
+      const score = showScoreChips ? (stageMetadata?.scores[i] ?? null) : null;
       return (
         <KeylineCard key={i} className={documentContainerStyles}>
           {score !== null && (

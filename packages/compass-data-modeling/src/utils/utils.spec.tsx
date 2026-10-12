@@ -119,10 +119,8 @@ describe('dualSourceHandlerDebounce', function () {
     const handler = () => {
       invocationCount++;
     };
-    const [handler1, handler2] = dualSourceHandlerDebounce(
-      handler,
-      2,
-      () => timestamps.shift()!
+    const [handler1, handler2] = dualSourceHandlerDebounce(handler, 2, () =>
+      timestamps.shift()!
     );
     handler1();
     expect(invocationCount).to.equal(1);

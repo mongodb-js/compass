@@ -33,10 +33,6 @@ export const editableUrlOptions = [
     values: ['readConcernLevel'],
   },
   {
-    title: 'Read Preferences Options',
-    values: ['maxStalenessSeconds', 'readPreferenceTags'],
-  },
-  {
     title: 'Server Options',
     values: [
       'localThresholdMS',

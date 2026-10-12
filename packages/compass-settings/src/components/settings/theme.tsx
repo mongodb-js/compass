@@ -18,6 +18,9 @@ import type {
   THEMES,
 } from 'compass-preferences-model';
 import { settingStateLabels } from './state-labels';
+import SettingsList from './settings-list';
+
+const shellThemeFields = ['shellFollowsCompassTheme'] as const;
 
 type ThemeSettingsProps = {
   onChange: (field: 'theme', value: THEMES) => void;
@@ -157,6 +160,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           </RadioBox>
         </RadioBoxGroup>
       </FormFieldContainer>
+      <SettingsList fields={shellThemeFields} />
     </div>
   );
 };
@@ -170,5 +174,5 @@ const mapDispatch = {
   onChange: changeFieldValue,
 };
 
-export const themeFields = ['theme'] as const;
+export const themeFields = ['theme', ...shellThemeFields] as const;
 export default connect(mapState, mapDispatch)(ThemeSettings);

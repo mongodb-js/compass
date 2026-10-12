@@ -122,13 +122,13 @@ export const useRerankInsight = ({
       primaryActionButtonLabel: isSearchIndexesLoading
         ? undefined
         : hasSearchIndex
-        ? 'Add $search stage'
-        : 'Learn about search',
+          ? 'Add $search stage'
+          : 'Learn about search',
       ...(hasSearchIndex && !isSearchIndexesLoading
         ? { onPrimaryActionButtonClick: onAddSearchStageBeforeWithTracking }
         : !isSearchIndexesLoading
-        ? { onPrimaryActionButtonClick: onLearnAboutSearchWithTracking }
-        : {}),
+          ? { onPrimaryActionButtonClick: onLearnAboutSearchWithTracking }
+          : {}),
       onAssistantButtonClick: rawOnAssistantButtonClick
         ? onAssistantButtonClickWithTracking
         : undefined,

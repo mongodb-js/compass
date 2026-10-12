@@ -109,7 +109,13 @@ export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
 ) => {
-  const { version, enterprise } = DEFAULT_CONNECTIONS_SERVER_INFO[0];
+  const serverInfo = DEFAULT_CONNECTIONS_SERVER_INFO[0];
+  if (!serverInfo) {
+    throw new Error(
+      `Cannot check serverSatisfies('${semverCondition}'): MongoDB server info is not available`
+    );
+  }
+  const { version, enterprise } = serverInfo;
   return (
     semver.satisfies(version, semverCondition, {
       includePrerelease: true,
@@ -467,10 +473,9 @@ export class Compass {
     // coverage
     debug('Writing coverage');
     const coverage: Coverage = await this.browser.execute(async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const mainCoverage = await require('electron').ipcRenderer.invoke(
-        'coverage'
-      );
+      const mainCoverage =
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        await require('electron').ipcRenderer.invoke('coverage');
       return {
         main: JSON.stringify(mainCoverage, null, 4),
         renderer: JSON.stringify((window as any).__coverage__, null, 4),

@@ -59,9 +59,8 @@ describe('DiagramEditorToolbar', function () {
       const diagrams = screen.getByRole('button', { name: 'diagrams' });
       expect(diagrams).to.be.visible;
       userEvent.click(diagrams);
-      expect(
-        workspacesService.openDataModelingWorkspace
-      ).to.have.been.calledOnce;
+      expect(workspacesService.openDataModelingWorkspace).to.have.been
+        .calledOnce;
     });
 
     it('includes diagram name breadcrumb', function () {

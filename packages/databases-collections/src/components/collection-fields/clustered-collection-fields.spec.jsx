@@ -20,9 +20,8 @@ describe('ClusteredCollectionFields [Component]', function () {
       );
       // When expanded, there should be 2 text inputs (name and expireAfterSeconds)
       expect(screen.getByRole('textbox', { name: /name/i })).to.exist;
-      expect(
-        screen.getByRole('spinbutton', { name: /expireAfterSeconds/i })
-      ).to.exist;
+      expect(screen.getByRole('spinbutton', { name: /expireAfterSeconds/i })).to
+        .exist;
     });
   });
 
@@ -40,9 +39,8 @@ describe('ClusteredCollectionFields [Component]', function () {
       );
       // When collapsed, the text inputs should not be visible
       expect(screen.queryByRole('textbox', { name: /name/i })).to.not.exist;
-      expect(
-        screen.queryByRole('spinbutton', { name: /expireAfterSeconds/i })
-      ).to.not.exist;
+      expect(screen.queryByRole('spinbutton', { name: /expireAfterSeconds/i }))
+        .to.not.exist;
     });
 
     it('has the clustered checkbox enabled', function () {

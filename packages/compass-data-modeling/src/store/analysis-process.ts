@@ -38,10 +38,7 @@ type AnalyzedCollection = {
 };
 
 export type AnalysisStep =
-  | 'IDLE'
-  | 'SAMPLING'
-  | 'ANALYZING_SCHEMA'
-  | 'INFERRING_RELATIONSHIPS';
+  'IDLE' | 'SAMPLING' | 'ANALYZING_SCHEMA' | 'INFERRING_RELATIONSHIPS';
 
 export type AnalysisProcessState = {
   currentAnalysisOptions:

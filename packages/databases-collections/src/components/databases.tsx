@@ -70,6 +70,7 @@ type DatabasesProps = {
   databases: ReturnType<Database['toJSON']>[];
   databasesLoadingStatus: string;
   databasesLoadingError: string | null;
+  isRefreshing: boolean;
   isWritable: boolean;
   isGenuineMongoDB: boolean;
   isDataLake: boolean;
@@ -82,6 +83,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   databases,
   databasesLoadingStatus,
   databasesLoadingError,
+  isRefreshing,
   isWritable,
   isDataLake,
   isGenuineMongoDB,
@@ -190,6 +192,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   return (
     <DatabasesList
       databases={databases}
+      isRefreshing={isRefreshing}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}
       {...actions}
     />
@@ -201,6 +204,7 @@ const mapStateToProps = (state: DatabasesState) => {
     databases: state.databases,
     databasesLoadingStatus: state.databasesLoadingStatus.status,
     databasesLoadingError: state.databasesLoadingStatus.error,
+    isRefreshing: state.databasesLoadingStatus.status === 'refreshing',
     isWritable: state.instance.isWritable,
     isDataLake: state.instance.isDataLake,
     isGenuineMongoDB: state.instance.isGenuineMongoDB,

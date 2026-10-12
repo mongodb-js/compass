@@ -118,8 +118,8 @@ export class CompassAuthService {
   private static secretStore = new SecretStore();
 
   private static ipcMain:
-    | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
-    | undefined = ipcMain;
+    Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'> | undefined =
+    ipcMain;
 
   private static options: CompassAuthServiceOptions;
   private static config: AtlasServiceConfig;

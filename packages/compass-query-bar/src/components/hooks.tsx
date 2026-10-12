@@ -46,7 +46,7 @@ function selectLastAppliedQuery(
 ) {
   source ??= state.queryBar.lastAppliedQuery.source;
   return source
-    ? state.queryBar.lastAppliedQuery.query[source] ?? DEFAULT_QUERY
+    ? (state.queryBar.lastAppliedQuery.query[source] ?? DEFAULT_QUERY)
     : DEFAULT_QUERY;
 }
 

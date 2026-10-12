@@ -3,8 +3,7 @@ import type { processSchema } from '../../transform-schema-to-field-info';
 import type { PrimitiveSchemaType } from '@mongodb-js/mongodb-schema';
 
 type UserFriendlyFieldInfoNode =
-  | { [field: string]: UserFriendlyFieldInfoNode }
-  | PrimitiveSchemaType['name'];
+  { [field: string]: UserFriendlyFieldInfoNode } | PrimitiveSchemaType['name'];
 export type SimplifiedFieldInfoTree = {
   [field: string]: UserFriendlyFieldInfoNode;
 };

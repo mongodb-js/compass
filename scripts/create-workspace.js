@@ -372,8 +372,8 @@ module.exports = {
     isPlugin
       ? '@mongodb-js/mocha-config-compass/compass-plugin'
       : isReact
-      ? '@mongodb-js/mocha-config-compass/react'
-      : '@mongodb-js/mocha-config-compass'
+        ? '@mongodb-js/mocha-config-compass/react'
+        : '@mongodb-js/mocha-config-compass'
   }');`;
 
   const indexSrcDir = path.join(packagePath, 'src');

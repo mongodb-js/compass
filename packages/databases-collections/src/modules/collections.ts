@@ -27,7 +27,7 @@ export type CollectionsState = {
 
 export type CollectionsThunkAction<
   R,
-  A extends Action = AnyAction
+  A extends Action = AnyAction,
 > = ThunkAction<R, CollectionsState, CollectionsThunkExtraArg, A>;
 
 const INITIAL_STATE = {

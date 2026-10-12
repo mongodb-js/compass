@@ -32,7 +32,7 @@ export type ScopedId<Type extends UserDataType> =
 
 type ScopedArgs<
   Type extends UserDataType,
-  Rest extends unknown[]
+  Rest extends unknown[],
 > = Type extends UserScopedUserDataType ? Rest : [id: string, ...Rest];
 
 export function isUserScopedUserDataType(
@@ -81,7 +81,7 @@ export interface ReadAllResult<T extends z.Schema> {
 
 export abstract class IUserData<
   T extends z.Schema,
-  Type extends UserDataType = Exclude<UserDataType, UserScopedUserDataType>
+  Type extends UserDataType = Exclude<UserDataType, UserScopedUserDataType>,
 > {
   protected readonly validator: T;
   protected readonly dataType: UserDataType;
@@ -394,7 +394,7 @@ export type AtlasServiceLike = {
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
 export class AtlasUserData<
   T extends z.Schema,
-  Type extends UserDataType = UserDataType
+  Type extends UserDataType = UserDataType,
 > extends IUserData<T, Type> {
   private readonly atlasService: AtlasServiceLike;
   private orgId?: string;

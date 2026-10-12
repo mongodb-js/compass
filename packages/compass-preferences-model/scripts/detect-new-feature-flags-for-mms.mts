@@ -130,7 +130,7 @@ function extractFlags(source: string): Map<string, FlagInfo> {
           flags.set(name, {
             name,
             scope,
-            description: descObj ? getStringProp(descObj, 'short') ?? '' : '',
+            description: descObj ? (getStringProp(descObj, 'short') ?? '') : '',
           });
         }
         return;

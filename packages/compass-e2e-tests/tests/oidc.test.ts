@@ -401,9 +401,8 @@ describe('OIDC integration', function () {
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
-    const favoriteName = await browser.saveConnectionStringAsFavorite(
-      connectionString
-    );
+    const favoriteName =
+      await browser.saveConnectionStringAsFavorite(connectionString);
 
     await browser.selectConnection(favoriteName);
     await browser.doConnect(favoriteName);
@@ -424,9 +423,8 @@ describe('OIDC integration', function () {
     await browser.setFeature('persistOIDCTokens', false);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
-    const favoriteName = await browser.saveConnectionStringAsFavorite(
-      connectionString
-    );
+    const favoriteName =
+      await browser.saveConnectionStringAsFavorite(connectionString);
 
     await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
 
@@ -454,9 +452,8 @@ describe('OIDC integration', function () {
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
-    const favoriteName = await browser.saveConnectionStringAsFavorite(
-      connectionString
-    );
+    const favoriteName =
+      await browser.saveConnectionStringAsFavorite(connectionString);
 
     await browser.selectConnection(favoriteName);
     await browser.doConnect(favoriteName);

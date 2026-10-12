@@ -3,9 +3,9 @@ import type { SavedPipeline } from './pipeline-storage-schema';
 import type { PipelineStorageInterface } from './storage-interfaces';
 
 // Generic base class for pipeline storage that works with any IUserData implementation
-export class BaseCompassPipelineStorage<TSchema extends z.Schema>
-  implements PipelineStorageInterface
-{
+export class BaseCompassPipelineStorage<
+  TSchema extends z.Schema,
+> implements PipelineStorageInterface {
   private readonly userData: IUserData<TSchema>;
 
   constructor(userData: IUserData<TSchema>) {

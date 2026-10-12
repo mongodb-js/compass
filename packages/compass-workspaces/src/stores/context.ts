@@ -13,12 +13,12 @@ import {
 import type { configureStore } from '..';
 import type { Store } from 'redux';
 
-type WorkspacesStore = ReturnType<typeof configureStore> extends Store<
-  infer S,
-  infer A
-> & { dispatch: infer D }
-  ? { state: S; actions: A; dispatch: D }
-  : never;
+type WorkspacesStore =
+  ReturnType<typeof configureStore> extends Store<infer S, infer A> & {
+    dispatch: infer D;
+  }
+    ? { state: S; actions: A; dispatch: D }
+    : never;
 
 export const WorkspacesStoreContext = React.createContext<
   ReactReduxContextValue<WorkspacesStore['state']>

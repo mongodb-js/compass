@@ -234,7 +234,7 @@ export class AtlasGlobalWritesService {
           ({
             name: field,
             type: key[field] === 'hashed' ? 'HASHED' : 'RANGE',
-          } as const)
+          }) as const
       ),
       isUnique: !!unique,
     };

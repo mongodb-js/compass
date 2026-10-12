@@ -33,14 +33,14 @@ function getDepType(dependency, version, pkgJson) {
     pkgJson.devDependencies[dependency] === version
     ? DepTypes.Dev
     : pkgJson.peerDependencies &&
-      pkgJson.peerDependencies[dependency] === version
-    ? DepTypes.Peer
-    : pkgJson.optionalDependencies &&
-      pkgJson.optionalDependencies[dependency] === version
-    ? DepTypes.Optional
-    : pkgJson.dependencies && pkgJson.dependencies[dependency] === version
-    ? DepTypes.Prod
-    : null;
+        pkgJson.peerDependencies[dependency] === version
+      ? DepTypes.Peer
+      : pkgJson.optionalDependencies &&
+          pkgJson.optionalDependencies[dependency] === version
+        ? DepTypes.Optional
+        : pkgJson.dependencies && pkgJson.dependencies[dependency] === version
+          ? DepTypes.Prod
+          : null;
 }
 
 /**

@@ -130,7 +130,7 @@ type Services<S extends Record<string, () => unknown>> = {
 export type CompassPluginConfig<
   T,
   S extends Record<string, () => unknown>,
-  A extends Plugin
+  A extends Plugin,
 > = {
   name: string;
   component: React.JSXElementConstructor<React.PropsWithChildren<T>>;
@@ -181,7 +181,7 @@ const kLocator = Symbol('CompassServiceLocatorFunction');
  * be created with this method.
  */
 export function createServiceLocator<
-  T extends (this: any, ...args: any[]) => any
+  T extends (this: any, ...args: any[]) => any,
 >(fn: T, name = fn.name): T {
   return Object.assign(
     function (this: any, ...args: any[]) {
@@ -229,7 +229,7 @@ function isServiceLocator(val: any): boolean {
 function useCompassPluginActivate<
   T,
   S extends Record<string, () => unknown>,
-  A extends Plugin
+  A extends Plugin,
 >(
   config: CompassPluginConfig<T, S, A>,
   services: S | undefined,
@@ -309,7 +309,7 @@ function useCompassPluginActivate<
 export type CompassPluginComponent<
   T,
   S extends Record<string, () => unknown>,
-  A extends Plugin
+  A extends Plugin,
 > = React.FunctionComponent<React.PropsWithChildren<T>> & {
   displayName: string;
 
@@ -410,7 +410,7 @@ export type CompassPluginComponent<
 export function registerCompassPlugin<
   T,
   S extends Record<string, () => unknown>,
-  A extends Plugin
+  A extends Plugin,
 >(
   config: CompassPluginConfig<T, S, A>,
   services?: S

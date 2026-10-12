@@ -248,9 +248,8 @@ describe('FocusModeStagePreview', function () {
           { enableSearchActivationExperiment: true }
         );
 
-        expect(
-          screen.getByTestId('search-index-stale-results-banner')
-        ).to.exist;
+        expect(screen.getByTestId('search-index-stale-results-banner')).to
+          .exist;
       });
 
       it('should show stale results banner for $vectorSearch', async function () {
@@ -266,9 +265,8 @@ describe('FocusModeStagePreview', function () {
           { enableSearchActivationExperiment: true }
         );
 
-        expect(
-          screen.getByTestId('search-index-stale-results-banner')
-        ).to.exist;
+        expect(screen.getByTestId('search-index-stale-results-banner')).to
+          .exist;
       });
 
       it('should NOT show stale results banner when showSearchIndexStaleResultsBanner is false', async function () {
@@ -279,9 +277,8 @@ describe('FocusModeStagePreview', function () {
           searchIndexName: 'test-index',
         });
 
-        expect(
-          screen.queryByTestId('search-index-stale-results-banner')
-        ).to.not.exist;
+        expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+          .exist;
       });
 
       it('should NOT show stale results banner when there are no documents', async function () {
@@ -292,9 +289,8 @@ describe('FocusModeStagePreview', function () {
           searchIndexName: 'test-index',
         });
 
-        expect(
-          screen.queryByTestId('search-index-stale-results-banner')
-        ).to.not.exist;
+        expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+          .exist;
       });
 
       it('should NOT show stale results banner for non-search stages', async function () {
@@ -310,9 +306,8 @@ describe('FocusModeStagePreview', function () {
           { enableSearchActivationExperiment: true }
         );
 
-        expect(
-          screen.queryByTestId('search-index-stale-results-banner')
-        ).to.not.exist;
+        expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+          .exist;
       });
 
       it('should NOT show stale results banner when experiment is not in variant', async function () {
@@ -323,9 +318,8 @@ describe('FocusModeStagePreview', function () {
           searchIndexName: 'test-index',
         });
 
-        expect(
-          screen.queryByTestId('search-index-stale-results-banner')
-        ).to.not.exist;
+        expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+          .exist;
       });
     });
   });

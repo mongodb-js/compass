@@ -2,10 +2,73 @@ import http from 'http';
 import { once } from 'events';
 import type { AddressInfo } from 'net';
 
-export type MockAssistantResponse = {
-  status: number;
-  body: string;
-};
+export type MockAssistantResponse = (
+  | { status: number; body: string; toolCall?: never }
+  | {
+      status: 200;
+      toolCall: { name: string; arguments: Record<string, unknown> };
+      body?: never;
+    }
+) & { waitFor?: Promise<void> };
+
+function sendToolCallResponse(
+  res: http.ServerResponse,
+  toolCall: NonNullable<MockAssistantResponse['toolCall']>
+) {
+  res.writeHead(200, { 'Content-Type': 'text/event-stream; charset=utf-8' });
+  const responseId = `resp_${Date.now()}`;
+  const item = {
+    type: 'function_call',
+    id: `item_${Date.now()}`,
+    call_id: `call_${Date.now()}`,
+    name: toolCall.name,
+    arguments: JSON.stringify(toolCall.arguments),
+    status: 'completed',
+  };
+  const events = [
+    {
+      type: 'response.created',
+      response: {
+        id: responseId,
+        object: 'response',
+        status: 'in_progress',
+        output: [],
+      },
+    },
+    {
+      type: 'response.output_item.added',
+      output_index: 0,
+      item: { ...item, arguments: '', status: 'in_progress' },
+    },
+    {
+      type: 'response.function_call_arguments.delta',
+      item_id: item.id,
+      output_index: 0,
+      delta: item.arguments,
+    },
+    {
+      type: 'response.function_call_arguments.done',
+      item_id: item.id,
+      output_index: 0,
+      arguments: item.arguments,
+    },
+    { type: 'response.output_item.done', output_index: 0, item },
+    {
+      type: 'response.completed',
+      response: {
+        id: responseId,
+        object: 'response',
+        status: 'completed',
+        output: [item],
+        usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
+      },
+    },
+  ];
+  for (const [sequence_number, event] of events.entries()) {
+    res.write(`data: ${JSON.stringify({ ...event, sequence_number })}\n\n`);
+  }
+  res.end('data: [DONE]\n\n');
+}
 
 function sendStreamingResponse(res: http.ServerResponse, content: string) {
   // OpenAI Responses API streaming response format using Server-Sent Events
@@ -212,14 +275,21 @@ export async function startMockAssistantServer(
             content: jsonObject,
           });
 
-          if (response.status !== 200) {
-            res.setHeader('Content-Type', 'application/json');
-            res.writeHead(response.status);
-            return res.end(JSON.stringify({ error: response.body }));
-          }
-
-          // Send streaming response
-          return sendStreamingResponse(res, response.body);
+          const currentResponse = response;
+          void Promise.resolve(currentResponse.waitFor)
+            .then(() => {
+              if (res.destroyed) return;
+              if (currentResponse.status !== 200) {
+                res.setHeader('Content-Type', 'application/json');
+                res.writeHead(currentResponse.status);
+                res.end(JSON.stringify({ error: currentResponse.body }));
+              } else if (currentResponse.toolCall) {
+                sendToolCallResponse(res, currentResponse.toolCall);
+              } else {
+                sendStreamingResponse(res, currentResponse.body);
+              }
+            })
+            .catch((error: Error) => res.destroy(error));
         });
     })
     .listen(0);
@@ -232,6 +302,7 @@ export async function startMockAssistantServer(
 
   async function stop() {
     server.close();
+    server.closeAllConnections();
     await once(server, 'close');
   }
 

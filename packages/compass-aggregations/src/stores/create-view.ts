@@ -32,7 +32,7 @@ export type CreateViewRootState = ReturnType<
 
 export type CreateViewThunkAction<
   R,
-  A extends Action = CreateViewAction
+  A extends Action = CreateViewAction,
 > = ThunkAction<R, CreateViewRootState, CreateViewServices, A>;
 
 type OpenCreateViewEventParams = {

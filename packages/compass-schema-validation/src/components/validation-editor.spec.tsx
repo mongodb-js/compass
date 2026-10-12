@@ -82,9 +82,8 @@ describe('ValidationEditor [Component]', function () {
 
     it('allows to edit the editor', function () {
       expect(screen.getByRole('textbox').ariaReadOnly).to.eq(null);
-      expect(
-        screen.queryByTestId('enable-edit-validation-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('enable-edit-validation-button')).to.not
+        .exist;
     });
   });
 
@@ -97,9 +96,8 @@ describe('ValidationEditor [Component]', function () {
 
     it('sets editor into readonly mode', function () {
       expect(screen.getByRole('textbox').ariaReadOnly).to.eq('true');
-      expect(
-        screen.queryByTestId('enable-edit-validation-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('enable-edit-validation-button')).to.not
+        .exist;
     });
   });
 
@@ -251,15 +249,13 @@ describe('ValidationEditor [Component]', function () {
         serverVersion: '6.0.0',
       });
 
-      expect(
-        screen.queryByTestId('validation-action-error-and-log-option')
-      ).is.null;
+      expect(screen.queryByTestId('validation-action-error-and-log-option')).is
+        .null;
 
       userEvent.click(screen.getByTestId('validation-action-selector'));
 
-      expect(
-        screen.queryByTestId('validation-action-option-error-and-log')
-      ).is.null;
+      expect(screen.queryByTestId('validation-action-option-error-and-log')).is
+        .null;
     });
 
     it('should be visible for server version >=8.1', async function () {
@@ -267,15 +263,13 @@ describe('ValidationEditor [Component]', function () {
         serverVersion: '8.1.0',
       });
 
-      expect(
-        screen.queryByTestId('validation-action-error-and-log-option')
-      ).is.null;
+      expect(screen.queryByTestId('validation-action-error-and-log-option')).is
+        .null;
 
       userEvent.click(screen.getByTestId('validation-action-selector'));
 
-      expect(
-        screen.queryByTestId('validation-action-option-error-and-log')
-      ).is.not.null;
+      expect(screen.queryByTestId('validation-action-option-error-and-log')).is
+        .not.null;
     });
   });
 });

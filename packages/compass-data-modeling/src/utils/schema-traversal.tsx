@@ -195,8 +195,7 @@ type ExistingFieldOperationParameters =
     };
 
 type UpdateOperationParameters =
-  | NewFieldOperationParameters
-  | ExistingFieldOperationParameters;
+  NewFieldOperationParameters | ExistingFieldOperationParameters;
 
 type BulkUpdateOperationParameters = {
   updateFn: ({

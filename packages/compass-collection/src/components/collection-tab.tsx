@@ -28,11 +28,12 @@ import {
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { isMockDataGeneratorEligible as isMockDataGeneratorEligiblePredicate } from '../mock-data-generator-eligibility';
 
-type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
-  ? U extends string
-    ? ReplaceSpacesWithUnderscores<U>
-    : never
-  : never;
+type CollectionSubtabTrackingId =
+  Lowercase<CollectionSubtab> extends infer U
+    ? U extends string
+      ? ReplaceSpacesWithUnderscores<U>
+      : never
+    : never;
 
 type ReplaceSpacesWithUnderscores<S extends string> =
   S extends `${infer Head} ${infer Tail}`

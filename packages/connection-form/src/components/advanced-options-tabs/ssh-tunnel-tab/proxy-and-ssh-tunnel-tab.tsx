@@ -172,8 +172,8 @@ function ProxyAndSshTunnelTab({
             oldType === 'socks'
               ? 'remove-proxy-options-and-app-proxy'
               : oldType === 'app-proxy'
-              ? 'remove-app-proxy'
-              : 'remove-ssh-options-and-app-proxy';
+                ? 'remove-app-proxy'
+                : 'remove-ssh-options-and-app-proxy';
           break;
       }
       updateConnectionFormField({ type });

@@ -84,16 +84,14 @@ describe('StageToolbar', function () {
   context('View token usage link', function () {
     it('does not render when stage is not $rerank', async function () {
       await renderStageToolbar([{ $match: { _id: 1 } }]);
-      expect(
-        screen.queryByTestId('stage-toolbar-view-token-usage-link')
-      ).to.not.exist;
+      expect(screen.queryByTestId('stage-toolbar-view-token-usage-link')).to.not
+        .exist;
     });
 
     it('renders when stage is $rerank', async function () {
       await renderStageToolbar([{ $rerank: {} }]);
-      expect(
-        screen.getByTestId('stage-toolbar-view-token-usage-link')
-      ).to.exist;
+      expect(screen.getByTestId('stage-toolbar-view-token-usage-link')).to
+        .exist;
       expect(screen.getByText('View $rerank Usage and Rate Limits')).to.exist;
     });
   });
@@ -101,17 +99,15 @@ describe('StageToolbar', function () {
   context('View Indexes button', function () {
     it('does not render when experiment is not in variant', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
-      expect(
-        screen.queryByTestId('stage-toolbar-view-indexes-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('stage-toolbar-view-indexes-button')).to.not
+        .exist;
     });
     it('does not render when stage is not a search stage', async function () {
       await renderStageToolbar([{ $match: { _id: 1 } }], undefined, {
         enableSearchActivationExperiment: true,
       });
-      expect(
-        screen.queryByTestId('stage-toolbar-view-indexes-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('stage-toolbar-view-indexes-button')).to.not
+        .exist;
     });
     it('renders when experiment is in variant and stage is $search', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }], undefined, {

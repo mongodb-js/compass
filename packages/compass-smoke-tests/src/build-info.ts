@@ -18,7 +18,7 @@ export type Channel = (typeof SUPPORTED_CHANNELS)[number];
 
 function assertObjectHasKeys<
   Keys extends readonly string[],
-  Obj extends Record<Keys[number], unknown>
+  Obj extends Record<Keys[number], unknown>,
 >(obj: unknown, name: string, keys: Keys): asserts obj is Obj {
   assert(
     typeof obj === 'object' && obj !== null,

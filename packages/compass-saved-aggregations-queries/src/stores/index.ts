@@ -78,7 +78,7 @@ type SavedQueryAggregationExtraArgs = Omit<
 
 export type SavedQueryAggregationThunkAction<
   R,
-  A extends Action = AnyAction
+  A extends Action = AnyAction,
 > = ThunkAction<R, RootState, SavedQueryAggregationExtraArgs, A>;
 
 type SavedQueryAggregationPluginProps = {

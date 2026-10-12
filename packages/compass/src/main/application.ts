@@ -547,8 +547,7 @@ class CompassApplication {
           Object.entries(
             // Types are not matching documentation
             (details.responseHeaders as
-              | Record<string, string | string[]>
-              | undefined) ?? {}
+              Record<string, string | string[]> | undefined) ?? {}
           ).filter(([name]) => {
             return !RESPONSE_CORS_HEADERS.includes(name.toLowerCase());
           })

@@ -285,8 +285,8 @@ export const buildAnalyzeOutputPrompt = ({
     docCount > 2
       ? 'Analyze the top 3 results after $search stage.'
       : docCount === 2
-      ? 'Analyze these 2 results after $search stage.'
-      : 'Analyze this result after $search stage.';
+        ? 'Analyze these 2 results after $search stage.'
+        : 'Analyze this result after $search stage.';
 
   return {
     prompt: `<goal>

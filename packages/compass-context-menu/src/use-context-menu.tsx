@@ -19,7 +19,7 @@ export type ContextMenuMethods<T extends ContextMenuItem> = {
 };
 
 export function useContextMenu<
-  T extends ContextMenuItem = ContextMenuItem
+  T extends ContextMenuItem = ContextMenuItem,
 >(): ContextMenuMethods<T> {
   const context = useContext(ContextMenuContext);
   const previous = useRef<null | [HTMLElement, (event: MouseEvent) => void]>(

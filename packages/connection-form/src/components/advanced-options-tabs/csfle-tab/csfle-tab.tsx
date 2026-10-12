@@ -149,14 +149,17 @@ function CSFLETab({
   const kmsProviders = useMemo(() => {
     return Object.keys(
       connectionOptions.fleOptions?.autoEncryption?.kmsProviders ?? {}
-    ).reduce((acc, kmsProvider) => {
-      const type = kmsProvider.split(':')[0] as KMSProviderType;
-      if (!acc[type]) {
-        acc[type] = [];
-      }
-      acc[type].push(kmsProvider as KMSProviderName<KMSProviderType>);
-      return acc;
-    }, {} as Partial<Record<KMSProviderType, KMSProviderName<KMSProviderType>[]>>);
+    ).reduce(
+      (acc, kmsProvider) => {
+        const type = kmsProvider.split(':')[0] as KMSProviderType;
+        if (!acc[type]) {
+          acc[type] = [];
+        }
+        acc[type].push(kmsProvider as KMSProviderName<KMSProviderType>);
+        return acc;
+      },
+      {} as Partial<Record<KMSProviderType, KMSProviderName<KMSProviderType>[]>>
+    );
   }, [connectionOptions.fleOptions?.autoEncryption?.kmsProviders]);
 
   return (

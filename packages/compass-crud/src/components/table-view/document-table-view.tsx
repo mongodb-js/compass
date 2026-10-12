@@ -178,7 +178,14 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   }
 
   componentDidUpdate(prevProps: DocumentTableViewProps) {
-    this.handleBreadcrumbChange();
+    // Rebuilding row data remounts footer rows, which drops their local status
+    // (e.g. a just-received update error), so only do it when inputs change.
+    if (
+      this.props.table !== prevProps.table ||
+      this.props.docs !== prevProps.docs
+    ) {
+      this.handleBreadcrumbChange();
+    }
 
     // @note: Durran: Since all the values are getting passed down as props now
     //   and the components are decoupled from the stores, we need a way to know

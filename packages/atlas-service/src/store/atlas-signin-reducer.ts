@@ -44,7 +44,7 @@ export type SignInAttemptResult =
 
 export type AtlasSignInThunkAction<
   R,
-  A extends AnyAction = AnyAction
+  A extends AnyAction = AnyAction,
 > = ThunkAction<
   R,
   AtlasSignInState,

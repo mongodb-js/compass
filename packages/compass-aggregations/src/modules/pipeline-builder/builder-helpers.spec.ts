@@ -3,7 +3,9 @@ import {
   getPipelineStageOperatorsFromBuilderState,
   getIsRerankFirstStage,
   getIsRerankFirstStageBannerVisible,
+  getIsNewPipelineFromBuilderState,
 } from './builder-helpers';
+import { SAVING_PIPELINE_APPLY } from '../saving-pipeline';
 import {
   addStage,
   changeStageDisabled,
@@ -162,6 +164,55 @@ describe('builder-helpers', function () {
         });
         expect(getIsRerankFirstStageBannerVisible(store.getState())).to.equal(
           true
+        );
+      });
+    });
+  });
+
+  describe('getIsNewPipelineFromBuilderState', function () {
+    it('returns true for an empty, unmodified pipeline', async function () {
+      const store = await createStore('[]');
+      expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(true);
+    });
+
+    it('returns false once a stage is added', async function () {
+      const store = await createStore('[]');
+      store.dispatch(addStage());
+      expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+        false
+      );
+    });
+
+    it('returns false when the pipeline has stages but was not modified', async function () {
+      const store = await createStore('[{ $match: { _id: 1 } }]');
+      expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+        false
+      );
+    });
+
+    it('returns false when an unmodified empty pipeline has a name', async function () {
+      const store = await createStore('[]');
+      store.dispatch({ type: SAVING_PIPELINE_APPLY, name: 'test agg' });
+      expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+        false
+      );
+    });
+
+    describe('in text editor mode', function () {
+      it('returns true for an empty pipeline text', async function () {
+        const store = await createStore('[]');
+        store.dispatch(changePipelineMode('as-text'));
+        expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+          true
+        );
+      });
+
+      it('returns false once the editor value changes', async function () {
+        const store = await createStore('[]');
+        store.dispatch(changePipelineMode('as-text'));
+        store.dispatch(changeEditorValue('[{ $match: { _id: 1 } }]'));
+        expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+          false
         );
       });
     });

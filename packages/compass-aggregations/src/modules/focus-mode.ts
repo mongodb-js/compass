@@ -24,9 +24,7 @@ type SelectFocusModeStageAction = {
 };
 
 export type FocusModeAction =
-  | FocusModeEnabledAction
-  | FocusModeDisabledAction
-  | SelectFocusModeStageAction;
+  FocusModeEnabledAction | FocusModeDisabledAction | SelectFocusModeStageAction;
 export type FocusModeState = {
   isEnabled: boolean;
   stageIndex: number;

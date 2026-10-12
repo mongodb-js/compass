@@ -26,8 +26,7 @@ export interface SavedPipelineAddAction {
 }
 export type RestorePipelineAction = ReturnType<typeof restorePipeline>;
 export type SavedPipelineAction =
-  | SavedPipelineAddAction
-  | RestorePipelineAction;
+  SavedPipelineAddAction | RestorePipelineAction;
 
 export type SavedPipelineState = {
   pipelines: SavedPipeline[];

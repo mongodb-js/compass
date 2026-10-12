@@ -36,7 +36,7 @@ describe('PipelineParser Utils', function () {
     };
 
     type ParsedPipeline = [
-      { $match: { $where: { code: string; scope?: Record<string, string> } } }
+      { $match: { $where: { code: string; scope?: Record<string, string> } } },
     ];
 
     const payloads = [
