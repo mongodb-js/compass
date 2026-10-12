@@ -1100,6 +1100,70 @@ describe('CompassAssistantProvider', function () {
         });
       });
 
+      describe('thread id sent to the assistant API', function () {
+        let chat: Chat<AssistantMessage>;
+        let fetchStub: sinon.SinonStub;
+
+        beforeEach(function () {
+          chat = createDefaultChat({
+            originForPrompt: 'foo',
+            appNameForPrompt: 'bar',
+            atlasService: {
+              assistantApiEndpoint: () =>
+                'https://example.com/assistant/api/v1',
+            } as unknown as AtlasService,
+            logger: createNoopLogger(),
+            track: () => undefined,
+          });
+          fetchStub = sinon
+            .stub(globalThis, 'fetch')
+            .resolves({ ok: true, headers: [] } as any);
+        });
+
+        afterEach(function () {
+          fetchStub.restore();
+        });
+
+        const threadIdOfCall = (call: sinon.SinonSpyCall) =>
+          new Headers(call.args[1].headers).get('X-Client-Thread-Id');
+
+        async function confirmClearChat() {
+          userEvent.click(screen.getByTestId('assistant-clear-chat'));
+          const modal = await screen.findByTestId(
+            'assistant-confirm-clear-chat-modal'
+          );
+          userEvent.click(within(modal).getByText('Clear chat'));
+          await waitFor(() => {
+            expect(chat.messages).to.be.empty;
+          });
+        }
+
+        it('changes after the chat is cleared', async function () {
+          await chat.sendMessage({ text: 'first' });
+          const initialThreadId = threadIdOfCall(fetchStub.firstCall);
+          expect(initialThreadId).to.be.a('string').and.not.be.empty;
+
+          await renderOpenAssistantDrawer({ chat });
+          await confirmClearChat();
+
+          await chat.sendMessage({ text: 'second' });
+          expect(fetchStub).to.have.been.calledTwice;
+          const newThreadId = threadIdOfCall(fetchStub.secondCall);
+          expect(newThreadId).to.be.a('string').and.not.be.empty;
+          expect(newThreadId).to.not.equal(initialThreadId);
+        });
+
+        it('stays the same across messages when the chat is not cleared', async function () {
+          await chat.sendMessage({ text: 'first' });
+          await chat.sendMessage({ text: 'second' });
+
+          expect(fetchStub).to.have.been.calledTwice;
+          expect(threadIdOfCall(fetchStub.secondCall)).to.equal(
+            threadIdOfCall(fetchStub.firstCall)
+          );
+        });
+      });
+
       it('does not clear the chat when the user clicks the button and cancels', async function () {
         const mockChat = createMockChat({ messages: mockMessages });
 

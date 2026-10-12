@@ -6,6 +6,7 @@ import {
   convertToModelMessages,
   streamText,
 } from 'ai';
+import { UUID } from 'bson';
 import type { AssistantMessage } from './compass-assistant-provider';
 
 /** Returns true if the message should be excluded from being sent to the assistant API. */
@@ -21,6 +22,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
   private origin: string;
   private getTools: () => ToolSet;
   private instructions: string;
+  private thread?: { chatId: string; threadId: string };
 
   constructor({
     model,
@@ -45,7 +47,15 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     },
   });
 
+  private getThreadId(chatId: string) {
+    if (this.thread?.chatId !== chatId) {
+      this.thread = { chatId, threadId: new UUID().toString() };
+    }
+    return this.thread.threadId;
+  }
+
   async sendMessages({
+    chatId,
     messages,
     abortSignal,
   }: Parameters<ChatTransport<AssistantMessage>['sendMessages']>[0]) {
@@ -118,6 +128,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       headers: {
         'X-Request-Origin': this.origin,
         'X-Client-Request-Id': lastMessage.metadata?.requestId ?? '',
+        'X-Client-Thread-Id': this.getThreadId(chatId),
       },
       tools: this.getTools(),
       providerOptions: {

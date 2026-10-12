@@ -9,6 +9,9 @@ import { MockLanguageModelV3 } from 'ai/test';
 import type { UIMessageChunk } from 'ai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 describe('DocsProviderTransport', function () {
   describe('shouldExcludeMessage', function () {
     it('returns false for messages without confirmation metadata', function () {
@@ -215,6 +218,7 @@ describe('DocsProviderTransport', function () {
           expect(callArgs.headers).to.deep.include({
             'X-Client-Request-Id': 'test-request-id',
           });
+          expect(callArgs.headers['X-Client-Thread-Id']).to.match(UUID_REGEX);
           expect(callArgs.providerOptions.openai).to.deep.include({
             store: false, // always false
             metadata: {
@@ -257,6 +261,35 @@ describe('DocsProviderTransport', function () {
             },
           });
         });
+      });
+    });
+
+    describe('X-Client-Thread-Id header', function () {
+      const messages: AssistantMessage[] = [
+        { id: 'm1', role: 'user', parts: [{ type: 'text', text: 'Hi' }] },
+      ];
+
+      async function threadIdFor(chatId: string) {
+        const callCount = doStream.callCount;
+        await sendMessages({ chatId, messages });
+        await waitFor(() => {
+          expect(doStream.callCount).to.equal(callCount + 1);
+        });
+        return doStream.lastCall.args[0].headers['X-Client-Thread-Id'];
+      }
+
+      it('stays the same while the chat id is unchanged', async function () {
+        const first = await threadIdFor('chat-1');
+        const second = await threadIdFor('chat-1');
+        expect(first).to.match(UUID_REGEX);
+        expect(second).to.equal(first);
+      });
+
+      it('changes when the chat id changes', async function () {
+        const first = await threadIdFor('chat-1');
+        const second = await threadIdFor('chat-2');
+        expect(second).to.match(UUID_REGEX);
+        expect(second).to.not.equal(first);
       });
     });
 
