@@ -1,14 +1,3 @@
-import {
-  DEFAULT_FILTER,
-  DEFAULT_SORT,
-  DEFAULT_LIMIT,
-  DEFAULT_SKIP,
-  DEFAULT_PROJECT,
-  DEFAULT_COLLATION,
-  DEFAULT_MAX_TIME_MS,
-  DEFAULT_HINT,
-} from 'mongodb-query-parser';
-
 /**
  * Default values for the query bar form inputs
  */
@@ -27,14 +16,14 @@ const DEFAULT_FIELD_VALUES = {
  * Default values as will be returned from query parser during validation
  */
 const DEFAULT_QUERY_VALUES = {
-  filter: DEFAULT_FILTER,
-  project: DEFAULT_PROJECT,
-  collation: DEFAULT_COLLATION,
-  sort: DEFAULT_SORT,
-  hint: DEFAULT_HINT,
-  skip: DEFAULT_SKIP,
-  limit: DEFAULT_LIMIT,
-  maxTimeMS: DEFAULT_MAX_TIME_MS,
+  filter: {},
+  project: null,
+  collation: null,
+  sort: null,
+  hint: null,
+  skip: 0,
+  limit: 0,
+  maxTimeMS: 60000,
 } as const;
 
 export { DEFAULT_FIELD_VALUES, DEFAULT_QUERY_VALUES };
