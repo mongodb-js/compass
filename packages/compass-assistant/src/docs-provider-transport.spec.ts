@@ -261,7 +261,6 @@ describe('DocsProviderTransport', function () {
       });
     });
 
-    // We currently do not support reconnecting to streams but we may want to in the future
     describe('skills', function () {
       // Trimmed version of what the knowledge service streams when it uses skills
       const sseEvent = (data: Record<string, unknown>) =>
@@ -351,6 +350,12 @@ describe('DocsProviderTransport', function () {
         }),
       ].join('');
 
+      const requestBodies: string[] = [];
+
+      beforeEach(function () {
+        requestBodies.length = 0;
+      });
+
       async function getAssistantMessage(
         messages: AssistantMessage[],
         stream = skillsStream
@@ -366,12 +371,14 @@ describe('DocsProviderTransport', function () {
           model: createOpenAI({
             apiKey: '',
             baseURL: 'http://example.com',
-            fetch: () =>
-              Promise.resolve(
+            fetch: (_url, init) => {
+              requestBodies.push(String(init?.body));
+              return Promise.resolve(
                 new Response(stream, {
                   headers: { 'content-type': 'text/event-stream' },
                 })
-              ),
+              );
+            },
           }).responses('test-model'),
         });
         const uiStream = await skillsTransport.sendMessages({
@@ -414,7 +421,19 @@ describe('DocsProviderTransport', function () {
         ]);
         expect(message?.parts.map((part) => part.type)).to.deep.equal([
           'step-start',
+          'reasoning',
+          'reasoning',
+          'reasoning',
           'text',
+        ]);
+        expect(
+          message?.parts.flatMap((part) =>
+            part.type === 'reasoning' ? [part.text] : []
+          )
+        ).to.deep.equal([
+          'Using skill: mongodb-schema-design',
+          'Using skill: mongodb-query-optimizer',
+          'Using skill: mongodb-schema-design',
         ]);
       });
 
@@ -429,8 +448,12 @@ describe('DocsProviderTransport', function () {
           ],
           toolCallStream
         );
-        expect(message?.parts).to.have.lengthOf(2);
-        expect(message?.parts[1]).to.include({
+        expect(message?.parts.map((part) => part.type)).to.deep.equal([
+          'step-start',
+          'reasoning',
+          'tool-list-databases',
+        ]);
+        expect(message?.parts[2]).to.include({
           type: 'tool-list-databases',
           toolCallId: 'call_2',
           state: 'input-available',
@@ -460,8 +483,85 @@ describe('DocsProviderTransport', function () {
           'mongodb-query-optimizer',
         ]);
       });
+
+      it('ignores skill calls without a skill name', async function () {
+        const noNameCall = {
+          ...skillCall('call_1', 'unused'),
+          arguments: '{}',
+        };
+        const message = await getAssistantMessage(
+          [
+            {
+              id: 'user',
+              role: 'user',
+              parts: [{ type: 'text', text: 'Model blog posts' }],
+            },
+          ],
+          [
+            sseEvent({ type: 'response.created', response }),
+            sseEvent({
+              type: 'response.output_item.added',
+              output_index: 0,
+              item: { ...noNameCall, status: 'in_progress' },
+            }),
+            sseEvent({
+              type: 'response.output_item.done',
+              output_index: 0,
+              item: { ...noNameCall, status: 'completed' },
+            }),
+            sseEvent({
+              type: 'response.output_item.added',
+              output_index: 1,
+              item: { type: 'message', id: 'msg_1' },
+            }),
+            sseEvent({ type: 'response.output_text.delta', item_id: 'msg_1' }),
+          ].join('')
+        );
+        expect(message?.parts.map((part) => part.type)).to.deep.equal([
+          'step-start',
+          'text',
+        ]);
+        expect(message?.metadata?.skillsUsed).to.equal(undefined);
+      });
+
+      it('does not send the skill reasoning parts back to the server', async function () {
+        const warn = sinon.stub(console, 'warn');
+        try {
+          await getAssistantMessage([
+            {
+              id: 'user',
+              role: 'user',
+              parts: [{ type: 'text', text: 'Model blog posts' }],
+            },
+            {
+              id: 'assistant',
+              role: 'assistant',
+              parts: [
+                {
+                  type: 'reasoning',
+                  text: 'Using skill: mongodb-schema-design',
+                },
+                {
+                  type: 'reasoning',
+                  text: 'Real reasoning',
+                  providerMetadata: { openai: { itemId: 'rs_1' } },
+                },
+                { type: 'text', text: 'Listing databases' },
+              ],
+            },
+          ]);
+          const { input } = JSON.parse(requestBodies[0]);
+          expect(JSON.stringify(input)).to.not.include('Using skill:');
+          expect(JSON.stringify(input)).to.include('rs_1');
+          // The converter warns when it has to skip a reasoning part
+          expect(warn).to.not.have.been.called;
+        } finally {
+          warn.restore();
+        }
+      });
     });
 
+    // We currently do not support reconnecting to streams but we may want to in the future
     describe('reconnectToStream', function () {
       it('always returns null', async function () {
         const result = await transport.reconnectToStream();

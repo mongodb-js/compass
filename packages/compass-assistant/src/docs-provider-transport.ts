@@ -166,7 +166,12 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     // convert the content to an item reference and will keep the full message content.
     const finalMessages = modelMessages.map((msg) => {
       if (msg.role === 'assistant' && Array.isArray(msg.content)) {
-        const content = msg.content;
+        // Reasoning parts without an itemId are the synthetic ones we emit for
+        // skills; the OpenAI converter would skip them with a console warning.
+        const content = msg.content.filter(
+          (part) =>
+            part.type !== 'reasoning' || part.providerOptions?.openai?.itemId
+        );
         return {
           ...msg,
           content: content.map((part) => {
