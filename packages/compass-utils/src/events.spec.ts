@@ -100,6 +100,20 @@ describe('events', function () {
       expect(await next).to.equal('got 2');
     });
 
+    it('resolves with the first match when matches are emitted synchronously', async function () {
+      const emitter = new EventEmitter();
+      const picks: number[] = [];
+      const next = waitUntil(emitter, 'n', (n: number) => {
+        picks.push(n);
+        return n;
+      });
+      emitter.emit('n', 1);
+      emitter.emit('n', 2);
+      expect(await next).to.equal(1);
+      expect(picks).to.deep.equal([1]);
+      expect(emitter.listenerCount('n')).to.equal(0);
+    });
+
     it('rejects when pick throws', async function () {
       const emitter = new EventEmitter();
       const next = waitUntil(emitter, 'n', () => {

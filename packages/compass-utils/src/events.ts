@@ -63,27 +63,33 @@ export async function onceEvent<Args extends unknown[]>(
     throw signal.reason;
   }
   const { promise, resolve, reject } = Promise.withResolvers<Args>();
-  const listening = [
-    listen(
-      target,
-      event,
-      (...args: Args) => {
-        try {
-          if (!filter || filter(...args)) resolve(args);
-        } catch (error) {
-          reject(error);
-        }
-      },
-      // A filtered listener has to stay until an event passes the filter
-      { once: !filter }
-    ),
-  ];
-  if (signal) {
-    listening.push(listen(signal, 'abort', () => reject(signal.reason)));
-  }
-  return await promise.finally(() => {
+  const listening: Disposable[] = [];
+  let settled = false;
+  // Settle and remove the listeners synchronously, inside the listener that
+  // decided the outcome: an emitter can emit again before any promise
+  // callback runs, and the filter must not see those events.
+  const settle = (outcome: () => void) => {
+    if (settled) return;
+    settled = true;
     for (const listener of listening) listener[Symbol.dispose]();
-  });
+    outcome();
+  };
+  listening.push(
+    listen(target, event, (...args: Args) => {
+      if (settled) return;
+      try {
+        if (!filter || filter(...args)) settle(() => resolve(args));
+      } catch (error) {
+        settle(() => reject(error));
+      }
+    })
+  );
+  if (signal) {
+    listening.push(
+      listen(signal, 'abort', () => settle(() => reject(signal.reason)))
+    );
+  }
+  return await promise;
 }
 
 /**
