@@ -33,7 +33,7 @@ const IndexStatsNodeBanner = () => {
       data-testid="index-stats-node-banner"
     >
       <Icon glyph="ImportantWithCircle" size="small" />
-      IndexStats are based off only the current connected node
+      IndexStats are based off only the currently connected node
     </Body>
   );
 };

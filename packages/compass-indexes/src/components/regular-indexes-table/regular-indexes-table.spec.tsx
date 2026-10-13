@@ -196,6 +196,7 @@ const indexFields = [
   'indexes-type-field',
   'indexes-size-field',
   'indexes-usageCount-field',
+  'indexes-usageRate-field',
   'indexes-properties-field',
   'indexes-actions-field',
 ];
@@ -378,6 +379,56 @@ describe('RegularIndexesTable Component', function () {
     expect(within(indexRow).getByTestId('index-building')).to.exist;
   });
 
+  describe('average rate of usage column', function () {
+    function getUsageRate(indexName: string) {
+      return within(screen.getByTestId(`indexes-row-${indexName}`))
+        .getByTestId('indexes-usageRate-field')
+        .textContent.trim();
+    }
+
+    it('renders the rate and the period it covers', function () {
+      const since = new Date(Date.now() - 10 * 60 * 1000);
+      const period = `(since ${since.toDateString()})`;
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({ name: 'used', usageCount: 50, usageSince: since }),
+          mockRegularIndex({
+            name: 'barely_used',
+            usageCount: 1,
+            usageSince: since,
+          }),
+          mockRegularIndex({
+            name: 'never_used',
+            usageCount: 0,
+            usageSince: since,
+          }),
+        ],
+      });
+
+      expect(getUsageRate('used')).to.equal(`5/min\u00a0${period}`);
+      expect(getUsageRate('barely_used')).to.equal(`< 1/min\u00a0${period}`);
+      expect(getUsageRate('never_used')).to.equal(`0/min\u00a0${period}`);
+    });
+
+    it('renders the rate as unavailable when $indexStats data is missing', function () {
+      renderIndexList({
+        indexes: [
+          // $indexStats failed, so neither usageCount nor usageSince are set
+          mockRegularIndex({
+            name: 'no_stats',
+            usageCount: undefined,
+            buildProgress: { statsError: 'user is not authorized' },
+          }),
+          // usageSince missing means there is no period to average over
+          mockRegularIndex({ name: 'no_since', usageCount: 1000 }),
+        ],
+      });
+
+      expect(getUsageRate('no_stats')).to.equal('Rate unavailable');
+      expect(getUsageRate('no_since')).to.equal('Rate unavailable');
+    });
+  });
+
   it('does not render the list if there is an error', function () {
     renderIndexList(
       {
@@ -538,6 +589,34 @@ describe('RegularIndexesTable Component', function () {
       expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
 
       clickSort('Usage');
+      expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
+    });
+
+    it('sorts table by average rate of usage', function () {
+      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'b',
+            usageCount: 50,
+            usageSince: tenMinutesAgo,
+          }),
+          // No usageSince, so the rate can't be derived and sorts as 0
+          mockRegularIndex({ name: 'a', usageCount: 1000 }),
+          mockRegularIndex({
+            name: 'c',
+            usageCount: 100,
+            usageSince: tenMinutesAgo,
+          }),
+        ],
+      });
+
+      expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+
+      clickSort('Avg. rate of usage');
+      expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
+
+      clickSort('Avg. rate of usage');
       expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
     });
 
