@@ -25,8 +25,12 @@ export const settingStateLabels = {
     </Banner>
   ),
 
-  // We shouldn't run into these as we don't surface settings on web.
-  'set-cloud-user': null,
+  'set-cloud-user': (
+    <Banner variant={BannerVariant.Info} data-testid="set-cloud-user-banner">
+      This setting cannot be modified as it is controlled by your Atlas user
+      role.
+    </Banner>
+  ),
   'set-cloud-project': null,
   'set-cloud-org': null,
 

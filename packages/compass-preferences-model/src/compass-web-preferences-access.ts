@@ -10,9 +10,22 @@ import { getActiveUser } from './utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 import type { AtlasPreferencesStorage } from './preferences-atlas';
 
+// Preferences forced by the user's Atlas role (see getPermissionsFromUserRoles
+// in compass-web) must stay non-editable in the settings sandbox. readOnly is
+// the only role-derived preference exposed in the web settings UI; other
+// cloud-provided values (timezone, GenAI opt-in) are seeds, not overrides, so
+// they are intentionally left out.
+function readOnlyRoleCloudPreferences(
+  globalPreferences: Partial<ParsedGlobalPreferencesResult>
+): Partial<AllPreferences> {
+  const { readOnly } = globalPreferences.atlasCloudUser ?? {};
+  return readOnly !== undefined ? { readOnly } : {};
+}
+
 export class CompassWebPreferencesAccess implements PreferencesAccess {
   private _preferences: Preferences;
   private _runningEnvironment: CompassRunningEnvironment;
+  private _globalPreferences: Partial<ParsedGlobalPreferencesResult>;
   constructor(
     preferencesOverrides?: Partial<AllPreferences>,
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
@@ -20,6 +33,7 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
     persistentStorage?: AtlasPreferencesStorage
   ) {
     this._runningEnvironment = runningEnvironment;
+    this._globalPreferences = globalPreferences ?? {};
     this._preferences = new Preferences({
       logger: createNoopLogger(),
       preferencesStorage:
@@ -70,7 +84,9 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
     return Promise.resolve(
       new CompassWebPreferencesAccess(
         this.getPreferences(),
-        undefined,
+        {
+          atlasCloudUser: readOnlyRoleCloudPreferences(this._globalPreferences),
+        },
         this._runningEnvironment
       )
     );
