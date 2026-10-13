@@ -16,7 +16,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
+import type { ShellRuntime } from '../../modules/shell-runtime';
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header/shell-header';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -66,7 +66,7 @@ type ShellProps = React.ComponentProps<typeof Shell>;
 type ShellOutputEntry = Required<ShellProps>['output'][number];
 
 type CompassShellProps = {
-  runtime: WorkerRuntime | null;
+  runtime: ShellRuntime | null;
   initialHistory: string[] | null;
   onHistoryChange: (history: string[]) => void;
   initialEvaluate?: string | string[];
