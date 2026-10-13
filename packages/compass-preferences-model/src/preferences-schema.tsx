@@ -578,7 +578,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Set Read-Only Mode',
-      long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
+      long: 'Limit the application strictly to read operations, with all write and delete capabilities removed.',
     },
     validator: z.boolean().default(false),
     type: 'boolean',
@@ -611,7 +611,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable MongoDB Shell',
-      long: 'Allow Compass to interact with MongoDB deployments via the embedded shell.',
+      long: 'Allow interaction with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
     validator: z.boolean().default(true),
@@ -623,8 +623,8 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Use Compass Theme in MongoDB Shell',
-      long: 'Make the embedded shell follow the Compass theme instead of always using dark mode.',
+      short: 'Use Current Theme in MongoDB Shell',
+      long: 'Make the embedded shell follow the current theme instead of always using dark mode.',
     },
     validator: z.boolean().default(false),
     type: 'boolean',
@@ -654,7 +654,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable Geographic Visualizations',
-      long: 'Allow Compass to make requests to a 3rd party mapping service.',
+      long: 'Allow making requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
     validator: z.boolean().default(true),
@@ -667,7 +667,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable AI Features',
-      long: 'Allow the use of AI features in Compass which make requests to 3rd party services.',
+      long: 'Allow the use of AI features which make requests to 3rd party services.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
     validator: z.boolean().default(true),
@@ -683,7 +683,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Give Product Feedback',
-      long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
+      long: 'Enables a tool that our Product team can use to occasionally reach out for feedback.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableFeedbackPanel'),
     validator: z.boolean().default(true),
@@ -700,7 +700,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable Usage Statistics',
-      long: 'Allow Compass to send anonymous usage statistics.',
+      long: 'Allow sending anonymous usage statistics.',
     },
     deriveValue: deriveNetworkTrafficOptionState('trackUsageStatistics'),
     validator: z.boolean().default(true),
@@ -716,7 +716,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable Automatic Updates',
-      long: 'Allow Compass to periodically check for new updates.',
+      long: 'Allow periodically checking for new updates.',
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
     validator: z.boolean().default(true),
@@ -764,7 +764,7 @@ export const storedUserPreferencesProps: Required<{
         '{ $natural: -1 }': {
           label: '$natural: -1',
           description:
-            'Return documents in reverse natural order, but ignores existing indexes. ⚠️ Suitable if you use Compass only with development clusters. Avoid this option if you connect to production clusters as well.',
+            'Return documents in reverse natural order, but ignores existing indexes. ⚠️ Suitable if you use it only with development clusters. Avoid this option if you connect to production clusters as well.',
         },
       },
     },
@@ -873,7 +873,7 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Upper Limit for maxTimeMS for Compass Database Operations',
+      short: 'Upper Limit for maxTimeMS for Database Operations',
     },
     validator: z.number().optional(),
     type: 'number',
@@ -887,8 +887,8 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Install Compass as URL Protocol Handler',
-      long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
+      short: 'Install as URL Protocol Handler',
+      long: 'Register as a handler for mongodb:// and mongodb+srv:// URLs',
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -1061,7 +1061,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Show Quit Confirmation Dialog',
-      long: 'Toggle whether confirmation dialog is shown when quitting Compass (cmd/ctrl-Q).',
+      long: 'Toggle whether confirmation dialog is shown when quitting (cmd/ctrl-Q).',
     },
     validator: z.boolean().default(true),
     type: 'boolean',

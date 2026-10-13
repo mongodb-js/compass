@@ -12,7 +12,7 @@ export const OIDCSettings: React.FunctionComponent = () => {
     <div data-testid="oidc-settings">
       <div>
         Change the behavior of the OIDC authentication mechanism for server
-        connection and Atlas Login in Compass.
+        connection and Atlas Login.
       </div>
       <SettingsList fields={['browserCommandForOIDCAuth']} />
       <div>
