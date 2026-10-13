@@ -6,7 +6,6 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 import UrlOptions from './url-options';
 import ReadPreferenceForm from './read-preference-form';
@@ -23,7 +22,6 @@ function AdvancedTab({
   connectionOptions?: ConnectionOptions;
 }): React.ReactElement {
   const { searchParams, pathname } = connectionStringUrl;
-  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
   const replicaSet = searchParams.get('replicaSet');
   const defaultDatabase = pathname.startsWith('/')
     ? pathname.substr(1)
@@ -76,7 +74,6 @@ function AdvancedTab({
           label={'Replica Set Name'}
           type={'text'}
           optional={true}
-          disabled={readPreferenceOnly}
           value={replicaSet ?? ''}
         />
       </FormFieldContainer>
@@ -93,7 +90,6 @@ function AdvancedTab({
           label={'Default Authentication Database'}
           type={'text'}
           optional={true}
-          disabled={readPreferenceOnly}
           value={defaultDatabase ?? ''}
           description={
             'Authentication database used when authSource is not specified.'

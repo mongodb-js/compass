@@ -4,7 +4,6 @@ import {
   screen,
   userEvent,
   waitFor,
-  within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -49,18 +48,6 @@ function renderForm(
   );
 }
 
-function openAdvancedOptions() {
-  userEvent.click(screen.getByTestId('advanced-connection-options'));
-}
-
-function openTab(name: string) {
-  userEvent.click(screen.getByRole('tab', { name }));
-}
-
-function getTabNames(): string[] {
-  return screen.getAllByRole('tab').map((tab) => tab.textContent ?? '');
-}
-
 describe('ConnectionForm with an Atlas connection', function () {
   it('shows the session-only edit header', function () {
     renderForm(atlasConnectionInfo);
@@ -95,79 +82,50 @@ describe('ConnectionForm with an Atlas connection', function () {
     expect(onSaveAndConnectClicked).to.have.been.calledOnce;
   });
 
-  it('does not allow editing the connection string', function () {
+  it('only shows the read preference options', function () {
     renderForm(atlasConnectionInfo);
-    expect(screen.queryByTestId('toggle-edit-connection-string')).to.not.exist;
-    expect(screen.getByTestId('connectionString')).to.have.attribute(
-      'aria-disabled',
-      'true'
-    );
-  });
-
-  it('opens the advanced options on the Advanced tab', function () {
-    renderForm(atlasConnectionInfo);
-    expect(screen.getByRole('tab', { name: 'Advanced' })).to.have.attribute(
-      'aria-selected',
-      'true'
-    );
     expect(screen.getByTestId('read-preferences')).to.be.visible;
+    expect(screen.queryByTestId('connectionString')).to.not.exist;
+    expect(screen.queryByTestId('advanced-connection-options')).to.not.exist;
+    expect(screen.queryByRole('tab')).to.not.exist;
   });
 
-  it('only shows the General and Advanced tabs', function () {
-    renderForm(atlasConnectionInfo);
-    expect(getTabNames()).to.deep.equal(['General', 'Advanced']);
-  });
-
-  it('locks the scheme and hosts on the General tab', function () {
-    renderForm(atlasConnectionInfo);
-    openTab('General');
-
-    for (const name of ['mongodb', 'mongodb+srv']) {
-      expect(screen.getByRole('radio', { name })).to.have.attribute(
-        'aria-disabled',
-        'true'
-      );
-    }
-    expect(screen.getByTestId('connection-host-input')).to.have.attribute(
-      'aria-disabled',
-      'true'
-    );
-    expect(screen.queryByTestId('connection-add-host-button')).to.not.exist;
-  });
-
-  it('locks everything on the Advanced tab except read preference', function () {
-    renderForm(atlasConnectionInfo);
-    openTab('Advanced');
-
-    expect(screen.getByTestId('replica-set')).to.have.attribute(
-      'aria-disabled',
-      'true'
-    );
-    expect(screen.getByTestId('default-database')).to.have.attribute(
-      'aria-disabled',
-      'true'
-    );
-    const appNameOption = within(screen.getByTestId('url-option-entry-0'));
-    expect(
-      appNameOption.getByTestId('leafygreen-ui-select-menubutton')
-    ).to.have.attribute('aria-disabled', 'true');
-    expect(appNameOption.getByTestId('appName-input-field')).to.have.attribute(
-      'aria-disabled',
-      'true'
-    );
-    expect(screen.queryByTestId('connection-url-options-remove-button')).to.not
-      .exist;
+  it('applies the read preference to the connection info', function () {
+    const onSaveAndConnectClicked = sinon.spy();
+    renderForm(atlasConnectionInfo, { onSaveAndConnectClicked });
 
     userEvent.click(
       screen.getByRole('radio', { name: 'Secondary' }),
       undefined,
-      {
-        skipPointerEventsCheck: true,
-      }
+      { skipPointerEventsCheck: true }
+    );
+    userEvent.click(screen.getByRole('button', { name: 'Connect' }));
+
+    expect(onSaveAndConnectClicked).to.have.been.calledOnce;
+    expect(
+      onSaveAndConnectClicked.firstCall.args[0].connectionOptions
+        .connectionString
+    ).to.equal(`${atlasConnectionString}&readPreference=secondary`);
+  });
+
+  it('only shows the disconnect banner while connected', function () {
+    render(
+      <ConnectionForm
+        initialConnectionInfo={atlasConnectionInfo}
+        disableEditingConnectedConnection
+        onDisconnectClicked={() => {}}
+        onCancel={() => {}}
+        onSaveClicked={sinon.stub().resolves()}
+        onConnectClicked={sinon.spy()}
+      />
     );
     expect(
-      screen.getByTestId<HTMLTextAreaElement>('connectionString').value
-    ).to.contain('readPreference=secondary');
+      screen.getByTestId('disabled-connected-connection-banner')
+    ).to.have.text(
+      'To change the read preference, you must first disconnect. Beware that disconnecting might cause work in progress to be lost.Disconnect'
+    );
+    expect(screen.queryByTestId('read-preferences')).to.not.exist;
+    expect(screen.queryByTestId('connect-button')).to.not.exist;
   });
 
   it('connects with X.509 and no client certificate', function () {
@@ -189,22 +147,11 @@ describe('ConnectionForm without Atlas metadata', function () {
     expect(screen.getByRole('button', { name: 'Save & Connect' })).to.exist;
   });
 
-  it('starts with the advanced options collapsed', function () {
+  it('keeps the connection string and advanced options', function () {
     renderForm(localConnectionInfo);
-    expect(screen.queryByRole('tab', { name: 'Advanced' })).to.not.exist;
-  });
-
-  it('shows every tab', function () {
-    renderForm(localConnectionInfo);
-    openAdvancedOptions();
-    expect(getTabNames()).to.deep.equal([
-      'General',
-      'Authentication',
-      'TLS/SSL',
-      'Proxy/SSH',
-      'In-Use Encryption',
-      'Advanced',
-    ]);
+    expect(screen.getByTestId('connectionString')).to.exist;
+    expect(screen.getByTestId('advanced-connection-options')).to.exist;
+    expect(screen.queryByTestId('read-preferences')).to.not.exist;
   });
 
   it('still requires a client certificate for X.509', async function () {

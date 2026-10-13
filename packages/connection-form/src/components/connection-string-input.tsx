@@ -11,7 +11,6 @@ import {
 } from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
-import { useConnectionFormSetting } from '../hooks/use-connect-form-settings';
 
 const textAreaContainerStyle = css({
   marginTop: spacing[100],
@@ -86,7 +85,6 @@ function ConnectionStringInput({
   disableEditingConnectedConnection: boolean;
 }): React.ReactElement {
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
-  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
   const [editingConnectionString, setEditingConnectionString] =
     useState(connectionString);
   const [isTextAreaFocused, setIsTextAreaFocused] = useState(false);
@@ -163,11 +161,7 @@ function ConnectionStringInput({
             href="https://docs.mongodb.com/manual/reference/connection-string/"
           />
         </div>
-        {!(
-          protectConnectionStrings ||
-          disableEditingConnectedConnection ||
-          readPreferenceOnly
-        ) && (
+        {!(protectConnectionStrings || disableEditingConnectedConnection) && (
           <div className={editToggleContainerStyles}>
             <Label
               className={editToggleLabelStyles}
@@ -198,9 +192,7 @@ function ConnectionStringInput({
           value={displayedConnectionString}
           className={connectionStringStyles}
           disabled={
-            !enableEditingConnectionString ||
-            disableEditingConnectedConnection ||
-            readPreferenceOnly
+            !enableEditingConnectionString || disableEditingConnectedConnection
           }
           id={connectionStringInputId}
           data-testid={connectionStringInputId}

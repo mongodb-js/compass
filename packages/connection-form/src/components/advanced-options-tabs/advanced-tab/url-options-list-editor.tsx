@@ -9,6 +9,7 @@ import {
   spacing,
   ListEditor,
   useSyncStateOnPropChange,
+  VisuallyHidden,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -16,7 +17,6 @@ import type { MongoClientOptions } from 'mongodb';
 import type { UrlOption } from '../../../utils/url-options';
 import { editableUrlOptions } from '../../../utils/url-options';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 const optionInputContainerStyles = css({
   display: 'flex',
@@ -68,7 +68,6 @@ function UrlOptionsListEditor({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
-  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
   const [options, setOptions] = React.useState<Partial<UrlOption>[]>(() => {
     return appendEmptyOption(getUrlOptions(connectionStringUrl));
   });
@@ -151,7 +150,6 @@ function UrlOptionsListEditor({
               );
             }}
             allowDeselect={false}
-            disabled={readPreferenceOnly}
             value={uriOption.name ?? ''}
           >
             {editableUrlOptions.map(({ title, values }) => (
@@ -172,6 +170,10 @@ function UrlOptionsListEditor({
               </OptionGroup>
             ))}
           </Select>
+          {/* TextInput ignores aria-label and requires a label or aria-labelledby */}
+          <VisuallyHidden id={`url-option-value-label-${index}`}>
+            {uriOption.name ? `${uriOption.name} Value` : 'URL Option Value'}
+          </VisuallyHidden>
           <TextInput
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               event.preventDefault();
@@ -189,11 +191,8 @@ function UrlOptionsListEditor({
             spellCheck={false}
             type={'text'}
             placeholder={'Value'}
-            aria-label={
-              uriOption.name ? `${uriOption.name} Value` : 'URL Option Value'
-            }
+            aria-labelledby={`url-option-value-label-${index}`}
             value={uriOption.value}
-            disabled={readPreferenceOnly}
             className={valueInputStyles}
           />
         </div>
@@ -204,9 +203,7 @@ function UrlOptionsListEditor({
       onAddItem={() => {
         /* no-op - the add item button is never shown. */
       }}
-      disableRemoveButton={(item: Partial<UrlOption>) =>
-        readPreferenceOnly || !item.name
-      }
+      disableRemoveButton={(item: Partial<UrlOption>) => !item.name}
       onRemoveItem={onRemoveUrlOption}
       removeButtonTestId="connection-url-options-remove-button"
     />

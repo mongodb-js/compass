@@ -12,7 +12,6 @@ import {
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorMessageByFieldName,
@@ -43,7 +42,6 @@ function SchemeInput({
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const { isSRV } = connectionStringUrl;
-  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
 
   const onChangeConnectionScheme = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +67,6 @@ function SchemeInput({
           id="connection-scheme-mongodb-radiobox"
           data-testid="connection-scheme-mongodb-radiobox"
           value={MONGODB_SCHEME.MONGODB}
-          disabled={readPreferenceOnly}
         >
           mongodb
         </RadioBox>
@@ -77,7 +74,6 @@ function SchemeInput({
           id="connection-scheme-srv-radiobox"
           data-testid="connection-scheme-srv-radiobox"
           value={MONGODB_SCHEME.MONGODB_SRV}
-          disabled={readPreferenceOnly}
         >
           mongodb+srv
         </RadioBox>

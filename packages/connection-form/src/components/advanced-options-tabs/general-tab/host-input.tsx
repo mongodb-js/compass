@@ -12,7 +12,6 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 import DirectConnectionInput from './direct-connection-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
@@ -34,7 +33,6 @@ function HostInput({
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const [hosts, setHosts] = useState([...connectionStringUrl.hosts]);
-  const readPreferenceOnly = useConnectionFormSetting('readPreferenceOnly');
   const { isSRV } = connectionStringUrl;
 
   const showDirectConnectionInput =
@@ -90,14 +88,11 @@ function HostInput({
                 index
               )}
               value={`${host}`}
-              disabled={readPreferenceOnly}
               onChange={(e) => onHostChange(e, index)}
             />
           )}
-          disableAddButton={() => isSRV || readPreferenceOnly}
-          disableRemoveButton={() =>
-            isSRV || readPreferenceOnly || hosts.length <= 1
-          }
+          disableAddButton={() => isSRV}
+          disableRemoveButton={() => isSRV || hosts.length <= 1}
           onAddItem={(indexBefore) =>
             updateConnectionFormField({
               type: 'add-new-host',
