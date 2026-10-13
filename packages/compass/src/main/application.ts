@@ -233,8 +233,10 @@ class CompassApplication {
             ...process.env,
             NODE_OPTIONS: [
               process.env.NODE_OPTIONS,
-              '--disallow-code-generation-from-strings',
               '--disable-proto=throw',
+              name === 'embedded-shell'
+                ? ''
+                : '--disallow-code-generation-from-strings',
             ]
               .filter(Boolean)
               .join(' '),
