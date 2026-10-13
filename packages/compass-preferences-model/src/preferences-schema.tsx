@@ -1240,7 +1240,7 @@ export const storedUserPreferencesProps: Required<{
   },
   timezone: {
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     cli: true,
     global: true,
     description: {
