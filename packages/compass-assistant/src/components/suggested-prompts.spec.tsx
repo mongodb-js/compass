@@ -112,6 +112,46 @@ describe('SuggestedPrompts', function () {
       });
     });
 
+    it('tracks which suggested prompt was selected', async function () {
+      const { track } = renderSuggestedPrompts({});
+
+      userEvent.click(screen.getByTestId('suggested-action-2'));
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Suggested Prompt Selected',
+          { suggested_prompt_id: 'generic-connect' }
+        );
+      });
+    });
+
+    it('tracks tab-specific suggested prompts with their own id', async function () {
+      const { track } = renderSuggestedPrompts({
+        activeWorkspace: createCollectionWorkspace(),
+        activeCollectionSubTab: 'Aggregations',
+      });
+
+      userEvent.click(
+        screen.getByText(
+          'How can I improve the performance of my aggregation in Compass?'
+        )
+      );
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Suggested Prompt Selected',
+          { suggested_prompt_id: 'aggregations-performance' }
+        );
+      });
+    });
+
+    it('does not track a selection before a prompt is clicked', function () {
+      const { track } = renderSuggestedPrompts({});
+      expect(track).to.not.have.been.calledWith(
+        'Assistant Suggested Prompt Selected'
+      );
+    });
+
     it('prompts disappear after they are selected', async function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
@@ -265,7 +305,7 @@ describe('SuggestedPrompts', function () {
 
   describe('when skills are enabled', function () {
     it('shows the slash command but sends the skill tag', async function () {
-      renderSuggestedPrompts({ enableSkills: true });
+      const { track } = renderSuggestedPrompts({ enableSkills: true });
 
       const displayText =
         '/mongodb-query-optimizer Help me understand whether my current query and collection setup will perform well.';
@@ -273,6 +313,12 @@ describe('SuggestedPrompts', function () {
       expect(screen.queryByText(/<skill>/)).to.not.exist;
 
       userEvent.click(screen.getByText(displayText));
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Suggested Prompt Selected',
+          { suggested_prompt_id: 'generic-query-optimizer-skill' }
+        );
+      });
 
       await waitFor(() => {
         expect(onMessageSendStub.calledOnce).to.be.true;
