@@ -173,11 +173,3 @@ if (typeof globalThis.DisposableStack === 'undefined') {
     defer() {}
   };
 }
-
-module.exports = {
-  mochaHooks: {
-    async afterAll() {
-      await require('@mongodb-js/shell-bson-parser').terminateWorker();
-    },
-  },
-};
