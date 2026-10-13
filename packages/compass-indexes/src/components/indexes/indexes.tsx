@@ -183,6 +183,9 @@ export function Indexes({
     }),
     shallowEqual
   );
+  const showRegularIndexes =
+    isRegularIndexesReadable && currentIndexesView === 'regular-indexes';
+
   const getBanner = () => {
     if (isReadonlyView) {
       if (!isViewVersionSearchCompatible) {
@@ -230,10 +233,11 @@ export function Indexes({
         <div className={indexesContainersStyles}>
           {getBanner()}
 
-          <IndexStatsNodeBanner />
+          {/* $indexStats only backs the regular indexes table, so the notice
+              is tied to it rather than to the tab as a whole. */}
+          {showRegularIndexes && !errorMessage && <IndexStatsNodeBanner />}
 
-          {isRegularIndexesReadable &&
-            currentIndexesView === 'regular-indexes' && <RegularIndexesTable />}
+          {showRegularIndexes && <RegularIndexesTable />}
           {isSearchIndexesReadable &&
             currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
           {isReadonlyView && !isSearchIndexesReadable && (

@@ -52,36 +52,37 @@ export const getUsageRateSortValue = (
   return getUsageRatePerMinute(usage, since) ?? 0;
 };
 
+// Rounding a rate below one hit per minute reads as 0, which is
+// indistinguishable from an index that was never used. Shared by the cell and
+// the tooltip so that the two can't describe the same rate differently.
+const isBelowOnePerMinute = (rate: number) => rate > 0 && rate < 1;
+
+const roundRate = (rate: number) => parseFloat(rate.toFixed(2));
+
 export const formatUsageRate = (rate: number | null): string => {
   if (rate === null) {
     return 'Rate unavailable';
   }
-  if (rate === 0) {
-    return '0/min';
-  }
-  // Below one hit per minute the rounded value reads as 0/min, which is
-  // indistinguishable from an index that was never used.
-  if (rate < 1) {
-    return '< 1/min';
-  }
-  return `${parseFloat(rate.toFixed(2))}/min`;
+  return isBelowOnePerMinute(rate) ? '< 1/min' : `${roundRate(rate)}/min`;
 };
 
 export const getUsageRateTooltip = (
   rate: number | null,
   since?: Date
 ): string => {
-  if (rate === null) {
+  // A derivable rate always comes with the period it was derived from.
+  if (rate === null || !since) {
     return NO_USAGE_RATE;
   }
   if (rate === 0) {
-    return since
-      ? `This index has not been used since ${since.toDateString()}`
-      : 'This index has not been used';
+    return `This index has not been used since ${since.toDateString()}`;
   }
-  return `${parseFloat(
-    rate.toFixed(2)
-  )} index hits per minute on average since ${(since as Date).toDateString()}`;
+  if (isBelowOnePerMinute(rate)) {
+    return `Less than 1 index hit per minute on average since ${since.toDateString()}`;
+  }
+  return `${roundRate(
+    rate
+  )} index hits per minute on average since ${since.toDateString()}`;
 };
 
 type UsageRateFieldProps = {
