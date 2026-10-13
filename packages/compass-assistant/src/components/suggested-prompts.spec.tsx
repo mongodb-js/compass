@@ -47,10 +47,12 @@ describe('SuggestedPrompts', function () {
     messages = [],
     activeWorkspace,
     activeCollectionSubTab,
+    enableSkills = false,
   }: {
     messages?: AssistantMessage[];
     activeWorkspace?: WorkspaceTab;
     activeCollectionSubTab?: CollectionSubtab | null;
+    enableSkills?: boolean;
   }) {
     const chat = createMockChat({ messages });
     return render(
@@ -61,7 +63,8 @@ describe('SuggestedPrompts', function () {
         >
           <SuggestedPrompts chat={chat} onMessageSend={onMessageSendStub} />
         </TestWrapper>
-      </AssistantGlobalStateProvider>
+      </AssistantGlobalStateProvider>,
+      { preferences: { enableSkillsInAssistant: enableSkills } }
     );
   }
 
@@ -257,6 +260,35 @@ describe('SuggestedPrompts', function () {
           },
         });
       });
+    });
+  });
+
+  describe('when skills are enabled', function () {
+    it('shows the slash command but sends the skill tag', async function () {
+      renderSuggestedPrompts({ enableSkills: true });
+
+      const displayText =
+        '/mongodb-query-optimizer Help me understand whether my current query and collection setup will perform well.';
+      expect(screen.getByText(displayText)).to.exist;
+      expect(screen.queryByText(/<skill>/)).to.not.exist;
+
+      userEvent.click(screen.getByText(displayText));
+
+      await waitFor(() => {
+        expect(onMessageSendStub.calledOnce).to.be.true;
+        expect(onMessageSendStub.firstCall.args[0]).to.deep.equal({
+          text: '<skill>mongodb-query-optimizer</skill> Help me understand whether my current query and collection setup will perform well.',
+          metadata: { displayText },
+        });
+      });
+    });
+
+    it('keeps the original prompt when skills are disabled', function () {
+      renderSuggestedPrompts({});
+      expect(
+        screen.getByText('How can I optimize performance in MongoDB Compass?')
+      ).to.exist;
+      expect(screen.queryByText(/\/query-optimizer/)).to.not.exist;
     });
   });
 });

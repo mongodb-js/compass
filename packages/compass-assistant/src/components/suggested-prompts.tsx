@@ -5,6 +5,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model/provider';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -17,10 +18,14 @@ export type SuggestedPromptConfig = {
   metadata?: AssistantMessage['metadata'];
 };
 
+const QUERY_OPTIMIZER_PROMPT =
+  'Help me understand whether my current query and collection setup will perform well.';
+
 function getSuggestedPromptsForTab(
   activeWorkspaceType: string | undefined,
   activeCollectionSubTab: string | null,
-  hasMessages: boolean
+  hasMessages: boolean,
+  enableSkills: boolean
 ): SuggestedPromptConfig[] {
   if (hasMessages) {
     return [];
@@ -114,9 +119,16 @@ function getSuggestedPromptsForTab(
     {
       text: 'What can I do with MongoDB Compass, and what are some usage tips?',
     },
-    {
-      text: 'How can I optimize performance in MongoDB Compass?',
-    },
+    enableSkills
+      ? {
+          text: `<skill>mongodb-query-optimizer</skill> ${QUERY_OPTIMIZER_PROMPT}`,
+          metadata: {
+            displayText: `/mongodb-query-optimizer ${QUERY_OPTIMIZER_PROMPT}`,
+          },
+        }
+      : {
+          text: 'How can I optimize performance in MongoDB Compass?',
+        },
     {
       text: 'How do I connect to my MongoDB deployment?',
     },
@@ -135,6 +147,7 @@ export const SuggestedPrompts: React.FunctionComponent<{
   onMessageSend: (options: SendMessageOptions) => Promise<void>;
 }> = ({ chat, onMessageSend }) => {
   const darkMode = useDarkMode();
+  const enableSkills = usePreference('enableSkillsInAssistant');
 
   const { activeWorkspace, activeCollectionSubTab } = useAssistantGlobalState();
   const activeWorkspaceType = activeWorkspace?.type;
@@ -147,9 +160,10 @@ export const SuggestedPrompts: React.FunctionComponent<{
       getSuggestedPromptsForTab(
         activeWorkspaceType,
         activeCollectionSubTab,
-        hasMessages
+        hasMessages,
+        enableSkills
       ),
-    [activeWorkspaceType, activeCollectionSubTab, hasMessages]
+    [activeWorkspaceType, activeCollectionSubTab, hasMessages, enableSkills]
   );
 
   // Create a unique key based on workspace type, subtab, and chat ID
