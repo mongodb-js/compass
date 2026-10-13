@@ -6,6 +6,7 @@ const { Module } = require('module');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
 const { minVersion } = require('semver');
+const { load } = require('js-yaml');
 
 const execFileAsync = promisify(execFile);
 
@@ -51,7 +52,10 @@ async function collectAllAbsoluteImports(entryPoints = []) {
       // Keep second part for namespaced imports, but drop everything else
       const [a, b] = importPath.split('/');
       const moduleName = a.startsWith('@') ? `${a}/${b}` : a;
-      if (IGNORED_ABSOLUTE_IMPORTS.includes(moduleName)) {
+      if (
+        importPath.startsWith('node:') ||
+        IGNORED_ABSOLUTE_IMPORTS.includes(moduleName)
+      ) {
         return;
       }
       absoluteImports.add(moduleName);
@@ -164,6 +168,14 @@ async function main() {
   const prodDependencies = new Set(Object.keys(pkgJson.dependencies ?? {}));
   const peerDependencies = new Set(Object.keys(pkgJson.peerDependencies ?? {}));
   const devDependencies = new Set(Object.keys(pkgJson.devDependencies ?? {}));
+  // Deps that depcheck is told to ignore are required without being imported
+  // directly, e.g. by a dependency that doesn't declare them itself
+  const depcheckIgnores = await fs
+    .readFile(path.resolve(process.cwd(), '.depcheckrc'), 'utf-8')
+    .then(
+      (rc) => load(rc)?.ignores ?? [],
+      () => []
+    );
   const allDependenciesWithVersions = new Map(
     Object.entries({
       ...(pkgJson.dependencies ?? {}),
@@ -191,7 +203,11 @@ async function main() {
       shouldBeInProd.add(depName);
     }
 
-    if (!expectedPropDeps.has(depName) && !devDependencies.has(depName)) {
+    if (
+      !expectedPropDeps.has(depName) &&
+      !devDependencies.has(depName) &&
+      !depcheckIgnores.includes(depName)
+    ) {
       shouldBeInDev.add(depName);
     }
   }
