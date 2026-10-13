@@ -1,5 +1,6 @@
 import { useReducer, type Dispatch, useCallback, useEffect } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import { useAsyncValue } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
   MongoClientOptions,
@@ -239,7 +240,11 @@ function parseConnectionString(
 }
 
 function buildStateFromConnectionInfo(
-  initialConnectionInfo: ConnectionInfo
+  initialConnectionInfo: ConnectionInfo,
+  // The CSFLE maps are re-parsed from text, which is async, so the initial
+  // synchronous state keeps the raw options and the effect below replaces them
+  // with the parsed ones.
+  connectionOptions: ConnectionOptions
 ): ConnectFormState {
   const [, errors] = parseConnectionString(
     initialConnectionInfo.connectionOptions.connectionString
@@ -271,9 +276,7 @@ function buildStateFromConnectionInfo(
       : validateConnectionOptionsWarnings(
           initialConnectionInfo.connectionOptions
         ),
-    connectionOptions: adjustCSFLEParams(
-      cloneDeep(initialConnectionInfo.connectionOptions)
-    ),
+    connectionOptions,
     isDirty: false,
     personalizationOptions: {
       color: initialConnectionInfo.favorite?.color || undefined,
@@ -733,7 +736,10 @@ export function useConnectForm(
     setEnableEditingConnectionString: (enableEditing: boolean) => void;
   },
 ] {
-  const derivedFormState = buildStateFromConnectionInfo(initialConnectionInfo);
+  const derivedFormState = buildStateFromConnectionInfo(
+    initialConnectionInfo,
+    cloneDeep(initialConnectionInfo.connectionOptions)
+  );
   const initialFormState: ConnectFormState = {
     ...derivedFormState,
     enableEditingConnectionString:
@@ -818,35 +824,45 @@ function setInitialState({
   const protectConnectionStringsForNewConnections = useConnectionFormSetting(
     'protectConnectionStringsForNewConnections'
   );
+  const { value: nextFormState, pending: nextFormStateIsPending } =
+    useAsyncValue(async () => {
+      const connectionOptions = await adjustCSFLEParams(
+        cloneDeep(initialConnectionInfo.connectionOptions)
+      );
+      return buildStateFromConnectionInfo(
+        initialConnectionInfo,
+        connectionOptions
+      );
+    }, [initialConnectionInfo]);
+
   useEffect(() => {
     // When the initial connection options change, like a different
     // connection is clicked in the compass-sidebar, we
     // refresh the current connection string being edited.
     // We do this here to retain the tabs/expanded accordion states.
-    const {
-      errors,
-      warnings,
-      connectionOptions,
-      allowEditingIfProtected,
-      enableEditingConnectionString,
-      personalizationOptions,
-    } = buildStateFromConnectionInfo(initialConnectionInfo);
-
+    if (nextFormStateIsPending || !nextFormState) {
+      return;
+    }
     dispatch({
       type: 'set-connection-form-state',
       newState: {
-        errors,
+        errors: nextFormState.errors,
         enableEditingConnectionString:
           !protectConnectionStringsForNewConnections &&
-          enableEditingConnectionString,
-        warnings,
-        connectionOptions,
+          nextFormState.enableEditingConnectionString,
+        warnings: nextFormState.warnings,
+        connectionOptions: nextFormState.connectionOptions,
         isDirty: false,
-        allowEditingIfProtected,
-        personalizationOptions,
+        allowEditingIfProtected: nextFormState.allowEditingIfProtected,
+        personalizationOptions: nextFormState.personalizationOptions,
       },
     });
-  }, [initialConnectionInfo, protectConnectionStringsForNewConnections]);
+  }, [
+    nextFormState,
+    nextFormStateIsPending,
+    protectConnectionStringsForNewConnections,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (connectionErrorMessage) {
@@ -855,7 +871,7 @@ function setInitialState({
   }, [setErrors, connectionErrorMessage]);
 }
 
-export function adjustConnectionOptionsBeforeConnect({
+export async function adjustConnectionOptionsBeforeConnect({
   connectionOptions,
   connectionId,
   defaultAppName,
@@ -874,11 +890,11 @@ export function adjustConnectionOptionsBeforeConnect({
     telemetryAnonymousId?: string;
     forceConnectionOptions: [string, string][];
   };
-}): ConnectionOptions {
+}): Promise<ConnectionOptions> {
+  connectionOptions = await adjustCSFLEParams(connectionOptions);
   const transformers: ((
     connectionOptions: Readonly<ConnectionOptions>
   ) => ConnectionOptions)[] = [
-    adjustCSFLEParams,
     unsetFleOptionsIfEmptyAutoEncryption,
     setAppNameParamIfMissing({
       defaultAppName,

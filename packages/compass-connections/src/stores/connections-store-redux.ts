@@ -1613,7 +1613,7 @@ const performConnection = (
       const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
         cloneDeep(restOfTheConnectionInfo),
         {
-          connectionOptions: adjustConnectionOptionsBeforeConnect({
+          connectionOptions: await adjustConnectionOptionsBeforeConnect({
             connectionOptions: merge(
               cloneDeep(connectionOptions),
               SecretsForConnection.get(connectionInfo.id) ?? {}
