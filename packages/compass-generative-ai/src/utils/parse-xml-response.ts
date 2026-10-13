@@ -55,33 +55,30 @@ export async function parseXmlToJsonResponse(
   await Promise.all(
     expectedTags.map(async (tag) => {
       const value = xmlDoc.querySelector(tag)?.textContent?.trim();
-      if (value) {
-        const value = xmlDoc.querySelector(tag)?.textContent?.trim();
-        if (!value) {
-          return;
-        }
-        try {
-          const tagValue = await parse(value, {
-            mode: ParseMode.Loose,
-          });
-          if (
-            !tagValue ||
-            (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
-          ) {
-            result[tag] = null;
-          } else {
-            // No indentation
-            result[tag] = toJSString(tagValue, 0) ?? null;
-          }
-        } catch (e) {
-          logger.log.warn(
-            logger.mongoLogId(1_001_000_384),
-            'AtlasAiService',
-            `Failed to parse value for tag <${tag}>: ${value}`,
-            { error: e }
-          );
+      if (!value) {
+        return;
+      }
+      try {
+        const tagValue = await parse(value, {
+          mode: ParseMode.Loose,
+        });
+        if (
+          !tagValue ||
+          (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
+        ) {
           result[tag] = null;
+        } else {
+          // No indentation
+          result[tag] = toJSString(tagValue, 0) ?? null;
         }
+      } catch (e) {
+        logger.log.warn(
+          logger.mongoLogId(1_001_000_384),
+          'AtlasAiService',
+          `Failed to parse value for tag <${tag}>: ${value}`,
+          { error: e }
+        );
+        result[tag] = null;
       }
     })
   );
