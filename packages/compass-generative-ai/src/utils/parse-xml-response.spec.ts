@@ -12,12 +12,12 @@ describe('parseXmlToJsonResponse', function () {
       skip: null,
       limit: null,
     };
-    it('should return aggregation and query if provided', function () {
+    it('should return aggregation and query if provided', async function () {
       const xmlString = `
         <filter>{ age: { $gt: 25 } }</filter>
         <aggregation>[{ $match: { status: "A" } }]</aggregation>
       `;
-      const result = parseXmlToJsonResponse(xmlString, options);
+      const result = await parseXmlToJsonResponse(xmlString, options);
       expect(result).to.deep.equal({
         content: {
           aggregation: {
@@ -33,7 +33,7 @@ describe('parseXmlToJsonResponse', function () {
         },
       });
     });
-    it('should return all the query fields if provided', function () {
+    it('should return all the query fields if provided', async function () {
       const xmlString = `
         <filter>{ age: { $gt: 25 } }</filter>
         <project>{ name: 1, age: 1 }</project>
@@ -42,7 +42,7 @@ describe('parseXmlToJsonResponse', function () {
         <limit>10</limit>
         <aggregation></aggregation>
       `;
-      const result = parseXmlToJsonResponse(xmlString, options);
+      const result = await parseXmlToJsonResponse(xmlString, options);
       expect(result).to.deep.equal({
         content: {
           aggregation: {
@@ -59,19 +59,25 @@ describe('parseXmlToJsonResponse', function () {
       });
     });
     context('it should handle invalid data', function () {
-      it('invalid json', function () {
-        const result = parseXmlToJsonResponse(
+      it('invalid json', async function () {
+        const result = await parseXmlToJsonResponse(
           `<filter>{ age: { $gt: 25 </filter>`,
           options
         );
         expect(result.content.query).to.deep.equal(NULL_QUERY);
       });
-      it('empty object', function () {
-        const result = parseXmlToJsonResponse(`<filter>{}</filter>`, options);
+      it('empty object', async function () {
+        const result = await parseXmlToJsonResponse(
+          `<filter>{}</filter>`,
+          options
+        );
         expect(result.content.query).to.deep.equal(NULL_QUERY);
       });
-      it('zero value', function () {
-        const result = parseXmlToJsonResponse(`<limit>0</limit>`, options);
+      it('zero value', async function () {
+        const result = await parseXmlToJsonResponse(
+          `<limit>0</limit>`,
+          options
+        );
         expect(result.content.query).to.deep.equal(NULL_QUERY);
       });
     });
@@ -79,9 +85,9 @@ describe('parseXmlToJsonResponse', function () {
 
   context('handles aggregate', function () {
     const options = { logger: createNoopLogger(), type: 'aggregate' as const };
-    it('returns empty pipeline its not available in the response', function () {
+    it('returns empty pipeline its not available in the response', async function () {
       const xmlString = ``;
-      const result = parseXmlToJsonResponse(xmlString, options);
+      const result = await parseXmlToJsonResponse(xmlString, options);
       expect(result).to.deep.equal({
         content: {
           aggregation: {
@@ -90,9 +96,9 @@ describe('parseXmlToJsonResponse', function () {
         },
       });
     });
-    it('handles empty array', function () {
+    it('handles empty array', async function () {
       const xmlString = `<aggregation>[]</aggregation>`;
-      const result = parseXmlToJsonResponse(xmlString, options);
+      const result = await parseXmlToJsonResponse(xmlString, options);
       expect(result).to.deep.equal({
         content: {
           aggregation: {
@@ -101,11 +107,11 @@ describe('parseXmlToJsonResponse', function () {
         },
       });
     });
-    it('returns aggregation pipeline if available', function () {
+    it('returns aggregation pipeline if available', async function () {
       const xmlString = `
         <aggregation>[{ $match: { status: "A" } }]</aggregation>
       `;
-      const result = parseXmlToJsonResponse(xmlString, options);
+      const result = await parseXmlToJsonResponse(xmlString, options);
       expect(result).to.deep.equal({
         content: {
           aggregation: {

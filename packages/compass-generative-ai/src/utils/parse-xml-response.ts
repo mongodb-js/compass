@@ -16,7 +16,7 @@ type ParsedXmlJsonResponse = {
   };
 };
 
-export function parseXmlToJsonResponse(
+export async function parseXmlToJsonResponse(
   xmlString: string,
   {
     logger,
@@ -25,7 +25,7 @@ export function parseXmlToJsonResponse(
     logger: Logger;
     type: 'find' | 'aggregate';
   }
-): ParsedXmlJsonResponse {
+): Promise<ParsedXmlJsonResponse> {
   const expectedTags = [
     'filter',
     'project',
@@ -52,33 +52,39 @@ export function parseXmlToJsonResponse(
     limit: null,
     aggregation: null,
   };
-  for (const tag of expectedTags) {
-    const value = xmlDoc.querySelector(tag)?.textContent?.trim();
-    if (value) {
-      try {
-        const tagValue = parse(value, {
-          mode: ParseMode.Loose,
-        });
-        if (
-          !tagValue ||
-          (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
-        ) {
-          result[tag] = null;
-        } else {
-          // No indentation
-          result[tag] = toJSString(tagValue, 0) ?? null;
+  await Promise.all(
+    expectedTags.map(async (tag) => {
+      const value = xmlDoc.querySelector(tag)?.textContent?.trim();
+      if (value) {
+        const value = xmlDoc.querySelector(tag)?.textContent?.trim();
+        if (!value) {
+          return;
         }
-      } catch (e) {
-        logger.log.warn(
-          logger.mongoLogId(1_001_000_384),
-          'AtlasAiService',
-          `Failed to parse value for tag <${tag}>: ${value}`,
-          { error: e }
-        );
-        result[tag] = null;
+        try {
+          const tagValue = await parse(value, {
+            mode: ParseMode.Loose,
+          });
+          if (
+            !tagValue ||
+            (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
+          ) {
+            result[tag] = null;
+          } else {
+            // No indentation
+            result[tag] = toJSString(tagValue, 0) ?? null;
+          }
+        } catch (e) {
+          logger.log.warn(
+            logger.mongoLogId(1_001_000_384),
+            'AtlasAiService',
+            `Failed to parse value for tag <${tag}>: ${value}`,
+            { error: e }
+          );
+          result[tag] = null;
+        }
       }
-    }
-  }
+    })
+  );
 
   const { aggregation: pipeline, ...query } = result;
 
