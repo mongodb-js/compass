@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 import path from 'path';
-import { onStarted, openImport, selectImportFileName } from './import';
+import {
+  onStarted,
+  openImport,
+  selectImportFileName,
+  closeImport,
+} from './import';
 import type { ImportStore } from '../stores/import-store';
 import { ImportPlugin } from '../index';
 import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
@@ -79,6 +84,50 @@ describe('import [module]', function () {
         false
       );
       expect(mockStore.getState().import.isOpen).to.equal(true);
+    });
+
+    it('increments openId each time import is opened', function () {
+      expect(mockStore.getState().import.openId).to.equal(0);
+
+      mockStore.dispatch(
+        openImport({
+          namespace: 'test.test',
+          origin: 'menu',
+          connectionId: 'TEST',
+        }) as any
+      );
+      expect(mockStore.getState().import.openId).to.equal(1);
+
+      mockStore.dispatch(closeImport());
+
+      mockStore.dispatch(
+        openImport({
+          namespace: 'test.test',
+          origin: 'menu',
+          connectionId: 'TEST',
+        }) as any
+      );
+      expect(mockStore.getState().import.openId).to.equal(2);
+    });
+
+    it('increments openId even when re-opened without closing first', function () {
+      mockStore.dispatch(
+        openImport({
+          namespace: 'test.test',
+          origin: 'menu',
+          connectionId: 'TEST',
+        }) as any
+      );
+      const firstOpenId = mockStore.getState().import.openId;
+
+      mockStore.dispatch(
+        openImport({
+          namespace: 'test.test',
+          origin: 'menu',
+          connectionId: 'TEST',
+        }) as any
+      );
+      expect(mockStore.getState().import.openId).to.equal(firstOpenId + 1);
     });
   });
 
