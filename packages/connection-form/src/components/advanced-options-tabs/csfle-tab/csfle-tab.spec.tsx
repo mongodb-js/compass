@@ -60,30 +60,26 @@ describe('In-Use Encryption', function () {
     expectToConnectWith = async (
       expected: ConnectionOptions | ((opts: ConnectionOptions) => void)
     ): Promise<void> => {
-      connectSpy.resetHistory();
-      userEvent.click(screen.getByTestId('connect-button'));
-      try {
-        await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
-      } catch {
-        const errors = screen.getByTestId(
-          'connection-error-summary'
-        ).textContent;
-        throw new Error(`connect was not called: errors = ${errors ?? ''}`);
-      }
-
-      if (typeof expected === 'function') {
-        expected(connectSpy.getCall(0).args[0]);
-      } else {
-        expect(connectSpy.getCall(0).args[0]).to.be.deep.equal(expected);
-      }
+      await waitFor(() => {
+        connectSpy.resetHistory();
+        userEvent.click(screen.getByTestId('connect-button'));
+        expect(connectSpy).to.have.been.calledOnce;
+        const connectedWith = connectSpy.getCall(0).args[0];
+        if (typeof expected === 'function') {
+          expected(connectedWith);
+        } else {
+          expect(connectedWith).to.be.deep.equal(expected);
+        }
+      });
     };
 
     expectConnectionError = async (expectedErrorText: string) => {
-      userEvent.click(screen.getByTestId('connect-button'));
-      await waitFor(() => screen.getByTestId('connection-error-summary'));
-      expect(
-        screen.getByTestId('connection-error-summary').textContent
-      ).to.contain(expectedErrorText);
+      await waitFor(() => {
+        userEvent.click(screen.getByTestId('connect-button'));
+        expect(
+          screen.getByTestId('connection-error-summary').textContent
+        ).to.contain(expectedErrorText);
+      });
     };
 
     render(
