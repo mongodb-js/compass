@@ -308,7 +308,7 @@ describe('SuggestedPrompts', function () {
       const { track } = renderSuggestedPrompts({ enableSkills: true });
 
       const displayText =
-        '/mongodb-query-optimizer Help me understand whether my current query and collection setup will perform well.';
+        '/query-optimizer Help me understand whether my current query and collection setup will perform well.';
       expect(screen.getByText(displayText)).to.exist;
       expect(screen.queryByText(/<skill>/)).to.not.exist;
 

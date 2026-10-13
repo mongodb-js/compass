@@ -144,7 +144,7 @@ function getSuggestedPromptsForTab(
           id: 'generic-query-optimizer-skill',
           text: `<skill>mongodb-query-optimizer</skill> ${QUERY_OPTIMIZER_PROMPT}`,
           metadata: {
-            displayText: `/mongodb-query-optimizer ${QUERY_OPTIMIZER_PROMPT}`,
+            displayText: `/query-optimizer ${QUERY_OPTIMIZER_PROMPT}`,
           },
         }
       : {
