@@ -185,8 +185,7 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
 
 export const EditListSchema = z
-  .array(EditSchema)
-  .nonempty()
+  .tuple([EditSchema], EditSchema)
   // Ensure first item exists and is 'SetModel'
   .refine((edits) => edits[0]?.type === 'SetModel', {
     message: "First edit must be of type 'SetModel'",

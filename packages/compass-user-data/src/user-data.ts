@@ -524,8 +524,9 @@ export class AtlasUserData<
       : (args as [string, Partial<z.input<T>>]);
     const url = this.endpointFor(id);
     try {
-      const prevData = await this.readOneById(id);
-      const newData: z.input<T> = {
+      const prevData = (await this.readOneById(id)) as
+        Record<string, unknown> | undefined;
+      const newData = {
         ...prevData,
         ...data,
       } as z.input<T>;
