@@ -87,7 +87,7 @@ const SavedPipelinesButton: React.FunctionComponent = () => {
             type="button"
             ref={ref}
           >
-            <Icon glyph="Folder" />
+            <Icon glyph="CurlyBraces" />
             <Icon glyph="CaretDown" />
           </button>
           {children}
