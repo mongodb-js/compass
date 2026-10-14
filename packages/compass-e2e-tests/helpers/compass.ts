@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import { ObjectId, EJSON } from 'bson';
-import { promises as fs, rmdirSync } from 'fs';
+import { promises as fs, mkdirSync, openSync, rmdirSync, writeSync } from 'fs';
 import type Mocha from 'mocha';
 import os from 'os';
 import { execFile } from 'child_process';
@@ -363,7 +363,6 @@ export class Compass {
 
   addDebugger(): void {
     const browser = this.browser;
-    const debugClient = debug.extend('webdriver:client');
     const browserProto = Object.getPrototypeOf(browser);
 
     // We can pull the own property names straight from browser, but brings up a
@@ -425,7 +424,7 @@ export class Compass {
 
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
-        debugClient(`${prop}(${args.map(traceArg).join(', ')})`);
+        traceWebdriverCommand(`${prop}(${args.map(traceArg).join(', ')})`);
 
         const stack = new Error(prop).stack ?? '';
 
@@ -1370,6 +1369,28 @@ const SENSITIVE_ENV_VARS = [
   'E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID',
   'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
 ];
+
+const webdriverTrace = debug.extend('webdriver:client');
+
+let webdriverTraceFd: number | undefined;
+
+// The trace writes a line per browser command. In the task log that buries the
+// test failures it exists to help debug, so it goes to a file that ships with
+// the other archived e2e logs. Enable it with
+// DEBUG=compass-e2e-tests:webdriver:client
+function traceWebdriverCommand(message: string): void {
+  if (!webdriverTrace.enabled) {
+    return;
+  }
+  if (webdriverTraceFd === undefined) {
+    mkdirSync(LOG_PATH, { recursive: true });
+    webdriverTraceFd = openSync(
+      path.join(LOG_PATH, 'webdriver-trace.log'),
+      'a'
+    );
+  }
+  writeSync(webdriverTraceFd, `${new Date().toISOString()} ${message}\n`);
+}
 
 // WebdriverIO passes whole Browser/Element graphs around, and those reference
 // the browser session, the driver capabilities and the element's own error.
