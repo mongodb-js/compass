@@ -16,6 +16,7 @@ export const generalFields = [
   'enableShowDialogOnQuit',
   'enableDbAndCollStats',
   'inferNamespacesFromPrivileges',
+  'showHiddenNamespaces',
   'legacyUUIDDisplayEncoding',
 ] as const;
 
