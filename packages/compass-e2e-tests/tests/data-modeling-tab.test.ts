@@ -109,19 +109,17 @@ async function setupDiagram(
   }
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
-  // Ensure that all the collections are selected by default
-  const text = await browser.$(Selectors.CreateDataModelModal).getText();
+  // Ensure that all the collections are selected by default. The modal fetches
+  // the collections when it opens, so this text is not there immediately.
   // 2 is based on the collections we create in beforeEach hook
-  expect(text).to.contain('2/2 total collections selected.');
+  await waitForModalText(browser, '2/2 total collections selected.');
   if (stopAtStep === 'collectionsSelection') {
     return;
   }
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Pass the diagram settings step without changes
-  expect(await browser.$(Selectors.CreateDataModelModal).getText()).to.contain(
-    'Diagram settings'
-  );
+  await waitForModalText(browser, 'Diagram settings');
   if (stopAtStep === 'diagramSettings') {
     return;
   }
@@ -175,6 +173,19 @@ async function selectCollectionOnTheDiagram(
     browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
   );
   expect(await collectionName.getValue()).to.equal(toNS(ns).collection);
+}
+
+async function waitForModalText(
+  browser: CompassBrowser,
+  expectedText: string
+): Promise<void> {
+  const modal = browser.$(Selectors.CreateDataModelModal);
+  await browser.waitUntil(
+    async () => (await modal.getText()).includes(expectedText),
+    {
+      timeoutMsg: `Expected the data model modal to contain "${expectedText}"`,
+    }
+  );
 }
 
 async function getDiagramNodes(
