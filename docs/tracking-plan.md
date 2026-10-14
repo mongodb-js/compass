@@ -43,6 +43,7 @@
   - [Render Process Gone](#render-process-gone)
 - [Assistant](#assistant)
   - [Assistant Prompt Submitted](#assistant-prompt-submitted)
+  - [Assistant Suggested Prompt Selected](#assistant-suggested-prompt-selected)
   - [Assistant Response Failed](#assistant-response-failed)
   - [Assistant Failed](#assistant-failed)
   - [Assistant Feedback Submitted](#assistant-feedback-submitted)
@@ -647,6 +648,16 @@ and hits "enter".
 | `request_id`        | `string \| undefined` | No       |                                                    |
 | `is_compass_web`    | `true \| undefined`   | No       |                                                    |
 | `connection_id`     | `string \| undefined` | No       | The id of the connection associated to this event. |
+
+### Assistant Suggested Prompt Selected
+
+This event is fired when a user clicks one of the suggested prompts shown in
+an empty assistant chat.
+
+| Property              | Type                | Required | Description                                                         |
+| --------------------- | ------------------- | -------- | ------------------------------------------------------------------- |
+| `suggested_prompt_id` | `string`            | Yes      | Stable identifier of the suggested prompt, independent of its text. |
+| `is_compass_web`      | `true \| undefined` | No       |                                                                     |
 
 ### Assistant Response Failed
 
