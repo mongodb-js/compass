@@ -172,7 +172,7 @@ describe('Multiple Connections Sidebar Component', function () {
     });
 
     it('should have settings button and it emits open-compass-settings on click', () => {
-      const settingsBtn = screen.getByTitle('Compass Settings');
+      const settingsBtn = screen.getByTitle('Settings');
       expect(settingsBtn).to.be.visible;
 
       userEvent.click(settingsBtn);

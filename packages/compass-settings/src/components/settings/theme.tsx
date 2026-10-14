@@ -108,7 +108,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
 
   return (
     <div data-testid="theme-settings">
-      <div>Change the appearance of Compass.</div>
+      <div>Change the appearance of the application.</div>
 
       <FormFieldContainer>
         <Checkbox
