@@ -485,7 +485,6 @@ export function ensureOptInAndSendThunk(
       ? activeCollectionSubTab || activeWorkspace.type
       : null;
     setToolsContext(toolsController, {
-      enableMCPTelemetry: prefs.trackUsageStatistics,
       maxTimeMS: prefs.maxTimeMS,
       activeConnection,
       connections: activeConnections,
@@ -1010,7 +1009,6 @@ export function createDefaultChat({
 export function setToolsContext(
   toolsController: ToolsController,
   {
-    enableMCPTelemetry,
     maxTimeMS,
     activeConnection,
     connections,
@@ -1020,7 +1018,6 @@ export function setToolsContext(
     enableGenAIToolCalling,
     activeTab,
   }: {
-    enableMCPTelemetry: boolean;
     maxTimeMS?: number;
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
@@ -1046,7 +1043,6 @@ export function setToolsContext(
     }
     toolsController.setActiveTools(toolGroups);
     toolsController.setContext({
-      enableMCPTelemetry,
       maxTimeMS,
       connections: connections.map((connection) => {
         if (!connection.connectOptions) {
@@ -1066,7 +1062,6 @@ export function setToolsContext(
   } else {
     toolsController.setActiveTools(new Set([]));
     toolsController.setContext({
-      enableMCPTelemetry,
       maxTimeMS,
       connections: [],
       query: undefined,

@@ -186,23 +186,11 @@ module.exports = (env, args) => {
         'mongodb-client-encryption/package.json': localPolyfill('throwError'),
         'mongodb-client-encryption': localPolyfill('throwError'),
 
-        'prom-client': false,
-        // lru-cache (bundled inside mongodb-mcp-server) calls channel() and
-        // tracingChannel() from diagnostics_channel
-        diagnostics_channel: localPolyfill('diagnostics_channel'),
-        // We want to use the cjs dist instead of esm to make sure that no dynamic
-        // import code from mcp-server ends up in compass bundle.
-        // Otherwise, this breaks COMPILE_CLIENT_BAZEL task on mms side.
-        'mongodb-mcp-server': require.resolve('mongodb-mcp-server'),
-
-        // mongodb-mcp-server polyfills
-        // This is only used by StreamableHttpTransport which we do not use.
-        express: false,
-        http2: false,
-        // Only used by Atlas Local tools which we do not currently use.
-        '@mongodb-js/atlas-local': localPolyfill('throwError'),
-        // Only used by Atlas tools which we do not currently use.
-        'node-fetch': false,
+        // @mongodb-js/mcp-tools-mongodb dynamically imports node-machine-id to
+        // compute a device id. Compass doesn't use that path, and leaving it
+        // resolvable emits a dynamic-import chunk that breaks the MMS
+        // COMPILE_CLIENT_BAZEL task.
+        'node-machine-id': localPolyfill('throwError'),
       },
     },
     externalsType: 'window',

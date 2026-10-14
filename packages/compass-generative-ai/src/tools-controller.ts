@@ -3,20 +3,31 @@ import type { ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod/v4';
 import {
+  CompositeLogger,
+  Elicitation,
   Keychain,
-  TransportRunnerBase,
-  UserConfigSchema,
-} from 'mongodb-mcp-server';
+  McpServer,
+  NoopMetrics,
+  NoopTelemetry,
+  type AnyToolBase,
+} from '@mongodb-js/mcp-core';
+import {
+  AGG_COUNT_MAX_TIME_MS_CAP,
+  MongoDBTools,
+  QUERY_COUNT_MAX_TIME_MS_CAP,
+  type MongoDBToolServer,
+} from '@mongodb-js/mcp-tools-mongodb';
 import type {
-  DefaultMetrics,
-  Metrics,
-  Server,
-  TransportRunnerConfig,
-  UserConfig,
-} from 'mongodb-mcp-server';
+  ServerMetadata,
+  ToolExecutionContext,
+} from '@mongodb-js/mcp-types';
 import { createConnectionErrorHandler } from './tools-connection-error-handler';
 import { ToolsLogger } from './tools-logger';
-import { ToolsConnectionManager } from './tools-connection-manager';
+import {
+  COMPASS_CONNECTION_ID,
+  ToolsConnectionManager,
+  ToolsConnectionRegistry,
+} from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
@@ -32,7 +43,6 @@ import {
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 type CompassContext = {
-  enableMCPTelemetry: boolean;
   maxTimeMS?: number;
   query?: string;
   pipeline?: string;
@@ -42,50 +52,28 @@ type ToolsContext = CompassContext & {
   connections: ToolsConnectParams[];
 };
 
-class NoopDefaultMetrics {
-  observe(): void {
-    // no-op
-  }
-}
-
-class NoopMetrics implements Metrics<DefaultMetrics> {
-  constructor() {}
-  get<K extends keyof DefaultMetrics>(_key: K): DefaultMetrics[K] {
-    return new NoopDefaultMetrics() as unknown as DefaultMetrics[K];
-  }
-  getMetrics(): Promise<string> {
-    return Promise.resolve('');
-  }
-}
-
 /**
- * In-memory MCP runner that doesn't bind to any external transport.
- * The server is kept in memory for direct programmatic access.
+ * Compass reports the MCP server name/version to the client and the driver
+ * `appName`; the latter is always overridden by {@link ToolsConnectionManager},
+ * so only the name matters here.
  */
-class InMemoryRunner extends TransportRunnerBase {
-  public server?: Server;
-  public readonly userConfig: UserConfig;
+const serverMetadata: ServerMetadata = {
+  mcpServerName: 'mongodb-compass',
+  version: '0.0.0',
+};
 
-  constructor(config: TransportRunnerConfig) {
-    super(config);
-    this.userConfig = config.userConfig;
-  }
+/** The in-memory server composition the tools read their services from. */
+type CompassToolServer = MongoDBToolServer & { tools: AnyToolBase[] };
 
-  async start(): Promise<void> {
-    this.server = await this.setupServer();
-  }
-
-  async closeTransport(): Promise<void> {
-    await this.server?.close();
-  }
-}
+const READ_ONLY_DATABASE_TOOL_NAMES = new Set(
+  READ_ONLY_DATABASE_TOOLS.map((tool) => tool.name)
+);
 
 type ToolsControllerConfig = {
   logger: Logger;
   preferences: PreferencesAccess;
   getTelemetryAnonymousId: () => string;
   track: TrackFunction;
-  enableMCPTelemetry: boolean;
   maxTimeMS?: number;
   atlasAdminApi: AtlasAdminApiService;
 };
@@ -95,7 +83,9 @@ export class ToolsController {
   private preferences: PreferencesAccess;
   private toolGroups: Set<ToolGroup> = new Set();
   private context: ToolsContext = Object.create(null);
-  private readonly runner: InMemoryRunner;
+  private toolServer?: CompassToolServer;
+  private readonly keychain = new Keychain();
+  private readonly serverLogger: CompositeLogger;
   private connectionManager: ToolsConnectionManager;
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
@@ -106,7 +96,6 @@ export class ToolsController {
     logger,
     getTelemetryAnonymousId,
     track,
-    enableMCPTelemetry,
     maxTimeMS,
     atlasAdminApi,
     preferences,
@@ -115,29 +104,13 @@ export class ToolsController {
     this.atlasAdminApi = atlasAdminApi;
     this.preferences = preferences;
     this.track = track;
-    const mcpConfig = UserConfigSchema.parse({
-      disabledTools: ['connect'],
-      loggers: ['mcp'],
-      readOnly: true,
-      // NOTE: the preferences could change at runtime. As a best-effort way of
-      // keeping them in sync we'll change them every time we set the tools' context
-      telemetry: enableMCPTelemetry ? 'enabled' : 'disabled',
-      maxTimeMS,
-    });
-
-    this.runner = new InMemoryRunner({
-      userConfig: mcpConfig,
-      createConnectionManager: () => Promise.resolve(this.connectionManager),
-      connectionErrorHandler: createConnectionErrorHandler(),
-      additionalLoggers: [new ToolsLogger(Keychain.root, this.logger)],
-      telemetryProperties: {
-        hosting_mode: 'compass',
-      },
-      metrics: new NoopMetrics(),
+    this.context = { ...this.context, maxTimeMS };
+    this.serverLogger = new CompositeLogger({
+      loggers: [new ToolsLogger(this.keychain, logger)],
     });
 
     this.connectionManager = new ToolsConnectionManager({
-      logger: this.runner.logger,
+      logger: this.serverLogger,
       getTelemetryAnonymousId,
     });
 
@@ -154,6 +127,79 @@ export class ToolsController {
       );
       // Nothing to do because this will only happen once when Compass is closed
     });
+  }
+
+  private createServer(): CompassToolServer {
+    const mcpServer = new McpServer({
+      name: serverMetadata.mcpServerName,
+      version: serverMetadata.version,
+    });
+    const tools: AnyToolBase[] = [];
+
+    const server: CompassToolServer = {
+      // Defaults mirror `UserConfigSchema`; Compass only exposes read-only
+      // database tools, so the write- and Atlas-specific options are unused.
+      config: {
+        transport: 'stdio',
+        httpResponseType: 'sse',
+        readOnly: true,
+        disabledTools: ['connect'],
+        confirmationRequiredTools: [],
+        previewFeatures: [],
+        connectionString: undefined,
+        indexCheck: false,
+        disableServerSideJs: true,
+        maxTimeMS: this.context.maxTimeMS,
+        maxDocumentsPerQuery: 100,
+        maxBytesPerQuery: 16_777_216,
+        httpHost: '127.0.0.1',
+        queryCountMaxTimeMsCap: QUERY_COUNT_MAX_TIME_MS_CAP,
+        aggregationCountMaxTimeMsCap: AGG_COUNT_MAX_TIME_MS_CAP,
+      },
+      logger: this.serverLogger,
+      keychain: this.keychain,
+      connectionRegistry: new ToolsConnectionRegistry(
+        this.connectionManager,
+        this.keychain
+      ),
+      // `MongoDBToolServices` types the handler's return as
+      // `{ errorHandled, result }` even though `result` is only read when
+      // `errorHandled` is true. Compass never handles connection errors, so the
+      // narrower `ConnectionErrorUnhandled` is safe here.
+      connectionErrorHandler:
+        createConnectionErrorHandler() as MongoDBToolServer['connectionErrorHandler'],
+      // Only the `export` tool reads the exports manager, and Compass does not
+      // register it.
+      exportsManager: {
+        createJSONExport: () => {
+          return Promise.reject(
+            new Error(
+              'Exporting data is not supported in Compass Database Tools'
+            )
+          );
+        },
+      },
+      telemetry: new NoopTelemetry(),
+      elicitation: new Elicitation({ server: mcpServer.server }),
+      metrics: new NoopMetrics(),
+      mcpServer,
+      tools,
+      isToolCategoryAvailable: (category) => {
+        return tools.some((tool) => tool.category === category);
+      },
+    };
+
+    for (const ToolConstructor of MongoDBTools) {
+      if (!READ_ONLY_DATABASE_TOOL_NAMES.has(ToolConstructor.toolName)) {
+        continue;
+      }
+      const toolInstance = new ToolConstructor({ server });
+      if (toolInstance.register()) {
+        tools.push(toolInstance);
+      }
+    }
+
+    return server;
   }
 
   setActiveTools(toolGroups: Set<ToolGroup>): void {
@@ -201,30 +247,23 @@ export class ToolsController {
       };
     }
 
-    if (this.toolGroups.has('db-read') && this.runner.server) {
-      const readonlyDatabaseToolNames = READ_ONLY_DATABASE_TOOLS.map(
-        (tool) => tool.name
-      );
-      if (this.runner.server.tools.length === 0) {
-        this.runner.server.registerTools();
-      }
-
-      const availableTools = this.runner.server.tools ?? [];
-      for (const toolBase of availableTools) {
-        if (!readonlyDatabaseToolNames.includes(toolBase.name)) {
-          continue;
-        }
-
+    if (this.toolGroups.has('db-read') && this.toolServer) {
+      for (const toolBase of this.toolServer.tools) {
         tools[toolBase.name] = tool({
           description: getCustomToolDescription(toolBase),
           inputSchema: z.object(
             Object.fromEntries(
-              Object.entries(toolBase.argsShape).map(([key, value]) => {
-                // TODO: MCP server applies transformations like toEJSON.
-                // We should come up with a better solution for this but for now we recursively remove the transforms.
-                // AI SDK applies transformations defined in the schema *before* sending the request to the model.
-                return [key, removeZodTransforms(value)];
-              })
+              Object.entries(toolBase.argsShape())
+                // Compass always runs against the user's active connection, so
+                // the connection handle is never something the model should
+                // pick; it is injected in `execute` below.
+                .filter(([key]) => key !== 'connectionId')
+                .map(([key, value]) => {
+                  // TODO: MCP server applies transformations like toEJSON.
+                  // We should come up with a better solution for this but for now we recursively remove the transforms.
+                  // AI SDK applies transformations defined in the schema *before* sending the request to the model.
+                  return [key, removeZodTransforms(value)];
+                })
             )
           ),
           needsApproval: true,
@@ -278,9 +317,15 @@ export class ToolsController {
 
             let result: Awaited<ReturnType<typeof toolBase.invoke>>;
             try {
-              result = await toolBase.invoke(args, {
-                signal: options.abortSignal ?? new AbortSignal(),
-              });
+              const context: ToolExecutionContext = {
+                request: {
+                  signal: options.abortSignal ?? new AbortController().signal,
+                },
+              };
+              result = await toolBase.invoke(
+                { ...args, connectionId: COMPASS_CONNECTION_ID },
+                context
+              );
             } finally {
               // disconnect
               await this.connectionManager.disconnect();
@@ -336,10 +381,9 @@ export class ToolsController {
 
   setContext(context: ToolsContext): void {
     // make sure these properties are always in sync with the tools' config
-    this.runner.userConfig.telemetry = context.enableMCPTelemetry
-      ? 'enabled'
-      : 'disabled';
-    this.runner.userConfig.maxTimeMS = context.maxTimeMS;
+    if (this.toolServer) {
+      this.toolServer.config.maxTimeMS = context.maxTimeMS;
+    }
     this.context = context;
   }
 
@@ -353,29 +397,26 @@ export class ToolsController {
     this.connectionIdByToolCallId[toolCallId] = connectionId;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  get server(): Server | undefined {
-    return this.runner?.server;
+  get server(): CompassToolServer | undefined {
+    return this.toolServer;
   }
 
-  public async startServer(): Promise<void> {
-    if (this.runner.server) {
-      return;
+  public startServer(): Promise<void> {
+    if (this.toolServer) {
+      return Promise.resolve();
     }
 
     try {
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_402),
         'ToolsController',
-        'Starting in-memory MCP server with config',
+        'Starting in-memory MCP server',
         {
-          ...this.runner.userConfig,
-          apiClientId: '<redacted>',
-          apiClientSecret: '<redacted>',
+          maxTimeMS: this.context.maxTimeMS,
         }
       );
 
-      await this.runner.start();
+      this.toolServer = this.createServer();
 
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_403),
@@ -392,11 +433,13 @@ export class ToolsController {
         { error: error.message }
       );
     }
+
+    return Promise.resolve();
   }
 
   public async stopServer(): Promise<void> {
     try {
-      if (!this.runner.server) {
+      if (!this.toolServer) {
         this.logger.log.info(
           this.logger.mongoLogId(1_001_000_406),
           'ToolsController',
@@ -404,7 +447,9 @@ export class ToolsController {
         );
         return;
       }
-      await this.runner.server.close();
+      const server = this.toolServer;
+      this.toolServer = undefined;
+      await server.mcpServer.close();
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_407),
         'ToolsController',
