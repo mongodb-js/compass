@@ -232,6 +232,28 @@ async function getDiagramEdges(
   return edges;
 }
 
+async function waitForNodeLocation(
+  browser: CompassBrowser,
+  node: ChainablePromiseElement,
+  expectedLocation: { x: number; y: number }
+) {
+  let lastLocation: { x: number; y: number } | undefined;
+  await browser.waitUntil(
+    async () => {
+      lastLocation = await node.getLocation();
+      return (
+        lastLocation.x === expectedLocation.x &&
+        lastLocation.y === expectedLocation.y
+      );
+    },
+    {
+      timeoutMsg: `Expected node to be at ${JSON.stringify(
+        expectedLocation
+      )}, but it was at ${JSON.stringify(lastLocation)}`,
+    }
+  );
+}
+
 /**
  * Moves a node to the specified coordinates and returns its original position.
  */
@@ -402,16 +424,12 @@ describe('Data Modeling tab', function () {
 
       // Undo the change
       await browser.clickVisible(Selectors.DataModelUndoButton);
-      await browser.waitForAnimations(dataModelEditor);
-      const positionAfterUndone = await testCollection1.getLocation();
-      expect(positionAfterUndone).to.deep.equal(startPosition);
+      await waitForNodeLocation(browser, testCollection1, startPosition);
 
       // Redo the change
       await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
       await browser.clickVisible(Selectors.DataModelRedoButton);
-      await browser.waitForAnimations(dataModelEditor);
-      const positionAfterRedo = await testCollection1.getLocation();
-      expect(positionAfterRedo).to.deep.equal(newPosition);
+      await waitForNodeLocation(browser, testCollection1, newPosition);
       // Open a new tab
       await browser.openNewTab();
       await browser.$(Selectors.DiagramList).waitForDisplayed();

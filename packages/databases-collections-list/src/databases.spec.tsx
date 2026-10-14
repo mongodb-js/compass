@@ -236,6 +236,40 @@ describe('Databases', function () {
     ).to.have.lengthOf(16);
   });
 
+  describe('refresh button', function () {
+    const renderList = (isRefreshing: boolean) =>
+      renderDatabasesList({ databases: dbs, isRefreshing });
+
+    const getRefreshButton = () =>
+      screen.getByRole('button', { name: 'Refresh' });
+
+    it('is enabled without a spinner and triggers refresh when clicked', function () {
+      const { refreshSpy } = renderList(false);
+      const button = getRefreshButton();
+
+      expect(button).to.have.attribute('aria-disabled', 'false');
+      expect(screen.queryByTitle('Refreshing databases')).to.not.exist;
+
+      userEvent.click(button);
+
+      expect(refreshSpy).to.have.been.calledOnce;
+    });
+
+    it('shows a spinner, disables itself, and ignores clicks while refreshing', function () {
+      const { refreshSpy } = renderList(true);
+      const button = getRefreshButton();
+
+      expect(button).to.have.attribute('aria-disabled', 'true');
+      expect(screen.getByTitle('Refreshing databases')).to.exist;
+
+      userEvent.click(button, undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      expect(refreshSpy).to.not.have.been.called;
+    });
+  });
+
   it('renders a tooltip when inferred_from_privileges is true', async function () {
     renderDatabasesList({
       databases: dbs,

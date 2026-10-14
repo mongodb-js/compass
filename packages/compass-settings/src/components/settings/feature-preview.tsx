@@ -51,8 +51,8 @@ export const FeaturePreviewSettings: React.FunctionComponent = () => {
   return (
     <div data-testid="feature-flag-settings">
       <div>
-        These settings control experimental behavior of Compass. Use them at
-        your own risk!
+        These settings control experimental behavior of the application. Use
+        them at your own risk!
       </div>
       <div>
         {showPreviewFeatures && (

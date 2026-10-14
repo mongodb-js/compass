@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import TypeChecker from 'hadron-type-checker';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { css, spacing } from '@mongodb-js/compass-components';
 import MatchGroupForm, { createGroup } from './match-group-form';
 

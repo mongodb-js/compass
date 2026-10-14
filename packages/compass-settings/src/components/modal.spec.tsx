@@ -42,6 +42,7 @@ describe('SettingsModal', function () {
             onSelectTab={onSelectTabSpy}
             selectedTab={undefined}
             hasChangedSettings={false}
+            isSaving={false}
             userConfigurableSettings={{ autoUpdates: true }}
             {...props}
           />
@@ -71,6 +72,21 @@ describe('SettingsModal', function () {
       userEvent.click(saveButton);
       expect(onSaveSpy.calledOnce).to.be.true;
     });
+  });
+
+  it('shows a spinner and disables the save button while saving', function () {
+    renderSettingsModal({
+      isOpen: true,
+      hasChangedSettings: true,
+      isSaving: true,
+    });
+
+    const saveButton = within(screen.getByTestId('settings-modal')).getByTestId(
+      'submit-button'
+    );
+
+    expect(within(saveButton).getByTitle('Saving settings')).to.exist;
+    expect(saveButton.getAttribute('aria-disabled')).to.equal('true');
   });
 
   it('does not show empty categories', async function () {

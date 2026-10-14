@@ -4,7 +4,7 @@ module.exports = {
   extends: ['@mongodb-js/eslint-config-compass'],
   overrides: [
     {
-      files: ['**/*.js', '**/*.ts'],
+      files: ['**/*.js', '**/*.ts', '**/*.mts'],
       rules: {
         'no-console': 0,
       },

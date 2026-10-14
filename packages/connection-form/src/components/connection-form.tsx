@@ -25,6 +25,7 @@ import {
 import { cloneDeep } from 'lodash';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
+import ReadPreferenceForm from './advanced-options-tabs/advanced-tab/read-preference-form';
 import { ConnectionFormModalActions } from './connection-form-modal-actions';
 import {
   useConnectForm,
@@ -32,6 +33,7 @@ import {
   type UpdateConnectionFormField,
 } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
+import { tryToParseConnectionString } from '../utils/connection-string-helpers';
 import type { ConnectionFormSettings } from '../hooks/use-connect-form-settings';
 import {
   ConnectionFormSettingsContext,
@@ -89,12 +91,10 @@ const formContentStyles = css({
   // To prevent input outline being cut by the overflow
   paddingLeft: spacing[100],
 
-  // Adds some scrollable spacing to the end of the form. Needs to be applied to
-  // the child so that the form is scrollable with the padding and not with
-  // padding cutting the form content at the end
-  '& > :last-child': {
-    paddingBottom: spacing[600],
-  },
+  // Leaves some space after the last field when scrolled to the end. Set here
+  // rather than on the last child, which can be the disconnect banner and
+  // would get the padding inside it.
+  paddingBottom: spacing[600],
 });
 
 const formHelpContainerStyles = css({
@@ -359,6 +359,7 @@ function ConnectionForm({
 }: ConnectionFormPropsWithoutSettings): React.ReactElement {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
+  const isAtlas = !!initialConnectionInfo.atlasMetadata;
 
   const onAdvancedChange = useCallback(
     (newState: boolean) => {
@@ -407,6 +408,11 @@ function ConnectionForm({
     (error) => error.fieldName === 'connectionString'
   );
 
+  const [connectionStringUrl] = useMemo(
+    () => tryToParseConnectionString(connectionOptions.connectionString),
+    [connectionOptions.connectionString]
+  );
+
   const getConnectionInfoToSave = useCallback(
     (favoriteInfo?: ConnectionFavoriteOptions): ConnectionInfo => ({
       ...cloneDeep(initialConnectionInfo),
@@ -446,7 +452,9 @@ function ConnectionForm({
       // TODO: this method throws on malformed connection strings instead of
       // returning errors
       const formErrors = validateConnectionOptionsErrors(
-        updatedConnectionOptions
+        updatedConnectionOptions,
+        undefined,
+        { isAtlas }
       );
       if (formErrors.length) {
         setErrors(formErrors);
@@ -484,6 +492,7 @@ function ConnectionForm({
       getConnectionInfoToSave,
       callOnSaveConnectionClickedAndStoreErrors,
       onSaveAndConnectClicked,
+      isAtlas,
     ]
   );
 
@@ -517,11 +526,15 @@ function ConnectionForm({
         <div className={formHeaderStyles}>
           <div className={formHeaderContentStyles}>
             <H3 className={headingWithHiddenButtonStyles}>
-              {(initialConnectionInfo.favorite?.name ?? 'New Connection') ||
-                'Edit Connection'}
+              {isAtlas
+                ? 'Edit Connection'
+                : (initialConnectionInfo.favorite?.name ?? 'New Connection') ||
+                  'Edit Connection'}
             </H3>
             <Description className={descriptionStyles}>
-              Manage your connection settings
+              {isAtlas
+                ? 'Manage your connection settings. Changes are not preserved across sessions.'
+                : 'Manage your connection settings'}
             </Description>
           </div>
         </div>
@@ -535,10 +548,11 @@ function ConnectionForm({
               >
                 <div className={disabledConnectedConnectionContentStyles}>
                   <div>
-                    While connected, you may only personalize your
-                    connection&apos;s name, color or favorite status. To fully
-                    configure it, you must first disconnect. Beware that
-                    disconnecting might cause work in progress to be lost.
+                    {isAtlas
+                      ? 'To change the read preference, you must first disconnect.'
+                      : "While connected, you may only personalize your connection's name, color or favorite status. To fully configure it, you must first disconnect."}{' '}
+                    Beware that disconnecting might cause work in progress to be
+                    lost.
                   </div>
                   <div>
                     <Button
@@ -552,61 +566,75 @@ function ConnectionForm({
                 </div>
               </Banner>
             )}
-            {protectConnectionStrings && !disableEditingConnectedConnection && (
-              <Banner
-                data-testid="protect-connection-strings-banner"
-                className={bannerStyles}
-              >
-                Advanced Connection Options are hidden while the &quot;Protect
-                Connection String Secrets&quot; setting is enabled. Disable the
-                setting to configure Advanced Connection Options or edit your
-                connection string.
-              </Banner>
-            )}
-            <ConnectionStringInput
-              connectionString={connectionOptions.connectionString}
-              enableEditingConnectionString={enableEditingConnectionString}
-              disableEditingConnectedConnection={
-                !!disableEditingConnectedConnection
-              }
-              setEnableEditingConnectionString={
-                setEnableEditingConnectionString
-              }
-              onSubmit={onSubmitForm}
-              updateConnectionFormField={updateConnectionFormField}
-              protectConnectionStrings={protectConnectionStrings}
-            />
-            {connectionStringInvalidError && (
-              <Banner
-                className={connectionStringErrorStyles}
-                variant={BannerVariant.Danger}
-              >
-                {connectionStringInvalidError.message}
-              </Banner>
-            )}
-            {showPersonalisationForm && (
-              <ConnectionPersonalizationForm
-                personalizationOptions={personalizationOptions}
-                updateConnectionFormField={updateConnectionFormField}
-              />
-            )}
-            {!(
-              protectConnectionStrings || disableEditingConnectedConnection
-            ) && (
-              <AdvancedConnectionOptions
-                open={advancedOpen}
-                setOpen={onAdvancedChange}
-                errors={connectionStringInvalidError ? [] : errors}
-                disabled={
-                  !!(
-                    connectionStringInvalidError ||
-                    disableEditingConnectedConnection
-                  )
-                }
-                updateConnectionFormField={updateConnectionFormField}
-                connectionOptions={connectionOptions}
-                openSettingsModal={openSettingsModal}
-              />
+            {isAtlas ? (
+              !disableEditingConnectedConnection &&
+              connectionStringUrl && (
+                <ReadPreferenceForm
+                  errors={errors}
+                  connectionStringUrl={connectionStringUrl}
+                  updateConnectionFormField={updateConnectionFormField}
+                />
+              )
+            ) : (
+              <>
+                {protectConnectionStrings &&
+                  !disableEditingConnectedConnection && (
+                    <Banner
+                      data-testid="protect-connection-strings-banner"
+                      className={bannerStyles}
+                    >
+                      Advanced Connection Options are hidden while the
+                      &quot;Protect Connection String Secrets&quot; setting is
+                      enabled. Disable the setting to configure Advanced
+                      Connection Options or edit your connection string.
+                    </Banner>
+                  )}
+                <ConnectionStringInput
+                  connectionString={connectionOptions.connectionString}
+                  enableEditingConnectionString={enableEditingConnectionString}
+                  disableEditingConnectedConnection={
+                    !!disableEditingConnectedConnection
+                  }
+                  setEnableEditingConnectionString={
+                    setEnableEditingConnectionString
+                  }
+                  onSubmit={onSubmitForm}
+                  updateConnectionFormField={updateConnectionFormField}
+                  protectConnectionStrings={protectConnectionStrings}
+                />
+                {connectionStringInvalidError && (
+                  <Banner
+                    className={connectionStringErrorStyles}
+                    variant={BannerVariant.Danger}
+                  >
+                    {connectionStringInvalidError.message}
+                  </Banner>
+                )}
+                {showPersonalisationForm && (
+                  <ConnectionPersonalizationForm
+                    personalizationOptions={personalizationOptions}
+                    updateConnectionFormField={updateConnectionFormField}
+                  />
+                )}
+                {!(
+                  protectConnectionStrings || disableEditingConnectedConnection
+                ) && (
+                  <AdvancedConnectionOptions
+                    open={advancedOpen}
+                    setOpen={onAdvancedChange}
+                    errors={connectionStringInvalidError ? [] : errors}
+                    disabled={
+                      !!(
+                        connectionStringInvalidError ||
+                        disableEditingConnectedConnection
+                      )
+                    }
+                    updateConnectionFormField={updateConnectionFormField}
+                    connectionOptions={connectionOptions}
+                    openSettingsModal={openSettingsModal}
+                  />
+                )}
+              </>
             )}
           </div>
 
@@ -630,7 +658,7 @@ function ConnectionForm({
             warnings={connectionStringInvalidError ? [] : warnings}
             onCancel={onCancel}
             onSave={
-              onSaveClicked
+              onSaveClicked && !isAtlas
                 ? () =>
                     void callOnSaveConnectionClickedAndStoreErrors?.(
                       getConnectionInfoToSave()
@@ -638,7 +666,9 @@ function ConnectionForm({
                 : undefined
             }
             onConnect={
-              onConnectClicked ? () => onSubmitForm('connect') : undefined
+              onConnectClicked && !isAtlas
+                ? () => onSubmitForm('connect')
+                : undefined
             }
             onSaveAndConnect={
               onSaveAndConnectClicked
@@ -652,6 +682,16 @@ function ConnectionForm({
   );
   /* eslint-enable jsx-a11y/no-redundant-roles */
 }
+
+// Atlas connections come from the Atlas API and only last for the session, so
+// read preference is the only thing users can change and there is nothing to
+// name, favorite or save.
+const atlasConnectionSettings: Partial<ConnectionFormSettings> = {
+  showPersonalisationForm: false,
+  showFavoriteActions: false,
+  showHelpCardsInForm: false,
+  saveAndConnectLabel: 'Connect',
+};
 
 const ConnectionFormWithSettings: React.FunctionComponent<
   ConnectionFormPropsWithoutSettings & Partial<ConnectionFormSettings>
@@ -673,6 +713,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
   saveAndConnectLabel,
   ...rest
 }) => {
+  const isAtlas = !!rest.initialConnectionInfo.atlasMetadata;
   const value = useMemo(
     () => ({
       showFavoriteActions,
@@ -690,6 +731,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showCSFLE,
       showProxySettings,
       saveAndConnectLabel,
+      ...(isAtlas && atlasConnectionSettings),
     }),
     [
       showFavoriteActions,
@@ -707,6 +749,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showCSFLE,
       showProxySettings,
       saveAndConnectLabel,
+      isAtlas,
     ]
   );
 

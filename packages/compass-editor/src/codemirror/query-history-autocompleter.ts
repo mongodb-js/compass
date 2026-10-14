@@ -8,7 +8,7 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { languages } from '../editor';
 import { highlightCode } from '@lezer/highlight';
 import { type CodemirrorThemeType, highlightStyles } from '../editor';

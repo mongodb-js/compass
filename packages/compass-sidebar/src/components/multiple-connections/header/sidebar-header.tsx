@@ -27,7 +27,7 @@ type Action = 'open-compass-settings';
 const actions: ItemAction<Action>[] = [
   {
     action: 'open-compass-settings',
-    label: 'Compass Settings',
+    label: 'Settings',
     icon: 'Settings',
   },
 ];
