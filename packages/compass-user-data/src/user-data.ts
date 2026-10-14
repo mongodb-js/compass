@@ -74,13 +74,13 @@ type ReadOptions = {
   ignoreErrors: boolean;
 };
 
-export interface ReadAllResult<T extends z.Schema> {
+export interface ReadAllResult<T extends z.ZodType> {
   data: z.output<T>[];
   errors: Error[];
 }
 
 export abstract class IUserData<
-  T extends z.Schema,
+  T extends z.ZodType,
   Type extends UserDataType = Exclude<UserDataType, UserScopedUserDataType>,
 > {
   protected readonly validator: T;
@@ -121,7 +121,7 @@ export abstract class IUserData<
   ): Promise<boolean>;
 }
 
-export class FileUserData<T extends z.Schema> extends IUserData<T> {
+export class FileUserData<T extends z.ZodType> extends IUserData<T> {
   private readonly basePath?: string;
   protected readonly semaphore = new Semaphore(100);
 
@@ -371,7 +371,7 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
       await this.write(id, {
         ...((await this.readOne(id)) ?? {}),
         ...data,
-      });
+      } as z.input<T>);
       return true;
     } catch {
       return false;
@@ -393,7 +393,7 @@ export type AtlasServiceLike = {
 
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
 export class AtlasUserData<
-  T extends z.Schema,
+  T extends z.ZodType,
   Type extends UserDataType = UserDataType,
 > extends IUserData<T, Type> {
   private readonly atlasService: AtlasServiceLike;
@@ -528,7 +528,7 @@ export class AtlasUserData<
       const newData: z.input<T> = {
         ...prevData,
         ...data,
-      };
+      } as z.input<T>;
 
       await this.atlasService.authenticatedFetch(url, {
         method: 'PUT',
