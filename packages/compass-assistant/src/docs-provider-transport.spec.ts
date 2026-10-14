@@ -46,6 +46,7 @@ describe('DocsProviderTransport', function () {
     let doStream: sinon.SinonStub;
     let transport: DocsProviderTransport;
     let abortController: AbortController;
+    let threadId: string;
     let sendMessages: (
       params: Partial<Parameters<typeof transport.sendMessages>[0]>
     ) => Promise<ReadableStream<UIMessageChunk>>;
@@ -64,10 +65,12 @@ describe('DocsProviderTransport', function () {
         doStream,
       });
       abortController = new AbortController();
+      threadId = '5f8c4a1e-3b7d-4c2a-9e61-0d2b7a9c1f34';
       transport = new DocsProviderTransport({
         origin: 'mongodb-compass',
         instructions: 'Test instructions for MongoDB assistance',
         model: mockModel,
+        getThreadId: () => threadId,
       });
       sendMessages = (params) =>
         transport.sendMessages({
@@ -269,27 +272,23 @@ describe('DocsProviderTransport', function () {
         { id: 'm1', role: 'user', parts: [{ type: 'text', text: 'Hi' }] },
       ];
 
-      async function threadIdFor(chatId: string) {
+      async function sentThreadId() {
         const callCount = doStream.callCount;
-        await sendMessages({ chatId, messages });
+        await sendMessages({ messages });
         await waitFor(() => {
           expect(doStream.callCount).to.equal(callCount + 1);
         });
         return doStream.lastCall.args[0].headers['X-Client-Thread-Id'];
       }
 
-      it('stays the same while the chat id is unchanged', async function () {
-        const first = await threadIdFor('chat-1');
-        const second = await threadIdFor('chat-1');
-        expect(first).to.match(UUID_REGEX);
-        expect(second).to.equal(first);
+      it('sends the thread id provided by getThreadId', async function () {
+        expect(await sentThreadId()).to.equal(threadId);
       });
 
-      it('changes when the chat id changes', async function () {
-        const first = await threadIdFor('chat-1');
-        const second = await threadIdFor('chat-2');
-        expect(second).to.match(UUID_REGEX);
-        expect(second).to.not.equal(first);
+      it('follows the thread id when it changes', async function () {
+        await sentThreadId();
+        threadId = 'a1b2c3d4-0000-4000-8000-123456789abc';
+        expect(await sentThreadId()).to.equal(threadId);
       });
     });
 
