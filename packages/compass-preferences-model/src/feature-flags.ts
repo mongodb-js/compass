@@ -99,7 +99,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
 
   {
     name: 'enableMockDataGenerator',
-    stage: 'development',
+    stage: 'released',
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable generating mock data scripts with AI',
@@ -161,6 +161,20 @@ export const FEATURE_FLAG_DEFINITIONS = [
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable sorted syntax for search indexes schema',
+    },
+  },
+
+  /*
+   * Feature flag for VectorX private preview support in the
+   * vector search index schema.
+   */
+  {
+    name: 'enableVectorXPrivatePreview',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short:
+        'Enable VectorX support for vector search indexes (private preview)',
     },
   },
 

@@ -105,7 +105,8 @@
     "openai": "^6.3.0",
     "sinon": "^17.0.1",
     "typescript": "^6.0.3",
-    "xvfb-maybe": "^0.2.1"
+    "xvfb-maybe": "^0.2.1",
+    "zod": "^3.25.76"
   },
   "is_compass_plugin": true
 }

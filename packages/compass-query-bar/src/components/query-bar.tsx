@@ -43,7 +43,8 @@ import {
   type ExplainMode,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
+import { isEqualDefaultQuery } from '../utils/query';
+import { isQueryValid } from '../utils/validate-query';
 import type { QueryProperty } from '../constants/query-properties';
 import { QueryAI } from './query-ai';
 import type {
@@ -60,7 +61,7 @@ import {
   useSyncAssistantGlobalState,
   useAssistantActions,
 } from '@mongodb-js/compass-assistant';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 const queryBarFormStyles = css({
   display: 'flex',

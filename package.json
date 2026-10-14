@@ -99,9 +99,10 @@
     "scripts"
   ],
   "overrides": {
+    "@ai-sdk/provider-utils": "4.0.33",
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.71.1",
-      "@typescript-eslint/parser": "^8.71.1",
+      "@typescript-eslint/eslint-plugin": "^8.71.2",
+      "@typescript-eslint/parser": "^8.71.2",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",
@@ -118,6 +119,7 @@
     },
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
+    "basic-ftp": "^6.2.2",
     "braintrust": {
       "esbuild": "0.26.0"
     },

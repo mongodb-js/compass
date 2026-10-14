@@ -483,6 +483,7 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
+  isRefreshing?: boolean;
 }> = ({
   namespace,
   collections,
@@ -490,6 +491,7 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick,
   onCreateCollectionClick,
   onRefreshClick,
+  isRefreshing,
 }) => {
   let virtual = true;
   if (process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING === 'true') {
@@ -515,6 +517,7 @@ const CollectionsList: React.FunctionComponent<{
       onDeleteItemClick={onDeleteCollectionClick}
       onCreateItemClick={onCreateCollectionClick}
       onRefreshClick={onRefreshClick}
+      isRefreshing={isRefreshing}
     ></TableComponent>
   );
 };

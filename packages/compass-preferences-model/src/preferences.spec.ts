@@ -298,6 +298,7 @@ describe('Preferences class', function () {
       'enableGenAIToolCalling',
       'enableAutoEmbeddingPublicPreview',
       'inferNamespacesFromPrivileges',
+      'timezone',
     ]) {
       expect(atlasPreferences).to.not.have.property(name);
     }
@@ -305,6 +306,7 @@ describe('Preferences class', function () {
     const desktop = await setupPreferences(tmpdir, {}, 'desktop');
     expect(desktop.getSettingsUIPreferences()).to.include({
       enableGenAIFeatures: true,
+      timezone: 'UTC',
     });
   });
 

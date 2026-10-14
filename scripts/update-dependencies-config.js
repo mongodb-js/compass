@@ -52,7 +52,6 @@ module.exports = {
     '@mongodb-js/shell-bson-parser',
     '@mongodb-js/native-machine-id',
     'mongodb-cloud-info',
-    'mongodb-query-parser',
   ],
   'devtools-shared-dev': [
     '@mongodb-js/dl-center',

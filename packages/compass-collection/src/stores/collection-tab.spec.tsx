@@ -293,7 +293,6 @@ describe('Collection tab mock data generator integration', function () {
     { enableGenAIFeatures: false },
     { enableGenAIFeaturesAtlasOrg: false },
     { readOnly: true },
-    { enableMockDataGenerator: false },
   ]) {
     it(`does not sample on eligibility preference changes: ${JSON.stringify(
       preferences

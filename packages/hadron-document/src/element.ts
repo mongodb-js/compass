@@ -10,7 +10,7 @@ import TypeChecker, {
   isUUIDType,
 } from 'hadron-type-checker';
 import { Binary, UUID } from 'bson';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import DateEditor from './editor/date';
 import { ElementEvents, type ElementEventsType } from './element-events';
 import type { Document } from './document';

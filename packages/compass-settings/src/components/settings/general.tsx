@@ -16,6 +16,7 @@ export const generalFields = [
   'enableShowDialogOnQuit',
   'enableDbAndCollStats',
   'inferNamespacesFromPrivileges',
+  'showHiddenNamespaces',
   'legacyUUIDDisplayEncoding',
 ] as const;
 
@@ -23,7 +24,7 @@ export const GeneralSettings: React.FunctionComponent = () => {
   return (
     <div data-testid="general-settings">
       <div>
-        To enhance the user experience, Compass can enable or disable particular
+        To enhance the user experience, you can enable or disable particular
         features. Please choose from the settings below:
       </div>
       <SettingsList fields={generalFields} />
