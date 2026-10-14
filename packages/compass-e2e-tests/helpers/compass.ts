@@ -353,7 +353,10 @@ export class Compass {
         };
       }
     } catch (err) {
-      debug('Failed to update application logs', err);
+      // This is expected whenever the application is already gone, and the
+      // WebDriver error would dump the whole browser object graph if inspected
+      const message = err instanceof Error ? err.message : String(err);
+      debug('Failed to update application logs: %s', message);
     }
     return this.logs;
   }
@@ -422,11 +425,7 @@ export class Compass {
 
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
-        debugClient(
-          `${prop}(${args
-            .map((arg) => redact(inspect(arg, { breakLength: Infinity })))
-            .join(', ')})`
-        );
+        debugClient(`${prop}(${args.map(traceArg).join(', ')})`);
 
         const stack = new Error(prop).stack ?? '';
 
@@ -1371,6 +1370,26 @@ const SENSITIVE_ENV_VARS = [
   'E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID',
   'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
 ];
+
+// WebdriverIO passes whole Browser/Element graphs around, and those reference
+// the browser session, the driver capabilities and the element's own error.
+// Inspecting them deeply buries the actual failure in unrelated internals.
+function traceArg(arg: unknown): string {
+  if (typeof arg === 'string') {
+    return redact(arg);
+  }
+  if (typeof arg === 'function') {
+    return `<${arg.name || 'function'}>`;
+  }
+  if (arg === null || typeof arg !== 'object') {
+    return String(arg);
+  }
+  const ctor = (arg as object).constructor?.name;
+  if (ctor && ctor !== 'Object' && ctor !== 'Array') {
+    return `<${ctor}>`;
+  }
+  return redact(inspect(arg, { depth: 1, breakLength: Infinity }));
+}
 
 function redact(value: string): string {
   for (const field of SENSITIVE_ENV_VARS) {
