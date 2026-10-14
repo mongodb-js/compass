@@ -179,7 +179,8 @@ async function selectCollectionOnTheDiagram(
 
 async function getDiagramNodes(
   browser: CompassBrowser,
-  expectedCount: number
+  expectedCount: number,
+  expectedNodeIds: string[] = []
 ): Promise<Node[]> {
   let nodes: Node[] = [];
   await browser.waitUntil(async () => {
@@ -198,7 +199,10 @@ async function getDiagramNodes(
           position: node.position,
         }));
     }, Selectors.DataModelEditor);
-    return nodes.length === expectedCount;
+    return (
+      nodes.length === expectedCount &&
+      expectedNodeIds.every((id) => nodes.some((node) => node.id === id))
+    );
   });
   return nodes;
 }
@@ -919,7 +923,10 @@ describe('Data Modeling tab', function () {
 
       // Select the second collection and verify that the new name is in the diagram.
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-nested');
-      const nodes = await getDiagramNodes(browser, 2);
+      const nodes = await getDiagramNodes(browser, 2, [
+        'test.renamedOne',
+        'test.testCollection-nested',
+      ]);
       expect(nodes).to.have.lengthOf(2);
       expect(nodes[0].id).to.equal('test.renamedOne');
       expect(nodes[1].id).to.equal('test.testCollection-nested');
@@ -973,7 +980,9 @@ describe('Data Modeling tab', function () {
       await drawer.click(); // Unfocus the input.
 
       // Verify that the new collection is named in the diagram.
-      const nodesAfterNaming = await getDiagramNodes(browser, 3);
+      const nodesAfterNaming = await getDiagramNodes(browser, 3, [
+        `test.${collectionName}`,
+      ]);
       expect(nodesAfterNaming[2].id).to.equal(`test.${collectionName}`);
 
       // Undo once - verify that the collection is removed
