@@ -1269,7 +1269,28 @@ FindIterable<Document> result = collection.find(filter)
     await browser.clickVisible(Selectors.InsertDocumentOption);
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
+    const editorTextBeforeViewSwitch = await browser.getCodemirrorEditorText(
+      Selectors.InsertDocumentEditor
+    );
+
     await browser.clickVisible(Selectors.InsertDialogJSONView);
+
+    // Switching views is applied asynchronously and replaces the editor content
+    // with the document re-serialized in the new syntax. Typing before that
+    // lands gets overwritten when the switch arrives.
+    await browser.waitUntil(
+      async () => {
+        const text = await browser.getCodemirrorEditorText(
+          Selectors.InsertDocumentEditor
+        );
+        return text !== editorTextBeforeViewSwitch;
+      },
+      {
+        timeoutMsg:
+          'Expected the insert dialog to re-serialize the document for the JSON view',
+      }
+    );
+
     await browser.setCodemirrorEditorValue(
       Selectors.InsertDocumentEditor,
       `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
