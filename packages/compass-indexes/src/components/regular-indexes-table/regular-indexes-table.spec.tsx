@@ -388,7 +388,7 @@ describe('RegularIndexesTable Component', function () {
 
     it('renders the rate and the period it covers', function () {
       const since = new Date(Date.now() - 10 * 60 * 1000);
-      const period = `(since ${since.toISOString()})`;
+      const period = `(since ${since.toDateString()})`;
       renderIndexList({
         indexes: [
           mockRegularIndex({ name: 'used', usageCount: 50, usageSince: since }),

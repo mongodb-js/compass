@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tooltip, Body } from '@mongodb-js/compass-components';
+import { formatUsageSince } from '../../utils/format-usage-since';
 
 const NO_USAGE_RATE =
   'Either the server does not support the $indexStats command,' +
@@ -105,7 +106,7 @@ export const formatUsageRateWithPeriod = (
   if (rate === null || !since) {
     return formatted;
   }
-  return `${formatted}${nbsp}(since ${since.toISOString()})`;
+  return `${formatted}${nbsp}(since ${formatUsageSince(since)})`;
 };
 
 const UsageRateField: React.FunctionComponent<UsageRateFieldProps> = ({

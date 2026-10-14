@@ -1,14 +1,19 @@
 import React from 'react';
 import { Tooltip, Body } from '@mongodb-js/compass-components';
+import { formatUsageSince } from '../../utils/format-usage-since';
 
 const NO_USAGE_STATS =
   'Either the server does not support the $indexStats command' +
   ' or the user is not authorized to execute it.';
 
-export const getUsageTooltip = (usage?: number): string => {
-  return usage === null || usage === undefined
-    ? NO_USAGE_STATS
-    : `${usage} index hits since index creation or last server restart`;
+export const getUsageTooltip = (usage?: number, since?: Date): string => {
+  if (usage === null || usage === undefined) {
+    return NO_USAGE_STATS;
+  }
+  const hits = `${usage} index hits`;
+  return since
+    ? `${hits} since ${since.toISOString()}`
+    : `${hits} since index creation or last server restart`;
 };
 
 type UsageFieldProps = {
@@ -31,13 +36,13 @@ const UsageField: React.FunctionComponent<UsageFieldProps> = ({
             <>
               {usage}
               {nbsp}
-              {since ? `(since ${since.toISOString()})` : ''}
+              {since ? `(since ${formatUsageSince(since)})` : ''}
             </>
           )}
         </Body>
       }
     >
-      <Body>{getUsageTooltip(usage)}</Body>
+      <Body>{getUsageTooltip(usage, since)}</Body>
     </Tooltip>
   );
 };
