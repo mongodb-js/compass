@@ -13,7 +13,7 @@ describe('UsageField', function () {
       const since = new Date();
       render(<UsageField usage={20} since={since} />);
 
-      const renderedText = `20 (since ${since.toDateString()})`;
+      const renderedText = `20 (since ${since.toISOString()})`;
       expect(screen.getByText(renderedText)).to.exist;
     });
 

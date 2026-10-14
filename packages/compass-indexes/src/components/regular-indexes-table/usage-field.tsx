@@ -31,7 +31,7 @@ const UsageField: React.FunctionComponent<UsageFieldProps> = ({
             <>
               {usage}
               {nbsp}
-              {since ? `(since ${since.toDateString()})` : ''}
+              {since ? `(since ${since.toISOString()})` : ''}
             </>
           )}
         </Body>
