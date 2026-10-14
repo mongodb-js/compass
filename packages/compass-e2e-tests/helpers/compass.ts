@@ -1370,18 +1370,9 @@ const SENSITIVE_ENV_VARS = [
   'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
 ];
 
-const webdriverTrace = debug.extend('webdriver:client');
-
 let webdriverTraceFd: number | undefined;
 
-// The trace writes a line per browser command. In the task log that buries the
-// test failures it exists to help debug, so it goes to a file that ships with
-// the other archived e2e logs. Enable it with
-// DEBUG=compass-e2e-tests:webdriver:client
 function traceWebdriverCommand(message: string): void {
-  if (!webdriverTrace.enabled) {
-    return;
-  }
   if (webdriverTraceFd === undefined) {
     mkdirSync(LOG_PATH, { recursive: true });
     webdriverTraceFd = openSync(
