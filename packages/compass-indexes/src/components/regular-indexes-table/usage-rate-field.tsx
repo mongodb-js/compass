@@ -52,12 +52,13 @@ export const getUsageRateSortValue = (
   return getUsageRatePerMinute(usage, since) ?? 0;
 };
 
-// Rounding a rate below one hit per minute reads as 0, which is
-// indistinguishable from an index that was never used. Shared by the cell and
-// the tooltip so that the two can't describe the same rate differently.
+// Rounding a rate below one hit per minute either reads as 0, which is
+// indistinguishable from an index that was never used, or rounds up to 1 and
+// overstates usage. Shared by the cell and the tooltip so that the two can't
+// describe the same rate differently.
 const isBelowOnePerMinute = (rate: number) => rate > 0 && rate < 1;
 
-const roundRate = (rate: number) => parseFloat(rate.toFixed(2));
+const roundRate = (rate: number) => Math.round(rate);
 
 export const formatUsageRate = (rate: number | null): string => {
   if (rate === null) {
@@ -75,14 +76,14 @@ export const getUsageRateTooltip = (
     return NO_USAGE_RATE;
   }
   if (rate === 0) {
-    return `This index has not been used since ${since.toDateString()}`;
+    return `This index has not been used since ${since.toISOString()}`;
   }
   if (isBelowOnePerMinute(rate)) {
-    return `Less than 1 index hit per minute on average since ${since.toDateString()}`;
+    return `Less than 1 index hit per minute on average since ${since.toISOString()}`;
   }
   return `${roundRate(
     rate
-  )} index hits per minute on average since ${since.toDateString()}`;
+  )} index hits per minute on average since ${since.toISOString()}`;
 };
 
 type UsageRateFieldProps = {
@@ -104,7 +105,7 @@ export const formatUsageRateWithPeriod = (
   if (rate === null || !since) {
     return formatted;
   }
-  return `${formatted}${nbsp}(since ${since.toDateString()})`;
+  return `${formatted}${nbsp}(since ${since.toISOString()})`;
 };
 
 const UsageRateField: React.FunctionComponent<UsageRateFieldProps> = ({
