@@ -2848,7 +2848,7 @@ describe('store', function () {
       });
 
       it('calls dataService.previewUpdate()', async function () {
-        void store.openBulkUpdateModal();
+        await store.openBulkUpdateModal();
         mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
 
