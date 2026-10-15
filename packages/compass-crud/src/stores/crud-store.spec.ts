@@ -450,7 +450,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'list');
       });
 
-      store.toggleInsertDocumentView('list');
+      void store.toggleInsertDocumentView('list');
 
       await listener;
 
@@ -458,7 +458,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'json');
       });
 
-      store.toggleInsertDocumentView('json');
+      void store.toggleInsertDocumentView('json');
 
       await listener;
     });
@@ -468,7 +468,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'json');
         expect(state.insert.editorText).to.include('"foo"');
       });
-      store.toggleInsertDocumentView('json');
+      void store.toggleInsertDocumentView('json');
       await listener;
 
       listener = waitForState(store, (state) => {
@@ -477,7 +477,7 @@ describe('store', function () {
         expect(state.insert.editorText).to.match(/foo:/);
         expect(state.insert.editorText).to.not.include('"foo"');
       });
-      store.toggleInsertDocumentView('shell');
+      void store.toggleInsertDocumentView('shell');
       await listener;
 
       listener = waitForState(store, (state) => {
@@ -486,7 +486,7 @@ describe('store', function () {
           foo: 1,
         });
       });
-      store.toggleInsertDocumentView('json');
+      void store.toggleInsertDocumentView('json');
       await listener;
     });
 
@@ -513,24 +513,26 @@ describe('store', function () {
 
       await store.openInsertDocumentDialog(complexDoc);
 
-      const currentObject = (view: InsertDocumentView) => {
+      const currentObject = async (view: InsertDocumentView) => {
         const { doc, editorText } = store.state.insert;
         return view === 'list'
           ? doc?.generateObject()
-          : parseInsertDocument(view, editorText ?? '').generateObject();
+          : (
+              await parseInsertDocument(view, editorText ?? '')
+            ).generateObject();
       };
 
       const switchTo = async (view: InsertDocumentView) => {
         const listener = waitForState(store, (state) => {
           expect(state).to.have.nested.property('insert.insertView', view);
         });
-        store.toggleInsertDocumentView(view);
+        void store.toggleInsertDocumentView(view);
         await listener;
-        expect(currentObject(view)).to.deep.equal(complexDoc);
+        expect(await currentObject(view)).to.deep.equal(complexDoc);
       };
 
       expect(store.state.insert.insertView).to.equal('shell');
-      expect(currentObject('shell')).to.deep.equal(complexDoc);
+      expect(await currentObject('shell')).to.deep.equal(complexDoc);
 
       await switchTo('json');
       await switchTo('list');
@@ -542,9 +544,9 @@ describe('store', function () {
   });
 
   describe('#parseInsertDocument', function () {
-    it('parses a shell document literal', function () {
+    it('parses a shell document literal', async function () {
       expect(
-        parseInsertDocument('shell', '{ foo: 1 }').generateObject()
+        (await parseInsertDocument('shell', '{ foo: 1 }')).generateObject()
       ).to.deep.equal({ foo: new Int32(1) });
     });
 
@@ -553,17 +555,17 @@ describe('store', function () {
       '/foo/',
       'new ObjectId("64eff8f8f8f8f8f8f8f8f8f8")',
     ]) {
-      it(`rejects the object-valued shell expression ${text}`, function () {
-        expect(() => parseInsertDocument('shell', text)).to.throw(
+      it(`rejects the object-valued shell expression ${text}`, async function () {
+        await expect(parseInsertDocument('shell', text)).to.be.rejectedWith(
           'The provided definition is not a valid document.'
         );
       });
     }
 
-    it('rejects object-valued shell expressions in the array case', function () {
-      expect(() =>
+    it('rejects object-valued shell expressions in the array case', async function () {
+      await expect(
         parseInsertDocumentArray('shell', '[{ foo: 1 }, new Date()]')
-      ).to.throw('The provided definition is not a valid document.');
+      ).to.be.rejectedWith('The provided definition is not a valid document.');
     });
   });
 
