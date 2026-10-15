@@ -166,7 +166,27 @@ describe('Collection import', function () {
     // wait for the modal to appear
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
+    const editorTextBeforeViewSwitch = await browser.getCodemirrorEditorText(
+      Selectors.InsertDocumentEditor
+    );
+
     await browser.clickVisible(Selectors.InsertDialogJSONView);
+
+    // Switching views is applied asynchronously and replaces the editor content
+    // with the document re-serialized in the new syntax. Typing before that
+    // lands gets overwritten when the switch arrives.
+    await browser.waitUntil(
+      async () => {
+        const text = await browser.getCodemirrorEditorText(
+          Selectors.InsertDocumentEditor
+        );
+        return text !== editorTextBeforeViewSwitch;
+      },
+      {
+        timeoutMsg:
+          'Expected the insert dialog to re-serialize the document for the JSON view',
+      }
+    );
 
     // set the text in the editor
     await browser.setCodemirrorEditorValue(
