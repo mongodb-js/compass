@@ -26,8 +26,7 @@ import type {
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type Collection from '@mongodb-js/mongodb-collection-model';
 import { getQueryAttributes } from '../utils';
-import { mapQueryToFormFields } from '../utils/query';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { getDefaultFormFields } from '../utils/query';
 import { QueryBarStoreContext } from './context';
 import { aiQueryReducer } from './ai-query-reducer';
 import {
@@ -35,6 +34,7 @@ import {
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
   fetchSavedQueries,
+  setQuery,
 } from './query-bar-reducer';
 
 // Partial of DataService that mms shares with Compass.
@@ -151,10 +151,9 @@ export function activatePlugin(
       namespace: namespace ?? '',
       host: dataService?.getConnectionString().hosts.join(','),
       serverVersion: serverVersion ?? '3.6.0',
-      fields: mapQueryToFormFields(preferences.getPreferences(), {
-        ...DEFAULT_FIELD_VALUES,
-        ...getQueryAttributes(query ?? {}),
-      }),
+      // Validating the passed query is async, so start from the defaults and
+      // fill the query in once it has been validated below.
+      fields: getDefaultFormFields(),
       isReadonlyConnection: !instance.isWritable,
     },
     {
@@ -191,6 +190,11 @@ export function activatePlugin(
   on(localAppRegistry, 'explain-plan-interpret-finished', () => {
     store.dispatch({ type: QueryBarActions.InterpretFinished });
   });
+
+  const initialQuery = getQueryAttributes(query ?? {});
+  if (Object.keys(initialQuery).length > 0) {
+    void store.dispatch(setQuery(initialQuery));
+  }
 
   store.dispatch(fetchSavedQueries());
 

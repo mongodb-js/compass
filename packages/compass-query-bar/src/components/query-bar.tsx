@@ -121,8 +121,8 @@ const QueryOptionsToggle = connect(
 
 type QueryBarProps = {
   buttonLabel?: string;
-  onApply: () => void;
-  onReset: () => void;
+  onApply: () => Promise<void>;
+  onReset: () => Promise<void>;
   onOpenExportToLanguage: () => void;
   queryOptionsLayout?: (QueryOption | QueryOption[])[];
   queryChanged: boolean;
@@ -232,9 +232,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   );
 
   const onFormSubmit = useCallback(
-    (evt: React.FormEvent) => {
+    async (evt: React.FormEvent) => {
       evt.preventDefault();
-      onApply();
+      await onApply();
     },
     [onApply]
   );
@@ -282,16 +282,16 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   useSyncAssistantGlobalState('currentQuery', toJSString(query) || null);
 
   const connectionInfoRef = useConnectionInfoRef();
-  const handleReset = useCallback(() => {
+  const handleReset = useCallback(async () => {
     track('Query Reset Clicked', { source }, connectionInfoRef.current);
-    onReset();
+    await onReset();
   }, [connectionInfoRef, onReset, source, track]);
 
   return (
     <form
       className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
       data-testid="query-bar"
-      onSubmit={onFormSubmit}
+      onSubmit={(e) => void onFormSubmit(e)}
       noValidate
       data-result-id={resultId}
       data-apply-id={applyId}
@@ -310,7 +310,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           <QueryOptionComponent
             name="filter"
             id={filterQueryOptionId}
-            onApply={onApply}
+            onApply={() => void onApply()}
             placeholder={filterPlaceholder}
             disabled={isAIFetching}
           />
@@ -366,7 +366,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         <Button
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
-          onClick={handleReset}
+          onClick={() => void handleReset()}
           disabled={!queryChanged || isAIFetching}
           size="small"
           type="button"
@@ -379,7 +379,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           variant="primary"
           size="small"
           type="submit"
-          onClick={onFormSubmit}
+          onClick={(e: React.FormEvent<Element>) => void onFormSubmit(e)}
         >
           {buttonLabel}
         </Button>
@@ -403,7 +403,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               <QueryBarRow
                 queryOptionsLayout={queryOptionRowLayout}
                 key={`query-bar-row-${rowIndex}`}
-                onApply={onApply}
+                onApply={() => void onApply()}
                 disabled={isAIFetching}
                 placeholders={placeholders}
               />
@@ -450,15 +450,15 @@ export default connect(
       onOpenExportToLanguage: () => {
         dispatch(openExportToLanguage());
       },
-      onApply: () => {
-        const applied = dispatch(applyQuery(ownProps.source));
+      onApply: async () => {
+        const applied = await dispatch(applyQuery(ownProps.source));
         if (applied === false) {
           return;
         }
         ownProps.onApply?.(applied);
       },
-      onReset: () => {
-        const reset = dispatch(resetQuery(ownProps.source));
+      onReset: async () => {
+        const reset = await dispatch(resetQuery(ownProps.source));
         if (reset === false) {
           return;
         }
