@@ -3,7 +3,11 @@ import type {
   TelemetryBaseEvent,
   TelemetryConfig,
 } from '@mongodb-js/mcp-atlas-telemetry';
-import type { ApiClient } from '@mongodb-js/mcp-atlas-api-client';
+import {
+  ApiClient,
+  userAgentFromServerMetadata,
+  type HttpClient,
+} from '@mongodb-js/mcp-atlas-api-client';
 import type { LoggerBase } from '@mongodb-js/mcp-core';
 import type {
   IDeviceId,
@@ -13,9 +17,16 @@ import type {
 } from '@mongodb-js/mcp-types';
 import { LazyDeviceId } from './lazy-device-id';
 
+const ATLAS_API_BASE_URL = 'https://cloud.mongodb.com/';
+
+// Compass only ever runs this in a browser or the Electron renderer.
+const httpClient: HttpClient = {
+  fetch: (...args) => globalThis.fetch(...args),
+  Request: globalThis.Request,
+};
+
 export type CompassMcpTelemetryConfig = {
   logger: LoggerBase;
-  apiClient: ApiClient;
   keychain: IKeychain;
   serverMetadata: ServerMetadata;
 };
@@ -30,11 +41,15 @@ export type CompassMcpTelemetryConfig = {
  */
 export class CompassMcpTelemetry extends AtlasTelemetry {
   private readonly isEnabled: () => boolean;
+  // Held separately from the base class' private fields so `close` can release
+  // them; the pipeline itself only ever flushes.
+  private readonly apiClientRef: ApiClient;
   private readonly deviceIdRef: IDeviceId;
   private setupStarted = false;
 
   constructor(config: TelemetryConfig, isEnabled: () => boolean) {
     super(config);
+    this.apiClientRef = config.apiClient;
     this.deviceIdRef = config.deviceId;
     this.isEnabled = isEnabled;
   }
@@ -54,8 +69,12 @@ export class CompassMcpTelemetry extends AtlasTelemetry {
   }
 
   public override async close(): Promise<void> {
-    await super.close();
+    // Abort first: `super.close()` waits for setup, which waits on the machine
+    // id, so aborting afterwards would be too late to shorten shutdown.
     this.deviceIdRef.close();
+    // Flush before releasing the client the drain sends through.
+    await super.close();
+    await this.apiClientRef.close();
   }
 
   public override getCommonProperties(): TelemetryCommonProperties {
@@ -76,6 +95,14 @@ export function createCompassMcpTelemetry(
       // Always true so the live preference is the only gate.
       enabled: true,
       deviceId: new LazyDeviceId(config.logger),
+      apiClient: new ApiClient({
+        options: {
+          baseUrl: ATLAS_API_BASE_URL,
+          userAgent: userAgentFromServerMetadata(config.serverMetadata),
+          httpClient,
+        },
+        logger: config.logger,
+      }),
     },
     isEnabled
   );

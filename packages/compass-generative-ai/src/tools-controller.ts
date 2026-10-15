@@ -11,11 +11,6 @@ import {
   type AnyToolBase,
 } from '@mongodb-js/mcp-core';
 import {
-  ApiClient,
-  userAgentFromServerMetadata,
-  type HttpClient,
-} from '@mongodb-js/mcp-atlas-api-client';
-import {
   AGG_COUNT_MAX_TIME_MS_CAP,
   MongoDBTools,
   QUERY_COUNT_MAX_TIME_MS_CAP,
@@ -68,14 +63,6 @@ const serverMetadata: ServerMetadata = {
   version: '0.0.0',
 };
 
-const ATLAS_API_BASE_URL = 'https://cloud.mongodb.com/';
-
-// Compass only ever runs this in a browser or the Electron renderer.
-const httpClient: HttpClient = {
-  fetch: (...args) => globalThis.fetch(...args),
-  Request: globalThis.Request,
-};
-
 type CompassToolServer = MongoDBToolServer & { tools: AnyToolBase[] };
 
 const READ_ONLY_DATABASE_TOOL_NAMES = new Set(
@@ -101,7 +88,6 @@ export class ToolsController {
   private readonly keychain = new Keychain();
   private readonly serverLogger: CompositeLogger;
   private telemetry?: CompassMcpTelemetry;
-  private apiClient?: ApiClient;
   private connectionManager: ToolsConnectionManager;
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
@@ -148,9 +134,7 @@ export class ToolsController {
 
   private async closeTelemetry(): Promise<void> {
     await this.telemetry?.close();
-    await this.apiClient?.close();
     this.telemetry = undefined;
-    this.apiClient = undefined;
   }
 
   private createServer(): CompassToolServer {
@@ -160,24 +144,14 @@ export class ToolsController {
     });
     const tools: AnyToolBase[] = [];
 
-    const apiClient = new ApiClient({
-      options: {
-        baseUrl: ATLAS_API_BASE_URL,
-        userAgent: userAgentFromServerMetadata(serverMetadata),
-        httpClient,
-      },
-      logger: this.serverLogger,
-    });
     const telemetry = createCompassMcpTelemetry(
       {
         logger: this.serverLogger,
-        apiClient,
         keychain: this.keychain,
         serverMetadata,
       },
       () => this.context.enableMCPTelemetry
     );
-    this.apiClient = apiClient;
     this.telemetry = telemetry;
 
     const server: CompassToolServer = {
