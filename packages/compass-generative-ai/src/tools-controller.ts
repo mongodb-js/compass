@@ -17,7 +17,6 @@ import {
 } from '@mongodb-js/mcp-atlas-api-client';
 import {
   AGG_COUNT_MAX_TIME_MS_CAP,
-  DeviceId,
   MongoDBTools,
   QUERY_COUNT_MAX_TIME_MS_CAP,
   type MongoDBToolServer,
@@ -110,7 +109,6 @@ export class ToolsController {
   private readonly keychain = new Keychain();
   private readonly serverLogger: CompositeLogger;
   private telemetry?: CompassMcpTelemetry;
-  private deviceId?: DeviceId;
   private apiClient?: ApiClient;
   private connectionManager: ToolsConnectionManager;
   private connectionIdByToolCallId: Record<string, string | null> =
@@ -160,10 +158,8 @@ export class ToolsController {
   private async closeTelemetry(): Promise<void> {
     await this.telemetry?.close();
     await this.apiClient?.close();
-    this.deviceId?.close();
     this.telemetry = undefined;
     this.apiClient = undefined;
-    this.deviceId = undefined;
   }
 
   private createServer(): CompassToolServer {
@@ -181,22 +177,16 @@ export class ToolsController {
       },
       logger: this.serverLogger,
     });
-    const deviceId = DeviceId.create(this.serverLogger);
     const telemetry = createCompassMcpTelemetry(
       {
         logger: this.serverLogger,
-        deviceId,
         apiClient,
         keychain: this.keychain,
-        // Constructed enabled so the pipeline is set up and ready either way;
-        // the callback below is the live gate.
-        enabled: true,
         serverMetadata,
       },
       () => this.context.enableMCPTelemetry
     );
     this.apiClient = apiClient;
-    this.deviceId = deviceId;
     this.telemetry = telemetry;
 
     const server: CompassToolServer = {

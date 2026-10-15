@@ -13,6 +13,8 @@ import {
 } from 'compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
+import { DeviceId } from '@mongodb-js/mcp-tools-mongodb';
+import type { ITelemetry } from '@mongodb-js/mcp-types';
 import type { CompassMcpTelemetry } from './tools-telemetry';
 
 describe('ToolsController', function () {
@@ -463,6 +465,25 @@ describe('ToolsController', function () {
   });
 
   describe('MCP telemetry', function () {
+    let createDeviceId: sinon.SinonStub;
+
+    beforeEach(function () {
+      createDeviceId = sandbox.stub(DeviceId, 'create').returns({
+        get: sandbox.stub().resolves('test-device-id'),
+        close: sandbox.stub(),
+      } as any);
+    });
+
+    const emitEvent = (telemetry: ITelemetry | undefined) => {
+      telemetry?.emitEvents([
+        {
+          timestamp: new Date().toISOString(),
+          source: 'mdbmcp',
+          properties: {},
+        } as any,
+      ]);
+    };
+
     it('starts disabled until the context enables it', async function () {
       await toolsController.startServer();
 
@@ -497,6 +518,26 @@ describe('ToolsController', function () {
       expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
         false
       );
+    });
+
+    it('resolves no device id while telemetry is disabled', async function () {
+      await toolsController.startServer();
+
+      emitEvent(toolsController.server?.telemetry);
+
+      expect(createDeviceId.called).to.equal(false);
+    });
+
+    it('starts the pipeline on the first event once enabled', async function () {
+      await toolsController.startServer();
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        connections: [],
+      });
+
+      emitEvent(toolsController.server?.telemetry);
+
+      expect(createDeviceId.calledOnce).to.equal(true);
     });
 
     it('stamps the Compass hosting mode on every event', async function () {
