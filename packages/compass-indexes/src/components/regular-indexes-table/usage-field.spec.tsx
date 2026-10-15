@@ -10,7 +10,7 @@ describe('UsageField', function () {
 
   describe('UsageField Component', function () {
     it('renders usage and since', function () {
-      const since = new Date(2026, 9, 7, 7, 2, 56);
+      const since = new Date('2026-10-07T07:02:56Z');
       render(<UsageField usage={20} since={since} />);
 
       expect(screen.getByText('20 (since Wed Oct 07 2026)')).to.exist;

@@ -18,6 +18,7 @@ import type {
 } from '../../modules/regular-indexes';
 import { mockRegularIndex } from '../../../test/helpers';
 import type { RootState } from '../../modules';
+import { formatUsageSince } from '../../utils/format-usage-since';
 
 const indexes: RegularIndex[] = [
   {
@@ -388,7 +389,7 @@ describe('RegularIndexesTable Component', function () {
 
     it('renders the rate and the period it covers', function () {
       const since = new Date(Date.now() - 10 * 60 * 1000);
-      const period = `(since ${since.toDateString()})`;
+      const period = `(since ${formatUsageSince(since)})`;
       renderIndexList({
         indexes: [
           mockRegularIndex({ name: 'used', usageCount: 50, usageSince: since }),
