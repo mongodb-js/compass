@@ -9,12 +9,9 @@ import HadronDocument, {
   Document,
   objectToIdiomaticEJSON,
 } from 'hadron-document';
-import _parseShellBSON, {
-  toJSString,
-  ParseMode,
-} from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
+import { ParseMode, toJSString, parse } from '@mongodb-js/shell-bson-parser';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { EJSON } from 'bson';
@@ -1317,7 +1314,7 @@ class CrudStoreImpl
    *
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocumentView(view: InsertDocumentView) {
+  async toggleInsertDocumentView(view: InsertDocumentView) {
     const { insertView: from, doc, editorText } = this.state.insert;
     const common: Pick<
       InsertState,
@@ -1334,7 +1331,7 @@ class CrudStoreImpl
       const hadronDoc =
         !editorText || editorText === ''
           ? doc
-          : parseInsertDocument(from, editorText);
+          : await parseInsertDocument(from, editorText);
       this.setState({
         insert: { ...common, insertView: 'list', doc: hadronDoc, editorText },
       });
@@ -1344,7 +1341,7 @@ class CrudStoreImpl
     const nextEditorText =
       from === 'list'
         ? serializeInsertDocument(view, doc)
-        : convertInsertText(from, view, editorText ?? '');
+        : await convertInsertText(from, view, editorText ?? '');
     this.setState({
       insert: { ...common, insertView: view, doc, editorText: nextEditorText },
     });
@@ -2318,8 +2315,10 @@ export async function findAndModifyWithFLEFallback(
 }
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
-export function parseShellBSON(source: string): BSONObject | BSONObject[] {
-  const parsed = _parseShellBSON(source, {
+export async function parseShellBSON(
+  source: string
+): Promise<BSONObject | BSONObject[]> {
+  const parsed = await parse(source, {
     mode: ParseMode.Strict,
     allowComments: true,
     allowMethods: true,
@@ -2361,12 +2360,12 @@ function insertModeForTelemetry(
  * Parse the insert editor text into its plain value, using shell syntax or
  * EJSON depending on the active insert view.
  */
-export function parseInsertDocumentText(
+export async function parseInsertDocumentText(
   view: InsertDocumentView,
   text: string
 ): unknown {
   return view === 'shell'
-    ? parseShellBSON(text)
+    ? await parseShellBSON(text)
     : EJSON.parse(text, { relaxed: false });
 }
 
@@ -2386,23 +2385,23 @@ export function toInsertHadronDocument(parsed: unknown): HadronDocument {
  * Parse the insert editor text into a single HadronDocument, using shell
  * syntax or EJSON depending on the active insert view.
  */
-export function parseInsertDocument(
+export async function parseInsertDocument(
   view: InsertDocumentView,
   text: string
-): HadronDocument {
-  return toInsertHadronDocument(parseInsertDocumentText(view, text));
+): Promise<HadronDocument> {
+  return toInsertHadronDocument(await parseInsertDocumentText(view, text));
 }
 
 /**
  * Parse the insert editor text into an array of HadronDocuments (for the
  * multiple-document case), using shell syntax or EJSON.
  */
-export function parseInsertDocumentArray(
+export async function parseInsertDocumentArray(
   view: InsertDocumentView,
   text: string
-): HadronDocument[] {
+): Promise<HadronDocument[]> {
   if (view === 'shell') {
-    const parsed = parseShellBSON(text);
+    const parsed = await parseShellBSON(text);
     return (Array.isArray(parsed) ? parsed : [parsed]).map(
       (doc) => new HadronDocument(assertPlainDocument(doc))
     );
@@ -2426,18 +2425,18 @@ function serializeInsertDocument(
  * Convert insert editor text between EJSON and shell syntax when switching
  * views.
  */
-function convertInsertText(
+async function convertInsertText(
   from: InsertDocumentView,
   to: InsertDocumentView,
   text: string
-): string {
+): Promise<string> {
   if (from === to || from === 'list' || to === 'list' || !text.trim()) {
     return text;
   }
   try {
     const value =
       from === 'shell'
-        ? parseShellBSON(text)
+        ? await parseShellBSON(text)
         : EJSON.parse(text, { relaxed: false });
     return to === 'shell'
       ? (toJSString(value) ?? text)
