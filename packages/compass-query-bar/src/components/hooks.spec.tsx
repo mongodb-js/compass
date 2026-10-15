@@ -45,23 +45,23 @@ describe('useIsLastAppliedQueryOutdated', function () {
     expect(hook.result.current).to.eq(false);
   });
 
-  it('should return `false` if query was last applied from the same source', function () {
+  it('should return `false` if query was last applied from the same source', async function () {
     const { hook, store } = render();
 
-    store.dispatch(changeField('filter', '{ foo: 1 }'));
-    store.dispatch(applyQuery('foo'));
+    await store.dispatch(changeField('filter', '{ foo: 1 }'));
+    await store.dispatch(applyQuery('foo'));
 
     expect(hook.result.current).to.eq(false);
   });
 
-  it('should return `false` if query was applied from the different source but not changed', function () {
+  it('should return `false` if query was applied from the different source but not changed', async function () {
     const { hook, store } = render();
 
-    store.dispatch(changeField('filter', '{ foo: 1 }'));
-    store.dispatch(applyQuery('foo'));
+    await store.dispatch(changeField('filter', '{ foo: 1 }'));
+    await store.dispatch(applyQuery('foo'));
 
-    store.dispatch(changeField('filter', '{"foo": 1}'));
-    store.dispatch(applyQuery('bar'));
+    await store.dispatch(changeField('filter', '{"foo": 1}'));
+    await store.dispatch(applyQuery('bar'));
 
     expect(hook.result.current).to.eq(false);
   });
@@ -69,11 +69,11 @@ describe('useIsLastAppliedQueryOutdated', function () {
   it('should return `true` if query was applied from the different source and changed', async function () {
     const { hook, store } = render();
 
-    store.dispatch(changeField('filter', '{ foo: 1 }'));
-    store.dispatch(applyQuery('foo'));
+    await store.dispatch(changeField('filter', '{ foo: 1 }'));
+    await store.dispatch(applyQuery('foo'));
 
-    store.dispatch(changeField('filter', '{"bar": 1}'));
-    store.dispatch(applyQuery('bar'));
+    await store.dispatch(changeField('filter', '{"bar": 1}'));
+    await store.dispatch(applyQuery('bar'));
 
     await waitFor(() => {
       expect(hook.result.current).to.eq(true);
