@@ -1,7 +1,5 @@
-import type { Document } from 'mongodb';
 import { ObjectId } from 'bson';
-import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
-import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
+import type { CreateIndexesOptions, IndexDirection, Document } from 'mongodb';
 import React from 'react';
 import type { Action, Dispatch, Reducer } from 'redux';
 import { Badge, Link } from '@mongodb-js/compass-components';
@@ -361,10 +359,10 @@ function fieldTypeToIndexDirection(type: string): IndexDirection {
 }
 
 export const createIndexFormSubmitted = (): IndexesThunkAction<
-  void,
+  Promise<void>,
   ErrorEncounteredAction | CreateIndexFormSubmittedAction
 > => {
-  return (dispatch, getState, { track }) => {
+  return async (dispatch, getState, { track }) => {
     track('Create Index Button Clicked', {
       context: 'Create Index Modal',
     });
@@ -390,9 +388,9 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     // Check for collation errors.
     let collation: Record<string, unknown> | null;
     try {
-      collation = parse(formIndexOptions.collation.value ?? '', {
-        mode: ParseMode.Loose,
-      });
+      collation = (await parseShellBSON(
+        formIndexOptions.collation.value ?? ''
+      )) as Record<string, unknown>;
     } catch {
       collation = null;
     }
@@ -437,9 +435,9 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     if (formIndexOptions.wildcardProjection.enabled) {
       try {
-        options.wildcardProjection = parseShellBSON(
+        options.wildcardProjection = (await parseShellBSON(
           formIndexOptions.wildcardProjection.value ?? ''
-        );
+        )) as Document;
       } catch (err) {
         dispatch(errorEncountered(`Bad WildcardProjection: ${String(err)}`));
         return;
@@ -449,7 +447,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     if (formIndexOptions.columnstoreProjection.enabled) {
       try {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
-        options.columnstoreProjection = parseShellBSON(
+        options.columnstoreProjection = await parseShellBSON(
           formIndexOptions.columnstoreProjection.value ?? ''
         );
       } catch (err) {
@@ -460,9 +458,9 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     if (formIndexOptions.partialFilterExpression.enabled) {
       try {
-        options.partialFilterExpression = parseShellBSON(
+        options.partialFilterExpression = (await parseShellBSON(
           formIndexOptions.partialFilterExpression.value ?? ''
-        );
+        )) as Document;
       } catch (err) {
         dispatch(
           errorEncountered(`Bad PartialFilterExpression: ${String(err)}`)

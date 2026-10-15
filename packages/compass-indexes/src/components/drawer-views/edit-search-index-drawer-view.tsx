@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect, shallowEqual, useSelector } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
@@ -32,6 +26,7 @@ import {
   Body,
   Tooltip,
   useDarkMode,
+  useAsyncValue,
   cx,
 } from '@mongodb-js/compass-components';
 import {
@@ -145,23 +140,22 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const { completer, extensions, annotations, hasErrors } =
     useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
 
-  const isSaveEnabled = useMemo(() => {
-    if (hasErrors) {
-      return false;
-    }
-
-    try {
-      const currentParsed = parseShellBSON(indexDefinition);
-      const initialParsed = searchIndex.latestDefinition;
+  // An invalid definition rejects, which leaves the value undefined and keeps
+  // save disabled.
+  const { value: isDefinitionChanged, pending: isDefinitionChangedPending } =
+    useAsyncValue(async () => {
+      const currentParsed = await parseShellBSON(indexDefinition);
       return (
-        !isBusy &&
-        JSON.stringify(currentParsed) !== JSON.stringify(initialParsed)
+        JSON.stringify(currentParsed) !==
+        JSON.stringify(searchIndex.latestDefinition)
       );
-    } catch {
-      // If current definition is invalid, don't enable save
-      return false;
-    }
-  }, [indexDefinition, searchIndex.latestDefinition, isBusy, hasErrors]);
+    }, [indexDefinition, searchIndex.latestDefinition]);
+
+  const isSaveEnabled =
+    !hasErrors &&
+    !isBusy &&
+    !isDefinitionChangedPending &&
+    isDefinitionChanged === true;
 
   // Reset state on unmount
   useEffect(() => {
@@ -178,14 +172,14 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     onIndexDefinitionEdit
   );
 
-  const onSaveClick = useCallback(() => {
+  const onSaveClick = useCallback(async () => {
     track('Search Index Edit Submitted', {
       context: 'Edit Search Index Drawer View',
       index_type: searchIndex.type ?? 'search',
     });
     updateIndex({
       name: searchIndex.name,
-      definition: parseShellBSON(indexDefinition),
+      definition: (await parseShellBSON(indexDefinition)) as Document,
     });
   }, [searchIndex, indexDefinition, updateIndex, track]);
 
@@ -290,7 +284,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
               isLoading={isBusy}
               loadingIndicator={<SpinLoader />}
               disabled={!isSaveEnabled || !isSearchIndexesWritable}
-              onClick={onSaveClick}
+              onClick={() => void onSaveClick()}
             >
               Save and Rebuild
             </Button>
