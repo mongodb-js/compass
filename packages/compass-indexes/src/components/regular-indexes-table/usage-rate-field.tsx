@@ -23,8 +23,7 @@ const MS_PER_MINUTE = 60 * 1000;
  */
 export const getUsageRatePerMinute = (
   usage: number | undefined,
-  since: Date | undefined,
-  now: number = Date.now()
+  since: Date | undefined
 ): number | null => {
   // A count with no period is not a rate. Returning 0 here would render as
   // "0/min", reporting an index with unknown usage as one that is never used.
@@ -34,7 +33,7 @@ export const getUsageRatePerMinute = (
 
   // since is a server timestamp compared against a client clock, so it can be
   // at or ahead of now. Avoids dividing by zero or reporting a negative rate.
-  const periodMs = now - since.getTime();
+  const periodMs = Date.now() - since.getTime();
   if (periodMs <= 0) {
     return null;
   }

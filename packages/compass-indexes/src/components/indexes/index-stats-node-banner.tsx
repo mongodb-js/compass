@@ -20,10 +20,6 @@ const noticeDarkModeStyles = css({
   color: palette.yellow.light2,
 });
 
-/**
- * $indexStats only reports usage for the node the client reads from, so indexes
- * used exclusively on other nodes look unused in the table. See CLOUDP-360188.
- */
 const IndexStatsNodeBanner = () => {
   const darkMode = useDarkMode();
 

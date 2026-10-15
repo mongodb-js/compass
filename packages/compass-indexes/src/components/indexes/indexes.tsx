@@ -233,8 +233,6 @@ export function Indexes({
         <div className={indexesContainersStyles}>
           {getBanner()}
 
-          {/* $indexStats only backs the regular indexes table, so the notice
-              is tied to it rather than to the tab as a whole. */}
           {showRegularIndexes && !errorMessage && <IndexStatsNodeBanner />}
 
           {showRegularIndexes && <RegularIndexesTable />}
