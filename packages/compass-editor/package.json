@@ -75,7 +75,7 @@
     "@lezer/highlight": "^1.2.1",
     "@mongodb-js/compass-components": "^1.70.3",
     "@mongodb-js/mongodb-constants": "^0.34.14",
-    "@mongodb-js/shell-bson-parser": "^1.6.3",
+    "@mongodb-js/shell-bson-parser": "^2.0.0",
     "hast": "^0.0.2",
     "json-schema": "^0.4.0",
     "polished": "^4.2.2",
