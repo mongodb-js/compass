@@ -1,4 +1,4 @@
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { RootAction, SidebarThunkAction } from '.';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import throttle from 'lodash/throttle';

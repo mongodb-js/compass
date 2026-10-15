@@ -22,7 +22,7 @@ import isLoaded, { INITIAL_STATE as IS_LOADED_STATE } from './is-loaded';
 import type { EditModeAction, EditModeState } from './edit-mode';
 import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
 import type { ThunkAction } from 'redux-thunk';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type {
   ConnectionInfoRef,
   DataService as OriginalDataService,

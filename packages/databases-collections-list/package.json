@@ -53,9 +53,9 @@
     "@mongodb-js/compass-telemetry": "^1.35.1",
     "@mongodb-js/compass-workspaces": "^1.6.0",
     "@mongodb-js/connection-info": "^0.29.3",
-    "compass-preferences-model": "^3.6.0",
-    "mongodb-collection-model": "^5.42.3",
-    "mongodb-database-model": "^2.42.3",
+    "@mongodb-js/compass-preferences-model": "^3.6.0",
+    "@mongodb-js/mongodb-collection-model": "^5.42.3",
+    "@mongodb-js/mongodb-database-model": "^2.42.3",
     "mongodb-ns": "^3.2.0",
     "react": "^18.3.1"
   },

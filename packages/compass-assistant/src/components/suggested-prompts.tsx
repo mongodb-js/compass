@@ -6,7 +6,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';

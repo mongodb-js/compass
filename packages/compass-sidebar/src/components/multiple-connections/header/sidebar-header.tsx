@@ -7,7 +7,7 @@ import {
   ItemActionControls,
   Badge,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const sidebarHeaderStyles = css({
   paddingLeft: spacing[400],

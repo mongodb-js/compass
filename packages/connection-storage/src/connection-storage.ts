@@ -6,7 +6,7 @@ import {
   type ExportConnectionOptions,
   type ImportConnectionOptions,
 } from './import-export-connection';
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 
 export type { ConnectionInfo, AtlasClusterMetadata };
 

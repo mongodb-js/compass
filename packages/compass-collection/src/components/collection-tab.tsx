@@ -11,7 +11,7 @@ import {
   useCollectionSubTabs,
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
@@ -19,7 +19,7 @@ import {
   useConnectionInfoRef,
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
 import {
   useGlobalAppRegistry,

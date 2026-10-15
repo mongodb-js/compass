@@ -2,7 +2,7 @@ import type { CompassBrowser } from '../compass-browser.ts';
 import type {
   AllPreferences,
   UserPreferences,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import { isTestingWeb } from '../test-runner-context.ts';
 import { inspect } from 'util';
 

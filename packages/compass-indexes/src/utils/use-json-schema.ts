@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { JSONSchema7 } from 'json-schema';
 import { getSchema } from '@mongodb-js/search-index-schema';
 import type { FeatureFlag } from '@mongodb-js/search-index-schema';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { SearchIndexType } from '../modules/indexes-drawer';
 
 export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {

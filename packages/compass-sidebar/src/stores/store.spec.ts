@@ -10,7 +10,7 @@ import {
   MongoDBInstancesManagerEvents,
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 const CONNECTION_ID = 'webscale';
 const ALL_EVENTS = [

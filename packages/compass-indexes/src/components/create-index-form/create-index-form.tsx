@@ -10,7 +10,7 @@ import {
   useConnectionInfo,
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const createIndexModalFieldsStyles = css({

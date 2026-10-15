@@ -16,7 +16,7 @@ import type {
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 

@@ -4,7 +4,7 @@ import {
   type ItemComponentProps,
 } from '@mongodb-js/compass-components';
 import type { Actions } from './constants';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { ConnectButtonWithMenu } from './connect-button-with-menu';
 
 export function ConnectButton(props: ItemComponentProps<Actions>) {

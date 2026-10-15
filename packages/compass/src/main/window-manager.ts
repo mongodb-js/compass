@@ -4,8 +4,8 @@
  */
 import { pathToFileURL } from 'url';
 import path from 'path';
-import type { HadronIpcMainEvent } from 'hadron-ipc';
-import { ipcMain } from 'hadron-ipc';
+import type { HadronIpcMainEvent } from '@mongodb-js/hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import { once } from 'events';
 import type {
   BrowserWindowConstructorOptions,

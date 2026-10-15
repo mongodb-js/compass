@@ -1,6 +1,6 @@
 import { validateField } from './validate-query';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
-import type { UserPreferences } from 'compass-preferences-model';
+import type { UserPreferences } from '@mongodb-js/compass-preferences-model';
 import { isEqual } from 'lodash';
 import { prettify } from '@mongodb-js/compass-editor';
 

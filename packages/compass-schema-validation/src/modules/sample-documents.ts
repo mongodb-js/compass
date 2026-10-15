@@ -1,4 +1,4 @@
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import {
   checkValidator,
   ValidationActions,

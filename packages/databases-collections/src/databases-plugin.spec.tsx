@@ -1,5 +1,5 @@
 import React from 'react';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
 import {
   render,
@@ -14,7 +14,7 @@ import Sinon from 'sinon';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 
 describe('Databasees [Plugin]', function () {
   let dataService: any;

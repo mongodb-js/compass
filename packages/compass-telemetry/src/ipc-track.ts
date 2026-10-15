@@ -1,4 +1,4 @@
-import { type HadronIpcRenderer } from 'hadron-ipc';
+import { type HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
 import { type TelemetryPreferences, createTrack } from './generic-track';
 import { createLogger, type Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from './types';
@@ -31,7 +31,7 @@ export function createIpcSendTrack() {
   // This application may not be running in an Node.js/Electron context.
   const ipc =
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require('hadron-ipc').ipcRenderer;
+    require('@mongodb-js/hadron-ipc').ipcRenderer;
 
   const sendTrack = (event: string, properties: Record<string, unknown>) =>
     emit(ipc, 'compass:track', { event, properties });

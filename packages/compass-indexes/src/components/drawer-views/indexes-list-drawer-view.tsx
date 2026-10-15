@@ -32,7 +32,7 @@ import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-comp
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import RegularIndexesDrawerTable from '../regular-indexes-table/regular-indexes-drawer-table';
 import SearchIndexesDrawerTable from '../search-indexes-table/search-indexes-drawer-table';

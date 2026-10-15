@@ -24,7 +24,7 @@ import { openCreateIndexModal } from '../../../modules/insights';
 import {
   useIsAIFeatureEnabled,
   usePreferences,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';

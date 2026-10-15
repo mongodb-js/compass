@@ -1,5 +1,5 @@
 {
-  "name": "hadron-ipc",
+  "name": "@mongodb-js/hadron-ipc",
   "description": "Simplified IPC for electron apps.",
   "version": "3.6.6",
   "author": {

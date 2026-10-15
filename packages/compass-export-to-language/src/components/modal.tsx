@@ -18,7 +18,7 @@ import { isQueryExpression, runTranspiler } from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { prettify } from '@mongodb-js/compass-editor';
 import { closeModal } from '../stores';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
