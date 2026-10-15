@@ -68,6 +68,7 @@ const toolsController = new ToolsController({
   logger,
   getTelemetryAnonymousId: () => 'eval-anonymous-id',
   track: createNoopTrack(),
+  enableMCPTelemetry: false,
   preferences: defaultPreferencesInstance,
   atlasAdminApi: {} as AtlasAdminApiService,
 });
@@ -109,6 +110,7 @@ function getToolsForCase({
 
   toolsController.setActiveTools(toolGroups);
   toolsController.setContext({
+    enableMCPTelemetry: false,
     connections: [connectionConfig],
     query: input.currentQuery ? JSON.stringify(input.currentQuery) : undefined,
     pipeline: input.currentPipeline

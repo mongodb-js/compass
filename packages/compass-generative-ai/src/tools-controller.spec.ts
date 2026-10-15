@@ -13,6 +13,7 @@ import {
 } from 'compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
+import type { CompassMcpTelemetry } from './tools-telemetry';
 
 describe('ToolsController', function () {
   let sandbox: sinon.SinonSandbox;
@@ -32,6 +33,7 @@ describe('ToolsController', function () {
     atlasAdminApi = {} as AtlasAdminApiService;
 
     toolsController = new ToolsController({
+      enableMCPTelemetry: false,
       logger,
       getTelemetryAnonymousId,
       track: createNoopTrack(),
@@ -152,6 +154,7 @@ describe('ToolsController', function () {
       it('get-current-query returns context query', async function () {
         const testQuery = '{ name: "test" }';
         toolsController.setContext({
+          enableMCPTelemetry: false,
           query: testQuery,
           connections: [],
         });
@@ -167,6 +170,7 @@ describe('ToolsController', function () {
 
       it('get-current-query returns undefined when no query in context', async function () {
         toolsController.setContext({
+          enableMCPTelemetry: false,
           connections: [],
         });
 
@@ -205,6 +209,7 @@ describe('ToolsController', function () {
       it('get-current-pipeline returns context pipeline', async function () {
         const testPipeline = '[{ $match: { status: "active" } }]';
         toolsController.setContext({
+          enableMCPTelemetry: false,
           pipeline: testPipeline,
           connections: [],
         });
@@ -220,6 +225,7 @@ describe('ToolsController', function () {
 
       it('get-current-pipeline returns undefined when no pipeline in context', async function () {
         toolsController.setContext({
+          enableMCPTelemetry: false,
           connections: [],
         });
 
@@ -241,6 +247,7 @@ describe('ToolsController', function () {
 
       it('ignores db tools if the server is not started', function () {
         const newController = new ToolsController({
+          enableMCPTelemetry: false,
           logger,
           getTelemetryAnonymousId,
           track: createNoopTrack(),
@@ -351,6 +358,7 @@ describe('ToolsController', function () {
     it('sets context with query', async function () {
       const query = '{ status: "active" }';
       toolsController.setContext({
+        enableMCPTelemetry: false,
         query,
         connections: [],
       });
@@ -365,6 +373,7 @@ describe('ToolsController', function () {
     it('sets context with pipeline', async function () {
       const pipeline = '[{ $match: { age: { $gte: 18 } } }]';
       toolsController.setContext({
+        enableMCPTelemetry: false,
         pipeline,
         connections: [],
       });
@@ -389,12 +398,14 @@ describe('ToolsController', function () {
       ];
 
       toolsController.setContext({
+        enableMCPTelemetry: false,
         connections,
       });
 
       // Context is set internally, verify through tool execution
       expect(() =>
         toolsController.setContext({
+          enableMCPTelemetry: false,
           connections,
         })
       ).to.not.throw();
@@ -402,11 +413,13 @@ describe('ToolsController', function () {
 
     it('updates existing context', async function () {
       toolsController.setContext({
+        enableMCPTelemetry: false,
         query: 'old query',
         connections: [],
       });
 
       toolsController.setContext({
+        enableMCPTelemetry: false,
         query: 'new query',
         connections: [],
       });
@@ -422,12 +435,14 @@ describe('ToolsController', function () {
       await toolsController.startServer();
 
       toolsController.setContext({
+        enableMCPTelemetry: false,
         maxTimeMS: 5000,
         connections: [],
       });
       expect(toolsController.server?.config.maxTimeMS).to.equal(5000);
 
       toolsController.setContext({
+        enableMCPTelemetry: false,
         maxTimeMS: undefined,
         connections: [],
       });
@@ -436,6 +451,7 @@ describe('ToolsController', function () {
 
     it('applies maxTimeMS set before the server starts', async function () {
       toolsController.setContext({
+        enableMCPTelemetry: false,
         maxTimeMS: 5000,
         connections: [],
       });
@@ -443,6 +459,55 @@ describe('ToolsController', function () {
       await toolsController.startServer();
 
       expect(toolsController.server?.config.maxTimeMS).to.equal(5000);
+    });
+  });
+
+  describe('MCP telemetry', function () {
+    it('starts disabled until the context enables it', async function () {
+      await toolsController.startServer();
+
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        false
+      );
+
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        connections: [],
+      });
+
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        true
+      );
+    });
+
+    it('stops collecting when the preference is turned back off', async function () {
+      await toolsController.startServer();
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        connections: [],
+      });
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        true
+      );
+
+      toolsController.setContext({
+        enableMCPTelemetry: false,
+        connections: [],
+      });
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        false
+      );
+    });
+
+    it('stamps the Compass hosting mode on every event', async function () {
+      await toolsController.startServer();
+      const telemetry = toolsController.server
+        ?.telemetry as unknown as CompassMcpTelemetry;
+
+      expect(telemetry.getCommonProperties()).to.have.property(
+        'hosting_mode',
+        'compass'
+      );
     });
   });
 
@@ -518,6 +583,7 @@ describe('ToolsController', function () {
 
       it('handles errors during server startup gracefully', async function () {
         const errorController = new ToolsController({
+          enableMCPTelemetry: false,
           logger,
           getTelemetryAnonymousId,
           track: createNoopTrack(),
@@ -638,6 +704,7 @@ describe('ToolsController', function () {
     it('context persists across tool group changes', async function () {
       const query = '{ test: 1 }';
       toolsController.setContext({
+        enableMCPTelemetry: false,
         query,
         connections: [],
       });
@@ -670,6 +737,7 @@ describe('ToolsController', function () {
         connectionId: 'conn-1',
       });
       toolsController.setContext({
+        enableMCPTelemetry: false,
         connections: [
           {
             connectionId: 'conn-1',
@@ -740,6 +808,7 @@ describe('ToolsController', function () {
       });
 
       toolsController.setContext({
+        enableMCPTelemetry: false,
         connections: [],
       });
 

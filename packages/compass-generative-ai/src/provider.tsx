@@ -74,6 +74,8 @@ export const ToolsControllerProvider: React.FC<{
       logger,
       getTelemetryAnonymousId: () => telemetryAnonymousId ?? '',
       track,
+      // we will set this later through setContext()
+      enableMCPTelemetry: false,
       preferences,
       atlasAdminApi,
     });

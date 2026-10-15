@@ -8,15 +8,24 @@ import {
   Keychain,
   McpServer,
   NoopMetrics,
-  NoopTelemetry,
   type AnyToolBase,
 } from '@mongodb-js/mcp-core';
 import {
+  ApiClient,
+  userAgentFromServerMetadata,
+  type HttpClient,
+} from '@mongodb-js/mcp-atlas-api-client';
+import {
   AGG_COUNT_MAX_TIME_MS_CAP,
+  DeviceId,
   MongoDBTools,
   QUERY_COUNT_MAX_TIME_MS_CAP,
   type MongoDBToolServer,
 } from '@mongodb-js/mcp-tools-mongodb';
+import {
+  createCompassMcpTelemetry,
+  type CompassMcpTelemetry,
+} from './tools-telemetry';
 import type {
   ServerMetadata,
   ToolExecutionContext,
@@ -43,6 +52,7 @@ import {
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 type CompassContext = {
+  enableMCPTelemetry: boolean;
   maxTimeMS?: number;
   query?: string;
   pipeline?: string;
@@ -62,6 +72,18 @@ const serverMetadata: ServerMetadata = {
   version: '0.0.0',
 };
 
+/** The Atlas endpoint MCP telemetry events are sent to (matching the v1 default). */
+const ATLAS_API_BASE_URL = 'https://cloud.mongodb.com/';
+
+/**
+ * The MCP server only ever runs inside a browser or the Electron renderer, so
+ * the platform `fetch`/`Request` pair is used directly.
+ */
+const httpClient: HttpClient = {
+  fetch: (...args) => globalThis.fetch(...args),
+  Request: globalThis.Request,
+};
+
 /** The in-memory server composition the tools read their services from. */
 type CompassToolServer = MongoDBToolServer & { tools: AnyToolBase[] };
 
@@ -74,6 +96,7 @@ type ToolsControllerConfig = {
   preferences: PreferencesAccess;
   getTelemetryAnonymousId: () => string;
   track: TrackFunction;
+  enableMCPTelemetry: boolean;
   maxTimeMS?: number;
   atlasAdminApi: AtlasAdminApiService;
 };
@@ -86,6 +109,9 @@ export class ToolsController {
   private toolServer?: CompassToolServer;
   private readonly keychain = new Keychain();
   private readonly serverLogger: CompositeLogger;
+  private telemetry?: CompassMcpTelemetry;
+  private deviceId?: DeviceId;
+  private apiClient?: ApiClient;
   private connectionManager: ToolsConnectionManager;
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
@@ -96,6 +122,7 @@ export class ToolsController {
     logger,
     getTelemetryAnonymousId,
     track,
+    enableMCPTelemetry,
     maxTimeMS,
     atlasAdminApi,
     preferences,
@@ -104,7 +131,7 @@ export class ToolsController {
     this.atlasAdminApi = atlasAdminApi;
     this.preferences = preferences;
     this.track = track;
-    this.context = { ...this.context, maxTimeMS };
+    this.context = { ...this.context, enableMCPTelemetry, maxTimeMS };
     this.serverLogger = new CompositeLogger({
       loggers: [new ToolsLogger(this.keychain, logger)],
     });
@@ -129,12 +156,48 @@ export class ToolsController {
     });
   }
 
+  /** Flushes and releases the telemetry pipeline and its API client. */
+  private async closeTelemetry(): Promise<void> {
+    await this.telemetry?.close();
+    await this.apiClient?.close();
+    this.deviceId?.close();
+    this.telemetry = undefined;
+    this.apiClient = undefined;
+    this.deviceId = undefined;
+  }
+
   private createServer(): CompassToolServer {
     const mcpServer = new McpServer({
       name: serverMetadata.mcpServerName,
       version: serverMetadata.version,
     });
     const tools: AnyToolBase[] = [];
+
+    const apiClient = new ApiClient({
+      options: {
+        baseUrl: ATLAS_API_BASE_URL,
+        userAgent: userAgentFromServerMetadata(serverMetadata),
+        httpClient,
+      },
+      logger: this.serverLogger,
+    });
+    const deviceId = DeviceId.create(this.serverLogger);
+    const telemetry = createCompassMcpTelemetry(
+      {
+        logger: this.serverLogger,
+        deviceId,
+        apiClient,
+        keychain: this.keychain,
+        // Constructed enabled so the pipeline is set up and ready either way;
+        // the callback below is the live gate.
+        enabled: true,
+        serverMetadata,
+      },
+      () => this.context.enableMCPTelemetry
+    );
+    this.apiClient = apiClient;
+    this.deviceId = deviceId;
+    this.telemetry = telemetry;
 
     const server: CompassToolServer = {
       // Defaults mirror `UserConfigSchema`; Compass only exposes read-only
@@ -179,7 +242,7 @@ export class ToolsController {
           );
         },
       },
-      telemetry: new NoopTelemetry(),
+      telemetry,
       elicitation: new Elicitation({ server: mcpServer.server }),
       metrics: new NoopMetrics(),
       mcpServer,
@@ -401,9 +464,9 @@ export class ToolsController {
     return this.toolServer;
   }
 
-  public startServer(): Promise<void> {
+  public async startServer(): Promise<void> {
     if (this.toolServer) {
-      return Promise.resolve();
+      return;
     }
 
     try {
@@ -425,7 +488,9 @@ export class ToolsController {
       );
     } catch (error: any) {
       // In case of errors we don't want Compass to crash so we
-      // silence MCP start errors and instead log them for debugging.
+      // silence MCP start errors and instead log them for debugging. Anything
+      // createServer() managed to build before throwing is released here.
+      await this.closeTelemetry();
       this.logger.log.error(
         this.logger.mongoLogId(1_001_000_404),
         'ToolsController',
@@ -433,8 +498,6 @@ export class ToolsController {
         { error: error.message }
       );
     }
-
-    return Promise.resolve();
   }
 
   public async stopServer(): Promise<void> {
@@ -450,6 +513,7 @@ export class ToolsController {
       const server = this.toolServer;
       this.toolServer = undefined;
       await server.mcpServer.close();
+      await this.closeTelemetry();
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_407),
         'ToolsController',

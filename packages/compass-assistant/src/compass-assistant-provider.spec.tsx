@@ -684,6 +684,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableMCPTelemetry: true,
         maxTimeMS: undefined,
         connections: [],
         query,
@@ -750,6 +751,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableMCPTelemetry: true,
         maxTimeMS: undefined,
         connections: [],
         query,
@@ -824,6 +826,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableMCPTelemetry: true,
         maxTimeMS: undefined,
         connections: [],
         query,
@@ -909,6 +912,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableMCPTelemetry: true,
         maxTimeMS: undefined,
         connections: [
           {
@@ -967,6 +971,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableMCPTelemetry: true,
         maxTimeMS: 5000,
         connections: [],
         query: undefined,
