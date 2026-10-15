@@ -213,14 +213,14 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     [onIndexDefinitionEdit]
   );
 
-  const onCreateClick = useCallback(() => {
+  const onCreateClick = useCallback(async () => {
     track('Search Index Create Submitted', {
       context: 'Create Search Index Drawer View',
       index_type: currentIndexType,
     });
     createIndex({
       name,
-      definition: parseShellBSON(indexDefinition),
+      definition: (await parseShellBSON(indexDefinition)) as Document,
       type: currentIndexType,
     });
   }, [name, indexDefinition, createIndex, currentIndexType, track]);
@@ -318,7 +318,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
               isLoading={isBusy}
               loadingIndicator={<SpinLoader />}
               disabled={!isCreateEnabled || !isSearchIndexesWritable}
-              onClick={onCreateClick}
+              onClick={() => void onCreateClick()}
             >
               Create {indexLabel}
             </Button>

@@ -159,14 +159,16 @@ describe('Base Search Index Modal', function () {
         expect(onCloseSpy).to.have.been.calledOnce;
       });
 
-      it('submits the modal on create search index', function () {
+      it('submits the modal on create search index', async function () {
         userEvent.click(
           screen.getByRole('button', { name: 'Create Search Index' })
         );
-        expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
-          name: 'default',
-          definition: {},
-          type: 'search',
+        await waitFor(() => {
+          expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
+            name: 'default',
+            definition: {},
+            type: 'search',
+          });
         });
       });
 
@@ -196,10 +198,12 @@ describe('Base Search Index Modal', function () {
         userEvent.click(
           screen.getByRole('button', { name: 'Create Search Index' })
         );
-        expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
-          name: 'vector_index',
-          definition: VALID_ATLAS_SEARCH_INDEX_DEFINITION,
-          type: 'vectorSearch',
+        await waitFor(() => {
+          expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
+            name: 'vector_index',
+            definition: VALID_ATLAS_SEARCH_INDEX_DEFINITION,
+            type: 'vectorSearch',
+          });
         });
       });
 
@@ -495,7 +499,7 @@ describe('Base Search Index Modal', function () {
       fields: [{ type: 'autoEmbed', path: 'content' }],
     });
 
-    it('shows the restriction banner when preview flag is on, GA flag is off, and index is auto-embed', function () {
+    it('shows the restriction banner when preview flag is on, GA flag is off, and index is auto-embed', async function () {
       renderBaseSearchIndexModal(
         {
           mode: 'update',
@@ -510,7 +514,9 @@ describe('Base Search Index Modal', function () {
           },
         }
       );
-      const banner = screen.getByTestId('auto-embed-edit-restricted-banner');
+      const banner = await screen.findByTestId(
+        'auto-embed-edit-restricted-banner'
+      );
       expect(banner).to.be.visible;
       expect(banner.textContent).to.include(
         'You cannot edit an autoEmbed field'
@@ -564,7 +570,7 @@ describe('Base Search Index Modal', function () {
         .exist;
     });
 
-    it('shows the restriction banner in create mode', function () {
+    it('shows the restriction banner in create mode', async function () {
       renderBaseSearchIndexModal(
         {
           mode: 'create',
@@ -574,14 +580,16 @@ describe('Base Search Index Modal', function () {
         },
         { preferences: { enableAutoEmbeddingPublicPreview: true } }
       );
-      const banner = screen.getByTestId('auto-embed-edit-restricted-banner');
+      const banner = await screen.findByTestId(
+        'auto-embed-edit-restricted-banner'
+      );
       expect(banner).to.be.visible;
       expect(banner.textContent).to.include(
         'You cannot edit an autoEmbed field'
       );
     });
 
-    it('shows the cost banner instead of the restriction banner when both preview and GA flags are on', function () {
+    it('shows the cost banner instead of the restriction banner when both preview and GA flags are on', async function () {
       renderBaseSearchIndexModal(
         {
           mode: 'update',
@@ -596,9 +604,10 @@ describe('Base Search Index Modal', function () {
           },
         }
       );
+      expect(await screen.findByTestId('auto-embed-edit-cost-banner')).to.be
+        .visible;
       expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
         .exist;
-      expect(screen.getByTestId('auto-embed-edit-cost-banner')).to.be.visible;
     });
   });
 
@@ -607,7 +616,7 @@ describe('Base Search Index Modal', function () {
       fields: [{ type: 'autoEmbed', path: 'content' }],
     });
 
-    it('shows the cost banner when GA is on and index is auto-embed', function () {
+    it('shows the cost banner when GA is on and index is auto-embed', async function () {
       renderBaseSearchIndexModal(
         {
           mode: 'update',
@@ -617,7 +626,7 @@ describe('Base Search Index Modal', function () {
         },
         { preferences: { enableAutoEmbeddingGaRelease: true } }
       );
-      const banner = screen.getByTestId('auto-embed-edit-cost-banner');
+      const banner = await screen.findByTestId('auto-embed-edit-cost-banner');
       expect(banner).to.be.visible;
       expect(banner.textContent).to.match(/trigger new embedding calls/);
     });
@@ -671,7 +680,7 @@ describe('Base Search Index Modal', function () {
       expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
     });
 
-    it('replaces the generic resources note rather than stacking with it', function () {
+    it('replaces the generic resources note rather than stacking with it', async function () {
       renderBaseSearchIndexModal(
         {
           mode: 'update',
@@ -681,7 +690,8 @@ describe('Base Search Index Modal', function () {
         },
         { preferences: { enableAutoEmbeddingGaRelease: true } }
       );
-      expect(screen.getByTestId('auto-embed-edit-cost-banner')).to.be.visible;
+      expect(await screen.findByTestId('auto-embed-edit-cost-banner')).to.be
+        .visible;
       expect(screen.queryByText(/consume additional resources/)).to.not.exist;
     });
 
@@ -791,10 +801,12 @@ describe('Base Search Index Modal', function () {
         expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
       });
       userEvent.click(submitButton);
-      expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
-        name: 'idx',
-        definition: newDefinition,
-        type: 'search',
+      await waitFor(() => {
+        expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
+          name: 'idx',
+          definition: newDefinition,
+          type: 'search',
+        });
       });
     });
 
