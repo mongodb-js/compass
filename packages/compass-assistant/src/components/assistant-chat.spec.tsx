@@ -340,6 +340,23 @@ describe('AssistantChat', function () {
     });
   });
 
+  it('does not track a suggested prompt selection for typed messages', async function () {
+    const { result, ensureOptInAndSendStub } = renderWithChat(
+      createMockChat({ messages: [] }),
+      { trackingOptions: { requestId: 'test-request-id' } }
+    );
+
+    userEvent.type(screen.getByPlaceholderText('Ask a question'), 'Hello');
+    userEvent.click(screen.getByLabelText('Send message'));
+
+    await waitFor(() => {
+      expect(ensureOptInAndSendStub.called).to.be.true;
+    });
+    expect(result.track).to.not.have.been.calledWith(
+      'Assistant Suggested Prompt Selected'
+    );
+  });
+
   it('clears input field after successful submission', function () {
     renderWithChat(createMockChat({ messages: [] }));
 

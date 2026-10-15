@@ -30,6 +30,7 @@ import logRunning from 'why-is-node-running';
 import { isEnterprise } from 'mongodb-build-info';
 import {
   buildCompass,
+  closeWebdriverTrace,
   compileCompassAssets,
   rebuildNativeModules,
   removeUserDataDir,
@@ -457,6 +458,9 @@ export async function mochaGlobalTeardown() {
       return Promise.resolve(fn());
     })
   );
+
+  // Everything that could write to the trace has been stopped by now
+  closeWebdriverTrace();
 }
 
 async function makeDirectConnectionString(
