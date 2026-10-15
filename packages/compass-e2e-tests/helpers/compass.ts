@@ -1,6 +1,13 @@
 import { inspect } from 'util';
 import { ObjectId, EJSON } from 'bson';
-import { promises as fs, mkdirSync, openSync, rmdirSync, writeSync } from 'fs';
+import {
+  promises as fs,
+  closeSync,
+  mkdirSync,
+  openSync,
+  rmdirSync,
+  writeSync,
+} from 'fs';
 import type Mocha from 'mocha';
 import os from 'os';
 import { execFile } from 'child_process';
@@ -1381,6 +1388,14 @@ function traceWebdriverCommand(message: string): void {
     );
   }
   writeSync(webdriverTraceFd, `${new Date().toISOString()} ${message}\n`);
+}
+
+export function closeWebdriverTrace(): void {
+  if (webdriverTraceFd === undefined) {
+    return;
+  }
+  closeSync(webdriverTraceFd);
+  webdriverTraceFd = undefined;
 }
 
 // WebdriverIO passes whole Browser/Element graphs around, and those reference
