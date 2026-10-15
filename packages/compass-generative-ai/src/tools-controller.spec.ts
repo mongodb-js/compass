@@ -519,16 +519,31 @@ describe('ToolsController', function () {
       it('handles errors during server startup gracefully', async function () {
         const errorController = new ToolsController({
           logger,
-          getTelemetryAnonymousId: () => {
-            throw new Error('Telemetry error');
-          },
+          getTelemetryAnonymousId,
           track: createNoopTrack(),
           preferences,
           atlasAdminApi,
         });
+        sandbox
+          .stub(errorController as any, 'createServer')
+          .throws(new Error('Server creation error'));
+        const logStub = sandbox.stub(logger.log, 'error');
 
         // Should not throw even if there's an error
         await errorController.startServer();
+
+        expect(errorController.server).to.be.undefined;
+        for (const args of logStub.args) {
+          (args[0] as any) = args[0].__value;
+        }
+        expect(
+          logStub.calledWith(
+            sinon.match.number,
+            'ToolsController',
+            'Error when attempting to start MCP server'
+          )
+        ).to.be.true;
+
         // don't hang
         await errorController.stopServer();
       });
