@@ -1732,6 +1732,22 @@ type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks one of the suggested prompts shown in
+ * an empty assistant chat.
+ *
+ * @category Assistant
+ */
+type AssistantSuggestedPromptSelectedEvent = CommonEvent<{
+  name: 'Assistant Suggested Prompt Selected';
+  payload: {
+    /**
+     * Stable identifier of the suggested prompt, independent of its text.
+     */
+    suggested_prompt_id: string;
+  };
+}>;
+
+/**
  * This event is fired when a user uses an assistant entry point.
  *
  * @category Assistant
@@ -4282,6 +4298,7 @@ export type TelemetryEvent =
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
   | AssistantPromptSubmittedEvent
+  | AssistantSuggestedPromptSelectedEvent
   | AssistantResponseFailedEvent
   | AssistantFailedEvent
   | AssistantFeedbackSubmittedEvent

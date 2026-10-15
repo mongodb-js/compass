@@ -887,9 +887,13 @@ functions:
           <<: [*compass-env, *compass-e2e-secrets]
           DEBUG: ${debug|}
           COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: '${compass_web_publish_environment}'
-          # CCS connection / op running time is slower than default timeouts
-          COMPASS_E2E_MOCHA_TIMEOUT: '1440000' # 24 min
-          COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '960000' # 16 min
+          # CCS connection / op running time is slower than the local defaults,
+          # but a stuck waitFor burns the full timeout per element and a few of
+          # those overrun the 1 hour step budget, killing the task with no test
+          # results attached. Call sites that legitimately need to wait longer
+          # pass an explicit timeout (see helpers/commands/atlas-cloud/cluster.ts)
+          COMPASS_E2E_MOCHA_TIMEOUT: '360000' # 6 min, longer than the waitFor timeout
+          COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '180000' # 3 min
           COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups|1}
           COMPASS_E2E_TEST_GROUP: ${e2e_test_group|1}
           ATLAS_CLOUD_TEST_ARGS: '${atlas_cloud_test_args|}'
