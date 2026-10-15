@@ -24,7 +24,7 @@ import {
 import {
   createCompassMcpTelemetry,
   type CompassMcpTelemetry,
-} from './tools-telemetry';
+} from './compass-mcp-telemetry';
 import type {
   ServerMetadata,
   ToolExecutionContext,
@@ -61,29 +61,21 @@ type ToolsContext = CompassContext & {
   connections: ToolsConnectParams[];
 };
 
-/**
- * Compass reports the MCP server name/version to the client and the driver
- * `appName`; the latter is always overridden by {@link ToolsConnectionManager},
- * so only the name matters here.
- */
+// Version is unused: telemetry is the only consumer and ToolsConnectionManager
+// always overrides the driver appName.
 const serverMetadata: ServerMetadata = {
   mcpServerName: 'mongodb-compass',
   version: '0.0.0',
 };
 
-/** The Atlas endpoint MCP telemetry events are sent to (matching the v1 default). */
 const ATLAS_API_BASE_URL = 'https://cloud.mongodb.com/';
 
-/**
- * The MCP server only ever runs inside a browser or the Electron renderer, so
- * the platform `fetch`/`Request` pair is used directly.
- */
+// Compass only ever runs this in a browser or the Electron renderer.
 const httpClient: HttpClient = {
   fetch: (...args) => globalThis.fetch(...args),
   Request: globalThis.Request,
 };
 
-/** The in-memory server composition the tools read their services from. */
 type CompassToolServer = MongoDBToolServer & { tools: AnyToolBase[] };
 
 const READ_ONLY_DATABASE_TOOL_NAMES = new Set(
@@ -154,7 +146,6 @@ export class ToolsController {
     });
   }
 
-  /** Flushes and releases the telemetry pipeline and its API client. */
   private async closeTelemetry(): Promise<void> {
     await this.telemetry?.close();
     await this.apiClient?.close();
@@ -190,8 +181,8 @@ export class ToolsController {
     this.telemetry = telemetry;
 
     const server: CompassToolServer = {
-      // Defaults mirror `UserConfigSchema`; Compass only exposes read-only
-      // database tools, so the write- and Atlas-specific options are unused.
+      // Defaults mirror `UserConfigSchema`; Compass only exposes read-only tools,
+      // so the write- and Atlas-specific options are unused.
       config: {
         transport: 'stdio',
         httpResponseType: 'sse',
@@ -215,14 +206,11 @@ export class ToolsController {
         this.connectionManager,
         this.keychain
       ),
-      // `MongoDBToolServices` types the handler's return as
-      // `{ errorHandled, result }` even though `result` is only read when
-      // `errorHandled` is true. Compass never handles connection errors, so the
-      // narrower `ConnectionErrorUnhandled` is safe here.
+      // `MongoDBToolServices` requires a `result` that is only read when
+      // `errorHandled` is true; Compass never handles connection errors.
       connectionErrorHandler:
         createConnectionErrorHandler() as MongoDBToolServer['connectionErrorHandler'],
-      // Only the `export` tool reads the exports manager, and Compass does not
-      // register it.
+      // Only the unregistered `export` tool reads this.
       exportsManager: {
         createJSONExport: () => {
           return Promise.reject(
@@ -307,9 +295,7 @@ export class ToolsController {
           inputSchema: z.object(
             Object.fromEntries(
               Object.entries(toolBase.argsShape())
-                // Compass always runs against the user's active connection, so
-                // the connection handle is never something the model should
-                // pick; it is injected in `execute` below.
+                // Injected in `execute`; the model never picks a connection.
                 .filter(([key]) => key !== 'connectionId')
                 .map(([key, value]) => {
                   // TODO: MCP server applies transformations like toEJSON.
@@ -478,8 +464,7 @@ export class ToolsController {
       );
     } catch (error: any) {
       // In case of errors we don't want Compass to crash so we
-      // silence MCP start errors and instead log them for debugging. Anything
-      // createServer() managed to build before throwing is released here.
+      // silence MCP start errors and instead log them for debugging.
       await this.closeTelemetry();
       this.logger.log.error(
         this.logger.mongoLogId(1_001_000_404),

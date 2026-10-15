@@ -186,10 +186,8 @@ module.exports = (env, args) => {
         'mongodb-client-encryption/package.json': localPolyfill('throwError'),
         'mongodb-client-encryption': localPolyfill('throwError'),
 
-        // @mongodb-js/mcp-tools-mongodb dynamically imports node-machine-id to
-        // compute a device id. Compass doesn't use that path, and leaving it
-        // resolvable emits a dynamic-import chunk that breaks the MMS
-        // COMPILE_CLIENT_BAZEL task.
+        // Left resolvable, the device-id dynamic import emits a chunk that
+        // breaks the MMS COMPILE_CLIENT_BAZEL task.
         'node-machine-id': localPolyfill('throwError'),
       },
     },

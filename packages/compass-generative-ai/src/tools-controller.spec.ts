@@ -15,7 +15,7 @@ import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider'
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import { DeviceId } from '@mongodb-js/mcp-tools-mongodb';
 import type { ITelemetry } from '@mongodb-js/mcp-types';
-import type { CompassMcpTelemetry } from './tools-telemetry';
+import type { CompassMcpTelemetry } from './compass-mcp-telemetry';
 
 describe('ToolsController', function () {
   let sandbox: sinon.SinonSandbox;
