@@ -21,21 +21,25 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
   private origin: string;
   private getTools: () => ToolSet;
   private instructions: string;
+  private getThreadId: () => string;
 
   constructor({
     model,
     origin,
     getTools,
+    getThreadId,
     instructions,
   }: {
     model: LanguageModel;
     origin: string;
     getTools?: () => ToolSet;
+    getThreadId: () => string;
     instructions: string;
   }) {
     this.model = model;
     this.origin = origin;
     this.getTools = getTools ?? (() => ({}));
+    this.getThreadId = getThreadId;
     this.instructions = instructions;
   }
 
@@ -118,6 +122,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
       headers: {
         'X-Request-Origin': this.origin,
         'X-Client-Request-Id': lastMessage.metadata?.requestId ?? '',
+        'X-Client-Thread-Id': this.getThreadId(),
       },
       tools: this.getTools(),
       providerOptions: {
