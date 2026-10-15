@@ -1726,6 +1726,11 @@ type DrawerSectionClosedEvent = CommonEvent<{
 type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Prompt Submitted';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     user_input_length?: number;
     request_id?: string;
   };
@@ -1744,6 +1749,12 @@ type AssistantSuggestedPromptSelectedEvent = CommonEvent<{
      * Stable identifier of the suggested prompt, independent of its text.
      */
     suggested_prompt_id: string;
+
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
   };
 }>;
 
@@ -1755,6 +1766,11 @@ type AssistantSuggestedPromptSelectedEvent = CommonEvent<{
 type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     source:
       | 'explain plan'
       | 'performance insights'
@@ -1775,6 +1791,11 @@ type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
 type AssistantFeedbackSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Feedback Submitted';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     feedback: 'positive' | 'negative';
     text: string | undefined;
     request_id?: string;
@@ -1791,6 +1812,11 @@ type AssistantFeedbackSubmittedEvent = ConnectionScopedEvent<{
 type AssistantConfirmationSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Confirmation Submitted';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     status: 'confirmed' | 'rejected';
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
     request_id?: string;
@@ -1805,6 +1831,11 @@ type AssistantConfirmationSubmittedEvent = ConnectionScopedEvent<{
 type AssistantResponseGeneratedEvent = ConnectionScopedEvent<{
   name: 'Assistant Response Generated';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     request_id?: string;
   };
 }>;
@@ -1817,6 +1848,11 @@ type AssistantResponseGeneratedEvent = ConnectionScopedEvent<{
 type AssistantResponseFailedEvent = ConnectionScopedEvent<{
   name: 'Assistant Response Failed';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     error_name?: string;
     request_id?: string;
   };
@@ -1843,6 +1879,11 @@ type AssistantFailedEvent = CommonEvent<{
 type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
   name: 'Assistant Tool Call Approval';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     type: string;
     approved: boolean;
     approval_id: string;

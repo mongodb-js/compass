@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useContext, useRef } from 'react';
-import type { AssistantMessage } from '../compass-assistant-provider';
+import type {
+  AssistantMessage,
+  ThreadedChat,
+} from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
-import type { Chat } from '../@ai-sdk/react/chat-react';
 import { useChat } from '../@ai-sdk/react/use-chat';
 import {
   LgChatChatWindow,
@@ -45,7 +47,7 @@ const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { InputBar } = LgChatInputBar;
 
 interface AssistantChatProps {
-  chat: Chat<AssistantMessage>;
+  chat: ThreadedChat;
   hasNonGenuineConnections: boolean;
 }
 
@@ -427,6 +429,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               {
                 user_input_length: trimmedMessageBody.length,
                 request_id: requestId,
+                thread_id: chat.threadId,
               },
               connectionInfo
             );
@@ -469,11 +472,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           request_id: message.metadata?.requestId,
           source: message.metadata?.source ?? 'chat response',
           skills_used: message.metadata?.skillsUsed ?? [],
+          thread_id: chat.threadId,
         },
         message.metadata?.connectionInfo ?? undefined
       );
     },
-    [track]
+    [track, chat]
   );
 
   const handleConfirmation = useCallback(
@@ -520,6 +524,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           status: newState,
           source: confirmedMessage.metadata?.source ?? 'chat response',
           request_id: confirmedMessage.metadata?.requestId,
+          thread_id: chat.threadId,
         },
         confirmedMessage.metadata?.connectionInfo ?? undefined
       );
@@ -528,7 +533,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         void ensureOptInAndSend?.(undefined, {}, () => {});
       }
     },
-    [ensureOptInAndSend, setMessages, track]
+    [ensureOptInAndSend, setMessages, track, chat]
   );
 
   const handleFollowUpPromptSend = useCallback(
@@ -568,11 +573,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           type,
           approval_id: approvalId,
           request_id: message.metadata?.requestId,
+          thread_id: chat.threadId,
         },
         message.metadata?.connectionInfo ?? undefined
       );
     },
-    [addToolApprovalResponse, track]
+    [addToolApprovalResponse, track, chat]
   );
 
   const handleStopButtonClick = useCallback(async () => {

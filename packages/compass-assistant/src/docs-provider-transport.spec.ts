@@ -10,6 +10,9 @@ import { jsonSchema, readUIMessageStream, tool, type UIMessageChunk } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 describe('DocsProviderTransport', function () {
   describe('shouldExcludeMessage', function () {
     it('returns false for messages without confirmation metadata', function () {
@@ -44,6 +47,7 @@ describe('DocsProviderTransport', function () {
     let doStream: sinon.SinonStub;
     let transport: DocsProviderTransport;
     let abortController: AbortController;
+    let threadId: string;
     let sendMessages: (
       params: Partial<Parameters<typeof transport.sendMessages>[0]>
     ) => Promise<ReadableStream<UIMessageChunk>>;
@@ -62,10 +66,12 @@ describe('DocsProviderTransport', function () {
         doStream,
       });
       abortController = new AbortController();
+      threadId = '5f8c4a1e-3b7d-4c2a-9e61-0d2b7a9c1f34';
       transport = new DocsProviderTransport({
         origin: 'mongodb-compass',
         instructions: 'Test instructions for MongoDB assistance',
         model: mockModel,
+        getThreadId: () => threadId,
       });
       sendMessages = (params) =>
         transport.sendMessages({
@@ -216,6 +222,7 @@ describe('DocsProviderTransport', function () {
           expect(callArgs.headers).to.deep.include({
             'X-Client-Request-Id': 'test-request-id',
           });
+          expect(callArgs.headers['X-Client-Thread-Id']).to.match(UUID_REGEX);
           expect(callArgs.providerOptions.openai).to.deep.include({
             store: false, // always false
             metadata: {
@@ -363,6 +370,7 @@ describe('DocsProviderTransport', function () {
         const skillsTransport = new DocsProviderTransport({
           origin: 'mongodb-compass',
           instructions: 'Test instructions',
+          getThreadId: () => threadId,
           getTools: () => ({
             'list-databases': tool({
               inputSchema: jsonSchema({ type: 'object' }),
@@ -592,6 +600,31 @@ describe('DocsProviderTransport', function () {
         } finally {
           warn.restore();
         }
+      });
+    });
+
+    describe('X-Client-Thread-Id header', function () {
+      const messages: AssistantMessage[] = [
+        { id: 'm1', role: 'user', parts: [{ type: 'text', text: 'Hi' }] },
+      ];
+
+      async function sentThreadId() {
+        const callCount = doStream.callCount;
+        await sendMessages({ messages });
+        await waitFor(() => {
+          expect(doStream.callCount).to.equal(callCount + 1);
+        });
+        return doStream.lastCall.args[0].headers['X-Client-Thread-Id'];
+      }
+
+      it('sends the thread id provided by getThreadId', async function () {
+        expect(await sentThreadId()).to.equal(threadId);
+      });
+
+      it('follows the thread id when it changes', async function () {
+        await sentThreadId();
+        threadId = 'a1b2c3d4-0000-4000-8000-123456789abc';
+        expect(await sentThreadId()).to.equal(threadId);
       });
     });
 

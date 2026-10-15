@@ -20,6 +20,8 @@ import type {
 } from '@mongodb-js/workspace-info';
 
 describe('SuggestedPrompts', function () {
+  let currentChat: ReturnType<typeof createMockChat>;
+
   let onMessageSendStub: sinon.SinonStub;
 
   beforeEach(function () {
@@ -55,6 +57,7 @@ describe('SuggestedPrompts', function () {
     enableSkills?: boolean;
   }) {
     const chat = createMockChat({ messages });
+    currentChat = chat;
     return render(
       <AssistantGlobalStateProvider>
         <TestWrapper
@@ -120,7 +123,10 @@ describe('SuggestedPrompts', function () {
       await waitFor(() => {
         expect(track).to.have.been.calledWith(
           'Assistant Suggested Prompt Selected',
-          { suggested_prompt_id: 'generic-connect' }
+          {
+            suggested_prompt_id: 'generic-connect',
+            thread_id: currentChat.threadId,
+          }
         );
       });
     });
@@ -140,7 +146,10 @@ describe('SuggestedPrompts', function () {
       await waitFor(() => {
         expect(track).to.have.been.calledWith(
           'Assistant Suggested Prompt Selected',
-          { suggested_prompt_id: 'aggregations-performance' }
+          {
+            suggested_prompt_id: 'aggregations-performance',
+            thread_id: currentChat.threadId,
+          }
         );
       });
     });
@@ -316,7 +325,10 @@ describe('SuggestedPrompts', function () {
       await waitFor(() => {
         expect(track).to.have.been.calledWith(
           'Assistant Suggested Prompt Selected',
-          { suggested_prompt_id: 'generic-query-optimizer-skill' }
+          {
+            suggested_prompt_id: 'generic-query-optimizer-skill',
+            thread_id: currentChat.threadId,
+          }
         );
       });
 
