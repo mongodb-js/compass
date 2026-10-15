@@ -302,7 +302,7 @@ export const runAIQuery = (
     let generatedFields: QueryFormFields;
     try {
       query = jsonResponse?.content?.query;
-      generatedFields = parseQueryAttributesToFormFields(
+      generatedFields = await parseQueryAttributesToFormFields(
         query,
         preferences.getPreferences()
       );
@@ -366,10 +366,10 @@ export const runAIQuery = (
     }
 
     const queryFields = {
-      ...mapQueryToFormFields(
+      ...(await mapQueryToFormFields(
         preferences.getPreferences(),
         DEFAULT_FIELD_VALUES
-      ),
+      )),
       ...generatedFields,
     };
 

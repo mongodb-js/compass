@@ -1,8 +1,10 @@
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
-function _isValidQuery(query: string): boolean {
+async function _isValidQuery(query: string): Promise<boolean> {
   try {
-    return !!parse(query, { mode: ParseMode.Loose });
+    return !!(await parse(query, {
+      mode: ParseMode.Loose,
+    }));
   } catch {
     return false;
   }
@@ -18,28 +20,31 @@ function _fixObjectIdInQuery(query: string): string | undefined {
   }
 }
 
-function _fixBraceEscapingInQuery(query: string): string | undefined {
-  const isValid = _isValidQuery(query);
-
+async function _fixBraceEscapingInQuery(
+  query: string
+): Promise<string | undefined> {
+  const isValid = await _isValidQuery(query);
   if (isValid) {
     return;
   }
 
   if (query.startsWith('{') && query.endsWith('}')) {
     const queryWithoutWrappingBraces = query.substring(1, query.length - 1);
-    const isInnerQueryValid = _isValidQuery(queryWithoutWrappingBraces);
+    const isInnerQueryValid = await _isValidQuery(queryWithoutWrappingBraces);
     if (isInnerQueryValid) {
       return queryWithoutWrappingBraces;
     }
   } else {
     const wrappedQuery = `{${query}}`;
-    if (_isValidQuery(wrappedQuery)) {
+    if (await _isValidQuery(wrappedQuery)) {
       return wrappedQuery;
     }
   }
 }
 
-export function lenientlyFixQuery(query: string): string | false {
+export async function lenientlyFixQuery(
+  query: string
+): Promise<string | false> {
   query = query.trim();
 
   if (query === '') {
@@ -54,7 +59,7 @@ export function lenientlyFixQuery(query: string): string | false {
     query = fixedObjectId;
   }
 
-  const fixedBraceEscaping = _fixBraceEscapingInQuery(query);
+  const fixedBraceEscaping = await _fixBraceEscapingInQuery(query);
   if (fixedBraceEscaping) {
     modified = true;
     query = fixedBraceEscaping;

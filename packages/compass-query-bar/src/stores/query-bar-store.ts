@@ -11,13 +11,13 @@ import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { mapQueryToFormFields } from '../utils/query';
+import { getDefaultFormFields } from '../utils/query';
 import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
   fetchSavedQueries,
+  setQuery,
 } from './query-bar-reducer';
 import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
@@ -151,10 +151,9 @@ export function activatePlugin(
       namespace: namespace ?? '',
       host: dataService?.getConnectionString().hosts.join(','),
       serverVersion: serverVersion ?? '3.6.0',
-      fields: mapQueryToFormFields(preferences.getPreferences(), {
-        ...DEFAULT_FIELD_VALUES,
-        ...getQueryAttributes(query ?? {}),
-      }),
+      // Validating the passed query is async, so start from the defaults and
+      // fill the query in once it has been validated below.
+      fields: getDefaultFormFields(),
       isReadonlyConnection: !instance.isWritable,
     },
     {
@@ -191,6 +190,11 @@ export function activatePlugin(
   on(localAppRegistry, 'explain-plan-interpret-finished', () => {
     store.dispatch({ type: QueryBarActions.InterpretFinished });
   });
+
+  const initialQuery = getQueryAttributes(query ?? {});
+  if (Object.keys(initialQuery).length > 0) {
+    void store.dispatch(setQuery(initialQuery));
+  }
 
   store.dispatch(fetchSavedQueries());
 

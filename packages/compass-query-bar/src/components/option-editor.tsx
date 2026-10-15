@@ -251,18 +251,20 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         if (!query[optionName]) {
           return;
         }
-        const formFields = mapQueryToFormFields(
+        void mapQueryToFormFields(
           { maxTimeMS: maxTimeMSPreference },
           {
             ...DEFAULT_FIELD_VALUES,
             ...query,
           }
-        );
-        const optionFormField = formFields[optionName as keyof QueryFormFields];
-        if (optionFormField?.string) {
-          // When we did apply something we want to move the cursor to the end of the input.
-          editorRef.current?.cursorDocEnd();
-        }
+        ).then((formFields) => {
+          const optionFormField =
+            formFields[optionName as keyof QueryFormFields];
+          if (optionFormField?.string) {
+            // When we did apply something we want to move the cursor to the end of the input.
+            editorRef.current?.cursorDocEnd();
+          }
+        });
       },
       theme: darkMode ? 'dark' : 'light',
     });
@@ -310,7 +312,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     }
   };
 
-  const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+  const onPaste = async (event: React.ClipboardEvent<HTMLDivElement>) => {
     if (insertEmptyDocOnFocus && editorRef.current) {
       const { main: currentSelection } =
         editorRef.current.editor?.state.selection ?? {};
@@ -325,7 +327,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         currentSelection.to === 1
       ) {
         const pasteContents = event.clipboardData.getData('text');
-        const snippet = lenientlyFixQuery(`{${pasteContents}}`);
+        const snippet = await lenientlyFixQuery(`{${pasteContents}}`);
         if (snippet) {
           event.preventDefault();
           editorRef.current.applySnippet(snippet);
@@ -419,7 +421,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         data-testid={dataTestId}
         disabled={disabled}
         onFocus={onFocus}
-        onPaste={onPaste}
+        onPaste={(e) => void onPaste(e)}
         onBlur={onBlur}
       />
     </div>
