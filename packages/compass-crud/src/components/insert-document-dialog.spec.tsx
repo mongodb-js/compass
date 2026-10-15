@@ -102,7 +102,7 @@ describe('InsertDocumentDialog', function () {
     ).to.be.greaterThan(0);
   });
 
-  it('disables the visual editor when the editor holds an array', function () {
+  it('disables the visual editor when the editor holds an array', async function () {
     const doc = new HadronDocument({});
     doc.editing = true;
     render(
@@ -117,10 +117,12 @@ describe('InsertDocumentDialog', function () {
 
     const buttonIn = (testId: string) =>
       screen.getByTestId(testId).querySelector('button');
-    expect(buttonIn('insert-document-dialog-view-list')).to.have.property(
-      'disabled',
-      true
-    );
+    await waitFor(() => {
+      expect(buttonIn('insert-document-dialog-view-list')).to.have.property(
+        'disabled',
+        true
+      );
+    });
     expect(buttonIn('insert-document-dialog-view-shell')).to.have.property(
       'disabled',
       false
@@ -294,8 +296,8 @@ describe('InsertDocumentDialog', function () {
       expect(screen.queryByTestId('insert-document-ejson-conversion-error')).to
         .not.exist;
     });
-    expect(screen.getByTestId('insert-document-ejson-conversion-banner')).to
-      .exist;
+    expect(await screen.findByTestId('insert-document-ejson-conversion-banner'))
+      .to.exist;
   });
 
   it('does not offer the conversion in the EJSON view', async function () {

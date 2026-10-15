@@ -18,6 +18,7 @@ import {
   SegmentedControlOption,
   spacing,
   useSyncStateOnPropChange,
+  useAsyncValue,
   InfoSprinkle,
   Code,
   Tooltip,
@@ -44,9 +45,8 @@ import InsertDocumentEditor, {
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 
-/**
- * The insert invalid message.
- */
+const NOT_PARSED = { value: null, error: null } as const;
+
 const INSERT_INVALID_MESSAGE =
   'Insert not permitted while document contains errors.';
 
@@ -226,23 +226,30 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   // either the parsed value or the error, so the text is only parsed once per
   // change here. In the list view the editor text is not the source of truth,
   // so there is nothing to parse.
-  const parseResult = useMemo((): {
-    value: unknown;
-    error: Error | null;
-  } => {
+  const {
+    value: parsedValue,
+    error: parseError,
+    pending: isParsePending,
+  } = useAsyncValue(async () => {
     if (insertView === 'list') {
-      return { value: null, error: null };
+      return null;
     }
-    try {
-      const value = parseInsertDocumentText(insertView, editorText);
-      // Not everything that parses can be inserted as a document, and that is
-      // part of what makes the text invalid.
-      toInsertHadronDocument(value);
-      return { value, error: null };
-    } catch (e) {
-      return { value: null, error: e as Error };
-    }
+    const value = await parseInsertDocumentText(insertView, editorText);
+    // Not everything that parses can be inserted as a document, and that
+    // is part of what makes the text invalid.
+    toInsertHadronDocument(value);
+    return value;
   }, [editorText, insertView]);
+
+  // Until the current text has been parsed, treat it as having no value and
+  // no error rather than showing the result for older text.
+  const parseResult = useMemo(
+    () =>
+      insertView === 'list' || isParsePending
+        ? NOT_PARSED
+        : { value: parsedValue ?? null, error: parseError ?? null },
+    [insertView, isParsePending, parsedValue, parseError]
+  );
 
   // The visual editor can only represent a single document, so disable it when
   // the editor holds an array.
