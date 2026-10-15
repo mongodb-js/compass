@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import ConnectionString from 'mongodb-connection-string-url';
 import type {
   ConnectionStorage,
   ConnectionInfo,
@@ -66,6 +67,43 @@ const VISIBLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
   'DELETED',
 ];
 
+const READ_PREFERENCE_PARAMS = [
+  'readPreference',
+  'readPreferenceTags',
+  'maxStalenessSeconds',
+];
+
+type SearchParamEntries = [key: string, value: string][];
+
+function getReadPreferenceParams(connectionString: string): SearchParamEntries {
+  const { searchParams } = new ConnectionString(connectionString);
+  return READ_PREFERENCE_PARAMS.flatMap((key) =>
+    searchParams.getAll(key).map((value): [string, string] => [key, value])
+  );
+}
+
+function applyReadPreferenceParams(
+  connectionInfo: ConnectionInfo,
+  params: SearchParamEntries
+): ConnectionInfo {
+  const connectionString = new ConnectionString(
+    connectionInfo.connectionOptions.connectionString
+  );
+  for (const key of READ_PREFERENCE_PARAMS) {
+    connectionString.searchParams.delete(key);
+  }
+  for (const [key, value] of params) {
+    connectionString.searchParams.append(key, value);
+  }
+  return {
+    ...connectionInfo,
+    connectionOptions: {
+      ...connectionInfo.connectionOptions,
+      connectionString: connectionString.toString(),
+    },
+  };
+}
+
 /**
  * @internal exported for testing purposes
  */
@@ -78,6 +116,11 @@ export class AtlasCloudConnectionStorage
   private orgId: string;
   private projectId: string;
   private logger: Logger;
+  // Data Explorer only lets users edit the read preference, and only for the
+  // current session. We keep just those params instead of the whole edited
+  // connection info so that every refresh still picks up any other changes
+  // Atlas makes to the cluster's connection info.
+  private readPreferenceOverrides = new Map<string, SearchParamEntries>();
   constructor(
     atlasService: AtlasService,
     orgId: string,
@@ -140,7 +183,21 @@ export class AtlasCloudConnectionStorage
       })
       .filter((connectionInfo): connectionInfo is ConnectionInfo => {
         return !!connectionInfo;
+      })
+      .map((connectionInfo) => {
+        const overrides = this.readPreferenceOverrides.get(connectionInfo.id);
+        return overrides
+          ? applyReadPreferenceParams(connectionInfo, overrides)
+          : connectionInfo;
       });
+  }
+
+  save({ connectionInfo }: { connectionInfo: ConnectionInfo }): Promise<void> {
+    this.readPreferenceOverrides.set(
+      connectionInfo.id,
+      getReadPreferenceParams(connectionInfo.connectionOptions.connectionString)
+    );
+    return Promise.resolve();
   }
 
   loadAll(): Promise<ConnectionInfo[]> {

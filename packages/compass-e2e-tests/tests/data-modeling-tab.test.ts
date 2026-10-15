@@ -109,19 +109,17 @@ async function setupDiagram(
   }
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
-  // Ensure that all the collections are selected by default
-  const text = await browser.$(Selectors.CreateDataModelModal).getText();
+  // Ensure that all the collections are selected by default. The modal fetches
+  // the collections when it opens, so this text is not there immediately.
   // 2 is based on the collections we create in beforeEach hook
-  expect(text).to.contain('2/2 total collections selected.');
+  await waitForModalText(browser, '2/2 total collections selected.');
   if (stopAtStep === 'collectionsSelection') {
     return;
   }
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Pass the diagram settings step without changes
-  expect(await browser.$(Selectors.CreateDataModelModal).getText()).to.contain(
-    'Diagram settings'
-  );
+  await waitForModalText(browser, 'Diagram settings');
   if (stopAtStep === 'diagramSettings') {
     return;
   }
@@ -177,9 +175,23 @@ async function selectCollectionOnTheDiagram(
   expect(await collectionName.getValue()).to.equal(toNS(ns).collection);
 }
 
+async function waitForModalText(
+  browser: CompassBrowser,
+  expectedText: string
+): Promise<void> {
+  const modal = browser.$(Selectors.CreateDataModelModal);
+  await browser.waitUntil(
+    async () => (await modal.getText()).includes(expectedText),
+    {
+      timeoutMsg: `Expected the data model modal to contain "${expectedText}"`,
+    }
+  );
+}
+
 async function getDiagramNodes(
   browser: CompassBrowser,
-  expectedCount: number
+  expectedCount: number,
+  expectedNodeIds: string[] = []
 ): Promise<Node[]> {
   let nodes: Node[] = [];
   await browser.waitUntil(async () => {
@@ -198,7 +210,10 @@ async function getDiagramNodes(
           position: node.position,
         }));
     }, Selectors.DataModelEditor);
-    return nodes.length === expectedCount;
+    return (
+      nodes.length === expectedCount &&
+      expectedNodeIds.every((id) => nodes.some((node) => node.id === id))
+    );
   });
   return nodes;
 }
@@ -919,7 +934,10 @@ describe('Data Modeling tab', function () {
 
       // Select the second collection and verify that the new name is in the diagram.
       await selectCollectionOnTheDiagram(browser, 'test.testCollection-nested');
-      const nodes = await getDiagramNodes(browser, 2);
+      const nodes = await getDiagramNodes(browser, 2, [
+        'test.renamedOne',
+        'test.testCollection-nested',
+      ]);
       expect(nodes).to.have.lengthOf(2);
       expect(nodes[0].id).to.equal('test.renamedOne');
       expect(nodes[1].id).to.equal('test.testCollection-nested');
@@ -973,7 +991,9 @@ describe('Data Modeling tab', function () {
       await drawer.click(); // Unfocus the input.
 
       // Verify that the new collection is named in the diagram.
-      const nodesAfterNaming = await getDiagramNodes(browser, 3);
+      const nodesAfterNaming = await getDiagramNodes(browser, 3, [
+        `test.${collectionName}`,
+      ]);
       expect(nodesAfterNaming[2].id).to.equal(`test.${collectionName}`);
 
       // Undo once - verify that the collection is removed
