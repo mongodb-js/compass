@@ -11,8 +11,8 @@ import HadronDocument, {
 } from 'hadron-document';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { EJSON } from 'bson';

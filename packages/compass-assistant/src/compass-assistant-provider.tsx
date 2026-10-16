@@ -38,7 +38,7 @@ import {
   preferencesLocator,
   useIsAIFeatureEnabled,
   usePreference,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import {
   createLoggerLocator,
   type Logger,

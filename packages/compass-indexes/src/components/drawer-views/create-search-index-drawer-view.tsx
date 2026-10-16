@@ -56,7 +56,7 @@ import {
   useConnectionInfo,
   useConnectionInfoRef,
 } from '@mongodb-js/compass-connections/provider';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useJsonSchema } from '../../utils/use-json-schema';
 

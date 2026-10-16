@@ -26,7 +26,7 @@ import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provi
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 

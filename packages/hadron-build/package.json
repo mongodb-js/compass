@@ -1,5 +1,5 @@
 {
-  "name": "hadron-build",
+  "name": "@mongodb-js/hadron-build",
   "description": "Tooling for Hadron apps like Compass",
   "version": "25.11.1",
   "main": "dist/index.js",

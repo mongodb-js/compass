@@ -16,8 +16,8 @@ import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
-} from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 
 import { StagePreview } from './';
 import {

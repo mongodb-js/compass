@@ -1,4 +1,4 @@
-import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
+import { CompassWebPreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import {
   DEFAULT_COMPASS_WEB_PREFERENCES,
   setCompassWebPreferencesAccess,

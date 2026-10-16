@@ -1,5 +1,5 @@
-import { type PreferencesAccess } from 'compass-preferences-model';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 
 export function createInstance(
   dbs = [

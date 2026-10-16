@@ -17,8 +17,8 @@ import {
   nbsp,
 } from '@mongodb-js/compass-components';
 import { ItemsTable, VirtualItemsTable } from './items-table';
-import type { CollectionProps } from 'mongodb-collection-model';
-import { usePreference } from 'compass-preferences-model/provider';
+import type { CollectionProps } from '@mongodb-js/mongodb-collection-model';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 type BadgeProp = {
   id: string;

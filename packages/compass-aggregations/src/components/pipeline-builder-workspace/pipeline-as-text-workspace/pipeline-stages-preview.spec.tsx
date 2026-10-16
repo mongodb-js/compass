@@ -7,8 +7,8 @@ import sinon from 'sinon';
 import { renderWithStore } from '../../../../test/configure-store';
 
 import { OutputStagePreview } from './pipeline-stages-preview';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 describe('OutputStagePreview', function () {
   let preferences: PreferencesAccess;

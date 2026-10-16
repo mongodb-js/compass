@@ -8,7 +8,7 @@ import {
   compactNumber,
 } from '@mongodb-js/compass-components';
 import type { CrudStore } from './stores/crud-store';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const tooltipContentStyles = css({
   listStyleType: 'none',

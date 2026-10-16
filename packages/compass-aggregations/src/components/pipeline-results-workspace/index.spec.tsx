@@ -7,7 +7,7 @@ import { spy } from 'sinon';
 import { renderWithStore } from '../../../test/configure-store';
 import type { AggregationsPluginServices } from '../../stores/store';
 import { PipelineResultsWorkspace } from './index';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
 
 const rerankPreferences = {
   preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }),

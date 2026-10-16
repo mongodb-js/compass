@@ -13,7 +13,7 @@ import { Passphrase } from './passphrase';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export-connections';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const TOAST_TIMEOUT_MS = 5000;
 const tableStyles = css({

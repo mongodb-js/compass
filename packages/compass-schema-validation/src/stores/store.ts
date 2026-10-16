@@ -13,7 +13,7 @@ import type {
 } from '@mongodb-js/compass-app-registry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';

@@ -17,7 +17,7 @@ import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import { packageCompass } from 'hadron-build';
+import { packageCompass } from '@mongodb-js/hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors.ts';

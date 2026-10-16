@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 
 import type { RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';

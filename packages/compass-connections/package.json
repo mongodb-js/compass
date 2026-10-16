@@ -59,7 +59,7 @@
     "@mongodb-js/connection-info": "^0.29.3",
     "@mongodb-js/connection-storage": "^1.6.0",
     "bson": "^7.3.2",
-    "compass-preferences-model": "^3.6.0",
+    "@mongodb-js/compass-preferences-model": "^3.6.0",
     "lodash": "^4.18.1",
     "mongodb": "^7.5.0",
     "mongodb-build-info": "^1.8.1",

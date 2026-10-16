@@ -19,7 +19,7 @@ import { mockDataService } from '../../../../test/mocks/data-service';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import { AIPipelineActionTypes } from '../../../modules/pipeline-builder/pipeline-ai';
 import {
   ExperimentTestGroups,
