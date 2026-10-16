@@ -182,11 +182,11 @@ export class ToolsController {
       ),
       // `MongoDBToolServices` requires a `result` that is only read when
       // `errorHandled` is true; Compass never handles connection errors.
-      // TODO(mongodb-mcp-server#1621): drop this cast once released.
+      // TODO(mongodb-mcp-server#1620): drop this cast once released.
       connectionErrorHandler:
         createConnectionErrorHandler() as MongoDBToolServer['connectionErrorHandler'],
       // Only the unregistered `export` tool reads this.
-      // TODO(mongodb-mcp-server#1621): use NoopExportsManager once released.
+      // TODO(mongodb-mcp-server#1620): use NoopExportsManager once released.
       exportsManager: {
         createJSONExport: () => {
           return Promise.reject(
