@@ -14,7 +14,8 @@ import {
   showInput,
   hideInput,
 } from './ai-query-reducer';
-import { changeField } from './query-bar-reducer';
+import { changeField, setQuery } from './query-bar-reducer';
+import { ObjectId } from 'bson';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -108,14 +109,16 @@ describe('aiQueryReducer', function () {
     });
 
     describe('with a query in the query bar', function () {
-      it('includes the current query as written by the user', async function () {
-        const mockAtlasAiService = {
+      let mockAtlasAiService: { getQueryFromUserInput: Sinon.SinonStub };
+      let store: ReturnType<typeof createStore>;
+
+      beforeEach(function () {
+        mockAtlasAiService = {
           getQueryFromUserInput: sandbox
             .stub()
             .resolves({ content: { query: { filter: '{_id: 1}' } } }),
         };
-
-        const store = createStore(
+        store = createStore(
           {
             namespace: 'database.collection',
           },
@@ -131,12 +134,20 @@ describe('aiQueryReducer', function () {
             collection: mockCollectionModel,
           } as any
         );
+      });
 
-        const filter = '{\n  // only adults\n  age: { $gte: 18 }\n}';
+      it('includes the current query as written by the user', async function () {
+        const filter = [
+          '{',
+          '  // recent orders of this user',
+          "  userId: ObjectId('5735040085629ed4fa83946f'),",
+          "  createdAt: { $gte: ISODate('2024-01-01T00:00:00.000Z') }",
+          '}',
+        ].join('\n');
         store.dispatch(changeField('filter', filter));
         store.dispatch(changeField('limit', '10'));
 
-        await store.dispatch(runAIQuery('also sort by name'));
+        await store.dispatch(runAIQuery('also sort by date'));
 
         expect(
           mockAtlasAiService.getQueryFromUserInput.getCall(0)
@@ -146,6 +157,37 @@ describe('aiQueryReducer', function () {
           sort: '',
           skip: '',
           limit: '10',
+        });
+      });
+
+      it('includes a query set from BSON values in shell syntax', async function () {
+        store.dispatch(
+          setQuery({
+            filter: {
+              userId: new ObjectId('5735040085629ed4fa83946f'),
+              createdAt: { $gte: new Date('2024-01-01T00:00:00.000Z') },
+            },
+            sort: { createdAt: -1 },
+          })
+        );
+
+        await store.dispatch(runAIQuery('also sort by date'));
+
+        expect(
+          mockAtlasAiService.getQueryFromUserInput.getCall(0)
+        ).to.have.deep.nested.property('args[0].currentQuery', {
+          filter: [
+            '{',
+            '  userId: ObjectId("5735040085629ed4fa83946f"),',
+            '  createdAt: {',
+            '    $gte: ISODate("2024-01-01T00:00:00.000Z")',
+            '  }',
+            '}',
+          ].join('\n'),
+          project: '',
+          sort: '{ createdAt: -1 }',
+          skip: '',
+          limit: '',
         });
       });
     });

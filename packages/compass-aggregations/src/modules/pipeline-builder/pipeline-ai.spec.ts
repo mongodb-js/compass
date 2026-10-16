@@ -19,6 +19,7 @@ import {
 } from './pipeline-ai';
 import { toggleAutoPreview } from '../auto-preview';
 import { changePipelineMode } from './pipeline-mode';
+import { ObjectId } from 'bson';
 import type { ConfigureStoreOptions } from '../../stores/store';
 
 describe('AIPipelineReducer', function () {
@@ -101,40 +102,56 @@ describe('AIPipelineReducer', function () {
     });
 
     describe('with a pipeline in the editor', function () {
+      async function runWithPipeline(
+        options: Partial<ConfigureStoreOptions>,
+        mode: 'builder-ui' | 'as-text' = 'builder-ui'
+      ) {
+        const fetchJsonStub = sandbox.stub().resolves({
+          content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
+        });
+        const store = await configureStore(
+          { getAggregationFromUserInput: fetchJsonStub },
+          {
+            ...createMockDataService(),
+            sample: sandbox.stub().resolves([{ _id: 42 }]),
+          },
+          options
+        );
+        store.dispatch(toggleAutoPreview(false));
+        store.dispatch(changePipelineMode(mode));
+
+        await store.dispatch(runAIPipelineGeneration('testing prompt'));
+
+        return fetchJsonStub.getCall(0).firstArg.currentPipeline;
+      }
+
       const pipelineText = [
         '[',
-        '  // movies from 1983',
-        '  { $match: { year: 1983 } },',
+        '  // recent comments on this movie',
+        '  {',
+        '    $match: {',
+        "      movie_id: ObjectId('573a1390f29313caabcd44d3'),",
+        "      date: { $gte: ISODate('2024-01-01T00:00:00.000Z') }",
+        '    }',
+        '  },',
         '  { $limit: 10 }',
         ']',
       ].join('\n');
 
       for (const mode of ['builder-ui', 'as-text'] as const) {
         it(`includes the current pipeline in ${mode} mode`, async function () {
-          const fetchJsonStub = sandbox.stub().resolves({
-            content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
-          });
-          const store = await configureStore(
-            { getAggregationFromUserInput: fetchJsonStub },
-            {
-              ...createMockDataService(),
-              sample: sandbox.stub().resolves([{ _id: 42 }]),
-            },
-            { pipelineText }
-          );
-          store.dispatch(toggleAutoPreview(false));
-          store.dispatch(changePipelineMode(mode));
-
-          await store.dispatch(runAIPipelineGeneration('testing prompt'));
-
-          expect(fetchJsonStub.getCall(0).firstArg).to.have.property(
-            'currentPipeline',
+          expect(await runWithPipeline({ pipelineText }, mode)).to.equal(
             [
               '[',
-              '  // movies from 1983',
+              '  // recent comments on this movie',
               '  {',
               '    $match: {',
-              '      year: 1983',
+              '      movie_id: ObjectId(',
+              '        "573a1390f29313caabcd44d3"',
+              '      ),',
+              '      date: {',
+              '        $gte: ISODate("2024-01-01T00:00:00.000Z")',
+              '      }',
               '    }',
               '  },',
               '  {',
@@ -145,6 +162,36 @@ describe('AIPipelineReducer', function () {
           );
         });
       }
+
+      it('includes a pipeline loaded from BSON values in shell syntax', async function () {
+        expect(
+          await runWithPipeline({
+            pipeline: [
+              {
+                $match: {
+                  movie_id: new ObjectId('573a1390f29313caabcd44d3'),
+                  date: { $gte: new Date('2024-01-01T00:00:00.000Z') },
+                },
+              },
+            ],
+          })
+        ).to.equal(
+          [
+            '[',
+            '  {',
+            '    $match: {',
+            '      movie_id: ObjectId(',
+            '        "573a1390f29313caabcd44d3"',
+            '      ),',
+            '      date: {',
+            '        $gte: ISODate("2024-01-01T00:00:00.000Z")',
+            '      }',
+            '    }',
+            '  }',
+            ']',
+          ].join('\n')
+        );
+      });
     });
 
     describe('when there is an error', function () {

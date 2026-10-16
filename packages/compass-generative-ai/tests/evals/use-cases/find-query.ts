@@ -181,37 +181,47 @@ export const findQueries: GenAiUsecase[] = [
     name: 'find with simple projection',
   },
   {
-    namespace: 'netflix.movies',
-    currentQuery: { filter: '{year: 1983}' },
-    userInput: 'only show the title',
+    namespace: 'netflix.comments',
+    currentQuery: {
+      filter: "{movie_id: ObjectId('573a1390f29313caabcd44d3')}",
+    },
+    userInput: 'only show the name and text',
     expectedOutput: `
-      <filter>{year: 1983}</filter>
-      <project>{title: 1}</project>
+      <filter>{movie_id: ObjectId('573a1390f29313caabcd44d3')}</filter>
+      <project>{name: 1, text: 1}</project>
     `,
     name: 'find extending the current query',
   },
   {
-    namespace: 'nyc.parking',
+    namespace: 'netflix.comments',
     currentQuery: {
       filter: `{
-        // Acura vehicles only
-        "Vehicle Make": "ACURA"
-      }`,
-      project: '{"Plate ID": 1}',
+  // comments from the 90s
+  date: {
+    $gte: ISODate('1990-01-01T00:00:00.000Z'),
+    $lt: ISODate('2000-01-01T00:00:00.000Z')
+  }
+}`,
+      project: '{name: 1, date: 1}',
     },
-    userInput: 'change it to BMW and sort by summons number, highest first',
+    userInput: 'change it to the 80s and sort by date, newest first',
     expectedOutput: `
-      <filter>{"Vehicle Make": "BMW"}</filter>
-      <project>{"Plate ID": 1}</project>
-      <sort>{"Summons Number": -1}</sort>
+      <filter>{
+        date: {
+          $gte: ISODate('1980-01-01T00:00:00.000Z'),
+          $lt: ISODate('1990-01-01T00:00:00.000Z')
+        }
+      }</filter>
+      <project>{name: 1, date: 1}</project>
+      <sort>{date: -1}</sort>
     `,
     name: 'find modifying the current query with comments',
   },
   {
-    namespace: 'netflix.movies',
-    currentQuery: { filter: '{year: {$gt: 2000, $lt 2005}}' },
+    namespace: 'netflix.comments',
+    currentQuery: { filter: '{_id: ObjectId(5a9427648b0beebeb69579f3)}' },
     userInput: 'fix my query',
-    expectedOutput: `<filter>{year: {$gt: 2000, $lt: 2005}}</filter>`,
+    expectedOutput: `<filter>{_id: ObjectId('5a9427648b0beebeb69579f3')}</filter>`,
     name: 'find fixing the current query',
   },
   {

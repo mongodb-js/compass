@@ -294,14 +294,15 @@ export const aggregateQueries: GenAiUsecase[] = [
     name: 'simple projection aggregate',
   },
   {
-    namespace: 'netflix.movies',
-    currentPipeline: '[{$match: {year: 1983}}]',
-    userInput: 'sort them by title and only return the title',
+    namespace: 'netflix.comments',
+    currentPipeline:
+      "[{$match: {movie_id: ObjectId('573a1390f29313caabcd44d3')}}]",
+    userInput: 'count the comments per commenter name, most comments first',
     expectedOutput: `<aggregation>
       [
-        {$match: {year: 1983}},
-        {$sort: {title: 1}},
-        {$project: {_id: 0, title: 1}}
+        {$match: {movie_id: ObjectId('573a1390f29313caabcd44d3')}},
+        {$group: {_id: "$name", count: {$sum: 1}}},
+        {$sort: {count: -1}}
       ]
     </aggregation>`,
     name: 'aggregate extending the current pipeline',
@@ -309,16 +310,30 @@ export const aggregateQueries: GenAiUsecase[] = [
   {
     namespace: 'airbnb.listingsAndReviews',
     currentPipeline: `[
-      // Only listings that can host big groups
-      { $match: { accommodates: { $gte: 6 } } },
-      { $group: { _id: "$property_type", count: { $sum: 1 } } },
-      { $sort: { count: -1 } }
-    ]`,
-    userInput: 'group by room type instead and only return the top 3',
+  // Listings first reviewed in 2016
+  {
+    $match: {
+      first_review: {
+        $gte: ISODate('2016-01-01T00:00:00.000Z'),
+        $lt: ISODate('2017-01-01T00:00:00.000Z')
+      }
+    }
+  },
+  { $group: { _id: "$property_type", count: { $sum: 1 } } },
+  { $sort: { count: -1 } }
+]`,
+    userInput: 'change it to 2018 and only return the top 3',
     expectedOutput: `<aggregation>
       [
-        {$match: {accommodates: {$gte: 6}}},
-        {$group: {_id: "$room_type", count: {$sum: 1}}},
+        {
+          $match: {
+            first_review: {
+              $gte: ISODate('2018-01-01T00:00:00.000Z'),
+              $lt: ISODate('2019-01-01T00:00:00.000Z')
+            }
+          }
+        },
+        {$group: {_id: "$property_type", count: {$sum: 1}}},
         {$sort: {count: -1}},
         {$limit: 3}
       ]
@@ -326,15 +341,15 @@ export const aggregateQueries: GenAiUsecase[] = [
     name: 'aggregate modifying the current pipeline with comments',
   },
   {
-    namespace: 'netflix.movies',
+    namespace: 'netflix.comments',
     currentPipeline: `[
-      { $match: { year: { $gte: 1990 } } },
-      // { $limit: 10 }
-    ]`,
+  { $match: { date: { $gte: ISODate('2000-01-01T00:00:00.000Z') } } },
+  // { $limit: 10 }
+]`,
     userInput: 'enable the commented out limit stage and change it to 5',
     expectedOutput: `<aggregation>
       [
-        {$match: {year: {$gte: 1990}}},
+        {$match: {date: {$gte: ISODate('2000-01-01T00:00:00.000Z')}}},
         {$limit: 5}
       ]
     </aggregation>`,

@@ -770,7 +770,7 @@ describe('AtlasAiService', function () {
       {
         functionName: 'getQueryFromUserInput',
         expectedCurrentCode:
-          '<current_query><filter>{ a: 1 }</filter></current_query>',
+          "<current_query><filter>{ _id: ObjectId('642d766b7300158b1f22e972') }</filter></current_query>",
         successResponse: {
           request: [
             { type: 'text', content: 'Hello' },
@@ -813,7 +813,7 @@ describe('AtlasAiService', function () {
       {
         functionName: 'getAggregationFromUserInput',
         expectedCurrentCode:
-          '<current_aggregation>[{ $match: { a: 1 } }]</current_aggregation>',
+          "<current_aggregation>[{ $match: { date: ISODate('2024-01-01T00:00:00.000Z') } }]</current_aggregation>",
         successResponse: {
           request: [
             { type: 'text', content: 'Hello' },
@@ -924,8 +924,11 @@ describe('AtlasAiService', function () {
             requestId: 'abc',
             signal: new AbortController().signal,
             enableStorage: true,
-            currentQuery: { filter: '{ a: 1 }' },
-            currentPipeline: '[{ $match: { a: 1 } }]',
+            currentQuery: {
+              filter: "{ _id: ObjectId('642d766b7300158b1f22e972') }",
+            },
+            currentPipeline:
+              "[{ $match: { date: ISODate('2024-01-01T00:00:00.000Z') } }]",
           });
 
           const requestBody = JSON.parse(

@@ -210,7 +210,14 @@ describe('GenAI Prompts', function () {
       const { prompt } = buildFindQueryPrompt({
         ...OPTIONS,
         currentQuery: {
-          filter: '{\n  // only recent ones\n  year: { $gte: 2020 }\n}',
+          filter: [
+            '{',
+            '  // recent listings of this user',
+            "  userId: ObjectId('68a2dfe93d5adb16ebf4c865'),",
+            "  createdAt: { $gte: ISODate('2024-01-01T00:00:00.000Z') },",
+            "  price: NumberDecimal('9.99')",
+            '}',
+          ].join('\n'),
           project: '',
           sort: '  ',
           limit: '10',
@@ -223,8 +230,10 @@ describe('GenAI Prompts', function () {
       expect(prompt).to.include(
         [
           '<current_query><filter>{',
-          '  // only recent ones',
-          '  year: { $gte: 2020 }',
+          '  // recent listings of this user',
+          "  userId: ObjectId('68a2dfe93d5adb16ebf4c865'),",
+          "  createdAt: { $gte: ISODate('2024-01-01T00:00:00.000Z') },",
+          "  price: NumberDecimal('9.99')",
           '}</filter>',
           '<limit>10</limit></current_query>',
         ].join('\n')
@@ -263,8 +272,13 @@ describe('GenAI Prompts', function () {
   context('with the current pipeline', function () {
     const currentPipeline = [
       '[',
-      '  // movies from 1983',
-      '  { $match: { year: 1983 } },',
+      '  // comments on this movie since 2024',
+      '  {',
+      '    $match: {',
+      "      movie_id: ObjectId('573a1390f29313caabcd44d3'),",
+      "      date: { $gte: ISODate('2024-01-01T00:00:00.000Z') }",
+      '    }',
+      '  },',
       '  // { $limit: 10 }',
       ']',
     ].join('\n');
