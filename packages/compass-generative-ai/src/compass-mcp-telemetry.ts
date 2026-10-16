@@ -41,8 +41,8 @@ export type CompassMcpTelemetryConfig = {
  */
 export class CompassMcpTelemetry extends AtlasTelemetry {
   private readonly isEnabled: () => boolean;
-  // Held separately from the base class' private fields so `close` can release
-  // them; the pipeline itself only ever flushes.
+  // Shadow the base class' private fields so `close` can release them.
+  // TODO(mongodb-mcp-server#1620): drop these once the fields are protected.
   private readonly apiClientRef: ApiClient;
   private readonly deviceIdRef: IDeviceId;
   private setupStarted = false;
