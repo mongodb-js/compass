@@ -1856,11 +1856,20 @@ describe('DataService', function () {
     describe('#previewUpdate', function () {
       const namespace = 'test.previewUpdate';
       const sampleDocument = { _id: new ObjectId(), foo: 'bar' };
+      let replDataService: DataService;
+
+      // Registered before mochaTestServer so the client is disconnected while
+      // the test server is still running: closing a MongoClient against an
+      // already-torn-down replset can stall for ~30s (server selection
+      // timeout) and trip the after-all hook timeout.
+      after(async function () {
+        await replDataService.disconnect().catch(console.log);
+      });
+
       const replsetCluster = mochaTestServer({
         topology: 'replset',
         secondaries: 0,
       });
-      let replDataService: DataService;
 
       before(async function () {
         const replSetOptions = {
@@ -1881,11 +1890,6 @@ describe('DataService', function () {
           foo: `bar${idx}`,
         }));
         await replDataService.insertMany(namespace, dummyDocs);
-      });
-
-      after(async function () {
-        // eslint-disable-next-line no-console
-        await replDataService.disconnect().catch(console.log);
       });
 
       it('should return the preview of a changed document', async function () {
