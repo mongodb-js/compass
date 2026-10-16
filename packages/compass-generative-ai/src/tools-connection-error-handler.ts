@@ -1,7 +1,7 @@
 import type {
   ConnectionErrorUnhandled,
   ConnectionErrorHandler,
-} from 'mongodb-mcp-server';
+} from '@mongodb-js/mcp-tools-mongodb';
 
 /**
  * Creates a connection error handler for mongodb-mcp-server in Compass.

@@ -1,14 +1,14 @@
 import type { Logger } from '@mongodb-js/compass-logging';
-import type { LoggerType, LogLevel, LogPayload } from 'mongodb-mcp-server';
-import { LoggerBase } from 'mongodb-mcp-server';
-import type { Keychain } from 'mongodb-mcp-server';
+import type { Keychain } from '@mongodb-js/mcp-core';
+import { RedactingLoggerBase } from '@mongodb-js/mcp-core';
+import type { LoggerType, LogLevel, LogPayload } from '@mongodb-js/mcp-types';
 
-export class ToolsLogger extends LoggerBase {
+export class ToolsLogger extends RedactingLoggerBase {
   private readonly _logger: Logger;
-  protected type: LoggerType = 'console';
+  protected readonly type: LoggerType = 'console';
 
   constructor(keychain: Keychain, logger: Logger) {
-    super(keychain);
+    super({ keychain });
     this._logger = logger;
   }
 
