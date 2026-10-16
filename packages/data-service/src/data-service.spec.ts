@@ -1863,6 +1863,7 @@ describe('DataService', function () {
       // already-torn-down replset can stall for ~30s (server selection
       // timeout) and trip the after-all hook timeout.
       after(async function () {
+        // eslint-disable-next-line no-console
         await replDataService.disconnect().catch(console.log);
       });
 
