@@ -14,6 +14,7 @@ import {
   showInput,
   hideInput,
 } from './ai-query-reducer';
+import { changeField } from './query-bar-reducer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -103,6 +104,49 @@ describe('aiQueryReducer', function () {
         expect(store.getState().aiQuery.aiQueryRequestId).to.equal(null);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         expect(store.getState().aiQuery.status).to.equal('success');
+      });
+    });
+
+    describe('with a query in the query bar', function () {
+      it('includes the current query as written by the user', async function () {
+        const mockAtlasAiService = {
+          getQueryFromUserInput: sandbox
+            .stub()
+            .resolves({ content: { query: { filter: '{_id: 1}' } } }),
+        };
+
+        const store = createStore(
+          {
+            namespace: 'database.collection',
+          },
+          {
+            dataService: {
+              sample: sandbox.stub().resolves([{ _id: 42 }]),
+            },
+            connectionInfoRef,
+            atlasAiService: mockAtlasAiService,
+            preferences,
+            logger: createNoopLogger(),
+            track: createNoopTrack(),
+            collection: mockCollectionModel,
+          } as any
+        );
+
+        const filter = '{\n  // only adults\n  age: { $gte: 18 }\n}';
+        store.dispatch(changeField('filter', filter));
+        store.dispatch(changeField('limit', '10'));
+
+        await store.dispatch(runAIQuery('also sort by name'));
+
+        expect(
+          mockAtlasAiService.getQueryFromUserInput.getCall(0)
+        ).to.have.deep.nested.property('args[0].currentQuery', {
+          filter,
+          project: '',
+          sort: '',
+          skip: '',
+          limit: '10',
+        });
       });
     });
 

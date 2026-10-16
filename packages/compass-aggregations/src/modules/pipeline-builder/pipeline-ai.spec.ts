@@ -7,6 +7,7 @@ import type { DataService } from 'mongodb-data-service';
 import configureReduxStore, {
   MockAtlasAiService,
 } from '../../../test/configure-store';
+import { mockDataService as createMockDataService } from '../../../test/mocks/data-service';
 import {
   AIPipelineActionTypes,
   AI_INPUT_VISIBLE_STORAGE_KEY,
@@ -17,6 +18,8 @@ import {
   hideInput,
 } from './pipeline-ai';
 import { toggleAutoPreview } from '../auto-preview';
+import { changePipelineMode } from './pipeline-mode';
+import type { ConfigureStoreOptions } from '../../stores/store';
 
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -35,12 +38,14 @@ describe('AIPipelineReducer', function () {
 
   async function configureStore(
     aiService: Partial<AtlasAiService> = {},
-    mockDataService?: Partial<DataService>
+    mockDataService?: Partial<DataService>,
+    options: Partial<ConfigureStoreOptions> = {}
   ) {
     const atlasAiService = Object.assign(new MockAtlasAiService(), aiService);
     const result = await configureReduxStore(
       {
         namespace: 'database.collection',
+        ...options,
       },
       {
         sample: sandbox.stub().resolves([{ _id: 42 }]),
@@ -93,6 +98,53 @@ describe('AIPipelineReducer', function () {
           'success'
         );
       });
+    });
+
+    describe('with a pipeline in the editor', function () {
+      const pipelineText = [
+        '[',
+        '  // movies from 1983',
+        '  { $match: { year: 1983 } },',
+        '  { $limit: 10 }',
+        ']',
+      ].join('\n');
+
+      for (const mode of ['builder-ui', 'as-text'] as const) {
+        it(`includes the current pipeline in ${mode} mode`, async function () {
+          const fetchJsonStub = sandbox.stub().resolves({
+            content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
+          });
+          const store = await configureStore(
+            { getAggregationFromUserInput: fetchJsonStub },
+            {
+              ...createMockDataService(),
+              sample: sandbox.stub().resolves([{ _id: 42 }]),
+            },
+            { pipelineText }
+          );
+          store.dispatch(toggleAutoPreview(false));
+          store.dispatch(changePipelineMode(mode));
+
+          await store.dispatch(runAIPipelineGeneration('testing prompt'));
+
+          expect(fetchJsonStub.getCall(0).firstArg).to.have.property(
+            'currentPipeline',
+            [
+              '[',
+              '  // movies from 1983',
+              '  {',
+              '    $match: {',
+              '      year: 1983',
+              '    }',
+              '  },',
+              '  {',
+              '    $limit: 10',
+              '  }',
+              ']',
+            ].join('\n')
+          );
+        });
+      }
     });
 
     describe('when there is an error', function () {

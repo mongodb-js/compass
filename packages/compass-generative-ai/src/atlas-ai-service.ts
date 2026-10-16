@@ -26,7 +26,7 @@ import {
 } from './atlas-ai-errors';
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText, tool, type LanguageModel } from 'ai';
-import type { AiQueryPrompt } from './utils/gen-ai-prompt';
+import type { AiQueryPrompt, CurrentQuery } from './utils/gen-ai-prompt';
 import {
   buildAggregateQueryPrompt,
   buildFindQueryPrompt,
@@ -51,6 +51,14 @@ export type GenerativeAiInput = {
   signal: AbortSignal;
   requestId: string;
   enableStorage: boolean;
+};
+
+export type GenerativeAiQueryInput = GenerativeAiInput & {
+  currentQuery?: CurrentQuery;
+};
+
+export type GenerativeAiAggregationInput = GenerativeAiInput & {
+  currentPipeline?: string;
 };
 
 type AIAggregation = {
@@ -292,7 +300,7 @@ export class AtlasAiService {
     );
   }
 
-  async getAggregationFromUserInput(input: GenerativeAiInput) {
+  async getAggregationFromUserInput(input: GenerativeAiAggregationInput) {
     const message = buildAggregateQueryPrompt({
       ...input,
       analyticsId: await getHashedActiveUserId(this.preferences, this.logger),
@@ -304,7 +312,7 @@ export class AtlasAiService {
     );
   }
 
-  async getQueryFromUserInput(input: GenerativeAiInput) {
+  async getQueryFromUserInput(input: GenerativeAiQueryInput) {
     const message = buildFindQueryPrompt({
       ...input,
       analyticsId: await getHashedActiveUserId(this.preferences, this.logger),

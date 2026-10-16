@@ -769,6 +769,8 @@ describe('AtlasAiService', function () {
     const testCases = [
       {
         functionName: 'getQueryFromUserInput',
+        expectedCurrentCode:
+          '<current_query><filter>{ a: 1 }</filter></current_query>',
         successResponse: {
           request: [
             { type: 'text', content: 'Hello' },
@@ -810,6 +812,8 @@ describe('AtlasAiService', function () {
       },
       {
         functionName: 'getAggregationFromUserInput',
+        expectedCurrentCode:
+          '<current_aggregation>[{ $match: { a: 1 } }]</current_aggregation>',
         successResponse: {
           request: [
             { type: 'text', content: 'Hello' },
@@ -846,6 +850,7 @@ describe('AtlasAiService', function () {
 
     for (const {
       functionName,
+      expectedCurrentCode,
       successResponse,
       invalidModelResponse,
     } of testCases) {
@@ -904,6 +909,31 @@ describe('AtlasAiService', function () {
             'includes schema information in the prompt'
           );
           expect(res).to.deep.eq(successResponse.response);
+        });
+
+        it("includes the user's current query or aggregation in the prompt", async function () {
+          const fetchStub = sandbox
+            .stub()
+            .resolves(streamableFetchMock(successResponse.request));
+          global.fetch = fetchStub;
+
+          await atlasAiService[functionName]({
+            userInput: 'test',
+            collectionName: 'jam',
+            databaseName: 'peanut',
+            requestId: 'abc',
+            signal: new AbortController().signal,
+            enableStorage: true,
+            currentQuery: { filter: '{ a: 1 }' },
+            currentPipeline: '[{ $match: { a: 1 } }]',
+          });
+
+          const requestBody = JSON.parse(
+            fetchStub.firstCall.args[1].body as string
+          );
+          expect(requestBody.input[0].content[0].text).to.include(
+            expectedCurrentCode
+          );
         });
 
         it('should throw an error when the stream contains an error chunk', async function () {

@@ -180,4 +180,45 @@ export const findQueries: GenAiUsecase[] = [
     expectedOutput: `<project>{email: 1, _id: 0}</project>`,
     name: 'find with simple projection',
   },
+  {
+    namespace: 'netflix.movies',
+    currentQuery: { filter: '{year: 1983}' },
+    userInput: 'only show the title',
+    expectedOutput: `
+      <filter>{year: 1983}</filter>
+      <project>{title: 1}</project>
+    `,
+    name: 'find extending the current query',
+  },
+  {
+    namespace: 'nyc.parking',
+    currentQuery: {
+      filter: `{
+        // Acura vehicles only
+        "Vehicle Make": "ACURA"
+      }`,
+      project: '{"Plate ID": 1}',
+    },
+    userInput: 'change it to BMW and sort by summons number, highest first',
+    expectedOutput: `
+      <filter>{"Vehicle Make": "BMW"}</filter>
+      <project>{"Plate ID": 1}</project>
+      <sort>{"Summons Number": -1}</sort>
+    `,
+    name: 'find modifying the current query with comments',
+  },
+  {
+    namespace: 'netflix.movies',
+    currentQuery: { filter: '{year: {$gt: 2000, $lt 2005}}' },
+    userInput: 'fix my query',
+    expectedOutput: `<filter>{year: {$gt: 2000, $lt: 2005}}</filter>`,
+    name: 'find fixing the current query',
+  },
+  {
+    namespace: 'netflix.movies',
+    currentQuery: { filter: '{year: 1983}', limit: '5' },
+    userInput: 'find all of the movies from last year',
+    expectedOutput: `<filter>{year: ${new Date().getFullYear() - 1}}</filter>`,
+    name: 'find ignoring an unrelated current query',
+  },
 ];

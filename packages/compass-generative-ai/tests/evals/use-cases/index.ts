@@ -2,12 +2,15 @@ import { findQueries } from './find-query';
 import { aggregateQueries } from './aggregate-query';
 import toNS from 'mongodb-ns';
 import { UUID } from 'bson';
+import type { CurrentQuery } from '../../../src/utils/gen-ai-prompt';
 
 export type GenAiUsecase = {
   namespace: string;
   userInput: string;
   expectedOutput: string;
   name: string;
+  currentQuery?: CurrentQuery;
+  currentPipeline?: string;
 };
 
 import airbnbListings from '../fixtures/airbnb.listingsAndReviews';
@@ -48,7 +51,15 @@ export async function generateGenAiEvalCases() {
   ];
 
   return usecases.map(
-    ({ namespace, expectedOutput, userInput, name, type }) => {
+    ({
+      namespace,
+      expectedOutput,
+      userInput,
+      name,
+      type,
+      currentQuery,
+      currentPipeline,
+    }) => {
       const { database: databaseName, collection: collectionName } =
         toNS(namespace);
       const { sampleDocuments, schema } = datasetSamples[namespace] ?? {
@@ -70,11 +81,17 @@ export async function generateGenAiEvalCases() {
         prompt,
       } =
         type === 'find'
-          ? buildFindQueryPrompt(buildPromptData)
-          : buildAggregateQueryPrompt(buildPromptData);
+          ? buildFindQueryPrompt({ ...buildPromptData, currentQuery })
+          : buildAggregateQueryPrompt({ ...buildPromptData, currentPipeline });
       return {
         name,
-        tags: [name, databaseName, collectionName, type],
+        tags: [
+          name,
+          databaseName,
+          collectionName,
+          type,
+          ...(currentQuery || currentPipeline ? ['with-current-query'] : []),
+        ],
         input: {
           messages: [
             {

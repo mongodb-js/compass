@@ -58,6 +58,20 @@ function buildInstructionsForAggregateQuery() {
   ].join('\n');
 }
 
+const CURRENT_QUERY_FIELDS = [
+  'filter',
+  'project',
+  'sort',
+  'skip',
+  'limit',
+] as const;
+
+// Raw editor text rather than re-serialized values, so that the user's
+// comments and formatting are kept.
+export type CurrentQuery = Partial<
+  Record<(typeof CURRENT_QUERY_FIELDS)[number], string>
+>;
+
 type BuildPromptOptions = {
   userInput: string;
   databaseName: string;
@@ -65,6 +79,7 @@ type BuildPromptOptions = {
   schema?: unknown;
   sampleDocuments?: unknown[];
   type: 'find' | 'aggregate';
+  currentCode?: string;
 };
 
 type BuildMetadataOptions = {
@@ -76,8 +91,16 @@ type BuildMetadataOptions = {
 
 export type PromptContextOptions = Omit<
   BuildPromptOptions & BuildMetadataOptions,
-  'type'
+  'type' | 'currentCode'
 >;
+
+export type FindQueryPromptOptions = PromptContextOptions & {
+  currentQuery?: CurrentQuery;
+};
+
+export type AggregateQueryPromptOptions = PromptContextOptions & {
+  currentPipeline?: string;
+};
 
 function withCodeFence(code: string): string {
   return [
@@ -88,11 +111,46 @@ function withCodeFence(code: string): string {
   ].join('\n');
 }
 
-export function escapeUserInput(input: string): string {
-  // Explicitly escape the <user_prompt> and </user_prompt> tags
+function escapeTag(input: string, tag: string): string {
   return input
-    .replace('<user_prompt>', '&lt;user_prompt&gt;')
-    .replace('</user_prompt>', '&lt;/user_prompt&gt;');
+    .replaceAll(`<${tag}>`, `&lt;${tag}&gt;`)
+    .replaceAll(`</${tag}>`, `&lt;/${tag}&gt;`);
+}
+
+export function escapeUserInput(input: string): string {
+  return escapeTag(input, 'user_prompt');
+}
+
+function formatCurrentQuery(query: CurrentQuery = {}): string | undefined {
+  const fields = CURRENT_QUERY_FIELDS.flatMap((field) => {
+    const value = query[field]?.trim();
+    return value ? [`<${field}>${value}</${field}>`] : [];
+  });
+  return fields.length > 0 ? fields.join('\n') : undefined;
+}
+
+function formatCurrentPipeline(pipeline = ''): string | undefined {
+  return ['', '[]'].includes(pipeline.replace(/\s/g, ''))
+    ? undefined
+    : pipeline.trim();
+}
+
+function buildCurrentCodeMessage(
+  type: BuildPromptOptions['type'],
+  code: string
+): string {
+  const [label, tag] =
+    type === 'find'
+      ? ['query', 'current_query']
+      : ['aggregation', 'current_aggregation'];
+  return (
+    `The user's current ${label} is included below. It may or may not be relevant to their request. ` +
+    'If the request builds on it (for example, by asking to change, extend or fix it), ' +
+    'use it as the starting point and keep the parts that the request does not change. ' +
+    `Otherwise, ignore it.${withCodeFence(
+      `<${tag}>${escapeTag(code, tag)}</${tag}>`
+    )}`
+  );
 }
 
 function buildUserPromptForQuery({
@@ -102,8 +160,12 @@ function buildUserPromptForQuery({
   collectionName,
   schema,
   sampleDocuments,
+  currentCode,
 }: BuildPromptOptions): string {
   const messages = [];
+  const currentCodeMessage = currentCode
+    ? buildCurrentCodeMessage(type, currentCode)
+    : undefined;
 
   const queryPrompt = [
     type === 'find' ? 'Write a query' : 'Generate an aggregation',
@@ -135,7 +197,9 @@ function buildUserPromptForQuery({
       sampleDocuments.slice(0, MIN_SAMPLE_DOCUMENTS)
     );
     const promptLengthWithoutSampleDocs =
-      messages.join('\n').length + queryPrompt.length;
+      messages.join('\n').length +
+      queryPrompt.length +
+      (currentCodeMessage?.length ?? 0);
     if (
       sampleDocumentsStr &&
       sampleDocumentsStr.length + promptLengthWithoutSampleDocs <=
@@ -157,6 +221,10 @@ function buildUserPromptForQuery({
         )}`
       );
     }
+  }
+
+  if (currentCodeMessage) {
+    messages.push(currentCodeMessage);
   }
 
   messages.push(queryPrompt);
@@ -203,11 +271,13 @@ export function buildFindQueryPrompt({
   analyticsId,
   enableStorage,
   requestId,
+  currentQuery,
   ...restOfTheOptions
-}: PromptContextOptions): AiQueryPrompt {
+}: FindQueryPromptOptions): AiQueryPrompt {
   const type = 'find';
   const prompt = buildUserPromptForQuery({
     type,
+    currentCode: formatCurrentQuery(currentQuery),
     ...restOfTheOptions,
   });
   return {
@@ -225,11 +295,13 @@ export function buildAggregateQueryPrompt({
   analyticsId,
   enableStorage,
   requestId,
+  currentPipeline,
   ...restOfTheOptions
-}: PromptContextOptions): AiQueryPrompt {
+}: AggregateQueryPromptOptions): AiQueryPrompt {
   const type = 'aggregate';
   const prompt = buildUserPromptForQuery({
     type,
+    currentCode: formatCurrentPipeline(currentPipeline),
     ...restOfTheOptions,
   });
   return {

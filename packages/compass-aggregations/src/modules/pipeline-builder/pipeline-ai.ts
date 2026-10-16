@@ -9,7 +9,10 @@ import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
-import { updatePipelinePreview } from './builder-helpers';
+import {
+  getPipelineStringFromBuilderState,
+  updatePipelinePreview,
+} from './builder-helpers';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
@@ -252,6 +255,11 @@ export const runAIPipelineGeneration = (
     const provideSampleDocuments =
       preferences.getPreferences().enableGenAISampleDocumentPassing;
 
+    const currentPipeline = getPipelineStringFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
+
     const editor_view_type: 'stages' | 'text' =
       pipelineMode === 'builder-ui' ? 'stages' : 'text';
 
@@ -317,6 +325,7 @@ export const runAIPipelineGeneration = (
           : undefined),
         requestId,
         enableStorage: !isFLE,
+        currentPipeline,
       });
     } catch (err: any) {
       if (signal.aborted) {

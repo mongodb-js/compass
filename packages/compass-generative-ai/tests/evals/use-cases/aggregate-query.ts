@@ -293,4 +293,60 @@ export const aggregateQueries: GenAiUsecase[] = [
     </aggregation>`,
     name: 'simple projection aggregate',
   },
+  {
+    namespace: 'netflix.movies',
+    currentPipeline: '[{$match: {year: 1983}}]',
+    userInput: 'sort them by title and only return the title',
+    expectedOutput: `<aggregation>
+      [
+        {$match: {year: 1983}},
+        {$sort: {title: 1}},
+        {$project: {_id: 0, title: 1}}
+      ]
+    </aggregation>`,
+    name: 'aggregate extending the current pipeline',
+  },
+  {
+    namespace: 'airbnb.listingsAndReviews',
+    currentPipeline: `[
+      // Only listings that can host big groups
+      { $match: { accommodates: { $gte: 6 } } },
+      { $group: { _id: "$property_type", count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]`,
+    userInput: 'group by room type instead and only return the top 3',
+    expectedOutput: `<aggregation>
+      [
+        {$match: {accommodates: {$gte: 6}}},
+        {$group: {_id: "$room_type", count: {$sum: 1}}},
+        {$sort: {count: -1}},
+        {$limit: 3}
+      ]
+    </aggregation>`,
+    name: 'aggregate modifying the current pipeline with comments',
+  },
+  {
+    namespace: 'netflix.movies',
+    currentPipeline: `[
+      { $match: { year: { $gte: 1990 } } },
+      // { $limit: 10 }
+    ]`,
+    userInput: 'enable the commented out limit stage and change it to 5',
+    expectedOutput: `<aggregation>
+      [
+        {$match: {year: {$gte: 1990}}},
+        {$limit: 5}
+      ]
+    </aggregation>`,
+    name: 'aggregate enabling a commented out stage of the current pipeline',
+  },
+  {
+    namespace: 'netflix.movies',
+    currentPipeline: '[{$match: {year: 1983}}, {$limit: 5}]',
+    userInput: 'find all of the movies from last year',
+    expectedOutput: `<aggregation>
+      [{$match: {year: ${new Date().getFullYear() - 1}}}]
+    </aggregation>`,
+    name: 'aggregate ignoring an unrelated current pipeline',
+  },
 ];

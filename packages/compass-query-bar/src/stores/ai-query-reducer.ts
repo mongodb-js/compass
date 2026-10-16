@@ -199,7 +199,7 @@ export const runAIQuery = (
 
     const {
       aiQuery: { aiQueryRequestId: existingRequestId },
-      queryBar: { namespace },
+      queryBar: { namespace, fields },
     } = getState();
 
     if (existingRequestId !== null) {
@@ -247,6 +247,13 @@ export const runAIQuery = (
           : undefined),
         requestId,
         enableStorage: !isFLE,
+        currentQuery: {
+          filter: fields.filter.string,
+          project: fields.project.string,
+          sort: fields.sort.string,
+          skip: fields.skip.string,
+          limit: fields.limit.string,
+        },
       });
     } catch (err: any) {
       if (signal.aborted) {
