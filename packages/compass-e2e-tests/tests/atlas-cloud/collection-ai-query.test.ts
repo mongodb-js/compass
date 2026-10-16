@@ -53,10 +53,10 @@ async function generateWithRetry(
     await browser.clickVisible(Selectors.GenAIGenerateQueryButton);
 
     try {
-      // The backend normally responds within seconds: a shorter per-attempt
+      // The backend normally responds within seconds: a short per-attempt
       // timeout leaves room to retry instead of stalling for the full
       // waitforTimeout on a hopeless attempt.
-      await browser.waitUntil(waitForResult, { timeout: 40_000 });
+      await browser.waitUntil(waitForResult, { timeout: 20_000 });
       return;
     } catch (err) {
       await browser.screenshot(
