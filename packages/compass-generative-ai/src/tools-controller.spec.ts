@@ -520,6 +520,19 @@ describe('ToolsController', function () {
       );
     });
 
+    it('honours the preference set before the server starts', async function () {
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        connections: [],
+      });
+
+      await toolsController.startServer();
+
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        true
+      );
+    });
+
     it('resolves no device id while telemetry is disabled', async function () {
       await toolsController.startServer();
 
