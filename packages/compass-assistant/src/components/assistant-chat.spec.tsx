@@ -773,6 +773,7 @@ describe('AssistantChat', function () {
         expect(result.track).to.have.been.calledWith(
           'Assistant Feedback Submitted',
           {
+            thread_id: currentChat.threadId,
             feedback: 'positive',
             text: undefined,
             request_id: undefined,
