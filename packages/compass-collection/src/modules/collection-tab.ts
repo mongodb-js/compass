@@ -48,10 +48,7 @@ import {
   isValidFakerMethod,
   MAX_COLLECTION_NESTING_DEPTH,
 } from '../components/mock-data-generator-modal/utils';
-import {
-  getDefaultFakerMethod,
-  UNRECOGNIZED_FAKER_METHOD,
-} from '@mongodb-js/mock-data-generator';
+import { getDefaultFakerMethod } from '@mongodb-js/mock-data-generator';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
