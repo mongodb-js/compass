@@ -484,25 +484,13 @@ describe('ToolsController', function () {
       ]);
     };
 
-    it('starts disabled until the context enables it', async function () {
+    it('syncs telemetry setting with the tools config', async function () {
       await toolsController.startServer();
 
       expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
         false
       );
 
-      toolsController.setContext({
-        enableMCPTelemetry: true,
-        connections: [],
-      });
-
-      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
-        true
-      );
-    });
-
-    it('stops collecting when the preference is turned back off', async function () {
-      await toolsController.startServer();
       toolsController.setContext({
         enableMCPTelemetry: true,
         connections: [],
@@ -518,6 +506,29 @@ describe('ToolsController', function () {
       expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
         false
       );
+    });
+
+    it('stays disabled when DO_NOT_TRACK is set', async function () {
+      const hadDoNotTrack = 'DO_NOT_TRACK' in process.env;
+      process.env.DO_NOT_TRACK = '1';
+      try {
+        await toolsController.startServer();
+        toolsController.setContext({
+          enableMCPTelemetry: true,
+          connections: [],
+        });
+
+        expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+          false
+        );
+
+        emitEvent(toolsController.server?.telemetry);
+        expect(createDeviceId.called).to.equal(false);
+      } finally {
+        if (!hadDoNotTrack) {
+          delete process.env.DO_NOT_TRACK;
+        }
+      }
     });
 
     it('honours the preference set before the server starts', async function () {
