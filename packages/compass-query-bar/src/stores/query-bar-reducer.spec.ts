@@ -83,7 +83,7 @@ describe('queryBarReducer', function () {
         expectedValid ? 'valid' : 'invalid'
       } value`;
 
-      it(spec, function () {
+      it(spec, async function () {
         function getField() {
           return store.getState().queryBar.fields[field];
         }
@@ -93,7 +93,7 @@ describe('queryBarReducer', function () {
           DEFAULT_QUERY_VALUES[field]
         );
         expect(getField()).to.have.property('valid', true);
-        store.dispatch(changeField(field, str));
+        await store.dispatch(changeField(field, str));
         expect(getField()).to.have.property('string', str);
         expect(getField()).to.have.property('value').deep.eq(expectedValue);
         expect(getField()).to.have.property('valid', expectedValid);
@@ -102,8 +102,8 @@ describe('queryBarReducer', function () {
   });
 
   describe('setQuery', function () {
-    it('should set field properties from valid query options', function () {
-      store.dispatch(
+    it('should set field properties from valid query options', async function () {
+      await store.dispatch(
         setQuery({
           filter: { _id: '123' },
           project: { _id: 1 },
@@ -156,9 +156,9 @@ describe('queryBarReducer', function () {
   });
 
   describe('applyQuery', function () {
-    it('should "apply" query if query is valid', function () {
-      store.dispatch(setQuery({ filter: { _id: '123' }, limit: 10 }));
-      const appliedQuery = store.dispatch(applyQuery('test') as any);
+    it('should "apply" query if query is valid', async function () {
+      await store.dispatch(setQuery({ filter: { _id: '123' }, limit: 10 }));
+      const appliedQuery = await store.dispatch(applyQuery('test') as any);
       expect(appliedQuery).to.deep.eq({
         ...DEFAULT_QUERY_VALUES,
         filter: { _id: '123' },
@@ -169,9 +169,9 @@ describe('queryBarReducer', function () {
         .deep.eq(appliedQuery);
     });
 
-    it('should not "apply" query if query is invalid', function () {
-      store.dispatch(changeField('filter', '{ _id'));
-      const appliedQuery = store.dispatch(applyQuery('test') as any);
+    it('should not "apply" query if query is invalid', async function () {
+      await store.dispatch(changeField('filter', '{ _id'));
+      const appliedQuery = await store.dispatch(applyQuery('test') as any);
       expect(appliedQuery).to.eq(false);
       expect(store.getState().queryBar).to.not.have.nested.property(
         'lastAppliedQuery.query.test'
@@ -201,8 +201,8 @@ describe('queryBarReducer', function () {
       } as any);
 
       const queryAction = setQuery({ filter: { _id: '123' }, limit: 10 });
-      store.dispatch(queryAction);
-      store.dispatch(applyQuery('test'));
+      await store.dispatch(queryAction);
+      await store.dispatch(applyQuery('test'));
       await waitFor(() => {
         expect(saveQueriesStub.calledOnce).to.be.true;
       });
@@ -212,7 +212,7 @@ describe('queryBarReducer', function () {
       await waitFor(() => {
         expect(loadAllStub.called).to.be.true;
       });
-      const appliedQuery = store.dispatch(applyQuery('test'));
+      const appliedQuery = await store.dispatch(applyQuery('test'));
 
       expect(appliedQuery).to.deep.eq({
         ...DEFAULT_QUERY_VALUES,
@@ -230,17 +230,17 @@ describe('queryBarReducer', function () {
   });
 
   describe('resetQuery', function () {
-    it('should reset query form if last applied query is different from the default query', function () {
+    it('should reset query form if last applied query is different from the default query', async function () {
       const query = { filter: { _id: 1 } };
-      store.dispatch(setQuery(query));
-      store.dispatch(applyQuery('test'));
+      await store.dispatch(setQuery(query));
+      await store.dispatch(applyQuery('test'));
       expect(store.getState().queryBar)
         .to.have.nested.property('lastAppliedQuery.query.test')
         .deep.eq({
           ...DEFAULT_QUERY_VALUES,
           ...query,
         });
-      const wasReset = store.dispatch(resetQuery('test'));
+      const wasReset = await store.dispatch(resetQuery('test'));
       expect(wasReset).to.deep.eq(DEFAULT_QUERY_VALUES);
       expect(store.getState().queryBar).to.have.nested.property(
         'lastAppliedQuery.query.test',
@@ -248,16 +248,16 @@ describe('queryBarReducer', function () {
       );
     });
 
-    it('should not reset query if last applied query is default query', function () {
+    it('should not reset query if last applied query is default query', async function () {
       // Resetting without applying at all first
-      let wasReset = store.dispatch(resetQuery('test'));
+      let wasReset = await store.dispatch(resetQuery('test'));
       expect(store.getState().queryBar).to.not.have.nested.property(
         'lastAppliedQuery.query.test'
       );
       expect(wasReset).to.eq(false);
       // Now apply default query and try to reset again
-      store.dispatch(applyQuery('test'));
-      wasReset = store.dispatch(resetQuery('test'));
+      await store.dispatch(applyQuery('test'));
+      wasReset = await store.dispatch(resetQuery('test'));
       expect(wasReset).to.eq(false);
       expect(store.getState().queryBar)
         .to.have.nested.property('lastAppliedQuery.query.test')
@@ -268,13 +268,13 @@ describe('queryBarReducer', function () {
   });
 
   describe('applyFromHistory', function () {
-    it('should reset query to whatever was passed in the action', function () {
+    it('should reset query to whatever was passed in the action', async function () {
       const newQuery = {
         filter: { _id: 2 },
         sort: { _id: -1 },
       };
 
-      store.dispatch(applyFromHistory(newQuery));
+      await store.dispatch(applyFromHistory(newQuery));
 
       expect(store.getState().queryBar)
         .to.have.nested.property('fields.filter.value')
@@ -293,8 +293,8 @@ describe('queryBarReducer', function () {
       );
     });
 
-    it('should not touch the last applied query for a non-update query', function () {
-      store.dispatch(applyFromHistory({ filter: { _id: 2 } }));
+    it('should not touch the last applied query for a non-update query', async function () {
+      await store.dispatch(applyFromHistory({ filter: { _id: 2 } }));
 
       expect(store.getState().queryBar.lastAppliedQuery).to.deep.eq({
         source: null,
@@ -302,8 +302,8 @@ describe('queryBarReducer', function () {
       });
     });
 
-    it('should record the query as the last applied crud query for an update query', function () {
-      store.dispatch(
+    it('should record the query as the last applied crud query for an update query', async function () {
+      await store.dispatch(
         applyFromHistory({ filter: { _id: 2 }, update: { $set: { a: 1 } } })
       );
 
@@ -313,18 +313,18 @@ describe('queryBarReducer', function () {
         .deep.eq({ _id: 2 });
     });
 
-    it('should auto expand when the query contains extra options', function () {
+    it('should auto expand when the query contains extra options', async function () {
       const queryNoExtraOptions = {
         filter: { _id: 2 },
       };
-      store.dispatch(applyFromHistory(queryNoExtraOptions));
+      await store.dispatch(applyFromHistory(queryNoExtraOptions));
       expect(store.getState().queryBar.expanded).to.be.false;
 
       const queryWithExtraOptions = {
         filter: { _id: 2 },
         sort: { _id: -1 },
       };
-      store.dispatch(applyFromHistory(queryWithExtraOptions));
+      await store.dispatch(applyFromHistory(queryWithExtraOptions));
       expect(store.getState().queryBar.expanded).to.be.true;
     });
   });
@@ -341,14 +341,14 @@ describe('queryBarReducer', function () {
   });
 
   describe('explainQuery', function () {
-    it('should call localAppStorage with a correct query', function () {
+    it('should call localAppStorage with a correct query', async function () {
       const localAppRegistry = {
         on: Sinon.spy(),
         emit: Sinon.spy(),
       } as unknown as AppRegistry;
       const store = createStore(
         {
-          fields: mapQueryToFormFields(
+          fields: await mapQueryToFormFields(
             { maxTimeMS: undefined },
             {
               ...DEFAULT_FIELD_VALUES,

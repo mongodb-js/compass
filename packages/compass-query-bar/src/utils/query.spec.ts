@@ -4,8 +4,8 @@ import { doesQueryHaveExtraOptionsSet, mapQueryToFormFields } from './query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 
 describe('#doesQueryHaveExtraOptionsSet', function () {
-  it('returns true when there is a non filter option, false otherwise', function () {
-    const defaultFields = mapQueryToFormFields({}, DEFAULT_FIELD_VALUES);
+  it('returns true when there is a non filter option, false otherwise', async function () {
+    const defaultFields = await mapQueryToFormFields({}, DEFAULT_FIELD_VALUES);
 
     expect(
       doesQueryHaveExtraOptionsSet({

@@ -17,6 +17,7 @@ import type {
 import {
   mapFormFieldsToQuery,
   mapQueryToFormFields,
+  getDefaultFormFields,
   isEqualDefaultQuery,
   doesQueryHaveExtraOptionsSet,
 } from '../utils/query';
@@ -52,7 +53,7 @@ type QueryBarState = {
 
 export const INITIAL_STATE: QueryBarState = {
   isReadonlyConnection: false,
-  fields: mapQueryToFormFields({ maxTimeMSEnvLimit: 0 }, DEFAULT_FIELD_VALUES),
+  fields: getDefaultFormFields(),
   expanded: false,
   serverVersion: '3.6.0',
   lastAppliedQuery: { source: null, query: {} },
@@ -120,9 +121,9 @@ export function unsafeIntegerReceived(
 export const changeField = (
   name: QueryProperty,
   stringValue: string
-): QueryBarThunkAction<void, ChangeFieldAction> => {
-  return (dispatch, getState, { preferences }) => {
-    const parsedValue = validateField(name, stringValue, {
+): QueryBarThunkAction<Promise<void>, ChangeFieldAction> => {
+  return async (dispatch, getState, { preferences }) => {
+    const parsedValue = await validateField(name, stringValue, {
       maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
       maxTimeMSEnvLimit: preferences.getPreferences().maxTimeMSEnvLimit,
     });
@@ -147,12 +148,12 @@ type ApplyQueryAction = {
 
 export const applyQuery = (
   source: string
-): QueryBarThunkAction<false | BaseQuery, ApplyQueryAction> => {
-  return (dispatch, getState, { preferences }) => {
+): QueryBarThunkAction<Promise<false | BaseQuery>, ApplyQueryAction> => {
+  return async (dispatch, getState, { preferences }) => {
     const {
       queryBar: { fields, favoriteQueries },
     } = getState();
-    if (!isQueryFieldsValid(fields, preferences.getPreferences())) {
+    if (!(await isQueryFieldsValid(fields, preferences.getPreferences()))) {
       return false;
     }
     const query = mapFormFieldsToQuery(fields);
@@ -178,12 +179,12 @@ type ResetQueryAction = {
 
 export const resetQuery = (
   source: string
-): QueryBarThunkAction<false | Record<string, unknown>> => {
-  return (dispatch, getState, { preferences }) => {
+): QueryBarThunkAction<Promise<false | Record<string, unknown>>> => {
+  return async (dispatch, getState, { preferences }) => {
     if (isEqualDefaultQuery(getState().queryBar.fields)) {
       return false;
     }
-    const fields = mapQueryToFormFields(
+    const fields = await mapQueryToFormFields(
       preferences.getPreferences(),
       DEFAULT_FIELD_VALUES
     );
@@ -199,19 +200,22 @@ type SetQueryAction = {
 
 export const setQuery = (
   query: BaseQuery
-): QueryBarThunkAction<void, SetQueryAction> => {
-  return (dispatch, getState, { preferences }) => {
-    const fields = mapQueryToFormFields(preferences.getPreferences(), query);
+): QueryBarThunkAction<Promise<void>, SetQueryAction> => {
+  return async (dispatch, getState, { preferences }) => {
+    const fields = await mapQueryToFormFields(
+      preferences.getPreferences(),
+      query
+    );
     dispatch({ type: QueryBarActions.SetQuery, fields });
   };
 };
 
 export const applyFilterChange = (
   event: ChangeFilterEvent
-): QueryBarThunkAction<void> => {
-  return (dispatch, getState) => {
+): QueryBarThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
     const currentFilterValue = getState().queryBar.fields.filter.value;
-    dispatch(
+    await dispatch(
       setQuery({
         filter: changeFilter(
           event.type,
@@ -248,8 +252,8 @@ type ApplyFromHistoryAction = {
 export const applyFromHistory = (
   query: BaseQuery & { update?: Document },
   currentQueryFieldsToRetain: QueryProperty[] = []
-): QueryBarThunkAction<void, ApplyFromHistoryAction> => {
-  return (dispatch, getState, { localAppRegistry, preferences }) => {
+): QueryBarThunkAction<Promise<void>, ApplyFromHistoryAction> => {
+  return async (dispatch, getState, { localAppRegistry, preferences }) => {
     const currentFields = getState().queryBar.fields;
     const currentQuery = currentQueryFieldsToRetain.reduce<
       Record<string, Document | number | string>
@@ -260,7 +264,7 @@ export const applyFromHistory = (
       }
       return acc;
     }, {});
-    const fields = mapQueryToFormFields(preferences.getPreferences(), {
+    const fields = await mapQueryToFormFields(preferences.getPreferences(), {
       ...DEFAULT_FIELD_VALUES,
       ...query,
       ...currentQuery,
