@@ -1,4 +1,7 @@
-import type { Stage } from '@mongodb-js/explain-plan-helper';
+import type {
+  SerializedExplainPlan,
+  Stage,
+} from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Action, AnyAction, Reducer } from 'redux';
@@ -17,7 +20,7 @@ export function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
+export type { SerializedExplainPlan };
 
 const ExplainPlanModalActionTypes = {
   CloseExplainPlanModal: 'compass-explain-plan-modal/CloseExplainPlanModal',
@@ -252,7 +255,9 @@ const fetchExplainPlanData = (
       );
 
       try {
-        explainPlan = new ExplainPlan(rawExplainPlan as Stage).serialize();
+        explainPlan = await new ExplainPlan(
+          rawExplainPlan as Stage
+        ).serialize();
       } catch (err) {
         log.warn(
           mongoLogId(1_001_000_137),
@@ -289,7 +294,9 @@ const fetchExplainPlanData = (
       );
 
       try {
-        explainPlan = new ExplainPlan(rawExplainPlan as Stage).serialize();
+        explainPlan = await new ExplainPlan(
+          rawExplainPlan as Stage
+        ).serialize();
       } catch (err) {
         log.warn(
           mongoLogId(1_001_000_192),

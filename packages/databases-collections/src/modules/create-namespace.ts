@@ -311,7 +311,7 @@ export async function handleFLE2Options(
 
   if (options.encryptedFields) {
     try {
-      options.encryptedFields = parse(options.encryptedFields, {
+      options.encryptedFields = await parse(options.encryptedFields, {
         mode: ParseMode.Loose,
       });
     } catch (err) {
@@ -327,7 +327,7 @@ export async function handleFLE2Options(
       // generate them as part of the collection creation operation.
       let keyEncryptionKey;
       try {
-        keyEncryptionKey = parse(options.keyEncryptionKey || '{}', {
+        keyEncryptionKey = await parse(options.keyEncryptionKey || '{}', {
           mode: ParseMode.Loose,
         });
       } catch (err) {
