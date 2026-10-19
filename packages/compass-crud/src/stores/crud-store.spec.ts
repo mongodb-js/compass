@@ -542,6 +542,23 @@ describe('store', function () {
       await switchTo('json');
       await switchTo('shell');
     });
+
+    it('keeps the dialog closed when it is closed while switching views', async function () {
+      const switching = store.toggleInsertDocumentView('json');
+      store.closeInsertDocumentDialog();
+      await switching;
+
+      expect(store.state.insert.isOpen).to.equal(false);
+    });
+
+    it('keeps the newer text when it is edited while switching views', async function () {
+      const switching = store.toggleInsertDocumentView('json');
+      store.updateInsertDocText('{ bar: 2 }');
+      await switching;
+
+      expect(store.state.insert.editorText).to.equal('{ bar: 2 }');
+      expect(store.state.insert.insertView).to.equal('shell');
+    });
   });
 
   describe('#parseInsertDocument', function () {
