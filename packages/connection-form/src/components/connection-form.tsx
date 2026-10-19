@@ -29,6 +29,7 @@ import {
   type UpdateConnectionFormField,
 } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
+import { adjustCSFLEParams } from '../utils/csfle-handler';
 import { tryToParseConnectionString } from '../utils/connection-string-helpers';
 import type { ConnectionFormSettings } from '../hooks/use-connect-form-settings';
 import {
@@ -414,9 +415,12 @@ function ConnectionForm({
   );
 
   const getConnectionInfoToSave = useCallback(
-    (favoriteInfo?: ConnectionFavoriteOptions): ConnectionInfo => ({
+    async (
+      favoriteInfo?: ConnectionFavoriteOptions
+    ): Promise<ConnectionInfo> => ({
       ...cloneDeep(initialConnectionInfo),
-      connectionOptions: cloneDeep(connectionOptions),
+      // Encrypted field maps typed in the form are only parsed here
+      connectionOptions: await adjustCSFLEParams(connectionOptions),
       savedConnectionType: personalizationOptions.isFavorite
         ? 'favorite'
         : 'recent',
@@ -447,8 +451,9 @@ function ConnectionForm({
     [onSaveClicked, setErrors]
   );
   const onSubmitForm = useCallback(
-    (intendedAction?: 'connect' | 'save-and-connect') => {
-      const updatedConnectionOptions = cloneDeep(connectionOptions);
+    async (intendedAction?: 'connect' | 'save-and-connect') => {
+      const connectionInfoToSave = await getConnectionInfoToSave();
+      const updatedConnectionOptions = connectionInfoToSave.connectionOptions;
       // TODO: this method throws on malformed connection strings instead of
       // returning errors
       const formErrors = validateConnectionOptionsErrors(
@@ -464,28 +469,25 @@ function ConnectionForm({
         // The user explicitly clicked connect, so we use that.
         onConnectClicked?.({
           ...initialConnectionInfo,
-          ...getConnectionInfoToSave(),
-          connectionOptions: updatedConnectionOptions,
+          ...connectionInfoToSave,
         });
       } else {
         if (onSaveAndConnectClicked) {
           // If there is a save&connect button, we use that action by default.
           onSaveAndConnectClicked?.({
             ...initialConnectionInfo,
-            ...getConnectionInfoToSave(),
-            connectionOptions: updatedConnectionOptions,
+            ...connectionInfoToSave,
           });
         } else {
           // If there isn't a save&connect button then the next default action
           // should be to save.
           void callOnSaveConnectionClickedAndStoreErrors?.(
-            getConnectionInfoToSave()
+            connectionInfoToSave
           );
         }
       }
     },
     [
-      connectionOptions,
       setErrors,
       onConnectClicked,
       initialConnectionInfo,
@@ -518,7 +520,7 @@ function ConnectionForm({
         onSubmit={(e) => {
           // Prevent default html page refresh.
           e.preventDefault();
-          onSubmitForm();
+          void onSubmitForm();
         }}
         // Prevent default html tooltip popups.
         noValidate
@@ -598,7 +600,7 @@ function ConnectionForm({
                   setEnableEditingConnectionString={
                     setEnableEditingConnectionString
                   }
-                  onSubmit={onSubmitForm}
+                  onSubmit={() => void onSubmitForm()}
                   updateConnectionFormField={updateConnectionFormField}
                   protectConnectionStrings={protectConnectionStrings}
                 />
@@ -660,19 +662,19 @@ function ConnectionForm({
             onSave={
               onSaveClicked && !isAtlas
                 ? () =>
-                    void callOnSaveConnectionClickedAndStoreErrors?.(
-                      getConnectionInfoToSave()
+                    void getConnectionInfoToSave().then(
+                      callOnSaveConnectionClickedAndStoreErrors
                     )
                 : undefined
             }
             onConnect={
               onConnectClicked && !isAtlas
-                ? () => onSubmitForm('connect')
+                ? () => void onSubmitForm('connect')
                 : undefined
             }
             onSaveAndConnect={
               onSaveAndConnectClicked
-                ? () => onSubmitForm('save-and-connect')
+                ? () => void onSubmitForm('save-and-connect')
                 : undefined
             }
           />

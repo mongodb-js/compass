@@ -5,10 +5,7 @@ import type {
   ClientEncryptionTlsOptions,
   Document,
 } from 'mongodb';
-import parse, {
-  toJSString,
-  ParseMode,
-} from '@mongodb-js/shell-bson-parser';
+import parse, { toJSString, ParseMode } from '@mongodb-js/shell-bson-parser';
 import type {
   KMSProviderName,
   KMSProviderType,
@@ -313,6 +310,16 @@ export async function textToEncryptedFieldConfig(
 
   parsed['$compass.rawText'] = text;
   return parsed;
+}
+
+// Same shape that saved connections use, adjustCSFLEParams parses it later
+export function textToUnparsedEncryptedFieldConfig(
+  text: string
+): Document | undefined {
+  if (!text.trim()) {
+    return undefined;
+  }
+  return { '$compass.error': null, '$compass.rawText': text };
 }
 
 export function encryptedFieldConfigToText(

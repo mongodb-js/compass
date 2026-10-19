@@ -56,28 +56,31 @@ describe('In-Use Encryption', function () {
   ) => Promise<void>;
   let expectConnectionError: (expectedErrorText: string) => Promise<void>;
 
+  let connectSpy: sinon.SinonSpy;
+
   beforeEach(async function () {
-    const connectSpy = sinon.spy();
+    connectSpy = sinon.spy();
 
     expectToConnectWith = async (
       expected: ConnectionOptions | ((opts: ConnectionOptions) => void)
     ): Promise<void> => {
+      connectSpy.resetHistory();
+      userEvent.click(screen.getByTestId('connect-button'));
+      // Connecting parses the encryption settings first, which is async
       await waitFor(() => {
-        connectSpy.resetHistory();
-        userEvent.click(screen.getByTestId('connect-button'));
         expect(connectSpy).to.have.been.calledOnce;
-        const connectedWith = connectSpy.getCall(0).args[0];
-        if (typeof expected === 'function') {
-          expected(connectedWith);
-        } else {
-          expect(connectedWith).to.be.deep.equal(expected);
-        }
       });
+      const connectedWith = connectSpy.getCall(0).args[0];
+      if (typeof expected === 'function') {
+        expected(connectedWith);
+      } else {
+        expect(connectedWith).to.be.deep.equal(expected);
+      }
     };
 
     expectConnectionError = async (expectedErrorText: string) => {
+      userEvent.click(screen.getByTestId('connect-button'));
       await waitFor(() => {
-        userEvent.click(screen.getByTestId('connect-button'));
         expect(
           screen.getByTestId('connection-error-summary').textContent
         ).to.contain(expectedErrorText);
@@ -189,6 +192,40 @@ describe('In-Use Encryption', function () {
     );
 
     await expectConnectionError('EncryptedFieldConfig is invalid');
+  });
+
+  // Clicks connect once, right after typing, with no retries: the encrypted
+  // fields map must not be dropped or validated against a previous value
+  it('connects with an encrypted fields map clicked right after typing it', async function () {
+    await setCodemirrorEditorValue(
+      screen.getByTestId('encrypted-fields-map-editor'),
+      '{ "db.coll": { fields: [] } }'
+    );
+    userEvent.click(screen.getByTestId('connect-button'));
+
+    await waitFor(() => {
+      expect(connectSpy).to.have.been.calledOnce;
+    });
+    expect(
+      connectSpy.getCall(0).args[0].fleOptions.autoEncryption.encryptedFieldsMap
+    ).to.deep.include({
+      '$compass.error': null,
+      'db.coll': { fields: [] },
+    });
+  });
+
+  it('reports an invalid encrypted fields map clicked right after replacing a valid one', async function () {
+    const editor = screen.getByTestId('encrypted-fields-map-editor');
+    await setCodemirrorEditorValue(editor, '{ "db.coll": { fields: [] } }');
+    await setCodemirrorEditorValue(editor, '{');
+    userEvent.click(screen.getByTestId('connect-button'));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('connection-error-summary').textContent
+      ).to.contain('EncryptedFieldConfig is invalid');
+    });
+    expect(connectSpy).not.to.have.been.called;
   });
 
   it('generates and uses a valid local random key', async function () {
@@ -449,6 +486,11 @@ describe('In-Use Encryption', function () {
 
       renameKMSProvider('local', 'new_name_1');
       renameKMSProvider('local:1', 'new_name_2');
+      // Pressing enter to confirm a rename also submits the form, let those
+      // submissions settle so they are not counted as the connect below
+      await waitFor(() => {
+        expect(connectSpy).to.have.been.calledTwice;
+      });
 
       const kmsProviders: Record<string, any> = Object.create(null);
 
