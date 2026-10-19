@@ -1338,6 +1338,17 @@ class CrudStoreImpl
    */
   async toggleInsertDocumentView(view: InsertDocumentView) {
     const { insertView: from, doc, editorText } = this.state.insert;
+    // Conversion is async, so the dialog may have been closed or edited by the
+    // time it finishes, and writing the result would undo that
+    const hasInsertChanged = () => {
+      const current = this.state.insert;
+      return (
+        !current.isOpen ||
+        current.insertView !== from ||
+        current.editorText !== editorText ||
+        current.doc !== doc
+      );
+    };
     const common: Pick<
       InsertState,
       'error' | 'csfleState' | 'mode' | 'isOpen' | 'isCommentNeeded'
@@ -1354,6 +1365,9 @@ class CrudStoreImpl
         !editorText || editorText === ''
           ? doc
           : await parseInsertDocument(from, editorText);
+      if (hasInsertChanged()) {
+        return;
+      }
       this.setState({
         insert: { ...common, insertView: 'list', doc: hadronDoc, editorText },
       });
@@ -1364,6 +1378,9 @@ class CrudStoreImpl
       from === 'list'
         ? serializeInsertDocument(view, doc)
         : await convertInsertText(from, view, editorText ?? '');
+    if (hasInsertChanged()) {
+      return;
+    }
     this.setState({
       insert: { ...common, insertView: view, doc, editorText: nextEditorText },
     });
