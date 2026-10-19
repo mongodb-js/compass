@@ -73,7 +73,6 @@ import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { useConnectionFormSetting } from './use-connect-form-settings';
-import { useAsyncValue } from '@mongodb-js/compass-components';
 import ConnectionString from 'mongodb-connection-string-url';
 import { isAtlas } from 'mongodb-build-info';
 
@@ -240,11 +239,7 @@ function parseConnectionString(
 }
 
 function buildStateFromConnectionInfo(
-  initialConnectionInfo: ConnectionInfo,
-  // The CSFLE maps are re-parsed from text, which is async, so the initial
-  // synchronous state keeps the raw options and the effect below replaces them
-  // with the parsed ones.
-  connectionOptions: ConnectionOptions
+  initialConnectionInfo: ConnectionInfo
 ): ConnectFormState {
   const [, errors] = parseConnectionString(
     initialConnectionInfo.connectionOptions.connectionString
@@ -276,7 +271,9 @@ function buildStateFromConnectionInfo(
       : validateConnectionOptionsWarnings(
           initialConnectionInfo.connectionOptions
         ),
-    connectionOptions,
+    // Encrypted field maps keep their raw text here, they are parsed (which
+    // is async) when saving or connecting
+    connectionOptions: cloneDeep(initialConnectionInfo.connectionOptions),
     isDirty: false,
     personalizationOptions: {
       color: initialConnectionInfo.favorite?.color || undefined,
@@ -736,10 +733,7 @@ export function useConnectForm(
     setEnableEditingConnectionString: (enableEditing: boolean) => void;
   },
 ] {
-  const derivedFormState = buildStateFromConnectionInfo(
-    initialConnectionInfo,
-    cloneDeep(initialConnectionInfo.connectionOptions)
-  );
+  const derivedFormState = buildStateFromConnectionInfo(initialConnectionInfo);
   const initialFormState: ConnectFormState = {
     ...derivedFormState,
     enableEditingConnectionString:
@@ -824,45 +818,35 @@ function setInitialState({
   const protectConnectionStringsForNewConnections = useConnectionFormSetting(
     'protectConnectionStringsForNewConnections'
   );
-  const { value: nextFormState, pending: nextFormStateIsPending } =
-    useAsyncValue(async () => {
-      const connectionOptions = await adjustCSFLEParams(
-        cloneDeep(initialConnectionInfo.connectionOptions)
-      );
-      return buildStateFromConnectionInfo(
-        initialConnectionInfo,
-        connectionOptions
-      );
-    }, [initialConnectionInfo]);
-
   useEffect(() => {
     // When the initial connection options change, like a different
     // connection is clicked in the compass-sidebar, we
     // refresh the current connection string being edited.
     // We do this here to retain the tabs/expanded accordion states.
-    if (nextFormStateIsPending || !nextFormState) {
-      return;
-    }
+    const {
+      errors,
+      warnings,
+      connectionOptions,
+      allowEditingIfProtected,
+      enableEditingConnectionString,
+      personalizationOptions,
+    } = buildStateFromConnectionInfo(initialConnectionInfo);
+
     dispatch({
       type: 'set-connection-form-state',
       newState: {
-        errors: nextFormState.errors,
+        errors,
         enableEditingConnectionString:
           !protectConnectionStringsForNewConnections &&
-          nextFormState.enableEditingConnectionString,
-        warnings: nextFormState.warnings,
-        connectionOptions: nextFormState.connectionOptions,
+          enableEditingConnectionString,
+        warnings,
+        connectionOptions,
         isDirty: false,
-        allowEditingIfProtected: nextFormState.allowEditingIfProtected,
-        personalizationOptions: nextFormState.personalizationOptions,
+        allowEditingIfProtected,
+        personalizationOptions,
       },
     });
-  }, [
-    nextFormState,
-    nextFormStateIsPending,
-    protectConnectionStringsForNewConnections,
-    dispatch,
-  ]);
+  }, [initialConnectionInfo, protectConnectionStringsForNewConnections]);
 
   useEffect(() => {
     if (connectionErrorMessage) {

@@ -313,6 +313,16 @@ export async function textToEncryptedFieldConfig(
   return parsed;
 }
 
+// Same shape that saved connections use, adjustCSFLEParams parses it later
+export function textToUnparsedEncryptedFieldConfig(
+  text: string
+): Document | undefined {
+  if (!text.trim()) {
+    return undefined;
+  }
+  return { '$compass.error': null, '$compass.rawText': text };
+}
+
 export function encryptedFieldConfigToText(
   config: Readonly<Document> | undefined
 ): string {

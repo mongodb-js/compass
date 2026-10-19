@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import type { Document } from 'mongodb';
 import {
   encryptedFieldConfigToText,
-  textToEncryptedFieldConfig,
+  textToUnparsedEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
 import {
   FormFieldContainer,
@@ -53,7 +53,6 @@ function EncryptedFieldConfigInput({
   label: React.ReactNode;
   description: React.ReactNode;
 }): React.ReactElement {
-  const latestTextRef = useRef('');
   const [encryptedFieldsMapText, setEncryptedFieldsMapText] = useState(() => {
     return encryptedFieldConfigToText(
       encryptedFieldsMap ?? ENCRYPTED_FIELDS_MAP_PLACEHOLDER
@@ -70,14 +69,10 @@ function EncryptedFieldConfigInput({
           id={encryptedFieldsMapEditorId}
           text={encryptedFieldsMapText}
           onChangeText={(newText) => {
-            latestTextRef.current = newText;
             setEncryptedFieldsMapText(newText);
-            const text = newText;
-            void textToEncryptedFieldConfig(text).then((config) => {
-              if (text === latestTextRef.current) {
-                onChange(config);
-              }
-            });
+            // Parsing is async, so the form gets the raw text straight away and
+            // parses it when saving or connecting
+            onChange(textToUnparsedEncryptedFieldConfig(newText));
           }}
         />
       </FormFieldContainer>
