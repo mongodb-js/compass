@@ -1,7 +1,12 @@
 import React, { type ComponentProps } from 'react';
 import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  within,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import {
@@ -359,7 +364,6 @@ describe('FocusModeStagePreview', function () {
           stageOperator: '$search',
           documents: [],
           stageValue: '{ "index": "movies" }',
-          searchIndexName: 'movies',
           onCloseFocusMode,
         },
         {
@@ -368,9 +372,16 @@ describe('FocusModeStagePreview', function () {
           diagnoseSearchStage,
         }
       );
-      userEvent.click(screen.getByTestId('focus-mode-diagnose-search-button'));
-      expect(onCloseFocusMode).to.have.been.calledOnce;
-      expect(diagnoseSearchStage).to.have.been.calledOnceWith({
+      await waitFor(() => {
+        userEvent.click(
+          screen.getByTestId('focus-mode-diagnose-search-button')
+        );
+        expect(diagnoseSearchStage.lastCall?.args[0])
+          .to.have.property('indexName')
+          .that.equals('movies');
+      });
+      expect(onCloseFocusMode).to.have.been.called;
+      expect(diagnoseSearchStage.lastCall).to.have.been.calledWith({
         stageOperator: '$search',
         indexName: 'movies',
         stageValue: '{ "index": "movies" }',

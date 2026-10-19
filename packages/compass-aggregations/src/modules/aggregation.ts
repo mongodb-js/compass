@@ -321,7 +321,10 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
       preferences,
     }
   ) => {
-    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    const pipeline = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
 
     if (
       !(await confirmWriteOperationIfNeeded({
@@ -535,39 +538,43 @@ const fetchAggregationData = (
   };
 };
 
-export const exportAggregationResults =
-  (): PipelineBuilderThunkAction<void> => {
-    return (
-      _dispatch,
-      getState,
-      { pipelineBuilder, connectionScopedAppRegistry }
-    ) => {
-      const {
-        namespace,
-        maxTimeMS,
-        countDocuments: { count },
-        collationString: { value: collation },
-      } = getState();
+export const exportAggregationResults = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => {
+  return async (
+    _dispatch,
+    getState,
+    { pipelineBuilder, connectionScopedAppRegistry }
+  ) => {
+    const {
+      namespace,
+      maxTimeMS,
+      countDocuments: { count },
+      collationString: { value: collation },
+    } = getState();
 
-      const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    const pipeline = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
 
-      const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        allowDiskUse: true,
-        collation: collation ?? undefined,
-      };
-
-      connectionScopedAppRegistry.emit('open-export', {
-        namespace,
-        aggregation: {
-          stages: pipeline,
-          options,
-        },
-        origin: 'aggregations-toolbar',
-        count,
-      });
+    const options: AggregateOptions = {
+      maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+      allowDiskUse: true,
+      collation: collation ?? undefined,
     };
+
+    connectionScopedAppRegistry.emit('open-export', {
+      namespace,
+      aggregation: {
+        stages: pipeline,
+        options,
+      },
+      origin: 'aggregations-toolbar',
+      count,
+    });
   };
+};
 
 export const changeViewType = (newViewType: 'document' | 'json') => {
   return {

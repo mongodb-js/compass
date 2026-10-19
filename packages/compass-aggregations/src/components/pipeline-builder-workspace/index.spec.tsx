@@ -39,7 +39,7 @@ describe('PipelineBuilderWorkspace', function () {
 
   it('renders side panel when enabled in builder ui mode', async function () {
     const store = await renderBuilderWorkspace({ pipelineMode: 'builder-ui' });
-    store.dispatch(toggleSidePanel() as any);
+    await store.dispatch(toggleSidePanel());
     const container = screen.getByTestId('pipeline-builder-workspace');
     await waitFor(() => {
       expect(within(container).getByTestId('aggregation-side-panel')).to.exist;
@@ -48,7 +48,7 @@ describe('PipelineBuilderWorkspace', function () {
 
   it('does not render side panel when enabled in as text mode', async function () {
     const store = await renderBuilderWorkspace({ pipelineMode: 'as-text' });
-    store.dispatch(toggleSidePanel() as any);
+    await store.dispatch(toggleSidePanel());
     const container = screen.getByTestId('pipeline-builder-workspace');
     expect(() => {
       within(container).getByTestId('aggregation-side-panel');

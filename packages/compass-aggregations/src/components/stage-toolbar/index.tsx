@@ -19,9 +19,9 @@ import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
 import {
-  getSearchIndexNameFromSearchStage,
   hasSyntaxError,
   isSearchStage,
+  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
@@ -247,12 +247,10 @@ export function StageToolbar({
                   context: 'Stage Toolbar',
                 });
                 openDrawer('compass-indexes-drawer');
-                onClickViewSearchIndexes(
-                  getSearchIndexNameFromSearchStage(
-                    stage.stageOperator,
-                    stage.value
-                  ) ?? undefined
-                );
+                void getSearchIndexNameFromSearchStage(
+                  stage.stageOperator,
+                  stage.value
+                ).then((name) => onClickViewSearchIndexes(name ?? undefined));
               }}
               title="View Indexes"
             >

@@ -2,24 +2,28 @@ import type { CollationOptions } from 'mongodb';
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import type { RestorePipelineAction } from './saved-pipeline';
-import { RESTORE_PIPELINE } from './saved-pipeline';
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
 import { isObject } from 'lodash';
+import type { PipelineBuilderThunkAction } from '.';
 
 /**
  * Collation string changed action.
  */
-export const COLLATION_STRING_CHANGED =
+const COLLATION_STRING_CHANGED =
   'aggregations/collation/COLLATION_STRING_CHANGED' as const;
+const COLLATION_STRING_PARSED =
+  'aggregations/collation/COLLATION_STRING_PARSED' as const;
 
-export type CollationStringChangedAction = {
+type CollationStringChangedAction = {
   type: typeof COLLATION_STRING_CHANGED;
-  value: string;
+  collationString: string;
 };
 
-export type CollationStringAction = CollationStringChangedAction;
+type CollationStringParsedAction = {
+  type: typeof COLLATION_STRING_PARSED;
+  collationString: CollationStringState;
+};
 
 export type CollationStringState = {
   text: string;
@@ -36,9 +40,9 @@ export const INITIAL_STATE: CollationStringState = {
   isValid: true,
 };
 
-export function getCollationStateFromString(
+export async function getCollationStateFromString(
   collationString: string
-): CollationStringState {
+): Promise<CollationStringState> {
   if (collationString.trim() === '') {
     return {
       text: collationString,
@@ -48,7 +52,7 @@ export function getCollationStateFromString(
   }
 
   try {
-    const collation = parse(collationString, {
+    const collation = await parse(collationString, {
       mode: ParseMode.Loose,
     });
     const isValid = isObject(collation) && !Array.isArray(collation);
@@ -76,7 +80,13 @@ export default function reducer(
   if (
     isAction<CollationStringChangedAction>(action, COLLATION_STRING_CHANGED)
   ) {
-    return getCollationStateFromString(action.value);
+    return {
+      ...state,
+      text: action.collationString,
+    };
+  }
+  if (isAction<CollationStringParsedAction>(action, COLLATION_STRING_PARSED)) {
+    return action.collationString;
   }
   if (
     isAction<NewPipelineConfirmedAction>(
@@ -86,12 +96,6 @@ export default function reducer(
   ) {
     return { ...INITIAL_STATE };
   }
-  if (isAction<RestorePipelineAction>(action, RESTORE_PIPELINE)) {
-    if (action.storedOptions.collationString) {
-      return getCollationStateFromString(action.storedOptions.collationString);
-    }
-    return state;
-  }
   return state;
 }
 
@@ -100,6 +104,19 @@ export default function reducer(
  */
 export const collationStringChanged = (
   value: string
-): CollationStringChangedAction => {
-  return { type: COLLATION_STRING_CHANGED, value };
+): PipelineBuilderThunkAction<
+  Promise<void>,
+  CollationStringChangedAction | CollationStringParsedAction
+> => {
+  return async (dispatch, getState) => {
+    dispatch({
+      type: COLLATION_STRING_CHANGED,
+      collationString: value,
+    });
+    const collationString = await getCollationStateFromString(value);
+    if (getState().collationString.text !== value) {
+      return;
+    }
+    dispatch({ type: COLLATION_STRING_PARSED, collationString });
+  };
 };

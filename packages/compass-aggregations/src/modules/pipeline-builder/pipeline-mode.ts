@@ -67,8 +67,8 @@ const reducer: Reducer<PipelineModeState, Action> = (
 
 export const changePipelineMode = (
   newMode: PipelineMode
-): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
-  return (
+): PipelineBuilderThunkAction<Promise<void>, PipelineModeToggledAction> => {
+  return async (
     dispatch,
     getState,
     { pipelineBuilder, track, connectionInfoRef }
@@ -77,9 +77,10 @@ export const changePipelineMode = (
       return;
     }
 
-    // Sync the PipelineBuilder
+    // Sync the PipelineBuilder. The parsed pipeline is dispatched below, so
+    // wait for the regenerated source to be parsed first.
     if (newMode === 'as-text') {
-      pipelineBuilder.stagesToSource();
+      await pipelineBuilder.stagesToSource();
     } else {
       pipelineBuilder.sourceToStages();
     }
@@ -93,19 +94,21 @@ export const changePipelineMode = (
       stages: pipelineBuilder.stages,
     });
 
-    const num_stages = getPipelineFromBuilderState(
-      getState(),
-      pipelineBuilder
-    ).length;
-
-    track(
-      'Editor Type Changed',
-      {
-        num_stages,
-        editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      },
-      connectionInfoRef.current
-    );
+    try {
+      const num_stages = (
+        await getPipelineFromBuilderState(getState(), pipelineBuilder)
+      ).length;
+      track(
+        'Editor Type Changed',
+        {
+          num_stages,
+          editor_view_type: mapPipelineModeToEditorViewType(getState()),
+        },
+        connectionInfoRef.current
+      );
+    } catch {
+      // Pipeline with syntax errors, nothing to count
+    }
 
     dispatch(updatePipelinePreview());
   };

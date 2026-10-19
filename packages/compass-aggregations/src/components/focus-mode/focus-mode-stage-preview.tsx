@@ -19,8 +19,12 @@ import {
   isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
-  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
+import {
+  isSearchIndexStale,
+  useSearchIndexNameFromStage,
+} from '../../utils/use-search-index-name';
+import type { SearchIndex } from 'mongodb-data-service';
 import {
   collapsePreviewDocsForStage,
   expandPreviewDocsForStage,
@@ -110,6 +114,7 @@ type FocusModePreviewProps = {
   isMissingAtlasOnlyStageSupport?: boolean;
   showSearchIndexStaleResultsBanner?: boolean;
   searchIndexName?: string | null;
+  searchIndexes?: SearchIndex[];
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
   onCloseFocusMode?: () => void;
@@ -236,20 +241,53 @@ export const FocusModePreview = ({
   );
 };
 
+const NO_SEARCH_INDEXES: SearchIndex[] = [];
+
+// The connected previews pass the raw stage value and index list; the search
+// index name comes from parsing the value, which happens in a worker.
+function useSearchIndexBannerProps({
+  stageOperator,
+  stageValue,
+  searchIndexes = NO_SEARCH_INDEXES,
+}: Pick<
+  FocusModePreviewProps,
+  'stageOperator' | 'stageValue' | 'searchIndexes'
+>) {
+  const searchIndexName = useSearchIndexNameFromStage(
+    stageOperator,
+    stageValue
+  );
+  return {
+    searchIndexName,
+    showSearchIndexStaleResultsBanner: isSearchIndexStale(
+      searchIndexName,
+      searchIndexes
+    ),
+  };
+}
+
 export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  return <FocusModePreview {...props} title="Stage Input" />;
+  const searchIndexBannerProps = useSearchIndexBannerProps(props);
+  return (
+    <FocusModePreview
+      {...props}
+      {...searchIndexBannerProps}
+      title="Stage Input"
+    />
+  );
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
   const {
     onCloseFocusMode,
     stageOperator,
-    searchIndexName,
     stageValue,
     stageMetadata = null,
     pipeline = null,
     documents,
   } = props;
+  const searchIndexBannerProps = useSearchIndexBannerProps(props);
+  const { searchIndexName } = searchIndexBannerProps;
   const { diagnoseSearchStage, interpretAnalyzeOutput } = useAssistantActions();
   const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
     stageOperator,
@@ -298,6 +336,7 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
   return (
     <FocusModePreview
       {...props}
+      {...searchIndexBannerProps}
       title="Stage Output"
       emptyStateAction={
         showDiagnoseSearchStage ? (
@@ -366,24 +405,14 @@ export const FocusModeStageInput = connect(
       return {};
     }
 
-    const searchIndexName = getSearchIndexNameFromSearchStage(
-      previousStage.stageOperator,
-      previousStage.value
-    );
-    const showSearchIndexStaleResultsBanner =
-      !!searchIndexName &&
-      searchIndexes.indexes.some(
-        (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
-      );
-
     return {
       isLoading: previousStage.loading,
       documents: previousStage.previewDocs,
       stageIndex: previousStageIndex,
       stageOperator: previousStage.stageOperator,
+      stageValue: previousStage.value,
       isMissingAtlasOnlyStageSupport,
-      showSearchIndexStaleResultsBanner,
-      searchIndexName,
+      searchIndexes: searchIndexes.indexes,
     };
   },
   {
@@ -412,16 +441,6 @@ export const FocusModeStageOutput = connect(
       stage.serverError
     );
 
-    const searchIndexName = getSearchIndexNameFromSearchStage(
-      stage.stageOperator,
-      stage.value
-    );
-    const showSearchIndexStaleResultsBanner =
-      !!searchIndexName &&
-      searchIndexes.indexes.some(
-        (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
-      );
-
     const pipeline = getPipelineStringForStage(stages, stageIndex);
 
     return {
@@ -433,8 +452,7 @@ export const FocusModeStageOutput = connect(
       stageMetadata: stage.stageMetadata,
       pipeline,
       isMissingAtlasOnlyStageSupport,
-      showSearchIndexStaleResultsBanner,
-      searchIndexName,
+      searchIndexes: searchIndexes.indexes,
     };
   },
   {

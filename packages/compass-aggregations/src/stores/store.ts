@@ -214,7 +214,7 @@ export function activateAggregationsPlugin(
   };
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
-    store.dispatch(generateAggregationFromQuery(data));
+    void store.dispatch(generateAggregationFromQuery(data));
   });
 
   on(localAppRegistry, 'explain-plan-interpret-started', () => {

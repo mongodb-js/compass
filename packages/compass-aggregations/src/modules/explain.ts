@@ -7,9 +7,12 @@ export type ExplainMode = 'visual-tree' | 'raw-output' | 'interpret';
 
 export const explainAggregation = (
   mode: ExplainMode
-): PipelineBuilderThunkAction<void> => {
-  return (_dispatch, getState, { pipelineBuilder, localAppRegistry }) => {
-    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (_dispatch, getState, { pipelineBuilder, localAppRegistry }) => {
+    const pipeline = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
     const {
       collationString: { value: collation },
       maxTimeMS,
@@ -28,14 +31,17 @@ export const explainAggregation = (
   };
 };
 
-export const explainAggregationVisualTree =
-  (): PipelineBuilderThunkAction<void> => explainAggregation('visual-tree');
+export const explainAggregationVisualTree = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => explainAggregation('visual-tree');
 
-export const explainAggregationRawOutput =
-  (): PipelineBuilderThunkAction<void> => explainAggregation('raw-output');
+export const explainAggregationRawOutput = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => explainAggregation('raw-output');
 
-export const explainAggregationInterpret =
-  (): PipelineBuilderThunkAction<void> => explainAggregation('interpret');
+export const explainAggregationInterpret = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => explainAggregation('interpret');
 
 const ExplainInterpretActionTypes = {
   Started: 'compass-aggregations/InterpretStarted',

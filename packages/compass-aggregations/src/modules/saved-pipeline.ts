@@ -8,6 +8,7 @@ import {
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
+import { collationStringChanged } from './collation-string';
 import {
   showConfirmation,
   ConfirmationModalVariant,
@@ -132,11 +133,14 @@ function restorePipeline(
 export const openStoredPipeline = (
   pipelineData: SavedPipeline,
   updatePreview = true
-): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder, logger: { debug } }) => {
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder, logger: { debug } }) => {
     try {
-      pipelineBuilder.reset(pipelineData.pipelineText);
+      await pipelineBuilder.reset(pipelineData.pipelineText);
       dispatch(restorePipeline(pipelineData, pipelineBuilder));
+      await dispatch(
+        collationStringChanged(pipelineData.collationString ?? '')
+      );
       if (updatePreview) {
         dispatch(updatePipelinePreview());
       }
@@ -199,24 +203,23 @@ export const saveCurrentPipeline =
 
     await pipelineStorage?.createOrUpdate(savedPipeline.id, savedPipeline);
 
-    const stagesLength = (() => {
-      try {
-        return getPipelineFromBuilderState(getState(), pipelineBuilder).length;
-      } catch {
-        // For the case where pipeline contains syntax errors
-        return undefined;
-      }
-    })();
-
-    track(
-      'Aggregation Saved',
-      {
-        id: savedPipeline.id,
-        num_stages: stagesLength,
-        editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      },
-      connectionInfoRef.current
-    );
+    try {
+      const stages = await getPipelineFromBuilderState(
+        getState(),
+        pipelineBuilder
+      );
+      track(
+        'Aggregation Saved',
+        {
+          id: savedPipeline.id,
+          num_stages: stages.length,
+          editor_view_type: mapPipelineModeToEditorViewType(getState()),
+        },
+        connectionInfoRef.current
+      );
+    } catch {
+      // For the case where pipeline contains syntax errors
+    }
 
     dispatch(updatePipelineList());
   };

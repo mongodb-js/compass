@@ -22,7 +22,7 @@ export type NewPipelineConfirmedAction = {
  * Confirm new pipeline action
  */
 export const confirmNewPipeline =
-  (): PipelineBuilderThunkAction<void> =>
+  (): PipelineBuilderThunkAction<Promise<void>> =>
   async (dispatch, getState, { pipelineBuilder, track }) => {
     const isModified = getState().isModified;
     if (isModified) {
@@ -36,7 +36,7 @@ export const confirmNewPipeline =
         return;
       }
     }
-    pipelineBuilder.reset();
+    await pipelineBuilder.reset();
     dispatch({
       type: ActionTypes.NewPipelineConfirmed,
       stages: pipelineBuilder.stages,

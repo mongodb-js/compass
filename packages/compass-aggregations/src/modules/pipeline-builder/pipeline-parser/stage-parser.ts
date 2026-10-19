@@ -2,7 +2,7 @@ import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
 import type Stage from '../stage';
 
-import { generate, parseShellBSON, PipelineParserError } from './utils';
+import { generate, PipelineParserError } from './utils';
 
 export type StageLike = t.ObjectExpression & {
   properties: [t.ObjectProperty & { key: t.Identifier | t.StringLiteral }];
@@ -18,19 +18,76 @@ export function setNodeDisabled(node: t.Node, value: boolean) {
   (node as any)[kDisabled] = value;
 }
 
-export function isValidStageNode(node?: t.ObjectExpression): boolean {
-  if (node) {
-    try {
-      // TODO: either export ejson-shell-parser logic that validates the AST or
-      // move the logic in this package to avoid generating source from ast
-      // before validating it again
-      parseShellBSON(generate(node));
-      return true;
-    } catch {
-      return false;
-    }
+// BSON constructors and helpers the shell parser accepts as stage values.
+const ALLOWED_STAGE_VALUE_CALLS = new Set([
+  'ObjectId',
+  'ISODate',
+  'Date',
+  'NumberLong',
+  'NumberInt',
+  'NumberDecimal',
+  'NumberDouble',
+  'Long',
+  'Double',
+  'Int32',
+  'Decimal128',
+  'Timestamp',
+  'BinData',
+  'UUID',
+  'Code',
+  'DBRef',
+  'MinKey',
+  'MaxKey',
+  'Symbol',
+  'RegExp',
+  'BSONRegExp',
+]);
+
+// The shell parser only runs async (in a worker) now, but this check is part
+// of the synchronous babel validation, so it mirrors the parser's rules on the
+// AST instead of parsing generated source.
+function isValidStageValueNode(node: t.Node | null | undefined): boolean {
+  if (!node) {
+    return false;
   }
-  return false;
+  switch (node.type) {
+    case 'StringLiteral':
+    case 'NumericLiteral':
+    case 'BooleanLiteral':
+    case 'NullLiteral':
+    case 'RegExpLiteral':
+    case 'BigIntLiteral':
+      return true;
+    case 'TemplateLiteral':
+      return node.expressions.length === 0;
+    case 'UnaryExpression':
+      return (
+        (node.operator === '-' || node.operator === '+') &&
+        isValidStageValueNode(node.argument)
+      );
+    case 'ArrayExpression':
+      return node.elements.every((element) => isValidStageValueNode(element));
+    case 'ObjectExpression':
+      return node.properties.every(
+        (property) =>
+          property.type === 'ObjectProperty' &&
+          !property.computed &&
+          isValidStageValueNode(property.value)
+      );
+    case 'CallExpression':
+    case 'NewExpression':
+      return (
+        node.callee.type === 'Identifier' &&
+        ALLOWED_STAGE_VALUE_CALLS.has(node.callee.name) &&
+        node.arguments.every((arg) => isValidStageValueNode(arg))
+      );
+    default:
+      return false;
+  }
+}
+
+export function isValidStageNode(node?: t.ObjectExpression): boolean {
+  return !!node && isValidStageValueNode(node);
 }
 
 export function isStageLike(

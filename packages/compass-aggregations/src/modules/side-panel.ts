@@ -34,10 +34,10 @@ export default function reducer(
 }
 
 export const toggleSidePanel = (): PipelineBuilderThunkAction<
-  void,
+  Promise<void>,
   SidePanelToggledAction
 > => {
-  return (
+  return async (
     dispatch,
     getState,
     { pipelineBuilder, track, connectionInfoRef }
@@ -50,14 +50,18 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
 
     // When user is opening the panel
     if (willPanelBeOpen) {
-      track(
-        'Aggregation Side Panel Opened',
-        {
-          num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder)
-            .length,
-        },
-        connectionInfoRef.current
-      );
+      try {
+        const num_stages = (
+          await getPipelineFromBuilderState(getState(), pipelineBuilder)
+        ).length;
+        track(
+          'Aggregation Side Panel Opened',
+          { num_stages },
+          connectionInfoRef.current
+        );
+      } catch {
+        // Pipeline with syntax errors, nothing to count
+      }
     }
 
     // Persist the state of the stage wizard side panel for other tabs or for

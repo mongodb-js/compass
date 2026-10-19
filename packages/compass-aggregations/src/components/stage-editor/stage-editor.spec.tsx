@@ -4,6 +4,7 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { MongoServerError } from 'mongodb';
+import type { SearchIndex } from 'mongodb-data-service';
 
 import { StageEditor } from './stage-editor';
 import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
@@ -30,8 +31,8 @@ const renderStageEditor = (
       serverErrorStageIdx={null}
       num_stages={0}
       editor_view_type="text"
-      searchIndexName={null}
-      showSearchIndexDoesNotExistBanner={false}
+      searchIndexesStatus="READY"
+      searchIndexes={[]}
       onViewSearchIndexesClick={() => {}}
       onCreateSearchIndexClick={() => {}}
       onEditSearchIndexClick={() => {}}
@@ -76,51 +77,53 @@ describe('StageEditor [Component]', function () {
         stageOperator: '$search',
         serverError,
         num_stages: 1,
-        searchIndexName: 'test',
+        searchIndexes: [{ name: 'test' } as SearchIndex],
       });
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
       expect(screen.getByText('Server error occurred')).to.exist;
     });
 
-    it('should show search index does not exist banner when appropriate', function () {
+    it('should show search index does not exist banner when appropriate', async function () {
       renderStageEditor(
         {
           stageValue: '{ index: "nonexistent" }',
           stageOperator: '$search',
           num_stages: 1,
-          searchIndexName: 'nonexistent',
-          showSearchIndexDoesNotExistBanner: true,
+          searchIndexes: [],
         },
         {},
         { enableSearchActivationExperiment: true }
       );
 
-      expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
+      expect(await screen.findByTestId('search-index-does-not-exist-banner')).to
+        .exist;
       expect(screen.getByText('View Search Indexes')).to.exist;
       expect(screen.getByText('Create a New Index')).to.exist;
     });
 
-    it('should show search index does not exist banner for $vectorSearch', function () {
+    it('should show search index does not exist banner for $vectorSearch', async function () {
       renderStageEditor(
         {
           stageValue: '{ index: "nonexistent" }',
           stageOperator: '$vectorSearch',
           num_stages: 1,
-          searchIndexName: 'nonexistent',
-          showSearchIndexDoesNotExistBanner: true,
+          searchIndexes: [],
         },
         {},
         { enableSearchActivationExperiment: true }
       );
 
-      expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
+      expect(await screen.findByTestId('search-index-does-not-exist-banner')).to
+        .exist;
       expect(screen.getByText('View Search Indexes')).to.exist;
       expect(screen.getByText('Create a New Index')).to.exist;
     });
 
-    it('should prioritize serverError over searchIndexDoesNotExist', function () {
-      const serverError = { message: 'Server error' } as MongoServerError;
+    it('should prioritize serverError over searchIndexDoesNotExist', async function () {
+      const serverError = {
+        message: "geoWithin requires path 'location' to be indexed as 'geo'",
+      } as MongoServerError;
 
       renderStageEditor(
         {
@@ -128,14 +131,16 @@ describe('StageEditor [Component]', function () {
           stageOperator: '$search',
           serverError,
           num_stages: 1,
-          searchIndexName: 'test',
-          showSearchIndexDoesNotExistBanner: true,
+          searchIndexes: [],
         },
         {},
         { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
+      // The edit link only renders once the index name has been parsed, so the
+      // missing-index banner would already be showing by now if it could
+      expect(await screen.findByText('Edit Search Index')).to.exist;
       expect(screen.queryByTestId('search-index-does-not-exist-banner')).to.not
         .exist;
     });
@@ -147,8 +152,7 @@ describe('StageEditor [Component]', function () {
           stageOperator: '$search',
           syntaxError: new PipelineParserError('Syntax error'),
           num_stages: 1,
-          searchIndexName: 'test',
-          showSearchIndexDoesNotExistBanner: true,
+          searchIndexes: [],
         },
         {},
         { enableSearchActivationExperiment: true }
@@ -159,22 +163,22 @@ describe('StageEditor [Component]', function () {
         .exist;
     });
 
-    it('should not show action links in focus mode for search index does not exist banner', function () {
+    it('should not show action links in focus mode for search index does not exist banner', async function () {
       renderStageEditor(
         {
           stageValue: '{ index: "test" }',
           stageOperator: '$search',
           num_stages: 1,
           editor_view_type: 'focus',
-          searchIndexName: 'test',
-          showSearchIndexDoesNotExistBanner: true,
+          searchIndexes: [],
         },
         {},
         { enableSearchActivationExperiment: true }
       );
 
       // Banner should show but without links
-      expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
+      expect(await screen.findByTestId('search-index-does-not-exist-banner')).to
+        .exist;
       expect(screen.queryByText('View Search Indexes')).to.not.exist;
       expect(screen.queryByText('Create a New Index')).to.not.exist;
     });
@@ -190,14 +194,14 @@ describe('StageEditor [Component]', function () {
         serverError,
         num_stages: 1,
         editor_view_type: 'focus',
-        searchIndexName: 'test-index',
+        searchIndexes: [{ name: 'test-index' } as SearchIndex],
       });
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
       expect(screen.queryByText('Edit Search Index')).to.not.exist;
     });
 
-    it('should show edit link for search index definition errors', function () {
+    it('should show edit link for search index definition errors', async function () {
       const serverError = {
         message: "geoWithin requires path 'location' to be indexed as 'geo'",
       } as MongoServerError;
@@ -208,14 +212,14 @@ describe('StageEditor [Component]', function () {
           stageOperator: '$search',
           serverError,
           num_stages: 1,
-          searchIndexName: 'test-index',
+          searchIndexes: [{ name: 'test-index' } as SearchIndex],
         },
         {},
         { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
-      expect(screen.getByText('Edit Search Index')).to.exist;
+      expect(await screen.findByText('Edit Search Index')).to.exist;
     });
 
     it('should not show edit link for non-definition server errors', function () {
@@ -228,7 +232,7 @@ describe('StageEditor [Component]', function () {
         stageOperator: '$search',
         serverError,
         num_stages: 1,
-        searchIndexName: 'test-index',
+        searchIndexes: [{ name: 'test-index' } as SearchIndex],
       });
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;

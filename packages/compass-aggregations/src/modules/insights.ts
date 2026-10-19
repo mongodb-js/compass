@@ -76,9 +76,8 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
     try {
       // Debounce action to allow for user typing to stop
       await cancellableWait(300, abortSignal);
-      const pipeline = getPipelineFromBuilderState(
-        getState(),
-        pipelineBuilder
+      const pipeline = (
+        await getPipelineFromBuilderState(getState(), pipelineBuilder)
       ).filter((stage) => {
         // Getting explain plan for a pipeline with an out / merge stage can
         // cause data corruption issues in non-genuine MongoDB servers, for
