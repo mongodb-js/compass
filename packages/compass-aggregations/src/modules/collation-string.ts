@@ -22,7 +22,7 @@ type CollationStringChangedAction = {
 
 type CollationStringParsedAction = {
   type: typeof COLLATION_STRING_PARSED;
-  collationString: CollationStringState;
+  collationState: CollationStringState;
 };
 
 export type CollationStringState = {
@@ -86,7 +86,7 @@ export default function reducer(
     };
   }
   if (isAction<CollationStringParsedAction>(action, COLLATION_STRING_PARSED)) {
-    return action.collationString;
+    return action.collationState;
   }
   if (
     isAction<NewPipelineConfirmedAction>(
@@ -113,10 +113,10 @@ export const collationStringChanged = (
       type: COLLATION_STRING_CHANGED,
       collationString: value,
     });
-    const collationString = await getCollationStateFromString(value);
+    const collationState = await getCollationStateFromString(value);
     if (getState().collationString.text !== value) {
       return;
     }
-    dispatch({ type: COLLATION_STRING_PARSED, collationString });
+    dispatch({ type: COLLATION_STRING_PARSED, collationState });
   };
 };
