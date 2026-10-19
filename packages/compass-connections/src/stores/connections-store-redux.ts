@@ -1606,6 +1606,18 @@ const performConnection = (
         dispatch(disconnect(connectionInfo.id));
       });
 
+      const connectionAttempt = createConnectionAttempt({
+        logger: log.unbound,
+        proxyOptions: proxyPreferenceToProxyOptions(
+          preferences.getPreferences().proxy
+        ),
+        connectFn,
+      });
+
+      // Registered before the async option adjustments below so that cancelling
+      // from the toast while they run is not lost
+      ConnectionAttemptForConnection.set(connectionInfo.id, connectionAttempt);
+
       const { connectionOptions, ...restOfTheConnectionInfo } = connectionInfo;
 
       const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
@@ -1657,19 +1669,15 @@ const performConnection = (
         }
       );
 
-      const connectionAttempt = createConnectionAttempt({
-        logger: log.unbound,
-        proxyOptions: proxyPreferenceToProxyOptions(
-          preferences.getPreferences().proxy
-        ),
-        connectFn,
-      });
+      const isAttemptActive = () =>
+        ConnectionAttemptForConnection.get(connectionInfo.id) ===
+          connectionAttempt && !connectionAttempt.isClosed();
 
-      ConnectionAttemptForConnection.set(connectionInfo.id, connectionAttempt);
-
-      const dataService = await connectionAttempt.connect(
-        adjustedConnectionInfoForConnection.connectionOptions
-      );
+      const dataService = isAttemptActive()
+        ? await connectionAttempt.connect(
+            adjustedConnectionInfoForConnection.connectionOptions
+          )
+        : undefined;
 
       // This is how connection attempt indicates that the connection was
       // aborted
