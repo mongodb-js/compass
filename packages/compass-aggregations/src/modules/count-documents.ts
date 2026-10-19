@@ -102,7 +102,10 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
       return;
     }
 
-    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    const pipeline = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
 
     try {
       const abortController = new AbortController();

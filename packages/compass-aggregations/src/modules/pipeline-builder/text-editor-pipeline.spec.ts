@@ -76,9 +76,9 @@ describe('textEditorPipeline', function () {
   });
 
   describe('changeEditorValue', function () {
-    it('should change text pipeline value', function () {
+    it('should change text pipeline value', async function () {
       const newPipeline = `[{$match: {_id: 1}}]`;
-      store.dispatch(changeEditorValue(newPipeline));
+      await store.dispatch(changeEditorValue(newPipeline));
       const pipeline = store.getState().pipeline;
       expect(pipeline.pipelineText).to.equal(newPipeline);
       expect(pipeline.pipeline).to.deep.equal([{ $match: { _id: 1 } }]);
@@ -101,26 +101,26 @@ describe('textEditorPipeline', function () {
       expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
     });
 
-    it('should load preview when autoPreview is enabled and pipeline contains $out', function () {
+    it('should load preview when autoPreview is enabled and pipeline contains $out', async function () {
       store.dispatch(toggleAutoPreview(true));
       const newPipeline = `[{$out: "somewhere"}]`;
-      store.dispatch(changeEditorValue(newPipeline));
+      await store.dispatch(changeEditorValue(newPipeline));
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
     });
 
-    it('should load preview when autoPreview is enabled and pipeline contains $merge', function () {
+    it('should load preview when autoPreview is enabled and pipeline contains $merge', async function () {
       store.dispatch(toggleAutoPreview(true));
       const newPipeline = `[{$merge: "somewhere"}]`;
-      store.dispatch(changeEditorValue(newPipeline));
+      await store.dispatch(changeEditorValue(newPipeline));
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
     });
 
-    it('should cancel preview for stage when new stage state is invalid', function () {
-      store.dispatch(changeEditorValue('[{$match: {foo: 1}}]'));
+    it('should cancel preview for stage when new stage state is invalid', async function () {
+      await store.dispatch(changeEditorValue('[{$match: {foo: 1}}]'));
       Sinon.resetHistory();
-      store.dispatch(changeEditorValue('[{$match: {foo: 1'));
+      await store.dispatch(changeEditorValue('[{$match: {foo: 1'));
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
       // eslint-disable-next-line @typescript-eslint/unbound-method

@@ -236,7 +236,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
       },
     } = getState();
 
-    if (pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
+    if (await pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
       return;
     }
 
@@ -291,8 +291,8 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
 
 export const changeEditorValue = (
   newValue: string
-): PipelineBuilderThunkAction<void, EditorValueChangeAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+): PipelineBuilderThunkAction<Promise<void>, EditorValueChangeAction> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipelineBuilder: {
         textEditor: {
@@ -305,7 +305,23 @@ export const changeEditorValue = (
       return;
     }
 
-    pipelineBuilder.changeSource(newValue);
+    const parsed = pipelineBuilder.changeSource(newValue);
+
+    // Text and syntax errors are known right away so the editor never lags
+    // behind typing; a null pipeline keeps the previous one until parsed.
+    dispatch({
+      type: EditorActionTypes.EditorValueChange,
+      pipelineText: newValue,
+      pipeline: null,
+      syntaxErrors: pipelineBuilder.syntaxError,
+    });
+
+    await parsed;
+
+    // A newer edit already took over
+    if (pipelineBuilder.source !== newValue) {
+      return;
+    }
 
     dispatch({
       type: EditorActionTypes.EditorValueChange,

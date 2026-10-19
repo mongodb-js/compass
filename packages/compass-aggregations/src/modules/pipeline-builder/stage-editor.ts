@@ -397,7 +397,7 @@ export const loadStagePreview = (
                   namespace,
                   pipeline: createPreviewAggregation(
                     injectSearchScoreMetadata(
-                      pipelineBuilder.getPipelineFromStages(
+                      await pipelineBuilder.getPipelineFromStages(
                         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
                       ),
                       options.previewSize ?? DEFAULT_PREVIEW_LIMIT
@@ -557,7 +557,7 @@ export const runStage = (
 
     try {
       dispatch({ type: StageEditorActionTypes.StageRun, id: idx });
-      const pipeline = pipelineBuilder.getPipelineFromStages(
+      const pipeline = await pipelineBuilder.getPipelineFromStages(
         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
       );
       const options: AggregateOptions = {
@@ -1011,34 +1011,41 @@ export const removeWizard = (at: number): WizardRemoveAction => ({
 export const updateWizardValue = (
   at: number,
   value: string
-): PipelineBuilderThunkAction<void, WizardChangeAction> => {
-  return (dispatch, getState) => {
-    const {
-      pipelineBuilder: {
-        stageEditor: { stages },
-      },
-    } = getState();
-    const itemAtIdx = stages[at];
+): PipelineBuilderThunkAction<Promise<void>, WizardChangeAction> => {
+  return async (dispatch, getState) => {
+    const getWizard = () => getState().pipelineBuilder.stageEditor.stages[at];
+    const itemAtIdx = getWizard();
     if (itemAtIdx.type !== 'wizard') {
       return;
     }
 
+    // Store the value right away so the form never lags behind typing, and
+    // keep the previous syntax error until the new value has been parsed
+    dispatch({
+      type: StageEditorActionTypes.WizardChanged,
+      at,
+      value,
+      syntaxError: itemAtIdx.syntaxError,
+    });
+
+    let syntaxError: SyntaxError | null = null;
     try {
-      parseShellBSON(value);
-      dispatch({
-        type: StageEditorActionTypes.WizardChanged,
-        at,
-        value,
-        syntaxError: null,
-      });
+      await parseShellBSON(value);
     } catch (e) {
-      dispatch({
-        type: StageEditorActionTypes.WizardChanged,
-        at,
-        value,
-        syntaxError: e as SyntaxError,
-      });
+      syntaxError = e as SyntaxError;
     }
+
+    // The wizard might have been edited again or removed while parsing
+    const current = getWizard();
+    if (current?.type !== 'wizard' || current.value !== value) {
+      return;
+    }
+    dispatch({
+      type: StageEditorActionTypes.WizardChanged,
+      at,
+      value,
+      syntaxError,
+    });
   };
 };
 

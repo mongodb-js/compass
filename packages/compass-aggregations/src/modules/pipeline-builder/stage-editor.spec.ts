@@ -992,6 +992,19 @@ describe('stageEditor', function () {
         );
       }
 
+      // Parse runs in a worker, which fake timers can't advance
+      function stubPipelineParse(
+        searchStore: ReturnType<typeof createSearchPreviewStore>
+      ) {
+        Sinon.replace(
+          searchStore.pipelineBuilder,
+          'getPipelineFromStages',
+          Sinon.fake.resolves([
+            { $search: { text: { query: 'foo', path: 'title' } } },
+          ])
+        );
+      }
+
       function replaceAggregate(
         dataService: DataService,
         implementation: (...args: unknown[]) => Promise<unknown[]>
@@ -1026,6 +1039,7 @@ describe('stageEditor', function () {
           Promise.resolve([{ type: '$search', scores: [scoreDetails] }])
         );
         const searchStore = createSearchPreviewStore({ dataService });
+        stubPipelineParse(searchStore);
 
         const first = searchStore.dispatch(loadStagePreview(0));
         await clock.tickAsync(200);
@@ -1052,6 +1066,7 @@ describe('stageEditor', function () {
           return Promise.resolve([{ type: '$search', scores: [latestScore] }]);
         });
         const searchStore = createSearchPreviewStore({ dataService });
+        stubPipelineParse(searchStore);
 
         const first = searchStore.dispatch(loadStagePreview(0));
         await clock.tickAsync(200);
@@ -1313,9 +1328,11 @@ describe('stageEditor', function () {
   });
 
   describe('updateWizardValue', function () {
-    it('modifies the form values of wizard if there is a wizard at provided index', function () {
+    it('modifies the form values of wizard if there is a wizard at provided index', async function () {
       store.dispatch(addWizard('sort', '$sort'));
-      store.dispatch(updateWizardValue(3, JSON.stringify({ name: 'Test' })));
+      await store.dispatch(
+        updateWizardValue(3, JSON.stringify({ name: 'Test' }))
+      );
 
       const itemAtIndex = store.getState().stages[3];
       expect(itemAtIndex.type).to.equal('wizard');
@@ -1324,9 +1341,9 @@ describe('stageEditor', function () {
       );
     });
 
-    it('validates the wizard value', function () {
+    it('validates the wizard value', async function () {
       store.dispatch(addWizard('sort', '$sort'));
-      store.dispatch(updateWizardValue(3, `{ name: value }`));
+      await store.dispatch(updateWizardValue(3, `{ name: value }`));
 
       const itemAtIndex = store.getState().stages[3] as Wizard;
       expect(itemAtIndex.type).to.equal('wizard');
@@ -1336,8 +1353,10 @@ describe('stageEditor', function () {
       );
     });
 
-    it('does nothing if item at provided index is not a wizard', function () {
-      store.dispatch(updateWizardValue(0, JSON.stringify({ name: 'Test' })));
+    it('does nothing if item at provided index is not a wizard', async function () {
+      await store.dispatch(
+        updateWizardValue(0, JSON.stringify({ name: 'Test' }))
+      );
 
       const itemAtIndex = store.getState().stages[0];
       expect((itemAtIndex as any).formValues).to.be.undefined;
@@ -1345,9 +1364,9 @@ describe('stageEditor', function () {
   });
 
   describe('convertWizardToStage', function () {
-    it('converts wizard to stage', function () {
+    it('converts wizard to stage', async function () {
       store.dispatch(addWizard('sort', '$sort'));
-      store.dispatch(updateWizardValue(3, '{ name: -1 }'));
+      await store.dispatch(updateWizardValue(3, '{ name: -1 }'));
 
       const wizard = store.getState().stages[3] as Wizard;
       expect(wizard.type).to.equal('wizard');
@@ -1368,9 +1387,9 @@ describe('stageEditor', function () {
       expect(itemAtIndex.type).to.equal('stage');
     });
 
-    it('does nothing if wizard has error', function () {
+    it('does nothing if wizard has error', async function () {
       store.dispatch(addWizard('sort', '$sort'));
-      store.dispatch(updateWizardValue(3, '{ name: something }'));
+      await store.dispatch(updateWizardValue(3, '{ name: something }'));
 
       store.dispatch(convertWizardToStage(3));
 

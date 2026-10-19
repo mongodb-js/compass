@@ -303,7 +303,7 @@ describe('AIPipelineReducer', function () {
         'ready'
       );
 
-      store.dispatch(
+      await store.dispatch(
         generateAggregationFromQuery({
           userInput: 'group by price',
           aggregation: {

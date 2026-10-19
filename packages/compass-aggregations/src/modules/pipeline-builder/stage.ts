@@ -164,10 +164,10 @@ export default class Stage {
       .join('\n');
   }
 
-  toBSON() {
+  async toBSON(): Promise<Document | null> {
     if (this.disabled) {
       return null;
     }
-    return parseShellBSON<Document>(this.toString());
+    return await parseShellBSON<Document>(this.toString());
   }
 }

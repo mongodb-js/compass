@@ -130,11 +130,14 @@ export const generateAggregationFromQuery = ({
   aggregation: { pipeline: string };
   userInput: string;
   requestId: string;
-}): PipelineBuilderThunkAction<void, PipelineGeneratedFromQueryAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+}): PipelineBuilderThunkAction<
+  Promise<void>,
+  PipelineGeneratedFromQueryAction
+> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const pipelineText = String(aggregation?.pipeline);
 
-    pipelineBuilder.reset(pipelineText);
+    await pipelineBuilder.reset(pipelineText);
 
     dispatch({
       type: AIPipelineActionTypes.PipelineGeneratedFromQuery,
@@ -390,7 +393,7 @@ export const runAIPipelineGeneration = (
       return;
     }
 
-    pipelineBuilder.reset(pipelineText);
+    await pipelineBuilder.reset(pipelineText);
 
     log.info(
       mongoLogId(1_001_000_228),

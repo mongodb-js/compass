@@ -1,9 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Body, Link, Tooltip } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Link,
+  Tooltip,
+  useAsyncValue,
+} from '@mongodb-js/compass-components';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { RootState } from '../../modules';
-import { getStageInfo } from '../../utils/stage';
+import { getStageDestination, getStageInfo } from '../../utils/stage';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const OperatorLink: React.FunctionComponent<{
@@ -33,20 +38,27 @@ const OperatorLink: React.FunctionComponent<{
 
 export type StagePreviewHeaderProps = {
   index: number;
+  namespace: string;
   stageOperator?: string | null;
+  stageValue?: string | null;
   previewSize?: number;
   description?: string;
   link?: string | null;
-  destination?: string | null;
 };
 
 function StagePreviewHeaderInner({
+  namespace,
   stageOperator,
+  stageValue,
   previewSize,
   description,
   link,
-  destination,
 }: StagePreviewHeaderProps) {
+  const { value: destination } = useAsyncValue(
+    () => getStageDestination(namespace, stageOperator ?? null, stageValue),
+    [namespace, stageOperator, stageValue]
+  );
+
   if (!stageOperator) {
     return null;
   }
@@ -84,13 +96,13 @@ const ConnectedStagePreviewHeader = connect(
       ownProps.index
     ] as StoreStage;
     const stageInfo = getStageInfo(
-      state.namespace,
       stage.stageOperator,
-      stage.value,
       ownProps.enableAutoEmbeddingPublicPreview
     );
     return {
+      namespace: state.namespace,
       stageOperator: stage.stageOperator,
+      stageValue: stage.value,
       previewSize: stage.previewDocs?.length ?? 0,
       ...stageInfo,
     };

@@ -162,7 +162,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
 
     try {
       dispatch({ type: OutputStageActionTypes.FetchStarted });
-      const pipeline = pipelineBuilder.getPipelineFromSource();
+      const pipeline = await pipelineBuilder.getPipelineFromSource();
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
