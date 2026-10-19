@@ -1,9 +1,21 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen, waitFor } from '@mongodb-js/testing-library-compass';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 
 import { useAsyncValue } from './use-async-value';
 import type { AsyncValueResult } from './use-async-value';
+
+async function settle(fn: () => void) {
+  await act(async () => {
+    fn();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+}
 
 function TestComponent<T>({
   task,
@@ -125,14 +137,13 @@ describe('useAsyncValue', function () {
     await waitFor(() => {
       expect(screen.getByTestId('value')).to.have.text('"second"');
     });
-    resolvers[0]('first');
-    queueMicrotask(() => {
-      expect(screen.getByTestId('value')).to.have.text('"second"');
-    });
+    await settle(() => resolvers[0]('first'));
+    expect(screen.getByTestId('value')).to.have.text('"second"');
   });
 
-  it('ignores a result that arrives after unmount', function () {
+  it('ignores a result that arrives after unmount', async function () {
     let resolveTask: (value: string) => void = () => {};
+    let renderCount = 0;
     const { unmount } = render(
       <TestComponent
         task={() =>
@@ -141,15 +152,13 @@ describe('useAsyncValue', function () {
           })
         }
         deps={['a']}
-        onRender={() => {}}
+        onRender={() => renderCount++}
       />
     );
 
     unmount();
-    // Must not throw or warn about updating an unmounted component.
-    resolveTask('late');
-    queueMicrotask(() => {
-      expect(true).to.be.true;
-    });
+    const renderCountAtUnmount = renderCount;
+    await settle(() => resolveTask('late'));
+    expect(renderCount).to.equal(renderCountAtUnmount);
   });
 });
