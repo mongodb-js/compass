@@ -88,5 +88,41 @@ describe('Settings store actions', function () {
       expect(preferencesSandbox.applySandboxChangesToPreferences).to.have.been
         .calledOnce;
     });
+
+    it('toggles isSaving while the settings are being saved', async function () {
+      const store = configureStore({ preferencesSandbox });
+      await store.dispatch(fetchSettings() as any);
+
+      const actionPromise = store.dispatch(saveSettings() as any);
+      expect(store.getState()).to.have.nested.property(
+        'settings.isSaving',
+        true
+      );
+
+      await actionPromise;
+      expect(store.getState()).to.have.nested.property(
+        'settings.isSaving',
+        false
+      );
+    });
+
+    it('clears isSaving when saving fails', async function () {
+      const store = configureStore({
+        preferencesSandbox: {
+          ...preferencesSandbox,
+          applySandboxChangesToPreferences: sinonSandbox
+            .stub()
+            .rejects(new Error('boom')),
+        },
+      });
+      await store.dispatch(fetchSettings() as any);
+
+      await store.dispatch(saveSettings() as any);
+
+      expect(store.getState()).to.have.nested.property(
+        'settings.isSaving',
+        false
+      );
+    });
   });
 });

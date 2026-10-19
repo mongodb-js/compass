@@ -27,6 +27,7 @@ type FormModalProps = React.ComponentProps<typeof Modal> & {
   submitButtonText: string;
   cancelButtonText?: string;
   submitDisabled?: boolean;
+  submitButtonLeftGlyph?: React.ReactElement;
   scroll?: boolean;
   minBodyHeight?: number;
   bodyClassName?: string;
@@ -40,6 +41,7 @@ function FormModal({
   submitButtonText,
   cancelButtonText = 'Cancel',
   submitDisabled = false,
+  submitButtonLeftGlyph,
   variant = Variant.Default,
   scroll = true,
   minBodyHeight,
@@ -79,6 +81,7 @@ function FormModal({
             variant={variant}
             type="submit"
             disabled={submitDisabled}
+            leftGlyph={submitButtonLeftGlyph}
           >
             {submitButtonText}
           </Button>

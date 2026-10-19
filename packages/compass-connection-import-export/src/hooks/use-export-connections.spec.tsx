@@ -37,7 +37,9 @@ describe('useExportConnections', function () {
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
     finishedPromise = new Promise<ImportExportResult>((resolve) => {
-      finish = sandbox.stub().callsFake(resolve);
+      finish = sandbox
+        .stub()
+        .callsFake((result: ImportExportResult) => resolve(result));
     });
     tmpdir = path.join(
       os.tmpdir(),

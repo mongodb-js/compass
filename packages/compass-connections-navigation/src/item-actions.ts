@@ -24,14 +24,12 @@ export const commonConnectionItemActions = ({
 }): NavigationItemAction[] => {
   const isAtlas = !!connectionInfo.atlasMetadata;
   return stripNullActions([
-    isAtlas
-      ? null
-      : {
-          action: 'edit-connection',
-          label: 'Edit connection',
-          icon: 'Edit',
-          disabledDescription: 'Cannot edit an active connection',
-        },
+    {
+      action: 'edit-connection',
+      label: 'Edit connection',
+      icon: 'Edit',
+      disabledDescription: 'Cannot edit an active connection',
+    },
     isAtlas
       ? {
           action: 'show-connect-via-modal',

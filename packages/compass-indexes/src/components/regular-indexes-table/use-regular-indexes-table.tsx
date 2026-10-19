@@ -11,6 +11,7 @@ import type {
 import TypeField from './type-field';
 import SizeField from './size-field';
 import UsageField from './usage-field';
+import UsageRateField from './usage-rate-field';
 import PropertyField from './property-field';
 import StatusField from './status-field';
 import IndexActions from './index-actions';
@@ -36,6 +37,7 @@ export type IndexInfo = {
   type: React.ReactNode;
   size: React.ReactNode;
   usageCount: React.ReactNode;
+  usageRate: React.ReactNode;
   properties: React.ReactNode;
   status: React.ReactNode;
   actions: undefined | React.ReactNode;
@@ -143,6 +145,7 @@ function getInProgressIndexInfo(
       : getDefaultType(index),
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
+    usageRate: <UsageRateField usage={undefined} since={undefined} />,
     // TODO(COMPASS-8335): add properties for in-progress indexes
     properties: null,
     status: <StatusField status={index.status} error={index.error} />,
@@ -177,6 +180,7 @@ function getRollingIndexInfo(
       : getDefaultType(index),
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
+    usageRate: <UsageRateField usage={undefined} since={undefined} />,
     // TODO(COMPASS-7589): add properties for rolling indexes
     properties: null,
     status: <StatusField status="building" />,
@@ -217,6 +221,9 @@ function getRegularIndexInfo(
     size: <SizeField size={index.size} relativeSize={index.relativeSize} />,
     usageCount: (
       <UsageField usage={index.usageCount} since={index.usageSince} />
+    ),
+    usageRate: (
+      <UsageRateField usage={index.usageCount} since={index.usageSince} />
     ),
     properties: (
       <PropertyField

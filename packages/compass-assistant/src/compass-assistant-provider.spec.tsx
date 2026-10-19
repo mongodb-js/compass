@@ -12,10 +12,10 @@ import {
   createDefaultChat,
   useAssistantActions,
   type AssistantMessage,
+  type ThreadedChat,
 } from './compass-assistant-provider';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Chat } from './@ai-sdk/react/chat-react';
 
 import {
   DrawerAnchor,
@@ -25,7 +25,11 @@ import { type AtlasService } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
-import { createBrokenTransport, createMockChat } from '../test/utils';
+import {
+  createBrokenTransport,
+  createChat,
+  createMockChat,
+} from '../test/utils';
 import {
   ToolsControllerProvider,
   type AtlasAiService,
@@ -102,7 +106,7 @@ const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
 // Test component that renders CompassAssistantProvider (and AssistantProvider) with children
 const TestComponent: React.FunctionComponent<{
-  chat?: Chat<AssistantMessage>;
+  chat?: ThreadedChat;
   autoOpen?: boolean;
   mockAtlasService?: any;
   mockAtlasAiService?: any;
@@ -183,7 +187,7 @@ const TestComponent: React.FunctionComponent<{
 };
 
 describe('useAssistantActions', function () {
-  const createWrapper = (chat: Chat<AssistantMessage>) => {
+  const createWrapper = (chat: ThreadedChat) => {
     function TestWrapper({ children }: { children?: React.ReactNode }) {
       const MockedProvider = createMockProvider();
 
@@ -354,7 +358,7 @@ describe('CompassAssistantProvider', function () {
       collectionMetadata,
       currentTab,
     }: {
-      chat: Chat<AssistantMessage>;
+      chat: ThreadedChat;
       atlastAiService?: Partial<AtlasAiService>;
       toolsController?: Partial<ToolsController>;
       hasNonGenuineConnections?: boolean;
@@ -425,7 +429,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('handles message sending with custom chat when drawer is open', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const mockChat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -454,7 +458,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('correctly builds metadata of the message', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const mockChat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -485,7 +489,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('new messages are added to the chat feed when the send button is clicked', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const mockChat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -581,7 +585,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('will not send new messages if the user does not opt in', async function () {
-      const chat = new Chat<AssistantMessage>({
+      const chat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -625,7 +629,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('disables tools if enableToolCalling and enableGenAIToolCalling are enabled, but enableGenAIToolCallingAtlasProject is disabled', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const mockChat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -693,7 +697,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('disables tools if enableToolCalling and enableGenAIToolCallingAtlasProject are enabled but enableGenAIToolCalling setting is disabled', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const mockChat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -760,7 +764,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('enables tools if enableToolCalling, enableGenAIToolCallingAtlasProject and enableGenAIToolCalling are all enabled', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const mockChat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -835,7 +839,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('enables database tools if toolCalling feature and enableGenAIToolCalling setting are enabled and there is a focused connection', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const mockChat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -930,7 +934,7 @@ describe('CompassAssistantProvider', function () {
     });
 
     it('forwards maxTimeMS preference to toolsController.setContext', async function () {
-      const mockChat = new Chat<AssistantMessage>({
+      const mockChat = createChat({
         messages: [
           {
             id: 'assistant',
@@ -1015,6 +1019,46 @@ describe('CompassAssistantProvider', function () {
           error_name: 'ConnectionError',
         });
       });
+
+      it('attaches the chat thread id to telemetry events of a conversation', async function () {
+        const chatTrack = sinon.stub();
+        const chat = createDefaultChat({
+          options: {
+            transport: createBrokenTransport(),
+          },
+          originForPrompt: 'mongodb-compass',
+          appNameForPrompt: 'MongoDB Compass',
+          atlasService: {
+            assistantApiEndpoint: sinon
+              .stub()
+              .returns('https://localhost:3000'),
+          } as unknown as AtlasService,
+          logger: createNoopLogger(),
+          track: chatTrack,
+        });
+        const { track } = await renderOpenAssistantDrawer({ chat });
+
+        userEvent.type(
+          screen.getByPlaceholderText('Ask a question'),
+          'Hello assistant!'
+        );
+        userEvent.click(screen.getByLabelText('Send message'));
+
+        await waitFor(() => {
+          expect(track).to.have.been.calledWithMatch(
+            'Assistant Response Generated',
+            {
+              thread_id: chat.threadId,
+            }
+          );
+        });
+        expect(track).to.have.been.calledWithMatch(
+          'Assistant Prompt Submitted',
+          {
+            thread_id: chat.threadId,
+          }
+        );
+      });
     });
 
     describe('clear chat button', function () {
@@ -1042,7 +1086,7 @@ describe('CompassAssistantProvider', function () {
       });
 
       it('appears after a message is sent', async function () {
-        const mockChat = new Chat<AssistantMessage>({
+        const mockChat = createChat({
           messages: [],
           transport: {
             sendMessages: sinon.stub().returns(
@@ -1097,6 +1141,94 @@ describe('CompassAssistantProvider', function () {
           expect(mockChat.messages).to.be.empty;
           expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
           expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
+        });
+      });
+
+      describe('createDefaultChat threadId', function () {
+        const createChatWith = () =>
+          createDefaultChat({
+            originForPrompt: 'foo',
+            appNameForPrompt: 'bar',
+            atlasService: {
+              assistantApiEndpoint: () =>
+                'https://example.com/assistant/api/v1',
+            } as unknown as AtlasService,
+            logger: createNoopLogger(),
+            track: () => undefined,
+          });
+
+        it('generates a distinct UUID thread id for each chat', function () {
+          const first = createChatWith();
+          const second = createChatWith();
+
+          expect(first.threadId).to.match(
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+          );
+          expect(second.threadId).to.not.equal(first.threadId);
+        });
+      });
+
+      describe('thread id sent to the assistant API', function () {
+        let chat: ThreadedChat;
+        let fetchStub: sinon.SinonStub;
+
+        beforeEach(function () {
+          chat = createDefaultChat({
+            originForPrompt: 'foo',
+            appNameForPrompt: 'bar',
+            atlasService: {
+              assistantApiEndpoint: () =>
+                'https://example.com/assistant/api/v1',
+            } as unknown as AtlasService,
+            logger: createNoopLogger(),
+            track: () => undefined,
+          });
+          fetchStub = sinon
+            .stub(globalThis, 'fetch')
+            .resolves({ ok: true, headers: [] } as any);
+        });
+
+        afterEach(function () {
+          fetchStub.restore();
+        });
+
+        const threadIdOfCall = (call: sinon.SinonSpyCall) =>
+          new Headers(call.args[1].headers).get('X-Client-Thread-Id');
+
+        async function confirmClearChat() {
+          userEvent.click(screen.getByTestId('assistant-clear-chat'));
+          const modal = await screen.findByTestId(
+            'assistant-confirm-clear-chat-modal'
+          );
+          userEvent.click(within(modal).getByText('Clear chat'));
+          await waitFor(() => {
+            expect(chat.messages).to.be.empty;
+          });
+        }
+
+        it('changes after the chat is cleared', async function () {
+          await chat.sendMessage({ text: 'first' });
+          const initialThreadId = threadIdOfCall(fetchStub.firstCall);
+          expect(initialThreadId).to.equal(chat.threadId);
+
+          await renderOpenAssistantDrawer({ chat });
+          await confirmClearChat();
+
+          await chat.sendMessage({ text: 'second' });
+          expect(fetchStub).to.have.been.calledTwice;
+          const newThreadId = threadIdOfCall(fetchStub.secondCall);
+          expect(newThreadId).to.equal(chat.threadId);
+          expect(newThreadId).to.not.equal(initialThreadId);
+        });
+
+        it('stays the same across messages when the chat is not cleared', async function () {
+          await chat.sendMessage({ text: 'first' });
+          await chat.sendMessage({ text: 'second' });
+
+          expect(fetchStub).to.have.been.calledTwice;
+          expect(threadIdOfCall(fetchStub.secondCall)).to.equal(
+            threadIdOfCall(fetchStub.firstCall)
+          );
         });
       });
 

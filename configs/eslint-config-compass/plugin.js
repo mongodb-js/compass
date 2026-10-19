@@ -59,4 +59,13 @@ module.exports = {
       },
     ],
   },
+  overrides: [
+    ...(baseConfig.overrides ?? []),
+    {
+      // A plugin's utility process side runs on Node.js in a utility process,
+      // not in the renderer, so it may use Node.js and Electron main-side APIs
+      files: ['**/src/utility.ts', '**/src/utility/**/*'],
+      rules: { '@typescript-eslint/no-restricted-imports': 'off' },
+    },
+  ],
 };

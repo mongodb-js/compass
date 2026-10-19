@@ -76,4 +76,17 @@ describe('CompassWebPreferencesAccess', function () {
       await settingsFor(access)
     );
   });
+
+  it('keeps role-derived preferences non-editable in the sandbox it creates', async function () {
+    const access = new CompassWebPreferencesAccess(undefined, {
+      atlasCloudUser: { readOnly: true, timezone: 'UTC' },
+    });
+    const sandboxAccess = await access.createSandbox();
+
+    const states = await sandboxAccess.getPreferenceStates();
+
+    expect(states).to.include({ readOnly: 'set-cloud-user' });
+    // Value seeds like timezone stay editable.
+    expect(states).to.not.have.property('timezone');
+  });
 });

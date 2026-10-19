@@ -20,6 +20,8 @@ import type {
 } from '@mongodb-js/workspace-info';
 
 describe('SuggestedPrompts', function () {
+  let currentChat: ReturnType<typeof createMockChat>;
+
   let onMessageSendStub: sinon.SinonStub;
 
   beforeEach(function () {
@@ -47,12 +49,15 @@ describe('SuggestedPrompts', function () {
     messages = [],
     activeWorkspace,
     activeCollectionSubTab,
+    enableSkills = false,
   }: {
     messages?: AssistantMessage[];
     activeWorkspace?: WorkspaceTab;
     activeCollectionSubTab?: CollectionSubtab | null;
+    enableSkills?: boolean;
   }) {
     const chat = createMockChat({ messages });
+    currentChat = chat;
     return render(
       <AssistantGlobalStateProvider>
         <TestWrapper
@@ -61,7 +66,8 @@ describe('SuggestedPrompts', function () {
         >
           <SuggestedPrompts chat={chat} onMessageSend={onMessageSendStub} />
         </TestWrapper>
-      </AssistantGlobalStateProvider>
+      </AssistantGlobalStateProvider>,
+      { preferences: { enableSkillsInAssistant: enableSkills } }
     );
   }
 
@@ -107,6 +113,52 @@ describe('SuggestedPrompts', function () {
           text: 'What can I do with MongoDB Compass, and what are some usage tips?',
         });
       });
+    });
+
+    it('tracks which suggested prompt was selected', async function () {
+      const { track } = renderSuggestedPrompts({});
+
+      userEvent.click(screen.getByTestId('suggested-action-2'));
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Suggested Prompt Selected',
+          {
+            suggested_prompt_id: 'generic-connect',
+            thread_id: currentChat.threadId,
+          }
+        );
+      });
+    });
+
+    it('tracks tab-specific suggested prompts with their own id', async function () {
+      const { track } = renderSuggestedPrompts({
+        activeWorkspace: createCollectionWorkspace(),
+        activeCollectionSubTab: 'Aggregations',
+      });
+
+      userEvent.click(
+        screen.getByText(
+          'How can I improve the performance of my aggregation in Compass?'
+        )
+      );
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Suggested Prompt Selected',
+          {
+            suggested_prompt_id: 'aggregations-performance',
+            thread_id: currentChat.threadId,
+          }
+        );
+      });
+    });
+
+    it('does not track a selection before a prompt is clicked', function () {
+      const { track } = renderSuggestedPrompts({});
+      expect(track).to.not.have.been.calledWith(
+        'Assistant Suggested Prompt Selected'
+      );
     });
 
     it('prompts disappear after they are selected', async function () {
@@ -257,6 +309,44 @@ describe('SuggestedPrompts', function () {
           },
         });
       });
+    });
+  });
+
+  describe('when skills are enabled', function () {
+    it('shows the slash command but sends the skill tag', async function () {
+      const { track } = renderSuggestedPrompts({ enableSkills: true });
+
+      const displayText =
+        '/query-optimizer Help me understand whether my current query and collection setup will perform well.';
+      expect(screen.getByText(displayText)).to.exist;
+      expect(screen.queryByText(/<skill>/)).to.not.exist;
+
+      userEvent.click(screen.getByText(displayText));
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith(
+          'Assistant Suggested Prompt Selected',
+          {
+            suggested_prompt_id: 'generic-query-optimizer-skill',
+            thread_id: currentChat.threadId,
+          }
+        );
+      });
+
+      await waitFor(() => {
+        expect(onMessageSendStub.calledOnce).to.be.true;
+        expect(onMessageSendStub.firstCall.args[0]).to.deep.equal({
+          text: '<skill>mongodb-query-optimizer</skill> Help me understand whether my current query and collection setup will perform well.',
+          metadata: { displayText },
+        });
+      });
+    });
+
+    it('keeps the original prompt when skills are disabled', function () {
+      renderSuggestedPrompts({});
+      expect(
+        screen.getByText('How can I optimize performance in MongoDB Compass?')
+      ).to.exist;
+      expect(screen.queryByText(/\/query-optimizer/)).to.not.exist;
     });
   });
 });
