@@ -129,6 +129,45 @@ describe('InsertDocumentDialog', function () {
     );
   });
 
+  it('disables inserting and switching views until the text is parsed', async function () {
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    const insertDocument = sinon.spy();
+    const insertMany = sinon.spy();
+    render(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        editorText='[{ "a": 1 }, { "a": 2 }]'
+        updateInsertDocText={noop}
+        insertDocument={insertDocument}
+        insertMany={insertMany}
+        insertView="json"
+      />
+    );
+
+    const insertButton = screen.getByRole('button', { name: 'Insert' });
+    const shellViewButton = () =>
+      screen
+        .getByTestId('insert-document-dialog-view-shell')
+        .querySelector('button');
+    expect(insertButton).to.have.attribute('aria-disabled', 'true');
+    expect(shellViewButton()).to.have.property('disabled', true);
+
+    userEvent.click(insertButton);
+    expect(insertDocument).to.not.have.been.called;
+    expect(insertMany).to.not.have.been.called;
+
+    await waitFor(() => {
+      expect(insertButton).to.not.have.attribute('aria-disabled', 'true');
+    });
+    expect(shellViewButton()).to.have.property('disabled', false);
+
+    userEvent.click(insertButton);
+    await waitFor(() => expect(insertMany).to.have.been.calledOnce);
+    expect(insertDocument).to.not.have.been.called;
+  });
+
   it('accepts valid shell syntax without an error', async function () {
     const doc = new HadronDocument({});
     doc.editing = true;
@@ -188,12 +227,12 @@ describe('InsertDocumentDialog', function () {
     );
     rerender(renderDialog());
 
-    await waitFor(() => {
-      expect(buttonIn('insert-document-dialog-view-json')).to.have.property(
-        'disabled',
-        true
-      );
-    });
+    // Wait for the violation itself, the views are also disabled while parsing
+    expect(await screen.findByText('Convert to Long')).to.exist;
+    expect(buttonIn('insert-document-dialog-view-json')).to.have.property(
+      'disabled',
+      true
+    );
     expect(buttonIn('insert-document-dialog-view-list')).to.have.property(
       'disabled',
       true

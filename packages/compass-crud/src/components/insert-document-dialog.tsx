@@ -251,6 +251,10 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     [insertView, isParsePending, parsedValue, parseError]
   );
 
+  // NOT_PARSED reads as "valid single document", so anything that depends on
+  // the parse result has to wait until the current text has been parsed.
+  const isTextParsePending = insertView !== 'list' && isParsePending;
+
   // The visual editor can only represent a single document, so disable it when
   // the editor holds an array.
   const isManyDocuments = Array.isArray(parseResult.value);
@@ -321,6 +325,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   }, [doc, handleInvalid, handleValid]);
 
   const handleInsert = useCallback(() => {
+    if (isTextParsePending) {
+      return;
+    }
     setInsertInProgress(true);
     // This is kinda silly: the banner shows up for just a blip and immediately
     // disappears. There's probably a better way to deal with that state
@@ -332,7 +339,13 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     } else {
       insertDocument();
     }
-  }, [setInsertInProgress, insertMany, insertDocument, isManyDocuments]);
+  }, [
+    isTextParsePending,
+    setInsertInProgress,
+    insertMany,
+    insertDocument,
+    isManyDocuments,
+  ]);
 
   /**
    * Switches between the JSON, Shell, and Hadron Document views.
@@ -424,7 +437,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
       submitDisabled={Boolean(
-        documentValidationError || safeIntegerViolations.length > 0
+        isTextParsePending ||
+        documentValidationError ||
+        safeIntegerViolations.length > 0
       )}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
@@ -455,6 +470,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
               <SegmentedControlOption
                 key={option.value}
                 disabled={
+                  isTextParsePending ||
                   Boolean(documentValidationError) ||
                   hasSafeIntegerViolations ||
                   disabledForManyDocs

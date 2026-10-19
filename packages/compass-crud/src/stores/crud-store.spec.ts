@@ -348,6 +348,7 @@ describe('store', function () {
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{\n  $set: {\n\n  },\n}',
+          isValidating: false,
         },
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
