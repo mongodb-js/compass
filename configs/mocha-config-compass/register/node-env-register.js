@@ -16,7 +16,10 @@ module.exports = {
         if (error.code === 'MODULE_NOT_FOUND') return;
         throw error;
       }
-      require(parserPath)?.terminateWorker();
+      const parser = require(parserPath);
+      if (parser && typeof parser.terminateWorker === 'function') {
+        parser.terminateWorker();
+      }
     },
   },
 };
