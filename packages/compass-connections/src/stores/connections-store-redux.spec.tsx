@@ -7,6 +7,7 @@ import {
   createDefaultConnectionInfo,
   wait,
   render,
+  userEvent,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
@@ -557,6 +558,58 @@ describe('CompassConnections store', function () {
       await connectPromise;
 
       expect(track).to.have.been.calledWith('Connection Disconnected');
+      await waitFor(() => {
+        expect(screen.queryByText(/Connecting to/)).to.not.exist;
+      });
+    });
+  });
+
+  describe('#disconnect while connection options are being prepared', function () {
+    it('does not start the driver connection', async function () {
+      const connectFn = sinon.stub().resolves({});
+      const { connectionsStore } = renderCompassConnections({ connectFn });
+
+      const connectionInfo = createDefaultConnectionInfo();
+      // connect runs synchronously up to the async option adjustments, so this
+      // disconnect lands while they are still in progress
+      const connectPromise = connectionsStore.actions.connect(connectionInfo);
+      connectionsStore.actions.disconnect(connectionInfo.id);
+      await connectPromise;
+
+      expect(connectFn).to.not.have.been.called;
+      expect(
+        connectionsStore.getState().connections.byId[connectionInfo.id]?.status
+      ).to.not.equal('connected');
+    });
+
+    it('does not connect when cancelled from the toast while encryption settings are parsed', async function () {
+      const connectFn = sinon.stub().resolves({});
+      const { connectionsStore } = renderCompassConnections({ connectFn });
+
+      const connectionInfo: ConnectionInfo = {
+        ...createDefaultConnectionInfo(),
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+          fleOptions: {
+            storeCredentials: false,
+            autoEncryption: {
+              keyVaultNamespace: 'db.keyVault',
+              kmsProviders: { local: { key: 'A'.repeat(128) } },
+              // Saved as text, so it's parsed again before connecting
+              encryptedFieldsMap: {
+                '$compass.error': null,
+                '$compass.rawText': `{ 'db.coll': { fields: [{ path: 'ssn', keyId: UUID("28bbc608-524e-4717-9246-33633361788e"), bsonType: 'string' }] } }`,
+              },
+            },
+          },
+        },
+      };
+
+      const connectPromise = connectionsStore.actions.connect(connectionInfo);
+      userEvent.click(await screen.findByTestId('cancel-connection-button'));
+      await connectPromise;
+
+      expect(connectFn).to.not.have.been.called;
       await waitFor(() => {
         expect(screen.queryByText(/Connecting to/)).to.not.exist;
       });
