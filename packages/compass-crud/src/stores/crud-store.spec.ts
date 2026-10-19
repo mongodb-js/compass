@@ -957,7 +957,7 @@ describe('store', function () {
       void store.openBulkUpdateModal();
 
       await waitForState(store, (state) => {
-        expect(state.bulkUpdate.previewAbortController).to.not.exist;
+        expect(state.bulkUpdate.isValidating).to.equal(false);
       });
 
       const bulkUpdate = store.state.bulkUpdate;
@@ -980,6 +980,7 @@ describe('store', function () {
           ],
         },
         previewAbortController: undefined,
+        isValidating: false,
         serverError: undefined,
         syntaxError: undefined,
         updateText: '{\n  $set: {\n\n  },\n}',
@@ -991,7 +992,7 @@ describe('store', function () {
       void store.openBulkUpdateModal();
 
       await waitForState(store, (state) => {
-        expect(state.bulkUpdate.previewAbortController).to.not.exist;
+        expect(state.bulkUpdate.isValidating).to.equal(false);
       });
 
       store.closeBulkUpdateModal();
@@ -1016,6 +1017,7 @@ describe('store', function () {
           ],
         },
         previewAbortController: undefined,
+        isValidating: false,
         serverError: undefined,
         syntaxError: undefined,
         updateText: '{\n  $set: {\n\n  },\n}',
@@ -2790,6 +2792,7 @@ describe('store', function () {
             changes: [],
           },
           previewAbortController: undefined,
+          isValidating: false,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',
@@ -2820,10 +2823,40 @@ describe('store', function () {
             changes: [],
           },
           previewAbortController: undefined,
+          isValidating: false,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',
         });
+      });
+
+      it('stores the new text immediately and ignores stale validation results', async function () {
+        await store.openBulkUpdateModal();
+
+        const stale = store.updateBulkUpdatePreview('{ $set: { a:  } }');
+        expect(store.state.bulkUpdate.updateText).to.equal('{ $set: { a:  } }');
+        expect(store.state.bulkUpdate.isValidating).to.equal(true);
+
+        const latest = store.updateBulkUpdatePreview('{ $set: { b: 1 } }');
+        await Promise.all([stale, latest]);
+
+        expect(store.state.bulkUpdate.updateText).to.equal(
+          '{ $set: { b: 1 } }'
+        );
+        expect(store.state.bulkUpdate.syntaxError).to.not.exist;
+        expect(store.state.bulkUpdate.isValidating).to.equal(false);
+      });
+
+      it('does not run the update while validation is pending', async function () {
+        const updateManyStub = sinon.stub().resolves();
+        dataService.updateMany = updateManyStub;
+        await store.openBulkUpdateModal();
+
+        const pending = store.updateBulkUpdatePreview('{ $set: { b: 1 } }');
+        await store.runBulkUpdate();
+        await pending;
+
+        expect(updateManyStub.called).to.be.false;
       });
     });
 
@@ -2866,6 +2899,7 @@ describe('store', function () {
             ],
           },
           previewAbortController: undefined,
+          isValidating: false,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',

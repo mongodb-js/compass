@@ -319,6 +319,7 @@ type BulkUpdateState = {
   syntaxError?: Error;
   serverError?: Error;
   previewAbortController?: AbortController;
+  isValidating: boolean;
   affected?: number;
 };
 
@@ -524,6 +525,7 @@ class CrudStoreImpl
       },
       syntaxError: undefined,
       serverError: undefined,
+      isValidating: false,
     };
   }
 
@@ -1083,9 +1085,19 @@ class CrudStoreImpl
   }
 
   async updateBulkUpdatePreview(updateText: string) {
-    if (this.state.bulkUpdate.previewAbortController) {
-      this.state.bulkUpdate.previewAbortController.abort();
-    }
+    this.state.bulkUpdate.previewAbortController?.abort();
+    const abortController = new AbortController();
+
+    // Store the text and abort controller before awaiting anything so that
+    // other calls can see them and runBulkUpdate is blocked until this settles
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        updateText,
+        previewAbortController: abortController,
+        isValidating: true,
+      },
+    });
 
     // Don't try and calculate the update preview if we know it won't work. Just
     // see if the update will parse.
@@ -1093,6 +1105,10 @@ class CrudStoreImpl
       try {
         await parseShellBSON(updateText);
       } catch (err: any) {
+        if (abortController.signal.aborted) {
+          return;
+        }
+
         this.setState({
           bulkUpdate: {
             ...this.state.bulkUpdate,
@@ -1103,8 +1119,13 @@ class CrudStoreImpl
             serverError: undefined,
             syntaxError: err,
             previewAbortController: undefined,
+            isValidating: false,
           },
         });
+        return;
+      }
+
+      if (abortController.signal.aborted) {
         return;
       }
 
@@ -1119,22 +1140,12 @@ class CrudStoreImpl
           serverError: undefined,
           syntaxError: undefined,
           previewAbortController: undefined,
+          isValidating: false,
         },
       });
 
       return;
     }
-
-    const abortController = new AbortController();
-
-    // set the abort controller in the state before we start doing anything so
-    // that other calls can see it
-    this.setState({
-      bulkUpdate: {
-        ...this.state.bulkUpdate,
-        previewAbortController: abortController,
-      },
-    });
 
     let update: BSONObject | BSONObject[];
     try {
@@ -1155,6 +1166,7 @@ class CrudStoreImpl
           serverError: undefined,
           syntaxError: err,
           previewAbortController: undefined,
+          isValidating: false,
         },
       });
 
@@ -1191,6 +1203,7 @@ class CrudStoreImpl
           serverError: err,
           syntaxError: undefined,
           previewAbortController: undefined,
+          isValidating: false,
         },
       });
 
@@ -1210,11 +1223,18 @@ class CrudStoreImpl
         serverError: undefined,
         syntaxError: undefined,
         previewAbortController: undefined,
+        isValidating: false,
       },
     });
   }
 
   async runBulkUpdate() {
+    // The update button is disabled while validation is pending, so this is
+    // only reachable through a race - the current text isn't validated yet
+    if (this.state.bulkUpdate.isValidating) {
+      return;
+    }
+
     const query = this.queryBar.getLastAppliedQuery('crud');
     this.track(
       'Bulk Update Executed',
