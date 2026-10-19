@@ -154,6 +154,7 @@ describe('readOnly: true / Read-Only Edition', function () {
   });
 
   it('shows and hides the create database button on the instance tab', async function () {
+    await createNumbersCollection();
     await browser.connectToDefaults();
 
     await browser.navigateToConnectionTab(

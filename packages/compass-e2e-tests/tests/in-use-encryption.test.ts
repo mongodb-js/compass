@@ -1473,13 +1473,10 @@ describe('CSFLE / QE', function () {
       await chatInput.setValue('What is mongodb?');
       await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
-      // Wait for AssistantChatSubmitButton to be disabled
-      await browser.waitUntil(async () => {
-        const isDiabled = await browser
-          .$(Selectors.AssistantChatSubmitButton)
-          .getAttribute('aria-disabled');
-        return isDiabled === 'true';
-      });
+      await browser.waitUntil(
+        () => mockAssistantServer.getRequests().length === 1,
+        { timeoutMsg: 'Expected the assistant to send a request' }
+      );
 
       const requests = mockAssistantServer.getRequests();
       expect(requests.length).to.equal(1);
@@ -1500,7 +1497,10 @@ describe('CSFLE / QE', function () {
         browser.$(Selectors.ConnectionToastErrorDebugButton)
       );
 
-      await browser.$(Selectors.AssistantChatMessages).isDisplayed();
+      await browser.waitUntil(
+        () => mockAssistantServer.getRequests().length === 1,
+        { timeoutMsg: 'Expected the assistant to send a request' }
+      );
 
       const requests = mockAssistantServer.getRequests();
       expect(requests.length).to.equal(1);

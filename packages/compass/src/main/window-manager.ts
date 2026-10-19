@@ -10,6 +10,7 @@ import { once } from 'events';
 import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,
+  WebPreferences,
 } from 'electron';
 import {
   app as electronApp,
@@ -210,6 +211,19 @@ function showConnectWindow(
   // Get saved window bounds
   const { isMaximized, isFullScreen, ...bounds } =
     getSavedWindowBounds(compassApp);
+
+  const webPreferences: WebPreferences = {
+    nodeIntegration: true,
+    contextIsolation: false,
+    nodeIntegrationInWorker: true,
+    preload: path.join(__dirname, 'preload.js'),
+    // For local dev, electron can not load @mongosh/node-runtime-worker-thread
+    // worker (file:///) from the filesystem due to same-origin policy. For this
+    // reason we disable the webSecurity.
+    webSecurity: process.env.DISABLE_ELECTRON_WEB_SECURITY !== '1',
+    ...opts.webPreferences,
+  };
+
   const windowOpts = {
     ...bounds,
     minWidth: Number(MIN_WIDTH),
@@ -224,19 +238,7 @@ function showConnectWindow(
     show: !!process.env.DEBUG_MAIN_WINDOW,
     backgroundColor: '#ffffff',
     ...opts,
-    webPreferences: {
-      'subpixel-font-scaling': true,
-      'direct-write': true,
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true,
-      nodeIntegrationInWorker: true,
-      // For local dev, electron can not load @mongosh/node-runtime-worker-thread
-      // worker (file:///) from the filesystem due to same-origin policy. For this
-      // reason we disable the webSecurity.
-      webSecurity: process.env.DISABLE_ELECTRON_WEB_SECURITY !== '1',
-      ...(opts && opts.webPreferences),
-    },
+    webPreferences,
   };
 
   const primaryDisplay = electronScreen.getPrimaryDisplay();
