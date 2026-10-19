@@ -334,6 +334,7 @@ export type BulkUpdateModalProps = {
   syntaxError?: Error & { loc?: { index: number } };
   serverError?: Error & Pick<MongoServerError, 'errInfo'>;
   enablePreview?: boolean;
+  isValidating?: boolean;
   closeBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
@@ -350,6 +351,7 @@ export default function BulkUpdateModal({
   syntaxError,
   serverError,
   enablePreview = false,
+  isValidating = false,
   closeBulkUpdateModal,
   updateBulkUpdatePreview,
   runBulkUpdate,
@@ -522,7 +524,7 @@ export default function BulkUpdateModal({
             Cancel
           </Button>
           <Button
-            disabled={disabled}
+            disabled={disabled || isValidating}
             variant="primary"
             onClick={runBulkUpdate}
             data-testid="update-button"
