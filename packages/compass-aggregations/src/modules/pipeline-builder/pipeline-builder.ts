@@ -163,7 +163,13 @@ export class PipelineBuilder {
    * contains errors
    */
   async getPipelineFromSource(): Promise<Document[]> {
-    await this.parsePromise;
+    // A newer edit can replace parsePromise while we wait, and the superseded
+    // parse discards its result, so wait until the settled parse is current.
+    let parsePromise: Promise<void>;
+    do {
+      parsePromise = this.parsePromise;
+      await parsePromise;
+    } while (parsePromise !== this.parsePromise);
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
     }

@@ -50,6 +50,18 @@ describe('PipelineBuilder', function () {
     });
   });
 
+  describe('getPipelineFromSource', function () {
+    it('returns the pipeline for a source changed while it was parsing', async function () {
+      await pipelineBuilder.changeSource(`[{$match: {_id: 1}}]`);
+
+      void pipelineBuilder.changeSource(`[{$match: {_id: 2}}]`);
+      const pipeline = pipelineBuilder.getPipelineFromSource();
+      void pipelineBuilder.changeSource(`[{$match: {_id: 3}}]`);
+
+      expect(await pipeline).to.deep.eq([{ $match: { _id: 3 } }]);
+    });
+  });
+
   it('converts source to stages', async function () {
     const source = `[{$match: {name: /berlin/i}}]`;
     await pipelineBuilder.changeSource(source);
