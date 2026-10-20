@@ -118,14 +118,17 @@ describe('PipelineBuilder', function () {
     const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock
       .expects('getPreviewForStage')
-      .withArgs(
-        1,
-        'airbnb.listings',
-        [{ $match: {} }, { $unwind: 'users' }],
-        {},
-        true
-      )
-      .returns([{ _id: 1 }]);
+      .once()
+      .callsFake(async (idx, namespace, pipeline, options, force) => {
+        expect([idx, namespace, await pipeline, options, force]).to.deep.eq([
+          1,
+          'airbnb.listings',
+          [{ $match: {} }, { $unwind: 'users' }],
+          {},
+          true,
+        ]);
+        return [{ _id: 1 }];
+      });
 
     const data = await pipelineBuilder.getPreviewForStage(
       1,
@@ -146,13 +149,16 @@ describe('PipelineBuilder', function () {
     const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock
       .expects('getPreviewForStage')
-      .withArgs(
-        Infinity,
-        'airbnb.listings',
-        [{ $match: {} }, { $unwind: 'users' }],
-        {}
-      )
-      .returns([{ _id: 1 }, { _id: 2 }]);
+      .once()
+      .callsFake(async (idx, namespace, pipeline, options) => {
+        expect([idx, namespace, await pipeline, options]).to.deep.eq([
+          Infinity,
+          'airbnb.listings',
+          [{ $match: {} }, { $unwind: 'users' }],
+          {},
+        ]);
+        return [{ _id: 1 }, { _id: 2 }];
+      });
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',
@@ -171,13 +177,16 @@ describe('PipelineBuilder', function () {
     const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock
       .expects('getPreviewForStage')
-      .withArgs(
-        Infinity,
-        'airbnb.listings',
-        [{ $match: {} }, { $unwind: 'users' }],
-        {}
-      )
-      .returns([{ _id: 1 }, { _id: 2 }]);
+      .once()
+      .callsFake(async (idx, namespace, pipeline, options) => {
+        expect([idx, namespace, await pipeline, options]).to.deep.eq([
+          Infinity,
+          'airbnb.listings',
+          [{ $match: {} }, { $unwind: 'users' }],
+          {},
+        ]);
+        return [{ _id: 1 }, { _id: 2 }];
+      });
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',
