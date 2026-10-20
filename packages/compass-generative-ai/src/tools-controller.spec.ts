@@ -12,6 +12,10 @@ import {
   type PreferencesAccess,
 } from 'compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
+import { DeviceId } from '@mongodb-js/mcp-tools-mongodb';
+import type { ITelemetry } from '@mongodb-js/mcp-types';
+import type { CompassMcpTelemetry } from './compass-mcp-telemetry';
 
 describe('ToolsController', function () {
   let sandbox: sinon.SinonSandbox;
@@ -284,13 +288,6 @@ describe('ToolsController', function () {
         expect(toolsController.server).to.not.be.undefined;
         expect(toolsController.server?.tools).to.not.be.undefined;
 
-        if (
-          toolsController.server &&
-          toolsController.server.tools.length === 0
-        ) {
-          toolsController.server.registerTools();
-        }
-
         const serverTools = toolsController.server?.tools ?? [];
         const serverToolNames = serverTools.map((tool) => tool.name);
 
@@ -436,41 +433,122 @@ describe('ToolsController', function () {
       expect(result.query).to.equal('new query');
     });
 
-    it('syncs telemetry setting with runner userConfig', function () {
-      toolsController.setContext({
-        enableMCPTelemetry: true,
-        connections: [],
-      });
-      expect((toolsController as any).runner.userConfig.telemetry).to.equal(
-        'enabled'
-      );
+    it('syncs maxTimeMS setting with the tools config', async function () {
+      await toolsController.startServer();
 
-      toolsController.setContext({
-        enableMCPTelemetry: false,
-        connections: [],
-      });
-      expect((toolsController as any).runner.userConfig.telemetry).to.equal(
-        'disabled'
-      );
-    });
-
-    it('syncs maxTimeMS setting with runner userConfig', function () {
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: 5000,
         connections: [],
       });
-      expect((toolsController as any).runner.userConfig.maxTimeMS).to.equal(
-        5000
-      );
+      expect(toolsController.server?.config.maxTimeMS).to.equal(5000);
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: undefined,
         connections: [],
       });
-      expect((toolsController as any).runner.userConfig.maxTimeMS).to.equal(
-        undefined
+      expect(toolsController.server?.config.maxTimeMS).to.equal(undefined);
+    });
+
+    it('applies maxTimeMS set before the server starts', async function () {
+      toolsController.setContext({
+        enableMCPTelemetry: false,
+        maxTimeMS: 5000,
+        connections: [],
+      });
+
+      await toolsController.startServer();
+
+      expect(toolsController.server?.config.maxTimeMS).to.equal(5000);
+    });
+  });
+
+  describe('MCP telemetry', function () {
+    let createDeviceId: sinon.SinonStub;
+
+    beforeEach(function () {
+      createDeviceId = sandbox.stub(DeviceId, 'create').returns({
+        get: sandbox.stub().resolves('test-device-id'),
+        close: sandbox.stub(),
+      } as any);
+    });
+
+    const emitEvent = (telemetry: ITelemetry | undefined) => {
+      telemetry?.emitEvents([
+        {
+          timestamp: new Date().toISOString(),
+          source: 'mdbmcp',
+          properties: {},
+        } as any,
+      ]);
+    };
+
+    it('syncs telemetry setting with the tools config', async function () {
+      await toolsController.startServer();
+
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        false
+      );
+
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        connections: [],
+      });
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        true
+      );
+
+      toolsController.setContext({
+        enableMCPTelemetry: false,
+        connections: [],
+      });
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        false
+      );
+    });
+
+    it('honours the preference set before the server starts', async function () {
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        connections: [],
+      });
+
+      await toolsController.startServer();
+
+      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
+        true
+      );
+    });
+
+    it('resolves no device id while telemetry is disabled', async function () {
+      await toolsController.startServer();
+
+      emitEvent(toolsController.server?.telemetry);
+
+      expect(createDeviceId.called).to.equal(false);
+    });
+
+    it('starts the pipeline on the first event once enabled', async function () {
+      await toolsController.startServer();
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        connections: [],
+      });
+
+      emitEvent(toolsController.server?.telemetry);
+
+      expect(createDeviceId.calledOnce).to.equal(true);
+    });
+
+    it('stamps the Compass hosting mode on every event', async function () {
+      await toolsController.startServer();
+      const telemetry = toolsController.server
+        ?.telemetry as unknown as CompassMcpTelemetry;
+
+      expect(telemetry.getCommonProperties()).to.have.property(
+        'hosting_mode',
+        'compass'
       );
     });
   });
@@ -549,16 +627,31 @@ describe('ToolsController', function () {
         const errorController = new ToolsController({
           enableMCPTelemetry: false,
           logger,
-          getTelemetryAnonymousId: () => {
-            throw new Error('Telemetry error');
-          },
+          getTelemetryAnonymousId,
           track: createNoopTrack(),
           preferences,
           atlasAdminApi,
         });
+        sandbox
+          .stub(errorController as any, 'createServer')
+          .throws(new Error('Server creation error'));
+        const logStub = sandbox.stub(logger.log, 'error');
 
         // Should not throw even if there's an error
         await errorController.startServer();
+
+        expect(errorController.server).to.be.undefined;
+        for (const args of logStub.args) {
+          (args[0] as any) = args[0].__value;
+        }
+        expect(
+          logStub.calledWith(
+            sinon.match.number,
+            'ToolsController',
+            'Error when attempting to start MCP server'
+          )
+        ).to.be.true;
+
         // don't hang
         await errorController.stopServer();
       });
@@ -666,6 +759,67 @@ describe('ToolsController', function () {
       const result = await tools['get-current-query'].execute?.({}, {} as any);
 
       expect(result.query).to.equal(query);
+    });
+  });
+
+  describe('db-read tool execution', function () {
+    beforeEach(async function () {
+      sandbox.stub(NodeDriverServiceProvider, 'connect').resolves({
+        close: sandbox.stub().resolves(),
+        initialDb: 'test',
+        listDatabases: sandbox.stub().resolves({
+          databases: [{ name: 'admin', sizeOnDisk: 1024 }],
+        }),
+      } as any);
+
+      await toolsController.startServer();
+      toolsController.setActiveTools(new Set(['db-read']));
+      toolsController.setConnectionIdForToolCall({
+        toolCallId: 'call-1',
+        connectionId: 'conn-1',
+      });
+      toolsController.setContext({
+        enableMCPTelemetry: false,
+        connections: [
+          {
+            connectionId: 'conn-1',
+            connectionString: 'mongodb://localhost:27017',
+            connectOptions: {} as any,
+          },
+        ],
+      });
+    });
+
+    it('invokes the MCP tool against the Compass connection', async function () {
+      const tools = toolsController.getActiveTools();
+      const result: any = await tools['list-databases'].execute?.({}, {
+        toolCallId: 'call-1',
+      } as any);
+
+      expect(result.isError).to.not.equal(true);
+      expect(JSON.stringify(result.content)).to.include('admin');
+    });
+
+    it('does not expose the connection handle to the model', function () {
+      const tools = toolsController.getActiveTools();
+      const shape = (tools['list-databases'] as any).inputSchema.shape;
+
+      expect(shape).to.not.have.property('connectionId');
+    });
+
+    it('exposes schemas the model arguments can be validated against', function () {
+      const tools = toolsController.getActiveTools();
+      const schema = (tools['find'] as any).inputSchema;
+
+      expect(
+        schema.safeParse({
+          database: 'db',
+          collection: 'coll',
+          filter: { status: 'active' },
+          limit: 5,
+        }).success
+      ).to.equal(true);
+      expect(schema.safeParse({ database: 'db' }).success).to.equal(false);
     });
   });
 
