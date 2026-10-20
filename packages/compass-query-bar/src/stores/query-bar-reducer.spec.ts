@@ -6,6 +6,7 @@ import {
 import type { QueryProperty } from '../constants/query-properties';
 import {
   QueryBarActions,
+  applyFilterChange,
   applyFromHistory,
   applyQuery,
   changeField,
@@ -177,6 +178,161 @@ describe('queryBarReducer', function () {
     });
   });
 
+  describe('applyFilterChange', function () {
+    it('keeps both changes when applied in quick succession', async function () {
+      await Promise.all([
+        store.dispatch(
+          applyFilterChange({
+            type: 'setValue',
+            payload: { field: 'a', value: 1 },
+          })
+        ),
+        store.dispatch(
+          applyFilterChange({
+            type: 'setValue',
+            payload: { field: 'b', value: 2 },
+          })
+        ),
+      ]);
+
+      const { filter } = store.getState().queryBar.fields;
+      expect(filter.value).to.deep.eq({ a: 1, b: 2 });
+      expect(filter.string).to.eq('{ a: 1, b: 2 }');
+      expect(store.getState().queryBar.pendingParseFieldRequestIds).to.deep.eq(
+        {}
+      );
+    });
+
+    it('does not allow applying until the filter text is updated', async function () {
+      const changing = store.dispatch(
+        applyFilterChange({
+          type: 'setValue',
+          payload: { field: 'a', value: 1 },
+        })
+      );
+      const appliedQuery = await store.dispatch(applyQuery('test') as any);
+      await changing;
+
+      expect(appliedQuery).to.eq(false);
+    });
+
+    it('keeps the filter invalid while its text is still invalid', async function () {
+      await store.dispatch(changeField('filter', '{ a:'));
+      const changing = store.dispatch(
+        applyFilterChange({
+          type: 'setValue',
+          payload: { field: 'b', value: 1 },
+        })
+      );
+
+      expect(store.getState().queryBar.fields.filter.valid).to.be.false;
+      await changing;
+    });
+  });
+
+  describe('setQuery races', function () {
+    it('keeps a field edited while the query is parsed', async function () {
+      const setting = store.dispatch(setQuery({ filter: { a: 1 }, limit: 5 }));
+      await store.dispatch(changeField('filter', '{ b: 1 }'));
+      await setting;
+
+      expect(store.getState().queryBar.fields.filter.value).to.deep.eq({
+        b: 1,
+      });
+      expect(store.getState().queryBar.fields.limit.value).to.eq(5);
+    });
+
+    it('keeps an edit that finishes validating before the query is parsed', async function () {
+      const setting = store.dispatch(setQuery({ filter: { a: 1 } }));
+      store.dispatch({
+        type: QueryBarActions.ChangeFieldText,
+        name: 'filter',
+        string: '{ b: 1 }',
+        requestId: 'edit',
+      });
+      store.dispatch({
+        type: QueryBarActions.ChangeField,
+        name: 'filter',
+        requestId: 'edit',
+        value: { string: '{ b: 1 }', valid: true, value: { b: 1 } },
+      });
+      await setting;
+
+      expect(store.getState().queryBar.fields.filter.value).to.deep.eq({
+        b: 1,
+      });
+    });
+
+    it('keeps a reset made while the query is parsed', async function () {
+      await store.dispatch(setQuery({ filter: { a: 1 } }));
+      const setting = store.dispatch(setQuery({ filter: { b: 1 } }));
+      await store.dispatch(resetQuery('test'));
+      await setting;
+
+      expect(store.getState().queryBar.fields.filter.string).to.eq('');
+    });
+
+    it('applies the latest of two queries', async function () {
+      const first = store.dispatch(setQuery({ filter: { a: 1 } }));
+      const second = store.dispatch(setQuery({ filter: { b: 1 } }));
+      await Promise.all([first, second]);
+
+      expect(store.getState().queryBar.fields.filter.value).to.deep.eq({
+        b: 1,
+      });
+      expect(store.getState().queryBar.pendingParseFieldRequestIds).to.deep.eq(
+        {}
+      );
+    });
+
+    it('does not allow applying while the query is parsed', async function () {
+      const setting = store.dispatch(setQuery({ filter: { a: 1 } }));
+      const appliedQuery = await store.dispatch(applyQuery('test') as any);
+      await setting;
+
+      expect(appliedQuery).to.eq(false);
+    });
+  });
+
+  describe('applyFromHistory races', function () {
+    it('keeps a field edited while the history query is parsed', async function () {
+      const applying = store.dispatch(
+        applyFromHistory({ filter: { a: 1 }, limit: 5 })
+      );
+      const changing = store.dispatch(changeField('filter', '{ b: 1 }'));
+      await applying;
+      await changing;
+
+      const { fields, pendingParseFieldRequestIds } = store.getState().queryBar;
+      expect(fields.filter.value).to.deep.eq({ b: 1 });
+      expect(fields.limit.string).to.eq('');
+      expect(pendingParseFieldRequestIds).to.deep.eq({});
+    });
+
+    it('does not open the bulk update modal after a newer edit', async function () {
+      const localAppRegistry = {
+        on: Sinon.spy(),
+        emit: Sinon.spy(),
+      } as unknown as AppRegistry;
+      const store = createStore({}, {
+        preferences,
+        localAppRegistry,
+      } as unknown as QueryBarExtraArgs);
+
+      const applying = store.dispatch(
+        applyFromHistory({ filter: { a: 1 }, update: { $set: { a: 2 } } })
+      );
+      const changing = store.dispatch(changeField('filter', '{ b: 1 }'));
+      await applying;
+      await changing;
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(localAppRegistry.emit).to.not.have.been.calledWith(
+        'favorites-open-bulk-update-favorite'
+      );
+    });
+  });
+
   describe('applyQuery', function () {
     it('should "apply" query if query is valid', async function () {
       await store.dispatch(setQuery({ filter: { _id: '123' }, limit: 10 }));
@@ -203,6 +359,19 @@ describe('queryBarReducer', function () {
     it('should not "apply" query while a field is being validated', async function () {
       const changing = store.dispatch(changeField('filter', '{ foo: 1 }'));
       const appliedQuery = await store.dispatch(applyQuery('test') as any);
+      await changing;
+
+      expect(appliedQuery).to.eq(false);
+      expect(store.getState().queryBar).to.not.have.nested.property(
+        'lastAppliedQuery.query.test'
+      );
+    });
+
+    it('should not "apply" query if fields change during validation', async function () {
+      await store.dispatch(setQuery({ filter: { a: 1 } }));
+      const applying = store.dispatch(applyQuery('test') as any);
+      const changing = store.dispatch(changeField('filter', '{ b: 1 }'));
+      const appliedQuery = await applying;
       await changing;
 
       expect(appliedQuery).to.eq(false);
