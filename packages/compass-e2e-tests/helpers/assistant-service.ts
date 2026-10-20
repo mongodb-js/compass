@@ -237,7 +237,7 @@ export async function startMockAssistantServer(
       res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
       res.setHeader(
         'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, X-Request-Origin, User-Agent, X-CSRF-Token, X-CSRF-Time, X-Assistant-Entrypoint, X-Client-Request-Id'
+        'Content-Type, Authorization, X-Request-Origin, User-Agent, X-CSRF-Token, X-CSRF-Time, X-Assistant-Entrypoint, X-Client-Request-Id, X-Client-Thread-Id'
       );
       res.setHeader('Access-Control-Allow-Credentials', 'true');
 

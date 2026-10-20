@@ -10,6 +10,7 @@ import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
 import {
   createBrokenChat,
+  createChat,
   createMockChat,
   createSlowTool,
   createMockToolsTransport,
@@ -19,11 +20,11 @@ import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import {
   AssistantActionsContext,
   type AssistantMessage,
+  type ThreadedChat,
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
 import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import { Chat } from '../@ai-sdk/react/chat-react';
 import {
   ToolsControllerProvider,
   ToolsController,
@@ -62,6 +63,8 @@ function TestProviders({
 }
 
 describe('AssistantChat', function () {
+  let currentChat: ThreadedChat;
+
   const mockMessages: AssistantMessage[] = [
     {
       id: 'user',
@@ -103,7 +106,7 @@ describe('AssistantChat', function () {
   ];
 
   function renderWithChat(
-    chat: Chat<AssistantMessage>,
+    chat: ThreadedChat,
     {
       connections,
       preferences,
@@ -118,6 +121,7 @@ describe('AssistantChat', function () {
       experimentVariant?: ExperimentTestGroup | null;
     } = {}
   ) {
+    currentChat = chat;
     // The chat component does not use chat.sendMessage() directly, it uses
     // ensureOptInAndSend() via the AssistantActionsContext.
     const ensureOptInAndSendStub = sinon
@@ -334,6 +338,7 @@ describe('AssistantChat', function () {
     await waitFor(() => {
       expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
+        thread_id: currentChat.threadId,
         user_input_length: 'What is aggregation?'.length,
         request_id: 'test-request-id',
       });
@@ -387,6 +392,7 @@ describe('AssistantChat', function () {
     await waitFor(() => {
       expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
+        thread_id: currentChat.threadId,
         user_input_length: 'What is sharding?'.length,
         request_id: 'test-request-id',
       });
@@ -434,7 +440,7 @@ describe('AssistantChat', function () {
       const mockTransport = createMockToolsTransport([slowTool]);
 
       // Create a chat with the mock transport
-      const chat = new Chat<AssistantMessage>({
+      const chat = createChat({
         messages: [],
         transport: mockTransport,
       });
@@ -613,10 +619,12 @@ describe('AssistantChat', function () {
       await waitFor(() => {
         expect(track).to.have.callCount(1);
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          thread_id: currentChat.threadId,
           feedback: 'positive',
           text: undefined,
           request_id: undefined,
           source: 'performance insights',
+          skills_used: [],
         });
       });
     });
@@ -642,10 +650,12 @@ describe('AssistantChat', function () {
         expect(track).to.have.callCount(1);
 
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          thread_id: currentChat.threadId,
           feedback: 'negative',
           text: undefined,
           request_id: undefined,
           source: 'performance insights',
+          skills_used: [],
         });
       });
     });
@@ -681,17 +691,21 @@ describe('AssistantChat', function () {
         expect(track).to.have.callCount(2);
 
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          thread_id: currentChat.threadId,
           feedback: 'negative',
           text: undefined,
           request_id: undefined,
           source: 'performance insights',
+          skills_used: [],
         });
 
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          thread_id: currentChat.threadId,
           feedback: 'negative',
           text: 'This response was not helpful',
           request_id: undefined,
           source: 'performance insights',
+          skills_used: [],
         });
       });
     });
@@ -720,11 +734,53 @@ describe('AssistantChat', function () {
 
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
+          thread_id: currentChat.threadId,
           feedback: 'negative',
           text: undefined,
           request_id: undefined,
           source: 'chat response',
+          skills_used: [],
         });
+      });
+    });
+
+    it('tracks the skills used by the rated message', async function () {
+      const { result } = renderWithChat(
+        createMockChat({
+          messages: [
+            mockMessages[0],
+            {
+              ...mockMessages[1],
+              metadata: {
+                ...mockMessages[1].metadata,
+                skillsUsed: [
+                  'mongodb-schema-design',
+                  'mongodb-query-optimizer',
+                ],
+              },
+            },
+          ],
+        })
+      );
+
+      userEvent.click(
+        within(
+          screen.getByTestId('assistant-message-assistant')
+        ).getByLabelText('Like this message')
+      );
+
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Assistant Feedback Submitted',
+          {
+            thread_id: currentChat.threadId,
+            feedback: 'positive',
+            text: undefined,
+            request_id: undefined,
+            source: 'performance insights',
+            skills_used: ['mongodb-schema-design', 'mongodb-query-optimizer'],
+          }
+        );
       });
     });
 
@@ -1006,6 +1062,7 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith(
           'Assistant Confirmation Submitted',
           {
+            thread_id: currentChat.threadId,
             status: 'confirmed',
             source: 'performance insights',
             request_id: undefined,
@@ -1027,6 +1084,7 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith(
           'Assistant Confirmation Submitted',
           {
+            thread_id: currentChat.threadId,
             status: 'rejected',
             source: 'performance insights',
             request_id: undefined,
@@ -1058,6 +1116,7 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith(
           'Assistant Confirmation Submitted',
           {
+            thread_id: currentChat.threadId,
             status: 'confirmed',
             source: 'chat response',
             request_id: undefined,

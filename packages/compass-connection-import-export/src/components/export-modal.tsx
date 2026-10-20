@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 import {
   Banner,
   Checkbox,
@@ -7,6 +8,7 @@ import {
   FormModal,
   openToast,
   SelectList,
+  ToastBody,
 } from '@mongodb-js/compass-components';
 import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
@@ -15,7 +17,6 @@ import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export-connections';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
-const TOAST_TIMEOUT_MS = 5000;
 const tableStyles = css({
   maxHeight: '24vh',
   overflow: 'auto',
@@ -38,14 +39,19 @@ export function ExportConnectionsModal({
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
   const finish = useCallback(
-    (result: ImportExportResult) => {
+    (result: ImportExportResult, filename?: string) => {
       setOpen(false);
-      if (result === 'succeeded') {
+      if (result === 'succeeded' && filename) {
         openToast('compass-connection-import-export--export-succeeded', {
           title: 'Export successful',
-          description: 'Connections successfully exported',
+          description: (
+            <ToastBody
+              statusMessage="Connections successfully exported"
+              actionHandler={() => ipcRenderer?.send('show-file', filename)}
+              actionText="show file"
+            />
+          ),
           variant: 'success',
-          timeout: TOAST_TIMEOUT_MS,
         });
         afterExport?.();
       }

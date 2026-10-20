@@ -12,14 +12,14 @@ import { AssistantChat } from './components/assistant-chat';
 import {
   ASSISTANT_DRAWER_ID,
   AssistantContext,
-  type AssistantMessage,
+  type ThreadedChat,
 } from './compass-assistant-provider';
 import {
   useIsAIFeatureEnabled,
   usePreference,
 } from '@mongodb-js/compass-preferences-model/provider';
 import { useChat } from './@ai-sdk/react/use-chat';
-import type { Chat } from './@ai-sdk/react/chat-react';
+import { UUID } from 'bson';
 import { stopChat } from './utils';
 
 const assistantTitleStyles = css({
@@ -103,7 +103,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
 };
 
 export const ClearChatButton: React.FunctionComponent<{
-  chat: Chat<AssistantMessage>;
+  chat: ThreadedChat;
 }> = ({ chat }) => {
   const { clearError } = useChat({ chat });
 
@@ -126,6 +126,7 @@ export const ClearChatButton: React.FunctionComponent<{
       // @ts-expect-error This is a readonly property but we need to mutate it to generate a new ID
       // eslint-disable-next-line react-hooks/immutability
       chat.id = chat.generateId();
+      chat.threadId = new UUID().toString();
 
       // Set messages directly on the chat instance (not through the hook's
       // setMessages) to avoid a race with the stream's jobExecutor queue

@@ -46,7 +46,7 @@ export function useExportConnections({
   open,
   trackingProps,
 }: {
-  finish: (result: ImportExportResult) => void;
+  finish: (result: ImportExportResult, filename?: string) => void;
   open: boolean;
   trackingProps?: Record<string, unknown>;
 }): {
@@ -135,7 +135,7 @@ export function useExportConnections({
         });
         return;
       }
-      finish('succeeded');
+      finish('succeeded', filename);
     })();
   }, [connectionList, passphrase, removeSecrets, filename, finish]);
 
