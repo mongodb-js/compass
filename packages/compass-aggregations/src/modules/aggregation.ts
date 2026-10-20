@@ -27,6 +27,7 @@ import {
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
 import { fetchExplainForPipeline } from './insights';
+import { getCollationForExecution } from './collation-string';
 import type { PipelineBuilderThunkAction } from '.';
 
 // Used in the `comment` on the aggregate command to help identify
@@ -441,7 +442,7 @@ const fetchAggregationData = (
       maxTimeMS,
       dataService: { dataService },
       aggregation: { limit, abortController: _abortController, pipeline },
-      collationString: { value: collation },
+      collationString,
     } = getState();
 
     if (!dataService) {
@@ -460,6 +461,7 @@ const fetchAggregationData = (
         abortController,
       });
 
+      const collation = await getCollationForExecution(collationString);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collation ?? undefined,
@@ -550,13 +552,13 @@ export const exportAggregationResults = (): PipelineBuilderThunkAction<
       namespace,
       maxTimeMS,
       countDocuments: { count },
-      collationString: { value: collation },
+      collationString,
     } = getState();
 
-    const pipeline = await getPipelineFromBuilderState(
-      getState(),
-      pipelineBuilder
-    );
+    const [pipeline, collation] = await Promise.all([
+      getPipelineFromBuilderState(getState(), pipelineBuilder),
+      getCollationForExecution(collationString),
+    ]);
 
     const options: AggregateOptions = {
       maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,

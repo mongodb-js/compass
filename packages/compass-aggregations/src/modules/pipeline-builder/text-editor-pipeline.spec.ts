@@ -3,6 +3,7 @@ import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
 import Sinon from 'sinon';
 import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 import type { PipelineBuilderThunkDispatch } from '..';
 import reducer from '..';
 import { toggleAutoPreview } from '../auto-preview';
@@ -105,27 +106,37 @@ describe('textEditorPipeline', function () {
       store.dispatch(toggleAutoPreview(true));
       const newPipeline = `[{$out: "somewhere"}]`;
       await store.dispatch(changeEditorValue(newPipeline));
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
+      await waitFor(() => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
+      });
     });
 
     it('should load preview when autoPreview is enabled and pipeline contains $merge', async function () {
       store.dispatch(toggleAutoPreview(true));
       const newPipeline = `[{$merge: "somewhere"}]`;
       await store.dispatch(changeEditorValue(newPipeline));
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
+      await waitFor(() => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
+      });
     });
 
     it('should cancel preview for stage when new stage state is invalid', async function () {
       await store.dispatch(changeEditorValue('[{$match: {foo: 1}}]'));
+      await waitFor(() => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
+      });
       Sinon.resetHistory();
       await store.dispatch(changeEditorValue('[{$match: {foo: 1'));
+      await waitFor(() => {
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(store.pipelineBuilder.cancelPreviewForPipeline).to.have.been
+          .calledOnce;
+      });
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.cancelPreviewForPipeline).to.have.been
-        .calledOnce;
     });
   });
 

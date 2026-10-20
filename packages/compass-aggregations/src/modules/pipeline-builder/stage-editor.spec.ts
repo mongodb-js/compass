@@ -894,10 +894,12 @@ describe('stageEditor', function () {
 
         it('should not load preview for disabled stage', async function () {
           store.dispatch(changeStageDisabled(0, true));
-          Sinon.resetHistory();
           await store.dispatch(loadStagePreview(0));
+          // changeStageDisabled refreshes later stages in the background
           // eslint-disable-next-line @typescript-eslint/unbound-method
-          expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
+          expect(store.pipelineBuilder.getPreviewForStage).not.to.be.calledWith(
+            0
+          );
         });
 
         it('should not load preview for invalid stage', async function () {

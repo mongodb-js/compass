@@ -1,6 +1,7 @@
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getCollationForExecution } from './collation-string';
 import type { PipelineBuilderThunkAction } from '.';
 
 export type ExplainMode = 'visual-tree' | 'raw-output' | 'interpret';
@@ -13,10 +14,8 @@ export const explainAggregation = (
       getState(),
       pipelineBuilder
     );
-    const {
-      collationString: { value: collation },
-      maxTimeMS,
-    } = getState();
+    const { collationString, maxTimeMS } = getState();
+    const collation = await getCollationForExecution(collationString);
     const payload = { aggregation: { pipeline, collation, maxTimeMS } };
 
     if (mode === 'interpret') {

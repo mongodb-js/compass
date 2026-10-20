@@ -5,6 +5,7 @@ import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-m
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
+import { getCollationForExecution } from '../collation-string';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import type { RestorePipelineAction } from '../saved-pipeline';
@@ -256,12 +257,13 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
         type: EditorActionTypes.EditorPreviewFetch,
       });
 
+      const collation = await getCollationForExecution(collationString);
       const options: PreviewOptions = {
         maxTimeMS: capMaxTimeMSAtPreferenceLimit(
           preferences,
           maxTimeMS ?? DEFAULT_MAX_TIME_MS
         ),
-        collation: collationString.value ?? undefined,
+        collation: collation ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: collectionStats?.document_count,

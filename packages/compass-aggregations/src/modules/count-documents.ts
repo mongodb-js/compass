@@ -8,6 +8,7 @@ import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getCollationForExecution } from './collation-string';
 import type { PipelineBuilderThunkAction } from '.';
 
 export const ActionTypes = {
@@ -95,17 +96,17 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
       namespace,
       maxTimeMS,
       dataService: { dataService },
-      collationString: { value: collation },
+      collationString,
     } = getState();
 
     if (!dataService) {
       return;
     }
 
-    const pipeline = await getPipelineFromBuilderState(
-      getState(),
-      pipelineBuilder
-    );
+    const [pipeline, collation] = await Promise.all([
+      getPipelineFromBuilderState(getState(), pipelineBuilder),
+      getCollationForExecution(collationString),
+    ]);
 
     try {
       const abortController = new AbortController();
