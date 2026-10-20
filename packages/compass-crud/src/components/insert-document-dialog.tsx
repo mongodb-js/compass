@@ -241,18 +241,14 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     return value;
   }, [editorText, insertView]);
 
-  // Until the current text has been parsed, treat it as having no value and
-  // no error rather than showing the result for older text.
   const parseResult = useMemo(
     () =>
-      insertView === 'list' || isParsePending
+      insertView === 'list'
         ? NOT_PARSED
         : { value: parsedValue ?? null, error: parseError ?? null },
-    [insertView, isParsePending, parsedValue, parseError]
+    [insertView, parsedValue, parseError]
   );
 
-  // NOT_PARSED reads as "valid single document", so anything that depends on
-  // the parse result has to wait until the current text has been parsed.
   const isTextParsePending = insertView !== 'list' && isParsePending;
 
   // The visual editor can only represent a single document, so disable it when
@@ -370,6 +366,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     failedConversion?.text === editorText ? failedConversion.message : null;
 
   const onFixEJSONToShellSyntax = useCallback(() => {
+    if (isTextParsePending) {
+      return;
+    }
     let succeeded = false;
     try {
       onChangeText(convertEJSONToShellSyntax(parseResult.value));
@@ -391,7 +390,15 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       { success: succeeded },
       connectionInfoRef.current
     );
-  }, [parseResult, editorText, onChangeText, logger, track, connectionInfoRef]);
+  }, [
+    isTextParsePending,
+    parseResult,
+    editorText,
+    onChangeText,
+    logger,
+    track,
+    connectionInfoRef,
+  ]);
 
   const {
     onFixViolations: onFixSafeIntegerViolations,
@@ -519,6 +526,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       {insertView === 'shell' && (
         <InsertEJSONConversionBanner
           parsedEditorText={parseResult.value}
+          isConvertDisabled={isTextParsePending}
           conversionError={conversionError}
           onConvert={onFixEJSONToShellSyntax}
         />
