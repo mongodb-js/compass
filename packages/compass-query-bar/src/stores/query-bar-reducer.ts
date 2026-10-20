@@ -36,6 +36,9 @@ type QueryBarState = {
   isReadonlyConnection: boolean;
   fields: QueryFormFields;
   pendingParseFieldRequestIds: Partial<Record<QueryProperty, string>>;
+  // Tracked separately from the field requests so that cancelling a history
+  // query never discards the validation of a field edited before it.
+  pendingHistoryRequestId: string | null;
   expanded: boolean;
   serverVersion: string;
   lastAppliedQuery: {
@@ -58,6 +61,7 @@ export const INITIAL_STATE: QueryBarState = {
   isReadonlyConnection: false,
   fields: getDefaultFormFields(),
   pendingParseFieldRequestIds: {},
+  pendingHistoryRequestId: null,
   expanded: false,
   serverVersion: '3.6.0',
   lastAppliedQuery: { source: null, query: {} },
@@ -119,7 +123,10 @@ type ChangeFieldValueAction<T = QueryProperty> = {
 };
 
 export function hasPendingFieldValidation(state: QueryBarState): boolean {
-  return Object.keys(state.pendingParseFieldRequestIds).length > 0;
+  return (
+    Object.keys(state.pendingParseFieldRequestIds).length > 0 ||
+    state.pendingHistoryRequestId !== null
+  );
 }
 
 type QueryUnsafeIntegerReceivedAction = {
@@ -681,6 +688,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
         ...state.pendingParseFieldRequestIds,
         [action.name]: action.requestId,
       },
+      pendingHistoryRequestId: null,
     };
   }
 
@@ -730,6 +738,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
           action.names.map((name) => [name, action.requestId])
         ),
       },
+      pendingHistoryRequestId: null,
     };
   }
 
@@ -749,6 +758,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
         ...state.pendingParseFieldRequestIds,
         filter: action.requestId,
       },
+      pendingHistoryRequestId: null,
     };
   }
 
@@ -792,6 +802,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       fields: action.fields,
       pendingParseFieldRequestIds: {},
+      pendingHistoryRequestId: null,
       lastAppliedQuery: {
         source: action.source,
         query: {
@@ -810,9 +821,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
   ) {
     return {
       ...state,
-      pendingParseFieldRequestIds: Object.fromEntries(
-        QUERY_PROPERTIES.map((name) => [name, action.requestId])
-      ),
+      pendingHistoryRequestId: action.requestId,
     };
   }
 
@@ -822,25 +831,17 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       QueryBarActions.ApplyFromHistoryFinished
     )
   ) {
-    // Applying a history query is all or nothing, so any newer edit, reset or
-    // query selection made while it was parsed cancels it.
-    const wasInterrupted = QUERY_PROPERTIES.some(
-      (name) => state.pendingParseFieldRequestIds[name] !== action.requestId
-    );
-    if (wasInterrupted) {
-      return {
-        ...state,
-        pendingParseFieldRequestIds: omitBy(
-          state.pendingParseFieldRequestIds,
-          (requestId) => requestId === action.requestId
-        ),
-      };
+    // Any newer edit, reset or query selection made while the history query
+    // was parsed cancels it.
+    if (state.pendingHistoryRequestId !== action.requestId) {
+      return state;
     }
     return {
       ...state,
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
       pendingParseFieldRequestIds: {},
+      pendingHistoryRequestId: null,
       lastAppliedQuery: action.applyToSource
         ? {
             source: action.applyToSource,
@@ -864,6 +865,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
       pendingParseFieldRequestIds: {},
+      pendingHistoryRequestId: null,
     };
   }
 
