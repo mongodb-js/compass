@@ -32,12 +32,12 @@
   "devDependencies": {
     "@actions/github": "^6.0.1",
     "@mongodb-js/eslint-config-compass": "^1.4.29",
+    "@mongodb-js/hadron-build": "^25.11.1",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
     "@mongodb-js/tsconfig-compass": "^1.3.1",
     "compass-e2e-tests": "^2.4.1",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "@mongodb-js/hadron-build": "^25.11.1",
     "lodash": "^4.18.1",
     "typescript": "^6.0.3",
     "yargs": "^17.7.2"

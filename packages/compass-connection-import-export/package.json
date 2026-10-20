@@ -51,9 +51,9 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.70.2",
     "@mongodb-js/compass-connections": "^2.6.0",
+    "@mongodb-js/compass-preferences-model": "^3.6.0",
     "@mongodb-js/connection-info": "^0.29.3",
     "@mongodb-js/connection-storage": "^1.6.0",
-    "@mongodb-js/compass-preferences-model": "^3.6.0",
     "@mongodb-js/hadron-ipc": "^3.6.6",
     "react": "^18.3.1"
   },

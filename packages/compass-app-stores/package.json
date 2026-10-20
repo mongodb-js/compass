@@ -74,12 +74,12 @@
     "@mongodb-js/compass-components": "^1.70.2",
     "@mongodb-js/compass-connections": "^2.6.0",
     "@mongodb-js/compass-logging": "^1.18.2",
+    "@mongodb-js/compass-preferences-model": "^3.6.0",
     "@mongodb-js/connection-info": "^0.29.3",
     "@mongodb-js/compass-app-registry": "^9.15.2",
     "@mongodb-js/mongodb-collection-model": "^5.42.3",
     "@mongodb-js/mongodb-database-model": "^2.42.3",
     "@mongodb-js/mongodb-instance-model": "^13.6.0",
-    "@mongodb-js/compass-preferences-model": "^3.6.0",
     "mongodb-ns": "^3.2.0",
     "react": "^18.3.1"
   },
