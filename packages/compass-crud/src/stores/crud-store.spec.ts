@@ -2002,6 +2002,41 @@ describe('store', function () {
           await listener;
         });
 
+        it('fetches only once when refreshed twice with a default sort order', async function () {
+          await preferences.savePreferences({
+            defaultSortOrder: '{ _id: -1 }',
+          });
+          const findSpy = sinon.spy(store.dataService, 'find');
+
+          await Promise.all([
+            store.refreshDocuments(),
+            store.refreshDocuments(),
+          ]);
+
+          // Shard key lookup also uses find, so only count document fetches
+          const documentFetches = findSpy
+            .getCalls()
+            .filter((call) => call.args[0] === 'compass-crud.test');
+          expect(documentFetches).to.have.length(1);
+        });
+
+        it('does not fetch when cancelled while validating the default sort order', async function () {
+          await preferences.savePreferences({
+            defaultSortOrder: '{ _id: -1 }',
+          });
+          const findSpy = sinon.spy(store.dataService, 'find');
+
+          const refreshing = store.refreshDocuments();
+          store.cancelOperation();
+          await refreshing;
+
+          expect(findSpy).to.not.have.been.called;
+          expect(store.state.status).to.equal('error');
+          expect(store.state.error?.message).to.equal(
+            'This operation was aborted'
+          );
+        });
+
         it('emits documents-refreshed event on the global app registry', async function () {
           let emittedPayload: any = null;
           let emittedExtra: any = null;
@@ -2138,7 +2173,8 @@ describe('store', function () {
 
         const listener = waitForStates(store, [
           (state) => {
-            // cancel the operation as soon as the query starts
+            // cancel the operation as soon as the queries have started
+            expect(state.debouncingLoad).to.equal(true);
             expect(state.status).to.equal('fetching');
             expect(state.count).to.be.null;
             expect(state.loadingCount).to.be.true; // initially count is still loading
