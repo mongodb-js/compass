@@ -9,6 +9,7 @@ import {
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
 import { isAction } from '../../utils/is-action';
+import { getCollationForExecution } from '../collation-string';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
@@ -256,12 +257,13 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
         type: EditorActionTypes.EditorPreviewFetch,
       });
 
+      const collation = await getCollationForExecution(collationString);
       const options: PreviewOptions = {
         maxTimeMS: capMaxTimeMSAtPreferenceLimit(
           preferences,
           maxTimeMS ?? DEFAULT_MAX_TIME_MS
         ),
-        collation: collationString.value ?? undefined,
+        collation: collation ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: collectionStats?.document_count,

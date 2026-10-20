@@ -9,6 +9,7 @@ import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import { isAction } from '../utils/is-action';
+import { getCollationForExecution } from './collation-string';
 
 export const ActionTypes = {
   CountStarted: 'compass-aggregations/countStarted',
@@ -95,17 +96,17 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
       namespace,
       maxTimeMS,
       dataService: { dataService },
-      collationString: { value: collation },
+      collationString,
     } = getState();
 
     if (!dataService) {
       return;
     }
 
-    const pipeline = await getPipelineFromBuilderState(
-      getState(),
-      pipelineBuilder
-    );
+    const [pipeline, collation] = await Promise.all([
+      getPipelineFromBuilderState(getState(), pipelineBuilder),
+      getCollationForExecution(collationString),
+    ]);
 
     try {
       const abortController = new AbortController();

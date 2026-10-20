@@ -29,6 +29,7 @@ export type CollationStringState = {
   text: string;
   value: CollationOptions | null;
   isValid: boolean;
+  isParsing: boolean;
 };
 
 /**
@@ -38,9 +39,10 @@ export const INITIAL_STATE: CollationStringState = {
   text: '',
   value: null,
   isValid: true,
+  isParsing: false,
 };
 
-export async function getCollationStateFromString(
+async function getCollationStateFromString(
   collationString: string
 ): Promise<CollationStringState> {
   if (collationString.trim() === '') {
@@ -48,6 +50,7 @@ export async function getCollationStateFromString(
       text: collationString,
       value: null,
       isValid: true,
+      isParsing: false,
     };
   }
 
@@ -60,14 +63,25 @@ export async function getCollationStateFromString(
       text: collationString,
       value: isValid ? (collation as CollationOptions) : null,
       isValid,
+      isParsing: false,
     };
   } catch {
     return {
       text: collationString,
       value: null,
       isValid: false,
+      isParsing: false,
     };
   }
+}
+
+export async function getCollationForExecution(
+  collationState: CollationStringState
+): Promise<CollationOptions | null> {
+  if (!collationState.isParsing) {
+    return collationState.value;
+  }
+  return (await getCollationStateFromString(collationState.text)).value;
 }
 
 /**
@@ -83,6 +97,7 @@ export default function reducer(
     return {
       ...state,
       text: action.collationString,
+      isParsing: true,
     };
   }
   if (isAction<CollationStringParsedAction>(action, COLLATION_STRING_PARSED)) {

@@ -6,6 +6,7 @@ import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
+import { getCollationForExecution } from '../collation-string';
 import type Stage from './stage';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
@@ -369,9 +370,10 @@ export const loadStagePreview = (
           assignment?.assignmentData?.variant ===
           ExperimentTestGroups.searchActivationProgramP2Variant;
       }
+      const collation = await getCollationForExecution(collationString);
       const aggregateOptions: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collationString.value ?? undefined,
+        collation: collation ?? undefined,
       };
       const options: PreviewOptions = {
         ...aggregateOptions,
@@ -557,12 +559,15 @@ export const runStage = (
 
     try {
       dispatch({ type: StageEditorActionTypes.StageRun, id: idx });
-      const pipeline = await pipelineBuilder.getPipelineFromStages(
-        pipelineBuilder.stages.slice(0, idxInPipeline + 1)
-      );
+      const [pipeline, collation] = await Promise.all([
+        pipelineBuilder.getPipelineFromStages(
+          pipelineBuilder.stages.slice(0, idxInPipeline + 1)
+        ),
+        getCollationForExecution(collationString),
+      ]);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collationString.value ?? undefined,
+        collation: collation ?? undefined,
       };
       // We are not handling cancelling, just supporting `aggregatePipeline` interface
       const { signal } = new AbortController();
