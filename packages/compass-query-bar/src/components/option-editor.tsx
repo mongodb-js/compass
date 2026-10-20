@@ -312,27 +312,45 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     }
   };
 
+  // Only try to fix user paste if we are handling editor state similar to
+  // what happens after we auto-inserted empty brackets on initial focus, do
+  // not mess with user input in any other case
+  const isEditorAtAutoInsertedEmptyDoc = () => {
+    const editor = editorRef.current?.editor;
+    if (!editor || editor.state.readOnly) {
+      return false;
+    }
+    const { main: currentSelection } = editor.state.selection;
+    const currentContents = editorRef.current?.editorContents;
+    return (
+      currentContents === '{}' &&
+      currentSelection &&
+      currentSelection.from === 1 &&
+      currentSelection.to === 1
+    );
+  };
+
   const onPaste = async (event: React.ClipboardEvent<HTMLDivElement>) => {
-    if (insertEmptyDocOnFocus && editorRef.current) {
-      const { main: currentSelection } =
-        editorRef.current.editor?.state.selection ?? {};
-      const currentContents = editorRef.current.editorContents;
-      // Only try to fix user paste if we are handling editor state similar to
-      // what happens after we auto-inserted empty brackets on initial focus, do
-      // not mess with user input in any other case
-      if (
-        currentContents === '{}' &&
-        currentSelection &&
-        currentSelection.from === 1 &&
-        currentSelection.to === 1
-      ) {
-        const pasteContents = event.clipboardData.getData('text');
-        const snippet = await lenientlyFixQuery(`{${pasteContents}}`);
-        if (snippet) {
-          event.preventDefault();
-          editorRef.current.applySnippet(snippet);
-        }
-      }
+    if (!insertEmptyDocOnFocus || !isEditorAtAutoInsertedEmptyDoc()) {
+      return;
+    }
+    const editor = editorRef.current?.editor;
+    if (!editor) {
+      return;
+    }
+    // codemirror calls this sync and pastes as soon as it returns, so we paste
+    // ourselves right away to know exactly which document the fix applies to
+    event.preventDefault();
+    const pasteContents = event.clipboardData.getData('text');
+    editor.dispatch(editor.state.replaceSelection(pasteContents), {
+      userEvent: 'input.paste',
+      scrollIntoView: true,
+    });
+    const pastedDoc = editor.state.doc;
+
+    const snippet = await lenientlyFixQuery(`{${pasteContents}}`);
+    if (snippet && editor.state.doc === pastedDoc) {
+      editorRef.current?.applySnippet(snippet);
     }
   };
 

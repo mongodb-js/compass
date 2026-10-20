@@ -108,6 +108,40 @@ describe('OptionEditor', function () {
       });
     });
 
+    it('pastes the text as is when it does not need fixing', async function () {
+      await renderOptionEditor();
+
+      userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByRole('textbox').textContent).to.eq('{}');
+      });
+
+      screen.getByRole('textbox').dispatchEvent(new MockPasteEvent('foo: 1'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('textbox').textContent).to.eq('{foo: 1}');
+      });
+    });
+
+    it('keeps text typed while the pasted query is being fixed', async function () {
+      await renderOptionEditor({ 'data-testid': 'filter-editor' });
+
+      userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByRole('textbox').textContent).to.eq('{}');
+      });
+
+      screen
+        .getByRole('textbox')
+        .dispatchEvent(new MockPasteEvent('{ foo: 1 }'));
+      const editor = (screen.getByTestId('filter-editor') as any)._cm;
+      editor.dispatch(editor.state.replaceSelection('a'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('textbox').textContent).to.eq('{{ foo: 1 }a}');
+      });
+    });
+
     it('should not modify user text whe pasting when cursor moved', async function () {
       await renderOptionEditor();
 
