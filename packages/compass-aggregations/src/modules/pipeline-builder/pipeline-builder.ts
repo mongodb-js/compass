@@ -298,13 +298,10 @@ export class PipelineBuilder {
     options: PreviewOptions,
     force = false
   ): Promise<Document[]> {
-    const pipeline = await this.getPipelineFromStages(
-      this.stages.slice(0, idx + 1)
-    );
     return this.previewManager.getPreviewForStage(
       idx,
       namespace,
-      pipeline,
+      this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
       options,
       force
     );
@@ -333,10 +330,13 @@ export class PipelineBuilder {
     options: PreviewOptions,
     filterOutputStage = false
   ): Promise<Document[]> {
-    const pipeline = [...(await this.getPipelineFromSource())];
-    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
-      pipeline.pop();
-    }
+    const pipeline = this.getPipelineFromSource().then((source) => {
+      const pipeline = [...source];
+      if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+        pipeline.pop();
+      }
+      return pipeline;
+    });
     return this.previewManager.getPreviewForStage(
       FULL_PIPELINE_PREVIEW_ID,
       namespace,
