@@ -4,12 +4,12 @@ import {
   MongoDBInstancesManager,
   MongoDBInstancesManagerEvents,
 } from './instances-manager';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
 import {
   type PreferencesAccess,
   createSandboxFromDefaultPreferences,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 

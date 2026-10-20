@@ -50,7 +50,7 @@ import {
   PreferencesProvider,
   usePreferences,
   usePreferencesContext,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
   atlasServiceLocator,

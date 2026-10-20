@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'hadron-ipc';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
@@ -11,7 +11,7 @@ import type { SettingsTabId } from './settings';
 import { openModal, reducer as settingsReducer } from './settings';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
 export type Public<T> = { [K in keyof T]: T[K] };

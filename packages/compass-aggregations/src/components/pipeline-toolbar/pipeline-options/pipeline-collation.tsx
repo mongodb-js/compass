@@ -15,7 +15,7 @@ import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
 import { maxTimeMSChanged } from '../../../modules/max-time-ms';
 import { DEFAULT_MAX_TIME_MS } from '../../../constants';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const pipelineOptionsContainerStyles = css({
   paddingTop: spacing[100],

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import sinon from 'sinon';
 
 import reducer, {

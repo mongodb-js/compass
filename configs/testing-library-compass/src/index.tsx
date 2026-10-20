@@ -38,11 +38,11 @@ import React from 'react';
 import type {
   AllPreferences,
   PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import {
   PreferencesProvider,
   ReadOnlyPreferenceAccess,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ExperimentTestGroup } from '@mongodb-js/compass-telemetry';

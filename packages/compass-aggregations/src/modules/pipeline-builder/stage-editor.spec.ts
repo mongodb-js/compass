@@ -31,8 +31,8 @@ import Sinon from 'sinon';
 import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
   createNoopTrack,

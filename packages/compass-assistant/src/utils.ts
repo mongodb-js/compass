@@ -7,7 +7,7 @@ import type {
 } from 'ai';
 import type { AssistantMessage } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 

@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-instance-model",
+  "name": "@mongodb-js/mongodb-instance-model",
   "description": "MongoDB instance model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "13.6.0",
@@ -28,11 +28,11 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
+    "@mongodb-js/compass-preferences-model": "^3.6.0",
+    "@mongodb-js/mongodb-collection-model": "^5.42.3",
+    "@mongodb-js/mongodb-database-model": "^2.42.3",
     "ampersand-model": "^8.0.1",
-    "mongodb-collection-model": "^5.42.3",
-    "mongodb-data-service": "^22.41.3",
-    "mongodb-database-model": "^2.42.3",
-    "compass-preferences-model": "^3.6.0"
+    "mongodb-data-service": "^22.41.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.29",

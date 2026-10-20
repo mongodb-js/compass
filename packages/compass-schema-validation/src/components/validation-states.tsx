@@ -13,7 +13,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { changeZeroState } from '../modules/zero-state';
 import type { EditModeState } from '../modules/edit-mode';
 import type { RootState } from '../modules';

@@ -24,7 +24,7 @@ import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import type { RootState } from '../../modules';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import {
   useSearchActivationProgramP1,
   useTelemetry,

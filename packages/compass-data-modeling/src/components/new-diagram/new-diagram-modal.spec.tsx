@@ -10,7 +10,7 @@ import NewDiagramModal from './new-diagram-modal';
 import { createNewDiagram } from '../../store/generate-diagram-wizard';
 import { renderWithStore } from '../../../test/setup-store';
 import type { DataModelingStore } from '../../../test/setup-store';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 function getComboboxByTestId(testId: string) {
   return within(screen.getByTestId(testId)).getByRole('combobox');

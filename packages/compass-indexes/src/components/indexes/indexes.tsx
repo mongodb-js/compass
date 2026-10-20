@@ -29,7 +29,7 @@ import {
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';

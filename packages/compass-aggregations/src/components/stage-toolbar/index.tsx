@@ -29,7 +29,7 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
 import { getInsightForStage } from '../../utils/insights';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';

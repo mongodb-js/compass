@@ -3,7 +3,7 @@ import Sinon from 'sinon';
 import {
   AtlasPreferencesStorage,
   CompassWebPreferencesAccess,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import {
   DEFAULT_COMPASS_WEB_PREFERENCES,
   getAtlasServiceBackendPreset,

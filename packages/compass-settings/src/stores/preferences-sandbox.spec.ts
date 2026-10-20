@@ -1,7 +1,7 @@
 import Sinon from 'sinon';
 import { PreferencesSandbox } from './preferences-sandbox';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { expect } from 'chai';
 
 describe('PreferencesSandbox', function () {
