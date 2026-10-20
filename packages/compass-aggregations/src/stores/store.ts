@@ -254,12 +254,15 @@ export function activateAggregationsPlugin(
   });
 
   // If stored pipeline was passed through options and we are not editing,
-  // restore pipeline
-  if (!editingView && options.aggregation) {
-    store.dispatch(
-      openStoredPipeline(options.aggregation as SavedPipeline, false)
-    );
-  }
+  // restore it before loading the initial preview, so it previews those stages
+  const loadInitialPipeline = async () => {
+    if (!editingView && options.aggregation) {
+      await store.dispatch(
+        openStoredPipeline(options.aggregation as SavedPipeline, false)
+      );
+    }
+    store.dispatch(updatePipelinePreview());
+  };
 
   addCleanup(handleDatabaseCollections(store, options, instance));
 
@@ -275,7 +278,7 @@ export function activateAggregationsPlugin(
 
   refreshInput();
 
-  store.dispatch(updatePipelinePreview());
+  void loadInitialPipeline();
 
   store.dispatch(
     maxTimeMSChanged(preferences.getPreferences().maxTimeMS || null)
