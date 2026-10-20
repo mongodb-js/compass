@@ -99,6 +99,28 @@ describe('queryBarReducer', function () {
         expect(getField()).to.have.property('valid', expectedValid);
       });
     });
+
+    it('shows the new text before validation finishes', function () {
+      void store.dispatch(changeField('filter', '{ foo: 1 }'));
+
+      expect(store.getState().queryBar.fields.filter.string).to.equal(
+        '{ foo: 1 }'
+      );
+    });
+
+    it('keeps the latest text when an older validation finishes last', async function () {
+      const typing = store.dispatch(changeField('filter', '{ foo: 1 }'));
+      const clearing = store.dispatch(changeField('filter', ''));
+      // Finish the clearing first, so the older filter's result arrives last
+      await clearing;
+      await typing;
+
+      expect(store.getState().queryBar.fields.filter).to.deep.equal({
+        string: '',
+        value: DEFAULT_QUERY_VALUES.filter,
+        valid: true,
+      });
+    });
   });
 
   describe('setQuery', function () {
@@ -172,6 +194,17 @@ describe('queryBarReducer', function () {
     it('should not "apply" query if query is invalid', async function () {
       await store.dispatch(changeField('filter', '{ _id'));
       const appliedQuery = await store.dispatch(applyQuery('test') as any);
+      expect(appliedQuery).to.eq(false);
+      expect(store.getState().queryBar).to.not.have.nested.property(
+        'lastAppliedQuery.query.test'
+      );
+    });
+
+    it('should not "apply" query while a field is being validated', async function () {
+      const changing = store.dispatch(changeField('filter', '{ foo: 1 }'));
+      const appliedQuery = await store.dispatch(applyQuery('test') as any);
+      await changing;
+
       expect(appliedQuery).to.eq(false);
       expect(store.getState().queryBar).to.not.have.nested.property(
         'lastAppliedQuery.query.test'
