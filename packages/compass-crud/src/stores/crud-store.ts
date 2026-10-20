@@ -1761,10 +1761,32 @@ class CrudStoreImpl
 
     const { defaultSortOrder } = this.preferences.getPreferences();
 
+    // Mark the refresh as in progress before any await so that a concurrent
+    // refresh is rejected by the status check above, and can be cancelled
+    this.setState({
+      lastCountRunMaxTimeMS: countOptions.maxTimeMS,
+      status: DOCUMENTS_STATUS_FETCHING,
+      abortController,
+      error: null,
+      count: null, // we don't know the new count yet
+      loadingCount: true,
+    });
+
     let sort = query.sort;
 
     if (!sort && allowDefaultSort && defaultSortOrder) {
       sort = await validateSort(defaultSortOrder);
+    }
+
+    if (signal.aborted) {
+      this.setState({
+        status: DOCUMENTS_STATUS_ERROR,
+        error: signal.reason as Error,
+        loadingCount: false,
+        abortController: null,
+        resultId: resultId(),
+      });
+      return;
     }
 
     const findOptions = {
@@ -1876,16 +1898,6 @@ class CrudStoreImpl
         }
       ),
     ] as const;
-
-    // This is so that the UI can update to show that we're fetching
-    this.setState({
-      lastCountRunMaxTimeMS: countOptions.maxTimeMS,
-      status: DOCUMENTS_STATUS_FETCHING,
-      abortController,
-      error: null,
-      count: null, // we don't know the new count yet
-      loadingCount: true,
-    });
 
     // don't start showing the loading indicator and cancel button immediately
     const cancelDebounceLoad = this.debounceLoading();
