@@ -15,22 +15,12 @@ export const queries = [
       _dateSaved: DATE,
       _dateModified: DATE,
       _lastExecuted: DATE,
-      filter: {
-        host_location: RegExp('berlin'),
-      },
-      project: {
-        id: 1,
-        name: 1,
-        beds: 1,
-      },
-      sort: {
-        beds: -1,
-      },
+      filter: "{ host_location: RegExp('berlin') }",
+      project: '{ id: 1, name: 1, beds: 1 }',
+      sort: '{ beds: -1 }',
       skip: 2,
       limit: 4,
-      collation: {
-        locale: 'simple',
-      },
+      collation: "{ locale: 'simple' }",
     },
   },
   {
@@ -47,23 +37,12 @@ export const queries = [
       _dateSaved: DATE,
       _dateModified: DATE,
       _lastExecuted: DATE,
-      filter: {
-        host_location: RegExp('berlin'),
-      },
-      project: {
-        id: 1,
-        name: 1,
-        beds: 1,
-      },
-      sort: {
-        reviews: -1,
-        num_of_host_spaces: 1,
-      },
+      filter: "{ host_location: RegExp('berlin') }",
+      project: '{ id: 1, name: 1, beds: 1 }',
+      sort: '{ reviews: -1, num_of_host_spaces: 1 }',
       skip: 0,
       limit: 10,
-      collation: {
-        locale: 'simple',
-      },
+      collation: "{ locale: 'simple' }",
     },
   },
   {
@@ -80,21 +59,12 @@ export const queries = [
       _dateSaved: DATE,
       _dateModified: DATE,
       _lastExecuted: DATE,
-      filter: {
-        host_location: RegExp('berlin'),
-      },
-      project: {
-        id: 1,
-        name: 1,
-      },
-      sort: {
-        reviews: -1,
-      },
+      filter: "{ host_location: RegExp('berlin') }",
+      project: '{ id: 1, name: 1 }',
+      sort: '{ reviews: -1 }',
       skip: 0,
       limit: 10,
-      collation: {
-        locale: 'simple',
-      },
+      collation: "{ locale: 'simple' }",
     },
   },
   {
@@ -111,21 +81,12 @@ export const queries = [
       _dateSaved: DATE,
       _dateModified: DATE,
       _lastExecuted: DATE,
-      filter: {
-        host_location: RegExp('berlin'),
-      },
-      project: {
-        id: 1,
-        name: 1,
-      },
-      sort: {
-        reviews: -1,
-      },
+      filter: "{ host_location: RegExp('berlin') }",
+      project: '{ id: 1, name: 1 }',
+      sort: '{ reviews: -1 }',
       skip: 0,
       limit: 10,
-      collation: {
-        locale: 'simple',
-      },
+      collation: "{ locale: 'simple' }",
     },
   },
 ];

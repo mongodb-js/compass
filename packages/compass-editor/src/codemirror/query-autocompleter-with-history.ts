@@ -1,5 +1,6 @@
 import {
   type SavedQuery,
+  type SavedQueryProperties,
   createQueryHistoryAutocompleter,
 } from './query-history-autocompleter';
 import { createQueryAutocompleter } from './query-autocompleter';
@@ -13,17 +14,19 @@ import type { CompletionOptions } from '../autocompleter';
 import { css } from '@mongodb-js/compass-components';
 import type { CodemirrorThemeType } from '../editor';
 
-export const createQueryWithHistoryAutocompleter = ({
+export const createQueryWithHistoryAutocompleter = <
+  T extends SavedQueryProperties,
+>({
   savedQueries,
   options = {},
   queryProperty,
   onApply,
   theme,
 }: {
-  savedQueries: SavedQuery[];
+  savedQueries: SavedQuery<T>[];
   options?: Pick<CompletionOptions, 'fields' | 'serverVersion'>;
   queryProperty: string;
-  onApply: (query: SavedQuery['queryProperties']) => void;
+  onApply: (query: T) => void;
   theme: CodemirrorThemeType;
 }): CompletionSource => {
   const queryHistoryAutocompleter = createQueryHistoryAutocompleter({

@@ -6,6 +6,7 @@ import type { AnyAction } from 'redux';
 export { copyToClipboard } from './copy-to-clipboard';
 export { formatQuery } from './format-query';
 export { getQueryAttributes } from './get-query-attributes';
+export type { QueryAttributes } from './get-query-attributes';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,

@@ -24,6 +24,8 @@ import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-prefere
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import type { RecentQuery } from '@mongodb-js/my-queries-storage';
+import { Double, Int32, Long, MinKey, ObjectId } from 'bson';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},
@@ -181,8 +183,9 @@ describe('queryBarReducer', function () {
     it('should not re-save favorite query in recents', async function () {
       const updateAttributesStub = Sinon.stub();
       const saveQueriesStub = Sinon.stub().resolves();
+      // Formatted differently from the applied query
       const loadAllStub = Sinon.stub().resolves([
-        { filter: { _id: '123' }, limit: 10 },
+        { filter: "{_id: '123'}", limit: 10 },
       ]);
       const favoriteQueriesStorage = {
         updateAttributes: updateAttributesStub,
@@ -227,6 +230,107 @@ describe('queryBarReducer', function () {
       expect(updateAttributesStub).to.have.been.calledOnce;
       expect(saveQueriesStub).not.to.have.been.calledTwice;
     });
+
+    describe('saving recent queries', function () {
+      let saveQueryStub: Sinon.SinonStub;
+      let updateAttributesStub: Sinon.SinonStub;
+
+      function createStoreWithRecents(recentQueries: RecentQuery[] = []) {
+        saveQueryStub = Sinon.stub().resolves();
+        updateAttributesStub = Sinon.stub().resolves(true);
+        return createStore({ recentQueries, namespace: 'db.coll' }, {
+          preferences,
+          logger: createNoopLogger(),
+          track: createNoopTrack(),
+          recentQueryStorage: {
+            saveQuery: saveQueryStub,
+            updateAttributes: updateAttributesStub,
+            loadAll: Sinon.stub().resolves(recentQueries),
+          },
+        } as unknown as QueryBarExtraArgs);
+      }
+
+      function recentQuery(filter: string): RecentQuery {
+        return {
+          _id: '0f92b5fa-19fe-4200-a4bb-d25765bce8a2',
+          _ns: 'db.coll',
+          _lastExecuted: new Date(),
+          filter,
+        };
+      }
+
+      it('saves the query strings as they were typed', async function () {
+        const store = createStoreWithRecents();
+        const filter = `{
+  // comments are kept
+  _id: ObjectId('507f1f77bcf86cd799439011'),
+  count: NumberLong('9007199254740993'),
+  date: ISODate('2020-01-01T00:00:00.000Z'),
+  nested: { a: [1, { b: Decimal128('1.5') }] }
+}`;
+        store.dispatch(changeField('filter', filter));
+        store.dispatch(changeField('sort', "[['count', -1]]"));
+        store.dispatch(changeField('hint', "'count_1'"));
+        store.dispatch(changeField('limit', '10'));
+        store.dispatch(applyQuery('test'));
+
+        await waitFor(() => {
+          expect(saveQueryStub).to.have.been.calledOnce;
+        });
+        expect(saveQueryStub.firstCall.firstArg).to.deep.equal({
+          filter,
+          sort: "[['count', -1]]",
+          hint: "'count_1'",
+          limit: 10,
+          _ns: 'db.coll',
+          _host: '',
+        });
+      });
+
+      it('does not save queries with default values', async function () {
+        const store = createStoreWithRecents();
+        store.dispatch(changeField('filter', '{ /* empty */ }'));
+        store.dispatch(changeField('project', '{}'));
+        store.dispatch(applyQuery('test'));
+
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        expect(saveQueryStub).not.to.have.been.called;
+        expect(updateAttributesStub).not.to.have.been.called;
+      });
+
+      it('does not save duplicates that are formatted differently', async function () {
+        const store = createStoreWithRecents([
+          recentQuery("{_id:ObjectId('507f1f77bcf86cd799439011')}"),
+        ]);
+        store.dispatch(
+          changeField(
+            'filter',
+            "{\n  _id: ObjectId('507f1f77bcf86cd799439011') // comment\n}"
+          )
+        );
+        store.dispatch(applyQuery('test'));
+
+        await waitFor(() => {
+          expect(updateAttributesStub).to.have.been.calledOnce;
+        });
+        expect(saveQueryStub).not.to.have.been.called;
+      });
+
+      it('does not treat queries with different long values as duplicates', async function () {
+        const store = createStoreWithRecents([
+          recentQuery("{ count: NumberLong('9007199254740993') }"),
+        ]);
+        store.dispatch(
+          changeField('filter', "{ count: NumberLong('9007199254740992') }")
+        );
+        store.dispatch(applyQuery('test'));
+
+        await waitFor(() => {
+          expect(saveQueryStub).to.have.been.calledOnce;
+        });
+        expect(updateAttributesStub).not.to.have.been.called;
+      });
+    });
   });
 
   describe('resetQuery', function () {
@@ -269,32 +373,81 @@ describe('queryBarReducer', function () {
 
   describe('applyFromHistory', function () {
     it('should reset query to whatever was passed in the action', function () {
-      const newQuery = {
-        filter: { _id: 2 },
-        sort: { _id: -1 },
-      };
-
-      store.dispatch(applyFromHistory(newQuery));
-
-      expect(store.getState().queryBar)
-        .to.have.nested.property('fields.filter.value')
-        .deep.eq(newQuery.filter);
-      expect(store.getState().queryBar).to.have.nested.property(
-        'fields.filter.string',
-        '{ _id: 2 }'
+      store.dispatch(changeField('project', '{ a: 1 }'));
+      store.dispatch(
+        applyFromHistory({
+          filter: '{ _id: 2 }',
+          sort: '{ _id: -1 }',
+          limit: 10,
+        })
       );
 
-      expect(store.getState().queryBar)
-        .to.have.nested.property('fields.sort.value')
-        .deep.eq(newQuery.sort);
-      expect(store.getState().queryBar).to.have.nested.property(
-        'fields.sort.string',
-        '{ _id: -1 }'
+      const { fields } = store.getState().queryBar;
+      expect(fields.filter.value).to.deep.eq({ _id: 2 });
+      expect(fields.filter.string).to.eq('{ _id: 2 }');
+      expect(fields.sort.value).to.deep.eq({ _id: -1 });
+      expect(fields.sort.string).to.eq('{ _id: -1 }');
+      expect(fields.limit.value).to.eq(10);
+      expect(fields.limit.string).to.eq('10');
+      expect(fields.project.value).to.eq(DEFAULT_QUERY_VALUES.project);
+      expect(fields.project.string).to.eq('');
+    });
+
+    it('should keep the saved query strings and their BSON values', function () {
+      const filter = `{
+  // comments are kept
+  _id: ObjectId('507f1f77bcf86cd799439011'),
+  count: NumberLong('9007199254740993'),
+  int: NumberInt(5),
+  double: Double(5),
+  date: ISODate('2020-01-01T00:00:00.000Z'),
+  name: /ber/i,
+  nested: { a: [1, { b: MinKey() }] }
+}`;
+      store.dispatch(applyFromHistory({ filter, hint: "'count_1'" }));
+
+      const { fields } = store.getState().queryBar;
+      expect(fields.filter.string).to.eq(filter);
+      expect(fields.filter.valid).to.be.true;
+      expect(fields.filter.value._id).to.be.instanceOf(ObjectId);
+      expect(fields.filter.value.count).to.be.instanceOf(Long);
+      expect(fields.filter.value.count.toString()).to.eq('9007199254740993');
+      expect(fields.filter.value.int).to.be.instanceOf(Int32);
+      expect(fields.filter.value.double).to.be.instanceOf(Double);
+      expect(fields.filter.value.date).to.deep.eq(
+        new Date('2020-01-01T00:00:00.000Z')
       );
+      expect(fields.filter.value.nested.a[1].b).to.be.instanceOf(MinKey);
+      expect(fields.hint.value).to.eq('count_1');
+    });
+
+    it('should keep invalid saved query strings so that they can be fixed', function () {
+      store.dispatch(applyFromHistory({ filter: '{ _id: ' }));
+
+      const { fields } = store.getState().queryBar;
+      expect(fields.filter.string).to.eq('{ _id: ');
+      expect(fields.filter.valid).to.be.false;
+    });
+
+    it('should retain the requested fields as they are', function () {
+      store.dispatch(changeField('filter', '{ a: 1 } // current'));
+      store.dispatch(changeField('sort', '{ a: '));
+      store.dispatch(
+        applyFromHistory({ filter: '{ b: 1 }', project: '{ b: 1 }' }, [
+          'filter',
+          'sort',
+        ])
+      );
+
+      const { fields } = store.getState().queryBar;
+      expect(fields.filter.string).to.eq('{ a: 1 } // current');
+      expect(fields.sort.string).to.eq('{ a: ');
+      expect(fields.sort.valid).to.be.false;
+      expect(fields.project.string).to.eq('{ b: 1 }');
     });
 
     it('should not touch the last applied query for a non-update query', function () {
-      store.dispatch(applyFromHistory({ filter: { _id: 2 } }));
+      store.dispatch(applyFromHistory({ filter: '{ _id: 2 }' }));
 
       expect(store.getState().queryBar.lastAppliedQuery).to.deep.eq({
         source: null,
@@ -303,28 +456,52 @@ describe('queryBarReducer', function () {
     });
 
     it('should record the query as the last applied crud query for an update query', function () {
-      store.dispatch(
-        applyFromHistory({ filter: { _id: 2 }, update: { $set: { a: 1 } } })
-      );
+      const localAppRegistry = { emit: Sinon.spy() };
+      const store = createStore({}, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        localAppRegistry,
+      } as unknown as QueryBarExtraArgs);
+      const query = {
+        filter: "{ _id: ObjectId('507f1f77bcf86cd799439011') }",
+        update: '{ $set: { a: 1 } }',
+      };
+      store.dispatch(applyFromHistory(query));
 
       expect(store.getState().queryBar.lastAppliedQuery.source).to.eq('crud');
       expect(store.getState().queryBar.lastAppliedQuery.query.crud)
         .to.have.property('filter')
-        .deep.eq({ _id: 2 });
+        .deep.eq({ _id: new ObjectId('507f1f77bcf86cd799439011') });
+      expect(localAppRegistry.emit).to.have.been.calledOnceWithExactly(
+        'favorites-open-bulk-update-favorite',
+        query
+      );
+    });
+
+    it('should not open an update query with an invalid filter', function () {
+      const localAppRegistry = { emit: Sinon.spy() };
+      const store = createStore({}, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        localAppRegistry,
+      } as unknown as QueryBarExtraArgs);
+      store.dispatch(
+        applyFromHistory({ filter: '{ _id: ', update: '{ $set: { a: 1 } }' })
+      );
+
+      expect(store.getState().queryBar.lastAppliedQuery.source).to.eq(null);
+      expect(localAppRegistry.emit).not.to.have.been.called;
     });
 
     it('should auto expand when the query contains extra options', function () {
-      const queryNoExtraOptions = {
-        filter: { _id: 2 },
-      };
-      store.dispatch(applyFromHistory(queryNoExtraOptions));
+      store.dispatch(applyFromHistory({ filter: '{ _id: 2 }' }));
       expect(store.getState().queryBar.expanded).to.be.false;
 
-      const queryWithExtraOptions = {
-        filter: { _id: 2 },
-        sort: { _id: -1 },
-      };
-      store.dispatch(applyFromHistory(queryWithExtraOptions));
+      store.dispatch(
+        applyFromHistory({ filter: '{ _id: 2 }', sort: '{ _id: -1 }' })
+      );
       expect(store.getState().queryBar.expanded).to.be.true;
     });
   });

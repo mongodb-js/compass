@@ -1,7 +1,6 @@
 import React from 'react';
 import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
-import { formatQuery } from '../../../utils';
-import { type BaseQuery } from '../../../constants/query-properties';
+import type { QueryAttributes } from '../../../utils';
 
 const queryLabelStyles = css({
   textTransform: 'capitalize',
@@ -14,7 +13,7 @@ const queryCodeStyles = css({
 });
 
 export const QueryItemContent: React.FunctionComponent<{
-  query: BaseQuery;
+  query: QueryAttributes;
 }> = ({ query }) => {
   return (
     <div data-testid="query-history-query-attributes">
@@ -32,7 +31,7 @@ export const QueryItemContent: React.FunctionComponent<{
             language="javascript"
             copyButtonAppearance="none"
           >
-            {formatQuery(value)}
+            {String(value)}
           </Code>
         </div>
       ))}

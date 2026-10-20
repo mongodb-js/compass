@@ -224,8 +224,7 @@ describe('My Queries tab', function () {
                 .replace(/\s+/g, ' ')
                 .replace(/\n/g, '');
               const isValid =
-                text ===
-                '{ "collation": null, "filter": { "i": { "$gt": 10 } }, "limit": 10, "project": null, "skip": null, "sort": null }';
+                text === '{ filter: { i: { $gt: 10 } }, limit: 10 }';
               if (!isValid) {
                 console.log(text);
               }
@@ -373,8 +372,7 @@ describe('My Queries tab', function () {
                 .replace(/\s+/g, ' ')
                 .replace(/\n/g, '');
               const isValid =
-                text ===
-                '{ "collation": null, "filter": { "i": { "$gt": 11 } }, "limit": 10, "project": null, "skip": null, "sort": null }';
+                text === '{ filter: { i: { $gt: 11 } }, limit: 10 }';
               if (!isValid) {
                 console.log(text);
               }

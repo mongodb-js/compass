@@ -11,8 +11,10 @@ import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { mapQueryToFormFields } from '../utils/query';
+import {
+  mapQueryAttributesToFormFields,
+  toQueryAttributes,
+} from '../utils/query';
 import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
@@ -20,7 +22,6 @@ import {
   fetchSavedQueries,
 } from './query-bar-reducer';
 import { aiQueryReducer } from './ai-query-reducer';
-import { getQueryAttributes } from '../utils';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -151,10 +152,10 @@ export function activatePlugin(
       namespace: namespace ?? '',
       host: dataService?.getConnectionString().hosts.join(','),
       serverVersion: serverVersion ?? '3.6.0',
-      fields: mapQueryToFormFields(preferences.getPreferences(), {
-        ...DEFAULT_FIELD_VALUES,
-        ...getQueryAttributes(query ?? {}),
-      }),
+      fields: mapQueryAttributesToFormFields(
+        preferences.getPreferences(),
+        toQueryAttributes(query ?? {})
+      ),
       isReadonlyConnection: !instance.isWritable,
     },
     {

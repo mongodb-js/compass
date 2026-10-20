@@ -21,14 +21,14 @@ import { OpenBulkUpdateActionButton } from './query-item/query-item-action-butto
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import type { BaseQuery } from '../../constants/query-properties';
+import type { QueryAttributes } from '../../utils';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type RecentActions = {
   onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;
   onDelete: (id: string) => void;
-  onApply: (query: BaseQuery) => void;
+  onApply: (query: QueryAttributes) => void;
   onUpdateRecentChoosen: () => void;
 };
 

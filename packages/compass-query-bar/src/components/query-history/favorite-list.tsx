@@ -14,7 +14,7 @@ import {
   DeleteActionButton,
 } from './query-item';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import type { BaseQuery } from '../../constants/query-properties';
+import type { QueryAttributes } from '../../utils';
 import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
@@ -22,7 +22,7 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 export type FavoriteActions = {
-  onApply: (query: BaseQuery) => void;
+  onApply: (query: QueryAttributes) => void;
   onDelete: (id: string) => void;
   onUpdateFavoriteChoosen: () => void;
 };

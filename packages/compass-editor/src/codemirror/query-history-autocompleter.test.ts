@@ -29,89 +29,29 @@ describe('scaleBetween', function () {
 });
 
 describe('createQueryLabel', function () {
+  const query = {
+    type: 'favorite',
+    lastExecuted: new Date('2023-06-03T16:00:00Z'),
+    queryProperties: {
+      filter:
+        "{\n  // a comment\n  _id: ObjectId('507f1f77bcf86cd799439011')\n}",
+      project: '{}',
+      limit: 0,
+    },
+  };
+
   it('should return an empty string if the property does not exist', () => {
-    const result = createQueryLabel(
-      {
-        type: 'favorite',
-        lastExecuted: new Date('2023-06-03T16:00:00Z'),
-        queryProperties: {
-          filter: { name: 'pineapple' },
-          project: {},
-          sort: undefined,
-          limit: undefined,
-        },
-      },
-      'collation'
-    );
-    expect(result).to.equal('');
+    expect(createQueryLabel(query, 'collation')).to.equal('');
   });
 
-  it('should return the string representation of the property value if it exists', () => {
-    const result = createQueryLabel(
-      {
-        type: 'favorite',
-        lastExecuted: new Date('2023-06-03T16:00:00Z'),
-        queryProperties: {
-          filter: { name: 'pineapple' },
-          project: {},
-          sort: undefined,
-          limit: undefined,
-        },
-      },
-      'filter'
+  it('should return the saved query string as it is', () => {
+    expect(createQueryLabel(query, 'filter')).to.equal(
+      query.queryProperties.filter
     );
-    expect(result).to.equal("{\n  name: 'pineapple'\n}");
   });
 
   it('should return the string representation of the property even when it is falsy', () => {
-    const result = createQueryLabel(
-      {
-        type: 'favorite',
-        lastExecuted: new Date('2023-06-03T16:00:00Z'),
-        queryProperties: {
-          filter: { pineapple: false },
-          project: {},
-          sort: undefined,
-          limit: undefined,
-        },
-      },
-      'filter'
-    );
-    expect(result).to.equal('{\n  pineapple: false\n}');
-  });
-
-  it('should return the string representation of the property even when it is falsy', () => {
-    const result = createQueryLabel(
-      {
-        type: 'favorite',
-        lastExecuted: new Date('2023-06-03T16:00:00Z'),
-        queryProperties: {
-          filter: { pineapple: false },
-          project: {},
-          sort: undefined,
-          limit: 0,
-        },
-      },
-      'limit'
-    );
-    expect(result).to.equal('0');
-  });
-
-  it('should return an empty string if the property value is undefined', () => {
-    const result = createQueryLabel(
-      {
-        type: 'favorite',
-        lastExecuted: new Date('2023-06-03T16:00:00Z'),
-        queryProperties: {
-          filter: { name: 'pineapple' },
-          project: {},
-          sort: undefined,
-          limit: undefined,
-        },
-      },
-      'exampleProperty'
-    );
-    expect(result).to.equal('');
+    expect(createQueryLabel(query, 'limit')).to.equal('0');
   });
 });
 
@@ -130,38 +70,30 @@ describe('createQueryDisplayLabel', function () {
       type: 'favorite',
       lastExecuted: new Date('2023-06-03T16:00:00Z'),
       queryProperties: {
-        filter: { name: 'pineapple' },
-        project: { _id: 0 },
-        sort: { score: -1 },
-        hint: { indexName: 'score_1' },
+        filter: "{ count: NumberLong('9007199254740993') }",
+        project: '{ _id: 0 }',
+        sort: '{ score: -1 }',
+        hint: "'score_1'",
         limit: 20,
         maxTimeMS: 1000,
       },
     });
-    expect(result).to.equal(`{
- name: 'pineapple'
-}, project: {
- _id: 0
-}, sort: {
- score: -1
-}, hint: {
- indexName: 'score_1'
-}, limit: 20, maxTimeMS: 1000`);
+    expect(result).to.equal(
+      "{ count: NumberLong('9007199254740993') }, project: { _id: 0 }, sort: { score: -1 }, hint: 'score_1', limit: 20, maxTimeMS: 1000"
+    );
   });
 
-  it('should handle empty or undefined property values', () => {
+  it('should skip empty or undefined property values', () => {
     const result = createQueryDisplayLabel({
       type: 'favorite',
       lastExecuted: new Date('2023-06-03T16:00:00Z'),
       queryProperties: {
-        filter: { name: 'pineapple' },
-        project: {},
+        filter: "{ name: 'pineapple' }",
+        project: '',
         sort: undefined,
-        limit: undefined,
+        limit: 0,
       },
     });
-    expect(result).to.equal(`{
- name: 'pineapple'
-}, project: {}, sort: undefined, limit: undefined`);
+    expect(result).to.equal("{ name: 'pineapple' }, limit: 0");
   });
 });

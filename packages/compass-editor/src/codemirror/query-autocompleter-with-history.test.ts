@@ -10,15 +10,15 @@ function getQueryHistoryAutocompletions(completions: Readonly<Completion[]>) {
   );
 }
 
-function createSavedQueryWithFilter(filter: any): SavedQuery {
+function createSavedQueryWithFilter(filter: string): SavedQuery {
   return {
     type: 'recent',
     lastExecuted: new Date('2023-06-04T18:00:00Z'),
     queryProperties: {
       filter,
-      project: { userId: 1, isActive: 1 },
-      collation: { locale: 'simple' },
-      sort: { userId: 1 },
+      project: '{ userId: 1, isActive: 1 }',
+      collation: "{ locale: 'simple' }",
+      sort: '{ userId: 1 }',
       limit: 10,
       maxTimeMS: 500,
     },
@@ -35,17 +35,17 @@ describe('query history autocompleter', function () {
       type: 'recent',
       lastExecuted: new Date('2023-06-01T12:00:00Z'),
       queryProperties: {
-        filter: { status: 'active' },
+        filter: "{ status: 'active' }",
       },
     },
     {
       type: 'recent',
       lastExecuted: new Date('2023-06-02T14:00:00Z'),
       queryProperties: {
-        filter: { age: { $gt: 30 } },
-        project: { name: 1, age: 1, address: 1 },
-        collation: { locale: 'en' },
-        sort: { age: 1 },
+        filter: '{ age: { $gt: 30 } }',
+        project: '{ name: 1, age: 1, address: 1 }',
+        collation: "{ locale: 'en' }",
+        sort: '{ age: 1 }',
         skip: 5,
         limit: 100,
         maxTimeMS: 3000,
@@ -55,10 +55,10 @@ describe('query history autocompleter', function () {
       type: 'recent',
       lastExecuted: new Date('2023-06-03T16:00:00Z'),
       queryProperties: {
-        filter: { score: { $gte: 85 } },
-        project: { studentName: 1, score: 1 },
-        sort: { score: -1 },
-        hint: { indexName: 'score_1' },
+        filter: '{ score: { $gte: 85 } }',
+        project: '{ studentName: 1, score: 1 }',
+        sort: '{ score: -1 }',
+        hint: "{ indexName: 'score_1' }",
         limit: 20,
         maxTimeMS: 1000,
       },
@@ -67,10 +67,10 @@ describe('query history autocompleter', function () {
       type: 'recent',
       lastExecuted: new Date('2023-06-04T18:00:00Z'),
       queryProperties: {
-        filter: { isActive: true, score: { $exists: false } },
-        project: { userId: 1, isActive: 1 },
-        collation: { locale: 'simple' },
-        sort: { userId: 1 },
+        filter: '{ isActive: true, score: { $exists: false } }',
+        project: '{ userId: 1, isActive: 1 }',
+        collation: "{ locale: 'simple' }",
+        sort: '{ userId: 1 }',
         limit: 10,
         maxTimeMS: 500,
       },
@@ -79,9 +79,9 @@ describe('query history autocompleter', function () {
       type: 'recent',
       lastExecuted: new Date('2023-06-05T20:00:00Z'),
       queryProperties: {
-        filter: { category: 'electronics' },
-        project: { productId: 1, category: 1, price: 1 },
-        sort: { price: -1 },
+        filter: "{ category: 'electronics' }",
+        project: '{ productId: 1, category: 1, price: 1 }',
+        sort: '{ price: -1 }',
         limit: 30,
         maxTimeMS: 1500,
       },
@@ -157,20 +157,18 @@ describe('query history autocompleter', function () {
       })
     );
     expect(completions).to.have.lengthOf(1);
-    expect(completions[0].label).to.equal(`{
-  productId: 1,
-  category: 1,
-  price: 1
-}`);
+    expect(completions[0].label).to.equal(
+      '{ productId: 1, category: 1, price: 1 }'
+    );
   });
 
   it('will not autocomplete fields with more than 200 characters', async function () {
     const completions = getQueryHistoryAutocompletions(
       await getCompletions('{ price: 1, category: 1', {
         savedQueries: [
-          createSavedQueryWithFilter({
-            allA: Array(201).fill('a').join(''),
-          }),
+          createSavedQueryWithFilter(
+            `{ allA: '${Array(201).fill('a').join('')}' }`
+          ),
         ],
         options: undefined,
         queryProperty: 'filter',
@@ -185,9 +183,7 @@ describe('query history autocompleter', function () {
     const completions = getQueryHistoryAutocompletions(
       await getCompletions('{ pineapple: { tre', {
         savedQueries: [
-          createSavedQueryWithFilter({
-            pineapple: { tree: 'orange' },
-          }),
+          createSavedQueryWithFilter("{ pineapple: { tree: 'orange' } }"),
         ],
         options: undefined,
         queryProperty: 'filter',
@@ -202,11 +198,7 @@ describe('query history autocompleter', function () {
     const completions = getQueryHistoryAutocompletions(
       await getCompletions('{ pineapp', {
         savedQueries: [
-          ...Array(12).fill(
-            createSavedQueryWithFilter({
-              pineapple: true,
-            })
-          ),
+          ...Array(12).fill(createSavedQueryWithFilter('{ pineapple: true }')),
         ],
         options: undefined,
         queryProperty: 'filter',
@@ -267,7 +259,7 @@ describe('query history autocompleter', function () {
         type: 'recent',
         lastExecuted: new Date('2023-06-01T12:00:00Z'),
         queryProperties: {
-          filter: { status: 'active' },
+          filter: "{ status: 'active' }",
           limit: 0,
           skip: 0,
           maxTimeMS: 0,
@@ -295,8 +287,8 @@ describe('query history autocompleter', function () {
         type: 'recent',
         lastExecuted: new Date('2023-06-01T12:00:00Z'),
         queryProperties: {
-          filter: { status: 'active' },
-          sort: [['$natural', -1]],
+          filter: "{ status: 'active' }",
+          sort: "[['$natural', -1]]",
         },
       },
     ];
@@ -315,15 +307,11 @@ describe('query history autocompleter', function () {
 
   it('ignores non-key value arrays', async function () {
     const invalidArrays = [
-      [1, 2, 3],
-      ['a', 'b', 'c'],
-      [{ key: 'value' }, { key2: 'value2' }],
-      [
-        ['$natural', -1],
-        ['$natural', -1],
-        ['one', 'two', 'three'],
-      ],
-      [],
+      '[1, 2, 3]',
+      "['a', 'b', 'c']",
+      "[{ key: 'value' }, { key2: 'value2' }]",
+      "[['$natural', -1], ['$natural', -1], ['one', 'two', 'three']]",
+      '[]',
     ];
 
     for (const arr of invalidArrays) {
@@ -332,7 +320,7 @@ describe('query history autocompleter', function () {
           type: 'recent',
           lastExecuted: new Date('2023-06-01T12:00:00Z'),
           queryProperties: {
-            filter: { status: 'active' },
+            filter: "{ status: 'active' }",
             sort: arr,
           },
         },
@@ -349,5 +337,102 @@ describe('query history autocompleter', function () {
       );
       expect(completions).to.have.lengthOf(0);
     }
+  });
+
+  describe('with query strings', function () {
+    const filter = `{
+  // comments and formatting are kept
+  _id: ObjectId('507f1f77bcf86cd799439011'),
+  count: NumberLong('9007199254740993'),
+  createdAt: ISODate('2020-01-01T00:00:00.000Z'),
+  name: /ber/i,
+  address: { city: 'Berlin', geo: [13.4, 52.5] }
+}`;
+    const queries: SavedQuery[] = [
+      {
+        type: 'favorite',
+        lastExecuted: new Date('2023-06-01T12:00:00Z'),
+        queryProperties: {
+          filter,
+          sort: "[['count', -1]]",
+          hint: "'count_1'",
+          limit: 10,
+        },
+      },
+    ];
+
+    async function getHistoryCompletions(
+      text: string,
+      queryProperty: string,
+      savedQueries = queries,
+      onApply = mockOnApply
+    ) {
+      return getQueryHistoryAutocompletions(
+        await getCompletions(text, {
+          savedQueries,
+          options: undefined,
+          queryProperty,
+          onApply,
+          theme: 'light',
+        })
+      );
+    }
+
+    it('matches top level fields of objects with BSON values', async function () {
+      for (const input of ['{ _i', '{ cou', '{ createdAt', '{ name', 'addr']) {
+        expect(
+          await getHistoryCompletions(input, 'filter'),
+          input
+        ).to.have.lengthOf(1);
+      }
+    });
+
+    it('does not match nested fields or comments', async function () {
+      expect(await getHistoryCompletions('{ cit', 'filter')).to.have.lengthOf(
+        0
+      );
+      expect(
+        await getHistoryCompletions('{ comments', 'filter')
+      ).to.have.lengthOf(0);
+    });
+
+    it('matches scalar query properties', async function () {
+      expect(await getHistoryCompletions('1', 'limit')).to.have.lengthOf(1);
+      expect(await getHistoryCompletions('count_', 'hint')).to.have.lengthOf(1);
+    });
+
+    it('uses the saved query strings as they are', async function () {
+      const [completion] = await getHistoryCompletions('{ cou', 'filter');
+      expect(completion.label).to.equal(filter);
+      expect(completion.displayLabel).to.equal(
+        `${filter}, sort: [['count', -1]], hint: 'count_1', limit: 10`
+      );
+    });
+
+    it('applies the saved query strings', async function () {
+      let applied: SavedQuery['queryProperties'] | undefined;
+      const [completion] = await getHistoryCompletions(
+        '{ cou',
+        'filter',
+        queries,
+        (query) => {
+          applied = query;
+        }
+      );
+      (completion.apply as () => void)();
+      expect(applied).to.equal(queries[0].queryProperties);
+    });
+
+    it('does not fail on query strings that can not be parsed', async function () {
+      const completions = await getHistoryCompletions('{ cou', 'filter', [
+        ...queries,
+        {
+          type: 'recent',
+          lastExecuted: new Date('2023-06-02T12:00:00Z'),
+          queryProperties: { filter: '{ count: ' },
+        },
+      ]);
+      expect(completions.map(({ label }) => label)).to.deep.equal([filter]);
+    });
   });
 });

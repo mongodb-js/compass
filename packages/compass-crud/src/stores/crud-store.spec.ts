@@ -1022,9 +1022,21 @@ describe('store', function () {
   });
 
   describe('favourited bulk update queries coming from My Queries', function () {
-    let store: CrudStore;
+    it('opens the bulk update modal with the saved update query string', async function () {
+      const update = `{
+  // a comment
+  $set: { foo: NumberLong('9007199254740993') }
+}`;
+      const plugin = activatePlugin({ query: { update } });
+      deactivate = () => plugin.deactivate();
 
-    beforeEach(function () {
+      await waitForState(plugin.store, (state) => {
+        expect(state.bulkUpdate.isOpen).to.equal(true);
+        expect(state.bulkUpdate.updateText).to.equal(update);
+      });
+    });
+
+    it('opens the bulk update modal for parsed update queries', async function () {
       const plugin = activatePlugin({
         query: {
           update: {
@@ -1034,19 +1046,14 @@ describe('store', function () {
           },
         },
       });
-      store = plugin.store;
       deactivate = () => plugin.deactivate();
-    });
 
-    it('opens the bulk update modal if there is an initial options.query.update value', async function () {
-      const listener = waitForState(store, (state) => {
+      await waitForState(plugin.store, (state) => {
         expect(state.bulkUpdate.isOpen).to.equal(true);
         expect(state.bulkUpdate.updateText).to.match(
           /{\s+\$set:\s+{\s+foo:\s+1\s+}\s+}/
         );
       });
-
-      await listener;
     });
   });
 
@@ -2743,12 +2750,44 @@ describe('store', function () {
       expect(saveQueryStub).to.have.been.calledWith({
         _name: 'my-query',
         _ns: 'compass-crud.testview',
+        filter: '{\n  field: 1\n}',
+        update: '{ $set: { anotherField: 2 } }',
+      });
+    });
+
+    it('should save BSON values in the filter as query strings', async function () {
+      mockQueryBar.getLastAppliedQuery.returns({
         filter: {
-          field: 1,
+          _id: new ObjectId('507f1f77bcf86cd799439011'),
+          count: Long.fromString('9007199254740993'),
         },
-        update: {
-          $set: { anotherField: 2 },
-        },
+      });
+      const update = `{
+  // a comment
+  $set: { count: NumberLong('9007199254740994') }
+}`;
+      await store.updateBulkUpdatePreview(update);
+      await store.saveUpdateQuery('my-query');
+
+      expect(saveQueryStub).to.have.been.calledWith({
+        _name: 'my-query',
+        _ns: 'compass-crud.testview',
+        filter:
+          "{\n  _id: ObjectId('507f1f77bcf86cd799439011'),\n  count: NumberLong('9007199254740993')\n}",
+        update,
+      });
+    });
+
+    it('should not save an empty filter', async function () {
+      mockQueryBar.getLastAppliedQuery.returns({ filter: {} });
+      await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+      await store.saveUpdateQuery('my-query');
+
+      expect(saveQueryStub).to.have.been.calledWith({
+        _name: 'my-query',
+        _ns: 'compass-crud.testview',
+        filter: undefined,
+        update: '{ $set: { anotherField: 2 } }',
       });
     });
   });
@@ -2903,12 +2942,8 @@ describe('store', function () {
 
       expect(saveQueryStub).to.have.been.calledWith({
         _ns: 'compass-crud.testview',
-        filter: {
-          field: 1,
-        },
-        update: {
-          $set: { anotherField: 2 },
-        },
+        filter: '{\n  field: 1\n}',
+        update: '{ $set: { anotherField: 2 } }',
       });
     });
   });

@@ -1,21 +1,26 @@
 import type { SavedQueryAggregationThunkAction } from './index';
-import { EJSON } from 'bson';
+import { prettify } from '@mongodb-js/compass-editor';
 import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
 
 function formatQuery(query: FavoriteQuery) {
   const { collation, filter, limit, project, skip, sort } = query;
-  return EJSON.stringify(
-    {
-      collation,
-      filter,
-      limit,
-      project,
-      skip,
-      sort,
-    },
-    undefined,
-    2
-  );
+  // Values can end with a line comment, so separators go on the next line.
+  const source = `{\n${Object.entries({
+    collation,
+    filter,
+    limit,
+    project,
+    skip,
+    sort,
+  })
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}: ${value}\n`)
+    .join(',')}}`;
+  try {
+    return prettify(source);
+  } catch {
+    return source;
+  }
 }
 
 export function copyToClipboard(

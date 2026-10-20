@@ -1,13 +1,21 @@
 import { EJSON } from 'bson';
 import { AtlasUserData, FileUserData } from '@mongodb-js/compass-user-data';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
-import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
+import {
+  RecentQuerySchema,
+  FavoriteQuerySchema,
+  legacyQueryToQueryStrings,
+} from './query-storage-schema';
 import { PipelineSchema } from './pipeline-storage-schema';
 import {
   BaseCompassRecentQueryStorage,
   BaseCompassFavoriteQueryStorage,
 } from './base-query-storage';
 import { BaseCompassPipelineStorage } from './base-pipeline-storage';
+
+function deserializeQuery(content: string) {
+  return legacyQueryToQueryStrings(EJSON.parse(content));
+}
 
 // Web-specific factory functions
 export type WebStorageOptions = {
@@ -22,7 +30,7 @@ export function createWebRecentQueryStorage(options: WebStorageOptions) {
     projectId: options.projectId,
     atlasService: options.atlasService,
     serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
+    deserialize: deserializeQuery,
   });
   return new BaseCompassRecentQueryStorage(userData);
 }
@@ -33,7 +41,7 @@ export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
     projectId: options.projectId,
     atlasService: options.atlasService,
     serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
+    deserialize: deserializeQuery,
   });
   return new BaseCompassFavoriteQueryStorage(userData);
 }
@@ -60,7 +68,7 @@ export function createElectronRecentQueryStorage(
   const userData = new FileUserData(RecentQuerySchema, 'RecentQueries', {
     basePath: options.basepath,
     serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
+    deserialize: deserializeQuery,
   });
   return new BaseCompassRecentQueryStorage(userData);
 }
@@ -71,7 +79,7 @@ export function createElectronFavoriteQueryStorage(
   const userData = new FileUserData(FavoriteQuerySchema, 'FavoriteQueries', {
     basePath: options.basepath,
     serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
+    deserialize: deserializeQuery,
   });
   return new BaseCompassFavoriteQueryStorage(userData);
 }

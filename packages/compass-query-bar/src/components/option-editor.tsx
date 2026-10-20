@@ -15,18 +15,13 @@ import {
   useDarkMode,
   DocumentList,
 } from '@mongodb-js/compass-components';
-import type {
-  Command,
-  EditorRef,
-  SavedQuery,
-} from '@mongodb-js/compass-editor';
+import type { Command, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryWithHistoryAutocompleter,
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
@@ -36,14 +31,9 @@ import {
 } from '../stores/query-bar-reducer';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { getQueryAttributes } from '../utils';
-import type {
-  BaseQuery,
-  QueryFormFields,
-  QueryProperty,
-} from '../constants/query-properties';
+import type { QueryAttributes } from '../utils';
+import type { QueryProperty } from '../constants/query-properties';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
-import { mapQueryToFormFields } from '../utils/query';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type {
   FavoriteQuery,
   RecentQuery,
@@ -167,7 +157,10 @@ type OptionEditorProps = {
   disabled?: boolean;
   recentQueries: AutoCompleteRecentQuery[];
   favoriteQueries: AutoCompleteFavoriteQuery[];
-  onApplyQuery: (query: BaseQuery, fieldsToPreserve: QueryProperty[]) => void;
+  onApplyQuery: (
+    query: QueryAttributes,
+    fieldsToPreserve: QueryProperty[]
+  ) => void;
   /**
    * Applies a change to the filter. Used when a field is dropped onto the
    * editor; not needed when the editor is rendered for another query option.
@@ -223,7 +216,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   }, []);
 
   const schemaFields = useAutocompleteFields(namespace);
-  const maxTimeMSPreference = usePreference('maxTimeMS');
 
   const savedQueries = useMemo(() => {
     return [
@@ -240,7 +232,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         fields: schemaFields,
         serverVersion,
       },
-      onApply: (query: SavedQuery['queryProperties']) => {
+      onApply: (query) => {
         // When we are applying a query from `filter` field, we want to apply the whole query,
         // otherwise we want to preserve the other fields that are already in the current query.
         const fieldsToPreserve =
@@ -248,18 +240,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
             ? []
             : QUERY_PROPERTIES.filter((x) => x !== optionName);
         onApplyQuery(query, fieldsToPreserve);
-        if (!query[optionName]) {
-          return;
-        }
-        const formFields = mapQueryToFormFields(
-          { maxTimeMS: maxTimeMSPreference },
-          {
-            ...DEFAULT_FIELD_VALUES,
-            ...query,
-          }
-        );
-        const optionFormField = formFields[optionName as keyof QueryFormFields];
-        if (optionFormField?.string) {
+        if (query[optionName]) {
           // When we did apply something we want to move the cursor to the end of the input.
           editorRef.current?.cursorDocEnd();
         }
@@ -267,7 +248,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       theme: darkMode ? 'dark' : 'light',
     });
   }, [
-    maxTimeMSPreference,
     savedQueries,
     schemaFields,
     serverVersion,

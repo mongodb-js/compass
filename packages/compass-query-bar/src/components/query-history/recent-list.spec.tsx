@@ -47,8 +47,8 @@ describe('Recent List [Component]', function () {
           queries: [
             {
               _id: 1,
-              filter: { a: 1 },
-              update: { $set: { a: 2 } },
+              filter: '{ a: 1 }',
+              update: '{ $set: { a: 2 } }',
               _lastExecuted: new Date(),
             } as any,
           ],
@@ -74,8 +74,8 @@ describe('Recent List [Component]', function () {
           queries: [
             {
               _id: 1,
-              filter: { a: 1 },
-              update: { $set: { a: 2 } },
+              filter: '{ a: 1 }',
+              update: '{ $set: { a: 2 } }',
               _lastExecuted: new Date(),
             } as any,
           ],

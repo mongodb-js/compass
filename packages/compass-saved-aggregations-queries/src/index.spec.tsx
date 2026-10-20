@@ -51,16 +51,16 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
     _name: 'Query',
     _ns: 'bar.foo',
     _dateSaved: new Date(),
-    filter: { foo: 'bar' },
-    sort: { bar: -1 },
+    filter: "{ foo: 'bar' }",
+    sort: '{ bar: -1 }',
   } as any;
   const updatemany = {
     _id: '5667',
     _name: 'Updatemany',
     _ns: 'bar.baz',
     _dateSaved: new Date(),
-    filter: { foo: 'baz' },
-    sort: { baz: -1 },
+    filter: "{ foo: 'baz' }",
+    sort: '{ baz: -1 }',
   } as any;
   const aggregation = {
     id: '123',
@@ -212,16 +212,35 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
       await selectContextMenuItem(query._id, 'copy');
 
       expect(await navigator.clipboard.readText()).to.eq(`{
-  "collation": null,
-  "filter": {
-    "foo": "bar"
+  filter: { foo: "bar" },
+  sort: { bar: -1 }
+}`);
+    });
+
+    it('should copy BSON values and comments of the query strings', async function () {
+      const bsonQuery = {
+        ...query,
+        filter: `{
+  // a comment
+  _id: ObjectId('507f1f77bcf86cd799439011'),
+  count: NumberLong('9007199254740993')
+}`,
+        limit: 10,
+      };
+      sandbox.stub(queryStorage, 'loadAll').resolves([bsonQuery]);
+      renderPlugin();
+      expect(await screen.findByText(query._name)).to.exist;
+
+      await selectContextMenuItem(query._id, 'copy');
+
+      expect(await navigator.clipboard.readText()).to.eq(`{
+  filter: {
+    // a comment
+    _id: ObjectId("507f1f77bcf86cd799439011"),
+    count: NumberLong("9007199254740993")
   },
-  "limit": null,
-  "project": null,
-  "skip": null,
-  "sort": {
-    "bar": -1
-  }
+  limit: 10,
+  sort: { bar: -1 }
 }`);
     });
 

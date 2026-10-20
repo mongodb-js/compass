@@ -32,10 +32,15 @@ import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 const BASE_QUERY = {
-  filter: { name: 'hello' },
-  project: { name: 1 },
-  sort: { name: -1 },
-  collation: { locale: 'en' },
+  filter: `{
+  // a comment
+  _id: ObjectId('507f1f77bcf86cd799439011'),
+  count: NumberLong('9007199254740993'),
+  name: /hello/i
+}`,
+  project: '{ name: 1 }',
+  sort: '{ name: -1 }',
+  collation: "{ locale: 'en' }",
   skip: 10,
   limit: 20,
 };
@@ -183,6 +188,22 @@ describe('query-history', function () {
           within(attr).getByTestId('query-history-query-label').textContent
       );
       expect(labels.sort()).to.deep.equal(Object.keys(BASE_QUERY).sort());
+
+      const code = Object.fromEntries(
+        attrs.map((attr) => [
+          within(attr).getByTestId('query-history-query-label').textContent,
+          within(attr).getByTestId('query-history-query-code').textContent,
+        ])
+      );
+      // Code blocks render each line as a separate element.
+      expect(code).to.deep.equal(
+        Object.fromEntries(
+          Object.entries(BASE_QUERY).map(([key, value]) => [
+            key,
+            String(value).replace(/\n/g, ''),
+          ])
+        )
+      );
     });
 
     it('favorite', async function () {

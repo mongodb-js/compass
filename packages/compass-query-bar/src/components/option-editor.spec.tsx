@@ -154,14 +154,14 @@ describe('OptionEditor', function () {
         recentQueries: [
           {
             _lastExecuted: new Date(),
-            filter: { a: 1 },
+            filter: '{ a: 1 }',
           },
         ],
         favoriteQueries: [
           {
             _lastExecuted: new Date(),
-            filter: { a: 2 },
-            sort: { a: -1 },
+            filter: '{ a: 2 }',
+            sort: '{ a: -1 }',
           },
         ],
       });
@@ -183,8 +183,8 @@ describe('OptionEditor', function () {
       await waitFor(() => {
         expect(onApplySpy.lastCall).to.be.calledWithExactly(
           {
-            filter: { a: 2 },
-            sort: { a: -1 },
+            filter: '{ a: 2 }',
+            sort: '{ a: -1 }',
           },
           []
         );
@@ -203,14 +203,14 @@ describe('OptionEditor', function () {
         recentQueries: [
           {
             _lastExecuted: new Date(),
-            project: { a: 1 },
+            project: '{ a: 1 }',
           },
         ],
         favoriteQueries: [
           {
             _lastExecuted: new Date(),
-            project: { a: 0 },
-            sort: { a: -1 },
+            project: '{ a: 0 }',
+            sort: '{ a: -1 }',
           },
         ],
       });
@@ -231,7 +231,7 @@ describe('OptionEditor', function () {
       await waitFor(() => {
         expect(onApplySpy).to.have.been.calledOnceWithExactly(
           {
-            project: { a: 0 },
+            project: '{ a: 0 }',
           },
           ['filter', 'collation', 'sort', 'hint', 'skip', 'limit', 'maxTimeMS']
         );
@@ -243,11 +243,11 @@ describe('OptionEditor', function () {
     const savedQueries = [
       {
         _lastExecuted: new Date(),
-        filter: { a: 1 },
-        project: { b: 1 },
-        sort: { c: 1 },
-        collation: { locale: 'en' },
-        hint: { a: 1 },
+        filter: '{ a: 1 }',
+        project: '{ b: 1 }',
+        sort: '{ c: 1 }',
+        collation: '{ locale: "en" }',
+        hint: '{ a: 1 }',
         skip: 1,
         limit: 1,
       },
@@ -256,7 +256,7 @@ describe('OptionEditor', function () {
     it('filters out update queries', function () {
       const queries = getOptionBasedQueries('filter', 'recent', [
         ...savedQueries,
-        { _lastExecuted: new Date(), update: { a: 1 }, filter: { a: 2 } },
+        { _lastExecuted: new Date(), update: '{ a: 1 }', filter: '{ a: 2 }' },
       ]);
       expect(queries.length).to.equal(1);
     });

@@ -236,9 +236,7 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
 
       if (key === 'data') {
         if (item.type === 'query' || item.type === 'updatemany') {
-          return JSON.stringify({
-            filter: item.query.filter,
-          });
+          return item.query.filter ?? '';
         } else if (item.type === 'aggregation') {
           return item.aggregation.pipelineText;
         } else {

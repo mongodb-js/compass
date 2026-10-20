@@ -2,7 +2,18 @@ import { expect } from 'chai';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import { EJSON, UUID } from 'bson';
+import {
+  BSON,
+  Decimal128,
+  Double,
+  EJSON,
+  Int32,
+  Long,
+  ObjectId,
+  Timestamp,
+  UUID,
+} from 'bson';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import Sinon from 'sinon';
 import { recentQueries, favoriteQueries } from '../test/fixtures/index';
 import {
@@ -12,14 +23,14 @@ import {
 
 const queries = [
   {
-    filter: {},
+    filter: '{}',
     _id: new UUID().toString(),
     _lastExecuted: new Date(),
     _ns: 'airbnb.listings',
   },
   {
-    filter: { name: 1 },
-    project: { _id: 1 },
+    filter: '{ name: 1 }',
+    project: '{ _id: 1 }',
     _id: new UUID().toString(),
     _lastExecuted: new Date(),
     _ns: 'airbnb.listings',
@@ -27,6 +38,15 @@ const queries = [
 ];
 
 const maxAllowedRecentQueries = 30;
+
+function expectSameQuery(queryString: string | undefined, ejson: unknown) {
+  expect(queryString).to.be.a('string');
+  expect(
+    BSON.serialize({ value: parse(queryString!, { mode: ParseMode.Loose }) })
+  ).to.deep.equal(
+    BSON.serialize({ value: EJSON.parse(JSON.stringify(ejson)) })
+  );
+}
 
 describe('CompassRecentQueryStorage', function () {
   let queryHistoryStorage: ReturnType<typeof createElectronRecentQueryStorage>;
@@ -112,7 +132,7 @@ describe('CompassRecentQueryStorage', function () {
     await Promise.all(queries.map((query) => writeQuery(query)));
 
     const query = {
-      sort: { name: 1 },
+      sort: '{ name: 1 }',
       _id: new UUID().toString(),
       _lastExecuted: new Date(),
       _ns: 'airbnb.listings',
@@ -150,7 +170,7 @@ describe('CompassRecentQueryStorage', function () {
         // Save another query
         await queryHistoryStorage.saveQuery({
           _ns: 'airbnb.users',
-          filter: {},
+          filter: '{ a: 1 }',
         });
 
         const numQueries = (await queryHistoryStorage.loadAll()).length;
@@ -169,7 +189,7 @@ describe('CompassRecentQueryStorage', function () {
         // Save another query
         await queryHistoryStorage.saveQuery({
           _ns: 'airbnb.users',
-          filter: {},
+          filter: '{ a: 1 }',
         });
 
         const numQueries = (await queryHistoryStorage.loadAll()).length;
@@ -191,6 +211,7 @@ describe('CompassRecentQueryStorage', function () {
       expect(Object.keys(loadedQuery).sort()).to.deep.equal(
         Object.keys(query).sort()
       );
+      expectSameQuery(loadedQuery.filter, query.filter);
 
       expect(loadedQuery._lastExecuted).to.be.instanceOf(Date);
     });
@@ -207,6 +228,7 @@ describe('CompassRecentQueryStorage', function () {
       expect(Object.keys(loadedQuery).sort()).to.deep.equal(
         Object.keys(query).sort()
       );
+      expectSameQuery(loadedQuery.filter, query.filter);
 
       expect(loadedQuery._lastExecuted).to.be.instanceOf(Date);
       expect(loadedQuery._dateSaved).to.be.instanceOf(Date);
@@ -242,8 +264,8 @@ describe('CompassFavoriteQueryStorage', function () {
     await queryFavoriteStorage.saveQuery({
       _ns: 'test.test',
       _name: 'my-query',
-      filter: { a: 1 },
-      update: { $set: { a: 2 } },
+      filter: '{ a: 1 }',
+      update: '{ $set: { a: 2 } }',
     });
 
     const loaded = await queryFavoriteStorage.loadAll();
@@ -252,22 +274,22 @@ describe('CompassFavoriteQueryStorage', function () {
     const [query] = loaded;
     expect(query._name).to.equal('my-query');
     expect(query._ns).to.equal('test.test');
-    expect(query.filter).to.deep.equal({ a: 1 });
-    expect(query.update).to.deep.equal({ $set: { a: 2 } });
+    expect(query.filter).to.equal('{ a: 1 }');
+    expect(query.update).to.equal('{ $set: { a: 2 } }');
   });
 
   it('should retrieve saved queries only for a specific namespace', async function () {
     const nsTestQuery = {
       _ns: 'test.test',
       _name: 'my-query',
-      filter: { a: 1 },
-      update: { $set: { a: 2 } },
+      filter: '{ a: 1 }',
+      update: '{ $set: { a: 2 } }',
     };
     const nsTest1Query = {
       _ns: 'test1.test1',
       _name: 'my-query-1',
-      filter: { a: 1 },
-      update: { $set: { a: 2 } },
+      filter: '{ a: 1 }',
+      update: '{ $set: { a: 2 } }',
     };
     await queryFavoriteStorage.saveQuery(nsTestQuery);
     await queryFavoriteStorage.saveQuery(nsTest1Query);
@@ -280,5 +302,238 @@ describe('CompassFavoriteQueryStorage', function () {
     expect(query._ns).to.equal(nsTest1Query._ns);
     expect(query.filter).to.deep.equal(nsTest1Query.filter);
     expect(query.update).to.deep.equal(nsTest1Query.update);
+  });
+});
+
+describe('query strings', function () {
+  let tmpDir: string;
+  beforeEach(async function () {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
+  });
+
+  afterEach(async function () {
+    await fs.rm(tmpDir, { recursive: true });
+  });
+
+  const query = {
+    filter: `{
+  // comments and formatting are kept
+  _id: ObjectId('507f1f77bcf86cd799439011'),
+  count: NumberLong('9007199254740993'),
+  int: NumberInt(5),
+  double: Double(5),
+  decimal: NumberDecimal('1.5'),
+  date: ISODate('2020-01-01T00:00:00.000Z'),
+  uuid: UUID('0b2c6e0a-4f2e-4a39-8e4b-7d2d6d1e1f10'),
+  binary: BinData(0, 'AAEC'),
+  ts: Timestamp({ t: 1, i: 2 }),
+  name: /ber/i,
+  nested: { a: { b: [1, { c: MinKey() }] } }
+}`,
+    project: '{ _id: 0, "a.b": 1 }',
+    sort: "[['count', -1]]",
+    collation: "{ locale: 'en', strength: 2 }",
+    hint: "'count_1'",
+    skip: 5,
+    limit: 10,
+  };
+
+  it('round trips recent queries exactly', async function () {
+    const storage = createElectronRecentQueryStorage({ basepath: tmpDir });
+    await storage.saveQuery({ ...query, _ns: 'db.coll' });
+
+    const [loaded] = await storage.loadAll();
+    expect(loaded).to.deep.include(query);
+
+    const [file] = await fs.readdir(path.join(tmpDir, 'RecentQueries'));
+    const stored = JSON.parse(
+      await fs.readFile(path.join(tmpDir, 'RecentQueries', file), 'utf8')
+    );
+    expect(stored).to.deep.include(query);
+  });
+
+  it('round trips favorite update queries exactly', async function () {
+    const storage = createElectronFavoriteQueryStorage({ basepath: tmpDir });
+    const updateQuery = {
+      filter: "{ _id: ObjectId('507f1f77bcf86cd799439011') }",
+      update: `[
+  { $set: { count: NumberLong('9007199254740993') } }
+]`,
+    };
+    await storage.saveQuery({ ...updateQuery, _ns: 'db.coll', _name: 'q' });
+
+    const [loaded] = await storage.loadAll();
+    expect(loaded).to.deep.include(updateQuery);
+  });
+
+  it('rejects parsed query values', async function () {
+    const storage = createElectronRecentQueryStorage({ basepath: tmpDir });
+    let error: unknown;
+    try {
+      await storage.saveQuery({
+        // @ts-expect-error parsed values are not accepted
+        filter: { a: 1 },
+        _ns: 'db.coll',
+      });
+    } catch (e) {
+      error = e;
+    }
+    expect(error).to.exist;
+    expect(await storage.loadAll()).to.have.lengthOf(0);
+  });
+
+  it('keeps query strings when attributes are updated', async function () {
+    const storage = createElectronRecentQueryStorage({ basepath: tmpDir });
+    await storage.saveQuery({ ...query, _ns: 'db.coll' });
+    const [{ _id }] = await storage.loadAll();
+
+    await storage.updateAttributes(_id, { _host: 'localhost' });
+    await storage.updateAttributes(_id, { _host: 'localhost:27017' });
+
+    const [loaded] = await storage.loadAll();
+    expect(loaded).to.deep.include({ ...query, _host: 'localhost:27017' });
+  });
+});
+
+describe('queries saved as parsed values by older versions of Compass', function () {
+  let tmpDir: string;
+  beforeEach(async function () {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
+  });
+
+  afterEach(async function () {
+    await fs.rm(tmpDir, { recursive: true });
+  });
+
+  // Older versions of Compass serialized queries with relaxed EJSON.
+  async function writeLegacyQuery(attributes: Record<string, unknown>) {
+    const _id = new UUID().toString();
+    const content = EJSON.stringify(
+      {
+        ...attributes,
+        _id,
+        _ns: 'db.coll',
+        _lastExecuted: new Date('2023-08-30T19:03:19.336Z'),
+      },
+      undefined,
+      2
+    );
+    const basepath = path.join(tmpDir, 'RecentQueries');
+    await fs.mkdir(basepath, { recursive: true });
+    await fs.writeFile(path.join(basepath, `${_id}.json`), content);
+    return { _id, content };
+  }
+
+  async function loadQuery() {
+    const storage = createElectronRecentQueryStorage({ basepath: tmpDir });
+    const [loaded] = await storage.loadAll();
+    return { storage, loaded };
+  }
+
+  const legacyValues: { name: string; value: Record<string, unknown> }[] = [
+    {
+      name: 'ObjectId',
+      value: { _id: new ObjectId('507f1f77bcf86cd799439011') },
+    },
+    { name: 'Long', value: { count: Long.fromNumber(42) } },
+    {
+      name: 'Int32 and Double',
+      value: { a: new Int32(5), b: new Double(5.5) },
+    },
+    { name: 'Decimal128', value: { price: Decimal128.fromString('1.5') } },
+    { name: 'Date', value: { date: new Date('2020-01-01T00:00:00.000Z') } },
+    {
+      name: 'UUID',
+      value: { uuid: new UUID('0b2c6e0a-4f2e-4a39-8e4b-7d2d6d1e1f10') },
+    },
+    { name: 'Timestamp', value: { ts: new Timestamp({ t: 1, i: 2 }) } },
+    { name: 'regex', value: { name: /ber/i } },
+    {
+      name: 'nested objects and arrays',
+      value: {
+        $or: [
+          { a: { $in: [1, 'two', null] } },
+          { 'b.c': { $elemMatch: { d: { $gte: 3 } } } },
+        ],
+      },
+    },
+  ];
+
+  for (const { name, value } of legacyValues) {
+    it(`converts a legacy filter with ${name} to an equivalent query string`, async function () {
+      const { content } = await writeLegacyQuery({ filter: value });
+      const { loaded } = await loadQuery();
+      expectSameQuery(loaded.filter, JSON.parse(content).filter);
+    });
+  }
+
+  it('converts all legacy query attributes', async function () {
+    await writeLegacyQuery({
+      filter: { _id: new ObjectId('507f1f77bcf86cd799439011') },
+      project: { _id: 0 },
+      sort: [['a', -1]],
+      collation: { locale: 'en' },
+      hint: { a: 1 },
+      update: [{ $set: { a: 1 } }],
+      skip: 5,
+      limit: 10,
+    });
+    const { loaded } = await loadQuery();
+    expect(loaded).to.deep.include({
+      filter: "{\n  _id: ObjectId('507f1f77bcf86cd799439011')\n}",
+      project: '{\n  _id: 0\n}',
+      sort: "[\n  [\n    'a',\n    -1\n  ]\n]",
+      collation: "{\n  locale: 'en'\n}",
+      hint: '{\n  a: 1\n}',
+      update: '[\n  {\n    $set: {\n      a: 1\n    }\n  }\n]',
+      skip: 5,
+      limit: 10,
+    });
+  });
+
+  it('quotes legacy index name hints', async function () {
+    await writeLegacyQuery({ hint: 'a_1' });
+    const { loaded } = await loadQuery();
+    expect(loaded.hint).to.equal("'a_1'");
+  });
+
+  it('drops empty legacy attributes', async function () {
+    await writeLegacyQuery({
+      filter: {},
+      project: null,
+      sort: [],
+      limit: 10,
+    });
+    const { loaded } = await loadQuery();
+    expect(loaded.filter).to.be.undefined;
+    expect(loaded.project).to.be.undefined;
+    expect(loaded.sort).to.be.undefined;
+    expect(loaded.limit).to.equal(10);
+  });
+
+  it('persists the converted query strings when attributes are updated', async function () {
+    const { _id } = await writeLegacyQuery({
+      filter: { _id: new ObjectId('507f1f77bcf86cd799439011') },
+      hint: 'a_1',
+    });
+    const { storage, loaded } = await loadQuery();
+
+    await storage.updateAttributes(_id, { _host: 'localhost' });
+
+    const stored = JSON.parse(
+      await fs.readFile(
+        path.join(tmpDir, 'RecentQueries', `${_id}.json`),
+        'utf8'
+      )
+    );
+    expect(stored.filter).to.equal(loaded.filter);
+    expect(stored.hint).to.equal("'a_1'");
+
+    const { loaded: reloaded } = await loadQuery();
+    expect(reloaded).to.deep.include({
+      filter: loaded.filter,
+      hint: "'a_1'",
+      _host: 'localhost',
+    });
   });
 });

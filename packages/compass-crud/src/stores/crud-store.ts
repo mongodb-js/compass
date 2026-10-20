@@ -1250,8 +1250,8 @@ class CrudStoreImpl
 
     await this.recentQueriesStorage?.saveQuery({
       _ns: this.state.ns,
-      filter,
-      update,
+      filter: toSavedQueryString(filter),
+      update: this.state.bulkUpdate.updateText,
     });
 
     openBulkUpdateProgressToast({
@@ -2088,9 +2088,8 @@ class CrudStoreImpl
     );
 
     const { filter } = this.queryBar.getLastAppliedQuery('crud');
-    let update;
     try {
-      update = parseShellBSON(this.state.bulkUpdate.updateText);
+      parseShellBSON(this.state.bulkUpdate.updateText);
     } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
@@ -2101,8 +2100,8 @@ class CrudStoreImpl
     await this.favoriteQueriesStorage?.saveQuery({
       _name: name,
       _ns: this.state.ns,
-      filter,
-      update,
+      filter: toSavedQueryString(filter),
+      update: this.state.bulkUpdate.updateText,
     });
     openToast('saved-favorite-update-query', {
       title: '',
@@ -2177,11 +2176,9 @@ export function activateDocumentsPlugin(
   on(
     localAppRegistry,
     'favorites-open-bulk-update-favorite',
-    (query: { update: BSONObject }) => {
+    (query: { update?: string }) => {
       void store.refreshDocuments();
-      void store.openBulkUpdateModal(
-        toJSString(query.update) || INITIAL_BULK_UPDATE_TEXT
-      );
+      void store.openBulkUpdateModal(query.update || INITIAL_BULK_UPDATE_TEXT);
     }
   );
 
@@ -2224,11 +2221,16 @@ export function activateDocumentsPlugin(
     });
   }
 
-  if ((options.query as any)?.update) {
-    // This will be set if the user clicked a bulk update query on the My Queries page
-    const initialUpdate: BSONObject | undefined = (options.query as any)
-      ?.update;
-    const updateText = initialUpdate ? toJSString(initialUpdate) : undefined;
+  // This will be set if the user clicked a bulk update query on the My Queries
+  // page. Workspace tabs saved by older versions of Compass have a parsed value.
+  const initialUpdate = (
+    options.query as { update?: string | BSONObject } | undefined
+  )?.update;
+  if (initialUpdate) {
+    const updateText =
+      typeof initialUpdate === 'string'
+        ? initialUpdate
+        : toJSString(initialUpdate);
 
     queueMicrotask(() => {
       void store.openBulkUpdateModal(updateText);
@@ -2246,6 +2248,10 @@ export function activateDocumentsPlugin(
       cleanup();
     },
   };
+}
+
+function toSavedQueryString(value: BSONObject | undefined) {
+  return isEmpty(value) ? undefined : toJSString(value);
 }
 
 function resultId() {

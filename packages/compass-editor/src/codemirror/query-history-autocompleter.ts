@@ -8,25 +8,28 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { parse, ParseMode, toJSString } from '@mongodb-js/shell-bson-parser';
 import { languages } from '../editor';
 import { highlightCode } from '@lezer/highlight';
 import { type CodemirrorThemeType, highlightStyles } from '../editor';
 
-export type SavedQuery = {
-  type: string;
-  lastExecuted: Date;
-  queryProperties: {
-    [propertyName: string]: any;
-  };
+export type SavedQueryProperties = {
+  [propertyName: string]: string | number | undefined;
 };
+
+export type SavedQuery<T extends SavedQueryProperties = SavedQueryProperties> =
+  {
+    type: string;
+    lastExecuted: Date;
+    queryProperties: T;
+  };
 
 type PreparedField = {
   simplified: string;
 };
 
-type PreparedQuery = {
-  query: SavedQuery;
+type PreparedQuery<T extends SavedQueryProperties = SavedQueryProperties> = {
+  query: SavedQuery<T>;
   label: string;
   displayLabel: string;
   isObject: boolean;
@@ -56,28 +59,18 @@ export function createQueryLabel(
   query: SavedQuery,
   propertyName: string
 ): string {
-  const queryProperty = query.queryProperties[propertyName];
-  if (
-    queryProperty === '' ||
-    queryProperty === undefined ||
-    queryProperty === null
-  ) {
-    return '';
-  }
-
   // The autocompletion uses a fuzzy search on the label, we only want to
   // auto complete property that is being edited, not all of them.
-  return toJSString(queryProperty) || '';
+  return String(query.queryProperties[propertyName] ?? '');
 }
 
 export function createQueryDisplayLabel(query: SavedQuery): string {
   return Object.entries(query.queryProperties)
     .map(([key, value]) => {
-      const formattedQuery = toJSString(value, 1);
-      if (!formattedQuery) return '';
+      if (value === undefined || value === '') return '';
       // Hide the `filter` key in the display label as it's the default field.
       const fieldKey = key === 'filter' ? '' : `${key}: `;
-      return `${fieldKey}${formattedQuery}`;
+      return `${fieldKey}${value}`;
     })
     .filter(Boolean)
     .reduce((acc, curr) => (acc ? `${acc}, ${curr}` : curr), '');
@@ -87,38 +80,51 @@ function simplifyQueryStringForAutocomplete(queryString: string): string {
   return queryString.replace(/[\s'"\n\t{}},]/g, '').toLowerCase();
 }
 
-function prepareQueries(
-  savedQueries: SavedQuery[],
+// Matching is done on the top level fields, so objects have to be parsed.
+function parseQueryValue(
+  value: string | number | undefined
+): { value: unknown } | undefined {
+  try {
+    return {
+      value:
+        typeof value === 'string'
+          ? parse(value, { mode: ParseMode.Loose })
+          : value,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+function prepareQueries<T extends SavedQueryProperties>(
+  savedQueries: SavedQuery<T>[],
   queryProperty: string
-): PreparedQuery[] {
+): PreparedQuery<T>[] {
+  if (!queryProperty) {
+    return [];
+  }
   return savedQueries
     .map((query) => {
-      const queryValue = query.queryProperties[queryProperty];
+      const savedValue = query.queryProperties[queryProperty];
+      const parsed = parseQueryValue(savedValue);
+      // Don't suggest saved queries that are no longer valid.
+      if (!parsed) {
+        return null;
+      }
+      const queryString = String(savedValue ?? '');
+      const queryValue = parsed.value;
       // Only some query properties are objects for instance limit is a scalar.
-      const isObject = typeof queryValue === 'object';
+      const isObject = typeof queryValue === 'object' && queryValue !== null;
 
       let scalarSimplified = '';
       let fields: PreparedField[] = [];
 
-      if (
-        queryProperty === '' ||
-        queryProperty === undefined ||
-        queryProperty === null
-      ) {
-        return null;
-      }
-
       if (!isObject) {
-        if (queryValue?.length && queryValue?.length > MAX_VALUE_LENGTH) {
+        if (queryString.length > MAX_VALUE_LENGTH) {
           return null;
         }
-
-        const str = toJSString(queryValue) || '';
-        if (!str || str.length > MAX_VALUE_LENGTH) {
-          return null;
-        }
-        scalarSimplified = str ? simplifyQueryStringForAutocomplete(str) : '';
-      } else if (queryValue) {
+        scalarSimplified = simplifyQueryStringForAutocomplete(queryString);
+      } else {
         const queryIsArray = Array.isArray(queryValue);
         // We only support autocompletion for objects and arrays of key value pairs.
         if (
@@ -134,7 +140,7 @@ function prepareQueries(
         }
 
         // Sort can be an array of key values, or an object, we want to support both.
-        const queryIterable = queryIsArray
+        const queryIterable: [string, unknown][] = queryIsArray
           ? queryValue
           : Object.entries(queryValue);
 
@@ -171,7 +177,7 @@ function prepareQueries(
         fields,
       };
     })
-    .filter((query): query is PreparedQuery => query !== null);
+    .filter((query): query is PreparedQuery<T> => query !== null);
 }
 
 function matchesPreparedQuery(query: PreparedQuery, input: string): boolean {
@@ -206,10 +212,10 @@ function matchesPreparedQuery(query: PreparedQuery, input: string): boolean {
  * We give suggestions of queries that either match at least one field,
  * or that contain the prefix the user is typing.
  */
-function getMatchingPreparedQueries(
-  preparedQueries: PreparedQuery[],
+function getMatchingPreparedQueries<T extends SavedQueryProperties>(
+  preparedQueries: PreparedQuery<T>[],
   input: string
-): PreparedQuery[] {
+): PreparedQuery<T>[] {
   const simplifiedInput = simplifyQueryStringForAutocomplete(input);
 
   if (simplifiedInput.length === 0) {
@@ -217,7 +223,7 @@ function getMatchingPreparedQueries(
     return preparedQueries;
   }
 
-  const results: PreparedQuery[] = [];
+  const results: PreparedQuery<T>[] = [];
   for (const query of preparedQueries) {
     if (results.length >= MAX_RESULTS) break;
     if (matchesPreparedQuery(query, simplifiedInput)) {
@@ -227,14 +233,16 @@ function getMatchingPreparedQueries(
   return results;
 }
 
-export const createQueryHistoryAutocompleter = ({
+export const createQueryHistoryAutocompleter = <
+  T extends SavedQueryProperties,
+>({
   savedQueries,
   onApply,
   queryProperty,
   theme,
 }: {
-  savedQueries: SavedQuery[];
-  onApply: (query: SavedQuery['queryProperties']) => void;
+  savedQueries: SavedQuery<T>[];
+  onApply: (query: T) => void;
   queryProperty: string;
   theme: CodemirrorThemeType;
 }): CompletionSource => {
@@ -256,7 +264,7 @@ export const createQueryHistoryAutocompleter = ({
       contextValue
     );
 
-    const options = matchedQueries.map((query: PreparedQuery) => ({
+    const options = matchedQueries.map((query) => ({
       // Use a display label to show the query property
       // field names before their respective parts.
       displayLabel: query.displayLabel,
@@ -298,7 +306,7 @@ function createInfo(
   const container = document.createElement('div');
 
   Object.entries(query.queryProperties).forEach(([key, value]) => {
-    const formattedQuery = toJSString(value);
+    const formattedQuery = String(value ?? '');
     const codeDiv = document.createElement('div');
 
     const label = document.createElement('label');

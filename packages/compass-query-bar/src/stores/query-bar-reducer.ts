@@ -1,5 +1,5 @@
 import type { Action, Reducer } from 'redux';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, pick } from 'lodash';
 import type { Document } from 'mongodb';
 import {
   DEFAULT_FIELD_VALUES,
@@ -16,13 +16,18 @@ import type {
 } from '../constants/query-properties';
 import {
   mapFormFieldsToQuery,
+  mapFormFieldsToQueryAttributes,
+  mapQueryAttributesToFormFields,
   mapQueryToFormFields,
   isEqualDefaultQuery,
+  isQueryValid,
   doesQueryHaveExtraOptionsSet,
+  parseQueryAttributes,
 } from '../utils/query';
 import { isQueryFieldsValid, validateField } from '../utils/validate-query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
+import type { QueryAttributes } from '../utils';
 import { getQueryAttributes, isAction, isQueryEqual } from '../utils';
 import type {
   RecentQuery,
@@ -157,14 +162,15 @@ export const applyQuery = (
     }
     const query = mapFormFieldsToQuery(fields);
     dispatch({ type: QueryBarActions.ApplyQuery, query, source });
-    const queryAttributes = getQueryAttributes(query);
+    const queryAttributes = mapFormFieldsToQueryAttributes(fields);
+    const parsedQuery = parseQueryAttributes(queryAttributes);
     const existingFavoriteQuery = favoriteQueries.find((favoriteQuery) => {
-      return isQueryEqual(getQueryAttributes(favoriteQuery), queryAttributes);
+      return isQueryEqual(parseQueryAttributes(favoriteQuery), parsedQuery);
     });
     if (existingFavoriteQuery) {
       void dispatch(updateFavoriteQuery(existingFavoriteQuery));
     } else {
-      void dispatch(saveRecentQuery(query));
+      void dispatch(saveRecentQuery(queryAttributes));
     }
     return query;
   };
@@ -246,32 +252,23 @@ type ApplyFromHistoryAction = {
 };
 
 export const applyFromHistory = (
-  query: BaseQuery & { update?: Document },
+  query: QueryAttributes,
   currentQueryFieldsToRetain: QueryProperty[] = []
 ): QueryBarThunkAction<void, ApplyFromHistoryAction> => {
   return (dispatch, getState, { localAppRegistry, preferences }) => {
-    const currentFields = getState().queryBar.fields;
-    const currentQuery = currentQueryFieldsToRetain.reduce<
-      Record<string, Document | number | string>
-    >((acc, key) => {
-      const { value } = currentFields[key];
-      if (value) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-    const fields = mapQueryToFormFields(preferences.getPreferences(), {
-      ...DEFAULT_FIELD_VALUES,
-      ...query,
-      ...currentQuery,
-    });
+    const fields = {
+      ...mapQueryAttributesToFormFields(preferences.getPreferences(), query),
+      ...pick(getState().queryBar.fields, currentQueryFieldsToRetain),
+    };
+    // Bulk updates run against the applied filter, so it has to be valid.
+    const isUpdateQuery = !!query.update && isQueryValid(fields);
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
       fields,
-      applyToSource: query.update ? 'crud' : undefined,
+      applyToSource: isUpdateQuery ? 'crud' : undefined,
     });
 
-    if (query.update) {
+    if (isUpdateQuery) {
       localAppRegistry?.emit('favorites-open-bulk-update-favorite', query);
     }
   };
@@ -474,7 +471,7 @@ export const deleteFavoriteQuery = (
 };
 
 const saveRecentQuery = (
-  query: Omit<BaseQuery, 'maxTimeMS'>
+  queryAttributes: QueryAttributes
 ): QueryBarThunkAction<Promise<void>> => {
   return async (
     dispatch,
@@ -486,15 +483,15 @@ const saveRecentQuery = (
         queryBar: { recentQueries, host, namespace },
       } = getState();
 
-      const queryAttributes = getQueryAttributes(query);
       // Ignore empty or default queries
       if (isEmpty(queryAttributes)) {
         return;
       }
 
       // Ignore duplicate queries
+      const parsedQuery = parseQueryAttributes(queryAttributes);
       const existingQuery = recentQueries.find((recentQuery) => {
-        return isQueryEqual(getQueryAttributes(recentQuery), queryAttributes);
+        return isQueryEqual(parseQueryAttributes(recentQuery), parsedQuery);
       });
 
       if (existingQuery) {
