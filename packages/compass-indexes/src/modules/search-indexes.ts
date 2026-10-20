@@ -1,5 +1,6 @@
 import type { AnyAction } from 'redux';
 import { isEqual } from 'lodash';
+import { UUID } from 'bson';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
@@ -92,6 +93,7 @@ export type CreateSearchIndexOpenedAction = {
 
 type CreateSearchIndexStartedAction = {
   type: typeof ActionTypes.CreateSearchIndexStarted;
+  requestId: string;
 };
 
 type CreateSearchIndexFailedAction = {
@@ -118,6 +120,7 @@ type UpdateSearchIndexOpenedAction = {
 
 type UpdateSearchIndexStartedAction = {
   type: typeof ActionTypes.UpdateSearchIndexStarted;
+  requestId: string;
 };
 
 type UpdateSearchIndexFailedAction = {
@@ -140,6 +143,7 @@ export type UpdateSearchIndexClosedAction = {
 type CreateSearchIndexState = {
   isModalOpen: boolean;
   isBusy: boolean;
+  requestId?: string;
   error?: string;
 };
 
@@ -147,6 +151,7 @@ type UpdateSearchIndexState = {
   isModalOpen: boolean;
   isBusy: boolean;
   indexName: string;
+  requestId?: string;
   error?: string;
 };
 
@@ -218,6 +223,7 @@ export default function reducer(
       createIndex: {
         ...state.createIndex,
         isBusy: true,
+        requestId: action.requestId,
         error: undefined,
       },
     };
@@ -235,6 +241,7 @@ export default function reducer(
         ...state.createIndex,
         error: action.error,
         isBusy: false,
+        requestId: undefined,
       },
     };
   }
@@ -297,6 +304,7 @@ export default function reducer(
         ...state.updateIndex,
         error: undefined,
         isBusy: true,
+        requestId: action.requestId,
       },
     };
   }
@@ -313,6 +321,7 @@ export default function reducer(
         ...state.updateIndex,
         error: action.error,
         isBusy: false,
+        requestId: undefined,
       },
     };
   }
@@ -330,6 +339,7 @@ export default function reducer(
         // Modal as it closes.
         ...state.updateIndex,
         isBusy: false,
+        requestId: undefined,
         isModalOpen: false,
         error: undefined,
       },
@@ -348,6 +358,7 @@ export default function reducer(
         ...state.updateIndex,
         isModalOpen: false,
         isBusy: false,
+        requestId: undefined,
         error: undefined,
       },
     };
@@ -469,6 +480,7 @@ const fetchSearchIndexesFailed = (
 
 const createSearchIndexStarted = (): CreateSearchIndexStartedAction => ({
   type: ActionTypes.CreateSearchIndexStarted,
+  requestId: new UUID().toString(),
 });
 
 const createSearchIndexFailed = (
@@ -489,6 +501,7 @@ export const createSearchIndexErrorCleared =
 
 const updateSearchIndexStarted = (): UpdateSearchIndexStartedAction => ({
   type: ActionTypes.UpdateSearchIndexStarted,
+  requestId: new UUID().toString(),
 });
 
 const updateSearchIndexFailed = (
@@ -559,7 +572,9 @@ export const createIndex = ({
       return;
     }
 
-    dispatch(createSearchIndexStarted());
+    const { requestId } = dispatch(createSearchIndexStarted());
+    const isCancelled = () =>
+      getState().searchIndexes.createIndex.requestId !== requestId;
 
     if (name === '') {
       dispatch(createSearchIndexFailed('Please enter the name of the index.'));
@@ -579,12 +594,13 @@ export const createIndex = ({
     try {
       definition = (await parseShellBSON(definitionSource)) as Document;
     } catch (ex) {
-      dispatch(createSearchIndexFailed((ex as Error).message));
+      if (!isCancelled()) {
+        dispatch(createSearchIndexFailed((ex as Error).message));
+      }
       return;
     }
 
-    // Closing the create view while parsing resets `isBusy`.
-    if (!getState().searchIndexes.createIndex.isBusy) {
+    if (isCancelled()) {
       return;
     }
 
@@ -665,18 +681,21 @@ export const updateIndex = ({
       return;
     }
 
-    dispatch(updateSearchIndexStarted());
+    const { requestId } = dispatch(updateSearchIndexStarted());
+    const isCancelled = () =>
+      getState().searchIndexes.updateIndex.requestId !== requestId;
 
     let definition: Document;
     try {
       definition = (await parseShellBSON(definitionSource)) as Document;
     } catch (e) {
-      dispatch(updateSearchIndexFailed((e as Error).message));
+      if (!isCancelled()) {
+        dispatch(updateSearchIndexFailed((e as Error).message));
+      }
       return;
     }
 
-    // Closing the edit view while parsing resets `isBusy`.
-    if (!getState().searchIndexes.updateIndex.isBusy) {
+    if (isCancelled()) {
       return;
     }
 
