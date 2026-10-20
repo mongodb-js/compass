@@ -235,12 +235,13 @@ describe('PipelineBuilder', function () {
       stages[0].changeValue('{ _id: 1');
 
       pipelineBuilder.stages = stages;
+      let error: unknown;
       try {
         await pipelineBuilder.stagesToSource();
-        expect.fail('Expected stagesToSource to throw an error');
       } catch (e) {
-        expect(e).to.be.instanceOf(Error);
+        error = e;
       }
+      expect(error).to.be.instanceOf(Error);
     });
 
     it('converts stages to source if stages with syntax errors are disabled', async function () {
