@@ -416,7 +416,12 @@ export default function BulkUpdateModal({
   }, [count]);
 
   const bulkUpdateUpdateId = useId();
-  const disabled = !!(syntaxError || serverError || violations.length > 0);
+  const disabled = !!(
+    syntaxError ||
+    isValidating ||
+    serverError ||
+    violations.length > 0
+  );
 
   const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
 
@@ -525,7 +530,7 @@ export default function BulkUpdateModal({
             Cancel
           </Button>
           <Button
-            disabled={disabled || isValidating}
+            disabled={disabled}
             variant="primary"
             onClick={runBulkUpdate}
             data-testid="update-button"
