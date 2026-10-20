@@ -1,5 +1,5 @@
 import isElectronRenderer from 'is-electron-renderer';
-import type { HadronIpcRenderer } from 'hadron-ipc';
+import type { HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
 import { createGenericLogger } from './logger';
 
 function emit(
@@ -19,7 +19,7 @@ export function createLogger(component: string) {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null | undefined = isElectronRenderer
     ? // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require('hadron-ipc').ipcRenderer
+      require('@mongodb-js/hadron-ipc').ipcRenderer
     : null;
   return createGenericLogger(component, emit.bind(null, ipc));
 }

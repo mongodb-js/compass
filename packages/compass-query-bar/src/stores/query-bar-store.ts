@@ -21,10 +21,10 @@ import {
 } from './query-bar-reducer';
 import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
@@ -35,7 +35,7 @@ import type {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type Collection from 'mongodb-collection-model';
+import type Collection from '@mongodb-js/mongodb-collection-model';
 
 // Partial of DataService that mms shares with Compass.
 type FetchCollectionMetadataDataServiceMethods =

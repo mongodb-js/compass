@@ -8,7 +8,7 @@ import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 import { isLastStageOutputStage } from '../../utils/stage';
 import type { DataService } from '../data-service';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 
 export const DEFAULT_PIPELINE = `[]`;
 

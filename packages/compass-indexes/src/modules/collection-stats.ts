@@ -1,5 +1,5 @@
 import type { Reducer, AnyAction, Action } from 'redux';
-import type Collection from 'mongodb-collection-model';
+import type Collection from '@mongodb-js/mongodb-collection-model';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,

@@ -4,7 +4,7 @@ import { ToolsController } from './tools-controller';
 import {
   preferencesLocator,
   usePreference,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import {

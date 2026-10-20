@@ -16,7 +16,7 @@ import {
   createMockToolsTransport,
 } from '../../test/utils';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import {
   AssistantActionsContext,
   type AssistantMessage,

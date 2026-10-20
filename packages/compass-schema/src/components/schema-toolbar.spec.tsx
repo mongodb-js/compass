@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import { SchemaToolbar } from './schema-toolbar';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {

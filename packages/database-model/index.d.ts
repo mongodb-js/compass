@@ -1,4 +1,4 @@
-import type { CollectionCollection } from 'mongodb-collection-model';
+import type { CollectionCollection } from '@mongodb-js/mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
 
 interface DatabaseProps {

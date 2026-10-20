@@ -39,7 +39,7 @@ import {
 import {
   useIsAIFeatureEnabled,
   usePreference,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 
 const footerStyles = css`
   flex-direction: row;

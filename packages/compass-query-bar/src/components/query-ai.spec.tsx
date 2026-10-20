@@ -21,9 +21,9 @@ import {
 } from '../stores/ai-query-reducer';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { mapQueryToFormFields } from '../utils/query';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import {
   LoggerProvider,
   createNoopLogger,

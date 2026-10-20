@@ -10,7 +10,7 @@ import {
   wrapWithExperimentProvider,
 } from '../../../../test/configure-store';
 import type { AggregationsPluginServices } from '../../../stores/store';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 import { PipelineEditor } from './pipeline-editor';

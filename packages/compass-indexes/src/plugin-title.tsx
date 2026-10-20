@@ -9,7 +9,7 @@ import {
   compactBytes,
   compactNumber,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const containerStyles = css({
   display: 'flex',

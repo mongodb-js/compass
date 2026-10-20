@@ -7,7 +7,7 @@ import {
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import type { TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 
 /** @public */
 export type TrackFunction = (

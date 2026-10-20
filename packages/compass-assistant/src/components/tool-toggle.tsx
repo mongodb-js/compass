@@ -16,7 +16,7 @@ import {
 import {
   usePreference,
   usePreferencesContext,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { useAssistantProjectId } from '../compass-assistant-provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';

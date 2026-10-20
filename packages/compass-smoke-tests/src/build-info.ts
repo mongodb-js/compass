@@ -4,7 +4,7 @@ import path from 'node:path';
 import createDebug from 'debug';
 import { pick } from 'lodash';
 
-import { generateBuildInfo } from 'hadron-build';
+import { generateBuildInfo } from '@mongodb-js/hadron-build';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContextWithSandbox } from './context';

@@ -15,8 +15,8 @@ import {
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
-} from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 
 describe('NamespaceProvider', function () {
   const sandbox = Sinon.createSandbox();

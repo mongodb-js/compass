@@ -39,11 +39,11 @@ import collectionsFields from './collections-fields';
 import insights from './insights';
 import searchIndexes from './search-indexes';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 import type {
   ConnectionInfoRef,
@@ -51,7 +51,7 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
-import type Collection from 'mongodb-collection-model';
+import type Collection from '@mongodb-js/mongodb-collection-model';
 /**
  * The main application reducer.
  *

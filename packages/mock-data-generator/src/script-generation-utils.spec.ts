@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker/locale/en';
 import { ObjectId } from 'bson';
 import { generateScript, generateDocument } from './script-generation-utils';
 import type { FakerFieldMapping } from './types';
-import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
+import { UNRECOGNIZED_FAKER_METHOD } from './types';
 
 /**
  * Helper function to test that generated document code is executable

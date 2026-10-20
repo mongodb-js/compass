@@ -1,5 +1,5 @@
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-import type { FakerArg } from './script-generation-utils';
+import type { FakerArg } from '@mongodb-js/mock-data-generator';
 import { faker } from '@faker-js/faker/locale/en';
 import { MAX_DOCUMENT_COUNT } from './constants';
 
