@@ -235,6 +235,39 @@ describe('search-indexes module', function () {
       await created;
       expect(dataProvider.createSearchIndex).to.not.have.been.called;
     });
+
+    it('does not create the cancelled index after reopening and resubmitting', async function () {
+      const stale = store.dispatch(
+        createIndex({ name: 'staleIndex', definition: '{}' })
+      );
+      store.dispatch(createSearchIndexClosed());
+      store.dispatch(createSearchIndexOpened());
+      const current = store.dispatch(
+        createIndex({ name: 'currentIndex', definition: '{}' })
+      );
+      await Promise.all([stale, current]);
+
+      expect(createSearchIndexStub).to.have.been.calledOnce;
+      expect(createSearchIndexStub.firstCall.args[1]).to.have.property(
+        'name',
+        'currentIndex'
+      );
+    });
+
+    it('does not let a cancelled parse error affect a newer submission', async function () {
+      const stale = store.dispatch(
+        createIndex({ name: 'staleIndex', definition: '{ invalid' })
+      );
+      store.dispatch(createSearchIndexClosed());
+      store.dispatch(createSearchIndexOpened());
+      const current = store.dispatch(
+        createIndex({ name: 'currentIndex', definition: '{}' })
+      );
+      await Promise.all([stale, current]);
+
+      expect(store.getState().searchIndexes.createIndex.error).to.be.undefined;
+      expect(createSearchIndexStub).to.have.been.calledOnce;
+    });
   });
 
   context('update search index', function () {
@@ -332,6 +365,38 @@ describe('search-indexes module', function () {
       expect(
         (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
       ).to.equal(0);
+    });
+
+    it('does not update the cancelled index after reopening and resubmitting', async function () {
+      const stale = store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ stale: 1 }' })
+      );
+      store.dispatch(updateSearchIndexClosed());
+      store.dispatch(updateSearchIndexOpened(UPDATE_INDEX.name));
+      const current = store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ current: 1 }' })
+      );
+      await Promise.all([stale, current]);
+
+      expect(updateSearchIndexStub.callCount).to.equal(1);
+      expect(updateSearchIndexStub.firstCall.args[2]).to.deep.equal({
+        current: 1,
+      });
+    });
+
+    it('does not let a cancelled parse error affect a newer submission', async function () {
+      const stale = store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ invalid' })
+      );
+      store.dispatch(updateSearchIndexClosed());
+      store.dispatch(updateSearchIndexOpened(UPDATE_INDEX.name));
+      const current = store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ current: 1 }' })
+      );
+      await Promise.all([stale, current]);
+
+      expect(store.getState().searchIndexes.updateIndex.error).to.be.undefined;
+      expect(updateSearchIndexStub.callCount).to.equal(1);
     });
 
     it('does not update the index when closed while parsing', async function () {
