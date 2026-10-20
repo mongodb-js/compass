@@ -42,7 +42,10 @@ import {
   explainQueryInterpret,
   type ExplainMode,
 } from '../stores/query-bar-reducer';
-import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import {
+  hasPendingFieldValidation,
+  toggleQueryOptions,
+} from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery } from '../utils/query';
 import { isQueryValid } from '../utils/validate-query';
 import type { QueryProperty } from '../constants/query-properties';
@@ -421,15 +424,13 @@ type OwnProps = {
 };
 
 export default connect(
-  ({
-    queryBar: { expanded, fields, applyId, isInterpretLoading },
-    aiQuery,
-  }: RootState) => {
+  ({ queryBar, aiQuery }: RootState) => {
+    const { expanded, fields, applyId, isInterpretLoading } = queryBar;
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
       filterHasContent: fields.filter.string !== '',
-      valid: isQueryValid(fields),
+      valid: isQueryValid(fields) && !hasPendingFieldValidation(queryBar),
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
       isAIFetching: aiQuery.status === 'fetching',

@@ -1,6 +1,7 @@
 import type { Action, Reducer } from 'redux';
 import { cloneDeep, isEmpty } from 'lodash';
 import type { Document } from 'mongodb';
+import { UUID } from 'bson';
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
@@ -33,6 +34,7 @@ import type {
 type QueryBarState = {
   isReadonlyConnection: boolean;
   fields: QueryFormFields;
+  pendingParseFieldRequestIds: Partial<Record<QueryProperty, string>>;
   expanded: boolean;
   serverVersion: string;
   lastAppliedQuery: {
@@ -54,6 +56,7 @@ type QueryBarState = {
 export const INITIAL_STATE: QueryBarState = {
   isReadonlyConnection: false,
   fields: getDefaultFormFields(),
+  pendingParseFieldRequestIds: {},
   expanded: false,
   serverVersion: '3.6.0',
   lastAppliedQuery: { source: null, query: {} },
@@ -68,6 +71,7 @@ export const QueryBarActions = {
   ChangeReadonlyConnectionStatus:
     'compass-query-bar/ChangeReadonlyConnectionStatus',
   ToggleQueryOptions: 'compass-query-bar/ToggleQueryOptions',
+  ChangeFieldText: 'compass-query-bar/ChangeFieldText',
   ChangeField: 'compass-query-bar/ChangeField',
   QueryUnsafeIntegerReceived: 'compass-query-bar/QueryUnsafeIntegerAdded',
   SetQuery: 'compass-query-bar/SetQuery',
@@ -96,11 +100,32 @@ export const toggleQueryOptions = (
   return { type: QueryBarActions.ToggleQueryOptions, force };
 };
 
-type ChangeFieldAction<T = QueryProperty> = {
+type ChangeFieldTextAction = {
+  type: typeof QueryBarActions.ChangeFieldText;
+  name: QueryProperty;
+  string: string;
+  requestId: string;
+};
+
+type ChangeFieldValueAction<T = QueryProperty> = {
   type: typeof QueryBarActions.ChangeField;
   name: T;
   value: FormField<T>;
+  requestId: string;
 };
+
+function withoutPendingFields(
+  pending: QueryBarState['pendingParseFieldRequestIds'],
+  names: string[]
+): QueryBarState['pendingParseFieldRequestIds'] {
+  return Object.fromEntries(
+    Object.entries(pending).filter(([name]) => !names.includes(name))
+  );
+}
+
+export function hasPendingFieldValidation(state: QueryBarState): boolean {
+  return Object.keys(state.pendingParseFieldRequestIds).length > 0;
+}
 
 type QueryUnsafeIntegerReceivedAction = {
   type: typeof QueryBarActions.QueryUnsafeIntegerReceived;
@@ -121,8 +146,18 @@ export function unsafeIntegerReceived(
 export const changeField = (
   name: QueryProperty,
   stringValue: string
-): QueryBarThunkAction<Promise<void>, ChangeFieldAction> => {
+): QueryBarThunkAction<
+  Promise<void>,
+  ChangeFieldTextAction | ChangeFieldValueAction
+> => {
   return async (dispatch, getState, { preferences }) => {
+    const requestId = new UUID().toString();
+    dispatch({
+      type: QueryBarActions.ChangeFieldText,
+      name,
+      string: stringValue,
+      requestId,
+    });
     const parsedValue = await validateField(name, stringValue, {
       maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
       maxTimeMSEnvLimit: preferences.getPreferences().maxTimeMSEnvLimit,
@@ -131,6 +166,7 @@ export const changeField = (
     dispatch({
       type: QueryBarActions.ChangeField,
       name,
+      requestId,
       value: {
         string: stringValue,
         valid: isValid,
@@ -150,6 +186,11 @@ export const applyQuery = (
   source: string
 ): QueryBarThunkAction<Promise<false | BaseQuery>, ApplyQueryAction> => {
   return async (dispatch, getState, { preferences }) => {
+    // While a field is being validated its parsed value still belongs to the
+    // previous text, so applying now would run an outdated query
+    if (hasPendingFieldValidation(getState().queryBar)) {
+      return false;
+    }
     const {
       queryBar: { fields, favoriteQueries },
     } = getState();
@@ -587,13 +628,39 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
     };
   }
 
-  if (isAction<ChangeFieldAction>(action, QueryBarActions.ChangeField)) {
+  if (
+    isAction<ChangeFieldTextAction>(action, QueryBarActions.ChangeFieldText)
+  ) {
+    return {
+      ...state,
+      fields: {
+        ...state.fields,
+        [action.name]: {
+          ...state.fields[action.name],
+          string: action.string,
+        },
+      },
+      pendingParseFieldRequestIds: {
+        ...state.pendingParseFieldRequestIds,
+        [action.name]: action.requestId,
+      },
+    };
+  }
+
+  if (
+    isAction<ChangeFieldValueAction>(action, QueryBarActions.ChangeField) &&
+    state.pendingParseFieldRequestIds[action.name] === action.requestId
+  ) {
     return {
       ...state,
       fields: {
         ...state.fields,
         [action.name]: action.value,
       },
+      pendingParseFieldRequestIds: withoutPendingFields(
+        state.pendingParseFieldRequestIds,
+        [action.name]
+      ),
     };
   }
 
@@ -622,6 +689,10 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
         ...state.fields,
         ...action.fields,
       },
+      pendingParseFieldRequestIds: withoutPendingFields(
+        state.pendingParseFieldRequestIds,
+        Object.keys(action.fields)
+      ),
     };
   }
 
@@ -643,6 +714,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
     return {
       ...state,
       fields: action.fields,
+      pendingParseFieldRequestIds: {},
       lastAppliedQuery: {
         source: action.source,
         query: {
@@ -660,6 +732,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
+      pendingParseFieldRequestIds: {},
       lastAppliedQuery: action.applyToSource
         ? {
             source: action.applyToSource,
@@ -682,6 +755,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
+      pendingParseFieldRequestIds: {},
     };
   }
 
