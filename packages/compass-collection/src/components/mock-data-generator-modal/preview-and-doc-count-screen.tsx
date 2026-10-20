@@ -20,8 +20,8 @@ import { mockDataGeneratorDocumentCountChanged } from '../../modules/collection-
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
 import { FAKER_API_LINK, MAX_DOCUMENT_COUNT } from './constants';
 import type { FakerSchema } from './types';
-import type { ArrayLengthMap } from './script-generation-utils';
-import { generateDocument } from './script-generation-utils';
+import type { ArrayLengthMap } from '@mongodb-js/mock-data-generator';
+import { generateDocument } from '@mongodb-js/mock-data-generator';
 import { validateDocumentCount } from './utils';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 

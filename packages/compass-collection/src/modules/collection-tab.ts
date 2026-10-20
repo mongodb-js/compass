@@ -48,7 +48,7 @@ import {
   isValidFakerMethod,
   MAX_COLLECTION_NESTING_DEPTH,
 } from '../components/mock-data-generator-modal/utils';
-import { getDefaultFakerMethod } from '../components/mock-data-generator-modal/script-generation-utils';
+import { getDefaultFakerMethod } from '@mongodb-js/mock-data-generator';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -69,7 +69,6 @@ function isAction<A extends AnyAction>(
 }
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
-export const UNRECOGNIZED_FAKER_METHOD = 'Unrecognized';
 
 function getErrorDetails(error: Error): SchemaAnalysisError {
   if (error instanceof ProcessSchemaUnsupportedStateError) {

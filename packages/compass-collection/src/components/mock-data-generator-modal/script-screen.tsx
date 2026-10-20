@@ -17,10 +17,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
-import { generateScript } from './script-generation-utils';
+import { generateScript } from '@mongodb-js/mock-data-generator';
 import type { DataGenerationStep } from './types';
 import { DataGenerationSteps, type FakerSchema } from './types';
-import type { ArrayLengthMap } from './script-generation-utils';
+import type { ArrayLengthMap } from '@mongodb-js/mock-data-generator';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
 import {
