@@ -11,9 +11,9 @@ import Sinon from 'sinon';
 import {
   type PreferencesAccess,
   PreferencesProvider,
-} from 'compass-preferences-model/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import type { DatabaseProps } from 'mongodb-database-model';
+} from '@mongodb-js/compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import type { DatabaseProps } from '@mongodb-js/mongodb-database-model';
 import { inspectTable, testSortColumn, createDatabase } from '../test/utils';
 
 const dbs: DatabaseProps[] = [

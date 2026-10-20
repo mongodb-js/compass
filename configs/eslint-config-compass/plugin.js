@@ -28,7 +28,7 @@ module.exports = {
           restrictedProviderImport('@mongodb-js/my-queries-storage'),
           restrictedProviderImport('@mongodb-js/atlas-service'),
           restrictedProviderImport('@mongodb-js/compass-generative-ai'),
-          restrictedProviderImport('compass-preferences-model'),
+          restrictedProviderImport('@mongodb-js/compass-preferences-model'),
           ...require('module')
             .builtinModules.filter((module) => {
               return (

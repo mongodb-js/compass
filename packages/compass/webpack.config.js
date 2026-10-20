@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 // @ts-ignore
-const { Target: HadronBuildTarget } = require('hadron-build');
+const { Target: HadronBuildTarget } = require('@mongodb-js/hadron-build');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
 
 const {

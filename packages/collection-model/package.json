@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-collection-model",
+  "name": "@mongodb-js/mongodb-collection-model",
   "description": "MongoDB collection model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "5.42.3",

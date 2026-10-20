@@ -1,10 +1,10 @@
 import React from 'react';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import {
   PreferencesProvider,
   usePreferencesContext,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import {
   AtlasAuthServiceProvider,

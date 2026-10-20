@@ -38,7 +38,7 @@ import type {
   ColumnResizedEvent,
 } from 'ag-grid-community';
 import { AllCommunityModule } from 'ag-grid-community';
-import { withPreferences } from 'compass-preferences-model/provider';
+import { withPreferences } from '@mongodb-js/compass-preferences-model/provider';
 
 const MIXED = 'Mixed' as const;
 

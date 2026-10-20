@@ -16,11 +16,11 @@ import { configureStore } from '../stores/query-bar-store';
 import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import { AIQueryActionTypes } from '../stores/ai-query-reducer';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { mapQueryToFormFields } from '../utils/query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
   FavoriteQueryStorageProvider,

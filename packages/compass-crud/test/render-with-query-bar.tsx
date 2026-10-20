@@ -1,7 +1,7 @@
 import React, { type PropsWithChildren } from 'react';
 import { render } from '@mongodb-js/testing-library-compass';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {

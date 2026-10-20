@@ -20,7 +20,7 @@ import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/prov
 import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
 import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
 import {

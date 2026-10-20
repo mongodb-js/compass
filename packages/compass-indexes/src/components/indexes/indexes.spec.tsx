@@ -20,7 +20,7 @@ import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 
 const renderIndexes = async (
   options: Partial<IndexesPluginOptions> = {},

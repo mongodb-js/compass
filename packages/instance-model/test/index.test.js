@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const { MongoDBInstance } = require('../');
 const {
   createSandboxFromDefaultPreferences,
-} = require('compass-preferences-model');
+} = require('@mongodb-js/compass-preferences-model');
 
 describe('mongodb-instance-model', function () {
   let preferences;

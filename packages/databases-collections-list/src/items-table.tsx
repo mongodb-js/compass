@@ -42,7 +42,7 @@ import {
   useOpenWorkspace,
   useTabState,
 } from '@mongodb-js/compass-workspaces/provider';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import {
   buildChartsUrl,
   buildMonitoringUrl,

@@ -16,7 +16,7 @@ import {
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toSimplifiedFieldInfo from './to-simplified-field-info';
 import {

@@ -6,7 +6,7 @@ import {
   type AllPreferences,
   type FeatureFlagDefinition,
   type FeatureFlags,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { useEffect, useState } from 'react';
 import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
 

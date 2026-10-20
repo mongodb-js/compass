@@ -9,7 +9,7 @@ import type { ExplainPlanModalProps } from './explain-plan-modal';
 import { ExplainPlanModal } from './explain-plan-modal';
 import { Provider } from 'react-redux';
 import { activatePlugin } from '../stores';
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 
 function render(
   props: Partial<ExplainPlanModalProps>,

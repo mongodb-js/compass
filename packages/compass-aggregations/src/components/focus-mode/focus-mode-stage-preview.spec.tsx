@@ -14,8 +14,8 @@ import {
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
 import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 
 import {
   renderWithStore,

@@ -16,7 +16,7 @@ import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
 import { getIsNewPipelineFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import ModifySourceBanner from '../../modify-source-banner';
 
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import PipelineExportActions from '../pipeline-export-actions';
 
 const containerStyles = css({

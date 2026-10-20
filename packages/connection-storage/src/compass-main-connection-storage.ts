@@ -1,4 +1,4 @@
-import { type HadronIpcMain, ipcMain } from 'hadron-ipc';
+import { type HadronIpcMain, ipcMain } from '@mongodb-js/hadron-ipc';
 import { safeStorage } from 'electron';
 import fsPromises from 'fs/promises';
 import ConnectionString from 'mongodb-connection-string-url';

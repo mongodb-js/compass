@@ -3,7 +3,7 @@ import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import { UUID } from 'bson';
 import { isCancelError } from '@mongodb-js/compass-utils';
 
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -15,7 +15,7 @@ import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-import { type PreferencesAccess } from 'compass-preferences-model/provider';
+import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from 'mongodb-ns';

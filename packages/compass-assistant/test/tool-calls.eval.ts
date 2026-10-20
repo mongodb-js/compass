@@ -18,7 +18,7 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 import {

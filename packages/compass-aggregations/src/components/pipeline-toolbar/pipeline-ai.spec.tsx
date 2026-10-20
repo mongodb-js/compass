@@ -6,8 +6,8 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import PipelineAI from './pipeline-ai';
 import {
   MockAtlasAiService,
@@ -19,7 +19,7 @@ import {
   changeAIPromptText,
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import type { AggregationsStore } from '../../stores/store';
 import type Sinon from 'sinon';
 

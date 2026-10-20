@@ -14,7 +14,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const aggregationCommentModeId = 'aggregation-comment-mode';
 const aggregationCommentModeDescriptionId =
