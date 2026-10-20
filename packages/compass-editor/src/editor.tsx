@@ -93,9 +93,7 @@ const readOnlyStyle = css({
 
 const hiddenScrollStyle = css({
   '& .cm-scroller': {
-    // Firefox
-    scrollbarWidth: 'none',
-    // Legacy Edge / IE
+    overflow: '-moz-scrollbars-none',
     msOverflowStyle: 'none',
   },
   '& .cm-scroller::-webkit-scrollbar': {
@@ -807,7 +805,10 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   const containerRef = useRef<HTMLDivElement>(null);
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const editorViewRef = useRef<EditorView>();
-  const [contentHeight, setContentHeight] = useState(0);
+  const [{ height: contentHeight, hasScroll }, setContentHeight] = useState({
+    height: 0,
+    hasScroll: false,
+  });
   const initialJSONFoldAll = useRef(_initialJSONFoldAll);
 
   useImperativeHandle(ref, () => {
@@ -1017,18 +1018,17 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   const updateEditorContentHeight = useCallback(() => {
     editorViewRef.current?.requestMeasure({
       read(view) {
-        // `contentHeight` covers the document only, so it doesn't account for
-        // a horizontal scrollbar shown next to it. How much room that scrollbar
-        // takes depends on the environment (10px for the scrollbars Compass
-        // renders itself in Electron, the native size otherwise, which is
-        // wider on Windows), so measure it instead of assuming a size.
-        const scrollbarHeight =
-          view.scrollDOM.offsetHeight - view.scrollDOM.clientHeight;
-        return view.contentHeight + scrollbarHeight;
+        return [
+          view.contentHeight,
+          view.scrollDOM.scrollWidth > view.scrollDOM.clientWidth,
+        ] as const;
       },
-      write(height) {
-        setContentHeight((currentHeight) => {
-          return height !== currentHeight ? height : currentHeight;
+      write([height, hasScroll]) {
+        setContentHeight((state) => {
+          if (height !== state.height || hasScroll !== state.hasScroll) {
+            return { height, hasScroll };
+          }
+          return state;
         });
       },
     });
@@ -1260,13 +1260,13 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   // every character input in worst case scenarios
   useLayoutEffect(() => {
     if (containerRef.current) {
-      const height = Math.min(
-        contentHeight,
-        (maxLines ?? Infinity) * lineHeight
-      );
+      const scrollHeight = hasScroll && showScroll ? 10 : 0;
+      const height =
+        Math.min(contentHeight, (maxLines ?? Infinity) * lineHeight) +
+        scrollHeight;
       containerRef.current.style.height = `${height}px`;
     }
-  }, [maxLines, contentHeight, lineHeight]);
+  }, [maxLines, contentHeight, hasScroll, lineHeight, showScroll]);
 
   const autoFocusRef = useRef(autoFocus);
 
