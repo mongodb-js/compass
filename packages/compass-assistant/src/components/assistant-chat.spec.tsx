@@ -624,6 +624,7 @@ describe('AssistantChat', function () {
           text: undefined,
           request_id: undefined,
           source: 'performance insights',
+          skills_used: [],
         });
       });
     });
@@ -654,6 +655,7 @@ describe('AssistantChat', function () {
           text: undefined,
           request_id: undefined,
           source: 'performance insights',
+          skills_used: [],
         });
       });
     });
@@ -694,6 +696,7 @@ describe('AssistantChat', function () {
           text: undefined,
           request_id: undefined,
           source: 'performance insights',
+          skills_used: [],
         });
 
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
@@ -702,6 +705,7 @@ describe('AssistantChat', function () {
           text: 'This response was not helpful',
           request_id: undefined,
           source: 'performance insights',
+          skills_used: [],
         });
       });
     });
@@ -735,7 +739,48 @@ describe('AssistantChat', function () {
           text: undefined,
           request_id: undefined,
           source: 'chat response',
+          skills_used: [],
         });
+      });
+    });
+
+    it('tracks the skills used by the rated message', async function () {
+      const { result } = renderWithChat(
+        createMockChat({
+          messages: [
+            mockMessages[0],
+            {
+              ...mockMessages[1],
+              metadata: {
+                ...mockMessages[1].metadata,
+                skillsUsed: [
+                  'mongodb-schema-design',
+                  'mongodb-query-optimizer',
+                ],
+              },
+            },
+          ],
+        })
+      );
+
+      userEvent.click(
+        within(
+          screen.getByTestId('assistant-message-assistant')
+        ).getByLabelText('Like this message')
+      );
+
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Assistant Feedback Submitted',
+          {
+            thread_id: currentChat.threadId,
+            feedback: 'positive',
+            text: undefined,
+            request_id: undefined,
+            source: 'performance insights',
+            skills_used: ['mongodb-schema-design', 'mongodb-query-optimizer'],
+          }
+        );
       });
     });
 

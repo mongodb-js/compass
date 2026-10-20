@@ -471,6 +471,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           text: textFeedback,
           request_id: message.metadata?.requestId,
           source: message.metadata?.source ?? 'chat response',
+          skills_used: message.metadata?.skillsUsed ?? [],
           thread_id: chat.threadId,
         },
         message.metadata?.connectionInfo ?? undefined
