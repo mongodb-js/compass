@@ -8,8 +8,10 @@ import {
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useAssistantGlobalState } from '../assistant-global-state';
-import type { AssistantMessage } from '../compass-assistant-provider';
-import type { Chat } from '../@ai-sdk/react/chat-react';
+import type {
+  AssistantMessage,
+  ThreadedChat,
+} from '../compass-assistant-provider';
 import type { SendMessageOptions } from './assistant-chat';
 
 const { MessagePrompts, MessagePrompt } = LgChatMessagePrompts;
@@ -166,7 +168,7 @@ const suggestedPromptsStyles = css({
 });
 
 export const SuggestedPrompts: React.FunctionComponent<{
-  chat: Chat<AssistantMessage>;
+  chat: ThreadedChat;
   onMessageSend: (options: SendMessageOptions) => Promise<void>;
 }> = ({ chat, onMessageSend }) => {
   const darkMode = useDarkMode();
@@ -221,6 +223,7 @@ export const SuggestedPrompts: React.FunctionComponent<{
             onClick={() => {
               track('Assistant Suggested Prompt Selected', {
                 suggested_prompt_id: id,
+                thread_id: chat.threadId,
               });
               void onMessageSend(message);
             }}
