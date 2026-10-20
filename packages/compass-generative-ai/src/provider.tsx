@@ -137,12 +137,6 @@ export {
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
 
-export type {
-  MockDataSchemaRequest,
-  MockDataSchemaRawField,
-  MockDataSchemaToolOutput,
-} from './atlas-ai-service';
-
-export { mockDataSchemaToolSchema } from './atlas-ai-service';
+export type { MockDataSchemaRequest } from './atlas-ai-service';
 
 export type { AtlasConnectionDebugResult } from './tools/debug-connection';

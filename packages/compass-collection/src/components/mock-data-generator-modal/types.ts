@@ -1,4 +1,4 @@
-import type { MockDataSchemaToolOutput } from '@mongodb-js/compass-generative-ai/provider';
+import type { MockDataSchemaToolOutput } from '@mongodb-js/mock-data-generator';
 import type {
   FakerFieldMapping,
   FakerSchema,

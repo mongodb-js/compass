@@ -23,11 +23,7 @@ export {
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
 
-export type {
-  MockDataSchemaRequest,
-  MockDataSchemaRawField,
-  MockDataSchemaToolOutput,
-} from './atlas-ai-service';
+export type { MockDataSchemaRequest } from './atlas-ai-service';
 
 export {
   READ_ONLY_DATABASE_TOOLS,
