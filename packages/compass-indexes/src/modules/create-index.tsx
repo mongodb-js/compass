@@ -23,6 +23,8 @@ export const ActionTypes = {
   CreateIndexOpened: 'compass-indexes/create-index/create-index-shown',
   CreateIndexClosed: 'compass-indexes/create-index/create-index-hidden',
 
+  CreateIndexFormValidationStarted:
+    'compass-indexes/create-index/create-index-form-validation-started',
   CreateIndexFormSubmitted:
     'compass-indexes/create-index/create-index-form-submitted',
 } as const;
@@ -73,6 +75,10 @@ export type CreateIndexOpenedAction = {
 
 type CreateIndexClosedAction = {
   type: typeof ActionTypes.CreateIndexClosed;
+};
+
+type CreateIndexFormValidationStartedAction = {
+  type: typeof ActionTypes.CreateIndexFormValidationStarted;
 };
 
 /**
@@ -279,6 +285,9 @@ export type State = {
   // Client-side validation error
   error: string | null;
 
+  // Whether the submitted form is being validated before index creation
+  isSubmitting: boolean;
+
   // form fields related
   fields: Field[];
 
@@ -290,6 +299,7 @@ export const INITIAL_STATE: State = {
   indexId: new ObjectId().toHexString(),
   isVisible: false,
   error: null,
+  isSubmitting: false,
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
 };
@@ -360,9 +370,28 @@ function fieldTypeToIndexDirection(type: string): IndexDirection {
 
 export const createIndexFormSubmitted = (): IndexesThunkAction<
   Promise<void>,
-  ErrorEncounteredAction | CreateIndexFormSubmittedAction
+  | ErrorEncounteredAction
+  | CreateIndexFormValidationStartedAction
+  | CreateIndexFormSubmittedAction
 > => {
   return async (dispatch, getState, { track }) => {
+    if (getState().createIndex.isSubmitting) {
+      return;
+    }
+    dispatch({ type: ActionTypes.CreateIndexFormValidationStarted });
+    const { indexId } = getState().createIndex;
+
+    // Closing or reopening the modal during validation makes this submit stale.
+    const isStale = () => {
+      const { isSubmitting, indexId: currentIndexId } = getState().createIndex;
+      return !isSubmitting || currentIndexId !== indexId;
+    };
+    const fail = (error: string) => {
+      if (!isStale()) {
+        dispatch(errorEncountered(error));
+      }
+    };
+
     track('Create Index Button Clicked', {
       context: 'Create Index Modal',
     });
@@ -379,7 +408,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
         })
       );
     } catch (e) {
-      dispatch(errorEncountered((e as any).message));
+      fail((e as any).message);
       return;
     }
 
@@ -396,7 +425,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     }
 
     if (formIndexOptions.collation.enabled && !collation) {
-      dispatch(errorEncountered('You must provide a valid collation object'));
+      fail('You must provide a valid collation object');
       return;
     }
 
@@ -424,11 +453,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
         formIndexOptions.expireAfterSeconds.value
       );
       if (isNaN(options.expireAfterSeconds)) {
-        dispatch(
-          errorEncountered(
-            `Bad TTL: "${String(formIndexOptions.expireAfterSeconds.value)}"`
-          )
-        );
+        fail(`Bad TTL: "${String(formIndexOptions.expireAfterSeconds.value)}"`);
         return;
       }
     }
@@ -439,7 +464,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
           formIndexOptions.wildcardProjection.value ?? ''
         )) as Document;
       } catch (err) {
-        dispatch(errorEncountered(`Bad WildcardProjection: ${String(err)}`));
+        fail(`Bad WildcardProjection: ${String(err)}`);
         return;
       }
     }
@@ -451,7 +476,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
           formIndexOptions.columnstoreProjection.value ?? ''
         );
       } catch (err) {
-        dispatch(errorEncountered(`Bad ColumnstoreProjection: ${String(err)}`));
+        fail(`Bad ColumnstoreProjection: ${String(err)}`);
         return;
       }
     }
@@ -462,9 +487,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
           formIndexOptions.partialFilterExpression.value ?? ''
         )) as Document;
       } catch (err) {
-        dispatch(
-          errorEncountered(`Bad PartialFilterExpression: ${String(err)}`)
-        );
+        fail(`Bad PartialFilterExpression: ${String(err)}`);
         return;
       }
     }
@@ -483,10 +506,14 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
       }
     }
 
+    if (isStale()) {
+      return;
+    }
+
     dispatch({ type: ActionTypes.CreateIndexFormSubmitted });
     void dispatch(
       createRegularIndex(
-        getState().createIndex.indexId,
+        indexId,
         spec,
         options,
         !!formIndexOptions.buildInRollingProcess.value
@@ -580,6 +607,19 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       error: action.error,
+      isSubmitting: false,
+    };
+  }
+
+  if (
+    isAction<CreateIndexFormValidationStartedAction>(
+      action,
+      ActionTypes.CreateIndexFormValidationStarted
+    )
+  ) {
+    return {
+      ...state,
+      isSubmitting: true,
     };
   }
 
@@ -596,6 +636,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
+      isSubmitting: false,
     };
   }
 
@@ -608,6 +649,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
+      isSubmitting: false,
     };
   }
 

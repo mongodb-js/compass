@@ -21,6 +21,7 @@ import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
 import { isAutoEmbedIndex } from '../utils/is-auto-embed-index';
 import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
+import { parseShellBSON } from '../utils/parse-shell-bson';
 import {
   ExperimentTestGroups,
   ExperimentTestNames,
@@ -535,11 +536,11 @@ export const stopPollingSearchIndexes = (): IndexesThunkAction<void, never> => {
 export const createIndex = ({
   name,
   type,
-  definition,
+  definition: definitionSource,
 }: {
   name: string;
   type?: string;
-  definition: Document;
+  definition: string;
 }): IndexesThunkAction<
   Promise<void>,
   | CreateSearchIndexStartedAction
@@ -554,6 +555,10 @@ export const createIndex = ({
   ) {
     const { namespace, searchIndexes } = getState();
 
+    if (searchIndexes.createIndex.isBusy) {
+      return;
+    }
+
     dispatch(createSearchIndexStarted());
 
     if (name === '') {
@@ -567,6 +572,19 @@ export const createIndex = ({
           ATLAS_SEARCH_SERVER_ERRORS['IndexAlreadyExists']
         )
       );
+      return;
+    }
+
+    let definition: Document;
+    try {
+      definition = (await parseShellBSON(definitionSource)) as Document;
+    } catch (ex) {
+      dispatch(createSearchIndexFailed((ex as Error).message));
+      return;
+    }
+
+    // Closing the create view while parsing resets `isBusy`.
+    if (!getState().searchIndexes.createIndex.isBusy) {
       return;
     }
 
@@ -621,11 +639,11 @@ export const createIndex = ({
 
 export const updateIndex = ({
   name,
-  definition,
+  definition: definitionSource,
 }: {
   name: string;
   type?: string;
-  definition: Document;
+  definition: string;
 }): IndexesThunkAction<
   Promise<void>,
   | UpdateSearchIndexClosedAction
@@ -640,8 +658,27 @@ export const updateIndex = ({
   ) {
     const {
       namespace,
-      searchIndexes: { indexes },
+      searchIndexes: { indexes, updateIndex },
     } = getState();
+
+    if (updateIndex.isBusy) {
+      return;
+    }
+
+    dispatch(updateSearchIndexStarted());
+
+    let definition: Document;
+    try {
+      definition = (await parseShellBSON(definitionSource)) as Document;
+    } catch (e) {
+      dispatch(updateSearchIndexFailed((e as Error).message));
+      return;
+    }
+
+    // Closing the edit view while parsing resets `isBusy`.
+    if (!getState().searchIndexes.updateIndex.isBusy) {
+      return;
+    }
 
     const currentIndexDefinition = indexes.find(
       (x) => x.name === name
@@ -652,7 +689,6 @@ export const updateIndex = ({
     }
 
     try {
-      dispatch(updateSearchIndexStarted());
       await dataService.updateSearchIndex(namespace, name, definition);
       dispatch(updateSearchIndexSucceeded());
       track(

@@ -166,7 +166,7 @@ describe('Base Search Index Modal', function () {
         await waitFor(() => {
           expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
             name: 'default',
-            definition: {},
+            definition: '{}',
             type: 'search',
           });
         });
@@ -201,7 +201,7 @@ describe('Base Search Index Modal', function () {
         await waitFor(() => {
           expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
             name: 'vector_index',
-            definition: VALID_ATLAS_SEARCH_INDEX_DEFINITION,
+            definition: VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING,
             type: 'vectorSearch',
           });
         });
@@ -253,7 +253,7 @@ describe('Base Search Index Modal', function () {
         // Ensure the state is updated when the index type and snippet change.
         expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
           name: 'default',
-          definition: { mappings: { dynamic: true } },
+          definition: normalizedTemplateNamed('Dynamic field mappings'),
           type: 'search',
         });
       });
@@ -804,7 +804,7 @@ describe('Base Search Index Modal', function () {
       await waitFor(() => {
         expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
           name: 'idx',
-          definition: newDefinition,
+          definition: JSON.stringify(newDefinition),
           type: 'search',
         });
       });

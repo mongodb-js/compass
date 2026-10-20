@@ -33,13 +33,11 @@ import {
   editorContainerDarkModeStyles,
   overflowWrapStyles,
 } from './drawer-view-styles';
-import type { Document } from 'mongodb';
 import {
   CodemirrorMultilineEditor,
   useJsonSchemaAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
@@ -96,7 +94,7 @@ type CreateSearchIndexViewProps = {
   onResetCreateState: () => void;
   createIndex: (index: {
     name: string;
-    definition: Document;
+    definition: string;
     type?: string;
   }) => void;
   onIndexDefinitionEdit: (isDirty: boolean) => void;
@@ -213,14 +211,14 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     [onIndexDefinitionEdit]
   );
 
-  const onCreateClick = useCallback(async () => {
+  const onCreateClick = useCallback(() => {
     track('Search Index Create Submitted', {
       context: 'Create Search Index Drawer View',
       index_type: currentIndexType,
     });
     createIndex({
       name,
-      definition: (await parseShellBSON(indexDefinition)) as Document,
+      definition: indexDefinition,
       type: currentIndexType,
     });
   }, [name, indexDefinition, createIndex, currentIndexType, track]);
@@ -318,7 +316,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
               isLoading={isBusy}
               loadingIndicator={<SpinLoader />}
               disabled={!isCreateEnabled || !isSearchIndexesWritable}
-              onClick={() => void onCreateClick()}
+              onClick={onCreateClick}
             >
               Create {indexLabel}
             </Button>

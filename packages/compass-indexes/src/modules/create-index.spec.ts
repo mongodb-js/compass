@@ -188,6 +188,61 @@ describe('create-index module', function () {
         });
       });
     });
+
+    describe('concurrent submissions', function () {
+      const flush = () => new Promise((resolve) => setTimeout(resolve, 50));
+
+      beforeEach(function () {
+        setOption('partialFilterExpression', '{ age: { $gt: 5 } }');
+      });
+
+      it('ignores repeated submits while validation is in flight', async function () {
+        await Promise.all([
+          store.dispatch(createIndexFormSubmitted()),
+          store.dispatch(createIndexFormSubmitted()),
+        ]);
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+        await flush();
+
+        expect(createIndexSpy).to.have.been.calledOnce;
+      });
+
+      it('allows submitting again after a validation error', async function () {
+        setOption('wildcardProjection', 'not a wildcard projection');
+        await store.dispatch(createIndexFormSubmitted());
+        expect(store.getState().createIndex.error).to.match(
+          /^Bad WildcardProjection/
+        );
+
+        setOption('wildcardProjection', '{ fieldA: 1 }');
+        await store.dispatch(createIndexFormSubmitted());
+
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+      });
+
+      it('does not create the index when the modal is closed during validation', async function () {
+        const submitted = store.dispatch(createIndexFormSubmitted());
+        store.dispatch(createIndexClosed());
+        await submitted;
+        await flush();
+
+        expect(createIndexSpy).to.not.have.been.called;
+      });
+
+      it('does not show a stale validation error after the modal is reopened', async function () {
+        setOption('wildcardProjection', 'not a wildcard projection');
+        const submitted = store.dispatch(createIndexFormSubmitted());
+        store.dispatch(createIndexClosed());
+        store.dispatch(createIndexOpened());
+        await submitted;
+
+        expect(store.getState().createIndex.error).to.equal(null);
+      });
+    });
   });
 
   describe('fieldAdded', function () {

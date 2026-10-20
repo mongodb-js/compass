@@ -43,7 +43,6 @@ import {
   useJsonSchemaAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import type { SearchIndex } from 'mongodb-data-service';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
@@ -76,7 +75,7 @@ type EditSearchIndexViewProps = {
   error?: string;
   onClose: () => void;
   onResetUpdateState: () => void;
-  updateIndex: (index: { name: string; definition: Document }) => void;
+  updateIndex: (index: { name: string; definition: string }) => void;
   onIndexDefinitionEdit: (isDirty: boolean) => void;
 };
 
@@ -172,14 +171,14 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     onIndexDefinitionEdit
   );
 
-  const onSaveClick = useCallback(async () => {
+  const onSaveClick = useCallback(() => {
     track('Search Index Edit Submitted', {
       context: 'Edit Search Index Drawer View',
       index_type: searchIndex.type ?? 'search',
     });
     updateIndex({
       name: searchIndex.name,
-      definition: (await parseShellBSON(indexDefinition)) as Document,
+      definition: indexDefinition,
     });
   }, [searchIndex, indexDefinition, updateIndex, track]);
 
@@ -284,7 +283,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
               isLoading={isBusy}
               loadingIndicator={<SpinLoader />}
               disabled={!isSaveEnabled || !isSearchIndexesWritable}
-              onClick={() => void onSaveClick()}
+              onClick={onSaveClick}
             >
               Save and Rebuild
             </Button>
