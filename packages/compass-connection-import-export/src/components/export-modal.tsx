@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ipcRenderer } from 'hadron-ipc';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 import {
   Banner,
   Checkbox,
@@ -15,7 +15,7 @@ import { Passphrase } from './passphrase';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export-connections';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const tableStyles = css({
   maxHeight: '24vh',

@@ -6,7 +6,7 @@ import type {
   CollectionSubtab,
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';

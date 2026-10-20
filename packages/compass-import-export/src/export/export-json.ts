@@ -4,7 +4,7 @@ import { EJSON } from 'bson';
 import type { Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { AggregationCursor, FindCursor } from 'mongodb';
 import { objectToIdiomaticEJSON } from 'hadron-document';
 

@@ -4,7 +4,7 @@ import type { SettingsThunkAction } from '.';
 import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 
 export type SettingsTabId =
   'general' | 'theme' | 'privacy' | 'oidc' | 'ai' | 'proxy' | 'preview';

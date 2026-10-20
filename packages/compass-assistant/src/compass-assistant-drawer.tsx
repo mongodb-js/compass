@@ -17,7 +17,7 @@ import {
 import {
   useIsAIFeatureEnabled,
   usePreference,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { useChat } from './@ai-sdk/react/use-chat';
 import { UUID } from 'bson';
 import { stopChat } from './utils';

@@ -27,8 +27,8 @@ import type {
   AtlasServiceConfig,
 } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { HadronIpcMain } from 'hadron-ipc';
-import { ipcMain } from 'hadron-ipc';
+import type { HadronIpcMain } from '@mongodb-js/hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import { SecretStore } from './secret-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';

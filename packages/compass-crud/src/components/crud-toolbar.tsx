@@ -23,7 +23,7 @@ import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
 import { type DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { BulkActionsMenu } from './bulk-actions-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';

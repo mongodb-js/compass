@@ -7,11 +7,11 @@ import {
   dialog,
   shell,
 } from 'electron';
-import { ipcMain } from 'hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
-import type { THEMES } from 'compass-preferences-model';
+import type { THEMES } from '@mongodb-js/compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';

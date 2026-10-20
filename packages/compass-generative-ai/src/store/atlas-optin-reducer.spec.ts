@@ -1,8 +1,8 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { configureStore } from './atlas-ai-store';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import {
   atlasAiServiceOptedIn,
   attemptId,

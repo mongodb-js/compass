@@ -6,8 +6,8 @@ import {
   Icon,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { UserConfigurablePreferences } from 'compass-preferences-model';
-import { timezoneObservesDaylightSavings } from 'compass-preferences-model/provider';
+import type { UserConfigurablePreferences } from '@mongodb-js/compass-preferences-model';
+import { timezoneObservesDaylightSavings } from '@mongodb-js/compass-preferences-model/provider';
 import type { SupportedPreferences } from './settings/settings-list';
 
 const containerStyles = css({

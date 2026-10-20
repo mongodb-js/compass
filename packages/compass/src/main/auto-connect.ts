@@ -1,4 +1,4 @@
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
 import { checkConnectionStringPolicy } from '@mongodb-js/connection-string-policy';

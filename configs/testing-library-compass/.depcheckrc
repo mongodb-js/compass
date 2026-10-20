@@ -17,7 +17,7 @@ ignores:
   - '@mongodb-js/connection-storage'
   - '@mongodb-js/atlas-service'
   - '@mongodb-js/atlas-admin-api'
-  - 'compass-preferences-model'
+  - '@mongodb-js/compass-preferences-model'
   - 'mongodb-data-service'
 ignore-patterns:
   - 'dist'

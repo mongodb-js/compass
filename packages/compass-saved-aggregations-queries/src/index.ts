@@ -11,7 +11,7 @@ import {
   pipelineStorageLocator,
   favoriteQueryStorageAccessLocator,
 } from '@mongodb-js/my-queries-storage/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
 

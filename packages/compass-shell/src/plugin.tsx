@@ -6,7 +6,7 @@ import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import TabShell from './components/compass-shell/tab-compass-shell';
 import { applyMiddleware, createStore } from 'redux';
@@ -22,7 +22,7 @@ import {
   ThemeProvider,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const DARK_SHELL_THEME = { theme: Themes.Dark, enabled: true };
 const LIGHT_SHELL_THEME = { theme: Themes.Light, enabled: true };

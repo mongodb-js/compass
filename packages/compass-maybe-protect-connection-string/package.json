@@ -47,7 +47,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "compass-preferences-model": "^3.6.0",
+    "@mongodb-js/compass-preferences-model": "^3.6.0",
     "mongodb-connection-string-url": "^7.0.1"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@ import type { SimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import {
   type PreferencesAccess,
   isAIFeatureEnabled,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';

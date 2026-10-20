@@ -10,8 +10,8 @@ import type { SinonSpy } from 'sinon';
 
 import { renderWithStore } from '../../../test/configure-store';
 import { PipelineExportActions } from './pipeline-export-actions';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 
 describe('PipelineExportActions', function () {
   describe('basic functionality', function () {

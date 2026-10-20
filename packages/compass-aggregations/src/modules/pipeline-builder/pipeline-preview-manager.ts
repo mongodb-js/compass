@@ -12,7 +12,7 @@ import {
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
 import type { DataService } from '../data-service';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 
 // Used in the `comment` on the aggregate command to help identify
 // the operation in server logs and currentOp.

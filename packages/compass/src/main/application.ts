@@ -3,7 +3,7 @@ import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
 import { app, safeStorage, session, utilityProcess } from 'electron';
-import { ipcMain } from 'hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -14,11 +14,11 @@ import { setupCSFLELibrary } from './setup-csfle-library';
 import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import {
   proxyPreferenceToProxyOptions,
   setupPreferencesAndUser,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';

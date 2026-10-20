@@ -24,7 +24,7 @@ import { assign, cloneDeep, isEqual, merge } from 'lodash';
 import {
   proxyPreferenceToProxyOptions,
   type PreferencesAccess,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';

@@ -12,9 +12,9 @@ import { OptionEditor, getOptionBasedQueries } from './option-editor';
 import type { SinonSpy } from 'sinon';
 import { applyFromHistory } from '../stores/query-bar-reducer';
 import sinon from 'sinon';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { DocumentList } from '@mongodb-js/compass-components';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 
 class MockPasteEvent extends window.Event {
   private text: string;
