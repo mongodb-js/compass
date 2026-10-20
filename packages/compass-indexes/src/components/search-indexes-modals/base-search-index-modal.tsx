@@ -228,17 +228,12 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     };
   });
 
-  const { error: parseError, pending: isParsePending } = useAsyncValue(
+  const { error: parseError } = useAsyncValue(
     () => parseShellBSON(indexDefinition),
     [indexDefinition]
   );
-  // Until the current definition has been parsed, keep showing no error rather
-  // than one for older text.
-  const parsingError = isParsePending
-    ? undefined
-    : (parseError as ParsingError | undefined);
-
-  // https://github.com/mongodb-js/ejson-shell-parser/blob/master/src/index.ts#L30
+  const parsingError = parseError as ParsingError | undefined;
+  // https://github.com/mongodb-js/devtools-shared/blob/d54cd0133006a24bd98ce70deb65d7ba791875b7/packages/shell-bson-parser/src/parse.ts#L32
   // Wraps the input in (\n$input\n) so we need to substract 4 chars from the position.
   const annotations = useMemo<Annotation[]>(() => {
     if (parsingError && parsingError.pos) {
