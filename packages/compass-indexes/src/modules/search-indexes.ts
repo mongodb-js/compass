@@ -617,9 +617,6 @@ export const createIndex = ({
     } catch (ex) {
       const error = (ex as Error).message;
 
-      dispatch(
-        createSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
-      );
       track(
         'Index Create Failed',
         {
@@ -628,10 +625,14 @@ export const createIndex = ({
         },
         connectionInfoRef.current
       );
+      if (!isCancelled()) {
+        dispatch(
+          createSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
+        );
+      }
       return;
     }
 
-    dispatch(createSearchIndexSucceeded());
     track(
       'Index Created',
       {
@@ -640,6 +641,10 @@ export const createIndex = ({
       },
       connectionInfoRef.current
     );
+    if (isCancelled()) {
+      return;
+    }
+    dispatch(createSearchIndexSucceeded());
 
     openToast('search-index-creation-in-progress', {
       title: `Your index ${name} is in progress.`,
@@ -709,28 +714,34 @@ export const updateIndex = ({
 
     try {
       await dataService.updateSearchIndex(namespace, name, definition);
-      dispatch(updateSearchIndexSucceeded());
-      track(
-        'Index Edited',
-        {
-          atlas_search: true,
-        },
-        connectionInfoRef.current
-      );
-      openToast('search-index-update-in-progress', {
-        title: `Your index ${name} is being updated.`,
-        dismissible: true,
-        timeout: 5000,
-        variant: 'progress',
-      });
-      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (e) {
       const error = (e as Error).message;
-      dispatch(
-        updateSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
-      );
+      if (!isCancelled()) {
+        dispatch(
+          updateSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
+        );
+      }
       return;
     }
+
+    track(
+      'Index Edited',
+      {
+        atlas_search: true,
+      },
+      connectionInfoRef.current
+    );
+    if (isCancelled()) {
+      return;
+    }
+    dispatch(updateSearchIndexSucceeded());
+    openToast('search-index-update-in-progress', {
+      title: `Your index ${name} is being updated.`,
+      dismissible: true,
+      timeout: 5000,
+      variant: 'progress',
+    });
+    await dispatch(fetchIndexes(FetchReasons.REFRESH));
   };
 };
 
