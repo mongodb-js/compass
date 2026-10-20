@@ -148,7 +148,7 @@ type BaseSearchIndexModalProps = {
   onSubmit: (index: {
     name: string;
     type?: string;
-    definition: Document;
+    definition: string;
   }) => void;
   onClose: () => void;
   onClearError: () => void;
@@ -308,17 +308,10 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     [error, onClearError]
   );
 
-  const onSubmitIndex = useCallback(async () => {
-    let indexDefinitionDoc: Document;
-    try {
-      indexDefinitionDoc = (await parseShellBSON(indexDefinition)) as Document;
-    } catch {
-      // The parse error is already shown for this definition.
-      return;
-    }
+  const onSubmitIndex = useCallback(() => {
     onSubmit({
       name: indexName,
-      definition: indexDefinitionDoc,
+      definition: indexDefinition,
       ...(isVectorSearchSupported
         ? {
             type: searchIndexType,
@@ -627,7 +620,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             <Button
               data-testid="search-index-submit-button"
               variant="primary"
-              onClick={() => void onSubmitIndex()}
+              onClick={onSubmitIndex}
               disabled={isBusy || !!parsingError || isIndexDefinitionUnchanged}
               isLoading={isBusy}
               loadingIndicator={<SpinLoader />}
