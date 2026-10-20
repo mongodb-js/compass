@@ -201,6 +201,8 @@ export function parseQueryAttributes(query: QueryAttributes): Document {
           return [key, value];
         }
         try {
+          // Strict mode returns '' for comments and method calls, so all
+          // queries using them would be considered equal.
           return [key, parse(value, { mode: ParseMode.Loose })];
         } catch {
           return [key, value];

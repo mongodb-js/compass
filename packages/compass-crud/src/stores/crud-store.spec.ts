@@ -2760,6 +2760,9 @@ describe('store', function () {
         filter: {
           _id: new ObjectId('507f1f77bcf86cd799439011'),
           count: Long.fromString('9007199254740993'),
+          size: new Int32(5),
+          ratio: new Double(5),
+          price: Decimal128.fromString('1.50'),
         },
       });
       const update = `{
@@ -2772,8 +2775,13 @@ describe('store', function () {
       expect(saveQueryStub).to.have.been.calledWith({
         _name: 'my-query',
         _ns: 'compass-crud.testview',
-        filter:
-          "{\n  _id: ObjectId('507f1f77bcf86cd799439011'),\n  count: NumberLong('9007199254740993')\n}",
+        filter: `{
+  _id: ObjectId('507f1f77bcf86cd799439011'),
+  count: NumberLong('9007199254740993'),
+  size: NumberInt('5'),
+  ratio: Double('5'),
+  price: NumberDecimal('1.50')
+}`,
         update,
       });
     });

@@ -4,11 +4,14 @@ import path from 'path';
 import os from 'os';
 import {
   BSON,
+  Binary,
   Decimal128,
   Double,
   EJSON,
   Int32,
   Long,
+  MaxKey,
+  MinKey,
   ObjectId,
   Timestamp,
   UUID,
@@ -16,9 +19,11 @@ import {
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import Sinon from 'sinon';
 import { recentQueries, favoriteQueries } from '../test/fixtures/index';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import {
   createElectronRecentQueryStorage,
   createElectronFavoriteQueryStorage,
+  createWebRecentQueryStorage,
 } from './storage-factories';
 
 const queries = [
@@ -447,6 +452,9 @@ describe('queries saved as parsed values by older versions of Compass', function
       value: { uuid: new UUID('0b2c6e0a-4f2e-4a39-8e4b-7d2d6d1e1f10') },
     },
     { name: 'Timestamp', value: { ts: new Timestamp({ t: 1, i: 2 }) } },
+    { name: 'NaN and Infinity', value: { a: NaN, b: -Infinity } },
+    { name: 'MinKey and MaxKey', value: { a: new MinKey(), b: new MaxKey() } },
+    { name: 'Binary', value: { bin: Binary.createFromBase64('AAEC', 0) } },
     { name: 'regex', value: { name: /ber/i } },
     {
       name: 'nested objects and arrays',
@@ -531,6 +539,73 @@ describe('queries saved as parsed values by older versions of Compass', function
 
     const { loaded: reloaded } = await loadQuery();
     expect(reloaded).to.deep.include({
+      filter: loaded.filter,
+      hint: "'a_1'",
+      _host: 'localhost',
+    });
+  });
+});
+
+describe('web query storage', function () {
+  let docs: Record<string, string>;
+  let storage: ReturnType<typeof createWebRecentQueryStorage>;
+
+  beforeEach(function () {
+    docs = Object.create(null);
+    const atlasService = {
+      userDataEndpoint(
+        _orgId: string,
+        _projectId: string,
+        _type: string,
+        id?: string
+      ) {
+        return `/RecentQueries/${id ?? ''}`;
+      },
+      authenticatedFetch(url: string, init: { method: string; body?: string }) {
+        const id = url.split('/').pop();
+        if (init.method === 'PUT' && id) {
+          docs[id] = JSON.parse(init.body ?? '{}').data;
+        }
+        const json = id
+          ? { data: docs[id] }
+          : Object.values(docs).map((data) => ({ data }));
+        return Promise.resolve({ json: () => Promise.resolve(json) });
+      },
+    } as unknown as AtlasService;
+    storage = createWebRecentQueryStorage({
+      orgId: 'org',
+      projectId: 'project',
+      atlasService,
+    });
+  });
+
+  it('round trips query strings', async function () {
+    const filter =
+      "{\n  // a comment\n  count: NumberLong('9007199254740993')\n}";
+    await storage.saveQuery({ filter, limit: 10, _ns: 'db.coll' });
+
+    const [loaded] = await storage.loadAll();
+    expect(loaded).to.deep.include({ filter, limit: 10 });
+  });
+
+  it('converts and persists legacy queries', async function () {
+    const _id = new UUID().toString();
+    docs[_id] = EJSON.stringify({
+      _id,
+      _ns: 'db.coll',
+      _lastExecuted: new Date(),
+      filter: { _id: new ObjectId('507f1f77bcf86cd799439011') },
+      hint: 'a_1',
+    });
+
+    const [loaded] = await storage.loadAll();
+    expect(loaded).to.deep.include({
+      filter: "{\n  _id: ObjectId('507f1f77bcf86cd799439011')\n}",
+      hint: "'a_1'",
+    });
+
+    await storage.updateAttributes(_id, { _host: 'localhost' });
+    expect(JSON.parse(docs[_id])).to.deep.include({
       filter: loaded.filter,
       hint: "'a_1'",
       _host: 'localhost',

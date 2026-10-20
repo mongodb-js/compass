@@ -25,7 +25,7 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import type { RecentQuery } from '@mongodb-js/my-queries-storage';
-import { Double, Int32, Long, MinKey, ObjectId } from 'bson';
+import { Decimal128, Double, Int32, Long, MinKey, ObjectId } from 'bson';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},
@@ -316,6 +316,32 @@ describe('queryBarReducer', function () {
         expect(saveQueryStub).not.to.have.been.called;
       });
 
+      it('does not treat queries with different number types as duplicates', async function () {
+        const store = createStoreWithRecents([
+          recentQuery('{ count: NumberInt(5) }'),
+        ]);
+        store.dispatch(changeField('filter', '{ count: Double(5) }'));
+        store.dispatch(applyQuery('test'));
+
+        await waitFor(() => {
+          expect(saveQueryStub).to.have.been.calledOnce;
+        });
+        expect(updateAttributesStub).not.to.have.been.called;
+      });
+
+      it('does not treat different queries with comments as duplicates', async function () {
+        const store = createStoreWithRecents([
+          recentQuery('{ a: 1 } // first'),
+        ]);
+        store.dispatch(changeField('filter', '{ b: 2 } // second'));
+        store.dispatch(applyQuery('test'));
+
+        await waitFor(() => {
+          expect(saveQueryStub).to.have.been.calledOnce;
+        });
+        expect(updateAttributesStub).not.to.have.been.called;
+      });
+
       it('does not treat queries with different long values as duplicates', async function () {
         const store = createStoreWithRecents([
           recentQuery("{ count: NumberLong('9007199254740993') }"),
@@ -400,6 +426,7 @@ describe('queryBarReducer', function () {
   count: NumberLong('9007199254740993'),
   int: NumberInt(5),
   double: Double(5),
+  decimal: NumberDecimal('1.50'),
   date: ISODate('2020-01-01T00:00:00.000Z'),
   name: /ber/i,
   nested: { a: [1, { b: MinKey() }] }
@@ -414,6 +441,8 @@ describe('queryBarReducer', function () {
       expect(fields.filter.value.count.toString()).to.eq('9007199254740993');
       expect(fields.filter.value.int).to.be.instanceOf(Int32);
       expect(fields.filter.value.double).to.be.instanceOf(Double);
+      expect(fields.filter.value.decimal).to.be.instanceOf(Decimal128);
+      expect(fields.filter.value.decimal.toString()).to.eq('1.50');
       expect(fields.filter.value.date).to.deep.eq(
         new Date('2020-01-01T00:00:00.000Z')
       );

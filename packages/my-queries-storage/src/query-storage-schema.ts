@@ -73,6 +73,14 @@ function legacyHintToQueryString(value: unknown): string | undefined {
   return legacyValueToQueryString(value);
 }
 
+const LEGACY_QUERY_KEYS = [
+  'filter',
+  'project',
+  'collation',
+  'sort',
+  'update',
+] as const;
+
 /**
  * Queries used to be stored as their parsed values, these are converted to
  * query strings when read. Compass versions that predate the string format
@@ -83,13 +91,7 @@ export function legacyQueryToQueryStrings(query: unknown): unknown {
     return query;
   }
   const converted: Record<string, unknown> = { __proto__: null, ...query };
-  for (const key of [
-    'filter',
-    'project',
-    'collation',
-    'sort',
-    'update',
-  ] as const) {
+  for (const key of LEGACY_QUERY_KEYS) {
     if (key in converted) {
       converted[key] = legacyValueToQueryString(converted[key]);
     }
