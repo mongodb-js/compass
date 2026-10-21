@@ -89,10 +89,10 @@ function CreateIndexActions({
 }
 
 const mapState = ({ createIndex }: RootState) => {
-  const { fields, isSubmitting } = createIndex;
+  const { fields, submissionId } = createIndex;
   return {
     fields,
-    isSubmitting,
+    isSubmitting: submissionId !== null,
   };
 };
 
