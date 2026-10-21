@@ -54,10 +54,12 @@ function StagePreviewHeaderInner({
   description,
   link,
 }: StagePreviewHeaderProps) {
-  const { value: destination } = useAsyncValue(
+  const { value, pending } = useAsyncValue(
     () => getStageDestination(namespace, stageOperator ?? null, stageValue),
     [namespace, stageOperator, stageValue]
   );
+  // Ignore the retained value so we never show the previous stage's target
+  const destination = pending ? null : value;
 
   if (!stageOperator) {
     return null;

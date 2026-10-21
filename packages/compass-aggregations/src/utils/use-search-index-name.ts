@@ -14,7 +14,7 @@ export function useSearchIndexNameFromStage(
   stageOperator: string | null | undefined,
   stageValue: string | null | undefined
 ): string | null {
-  const { value } = useAsyncValue(
+  const { value, pending } = useAsyncValue(
     () =>
       getSearchIndexNameFromSearchStage(
         stageOperator ?? null,
@@ -22,7 +22,7 @@ export function useSearchIndexNameFromStage(
       ),
     [stageOperator, stageValue]
   );
-  return value ?? null;
+  return pending ? null : (value ?? null);
 }
 
 const NO_SEARCH_STAGE_INFO = {
@@ -38,11 +38,11 @@ export function useSearchStageInfoFromPipeline(pipelineText: string): {
   searchIndexName: string | null;
   searchStageOperator: SearchStageOperator | null;
 } {
-  const { value } = useAsyncValue(
+  const { value, pending } = useAsyncValue(
     () => getSearchStageInfoFromPipeline(pipelineText),
     [pipelineText]
   );
-  return value ?? NO_SEARCH_STAGE_INFO;
+  return pending ? NO_SEARCH_STAGE_INFO : (value ?? NO_SEARCH_STAGE_INFO);
 }
 
 export function isSearchIndexStale(

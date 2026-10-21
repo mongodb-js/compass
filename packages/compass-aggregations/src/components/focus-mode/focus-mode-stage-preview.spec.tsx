@@ -372,20 +372,21 @@ describe('FocusModeStagePreview', function () {
           diagnoseSearchStage,
         }
       );
+      // Index name is parsed async, so retry the click until it resolves and
+      // reset spies each attempt to assert on a single click
       await waitFor(() => {
+        diagnoseSearchStage.resetHistory();
+        onCloseFocusMode.resetHistory();
         userEvent.click(
           screen.getByTestId('focus-mode-diagnose-search-button')
         );
-        expect(diagnoseSearchStage.lastCall?.args[0])
-          .to.have.property('indexName')
-          .that.equals('movies');
+        expect(diagnoseSearchStage).to.have.been.calledOnceWith({
+          stageOperator: '$search',
+          indexName: 'movies',
+          stageValue: '{ "index": "movies" }',
+        });
       });
-      expect(onCloseFocusMode).to.have.been.called;
-      expect(diagnoseSearchStage.lastCall).to.have.been.calledWith({
-        stageOperator: '$search',
-        indexName: 'movies',
-        stageValue: '{ "index": "movies" }',
-      });
+      expect(onCloseFocusMode).to.have.been.calledOnce;
     });
   });
 
