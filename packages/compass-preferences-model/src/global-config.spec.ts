@@ -190,7 +190,7 @@ forceConnectionOptions:
       global: {},
       cli: {},
       preferenceParseErrors: [
-        `enableMaps: Expected boolean, received string (while validating preferences from: Global config file: ${file})`,
+        `enableMaps: Invalid input: expected boolean, received string (while validating preferences from: Global config file: ${file})`,
       ],
     });
   });

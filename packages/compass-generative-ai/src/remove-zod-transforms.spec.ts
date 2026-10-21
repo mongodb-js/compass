@@ -111,7 +111,7 @@ describe('removeZodTransforms', function () {
     });
 
     it('should preserve loose/passthrough behavior', function () {
-      const schema = z.object({ name: z.string() }).passthrough();
+      const schema = z.object({ name: z.string() }).loose();
 
       const result = removeZodTransforms(schema);
       const parsed = result.parse({ name: 'John', extra: 'field' });
