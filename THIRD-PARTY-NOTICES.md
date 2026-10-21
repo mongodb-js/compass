@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Oct 20 2026.
+This document was automatically generated on Wed Oct 21 2026.
 
 ## List of dependencies
 
@@ -267,7 +267,7 @@ This document was automatically generated on Tue Oct 20 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#9df32f7c4d1296c3056f333c4de709f01dfbe9111b48bdabb30a2f20dd3a933a)**                                           | 44.9.0       | MIT                                 |
+| **[electron](#1c08d7aa3365f1c5d50d0b19e15c6aa7846ff66c77a3eb30eb490b6fc0a3371b)**                                           | 44.9.2       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#d4ec33708205e0aab97e631fb8d69c095cd87da7c10128dcdac6b5ba2cc1395d)**                                      | 1.4.5        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -613,7 +613,7 @@ This document was automatically generated on Tue Oct 20 2026.
 | **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**                                       | 21.1.1       | ISC                                 |
 | **[zod-to-json-schema](#ad69519ff4c75cf958353d0b1939862f7353ac41040d3a17cad753da5b865322)**                                 | 3.25.1       | ISC                                 |
 | **[zod](#01aaa7ce197e0507c530a672d2a29df0cdd4139c3d75c9a8adc800f68c167b27)**                                                | 3.25.76      | MIT                                 |
-| **[zod](#a07618692067e4a701916d14162c9227b500093d0b4694246d0b56cdde143554)**                                                | 4.3.6        | MIT                                 |
+| **[zod](#31d0566281954af7ee8d8cdd37dca1de5306b74849793e091bcc14a1d800a1c9)**                                                | 4.6.7        | MIT                                 |
 | **[zwitch](#0e0e65045e007549d559b1fce74d81b51c6e61ad0afb815741bbd9123f8c4468)**                                             | 2.0.4        | MIT                                 |
 
 ## Package details
@@ -23296,9 +23296,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="9df32f7c4d1296c3056f333c4de709f01dfbe9111b48bdabb30a2f20dd3a933a"></a>
+<a id="1c08d7aa3365f1c5d50d0b19e15c6aa7846ff66c77a3eb30eb490b6fc0a3371b"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 44.9.0)
+### [electron](https://www.npmjs.com/package/electron) (version 44.9.2)
 
 License tags: MIT
 
@@ -43576,9 +43576,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="a07618692067e4a701916d14162c9227b500093d0b4694246d0b56cdde143554"></a>
+<a id="31d0566281954af7ee8d8cdd37dca1de5306b74849793e091bcc14a1d800a1c9"></a>
 
-### [zod](https://www.npmjs.com/package/zod) (version 4.3.6)
+### [zod](https://www.npmjs.com/package/zod) (version 4.6.7)
 
 License tags: MIT
 

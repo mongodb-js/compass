@@ -13,8 +13,12 @@ export type BaseStorageOptions = {
   deserialize?: (content: string) => unknown;
 };
 
+type QueryMetadata = { _id: string; _ns: string; _lastExecuted: Date };
+
 // Generic base class that works with any IUserData implementation
-export abstract class BaseCompassQueryStorage<TSchema extends z.Schema> {
+export abstract class BaseCompassQueryStorage<
+  TSchema extends z.ZodType<QueryMetadata, unknown>,
+> {
   protected readonly userData: IUserData<TSchema>;
   protected readonly dataType: string;
   constructor(
