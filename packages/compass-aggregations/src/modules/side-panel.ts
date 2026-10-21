@@ -48,7 +48,16 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
 
     const willPanelBeOpen = !isPanelOpen;
 
-    // When user is opening the panel
+    // Persist the state of the stage wizard side panel for other tabs or for
+    // the next application start
+    localStorage.setItem(
+      INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY,
+      willPanelBeOpen ? 'true' : 'false'
+    );
+    dispatch({
+      type: ActionTypes.SidePanelToggled,
+    });
+
     if (willPanelBeOpen) {
       try {
         const num_stages = (
@@ -63,16 +72,5 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
         // Pipeline with syntax errors, nothing to count
       }
     }
-
-    // Persist the state of the stage wizard side panel for other tabs or for
-    // the next application start
-    localStorage.setItem(
-      INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY,
-      willPanelBeOpen ? 'true' : 'false'
-    );
-
-    dispatch({
-      type: ActionTypes.SidePanelToggled,
-    });
   };
 };

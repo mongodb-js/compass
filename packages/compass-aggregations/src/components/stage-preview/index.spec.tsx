@@ -213,18 +213,18 @@ describe('StagePreview', function () {
         diagnoseSearchStage: diagnoseSearchStageSpy,
       }
     );
+    // Index name is parsed async, so retry the click until it resolves and
+    // reset the spy each attempt to assert on a single click
     await waitFor(() => {
+      diagnoseSearchStageSpy.resetHistory();
       userEvent.click(
         screen.getByTestId('stage-preview-diagnose-search-button')
       );
-      expect(diagnoseSearchStageSpy.lastCall?.args[0])
-        .to.have.property('indexName')
-        .that.equals('movies');
-    });
-    expect(diagnoseSearchStageSpy.lastCall).to.have.been.calledWith({
-      stageOperator: '$search',
-      indexName: 'movies',
-      stageValue: '{ "index": "movies" }',
+      expect(diagnoseSearchStageSpy).to.have.been.calledOnceWith({
+        stageOperator: '$search',
+        indexName: 'movies',
+        stageValue: '{ "index": "movies" }',
+      });
     });
   });
   it('does not render diagnose button when not in search activation p2', async function () {
