@@ -14,6 +14,7 @@ import {
   resetQuery,
   saveRecentAsFavorite,
   setQuery,
+  unsafeIntegerReceived,
 } from './query-bar-reducer';
 import { configureStore } from './query-bar-store';
 import type { QueryBarExtraArgs, RootState } from './query-bar-store';
@@ -51,6 +52,42 @@ describe('queryBarReducer', function () {
   });
 
   describe('changeField', function () {
+    it('does not apply a filter diagnosed with an unsafe integer before parsing finishes', async function () {
+      const changing = store.dispatch(
+        changeField('filter', '{ value: 9007199254740992 }')
+      );
+      store.dispatch(unsafeIntegerReceived('filter'));
+      await changing;
+
+      expect(store.getState().queryBar.fields.filter.valid).to.equal(false);
+      expect(await store.dispatch(applyQuery('test'))).to.equal(false);
+    });
+
+    it('allows applying a safe edit after an unsafe integer diagnostic during parsing', async function () {
+      const changing = store.dispatch(
+        changeField('filter', '{ value: 9007199254740992 }')
+      );
+      store.dispatch(unsafeIntegerReceived('filter'));
+      await changing;
+      await store.dispatch(changeField('filter', '{ value: 1 }'));
+
+      expect(await store.dispatch(applyQuery('test'))).to.deep.equal({
+        ...DEFAULT_QUERY_VALUES,
+        filter: { value: 1 },
+      });
+    });
+
+    it('keeps an unsafe integer diagnostic when unchanged text is validated again', async function () {
+      const text = '{ value: 9007199254740992 }';
+      const changing = store.dispatch(changeField('filter', text));
+      store.dispatch(unsafeIntegerReceived('filter'));
+      await changing;
+      await store.dispatch(changeField('filter', text));
+
+      expect(store.getState().queryBar.fields.filter.valid).to.equal(false);
+      expect(await store.dispatch(applyQuery('test'))).to.equal(false);
+    });
+
     const specs: [QueryProperty, string, unknown, boolean][] = [
       ['filter', '{ foo: true }', { foo: true }, true],
       ['filter', '{ bar', DEFAULT_QUERY_VALUES['filter'], false],

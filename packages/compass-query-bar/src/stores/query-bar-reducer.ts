@@ -23,7 +23,11 @@ import {
   isEqualDefaultQuery,
   doesQueryHaveExtraOptionsSet,
 } from '../utils/query';
-import { isQueryFieldsValid, validateField } from '../utils/validate-query';
+import {
+  isQueryFieldsValid,
+  isQueryValid,
+  validateField,
+} from '../utils/validate-query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
 import { getQueryAttributes, isAction, isQueryEqual } from '../utils';
@@ -40,6 +44,9 @@ type QueryBarState = {
   // query never discards the validation of a field edited before it.
   pendingHistoryRequestId: string | null;
   lastFilterChangeRequestId: string | null;
+  // The editor only reports a lint violation when it changes, so the diagnosed
+  // text is kept to stop a later parse of that text from marking it valid
+  unsafeIntegerFilterString: string | null;
   expanded: boolean;
   serverVersion: string;
   lastAppliedQuery: {
@@ -64,6 +71,7 @@ export const INITIAL_STATE: QueryBarState = {
   pendingParseFieldRequestIds: {},
   pendingHistoryRequestId: null,
   lastFilterChangeRequestId: null,
+  unsafeIntegerFilterString: null,
   expanded: false,
   serverVersion: '3.6.0',
   lastAppliedQuery: { source: null, query: {} },
@@ -207,6 +215,9 @@ export const applyQuery = (
     const {
       queryBar: { fields, favoriteQueries },
     } = getState();
+    if (!isQueryValid(fields)) {
+      return false;
+    }
     if (!(await isQueryFieldsValid(fields, preferences.getPreferences()))) {
       return false;
     }
@@ -710,7 +721,15 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       fields: {
         ...state.fields,
-        [action.name]: action.value,
+        [action.name]: {
+          ...action.value,
+          valid:
+            action.value.valid &&
+            !(
+              action.name === 'filter' &&
+              action.value.string === state.unsafeIntegerFilterString
+            ),
+        },
       },
       pendingParseFieldRequestIds: omit(
         state.pendingParseFieldRequestIds,
@@ -734,6 +753,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
           valid: false,
         },
       },
+      unsafeIntegerFilterString: state.fields.filter.string,
     };
   }
 
