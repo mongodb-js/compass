@@ -371,6 +371,15 @@ describe('query strings', function () {
     expect(loaded).to.deep.include(updateQuery);
   });
 
+  it('keeps hints that use comments', async function () {
+    const storage = createElectronRecentQueryStorage({ basepath: tmpDir });
+    const hint = '{ count: 1 } // the count index';
+    await storage.saveQuery({ filter: '{ a: 1 }', hint, _ns: 'db.coll' });
+
+    const [loaded] = await storage.loadAll();
+    expect(loaded.hint).to.equal(hint);
+  });
+
   it('rejects parsed query values', async function () {
     const storage = createElectronRecentQueryStorage({ basepath: tmpDir });
     let error: unknown;

@@ -13,6 +13,7 @@ import {
 } from '../constants/query-bar-store';
 import type {
   BaseQuery,
+  FormField,
   QueryFormFieldEntries,
   QueryFormFields,
   QueryProperty,
@@ -120,7 +121,7 @@ function isEmptyValue(value: unknown) {
   return !value || (isObject(value) && isEmpty(value));
 }
 
-function getQueryString({ value, string }: { value: unknown; string: string }) {
+function fieldToQueryString({ value, string }: FormField<unknown>) {
   return isEmptyValue(value) ? undefined : string;
 }
 
@@ -132,11 +133,11 @@ export function mapFormFieldsToQueryAttributes(
   fields: QueryFormFields
 ): QueryAttributes {
   return getQueryAttributes({
-    filter: getQueryString(fields.filter),
-    project: getQueryString(fields.project),
-    collation: getQueryString(fields.collation),
-    sort: getQueryString(fields.sort),
-    hint: getQueryString(fields.hint),
+    filter: fieldToQueryString(fields.filter),
+    project: fieldToQueryString(fields.project),
+    collation: fieldToQueryString(fields.collation),
+    sort: fieldToQueryString(fields.sort),
+    hint: fieldToQueryString(fields.hint),
     skip: fields.skip.value,
     limit: fields.limit.value,
   });
@@ -163,7 +164,7 @@ export function mapQueryAttributesToFormFields(
   };
 }
 
-function toQueryString(value: unknown): string | undefined {
+function valueToQueryString(value: unknown): string | undefined {
   if (typeof value === 'string') {
     return value;
   }
@@ -178,12 +179,12 @@ export function toQueryAttributes(
   query: Partial<Record<keyof QueryAttributes, unknown>>
 ): QueryAttributes {
   return getQueryAttributes({
-    filter: toQueryString(query.filter),
-    project: toQueryString(query.project),
-    collation: toQueryString(query.collation),
-    sort: toQueryString(query.sort),
-    hint: toQueryString(query.hint),
-    update: toQueryString(query.update),
+    filter: valueToQueryString(query.filter),
+    project: valueToQueryString(query.project),
+    collation: valueToQueryString(query.collation),
+    sort: valueToQueryString(query.sort),
+    hint: valueToQueryString(query.hint),
+    update: valueToQueryString(query.update),
     skip: typeof query.skip === 'number' ? query.skip : undefined,
     limit: typeof query.limit === 'number' ? query.limit : undefined,
   });

@@ -47,7 +47,7 @@ const BASE_QUERY = {
 
 const RECENT_QUERY = {
   _id: new UUID().toString(),
-  _ns: 'sample.airbnb',
+  _ns: 'airbnb.listings',
   _lastExecuted: new Date(),
   ...BASE_QUERY,
 };
@@ -77,6 +77,7 @@ async function createStore(basepath: string) {
   const store = configureStore(
     {
       namespace: 'airbnb.listings',
+      host: 'localhost:27017',
     },
     {
       favoriteQueryStorage,
@@ -315,5 +316,18 @@ describe('query-history', function () {
     expect(favoriteQuerySaveSpy.calledOnce).to.be.true;
     const savedQuery = favoriteQuerySaveSpy.firstCall.firstArg;
     expect(savedQuery._name).to.equal('compass');
+
+    userEvent.click(screen.getByText(/favorites/i));
+    const favoriteCard = await screen.findByTestId('favorite-query-list-item');
+    const filterCode = within(favoriteCard)
+      .getAllByTestId('query-history-query-attribute')
+      .find(
+        (attr) =>
+          within(attr).getByTestId('query-history-query-label').textContent ===
+          'filter'
+      );
+    expect(
+      within(filterCode!).getByTestId('query-history-query-code').textContent
+    ).to.equal(BASE_QUERY.filter.replace(/\n/g, ''));
   });
 });
