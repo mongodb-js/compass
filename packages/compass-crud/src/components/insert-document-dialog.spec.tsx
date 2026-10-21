@@ -122,11 +122,11 @@ describe('InsertDocumentDialog', function () {
         'disabled',
         true
       );
+      expect(buttonIn('insert-document-dialog-view-shell')).to.have.property(
+        'disabled',
+        false
+      );
     });
-    expect(buttonIn('insert-document-dialog-view-shell')).to.have.property(
-      'disabled',
-      false
-    );
   });
 
   it('disables inserting and switching views until the text is parsed', async function () {
