@@ -2200,19 +2200,25 @@ describe('store', function () {
       });
 
       it('aborts the queries', async function () {
-        const spy = sinon.spy(dataService, 'aggregate');
+        // Fetching is published before the queries start, so cancel from
+        // inside the count aggregate to make sure we abort in-flight queries
+        const aggregate = dataService.aggregate.bind(dataService);
+        const spy = sinon
+          .stub(dataService, 'aggregate')
+          .callsFake((...args: Parameters<DataService['aggregate']>) => {
+            const result = aggregate(...args);
+            store.cancelOperation();
+            return result;
+          });
 
         const listener = waitForStates(store, [
           (state) => {
-            // cancel the operation as soon as the queries have started
             expect(state.debouncingLoad).to.equal(true);
             expect(state.status).to.equal('fetching');
             expect(state.count).to.be.null;
             expect(state.loadingCount).to.be.true; // initially count is still loading
             expect(state.error).to.be.null;
             expect(state.abortController).to.not.be.null;
-
-            store.cancelOperation();
           },
 
           (state) => {
