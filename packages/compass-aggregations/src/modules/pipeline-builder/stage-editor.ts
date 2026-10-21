@@ -355,42 +355,53 @@ export const loadStagePreview = (
         collectionStats,
       } = getState();
 
+      // Shared by the preview and the metadata query so collation is parsed
+      // at most once per request
+      let previewOptionsPromise: Promise<PreviewOptions> | undefined;
+      const getPreviewOptions = () =>
+        (previewOptionsPromise ??= getCollationForExecution(
+          collationString
+        ).then((collation) => ({
+          maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+          collation: collation ?? undefined,
+          sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
+          previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
+          totalDocumentCount: collectionStats?.document_count,
+        })));
+
+      const previewPromise = pipelineBuilder.getPreviewForStage(
+        idxInPipeline,
+        namespace,
+        getPreviewOptions
+      );
+
       const activeDataService = dataService.dataService;
       const isSingleSearchStagePreview =
         !!activeDataService &&
         stagesForPreview.length === 1 &&
         stagesForPreview[0].stageOperator === '$search';
-      let shouldFetchSearchStageMetadata = false;
-      if (isSingleSearchStagePreview) {
-        const assignment = await experimentationServices.getAssignment(
-          ExperimentTestNames.searchActivationProgramP2,
-          false
-        );
-        shouldFetchSearchStageMetadata =
-          assignment?.assignmentData?.variant ===
-          ExperimentTestGroups.searchActivationProgramP2Variant;
-      }
-      const collation = await getCollationForExecution(collationString);
-      const aggregateOptions: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collation ?? undefined,
-      };
-      const options: PreviewOptions = {
-        ...aggregateOptions,
-        sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
-        previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: collectionStats?.document_count,
-      };
 
       const metadataAbortController = new AbortController();
       const metadataPromise =
-        shouldFetchSearchStageMetadata && activeDataService
+        isSingleSearchStagePreview && activeDataService
           ? (async () => {
               try {
+                const assignment = await experimentationServices.getAssignment(
+                  ExperimentTestNames.searchActivationProgramP2,
+                  false
+                );
+                if (
+                  assignment?.assignmentData?.variant !==
+                  ExperimentTestGroups.searchActivationProgramP2Variant
+                ) {
+                  return null;
+                }
+
                 await cancellableWait(
                   DEFAULT_PREVIEW_DEBOUNCE_MS,
                   metadataAbortController.signal
                 );
+                const previewOptions = await getPreviewOptions();
 
                 return await aggregatePipeline({
                   dataService: activeDataService,
@@ -402,11 +413,14 @@ export const loadStagePreview = (
                       await pipelineBuilder.getPipelineFromStages(
                         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
                       ),
-                      options.previewSize ?? DEFAULT_PREVIEW_LIMIT
+                      previewOptions.previewSize ?? DEFAULT_PREVIEW_LIMIT
                     ),
-                    options
+                    previewOptions
                   ),
-                  options: aggregateOptions,
+                  options: {
+                    maxTimeMS: previewOptions.maxTimeMS,
+                    collation: previewOptions.collation,
+                  },
                 });
               } catch {
                 return null;
@@ -416,7 +430,7 @@ export const loadStagePreview = (
 
       try {
         const [documents, metadataDocs] = await Promise.all([
-          pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
+          previewPromise,
           metadataPromise,
         ]);
         const stageMetadata = createSearchStageMetadata(

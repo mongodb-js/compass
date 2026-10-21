@@ -23,10 +23,11 @@ describe('PipelinePreviewManager', function () {
       await previewManager.getPreviewForStage(
         0,
         'test.test',
-        Promise.resolve([]),
-        {
-          debounceMs: 10,
-        }
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 10,
+          })
       )
     ).to.deep.eq([{ foo: 'bar' }]);
   });
@@ -39,7 +40,8 @@ describe('PipelinePreviewManager', function () {
       const result = previewManager.getPreviewForStage(
         0,
         'test.test',
-        Promise.resolve([])
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
       );
       previewManager.cancelPreviewForStage(0);
       await result;
@@ -54,16 +56,28 @@ describe('PipelinePreviewManager', function () {
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     previewManager
-      .getPreviewForStage(0, 'test.test', Promise.resolve([]), {
-        debounceMs: 10,
-      })
+      .getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 10,
+          })
+      )
       .catch(() => {
         /* ignore error */
       });
     previewManager
-      .getPreviewForStage(0, 'test.test', Promise.resolve([]), {
-        debounceMs: 10,
-      })
+      .getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 10,
+          })
+      )
       .catch(() => {
         /* ignore error */
       });
@@ -71,10 +85,11 @@ describe('PipelinePreviewManager', function () {
     await previewManager.getPreviewForStage(
       0,
       'test.test',
-      Promise.resolve([]),
-      {
-        debounceMs: 10,
-      }
+      () => Promise.resolve([]),
+      () =>
+        Promise.resolve({
+          debounceMs: 10,
+        })
     );
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -86,15 +101,33 @@ describe('PipelinePreviewManager', function () {
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     await Promise.allSettled([
-      previewManager.getPreviewForStage(0, 'test.test', Promise.resolve([]), {
-        debounceMs: 0,
-      }),
-      previewManager.getPreviewForStage(1, 'test.test', Promise.resolve([]), {
-        debounceMs: 0,
-      }),
-      previewManager.getPreviewForStage(2, 'test.test', Promise.resolve([]), {
-        debounceMs: 0,
-      }),
+      previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 0,
+          })
+      ),
+      previewManager.getPreviewForStage(
+        1,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 0,
+          })
+      ),
+      previewManager.getPreviewForStage(
+        2,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 0,
+          })
+      ),
     ]);
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -106,7 +139,12 @@ describe('PipelinePreviewManager', function () {
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     previewManager
-      .getPreviewForStage(0, 'test.test', Promise.resolve([]))
+      .getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      )
       .catch(() => {
         /* ignore error */
       });
@@ -119,13 +157,39 @@ describe('PipelinePreviewManager', function () {
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     await Promise.allSettled([
-      previewManager.getPreviewForStage(0, 'test.test', Promise.resolve([]), {
-        debounceMs: 10,
-      }),
-      previewManager.getPreviewForStage(1, 'test.test', Promise.resolve([])),
-      previewManager.getPreviewForStage(2, 'test.test', Promise.resolve([])),
-      previewManager.getPreviewForStage(3, 'test.test', Promise.resolve([])),
-      previewManager.getPreviewForStage(4, 'test.test', Promise.resolve([])),
+      previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 10,
+          })
+      ),
+      previewManager.getPreviewForStage(
+        1,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      ),
+      previewManager.getPreviewForStage(
+        2,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      ),
+      previewManager.getPreviewForStage(
+        3,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      ),
+      previewManager.getPreviewForStage(
+        4,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      ),
       Promise.resolve(previewManager.clearQueue(1)),
     ]);
 
@@ -152,8 +216,8 @@ describe('PipelinePreviewManager', function () {
       const result = previewManager.getPreviewForStage(
         0,
         'test.test',
-        pending.promise,
-        { debounceMs: 0 }
+        () => pending.promise,
+        () => Promise.resolve({ debounceMs: 0 })
       );
       expect(previewManager.cancelPreviewForStage(0)).to.eq(true);
       pending.resolve([]);
@@ -175,13 +239,39 @@ describe('PipelinePreviewManager', function () {
       const result = previewManager.getPreviewForStage(
         0,
         'test.test',
-        pending.promise,
-        { debounceMs: 0 }
+        () => pending.promise,
+        () => Promise.resolve({ debounceMs: 0 })
       );
       previewManager.clearQueue();
       pending.resolve([]);
 
       await Promise.allSettled([result]);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(dataService.aggregate).not.to.have.been.called;
+    });
+
+    it('should not run a preview cancelled while options were resolving', async function () {
+      const dataService = mockDataService({ data: [] });
+      const previewManager = new PipelinePreviewManager(
+        dataService,
+        preferences
+      );
+      let resolveOptions!: (options: { debounceMs: number }) => void;
+      const options = new Promise<{ debounceMs: number }>(
+        (r) => (resolveOptions = r)
+      );
+
+      const result = previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () => options
+      );
+      expect(previewManager.cancelPreviewForStage(0)).to.eq(true);
+      resolveOptions({ debounceMs: 0 });
+
+      const [settled] = await Promise.allSettled([result]);
+      expect(settled).to.have.nested.property('reason.name', 'AbortError');
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(dataService.aggregate).not.to.have.been.called;
     });
@@ -198,14 +288,14 @@ describe('PipelinePreviewManager', function () {
       const older = previewManager.getPreviewForStage(
         0,
         'test.test',
-        olderPipeline.promise,
-        { debounceMs: 0 }
+        () => olderPipeline.promise,
+        () => Promise.resolve({ debounceMs: 0 })
       );
       const newer = previewManager.getPreviewForStage(
         0,
         'test.test',
-        Promise.resolve(newerPipeline),
-        { debounceMs: 0 }
+        () => Promise.resolve(newerPipeline),
+        () => Promise.resolve({ debounceMs: 0 })
       );
       olderPipeline.resolve([{ $match: { older: true } }]);
 

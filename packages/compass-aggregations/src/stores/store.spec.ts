@@ -1,9 +1,9 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 import rootReducer from '../modules';
 import configureStore from '../../test/configure-store';
 import type { AggregationsStore } from '../stores/store';
-import { waitFor } from '@mongodb-js/testing-library-compass';
 import { mockDataService } from '../../test/mocks/data-service';
 
 const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
