@@ -313,7 +313,7 @@ describe('queryBarReducer', function () {
     it('keeps a reset made while the query is parsed', async function () {
       await store.dispatch(setQuery({ filter: { a: 1 } }));
       const setting = store.dispatch(setQuery({ filter: { b: 1 } }));
-      await store.dispatch(resetQuery('test'));
+      store.dispatch(resetQuery('test'));
       await setting;
 
       expect(store.getState().queryBar.fields.filter.string).to.eq('');
@@ -573,6 +573,22 @@ describe('queryBarReducer', function () {
   });
 
   describe('resetQuery', function () {
+    for (const change of ['changeField', 'setQuery'] as const) {
+      it(`should preserve a newer ${change} dispatched immediately after reset`, async function () {
+        await store.dispatch(setQuery({ skip: 1 }));
+
+        store.dispatch(resetQuery('test'));
+        const changing =
+          change === 'changeField'
+            ? store.dispatch(changeField('skip', '2'))
+            : store.dispatch(setQuery({ skip: 2 }));
+        await changing;
+
+        const appliedQuery = await store.dispatch(applyQuery('test'));
+        expect(appliedQuery).to.deep.eq({ ...DEFAULT_QUERY_VALUES, skip: 2 });
+      });
+    }
+
     it('should reset query form if last applied query is different from the default query', async function () {
       const query = { filter: { _id: 1 } };
       await store.dispatch(setQuery(query));
@@ -583,7 +599,7 @@ describe('queryBarReducer', function () {
           ...DEFAULT_QUERY_VALUES,
           ...query,
         });
-      const wasReset = await store.dispatch(resetQuery('test'));
+      const wasReset = store.dispatch(resetQuery('test'));
       expect(wasReset).to.deep.eq(DEFAULT_QUERY_VALUES);
       expect(store.getState().queryBar).to.have.nested.property(
         'lastAppliedQuery.query.test',
@@ -593,14 +609,14 @@ describe('queryBarReducer', function () {
 
     it('should not reset query if last applied query is default query', async function () {
       // Resetting without applying at all first
-      let wasReset = await store.dispatch(resetQuery('test'));
+      let wasReset = store.dispatch(resetQuery('test'));
       expect(store.getState().queryBar).to.not.have.nested.property(
         'lastAppliedQuery.query.test'
       );
       expect(wasReset).to.eq(false);
       // Now apply default query and try to reset again
       await store.dispatch(applyQuery('test'));
-      wasReset = await store.dispatch(resetQuery('test'));
+      wasReset = store.dispatch(resetQuery('test'));
       expect(wasReset).to.eq(false);
       expect(store.getState().queryBar)
         .to.have.nested.property('lastAppliedQuery.query.test')

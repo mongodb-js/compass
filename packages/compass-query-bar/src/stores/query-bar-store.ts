@@ -11,6 +11,8 @@ import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { prettify } from '@mongodb-js/compass-editor';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -25,6 +27,7 @@ import type {
 } from '@mongodb-js/my-queries-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type Collection from '@mongodb-js/mongodb-collection-model';
+import { QUERY_PROPERTIES } from '../constants/query-properties';
 import { getQueryAttributes } from '../utils';
 import { getDefaultFormFields } from '../utils/query';
 import { QueryBarStoreContext } from './context';
@@ -146,14 +149,28 @@ export function activatePlugin(
   const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
   const recentQueryStorage = recentQueryStorageAccess?.getStorage();
 
+  const initialQuery = getQueryAttributes(query ?? {});
+  const fields = getDefaultFormFields();
+  // If the query is set, we want to populate the form
+  // fields, but we can not validate it at this point.
+  // Immediately after the store is created, we dispatch
+  // setQuery action which validates it.
+  for (const property of QUERY_PROPERTIES) {
+    if (property in initialQuery) {
+      const value = initialQuery[property as keyof typeof initialQuery];
+      fields[property].string = prettify(
+        typeof value === 'undefined' ? '' : toJSString(value, 0) || '',
+        'javascript-expression'
+      );
+    }
+  }
+
   const store = configureStore(
     {
       namespace: namespace ?? '',
       host: dataService?.getConnectionString().hosts.join(','),
       serverVersion: serverVersion ?? '3.6.0',
-      // Validating the passed query is async, so start from the defaults and
-      // fill the query in once it has been validated below.
-      fields: getDefaultFormFields(),
+      fields,
       isReadonlyConnection: !instance.isWritable,
     },
     {
@@ -176,6 +193,12 @@ export function activatePlugin(
     }
   );
 
+  // If we have an initial query, dispatch it to the store
+  // so that its validated.
+  if (Object.keys(initialQuery).length > 0) {
+    void store.dispatch(setQuery(initialQuery));
+  }
+
   on(instance, 'change:isWritable', () => {
     store.dispatch({
       type: QueryBarActions.ChangeReadonlyConnectionStatus,
@@ -190,11 +213,6 @@ export function activatePlugin(
   on(localAppRegistry, 'explain-plan-interpret-finished', () => {
     store.dispatch({ type: QueryBarActions.InterpretFinished });
   });
-
-  const initialQuery = getQueryAttributes(query ?? {});
-  if (Object.keys(initialQuery).length > 0) {
-    void store.dispatch(setQuery(initialQuery));
-  }
 
   store.dispatch(fetchSavedQueries());
 
