@@ -605,8 +605,8 @@ export const runStage = (
 export const changeStageValue = (
   id: number,
   newVal: string
-): PipelineBuilderThunkAction<void, ChangeStageValueAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+): PipelineBuilderThunkAction<Promise<void>, ChangeStageValueAction> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -625,7 +625,16 @@ export const changeStageValue = (
     }
 
     stage.changeValue(newVal);
+    // Value and babel errors land right away so the editor never lags
     dispatch({ type: StageEditorActionTypes.StageValueChange, id, stage });
+
+    await stage.validateWithParser();
+    if (stage.value !== newVal) {
+      return;
+    }
+    if (stage.syntaxError) {
+      dispatch({ type: StageEditorActionTypes.StageValueChange, id, stage });
+    }
     dispatch(loadPreviewForStagesFrom(id));
     void dispatch(fetchExplainForPipeline());
   };
@@ -866,7 +875,7 @@ export const addSearchStageBefore = (
 
     const { env, comments } = getState();
     const initialValue = getStageSnippet('$search', env, comments, true);
-    dispatch(changeStageValue(storeIndex, initialValue));
+    void dispatch(changeStageValue(storeIndex, initialValue));
   };
 };
 

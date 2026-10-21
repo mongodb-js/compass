@@ -10,8 +10,11 @@ import {
   isStageLike,
   StageAssertionErrorCodes,
 } from './pipeline-parser/stage-parser';
-import type { PipelineParserError } from './pipeline-parser/utils';
-import { generate, parseShellBSON } from './pipeline-parser/utils';
+import {
+  generate,
+  parseShellBSON,
+  PipelineParserError,
+} from './pipeline-parser/utils';
 import { getId } from './stage-ids';
 
 function createStageNode({
@@ -90,6 +93,33 @@ export default class Stage {
       this.syntaxError = e as PipelineParserError;
     }
     return this;
+  }
+
+  /**
+   * Records shell parser errors that babel validation can't catch (e.g.
+   * `ObjectId("invalid")`). The parser only runs async, in a worker.
+   */
+  async validateWithParser(): Promise<void> {
+    if (this.syntaxError || this.disabled) {
+      return;
+    }
+    const { operator, value } = this;
+    try {
+      await parseShellBSON(this.toString());
+    } catch (e) {
+      // Stage might have been edited while parsing
+      if (
+        this.operator === operator &&
+        this.value === value &&
+        !this.syntaxError
+      ) {
+        this.syntaxError = new PipelineParserError(
+          (e as Error).message,
+          undefined,
+          StageAssertionErrorCodes.InvalidStageValue
+        );
+      }
+    }
   }
 
   changeOperator(operator: string) {
