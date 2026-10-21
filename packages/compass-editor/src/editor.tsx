@@ -93,7 +93,7 @@ const readOnlyStyle = css({
 
 const hiddenScrollStyle = css({
   '& .cm-scroller': {
-    overflow: '-moz-scrollbars-none',
+    scrollbarWidth: 'none',
     msOverflowStyle: 'none',
   },
   '& .cm-scroller::-webkit-scrollbar': {
