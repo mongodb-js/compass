@@ -39,6 +39,7 @@ type QueryBarState = {
   // Tracked separately from the field requests so that cancelling a history
   // query never discards the validation of a field edited before it.
   pendingHistoryRequestId: string | null;
+  lastFilterChangeRequestId: string | null;
   expanded: boolean;
   serverVersion: string;
   lastAppliedQuery: {
@@ -62,6 +63,7 @@ export const INITIAL_STATE: QueryBarState = {
   fields: getDefaultFormFields(),
   pendingParseFieldRequestIds: {},
   pendingHistoryRequestId: null,
+  lastFilterChangeRequestId: null,
   expanded: false,
   serverVersion: '3.6.0',
   lastAppliedQuery: { source: null, query: {} },
@@ -126,6 +128,15 @@ export function hasPendingFieldValidation(state: QueryBarState): boolean {
   return (
     Object.keys(state.pendingParseFieldRequestIds).length > 0 ||
     state.pendingHistoryRequestId !== null
+  );
+}
+
+// Filter changes update `filter.value` right away, so only a pending text edit
+// or query leaves it behind the text that is about to replace it
+function isFilterValueOutdated(state: QueryBarState): boolean {
+  const requestId = state.pendingParseFieldRequestIds.filter;
+  return (
+    requestId !== undefined && requestId !== state.lastFilterChangeRequestId
   );
 }
 
@@ -199,8 +210,12 @@ export const applyQuery = (
     if (!(await isQueryFieldsValid(fields, preferences.getPreferences()))) {
       return false;
     }
-    // The form was edited or reset during validation, so `fields` is outdated
-    if (getState().queryBar.fields !== fields) {
+    // The form was edited, reset or started parsing a new query during
+    // validation, so `fields` is outdated
+    if (
+      getState().queryBar.fields !== fields ||
+      hasPendingFieldValidation(getState().queryBar)
+    ) {
       return false;
     }
     const query = mapFormFieldsToQuery(fields);
@@ -286,6 +301,11 @@ export const applyFilterChange = (
   FilterChangeStartedAction | SetQueryFinishedAction
 > => {
   return async (dispatch, getState, { preferences }) => {
+    // Building on the outdated value would drop the pending edit once this
+    // change replaces its request
+    if (isFilterValueOutdated(getState().queryBar)) {
+      return;
+    }
     const filter = changeFilter(
       event.type,
       getState().queryBar.fields.filter.value,
@@ -323,6 +343,7 @@ type ApplyFromHistoryFinishedAction = {
   type: typeof QueryBarActions.ApplyFromHistoryFinished;
   fields: QueryFormFields;
   requestId: string;
+  fieldsToRetain: QueryProperty[];
   // bulk update queries: the bulk update modal reads its
   // filter from the last applied query
   applyToSource?: string;
@@ -338,29 +359,21 @@ export const applyFromHistory = (
   return async (dispatch, getState, { localAppRegistry, preferences }) => {
     const requestId = new UUID().toString();
     dispatch({ type: QueryBarActions.ApplyFromHistoryStarted, requestId });
-    const currentFields = getState().queryBar.fields;
-    const currentQuery = currentQueryFieldsToRetain.reduce<
-      Record<string, Document | number | string>
-    >((acc, key) => {
-      const { value } = currentFields[key];
-      if (value) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
     const fields = await mapQueryToFormFields(preferences.getPreferences(), {
       ...DEFAULT_FIELD_VALUES,
       ...query,
-      ...currentQuery,
     });
+    const isLatestRequest =
+      getState().queryBar.pendingHistoryRequestId === requestId;
     dispatch({
       type: QueryBarActions.ApplyFromHistoryFinished,
       fields,
       requestId,
+      fieldsToRetain: currentQueryFieldsToRetain,
       applyToSource: query.update ? 'crud' : undefined,
     });
 
-    if (getState().queryBar.fields === fields && query.update) {
+    if (isLatestRequest && query.update) {
       localAppRegistry?.emit('favorites-open-bulk-update-favorite', query);
     }
   };
@@ -759,6 +772,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
         filter: action.requestId,
       },
       pendingHistoryRequestId: null,
+      lastFilterChangeRequestId: action.requestId,
     };
   }
 
@@ -836,18 +850,27 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
     if (state.pendingHistoryRequestId !== action.requestId) {
       return state;
     }
+    // Retained fields are taken from the current state rather than parsed
+    // with the history query, so an edit still being validated is kept
+    const fields = {
+      ...action.fields,
+      ...pick(state.fields, action.fieldsToRetain),
+    };
     return {
       ...state,
-      expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
-      fields: action.fields,
-      pendingParseFieldRequestIds: {},
+      expanded: state.expanded || doesQueryHaveExtraOptionsSet(fields),
+      fields,
+      pendingParseFieldRequestIds: pick(
+        state.pendingParseFieldRequestIds,
+        action.fieldsToRetain
+      ),
       pendingHistoryRequestId: null,
       lastAppliedQuery: action.applyToSource
         ? {
             source: action.applyToSource,
             query: {
               ...state.lastAppliedQuery.query,
-              [action.applyToSource]: mapFormFieldsToQuery(action.fields),
+              [action.applyToSource]: mapFormFieldsToQuery(fields),
             },
           }
         : state.lastAppliedQuery,
