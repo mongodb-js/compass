@@ -403,6 +403,7 @@ class CrudStoreImpl
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
   collectionModel: Collection;
+  insertViewRequestId = 0;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
@@ -1338,11 +1339,13 @@ class CrudStoreImpl
    */
   async toggleInsertDocumentView(view: InsertDocumentView) {
     const { insertView: from, doc, editorText } = this.state.insert;
-    // Conversion is async, so the dialog may have been closed or edited by the
-    // time it finishes, and writing the result would undo that
+    const requestId = ++this.insertViewRequestId;
+    // Conversion is async, so the dialog may have been closed, edited or
+    // switched again by the time it finishes, and writing the result would undo that
     const hasInsertChanged = () => {
       const current = this.state.insert;
       return (
+        requestId !== this.insertViewRequestId ||
         !current.isOpen ||
         current.insertView !== from ||
         current.editorText !== editorText ||
@@ -1360,30 +1363,39 @@ class CrudStoreImpl
       isCommentNeeded: this.state.insert.isCommentNeeded,
     };
 
-    if (view === 'list') {
-      const hadronDoc =
-        !editorText || editorText === ''
-          ? doc
-          : await parseInsertDocument(from, editorText);
-      if (hasInsertChanged()) {
-        return;
-      }
-      this.setState({
-        insert: { ...common, insertView: 'list', doc: hadronDoc, editorText },
-      });
-      return;
-    }
-
-    const nextEditorText =
-      from === 'list'
-        ? serializeInsertDocument(view, doc)
-        : await convertInsertText(from, view, editorText ?? '');
+    const converted = await this.convertInsertDocument(
+      from,
+      view,
+      doc,
+      editorText
+    );
     if (hasInsertChanged()) {
       return;
     }
     this.setState({
-      insert: { ...common, insertView: view, doc, editorText: nextEditorText },
+      insert: { ...common, insertView: view, ...converted },
     });
+  }
+
+  async convertInsertDocument(
+    from: InsertDocumentView,
+    to: InsertDocumentView,
+    doc: InsertState['doc'],
+    editorText: InsertState['editorText']
+  ): Promise<Pick<InsertState, 'doc' | 'editorText'>> {
+    if (to === 'list') {
+      return {
+        doc: editorText ? await parseInsertDocument(from, editorText) : doc,
+        editorText,
+      };
+    }
+    return {
+      doc,
+      editorText:
+        from === 'list'
+          ? serializeInsertDocument(to, doc)
+          : await convertInsertText(from, to, editorText ?? ''),
+    };
   }
 
   /**

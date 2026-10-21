@@ -559,6 +559,37 @@ describe('store', function () {
       expect(store.state.insert.editorText).to.equal('{ bar: 2 }');
       expect(store.state.insert.insertView).to.equal('shell');
     });
+
+    it('keeps the latest view when an earlier switch finishes after it was requested', async function () {
+      const conversions: {
+        to: InsertDocumentView;
+        resolve: () => void;
+      }[] = [];
+      const convert = store.convertInsertDocument.bind(store);
+      sinon
+        .stub(store, 'convertInsertDocument')
+        .callsFake(async (from, to, doc, editorText) => {
+          await new Promise<void>((resolve) =>
+            conversions.push({ to, resolve })
+          );
+          return convert(from, to, doc, editorText);
+        });
+
+      const toJSON = store.toggleInsertDocumentView('json');
+      const toList = store.toggleInsertDocumentView('list');
+      expect(conversions.map(({ to }) => to)).to.deep.equal(['json', 'list']);
+
+      conversions[0].resolve();
+      await toJSON;
+      expect(store.state.insert.insertView).to.equal('shell');
+
+      conversions[1].resolve();
+      await toList;
+      expect(store.state.insert.insertView).to.equal('list');
+      expect(store.state.insert.doc?.generateObject()).to.deep.equal({
+        foo: new Int32(1),
+      });
+    });
   });
 
   describe('#parseInsertDocument', function () {
