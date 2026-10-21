@@ -7,7 +7,7 @@ import path from 'path';
 import createDebug from 'debug';
 import zlib from 'zlib';
 import { app, shell, dialog, clipboard } from 'electron';
-import { ipcMain } from 'hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import type { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId, MongoLogManager } from 'mongodb-log-writer';
 import COMPASS_ICON from './icon';

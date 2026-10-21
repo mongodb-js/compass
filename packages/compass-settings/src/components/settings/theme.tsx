@@ -16,7 +16,7 @@ import { changeFieldValue } from '../../stores/settings';
 import type {
   PreferenceStateInformation,
   THEMES,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import { settingStateLabels } from './state-labels';
 import SettingsList from './settings-list';
 

@@ -12,9 +12,9 @@ import Sinon from 'sinon';
 import {
   type PreferencesAccess,
   PreferencesProvider,
-} from 'compass-preferences-model/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import type { CollectionProps } from 'mongodb-collection-model';
+} from '@mongodb-js/compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import type { CollectionProps } from '@mongodb-js/mongodb-collection-model';
 import {
   inspectTable,
   testSortColumn,

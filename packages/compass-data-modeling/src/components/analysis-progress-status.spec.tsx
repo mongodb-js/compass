@@ -7,7 +7,7 @@ import {
   AnalysisProcessActionTypes,
   startAnalysis,
 } from '../store/analysis-process';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 describe('AnalysisProgressStatus', () => {
   async function renderAnalysisProgressStatus({

@@ -8,7 +8,7 @@ import {
   renderWithConnections,
   screen,
 } from '@mongodb-js/testing-library-compass';
-import type { AllPreferences } from 'compass-preferences-model/provider';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
 

@@ -26,7 +26,7 @@ import { configureStore } from '../../stores/query-bar-store';
 import { UUID } from 'bson';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';

@@ -21,7 +21,7 @@ import { fixtures } from '../../test/fixtures';
 
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { getBsonType } from 'hadron-type-checker';
 
 const { expect } = chai;

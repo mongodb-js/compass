@@ -3,7 +3,7 @@ const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
 const {
   Collection: MongoDbCollectionCollection,
-} = require('mongodb-collection-model');
+} = require('@mongodb-js/mongodb-collection-model');
 const toNS = require('mongodb-ns');
 
 function mergeInit(...init) {
@@ -124,7 +124,7 @@ const DatabaseModel = AmpersandModel.extend(
         fn() {
           return ['ready', 'refreshing'].includes(this.collectionsStatus)
             ? this.collections.length
-            : this.collection_count ?? 0;
+            : (this.collection_count ?? 0);
         },
       },
     },

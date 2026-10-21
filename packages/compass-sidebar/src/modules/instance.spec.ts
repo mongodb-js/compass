@@ -10,7 +10,7 @@ import type {
   MongoDBInstance,
   MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 describe('sidebar instance', function () {
   let instanceOnSpy: SinonSpy;

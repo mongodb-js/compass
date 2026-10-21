@@ -6,8 +6,8 @@ import {
   createServiceLocator,
   createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
-import type { MongoDBInstanceProps } from 'mongodb-instance-model';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstanceProps } from '@mongodb-js/mongodb-instance-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import React, {
   createContext,
   useCallback,
@@ -19,12 +19,12 @@ import React, {
 } from 'react';
 import { MongoDBInstancesManager } from './instances-manager';
 import toNS from 'mongodb-ns';
-import type Collection from 'mongodb-collection-model';
-import type Database from 'mongodb-database-model';
+import type Collection from '@mongodb-js/mongodb-collection-model';
+import type Database from '@mongodb-js/mongodb-database-model';
 import type {
   AllPreferences,
   PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 
 export {
   MongoDBInstancesManagerEvents,

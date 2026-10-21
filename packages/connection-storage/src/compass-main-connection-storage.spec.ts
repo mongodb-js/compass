@@ -294,7 +294,7 @@ describe('ConnectionStorage', function () {
           },
         });
       } catch (e) {
-        expect(e).to.have.nested.property('errors[0].message', 'Invalid uuid');
+        expect(e).to.have.nested.property('issues[0].message', 'Invalid UUID');
       }
     });
 
@@ -309,7 +309,7 @@ describe('ConnectionStorage', function () {
           },
         });
       } catch (e) {
-        expect(e).to.have.nested.property('errors[0].message', 'Invalid uuid');
+        expect(e).to.have.nested.property('issues[0].message', 'Invalid UUID');
       }
     });
 

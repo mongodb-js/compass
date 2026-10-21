@@ -9,7 +9,7 @@ import HadronDocument, {
   Element,
   type DocumentEventsType,
 } from 'hadron-document';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { EventEmitter } from 'events';
 import { once } from 'events';
 import sinon from 'sinon';
@@ -37,8 +37,8 @@ import {
   createElectronFavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage';
 import { satisfies } from 'semver';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';

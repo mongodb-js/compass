@@ -1,27 +1,16 @@
-import type { FakerFieldMapping } from './types';
-import type { MongoDBFieldType } from '../../schema-analysis-types';
-import { prettify } from '@mongodb-js/compass-editor';
-import { UNRECOGNIZED_FAKER_METHOD } from '../../modules/collection-tab';
+import prettier from 'prettier/standalone';
+import parserBabel from 'prettier/parser-babel';
 import { faker } from '@faker-js/faker/locale/en';
-
-export type FakerArg =
-  string | number | boolean | { json: string } | FakerArg[];
+import { UNRECOGNIZED_FAKER_METHOD } from './types';
+import type {
+  ArrayLengthMap,
+  FakerArg,
+  FakerFieldMapping,
+  MongoDBFieldType,
+  ScriptOptions,
+} from './types';
 
 const DEFAULT_ARRAY_LENGTH = 3;
-
-// Stores the average array length of each array.
-// Examples:
-//   "users[]": 5 - users array has 5 elements
-//   "users[].posts[]": 3 - each user has 3 posts
-//   "matrix[]": 3, "matrix[][]": 4 - matrix has 3 rows, each row has 4 columns
-export type ArrayLengthMap = Record<string, number>;
-
-export interface ScriptOptions {
-  documentCount: number;
-  databaseName: string;
-  collectionName: string;
-  arrayLengthMap?: ArrayLengthMap;
-}
 
 export type ScriptResult =
   { script: string; success: true } | { error: string; success: false };
@@ -107,7 +96,12 @@ console.log(\`Total time: \${duration} seconds\`);
 console.log(\`Collection: \${DB_NAME}.\${COLL_NAME}\`);`;
 
     // Format the script using prettier
-    const script = prettify(unformattedScript, 'javascript');
+    const script = prettier.format(unformattedScript, {
+      plugins: [parserBabel],
+      parser: 'babel',
+      printWidth: 50,
+      trailingComma: 'none',
+    });
 
     return {
       script,

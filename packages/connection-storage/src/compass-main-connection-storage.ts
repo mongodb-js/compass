@@ -1,4 +1,4 @@
-import { type HadronIpcMain, ipcMain } from 'hadron-ipc';
+import { type HadronIpcMain, ipcMain } from '@mongodb-js/hadron-ipc';
 import { safeStorage } from 'electron';
 import fsPromises from 'fs/promises';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -49,12 +49,12 @@ export type ConnectionWithLegacyProps = ConnectionProps & ConnectionLegacyProps;
 
 const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
   .object({
-    _id: z.string().uuid().optional(),
+    _id: z.uuid().optional(),
     isFavorite: z.boolean().optional(),
     name: z.string().optional(),
     connectionInfo: z
       .object({
-        id: z.string().uuid(),
+        id: z.uuid(),
         lastUsed: z.coerce
           .date()
           .optional()
@@ -76,7 +76,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
     version: z.number().optional(),
     connectionSecrets: z.string().optional(),
   })
-  .passthrough();
+  .loose();
 
 class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly userData: FileUserData<typeof ConnectionSchema>;

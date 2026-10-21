@@ -10,7 +10,7 @@ import {
   spacing,
   usePersistedState,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';

@@ -1,4 +1,4 @@
-import type { HadronIpcRenderer } from 'hadron-ipc';
+import type { HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
   AutoConnectPreferences,

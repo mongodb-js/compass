@@ -1,8 +1,8 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect } from 'react';
 import { useCallback } from 'react';
-import type { HadronIpcRenderer } from 'hadron-ipc';
-import { ipcRenderer } from 'hadron-ipc';
+import type { HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 
 export type ImportExportResult = 'canceled' | 'succeeded';
 

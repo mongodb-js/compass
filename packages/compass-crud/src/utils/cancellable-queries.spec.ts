@@ -8,8 +8,8 @@ import { countDocuments, fetchShardingKeys } from './cancellable-queries';
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 chai.use(chaiAsPromised);
 
 describe('cancellable-queries', function () {

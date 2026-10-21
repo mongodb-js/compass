@@ -1,7 +1,7 @@
 import type { Action, Reducer } from 'redux';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import { isAction } from '../utils/is-action';
 import type { PipelineBuilderThunkAction } from '.';
 

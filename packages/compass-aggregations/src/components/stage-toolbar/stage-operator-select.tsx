@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import {
   withPreferences,
   usePreference,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 

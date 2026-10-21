@@ -1,5 +1,5 @@
-import type { HadronIpcRenderer } from 'hadron-ipc';
-import { ipcRenderer } from 'hadron-ipc';
+import type { HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 import { getActiveUser, type PreferencesAccess } from '.';
 import type {
   AllPreferences,

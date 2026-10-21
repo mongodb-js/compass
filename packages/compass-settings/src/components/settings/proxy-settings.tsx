@@ -5,11 +5,11 @@ import type { RootState } from '../../stores';
 import type {
   PreferenceStateInformation,
   DevtoolsProxyOptions,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import {
   Description,

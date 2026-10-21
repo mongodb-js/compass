@@ -21,7 +21,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,

@@ -9,6 +9,7 @@ import type {
   ConversationEvalCaseInput,
   ConversationEvalCaseExpected,
   ConversationTaskOutput,
+  MessageBase,
 } from 'mongodb-assistant-eval/eval';
 import {
   makeFactuality,
@@ -94,7 +95,9 @@ async function makeAssistantCall(
     },
   });
 
-  const prompt = input.messages.map((m) => m.content).join('\n');
+  // mongodb-assistant-eval's types are built against zod 3, so its inferred
+  // message type doesn't survive our zod 4 resolution. Annotate explicitly.
+  const prompt = input.messages.map((m: MessageBase) => m.content).join('\n');
 
   const result = streamText({
     model: openai.responses(EVAL_MODEL),

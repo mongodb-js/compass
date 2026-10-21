@@ -1,8 +1,8 @@
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import {
   isAIFeatureEnabled,
   type AllPreferences,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 
 export function isMockDataGeneratorEligible(
   metadata: CollectionMetadata | null,

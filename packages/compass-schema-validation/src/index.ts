@@ -7,7 +7,7 @@ import {
   dataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { SchemaValidationTabTitle } from './plugin-title';

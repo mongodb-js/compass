@@ -39,7 +39,7 @@ import {
   useIsLastAppliedQueryOutdated,
   useLastAppliedQuery,
 } from '@mongodb-js/compass-query-bar';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import {
   useDocumentEditsTelemetry,
