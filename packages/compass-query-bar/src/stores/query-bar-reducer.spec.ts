@@ -228,6 +228,53 @@ describe('queryBarReducer', function () {
       expect(store.getState().queryBar.fields.filter.valid).to.be.false;
       await changing;
     });
+
+    it('keeps a filter text edit that is still being validated', async function () {
+      const typing = store.dispatch(changeField('filter', '{ a: 1 }'));
+      const changing = store.dispatch(
+        applyFilterChange({
+          type: 'setValue',
+          payload: { field: 'b', value: 2 },
+        })
+      );
+      await Promise.all([typing, changing]);
+
+      expect(store.getState().queryBar.fields.filter).to.deep.eq({
+        string: '{ a: 1 }',
+        value: { a: 1 },
+        valid: true,
+      });
+    });
+
+    it('keeps a query filter that is still being parsed', async function () {
+      const setting = store.dispatch(setQuery({ filter: { a: 1 } }));
+      const changing = store.dispatch(
+        applyFilterChange({
+          type: 'setValue',
+          payload: { field: 'b', value: 2 },
+        })
+      );
+      await Promise.all([setting, changing]);
+
+      expect(store.getState().queryBar.fields.filter.value).to.deep.eq({
+        a: 1,
+      });
+    });
+
+    it('builds on a filter text edit once it is validated', async function () {
+      await store.dispatch(changeField('filter', '{ a: 1 }'));
+      await store.dispatch(
+        applyFilterChange({
+          type: 'setValue',
+          payload: { field: 'b', value: 2 },
+        })
+      );
+
+      expect(store.getState().queryBar.fields.filter.value).to.deep.eq({
+        a: 1,
+        b: 2,
+      });
+    });
   });
 
   describe('setQuery races', function () {
@@ -309,6 +356,68 @@ describe('queryBarReducer', function () {
       expect(pendingParseFieldRequestIds).to.deep.eq({});
     });
 
+    it('applies the selection and keeps a retained field edit that is still being validated', async function () {
+      const typing = store.dispatch(changeField('filter', '{ a: 1 }'));
+      const selecting = store.dispatch(
+        applyFromHistory({ sort: { b: 1 } }, ['filter'])
+      );
+      await Promise.all([typing, selecting]);
+
+      const { fields, pendingParseFieldRequestIds } = store.getState().queryBar;
+      expect(fields.filter).to.deep.eq({
+        string: '{ a: 1 }',
+        value: { a: 1 },
+        valid: true,
+      });
+      expect(fields.sort.value).to.deep.eq({ b: 1 });
+      expect(pendingParseFieldRequestIds).to.deep.eq({});
+    });
+
+    it('applies the selection when the retained field finishes validating first', async function () {
+      store.dispatch({
+        type: QueryBarActions.ChangeFieldText,
+        name: 'filter',
+        string: '{ a: 1 }',
+        requestId: 'edit',
+      });
+      const selecting = store.dispatch(
+        applyFromHistory({ sort: { b: 1 } }, ['filter'])
+      );
+      store.dispatch({
+        type: QueryBarActions.ChangeField,
+        name: 'filter',
+        requestId: 'edit',
+        value: { string: '{ a: 1 }', valid: true, value: { a: 1 } },
+      });
+      await selecting;
+
+      const { fields, pendingParseFieldRequestIds } = store.getState().queryBar;
+      expect(fields.filter.value).to.deep.eq({ a: 1 });
+      expect(fields.sort.value).to.deep.eq({ b: 1 });
+      expect(pendingParseFieldRequestIds).to.deep.eq({});
+    });
+
+    it('applies a history query once the retained field is validated', async function () {
+      await store.dispatch(changeField('filter', '{ a: 1 }'));
+      await store.dispatch(applyFromHistory({ sort: { b: 1 } }, ['filter']));
+
+      const { fields } = store.getState().queryBar;
+      expect(fields.filter.value).to.deep.eq({ a: 1 });
+      expect(fields.sort.value).to.deep.eq({ b: 1 });
+    });
+
+    it('applies a history query while a field that is not retained is validated', async function () {
+      const typing = store.dispatch(changeField('project', '{ c: 1 }'));
+      const selecting = store.dispatch(
+        applyFromHistory({ sort: { b: 1 } }, ['filter'])
+      );
+      await Promise.all([typing, selecting]);
+
+      expect(store.getState().queryBar.fields.sort.value).to.deep.eq({
+        b: 1,
+      });
+    });
+
     it('does not open the bulk update modal after a newer edit', async function () {
       const localAppRegistry = {
         on: Sinon.spy(),
@@ -378,6 +487,38 @@ describe('queryBarReducer', function () {
       expect(store.getState().queryBar).to.not.have.nested.property(
         'lastAppliedQuery.query.test'
       );
+    });
+
+    it('should not "apply" query if a history query is selected during validation', async function () {
+      await store.dispatch(setQuery({ filter: { a: 1 } }));
+      const applying = store.dispatch(applyQuery('test') as any);
+      const selecting = store.dispatch(applyFromHistory({ filter: { b: 1 } }));
+      const appliedQuery = await applying;
+      await selecting;
+
+      expect(appliedQuery).to.eq(false);
+      expect(store.getState().queryBar).to.not.have.nested.property(
+        'lastAppliedQuery.query.test'
+      );
+      expect(store.getState().queryBar.fields.filter.value).to.deep.eq({
+        b: 1,
+      });
+    });
+
+    it('should not "apply" query if a query is set during validation', async function () {
+      await store.dispatch(setQuery({ filter: { a: 1 } }));
+      const applying = store.dispatch(applyQuery('test') as any);
+      const setting = store.dispatch(setQuery({ filter: { b: 1 } }));
+      const appliedQuery = await applying;
+      await setting;
+
+      expect(appliedQuery).to.eq(false);
+      expect(store.getState().queryBar).to.not.have.nested.property(
+        'lastAppliedQuery.query.test'
+      );
+      expect(store.getState().queryBar.fields.filter.value).to.deep.eq({
+        b: 1,
+      });
     });
 
     it('should not re-save favorite query in recents', async function () {
