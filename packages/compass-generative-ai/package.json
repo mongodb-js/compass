@@ -25,11 +25,13 @@
   "compass:main": "src/index.ts",
   "exports": {
     ".": "./dist/index.js",
-    "./provider": "./dist/provider.js"
+    "./provider": "./dist/provider.js",
+    "./utility": "./dist/tools/infrastructure/tools-host.js"
   },
   "compass:exports": {
     ".": "./src/index.ts",
-    "./provider": "./src/provider.tsx"
+    "./provider": "./src/provider.tsx",
+    "./utility": "./src/tools/infrastructure/tools-host.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
