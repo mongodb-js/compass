@@ -1773,6 +1773,11 @@ class CrudStoreImpl
 
     const { defaultSortOrder } = this.preferences.getPreferences();
 
+    // don't start showing the loading indicator and cancel button immediately.
+    // Started before publishing the fetching status so the view never sees
+    // fetching without the debounce in place
+    const cancelDebounceLoad = this.debounceLoading();
+
     // Mark the refresh as in progress before any await so that a concurrent
     // refresh is rejected by the status check above, and can be cancelled
     this.setState({
@@ -1791,6 +1796,7 @@ class CrudStoreImpl
     }
 
     if (signal.aborted) {
+      cancelDebounceLoad();
       this.setState({
         status: DOCUMENTS_STATUS_ERROR,
         error: signal.reason as Error,
@@ -1910,9 +1916,6 @@ class CrudStoreImpl
         }
       ),
     ] as const;
-
-    // don't start showing the loading indicator and cancel button immediately
-    const cancelDebounceLoad = this.debounceLoading();
 
     const stateChanges = {};
 
