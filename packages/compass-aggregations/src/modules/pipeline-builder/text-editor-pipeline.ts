@@ -3,7 +3,6 @@ import HadronDocument from 'hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
-import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
@@ -257,21 +256,22 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
         type: EditorActionTypes.EditorPreviewFetch,
       });
 
-      const collation = await getCollationForExecution(collationString);
-      const options: PreviewOptions = {
-        maxTimeMS: capMaxTimeMSAtPreferenceLimit(
-          preferences,
-          maxTimeMS ?? DEFAULT_MAX_TIME_MS
-        ),
-        collation: collation ?? undefined,
-        sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
-        previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: collectionStats?.document_count,
+      const getPreviewOptions = async () => {
+        const collation = await getCollationForExecution(collationString);
+        return {
+          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            preferences,
+            maxTimeMS ?? DEFAULT_MAX_TIME_MS
+          ),
+          collation: collation ?? undefined,
+          sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
+          previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
+          totalDocumentCount: collectionStats?.document_count,
+        };
       };
-
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
         namespace,
-        options,
+        getPreviewOptions,
         true // Filter output stage
       );
 

@@ -31,6 +31,8 @@ import Sinon from 'sinon';
 import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
+import { collationStringChanged } from '../collation-string';
+import { toggleAutoPreview } from '../auto-preview';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -893,6 +895,37 @@ describe('stageEditor', function () {
             expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
           });
         }
+
+        context('when cancelled while collation is parsing', function () {
+          beforeEach(function () {
+            // Not awaited, so collation stays pending during the preview
+            void store.dispatch(collationStringChanged('{ locale: "fr" }'));
+          });
+
+          it('should not run preview when auto preview is turned off', async function () {
+            const preview = store.dispatch(loadStagePreview(0));
+            store.dispatch(toggleAutoPreview(false));
+            await preview;
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            expect(store.dataService.aggregate).not.to.be.called;
+          });
+
+          it('should not run preview when the stage is disabled', async function () {
+            const preview = store.dispatch(loadStagePreview(0));
+            store.dispatch(changeStageDisabled(0, true));
+            await preview;
+            // Later stages re-preview without stage 0, so only check that no
+            // aggregation includes the disabled stage
+            const ranDisabledStage = (
+              store.dataService.aggregate as Sinon.SinonSpy
+            )
+              .getCalls()
+              .some(({ args }) =>
+                (args[1] as Document[]).some((stage) => stage.$match?._id === 1)
+              );
+            expect(ranDisabledStage).to.eq(false);
+          });
+        });
 
         it('should load preview for valid stage', async function () {
           await store.dispatch(loadStagePreview(0));

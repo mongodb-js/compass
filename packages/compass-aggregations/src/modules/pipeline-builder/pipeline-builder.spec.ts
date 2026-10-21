@@ -133,21 +133,29 @@ describe('PipelineBuilder', function () {
     mock
       .expects('getPreviewForStage')
       .once()
-      .callsFake(async (idx, namespace, pipeline, options, force) => {
-        expect([idx, namespace, await pipeline, options, force]).to.deep.eq([
-          1,
-          'airbnb.listings',
-          [{ $match: {} }, { $unwind: 'users' }],
-          {},
-          true,
-        ]);
-        return [{ _id: 1 }];
-      });
+      .callsFake(
+        async (idx, namespace, getPipeline, getPreviewOptions, force) => {
+          expect([
+            idx,
+            namespace,
+            await getPipeline(),
+            await getPreviewOptions(),
+            force,
+          ]).to.deep.eq([
+            1,
+            'airbnb.listings',
+            [{ $match: {} }, { $unwind: 'users' }],
+            {},
+            true,
+          ]);
+          return [{ _id: 1 }];
+        }
+      );
 
     const data = await pipelineBuilder.getPreviewForStage(
       1,
       'airbnb.listings',
-      {},
+      () => Promise.resolve({}),
       true
     );
     expect(data).to.deep.equal([{ _id: 1 }]);
@@ -164,8 +172,13 @@ describe('PipelineBuilder', function () {
     mock
       .expects('getPreviewForStage')
       .once()
-      .callsFake(async (idx, namespace, pipeline, options) => {
-        expect([idx, namespace, await pipeline, options]).to.deep.eq([
+      .callsFake(async (idx, namespace, getPipeline, getPreviewOptions) => {
+        expect([
+          idx,
+          namespace,
+          await getPipeline(),
+          await getPreviewOptions(),
+        ]).to.deep.eq([
           Infinity,
           'airbnb.listings',
           [{ $match: {} }, { $unwind: 'users' }],
@@ -176,7 +189,7 @@ describe('PipelineBuilder', function () {
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',
-      {}
+      () => Promise.resolve({})
     );
     expect(data).to.deep.equal([{ _id: 1 }, { _id: 2 }]);
 
@@ -192,8 +205,13 @@ describe('PipelineBuilder', function () {
     mock
       .expects('getPreviewForStage')
       .once()
-      .callsFake(async (idx, namespace, pipeline, options) => {
-        expect([idx, namespace, await pipeline, options]).to.deep.eq([
+      .callsFake(async (idx, namespace, getPipeline, getPreviewOptions) => {
+        expect([
+          idx,
+          namespace,
+          await getPipeline(),
+          await getPreviewOptions(),
+        ]).to.deep.eq([
           Infinity,
           'airbnb.listings',
           [{ $match: {} }, { $unwind: 'users' }],
@@ -204,7 +222,7 @@ describe('PipelineBuilder', function () {
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',
-      {},
+      () => Promise.resolve({}),
       true
     );
     expect(data).to.deep.equal([{ _id: 1 }, { _id: 2 }]);
@@ -218,7 +236,7 @@ describe('PipelineBuilder', function () {
     await pipelineBuilder.reset(pipeline);
 
     const error = await pipelineBuilder
-      .getPreviewForPipeline('airbnb.listings', {})
+      .getPreviewForPipeline('airbnb.listings', () => Promise.resolve({}))
       .catch((e) => e);
     expect(error).to.be.instanceOf(Error);
   });

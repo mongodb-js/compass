@@ -303,14 +303,14 @@ export class PipelineBuilder {
   async getPreviewForStage(
     idx: number,
     namespace: string,
-    options: PreviewOptions,
+    getPreviewOptions: () => Promise<PreviewOptions>,
     force = false
   ): Promise<Document[]> {
     return this.previewManager.getPreviewForStage(
       idx,
       namespace,
-      this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
-      options,
+      () => this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
+      getPreviewOptions,
       force
     );
   }
@@ -335,21 +335,22 @@ export class PipelineBuilder {
    */
   async getPreviewForPipeline(
     namespace: string,
-    options: PreviewOptions,
+    getPreviewOptions: () => Promise<PreviewOptions>,
     filterOutputStage = false
   ): Promise<Document[]> {
-    const pipeline = this.getPipelineFromSource().then((source) => {
-      const pipeline = [...source];
-      if (filterOutputStage && isLastStageOutputStage(pipeline)) {
-        pipeline.pop();
+    const getPipeline = async () => {
+      const pipeline = await this.getPipelineFromSource();
+      const resultPipeline = [...pipeline];
+      if (filterOutputStage && isLastStageOutputStage(resultPipeline)) {
+        resultPipeline.pop();
       }
-      return pipeline;
-    });
+      return resultPipeline;
+    };
     return this.previewManager.getPreviewForStage(
       FULL_PIPELINE_PREVIEW_ID,
       namespace,
-      pipeline,
-      options
+      getPipeline,
+      getPreviewOptions
     );
   }
 

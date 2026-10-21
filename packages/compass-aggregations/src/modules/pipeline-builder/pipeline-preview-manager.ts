@@ -95,21 +95,22 @@ export class PipelinePreviewManager {
   async getPreviewForStage(
     idx: number,
     namespace: string,
-    pipelinePromise: Promise<Document[]>,
-    {
-      sampleSize,
-      previewSize,
-      totalDocumentCount,
-      ...options
-    }: PreviewOptions = {},
+    getPipeline: () => Promise<Document[]>,
+    getPreviewOptions: () => Promise<PreviewOptions>,
     force = false
   ): Promise<Document[]> {
     this.queue.get(idx)?.abort();
     const controller = new AbortController();
     this.queue.set(idx, controller);
-    // Registered before the pipeline resolves so that cancelling while it is
-    // still parsing aborts this request instead of finding nothing to cancel.
-    const pipeline = await raceWithAbort(pipelinePromise, controller.signal);
+    // Registered before the pipeline and options (collation) resolve so that
+    // cancelling while they are still parsing aborts this request.
+    const [
+      pipeline,
+      { sampleSize, previewSize, totalDocumentCount, ...options },
+    ] = await raceWithAbort(
+      Promise.all([getPipeline(), getPreviewOptions()]),
+      controller.signal
+    );
     if (!force) {
       await cancellableWait(
         options.debounceMs ?? DEFAULT_PREVIEW_DEBOUNCE_MS,
