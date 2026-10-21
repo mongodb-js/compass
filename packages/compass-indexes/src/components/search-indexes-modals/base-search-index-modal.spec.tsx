@@ -151,6 +151,19 @@ describe('Base Search Index Modal', function () {
       it('shows server errors', async function () {
         expect(await screen.findByText('Invalid index definition.')).to.exist;
       });
+
+      it('marks the parse error location in the editor', async function () {
+        expect(document.querySelector('.cm-lint-marker-error')).to.be.null;
+
+        await setCodemirrorEditorValue(
+          'definition-of-search-index',
+          '{\n  mappings: {\n    dynamic: true\n    fields: {}\n  }\n}'
+        );
+
+        await waitFor(() => {
+          expect(document.querySelector('.cm-lint-marker-error')).to.exist;
+        });
+      });
     });
 
     describe('form behaviour', function () {
