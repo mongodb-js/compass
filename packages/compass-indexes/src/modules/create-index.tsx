@@ -79,6 +79,7 @@ type CreateIndexClosedAction = {
 
 type CreateIndexFormValidationStartedAction = {
   type: typeof ActionTypes.CreateIndexFormValidationStarted;
+  submissionId: string;
 };
 
 /**
@@ -285,8 +286,9 @@ export type State = {
   // Client-side validation error
   error: string | null;
 
-  // Whether the submitted form is being validated before index creation
-  isSubmitting: boolean;
+  // Id of the submit currently being validated before index creation, unique
+  // per submit so that a retry can't make an earlier abandoned submit current
+  submissionId: string | null;
 
   // form fields related
   fields: Field[];
@@ -299,7 +301,7 @@ export const INITIAL_STATE: State = {
   indexId: new ObjectId().toHexString(),
   isVisible: false,
   error: null,
-  isSubmitting: false,
+  submissionId: null,
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
 };
@@ -375,17 +377,18 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
   | CreateIndexFormSubmittedAction
 > => {
   return async (dispatch, getState, { track }) => {
-    if (getState().createIndex.isSubmitting) {
+    if (getState().createIndex.submissionId) {
       return;
     }
-    dispatch({ type: ActionTypes.CreateIndexFormValidationStarted });
+    const submissionId = new ObjectId().toHexString();
+    dispatch({
+      type: ActionTypes.CreateIndexFormValidationStarted,
+      submissionId,
+    });
     const { indexId } = getState().createIndex;
 
-    // Closing or reopening the modal during validation makes this submit stale.
-    const isStale = () => {
-      const { isSubmitting, indexId: currentIndexId } = getState().createIndex;
-      return !isSubmitting || currentIndexId !== indexId;
-    };
+    // Closing the modal, a validation error or a newer submit makes this one stale.
+    const isStale = () => getState().createIndex.submissionId !== submissionId;
     const fail = (error: string) => {
       if (!isStale()) {
         dispatch(errorEncountered(error));
@@ -607,7 +610,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       error: action.error,
-      isSubmitting: false,
+      submissionId: null,
     };
   }
 
@@ -619,7 +622,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      isSubmitting: true,
+      submissionId: action.submissionId,
     };
   }
 
@@ -636,7 +639,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
-      isSubmitting: false,
+      submissionId: null,
     };
   }
 
@@ -649,7 +652,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
-      isSubmitting: false,
+      submissionId: null,
     };
   }
 

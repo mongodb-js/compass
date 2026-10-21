@@ -224,6 +224,31 @@ describe('create-index module', function () {
         });
       });
 
+      it('does not submit an abandoned validation after a retry in the same modal', async function () {
+        store.dispatch(fieldAdded());
+        store.dispatch(updateFieldName(1, 'bar'));
+        store.dispatch(fieldTypeUpdated(1, '1 (asc)'));
+
+        const firstSubmit = store.dispatch(createIndexFormSubmitted());
+        store.dispatch(updateFieldName(1, 'foo'));
+        expect(store.getState().createIndex.error).to.equal(
+          'Index keys must be unique'
+        );
+
+        setOption('partialFilterExpression', '{ age: { $gt: 10 } }');
+        const retry = store.dispatch(createIndexFormSubmitted());
+        await Promise.all([firstSubmit, retry]);
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+        await flush();
+
+        expect(createIndexSpy).to.have.been.calledOnce;
+        expect(
+          createIndexSpy.firstCall.args[2].partialFilterExpression
+        ).to.deep.equal({ age: { $gt: 10 } });
+      });
+
       it('does not create the index when the modal is closed during validation', async function () {
         const submitted = store.dispatch(createIndexFormSubmitted());
         store.dispatch(createIndexClosed());
