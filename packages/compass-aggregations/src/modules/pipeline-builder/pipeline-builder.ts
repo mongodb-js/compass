@@ -92,17 +92,25 @@ export class PipelineBuilder {
 
   private async parseSourceToPipeline(source: string): Promise<void> {
     let pipeline: Document[] | null;
+    let parseError: PipelineParserError | null = null;
     try {
       const parsed = await parseShellBSON<Document[]>(source);
       // parseShellBSON will parse various values, not all of them are valid
       // aggregation pipelines
       pipeline = Array.isArray(parsed) ? parsed : null;
-    } catch {
+    } catch (e) {
       pipeline = null;
+      parseError = new PipelineParserError((e as Error).message);
     }
     // The source might have changed again while this was parsing
-    if (this.source === source) {
-      this.pipeline = pipeline;
+    if (this.source !== source) {
+      return;
+    }
+    this.pipeline = pipeline;
+    // Keep syntax errors from validateSource() if there are any, otherwise
+    // report what the parser rejected (e.g. `ObjectId("invalid")`)
+    if (parseError && this._syntaxError.length === 0) {
+      this.syntaxError = [parseError];
     }
   }
 

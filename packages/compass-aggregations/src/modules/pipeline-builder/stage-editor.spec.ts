@@ -338,11 +338,11 @@ describe('stageEditor', function () {
       );
     });
 
-    it('should not return stage snippet if stage was changed before switching the operators', function () {
+    it('should not return stage snippet if stage was changed before switching the operators', async function () {
       store.dispatch(addStage());
       let stages = store.getState().stages;
       store.dispatch(changeStageOperator(stages.length - 1, '$match'));
-      store.dispatch(changeStageValue(stages.length - 1, '{ _id: 1 }'));
+      await store.dispatch(changeStageValue(stages.length - 1, '{ _id: 1 }'));
       const snippet = store.dispatch(
         changeStageOperator(stages.length - 1, '$limit')
       );
@@ -351,10 +351,10 @@ describe('stageEditor', function () {
       expect(stages[stages.length - 1]).to.have.property('value', '{ _id: 1 }');
     });
 
-    it('should not return stage snippet if stage value was changed without changing operator first', function () {
+    it('should not return stage snippet if stage value was changed without changing operator first', async function () {
       store.dispatch(addStage());
       const { stages } = store.getState();
-      store.dispatch(changeStageValue(stages.length - 1, '321'));
+      await store.dispatch(changeStageValue(stages.length - 1, '321'));
       const snippet = store.dispatch(
         changeStageOperator(stages.length - 1, '$match')
       );
@@ -407,14 +407,14 @@ describe('stageEditor', function () {
       },
     ].forEach(function ({ contextTitle, stages, idx, idxInPipeline }) {
       context(contextTitle, function () {
-        it('should update stage value', function () {
+        it('should update stage value', async function () {
           const store = createStore({ stages });
           expect(store.getState().stages[idx]).to.have.property(
             'value',
             '"match-and-limit"'
           );
 
-          store.dispatch(changeStageValue(idx, '{_id: 2}'));
+          await store.dispatch(changeStageValue(idx, '{_id: 2}'));
 
           expect(store.getState().stages[idx]).to.have.property(
             'value',
@@ -427,6 +427,14 @@ describe('stageEditor', function () {
           );
         });
       });
+    });
+
+    it('records shell parser errors that babel validation does not catch', async function () {
+      const store = createStore({ stages: PIPELINE });
+      await store.dispatch(changeStageValue(2, `{_id: ObjectId('invalid')}`));
+      expect(store.getState().stages[2])
+        .to.have.property('syntaxError')
+        .that.is.instanceOf(Error);
     });
   });
 
@@ -903,7 +911,7 @@ describe('stageEditor', function () {
         });
 
         it('should not load preview for invalid stage', async function () {
-          store.dispatch(changeStageValue(0, '{ foo: '));
+          await store.dispatch(changeStageValue(0, '{ foo: '));
           Sinon.resetHistory();
           await store.dispatch(loadStagePreview(0));
           // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -911,7 +919,7 @@ describe('stageEditor', function () {
         });
 
         it('should not load preview for stage if any previous stages are invalid', async function () {
-          store.dispatch(changeStageValue(0, '{ foo: '));
+          await store.dispatch(changeStageValue(0, '{ foo: '));
           Sinon.resetHistory();
           await store.dispatch(loadStagePreview(1));
           // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -919,7 +927,7 @@ describe('stageEditor', function () {
         });
 
         it('should load preview for stage if invalid previous stages are disabled', async function () {
-          store.dispatch(changeStageValue(0, '{ foo: '));
+          await store.dispatch(changeStageValue(0, '{ foo: '));
           store.dispatch(changeStageDisabled(0, true));
           Sinon.resetHistory();
           await store.dispatch(loadStagePreview(1));
@@ -927,10 +935,10 @@ describe('stageEditor', function () {
           expect(store.pipelineBuilder.getPreviewForStage).to.be.called;
         });
 
-        it('should cancel preview for stage when new stage state is invalid', function () {
-          store.dispatch(changeStageValue(0, '{ foo: 1 }'));
+        it('should cancel preview for stage when new stage state is invalid', async function () {
+          await store.dispatch(changeStageValue(0, '{ foo: 1 }'));
           Sinon.resetHistory();
-          store.dispatch(changeStageValue(0, '{ foo: '));
+          await store.dispatch(changeStageValue(0, '{ foo: '));
           // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
           expect(
@@ -1281,7 +1289,7 @@ describe('stageEditor', function () {
           });
 
           it('should not run aggregation if any previous stages are invalid', async function () {
-            store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
+            await store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
             Sinon.resetHistory();
             await store.dispatch(runStage(idxToRun));
             expect(
@@ -1292,7 +1300,7 @@ describe('stageEditor', function () {
 
           it('should run aggregation if invalid previous stages are disabled', async function () {
             const store = createStore({ stages });
-            store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
+            await store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
             store.dispatch(changeStageDisabled(invalidIdx, true));
             Sinon.resetHistory();
             await store.dispatch(runStage(idxToRun));

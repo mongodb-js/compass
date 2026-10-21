@@ -50,6 +50,20 @@ describe('PipelineBuilder', function () {
     });
   });
 
+  it('reports parser errors that babel validation does not catch', async function () {
+    await pipelineBuilder.changeSource(
+      `[{$match: {_id: ObjectId('invalid')}}]`
+    );
+    expect(pipelineBuilder.pipeline).to.be.null;
+    expect(pipelineBuilder.syntaxError).to.have.lengthOf(1);
+    try {
+      await pipelineBuilder.getPipelineFromSource();
+      expect.fail('expected getPipelineFromSource to throw');
+    } catch (e) {
+      expect(e).to.equal(pipelineBuilder.syntaxError[0]);
+    }
+  });
+
   describe('getPipelineFromSource', function () {
     it('returns the pipeline for a source changed while it was parsing', async function () {
       await pipelineBuilder.changeSource(`[{$match: {_id: 1}}]`);
