@@ -241,15 +241,12 @@ type ResetQueryAction = {
 
 export const resetQuery = (
   source: string
-): QueryBarThunkAction<Promise<false | Record<string, unknown>>> => {
-  return async (dispatch, getState, { preferences }) => {
+): QueryBarThunkAction<false | Record<string, unknown>, ResetQueryAction> => {
+  return (dispatch, getState) => {
     if (isEqualDefaultQuery(getState().queryBar.fields)) {
       return false;
     }
-    const fields = await mapQueryToFormFields(
-      preferences.getPreferences(),
-      DEFAULT_FIELD_VALUES
-    );
+    const fields = getDefaultFormFields();
     dispatch({ type: QueryBarActions.ResetQuery, fields, source });
     return cloneDeep(DEFAULT_QUERY_VALUES);
   };

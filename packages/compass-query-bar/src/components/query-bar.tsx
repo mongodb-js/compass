@@ -125,7 +125,7 @@ const QueryOptionsToggle = connect(
 type QueryBarProps = {
   buttonLabel?: string;
   onApply: () => Promise<void>;
-  onReset: () => Promise<void>;
+  onReset: () => void;
   onOpenExportToLanguage: () => void;
   queryOptionsLayout?: (QueryOption | QueryOption[])[];
   queryChanged: boolean;
@@ -285,9 +285,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   useSyncAssistantGlobalState('currentQuery', toJSString(query) || null);
 
   const connectionInfoRef = useConnectionInfoRef();
-  const handleReset = useCallback(async () => {
+  const handleReset = useCallback(() => {
     track('Query Reset Clicked', { source }, connectionInfoRef.current);
-    await onReset();
+    onReset();
   }, [connectionInfoRef, onReset, source, track]);
 
   return (
@@ -458,8 +458,8 @@ export default connect(
         }
         ownProps.onApply?.(applied);
       },
-      onReset: async () => {
-        const reset = await dispatch(resetQuery(ownProps.source));
+      onReset: () => {
+        const reset = dispatch(resetQuery(ownProps.source));
         if (reset === false) {
           return;
         }
