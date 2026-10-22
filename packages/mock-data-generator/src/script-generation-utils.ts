@@ -403,7 +403,7 @@ function renderDocumentCode(
  * Serializes a value into a JS literal that is safe to embed in generated code.
  * JSON.stringify alone leaves characters that can break out of some contexts.
  */
-function toJSLiteral(value: unknown): string {
+function toStringLiteral(value: unknown): string {
   return JSON.stringify(value).replace(
     /[<>/\u2028\u2029]/g,
     (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`
