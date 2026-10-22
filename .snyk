@@ -24,3 +24,10 @@ ignore:
           server using it (OIDC) is bound to localhost.
         expires: 2026-12-16T00:00:00.000Z
         created: 2026-09-16T00:00:00.000Z
+  SNYK-JS-ELECTRON-20335498
+    - '*':
+        reason: >-
+          Not applicable to Compass. Requires untrusted iframe content
+          to be shown in a sandboxed iframe, which Compass does not use.
+        expires: 2027-01-22T00:00:00.000Z
+        created: 2026-10-22T00:00:00.000Z
