@@ -665,6 +665,19 @@ const updateFavoriteQuery = (
   };
 };
 
+function withUnsafeIntegerDiagnostic<F extends FormField<unknown>>(
+  state: QueryBarState,
+  name: QueryProperty,
+  field: F
+): F {
+  return {
+    ...field,
+    valid:
+      field.valid &&
+      !(name === 'filter' && field.string === state.unsafeIntegerFilterString),
+  };
+}
+
 export const queryBarReducer: Reducer<QueryBarState, Action> = (
   state = INITIAL_STATE,
   action
@@ -721,15 +734,11 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       fields: {
         ...state.fields,
-        [action.name]: {
-          ...action.value,
-          valid:
-            action.value.valid &&
-            !(
-              action.name === 'filter' &&
-              action.value.string === state.unsafeIntegerFilterString
-            ),
-        },
+        [action.name]: withUnsafeIntegerDiagnostic(
+          state,
+          action.name,
+          action.value
+        ),
       },
       pendingParseFieldRequestIds: omit(
         state.pendingParseFieldRequestIds,
@@ -806,7 +815,17 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
     }
     return {
       ...state,
-      fields: { ...state.fields, ...pick(action.fields, fieldsToUpdate) },
+      fields: {
+        ...state.fields,
+        ...Object.fromEntries(
+          fieldsToUpdate
+            .filter((name) => name in action.fields)
+            .map((name) => [
+              name,
+              withUnsafeIntegerDiagnostic(state, name, action.fields[name]),
+            ])
+        ),
+      },
       pendingParseFieldRequestIds: omitBy(
         state.pendingParseFieldRequestIds,
         (requestId) => requestId === action.requestId

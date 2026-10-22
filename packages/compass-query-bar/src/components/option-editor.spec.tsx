@@ -13,6 +13,7 @@ import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { DocumentList } from '@mongodb-js/compass-components';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import * as lenientlyFixQueryModule from '../query/leniently-fix-query';
 import { applyFromHistory } from '../stores/query-bar-reducer';
 import { OptionEditor, getOptionBasedQueries } from './option-editor';
 
@@ -124,22 +125,39 @@ describe('OptionEditor', function () {
     });
 
     it('keeps text typed while the pasted query is being fixed', async function () {
-      await renderOptionEditor({ 'data-testid': 'filter-editor' });
-
-      userEvent.tab();
-      await waitFor(() => {
-        expect(screen.getByRole('textbox').textContent).to.eq('{}');
+      let resolveFix!: (snippet: string) => void;
+      const fixDone = new Promise<string>((resolve) => {
+        resolveFix = resolve;
       });
+      const fixStub = sinon
+        .stub(lenientlyFixQueryModule, 'lenientlyFixQuery')
+        .returns(fixDone);
 
-      screen
-        .getByRole('textbox')
-        .dispatchEvent(new MockPasteEvent('{ foo: 1 }'));
-      const editor = (screen.getByTestId('filter-editor') as any)._cm;
-      editor.dispatch(editor.state.replaceSelection('a'));
+      try {
+        await renderOptionEditor({ 'data-testid': 'filter-editor' });
 
-      await waitFor(() => {
+        userEvent.tab();
+        await waitFor(() => {
+          expect(screen.getByRole('textbox').textContent).to.eq('{}');
+        });
+
+        screen
+          .getByRole('textbox')
+          .dispatchEvent(new MockPasteEvent('{ foo: 1 }'));
+        expect(fixStub).to.have.been.calledOnceWith('{{ foo: 1 }}');
+
+        const editor = (screen.getByTestId('filter-editor') as any)._cm;
+        editor.dispatch(editor.state.replaceSelection('a'));
+
+        resolveFix('\\{ foo: 1 ${}}');
+        await fixDone;
+        // Let the paste handler continue past its await before asserting
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
         expect(screen.getByRole('textbox').textContent).to.eq('{{ foo: 1 }a}');
-      });
+      } finally {
+        fixStub.restore();
+      }
     });
 
     it('should not modify user text whe pasting when cursor moved', async function () {
