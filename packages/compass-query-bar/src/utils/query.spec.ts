@@ -1,7 +1,21 @@
 import { expect } from 'chai';
 
-import { doesQueryHaveExtraOptionsSet, mapQueryToFormFields } from './query';
+import {
+  doesQueryHaveExtraOptionsSet,
+  formatQueryValueForEditor,
+  mapQueryToFormFields,
+} from './query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+
+describe('#formatQueryValueForEditor', function () {
+  it('formats values as JavaScript expressions', function () {
+    expect(formatQueryValueForEditor({ _id: 42 })).to.equal('{ _id: 42 }');
+  });
+
+  it('formats undefined as an empty string', function () {
+    expect(formatQueryValueForEditor(undefined)).to.equal('');
+  });
+});
 
 describe('#doesQueryHaveExtraOptionsSet', function () {
   it('returns true when there is a non filter option, false otherwise', async function () {

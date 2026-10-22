@@ -11,9 +11,10 @@ import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import { getDefaultFormFields } from '../utils/query';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
-import { prettify } from '@mongodb-js/compass-editor';
+import {
+  formatQueryValueForEditor,
+  getDefaultFormFields,
+} from '../utils/query';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
 import {
   queryBarReducer,
@@ -158,10 +159,7 @@ export function activatePlugin(
   for (const property of QUERY_PROPERTIES) {
     if (property in initialQuery) {
       const value = initialQuery[property as keyof typeof initialQuery];
-      fields[property].string = prettify(
-        typeof value === 'undefined' ? '' : toJSString(value, 0) || '',
-        'javascript-expression'
-      );
+      fields[property].string = formatQueryValueForEditor(value);
     }
   }
 

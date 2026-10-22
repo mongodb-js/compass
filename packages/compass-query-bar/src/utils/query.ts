@@ -34,6 +34,12 @@ export function mapFormFieldsToQuery(fields: QueryFormFields): BaseQuery {
   };
 }
 
+export function formatQueryValueForEditor(value: unknown): string {
+  const valueAsString =
+    typeof value === 'undefined' ? '' : toJSString(value, 0) || '';
+  return prettify(valueAsString, 'javascript-expression');
+}
+
 // Returns true if any fields that aren't filter have non-default values.
 export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
   if (!fields) {
@@ -89,10 +95,7 @@ export async function mapQueryToFormFields(
       if (!isQueryProperty(key)) {
         return null;
       }
-      let valueAsString =
-        typeof _value === 'undefined' ? '' : toJSString(_value, 0) || '';
-
-      valueAsString = prettify(valueAsString, 'javascript-expression');
+      const valueAsString = formatQueryValueForEditor(_value);
 
       const value = await validateField(key, valueAsString, preferences);
       const valid: boolean = value !== false;
