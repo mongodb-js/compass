@@ -15,6 +15,15 @@ ignore:
           invoked which Compass does not use.
         expires: 2026-10-21T00:00:00.000Z
         created: 2026-07-23T00:00:00.000Z
+  SNYK-JS-ZOD-20510278:
+    - '*':
+        reason: >-
+          Not applicable: the unbounded issue accumulation only matters when
+          parsing attacker-controlled large arrays. Compass only parses its own
+          local user data and first-party service responses with zod, and any
+          OOM would be limited to the user's own client process.
+        expires: 2027-01-22T00:00:00.000Z
+        created: 2026-10-22T00:00:00.000Z
   SNYK-JS-PROXYADDR-19812342:
     - '*':
         reason: >-
