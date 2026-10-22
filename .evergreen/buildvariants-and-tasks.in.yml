@@ -21,8 +21,8 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-macos',
     display_name: 'Unit Tests MacOS',
-    // We only have gui variants of the macos 15, so both unit tests will be
-    // running on it. We will not be running those on patches to save resources
+    // Both unit tests run on the macOS GUI image. Skipped on PRs to save
+    // resources.
     run_on: 'macos-15-arm64-gui',
     run_on_prs: false,
   }
@@ -50,13 +50,13 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
-    run_on: 'macos-14',
+    run_on: 'macos-15-amd64',
     target_platform: 'macos',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
-    run_on: 'macos-14-arm64',
+    run_on: 'macos-15-arm64',
     target_platform: 'macos-arm',
   }
 ];
@@ -118,15 +118,15 @@ const TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS = [
     // session, so this must run on a macOS GUI distro (not the non-GUI
     // arm64 packaging distro).
     name: 'test-packaged-app-min-macos-arm',
-    display_name: 'MacOS arm64 14 (min version)',
-    run_on: 'macos-14-arm64-gui',
+    display_name: 'MacOS arm64 15 (min version)',
+    run_on: 'macos-15-arm64-gui',
     depends_on: 'package-macos-arm',
     task: 'test-packaged-app-min-version',
   },
   {
     name: 'test-packaged-app-min-macos-x64',
-    display_name: 'MacOS x64 14 (min version)',
-    run_on: 'macos-14-gui',
+    display_name: 'MacOS x64 15 (min version)',
+    run_on: 'macos-15-amd64-gui',
     depends_on: 'package-macos-x64',
     task: 'test-packaged-app-min-version',
   },
