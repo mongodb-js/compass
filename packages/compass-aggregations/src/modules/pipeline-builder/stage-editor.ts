@@ -646,10 +646,21 @@ export const changeStageValue = (
     if (stage.value !== newVal) {
       return;
     }
-    if (stage.syntaxError) {
-      dispatch({ type: StageEditorActionTypes.StageValueChange, id, stage });
+    const currentIdx = getState().pipelineBuilder.stageEditor.stages.findIndex(
+      (s) => s.type === 'stage' && s.id === stage.id
+    );
+    // Stage may have been added, removed or moved while parsing
+    if (currentIdx === -1 || stage.value !== newVal) {
+      return;
     }
-    dispatch(loadPreviewForStagesFrom(id));
+    if (stage.syntaxError) {
+      dispatch({
+        type: StageEditorActionTypes.StageValueChange,
+        id: currentIdx,
+        stage,
+      });
+    }
+    dispatch(loadPreviewForStagesFrom(currentIdx));
     void dispatch(fetchExplainForPipeline());
   };
 };
@@ -787,8 +798,27 @@ export const changeStageOperator = (
       newSnippet: !!newSnippet,
     });
 
-    dispatch(loadPreviewForStagesFrom(id));
-    void dispatch(fetchExplainForPipeline());
+    // changeOperator clears all errors, so re-run the async parser validation.
+    // Not awaited because the snippet has to be returned synchronously
+    void stage.validateWithParser().then(() => {
+      const currentIdx =
+        getState().pipelineBuilder.stageEditor.stages.findIndex(
+          (s) => s.type === 'stage' && s.id === stage.id
+        );
+      if (currentIdx === -1 || stage.operator !== newVal) {
+        return;
+      }
+      if (stage.syntaxError) {
+        dispatch({
+          type: StageEditorActionTypes.StageOperatorChange,
+          id: currentIdx,
+          stage,
+          newSnippet: !!newSnippet,
+        });
+      }
+      dispatch(loadPreviewForStagesFrom(currentIdx));
+      void dispatch(fetchExplainForPipeline());
+    });
 
     return newSnippet;
   };

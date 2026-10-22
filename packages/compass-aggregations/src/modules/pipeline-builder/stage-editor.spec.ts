@@ -43,7 +43,10 @@ import {
 import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
-import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+import {
+  createDefaultConnectionInfo,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
@@ -177,6 +180,14 @@ function createStore({
   const pipelineBuilder = Sinon.spy(
     new PipelineBuilder(dataService, preferences, pipelineSource)
   ) as unknown as PipelineBuilder;
+  // Store stages are created from builder stages in the app, so ids must match
+  for (const stage of stages) {
+    const builderStage =
+      stage.type === 'stage' && pipelineBuilder.stages[stage.idxInPipeline];
+    if (builderStage) {
+      builderStage.id = stage.id;
+    }
+  }
 
   const globalAppRegistry = new AppRegistry();
   const connectionInfoRef = {
@@ -306,6 +317,20 @@ describe('stageEditor', function () {
         });
       }
     );
+
+    it('records the parser error for an invalid value when operator changes', async function () {
+      store = createStore({ stages: PIPELINE });
+      await store.dispatch(changeStageValue(0, `{_id: ObjectId('invalid')}`));
+
+      store.dispatch(changeStageOperator(0, '$addFields'));
+
+      await waitFor(() => {
+        expect(store.getState().stages[0]).to.have.nested.property(
+          'syntaxError.code',
+          'InvalidStageValue'
+        );
+      });
+    });
 
     it('should return stage snippet when stage was in initial state', function () {
       // Adding a new empty stage
@@ -437,6 +462,23 @@ describe('stageEditor', function () {
       expect(store.getState().stages[2])
         .to.have.property('syntaxError')
         .that.is.instanceOf(Error);
+    });
+
+    it('does not apply the parser error to another stage if the stage was removed while parsing', async function () {
+      const store = createStore({ stages: PIPELINE });
+      const nextStage = store.getState().stages[1] as StoreStage;
+      const changePromise = store.dispatch(
+        changeStageValue(0, `{_id: ObjectId('invalid')}`)
+      );
+      store.dispatch(removeStage(0));
+      await changePromise;
+
+      expect(store.getState().stages).to.have.lengthOf(PIPELINE.length - 1);
+      expect(store.getState().stages[0]).to.include({
+        id: nextStage.id,
+        value: nextStage.value,
+        syntaxError: null,
+      });
     });
   });
 

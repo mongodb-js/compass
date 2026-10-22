@@ -166,7 +166,7 @@ export const openStoredPipeline = (
  * Save the current state of your pipeline
  */
 export const saveCurrentPipeline =
-  (): PipelineBuilderThunkAction<void> =>
+  (): PipelineBuilderThunkAction<Promise<void>> =>
   async (
     dispatch,
     getState,
@@ -203,23 +203,24 @@ export const saveCurrentPipeline =
 
     await pipelineStorage?.createOrUpdate(savedPipeline.id, savedPipeline);
 
-    try {
-      const stages = await getPipelineFromBuilderState(
-        getState(),
-        pipelineBuilder
-      );
-      track(
-        'Aggregation Saved',
-        {
-          id: savedPipeline.id,
-          num_stages: stages.length,
-          editor_view_type: mapPipelineModeToEditorViewType(getState()),
-        },
-        connectionInfoRef.current
-      );
-    } catch {
+    const stagesLength = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    ).then(
+      (stages) => stages.length,
       // For the case where pipeline contains syntax errors
-    }
+      () => undefined
+    );
+
+    track(
+      'Aggregation Saved',
+      {
+        id: savedPipeline.id,
+        num_stages: stagesLength,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      },
+      connectionInfoRef.current
+    );
 
     dispatch(updatePipelineList());
   };
