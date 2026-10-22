@@ -49,8 +49,8 @@ export function generateScript(
 const { faker } = require('@faker-js/faker');
 
 // Database and collection configuration - edit these to target a different location
-const DB_NAME = ${toJSLiteral(options.databaseName)};
-const COLL_NAME = ${toJSLiteral(options.collectionName)};
+const DB_NAME = ${toStringLiteral(options.databaseName)};
+const COLL_NAME = ${toStringLiteral(options.collectionName)};
 
 // Connect to database
 use(DB_NAME);
@@ -421,7 +421,7 @@ function formatFieldName(fieldName: string): string {
   if (isValidIdentifier) {
     return fieldName;
   } else {
-    return toJSLiteral(fieldName);
+    return toStringLiteral(fieldName);
   }
 }
 
@@ -570,7 +570,7 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
     const arg = fakerArgs[i];
 
     if (typeof arg === 'string') {
-      stringifiedArgs.push(toJSLiteral(arg));
+      stringifiedArgs.push(toStringLiteral(arg));
     } else if (typeof arg === 'number') {
       if (!Number.isFinite(arg)) {
         throw new Error(
@@ -582,7 +582,7 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
       stringifiedArgs.push(`${arg}`);
     } else if (typeof arg === 'object' && arg !== null && 'json' in arg) {
       // Re-serialize so only a JSON value, never arbitrary code, is emitted
-      stringifiedArgs.push(toJSLiteral(JSON.parse(arg.json)));
+      stringifiedArgs.push(toStringLiteral(JSON.parse(arg.json)));
     } else {
       throw new Error(
         `Invalid argument type at index ${i}: expected string, number, boolean, or {json: string}`
