@@ -71,7 +71,7 @@
     "ipaddr.js": "^2.5.0",
     "lodash": "^4.18.1",
     "mongodb": "^7.5.0",
-    "mongodb-build-info": "^1.8.1",
+    "mongodb-build-info": "^1.9.12",
     "mongodb-connection-string-url": "^7.0.2",
     "mongodb-mcp-server": "^1.10.0",
     "react": "^18.3.1",
