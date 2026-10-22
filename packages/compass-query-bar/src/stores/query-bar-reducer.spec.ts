@@ -20,7 +20,7 @@ import { configureStore } from './query-bar-store';
 import type { QueryBarExtraArgs, RootState } from './query-bar-store';
 import Sinon from 'sinon';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import { mapQueryToFormFields } from '../utils/query';
+import { getDefaultFormFields, mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -367,6 +367,28 @@ describe('queryBarReducer', function () {
       expect(store.getState().queryBar.pendingParseFieldRequestIds).to.deep.eq(
         {}
       );
+    });
+
+    it('does not apply a query diagnosed with an unsafe integer before parsing finishes', async function () {
+      const query = { filter: { value: 9007199254740992 } };
+      // Like plugin activation, the text is shown before it is validated
+      const { filter } = await mapQueryToFormFields(
+        preferences.getPreferences(),
+        query
+      );
+      const fields = getDefaultFormFields();
+      fields.filter.string = filter.string;
+      store = createStore({ fields }, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+      } as QueryBarExtraArgs);
+      const setting = store.dispatch(setQuery(query));
+      store.dispatch(unsafeIntegerReceived('filter'));
+      await setting;
+
+      expect(store.getState().queryBar.fields.filter.valid).to.equal(false);
+      expect(await store.dispatch(applyQuery('test'))).to.equal(false);
     });
 
     it('does not allow applying while the query is parsed', async function () {
