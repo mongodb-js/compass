@@ -74,7 +74,7 @@
     "@mongodb-js/tracking-plan": "^0.3.2",
     "@testing-library/dom": "^9.3.4",
     "ag-grid-react": "^36.2.0",
-    "braintrust": "^2.2.2",
+    "braintrust": "^3.39.0",
     "express": "^4.22.1",
     "husky": "^8.0.3",
     "js-yaml": "^4.3.2",
@@ -124,9 +124,6 @@
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "basic-ftp": "^6.2.2",
-    "braintrust": {
-      "esbuild": "0.26.0"
-    },
     "nwsapi": "2.2.25",
     "qs": "^6.16.1",
     "react": "^18.3.1",
