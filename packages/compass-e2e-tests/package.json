@@ -68,7 +68,7 @@
     "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
     "ps-list": "^8.1.0",
-    "puppeteer-core": "^23.10.3",
+    "puppeteer-core": "^25.15.0",
     "resolve-mongodb-srv": "^1.1.5",
     "semver": "^7.6.3",
     "tesseract.js": "^6.0.1",
