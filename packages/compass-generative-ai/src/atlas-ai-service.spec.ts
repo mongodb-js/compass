@@ -614,6 +614,8 @@ describe('AtlasAiService', function () {
               id: responseId,
               object: 'realtime.response',
               status: 'in_progress',
+              created_at: Math.floor(Date.now() / 1000),
+              model: 'gpt-4o',
               output: [],
               usage: {
                 input_tokens: 0,
@@ -718,6 +720,8 @@ describe('AtlasAiService', function () {
               id: responseId,
               object: 'realtime.response',
               status: 'completed',
+              created_at: Math.floor(Date.now() / 1000),
+              model: 'gpt-4o',
               output: [
                 {
                   id: itemId,

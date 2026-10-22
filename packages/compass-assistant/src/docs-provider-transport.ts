@@ -8,8 +8,8 @@ import {
   wrapLanguageModel,
 } from 'ai';
 import type {
-  LanguageModelV3,
-  LanguageModelV3StreamPart,
+  LanguageModelV4,
+  LanguageModelV4StreamPart,
 } from '@ai-sdk/provider';
 import type { AssistantMessage } from './compass-assistant-provider';
 
@@ -33,13 +33,13 @@ function createSkillsMiddleware(
   onSkillUsed: (skillName: string) => void
 ): LanguageModelMiddleware {
   return {
-    specificationVersion: 'v3',
+    specificationVersion: 'v4',
     async wrapStream({ doStream }) {
       const { stream, ...rest } = await doStream();
       const skillToolCallIds = new Set<string>();
       const transform = new TransformStream<
-        LanguageModelV3StreamPart,
-        LanguageModelV3StreamPart
+        LanguageModelV4StreamPart,
+        LanguageModelV4StreamPart
       >({
         transform(part, controller) {
           switch (part.type) {
@@ -97,7 +97,7 @@ export function shouldExcludeMessage({ metadata }: AssistantMessage) {
 }
 
 export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
-  private model: LanguageModelV3;
+  private model: LanguageModelV4;
   private origin: string;
   private getTools: () => ToolSet;
   private instructions: string;
@@ -110,7 +110,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     getThreadId,
     instructions,
   }: {
-    model: LanguageModelV3;
+    model: LanguageModelV4;
     origin: string;
     getTools?: () => ToolSet;
     getThreadId: () => string;
@@ -215,6 +215,10 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
         ),
       }),
       messages: finalMessages,
+      // The system context is part of the conversation history (see
+      // `buildContextPrompt`), so system messages have to stay in `messages`
+      // rather than being hoisted into `instructions`.
+      allowSystemInMessages: true,
       abortSignal: abortSignal,
       headers: {
         'X-Request-Origin': this.origin,

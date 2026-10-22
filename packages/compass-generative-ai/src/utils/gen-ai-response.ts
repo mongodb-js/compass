@@ -28,7 +28,13 @@ export async function getAiQueryResponse(
       'X-Assistant-Entrypoint': 'natural-language-to-mql',
     },
     abortSignal,
-  }).toUIMessageStream();
+  }).toUIMessageStream({
+    // `toUIMessageStream` masks error messages by default so that server-side
+    // details are not leaked to a browser client. This stream is consumed
+    // locally and the message is surfaced to the user, so keep the real one.
+    onError: (error) =>
+      error instanceof Error ? error.message : String(error),
+  });
   const chunks: string[] = [];
   for await (const value of response) {
     if (value.type === 'text-delta') {

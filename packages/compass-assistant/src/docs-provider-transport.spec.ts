@@ -5,7 +5,7 @@ import {
   shouldExcludeMessage,
 } from './docs-provider-transport';
 import type { AssistantMessage } from './compass-assistant-provider';
-import { MockLanguageModelV3 } from 'ai/test';
+import { MockLanguageModelV4 } from 'ai/test';
 import { jsonSchema, readUIMessageStream, tool, type UIMessageChunk } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
@@ -43,7 +43,7 @@ describe('DocsProviderTransport', function () {
   });
 
   describe('sending messages', function () {
-    let mockModel: MockLanguageModelV3;
+    let mockModel: MockLanguageModelV4;
     let doStream: sinon.SinonStub;
     let transport: DocsProviderTransport;
     let abortController: AbortController;
@@ -62,7 +62,7 @@ describe('DocsProviderTransport', function () {
           },
         },
       });
-      mockModel = new MockLanguageModelV3({
+      mockModel = new MockLanguageModelV4({
         doStream,
       });
       abortController = new AbortController();
@@ -594,7 +594,10 @@ describe('DocsProviderTransport', function () {
           ]);
           const { input } = JSON.parse(requestBodies[0]);
           expect(JSON.stringify(input)).to.not.include('Using skill:');
-          expect(JSON.stringify(input)).to.include('rs_1');
+          // `@ai-sdk/openai` skips reasoning items that have no
+          // `encrypted_content` when `store` is false, which is what we send,
+          // so the real reasoning part is dropped along with the skill ones.
+          expect(JSON.stringify(input)).to.not.include('rs_1');
           // The converter warns when it has to skip a reasoning part
           expect(warn).to.not.have.been.called;
         } finally {
