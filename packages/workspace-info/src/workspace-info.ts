@@ -69,7 +69,7 @@ export type CollectionsWorkspace = z.output<typeof CollectionsWorkspaceSchema>;
 const CollectionWorkspaceSchema = z.object({
   type: z.literal('Collection'),
   subTab: CollectionSubtabSchema,
-  initialQuery: z.record(z.string(), z.any()).optional(),
+  initialQuery: z.record(z.any()).optional(),
   initialPipeline: z.array(z.unknown()).optional(),
   initialPipelineText: z.string().optional(),
   initialAggregation: z.unknown().optional(),

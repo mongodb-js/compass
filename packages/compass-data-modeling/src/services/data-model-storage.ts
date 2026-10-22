@@ -26,7 +26,7 @@ export const RelationshipSideSchema = z.object({
 export type RelationshipSide = z.output<typeof RelationshipSideSchema>;
 
 export const RelationshipSchema = z.object({
-  id: z.uuid(),
+  id: z.string().uuid(),
   relationship: z.tuple([RelationshipSideSchema, RelationshipSideSchema]),
   isInferred: z.boolean(),
   note: z.string().optional(),
@@ -65,8 +65,8 @@ const CollectionSchema = z.preprocess(
   z.object({
     ns: z.string(),
     fieldData: FieldDataSchema,
-    indexes: z.array(z.record(z.string(), z.unknown())),
-    shardKey: z.record(z.string(), z.unknown()).optional(),
+    indexes: z.array(z.record(z.unknown())),
+    shardKey: z.record(z.unknown()).optional(),
     displayPosition: z.tuple([z.number(), z.number()]),
     note: z.string().optional(),
   })
@@ -82,8 +82,8 @@ export const StaticModelSchema = z.object({
 export type StaticModel = z.output<typeof StaticModelSchema>;
 
 const EditSchemaBase = z.object({
-  id: z.uuid(),
-  timestamp: z.iso.datetime(),
+  id: z.string().uuid(),
+  timestamp: z.string().datetime(),
 });
 
 const EditSchemaVariants = z.discriminatedUnion('type', [
@@ -101,7 +101,7 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
   }),
   z.object({
     type: z.literal('RemoveRelationship'),
-    relationshipId: z.uuid(),
+    relationshipId: z.string().uuid(),
   }),
   z.object({
     type: z.literal('MoveCollection'),
@@ -185,7 +185,8 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
 export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
 
 export const EditListSchema = z
-  .tuple([EditSchema], EditSchema)
+  .array(EditSchema)
+  .nonempty()
   // Ensure first item exists and is 'SetModel'
   .refine((edits) => edits[0]?.type === 'SetModel', {
     message: "First edit must be of type 'SetModel'",
@@ -209,7 +210,7 @@ export const validateEdit = (
     return {
       result: false,
       errors: (e as z.ZodError).issues.map(({ path, message }) =>
-        message.endsWith('undefined')
+        message === 'Required'
           ? `'${path}' is required`
           : `Invalid field '${path}': ${message}`
       ),
@@ -242,8 +243,8 @@ export const MongoDBDataModelDescriptionSchema = z.preprocess(
     connectionId: z.string().nullable(),
     database: z.string(),
     edits: EditListSchema,
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
   })
 );
 

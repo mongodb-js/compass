@@ -27,7 +27,7 @@ const getTestSchema = (
   });
 
   if (options.allowUnknownProps) {
-    return validator.loose();
+    return validator.passthrough();
   }
 
   return validator;
@@ -213,9 +213,9 @@ describe('user-data', function () {
         });
         expect.fail('missed exception');
       } catch (e) {
-        const errors = (e as ZodError).issues;
+        const errors = (e as ZodError).errors;
         expect(errors[0].message).to.contain(
-          'expected boolean, received string'
+          'Expected boolean, received string'
         );
       }
     });
@@ -577,7 +577,7 @@ describe('AtlasUserData', function () {
       const result = await userData.write('test-id', {
         name: 'VSCode',
         randomProp: 'should fail',
-      } as z.input<ReturnType<typeof getTestSchema>>);
+      });
 
       expect(result).to.be.true;
     });

@@ -49,12 +49,12 @@ export type ConnectionWithLegacyProps = ConnectionProps & ConnectionLegacyProps;
 
 const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
   .object({
-    _id: z.uuid().optional(),
+    _id: z.string().uuid().optional(),
     isFavorite: z.boolean().optional(),
     name: z.string().optional(),
     connectionInfo: z
       .object({
-        id: z.uuid(),
+        id: z.string().uuid(),
         lastUsed: z.coerce
           .date()
           .optional()
@@ -76,7 +76,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
     version: z.number().optional(),
     connectionSecrets: z.string().optional(),
   })
-  .loose();
+  .passthrough();
 
 class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly userData: FileUserData<typeof ConnectionSchema>;

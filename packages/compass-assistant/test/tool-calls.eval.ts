@@ -32,7 +32,6 @@ import type {
   ConversationEvalCaseInputWithCustom,
   ConversationTaskOutput,
   BraintrustConversationEvalCaseWithCustom,
-  MessageBase,
 } from 'mongodb-assistant-eval/eval';
 import { ToolCallScorers } from 'mongodb-assistant-eval/scorers';
 import { seedServer } from './fixtures/databases/seed-server';
@@ -228,7 +227,7 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
       system: contextPrompt,
       prompt: input.messages
         .map(
-          (m: MessageBase) =>
+          (m) =>
             `${m.role === 'assistant' ? 'Assistant' : 'User'}: ${m.content}`
         )
         .join('\n\n'),
