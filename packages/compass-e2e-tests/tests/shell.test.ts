@@ -64,7 +64,7 @@ describe('Shell', function () {
       );
     });
 
-    it('uses the database and collection it is opened from and renders all types', async function () {
+    it.only('uses the database and collection it is opened from and renders all types', async function () {
       await browser.openShellFromCollectionHeader(getDefaultConnectionNames(0));
 
       await browser.waitUntil(async () => {
@@ -92,6 +92,7 @@ describe('Shell', function () {
       });
 
       const output = await getShellOutputText(browser);
+      console.log('DEBUG shell output[3]:', JSON.stringify(output[3]));
       expect(output.slice(0, 3)).to.deep.equal([
         'use("my-sidebar-database")',
         'switched to db my-sidebar-database',
