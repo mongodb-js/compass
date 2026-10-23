@@ -1,4 +1,6 @@
+import path from 'path';
 import type { CompassBrowser } from '../compass-browser.ts';
+import { LOG_SCREENSHOTS_PATH } from '../test-runner-paths.ts';
 
 export async function setComboBoxValue(
   browser: CompassBrowser,
@@ -35,7 +37,13 @@ export async function setComboBoxValue(
     // Handle existing as well as new values
     `[aria-label="${comboboxValue}"],[aria-label='Field: "${comboboxValue}"']`
   );
-  await optionElement.waitForClickable();
-  await browser.clickVisible(optionElement);
+  try {
+    await browser.clickVisible(optionElement);
+  } catch (err) {
+    await browser.saveScreenshot(
+      path.join(LOG_SCREENSHOTS_PATH, `combobox-click-failed-${Date.now()}.png`)
+    );
+    throw err;
+  }
   await comboboxListSelectorElement.waitForDisplayed({ reverse: true });
 }
