@@ -708,7 +708,7 @@ describe('Collection aggregations tab', function () {
       unsubscribeAllowWarnings();
     });
 
-    it.only('Shows error info when inserting', async function () {
+    it('Shows error info when inserting', async function () {
       await browser.selectStageOperator(0, '$out');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),
