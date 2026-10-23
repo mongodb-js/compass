@@ -15,6 +15,8 @@ if (!artifacts.length) {
 }
 
 const contentTypeForExt: Record<string, string> = {
+  //@ts-expect-error: typescript doesn't support setting proto to null
+  __proto__: null,
   '.mjs': 'text/javascript',
   '.txt': 'text/plain', // extracted third party license info
   '.ts': 'text/typescript', // type definitions

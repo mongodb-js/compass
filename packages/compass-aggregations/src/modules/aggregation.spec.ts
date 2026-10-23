@@ -20,7 +20,7 @@ import { createCancelError } from '@mongodb-js/compass-utils';
 import HadronDocument from 'hadron-document';
 import { omit } from 'lodash';
 import { EJSON } from 'bson';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { AggregationsStore } from '../stores/store';

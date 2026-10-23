@@ -10,8 +10,8 @@ import type { DownloadItem } from 'electron';
 import { dialog, autoUpdater, BrowserWindow } from 'electron';
 import os from 'os';
 import dl from 'electron-dl';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { ipcMain } from 'hadron-ipc';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 
 function setStateAndWaitForUpdate(
   initial: AutoUpdateManagerState,

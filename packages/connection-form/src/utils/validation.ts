@@ -86,7 +86,8 @@ export function errorMessageByFieldNameAndIndex(
 
 export function validateConnectionOptionsErrors(
   connectionOptions: ConnectionOptions,
-  parsingOptions?: ConnectionStringParsingOptions
+  parsingOptions?: ConnectionStringParsingOptions,
+  { isAtlas = false }: { isAtlas?: boolean } = {}
 ): ConnectionFormError[] {
   const connectionString = new ConnectionString(
     connectionOptions.connectionString,
@@ -94,7 +95,7 @@ export function validateConnectionOptionsErrors(
   );
 
   return [
-    ...validateAuthMechanismErrors(connectionString),
+    ...validateAuthMechanismErrors(connectionString, { isAtlas }),
     ...validateCSFLEErrors(connectionOptions.fleOptions?.autoEncryption ?? {}),
     ...(connectionOptions.sshTunnel
       ? validateSSHTunnelErrors(connectionOptions.sshTunnel)
@@ -157,7 +158,8 @@ function validateReadPreferenceErrors(
 }
 
 function validateAuthMechanismErrors(
-  connectionString: ConnectionString
+  connectionString: ConnectionString,
+  { isAtlas }: { isAtlas: boolean }
 ): ConnectionFormError[] {
   const authMechanism = connectionString
     .typedSearchParams<MongoClientOptions>()
@@ -166,7 +168,7 @@ function validateAuthMechanismErrors(
     case '':
       return validateDefaultAuthMechanismErrors(connectionString);
     case 'MONGODB-X509':
-      return validateX509Errors(connectionString);
+      return validateX509Errors(connectionString, { isAtlas });
     case 'GSSAPI':
       return validateKerberosErrors(connectionString);
     case 'PLAIN':
@@ -218,7 +220,8 @@ function validateUsernameAndPasswordErrors(
   return errors;
 }
 function validateX509Errors(
-  connectionString: ConnectionString
+  connectionString: ConnectionString,
+  { isAtlas }: { isAtlas: boolean }
 ): ConnectionFormError[] {
   const errors: ConnectionFormError[] = [];
   if (!isSecure(connectionString)) {
@@ -228,7 +231,9 @@ function validateX509Errors(
       message: 'TLS must be enabled in order to use x509 authentication.',
     });
   }
-  if (!connectionString.searchParams.has('tlsCertificateKeyFile')) {
+  // Connection info from Atlas always uses X.509 but never includes a
+  // certificate, so requiring one would block every Data Explorer connection.
+  if (!isAtlas && !connectionString.searchParams.has('tlsCertificateKeyFile')) {
     errors.push({
       fieldTab: 'tls',
       fieldName: 'tlsCertificateKeyFile',

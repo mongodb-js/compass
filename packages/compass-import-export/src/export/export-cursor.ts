@@ -1,6 +1,6 @@
 import type { DataService } from 'mongodb-data-service';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 
 import type { ExportAggregation, ExportQuery } from './export-types';
 

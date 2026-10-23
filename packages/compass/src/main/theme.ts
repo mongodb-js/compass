@@ -1,4 +1,4 @@
-import type { THEMES } from 'compass-preferences-model';
+import type { THEMES } from '@mongodb-js/compass-preferences-model';
 import { nativeTheme } from 'electron';
 import type { CompassApplication } from './application';
 

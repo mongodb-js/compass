@@ -6,8 +6,8 @@ import {
   Icon,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { UserConfigurablePreferences } from 'compass-preferences-model';
-import { timezoneObservesDaylightSavings } from 'compass-preferences-model/provider';
+import type { UserConfigurablePreferences } from '@mongodb-js/compass-preferences-model';
+import { timezoneObservesDaylightSavings } from '@mongodb-js/compass-preferences-model/provider';
 import type { SupportedPreferences } from './settings/settings-list';
 
 const containerStyles = css({
@@ -52,7 +52,7 @@ export function TimezoneDescription({
 export function EnableDbAndCollStatsDescription() {
   return (
     <>
-      When enabled, Compass occasionally calls the{' '}
+      When enabled, the{' '}
       <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
         dbStats
       </Link>{' '}
@@ -60,9 +60,9 @@ export function EnableDbAndCollStatsDescription() {
       <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
         collStats
       </Link>{' '}
-      commands to access storage statistics for a given database or collection.
-      Disabling this setting can help reduce Compass&apos; overhead on your
-      MongoDB deployments.
+      commands are occasionally called to access storage statistics for a given
+      database or collection. Disabling this setting can help reduce the
+      overhead on your MongoDB deployments.
     </>
   );
 }

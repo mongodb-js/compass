@@ -1,14 +1,19 @@
 import type { Action, AnyAction, Reducer } from 'redux';
+import { openToast } from '@mongodb-js/compass-components';
 import type { SettingsThunkAction } from '.';
 import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 
 export type SettingsTabId =
   'general' | 'theme' | 'privacy' | 'oidc' | 'ai' | 'proxy' | 'preview';
 
-export type State = { isModalOpen: boolean; tab: undefined | SettingsTabId } & (
+export type State = {
+  isModalOpen: boolean;
+  isSaving: boolean;
+  tab: undefined | SettingsTabId;
+} & (
   | {
       loadingState: 'loading';
       settings: Record<string, never>;
@@ -25,6 +30,7 @@ export type State = { isModalOpen: boolean; tab: undefined | SettingsTabId } & (
 
 export const INITIAL_STATE: State = {
   isModalOpen: false,
+  isSaving: false,
   settings: {},
   preferenceStates: {},
   updatedFields: [],
@@ -40,6 +46,8 @@ export const ActionTypes = {
   ChangeFieldValue: 'compass-settings/ChangeFieldValue',
   FieldUpdated: 'compass-settings/settingsFieldUpdated',
   SettingsSaved: 'compass-settings/settingsUpdated',
+  SaveSettingsStarted: 'compass-settings/SaveSettingsStarted',
+  SaveSettingsFinished: 'compass-settings/SaveSettingsFinished',
   OpenSettingsModal: 'compass-settings/OpenSettingsModal',
   SelectTab: 'compass-settings/SelectTab',
   CloseSettingsModal: 'compass-settings/CloseSettingsModal',
@@ -54,6 +62,14 @@ type SettingsFetchedAction = {
 
 type SaveSettingsAction = {
   type: typeof ActionTypes.SettingsSaved;
+};
+
+type SaveSettingsStartedAction = {
+  type: typeof ActionTypes.SaveSettingsStarted;
+};
+
+type SaveSettingsFinishedAction = {
+  type: typeof ActionTypes.SaveSettingsFinished;
 };
 
 type SettingsFetchStartAction = {
@@ -153,6 +169,25 @@ export const reducer: Reducer<State, Action> = (
     return {
       ...state,
       isModalOpen: false,
+    };
+  }
+  if (
+    isAction<SaveSettingsStartedAction>(action, ActionTypes.SaveSettingsStarted)
+  ) {
+    return {
+      ...state,
+      isSaving: true,
+    };
+  }
+  if (
+    isAction<SaveSettingsFinishedAction>(
+      action,
+      ActionTypes.SaveSettingsFinished
+    )
+  ) {
+    return {
+      ...state,
+      isSaving: false,
     };
   }
   return state;
@@ -260,7 +295,7 @@ export const closeModal = (): SettingsThunkAction<
 
 export const saveSettings = (): SettingsThunkAction<
   Promise<void>,
-  SaveSettingsAction
+  SaveSettingsAction | SaveSettingsStartedAction | SaveSettingsFinishedAction
 > => {
   return async (
     dispatch,
@@ -274,6 +309,7 @@ export const saveSettings = (): SettingsThunkAction<
       );
     }
     try {
+      dispatch({ type: ActionTypes.SaveSettingsStarted });
       await sandbox.applySandboxChangesToPreferences();
       dispatch({
         type: ActionTypes.SettingsSaved,
@@ -285,6 +321,13 @@ export const saveSettings = (): SettingsThunkAction<
         'Failed to update settings',
         { message: (e as Error).message }
       );
+      openToast('failed-to-save-settings', {
+        title: 'Failed to save settings',
+        description: (e as Error).message,
+        variant: 'warning',
+      });
+    } finally {
+      dispatch({ type: ActionTypes.SaveSettingsFinished });
     }
   };
 };

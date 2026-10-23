@@ -29,7 +29,7 @@ import {
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';
@@ -37,6 +37,7 @@ import ViewSearchIncompatibleBanner from '../view-incompatible-components/view-p
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import IndexStatsNodeBanner from './index-stats-node-banner';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -182,6 +183,9 @@ export function Indexes({
     }),
     shallowEqual
   );
+  const showRegularIndexes =
+    isRegularIndexesReadable && currentIndexesView === 'regular-indexes';
+
   const getBanner = () => {
     if (isReadonlyView) {
       if (!isViewVersionSearchCompatible) {
@@ -229,8 +233,9 @@ export function Indexes({
         <div className={indexesContainersStyles}>
           {getBanner()}
 
-          {isRegularIndexesReadable &&
-            currentIndexesView === 'regular-indexes' && <RegularIndexesTable />}
+          {showRegularIndexes && !errorMessage && <IndexStatsNodeBanner />}
+
+          {showRegularIndexes && <RegularIndexesTable />}
           {isSearchIndexesReadable &&
             currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
           {isReadonlyView && !isSearchIndexesReadable && (

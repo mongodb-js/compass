@@ -9,11 +9,10 @@ import HadronDocument, {
   Document,
   objectToIdiomaticEJSON,
 } from 'hadron-document';
-import { validate } from 'mongodb-query-parser';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { EJSON } from 'bson';
@@ -28,6 +27,7 @@ import {
   countDocuments,
   fetchShardingKeys,
   objectContainsRegularExpression,
+  validateSort,
 } from '../utils';
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
@@ -1726,7 +1726,7 @@ class CrudStoreImpl
     let sort = query.sort;
 
     if (!sort && allowDefaultSort && defaultSortOrder) {
-      sort = validate('sort', defaultSortOrder);
+      sort = validateSort(defaultSortOrder);
     }
 
     const findOptions = {

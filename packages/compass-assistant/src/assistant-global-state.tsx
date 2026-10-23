@@ -4,7 +4,7 @@ import type {
   WorkspaceTab,
   CollectionSubtab,
 } from '@mongodb-js/workspace-info';
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import React, { useEffect } from 'react';
 
 export type ActiveConnectionInfo = ConnectionInfo & {

@@ -3,6 +3,7 @@ import sinon from 'sinon';
 import {
   CompassAssistantProvider,
   type AssistantMessage,
+  type ThreadedChat,
 } from '../src/compass-assistant-provider';
 import {
   type AtlasAuthService,
@@ -14,7 +15,16 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import { render } from '@mongodb-js/testing-library-compass';
 import React from 'react';
+import { UUID } from 'bson';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+
+export function createChat(
+  init: ConstructorParameters<typeof Chat<AssistantMessage>>[0]
+) {
+  return Object.assign(new Chat<AssistantMessage>(init), {
+    threadId: new UUID().toString(),
+  });
+}
 
 export const createMockChat = ({
   messages,
@@ -25,15 +35,12 @@ export const createMockChat = ({
   status?: Chat<AssistantMessage>['status'];
   transport?: Chat<AssistantMessage>['transport'];
 }) => {
-  const newChat = new Chat<AssistantMessage>({
-    messages,
-    transport,
-  });
+  const newChat = createChat({ messages, transport });
   sinon.replace(newChat, 'sendMessage', sinon.stub());
   if (status) {
     sinon.replaceGetter(newChat, 'status', () => status);
   }
-  return newChat as unknown as Chat<AssistantMessage> & {
+  return newChat as unknown as ThreadedChat & {
     sendMessage: sinon.SinonStub;
   };
 };
@@ -49,11 +56,7 @@ export function createBrokenTransport() {
 }
 
 export function createBrokenChat() {
-  const chat = new Chat<AssistantMessage>({
-    messages: [],
-    transport: createBrokenTransport(),
-  });
-  return chat;
+  return createChat({ messages: [], transport: createBrokenTransport() });
 }
 
 type MockTool = {

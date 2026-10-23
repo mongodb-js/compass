@@ -1,6 +1,13 @@
 import { inspect } from 'util';
 import { ObjectId, EJSON } from 'bson';
-import { promises as fs, rmdirSync } from 'fs';
+import {
+  promises as fs,
+  closeSync,
+  mkdirSync,
+  openSync,
+  rmdirSync,
+  writeSync,
+} from 'fs';
 import type Mocha from 'mocha';
 import os from 'os';
 import { execFile } from 'child_process';
@@ -10,7 +17,7 @@ import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import { packageCompass } from 'hadron-build';
+import { packageCompass } from '@mongodb-js/hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors.ts';
@@ -353,14 +360,16 @@ export class Compass {
         };
       }
     } catch (err) {
-      debug('Failed to update application logs', err);
+      // This is expected whenever the application is already gone, and the
+      // WebDriver error would dump the whole browser object graph if inspected
+      const message = err instanceof Error ? err.message : String(err);
+      debug('Failed to update application logs: %s', message);
     }
     return this.logs;
   }
 
   addDebugger(): void {
     const browser = this.browser;
-    const debugClient = debug.extend('webdriver:client');
     const browserProto = Object.getPrototypeOf(browser);
 
     // We can pull the own property names straight from browser, but brings up a
@@ -422,11 +431,7 @@ export class Compass {
 
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
-        debugClient(
-          `${prop}(${args
-            .map((arg) => redact(inspect(arg, { breakLength: Infinity })))
-            .join(', ')})`
-        );
+        traceWebdriverCommand(`${prop}(${args.map(traceArg).join(', ')})`);
 
         const stack = new Error(prop).stack ?? '';
 
@@ -1371,6 +1376,47 @@ const SENSITIVE_ENV_VARS = [
   'E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID',
   'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
 ];
+
+let webdriverTraceFd: number | undefined;
+
+function traceWebdriverCommand(message: string): void {
+  if (webdriverTraceFd === undefined) {
+    mkdirSync(LOG_PATH, { recursive: true });
+    webdriverTraceFd = openSync(
+      path.join(LOG_PATH, 'webdriver-trace.log'),
+      'a'
+    );
+  }
+  writeSync(webdriverTraceFd, `${new Date().toISOString()} ${message}\n`);
+}
+
+export function closeWebdriverTrace(): void {
+  if (webdriverTraceFd === undefined) {
+    return;
+  }
+  closeSync(webdriverTraceFd);
+  webdriverTraceFd = undefined;
+}
+
+// WebdriverIO passes whole Browser/Element graphs around, and those reference
+// the browser session, the driver capabilities and the element's own error.
+// Inspecting them deeply buries the actual failure in unrelated internals.
+function traceArg(arg: unknown): string {
+  if (typeof arg === 'string') {
+    return redact(arg);
+  }
+  if (typeof arg === 'function') {
+    return `<${arg.name || 'function'}>`;
+  }
+  if (arg === null || typeof arg !== 'object') {
+    return String(arg);
+  }
+  const ctor = (arg as object).constructor?.name;
+  if (ctor && ctor !== 'Object' && ctor !== 'Array') {
+    return `<${ctor}>`;
+  }
+  return redact(inspect(arg, { depth: 1, breakLength: Infinity }));
+}
 
 function redact(value: string): string {
   for (const field of SENSITIVE_ENV_VARS) {

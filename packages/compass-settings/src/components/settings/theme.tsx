@@ -16,7 +16,7 @@ import { changeFieldValue } from '../../stores/settings';
 import type {
   PreferenceStateInformation,
   THEMES,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import { settingStateLabels } from './state-labels';
 import SettingsList from './settings-list';
 
@@ -108,7 +108,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
 
   return (
     <div data-testid="theme-settings">
-      <div>Change the appearance of Compass.</div>
+      <div>Change the appearance of the application.</div>
 
       <FormFieldContainer>
         <Checkbox

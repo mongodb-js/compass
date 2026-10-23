@@ -4,7 +4,7 @@ import { getSchema } from '../utils/get-schema';
 import toNS from 'mongodb-ns';
 import { isEqual } from 'lodash';
 import type { AnyAction } from 'redux';
-import type Collection from 'mongodb-collection-model';
+import type Collection from '@mongodb-js/mongodb-collection-model';
 
 const FETCH_SCHEMA_MAX_TIME_MS = 10000;
 

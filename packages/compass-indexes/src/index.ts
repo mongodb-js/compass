@@ -21,7 +21,7 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 import { IndexesTabTitle } from './plugin-title';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { IndexesDrawer } from './plugin-drawer';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 

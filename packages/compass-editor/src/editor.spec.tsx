@@ -54,6 +54,14 @@ describe('Editor', function () {
 
       expect(editorRef.current?.editorContents).to.equal('{\n  \n}');
     });
+
+    it('hides the scrollbar', function () {
+      const scroller = document.querySelector('.cm-scroller');
+      expect(scroller).to.exist;
+      expect(getComputedStyle(scroller as Element).scrollbarWidth).to.equal(
+        'none'
+      );
+    });
   });
 
   context('CodemirrorMultilineEditor', function () {

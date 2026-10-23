@@ -14,4 +14,7 @@ initialize();
 process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX =
   process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX ?? 'true';
 // NB: Not adding this as a dep in package.json to avoid circular dependency
-require('compass-preferences-model').setupPreferences(undefined, safeStorage);
+require('@mongodb-js/compass-preferences-model').setupPreferences(
+  undefined,
+  safeStorage
+);

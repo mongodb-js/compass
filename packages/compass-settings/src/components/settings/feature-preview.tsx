@@ -1,10 +1,10 @@
 import React from 'react';
 import SettingsList from './settings-list';
-import type { FeatureFlagDefinition } from 'compass-preferences-model/provider';
+import type { FeatureFlagDefinition } from '@mongodb-js/compass-preferences-model/provider';
 import {
   usePreference,
   featureFlags,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 
 export const previewFeatureFlagFields = featureFlags
   .filter((definition) => {
@@ -51,8 +51,8 @@ export const FeaturePreviewSettings: React.FunctionComponent = () => {
   return (
     <div data-testid="feature-flag-settings">
       <div>
-        These settings control experimental behavior of Compass. Use them at
-        your own risk!
+        These settings control experimental behavior of the application. Use
+        them at your own risk!
       </div>
       <div>
         {showPreviewFeatures && (

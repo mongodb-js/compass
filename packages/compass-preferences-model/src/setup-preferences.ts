@@ -1,5 +1,5 @@
 import { Preferences } from './preferences';
-import { ipcMain } from 'hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import type {
   AllPreferences,
   PreferenceStateInformation,

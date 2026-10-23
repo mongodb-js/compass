@@ -1,8 +1,8 @@
 import { createLogger } from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { getActiveUser } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { getActiveUser } from '@mongodb-js/compass-preferences-model';
 
 const { debug } = createLogger('COMPASS-INTERCOM');
 

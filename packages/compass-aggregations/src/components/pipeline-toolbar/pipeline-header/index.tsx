@@ -8,7 +8,7 @@ import {
   InteractivePopover,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';

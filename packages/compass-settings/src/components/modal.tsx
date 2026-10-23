@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
-import type { UserConfigurablePreferences } from 'compass-preferences-model';
+import type { UserConfigurablePreferences } from '@mongodb-js/compass-preferences-model';
 
 import {
   FormModal,
+  SpinLoader,
   css,
   spacing,
   focusRing,
@@ -40,6 +41,7 @@ type SettingsModalProps = {
   onSave: () => void;
   onSelectTab: (tab: SettingsTabId) => void;
   hasChangedSettings: boolean;
+  isSaving: boolean;
   userConfigurableSettings: Partial<{
     [key in keyof UserConfigurablePreferences]: unknown;
   }>;
@@ -78,6 +80,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onSave,
   onSelectTab,
   hasChangedSettings,
+  isSaving,
   userConfigurableSettings,
 }) => {
   const onMountRef = useRef(onMount);
@@ -158,7 +161,10 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       open={isOpen}
       submitButtonText="Save"
       onSubmit={onSave}
-      submitDisabled={!hasChangedSettings}
+      submitDisabled={!hasChangedSettings || isSaving}
+      submitButtonLeftGlyph={
+        isSaving ? <SpinLoader title="Saving settings" /> : undefined
+      }
       onCancel={onClose}
       data-testid="settings-modal"
       minBodyHeight={spacing[1600] * 2}
@@ -194,6 +200,7 @@ export default connect(
       isOpen:
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
       hasChangedSettings: state.settings.updatedFields.length > 0,
+      isSaving: state.settings.isSaving,
       selectedTab: state.settings.tab,
       userConfigurableSettings: state.settings.settings,
     };

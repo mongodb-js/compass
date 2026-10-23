@@ -19,7 +19,7 @@ import { connect } from '../stores/context';
 import {
   useIsAIFeatureEnabled,
   usePreference,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import {
   useTelemetry,
   useSearchActivationProgramP2,
@@ -43,7 +43,8 @@ import {
   type ExplainMode,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
+import { isEqualDefaultQuery } from '../utils/query';
+import { isQueryValid } from '../utils/validate-query';
 import type { QueryProperty } from '../constants/query-properties';
 import { QueryAI } from './query-ai';
 import type {

@@ -19,8 +19,8 @@ import type { QueryBarExtraArgs, RootState } from './query-bar-store';
 import Sinon from 'sinon';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import { mapQueryToFormFields } from '../utils/query';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { waitFor } from '@mongodb-js/testing-library-compass';
@@ -67,7 +67,6 @@ describe('queryBarReducer', function () {
       ['limit', '-1000', DEFAULT_QUERY_VALUES['limit'], false],
 
       ['collation', '{ locale: "simple" }', { locale: 'simple' }, true],
-      ['collation', '{ lang: "en" }', DEFAULT_QUERY_VALUES['collation'], false],
 
       ['maxTimeMS', '1', 1, true],
       ['maxTimeMS', '-1', DEFAULT_QUERY_VALUES['maxTimeMS'], false],
@@ -142,9 +141,12 @@ describe('queryBarReducer', function () {
         'value',
         DEFAULT_QUERY_VALUES['limit']
       );
+      expect(getField('collation'))
+        .to.have.property('value')
+        .deep.eq({ lang: 'en' });
       expect(getField('collation')).to.have.property(
-        'value',
-        DEFAULT_QUERY_VALUES['collation']
+        'string',
+        '{ lang: "en" }'
       );
       expect(getField('maxTimeMS')).to.have.property(
         'value',

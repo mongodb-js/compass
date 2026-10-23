@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import type { JSONSchema7 } from 'json-schema';
 import { getSchema } from '@mongodb-js/search-index-schema';
 import type { FeatureFlag } from '@mongodb-js/search-index-schema';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { SearchIndexType } from '../modules/indexes-drawer';
 
 export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {
@@ -10,10 +10,12 @@ export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {
     enableAutoEmbeddingPublicPreview,
     enableAutoEmbeddingPrivatePreview,
     enableSortedSearchIndexes,
+    enableVectorXPrivatePreview,
   } = usePreferences([
     'enableAutoEmbeddingPublicPreview',
     'enableAutoEmbeddingPrivatePreview',
     'enableSortedSearchIndexes',
+    'enableVectorXPrivatePreview',
   ]);
 
   return useMemo(
@@ -30,6 +32,9 @@ export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {
           enableAutoEmbeddingPublicPreview
             ? ('autoEmbeddingPublicPreview' satisfies FeatureFlag)
             : undefined,
+          enableVectorXPrivatePreview
+            ? ('vectorXPrivatePreview' satisfies FeatureFlag)
+            : undefined,
         ].filter((f): f is FeatureFlag => Boolean(f))
       ) as JSONSchema7,
     [
@@ -37,6 +42,7 @@ export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {
       enableSortedSearchIndexes,
       enableAutoEmbeddingPrivatePreview,
       enableAutoEmbeddingPublicPreview,
+      enableVectorXPrivatePreview,
     ]
   );
 }

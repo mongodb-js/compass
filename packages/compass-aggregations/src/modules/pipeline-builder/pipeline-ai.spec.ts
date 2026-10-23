@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { DataService } from 'mongodb-data-service';
 import configureReduxStore, {

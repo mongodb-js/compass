@@ -15,11 +15,12 @@ import type { ConnectedConnection, Connection } from './tree-data';
 import type {
   AllPreferences,
   PreferencesAccess,
-} from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import { type WorkspaceTab } from '@mongodb-js/workspace-info';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const connections: Connection[] = [
   {
@@ -1010,6 +1011,36 @@ describe('ConnectionsNavigationTree', function () {
           'Favorite connection',
           'Duplicate connection',
           'Remove connection',
+        ]);
+      });
+
+      it('should show context menu for disconnected Atlas connection', async function () {
+        await renderConnectionsNavigationTree({
+          connections: [
+            {
+              connectionInfo: {
+                id: 'connection_atlas',
+                connectionOptions: {
+                  connectionString: 'mongodb+srv://cluster0.mongodb.net',
+                },
+                atlasMetadata: {
+                  clusterName: 'Cluster0',
+                } as ConnectionInfo['atlasMetadata'],
+              },
+              name: 'Cluster0',
+              connectionStatus: ConnectionStatus.Disconnected,
+            },
+          ],
+        });
+
+        const connectionElement = within(
+          screen.getByTestId('connection_atlas')
+        ).getByTestId('base-navigation-item');
+
+        await assertContextMenuItems(connectionElement, [
+          'Connect',
+          'Edit connection',
+          'Connect via …',
         ]);
       });
     });

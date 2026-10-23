@@ -15,7 +15,7 @@ import {
   parseAndValidateGlobalPreferences,
   getHelpText,
   getExampleConfigFile,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import chalk from 'chalk';
 import { installEarlyLoggingListener } from './logging';
 import { installEarlyOpenUrlListener } from './window-manager';

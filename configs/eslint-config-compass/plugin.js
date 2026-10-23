@@ -28,7 +28,7 @@ module.exports = {
           restrictedProviderImport('@mongodb-js/my-queries-storage'),
           restrictedProviderImport('@mongodb-js/atlas-service'),
           restrictedProviderImport('@mongodb-js/compass-generative-ai'),
-          restrictedProviderImport('compass-preferences-model'),
+          restrictedProviderImport('@mongodb-js/compass-preferences-model'),
           ...require('module')
             .builtinModules.filter((module) => {
               return (
@@ -59,4 +59,13 @@ module.exports = {
       },
     ],
   },
+  overrides: [
+    ...(baseConfig.overrides ?? []),
+    {
+      // A plugin's utility process side runs on Node.js in a utility process,
+      // not in the renderer, so it may use Node.js and Electron main-side APIs
+      files: ['**/src/utility.ts', '**/src/utility/**/*'],
+      rules: { '@typescript-eslint/no-restricted-imports': 'off' },
+    },
+  ],
 };
