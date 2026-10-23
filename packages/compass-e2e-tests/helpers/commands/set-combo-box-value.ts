@@ -31,12 +31,11 @@ export async function setComboBoxValue(
   await browser.setValueVisible(comboboxInputSelector, comboboxValue, {
     skipFocus: true,
   });
-  await browser.clickVisible(
-    comboboxListSelectorElement.$(
-      // Handle existing as well as new values
-      `[aria-label="${comboboxValue}"],[aria-label='Field: "${comboboxValue}"']`
-    ),
-    { screenshot: `combobox-option-${comboboxValue}.png` }
+  const optionElement = comboboxListSelectorElement.$(
+    // Handle existing as well as new values
+    `[aria-label="${comboboxValue}"],[aria-label='Field: "${comboboxValue}"']`
   );
+  await optionElement.waitForClickable();
+  await browser.clickVisible(optionElement);
   await comboboxListSelectorElement.waitForDisplayed({ reverse: true });
 }
