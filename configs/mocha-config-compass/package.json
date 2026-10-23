@@ -1,11 +1,11 @@
 {
   "name": "@mongodb-js/mocha-config-compass",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Shared mocha mocha configuration for Compass packages",
   "license": "SSPL",
   "main": "index.js",
   "devDependencies": {
-    "@mongodb-js/prettier-config-compass": "^1.2.9"
+    "@mongodb-js/prettier-config-compass": "^1.2.10"
   },
   "scripts": {
     "prettier": "prettier-compass",
