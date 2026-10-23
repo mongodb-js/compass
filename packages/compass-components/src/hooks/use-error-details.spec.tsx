@@ -42,5 +42,21 @@ describe('use-error-details', function () {
       expect(confirmElement).to.exist;
       expect(confirmElement.parentElement).to.equal(document.activeElement);
     });
+
+    it('caps the modal height so the footer stays visible', function () {
+      // The single max-height lives on the modal itself.
+      expect(getComputedStyle(modal).maxHeight).to.equal('90vh');
+    });
+
+    it('scrolls the JSON content internally without a nested max-height', function () {
+      const content = within(modal).getByTestId('error-details-content');
+      const contentStyles = getComputedStyle(content);
+      // Content scrolls on its own when the JSON is long...
+      expect(contentStyles.overflow).to.equal('auto');
+      // ...with a fixed gap between the header and the code editor...
+      expect(contentStyles.paddingTop).to.equal('16px');
+      // ...but does not introduce a second max-height that would nest scrollbars.
+      expect(contentStyles.maxHeight).to.equal('');
+    });
   });
 });
