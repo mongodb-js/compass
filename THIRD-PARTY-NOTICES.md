@@ -334,7 +334,7 @@ This document was automatically generated on Fri Oct 23 2026.
 | **[highlight.js](#2c60adc5db39462d0c2ff2176f71b4694ffe5060c53b1aa4f6f670e269ec1905)**                                       | 11.5.1       | BSD-3-Clause                        |
 | **[highlightjs-graphql](#11efa7dc664403503100672cb251f0bac920e5f8ac3847419583e9318faf451d)**                                | 1.0.2        | MIT                                 |
 | **[hoist-non-react-statics](#48f3f00d384ea079099b9b701c304b7e276313a616f8ad0084f41ea563f876af)**                            | 3.3.2        | BSD-3-Clause                        |
-| **[hono](#07eb5499c687c103ec4434c939db4fb13d105ec3edfe63c9e4489c6e44914ea8)**                                               | 4.11.8       | MIT                                 |
+| **[hono](#dc1182f2919520d2eb712e47a5a7c89f45fe97b702d502b3a46c8f748424194f)**                                               | 4.13.13      | MIT                                 |
 | **[html-to-image](#e92d76b9cb3028d464f1c9ce528f1ee9c0f522d93232e0638f70247c0d055d16)**                                      | 1.11.11      | MIT                                 |
 | **[html-void-elements](#fcccc8166e3de50e456f08a2c11277af3559b2c5f38659911086dd9a09ee2784)**                                 | 2.0.1        | MIT                                 |
 | **[http-errors](#707a89567e9b013efa55b49a2bded5f01acd28c256f7e0b884bcc0a024a520f1)**                                        | 2.0.1        | MIT                                 |
@@ -26078,9 +26078,9 @@ License files:
       (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
       SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-<a id="07eb5499c687c103ec4434c939db4fb13d105ec3edfe63c9e4489c6e44914ea8"></a>
+<a id="dc1182f2919520d2eb712e47a5a7c89f45fe97b702d502b3a46c8f748424194f"></a>
 
-### [hono](https://www.npmjs.com/package/hono) (version 4.11.8)
+### [hono](https://www.npmjs.com/package/hono) (version 4.13.13)
 
 License tags: MIT
 
