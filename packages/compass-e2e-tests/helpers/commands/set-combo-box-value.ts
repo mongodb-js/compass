@@ -35,7 +35,8 @@ export async function setComboBoxValue(
     comboboxListSelectorElement.$(
       // Handle existing as well as new values
       `[aria-label="${comboboxValue}"],[aria-label='Field: "${comboboxValue}"']`
-    )
+    ),
+    { screenshot: `combobox-option-${comboboxValue}.png` }
   );
   await comboboxListSelectorElement.waitForDisplayed({ reverse: true });
 }
