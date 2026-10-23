@@ -8,13 +8,6 @@ ignore:
           Not applicable as we don't use ag-grid utils and the library never
           passes user input directly to the merge function
         created: 2024-09-17T13:05:57.071Z
-  SNYK-JS-HONONODESERVER-18170326:
-    - '*':
-        reason: >-
-          Not applicable to Compass. Requires serveStatic to be
-          invoked which Compass does not use.
-        expires: 2026-10-21T00:00:00.000Z
-        created: 2026-07-23T00:00:00.000Z
   SNYK-JS-ZOD-20510278:
     - '*':
         reason: >-
