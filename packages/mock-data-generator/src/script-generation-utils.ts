@@ -49,8 +49,8 @@ export function generateScript(
 const { faker } = require('@faker-js/faker');
 
 // Database and collection configuration - edit these to target a different location
-const DB_NAME = ${JSON.stringify(options.databaseName)};
-const COLL_NAME = ${JSON.stringify(options.collectionName)};
+const DB_NAME = ${toStringLiteral(options.databaseName)};
+const COLL_NAME = ${toStringLiteral(options.collectionName)};
 
 // Connect to database
 use(DB_NAME);
@@ -400,8 +400,19 @@ function renderDocumentCode(
 }
 
 /**
+ * Serializes a value into a JS literal that is safe to embed in generated code.
+ * JSON.stringify alone leaves characters that can break out of some contexts.
+ */
+function toStringLiteral(value: unknown): string {
+  return JSON.stringify(value).replace(
+    /[<>/\u2028\u2029]/g,
+    (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`
+  );
+}
+
+/**
  * Formats a field name for use in JavaScript object literal syntax.
- * Only quotes field names that need it, using JSON.stringify for proper escaping.
+ * Only quotes field names that need it.
  */
 function formatFieldName(fieldName: string): string {
   // If it's a valid JavaScript identifier, don't quote it
@@ -410,8 +421,7 @@ function formatFieldName(fieldName: string): string {
   if (isValidIdentifier) {
     return fieldName;
   } else {
-    // Use JSON.stringify for proper escaping of special characters
-    return JSON.stringify(fieldName);
+    return toStringLiteral(fieldName);
   }
 }
 
@@ -560,7 +570,7 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
     const arg = fakerArgs[i];
 
     if (typeof arg === 'string') {
-      stringifiedArgs.push(JSON.stringify(arg));
+      stringifiedArgs.push(toStringLiteral(arg));
     } else if (typeof arg === 'number') {
       if (!Number.isFinite(arg)) {
         throw new Error(
@@ -571,9 +581,8 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
     } else if (typeof arg === 'boolean') {
       stringifiedArgs.push(`${arg}`);
     } else if (typeof arg === 'object' && arg !== null && 'json' in arg) {
-      // Pre-serialized JSON objects
-      const jsonArg = arg;
-      stringifiedArgs.push(jsonArg.json);
+      // Re-serialize so only a JSON value, never arbitrary code, is emitted
+      stringifiedArgs.push(toStringLiteral(JSON.parse(arg.json)));
     } else {
       throw new Error(
         `Invalid argument type at index ${i}: expected string, number, boolean, or {json: string}`
