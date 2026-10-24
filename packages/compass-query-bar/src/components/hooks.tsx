@@ -82,7 +82,9 @@ export function useChangeQueryBarQuery() {
       type: T,
       payload: Extract<ChangeFilterEvent, { type: T }>['payload']
     ) => {
-      store.dispatch(applyFilterChange({ type, payload } as ChangeFilterEvent));
+      void store.dispatch(
+        applyFilterChange({ type, payload } as ChangeFilterEvent)
+      );
     },
     [store]
   );

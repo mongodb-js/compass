@@ -11,13 +11,17 @@ import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { mapQueryToFormFields } from '../utils/query';
+import {
+  formatQueryValueForEditor,
+  getDefaultFormFields,
+} from '../utils/query';
+import { QUERY_PROPERTIES } from '../constants/query-properties';
 import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
   fetchSavedQueries,
+  setQuery,
 } from './query-bar-reducer';
 import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
@@ -146,15 +150,25 @@ export function activatePlugin(
   const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
   const recentQueryStorage = recentQueryStorageAccess?.getStorage();
 
+  const initialQuery = getQueryAttributes(query ?? {});
+  const fields = getDefaultFormFields();
+  // If the query is set, we want to populate the form
+  // fields, but we can not validate it at this point.
+  // Immediately after the store is created, we dispatch
+  // setQuery action which validates it.
+  for (const property of QUERY_PROPERTIES) {
+    if (property in initialQuery) {
+      const value = initialQuery[property as keyof typeof initialQuery];
+      fields[property].string = formatQueryValueForEditor(value);
+    }
+  }
+
   const store = configureStore(
     {
       namespace: namespace ?? '',
       host: dataService?.getConnectionString().hosts.join(','),
       serverVersion: serverVersion ?? '3.6.0',
-      fields: mapQueryToFormFields(preferences.getPreferences(), {
-        ...DEFAULT_FIELD_VALUES,
-        ...getQueryAttributes(query ?? {}),
-      }),
+      fields,
       isReadonlyConnection: !instance.isWritable,
     },
     {
@@ -176,6 +190,12 @@ export function activatePlugin(
       collection,
     }
   );
+
+  // If we have an initial query, dispatch it to the store
+  // so that its validated.
+  if (Object.keys(initialQuery).length > 0) {
+    void store.dispatch(setQuery(initialQuery));
+  }
 
   on(instance, 'change:isWritable', () => {
     store.dispatch({

@@ -1,6 +1,7 @@
 import type { Action, Reducer } from 'redux';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, omit, omitBy, pick } from 'lodash';
 import type { Document } from 'mongodb';
+import { UUID } from 'bson';
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
@@ -14,13 +15,19 @@ import type {
   QueryFormFields,
   FormField,
 } from '../constants/query-properties';
+import { QUERY_PROPERTIES } from '../constants/query-properties';
 import {
   mapFormFieldsToQuery,
   mapQueryToFormFields,
+  getDefaultFormFields,
   isEqualDefaultQuery,
   doesQueryHaveExtraOptionsSet,
 } from '../utils/query';
-import { isQueryFieldsValid, validateField } from '../utils/validate-query';
+import {
+  isQueryFieldsValid,
+  isQueryValid,
+  validateField,
+} from '../utils/validate-query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
 import { getQueryAttributes, isAction, isQueryEqual } from '../utils';
@@ -32,6 +39,14 @@ import type {
 type QueryBarState = {
   isReadonlyConnection: boolean;
   fields: QueryFormFields;
+  pendingParseFieldRequestIds: Partial<Record<QueryProperty, string>>;
+  // Tracked separately from the field requests so that cancelling a history
+  // query never discards the validation of a field edited before it.
+  pendingHistoryRequestId: string | null;
+  lastFilterChangeRequestId: string | null;
+  // The editor only reports a lint violation when it changes, so the diagnosed
+  // text is kept to stop a later parse of that text from marking it valid
+  unsafeIntegerFilterString: string | null;
   expanded: boolean;
   serverVersion: string;
   lastAppliedQuery: {
@@ -52,7 +67,11 @@ type QueryBarState = {
 
 export const INITIAL_STATE: QueryBarState = {
   isReadonlyConnection: false,
-  fields: mapQueryToFormFields({ maxTimeMSEnvLimit: 0 }, DEFAULT_FIELD_VALUES),
+  fields: getDefaultFormFields(),
+  pendingParseFieldRequestIds: {},
+  pendingHistoryRequestId: null,
+  lastFilterChangeRequestId: null,
+  unsafeIntegerFilterString: null,
   expanded: false,
   serverVersion: '3.6.0',
   lastAppliedQuery: { source: null, query: {} },
@@ -67,12 +86,16 @@ export const QueryBarActions = {
   ChangeReadonlyConnectionStatus:
     'compass-query-bar/ChangeReadonlyConnectionStatus',
   ToggleQueryOptions: 'compass-query-bar/ToggleQueryOptions',
+  ChangeFieldText: 'compass-query-bar/ChangeFieldText',
   ChangeField: 'compass-query-bar/ChangeField',
-  QueryUnsafeIntegerReceived: 'compass-query-bar/QueryUnsafeIntegerAdded',
-  SetQuery: 'compass-query-bar/SetQuery',
+  QueryUnsafeIntegerReceived: 'compass-query-bar/QueryUnsafeIntegerReceived',
+  SetQueryStarted: 'compass-query-bar/SetQueryStarted',
+  SetQueryFinished: 'compass-query-bar/SetQueryFinished',
+  FilterChangeStarted: 'compass-query-bar/FilterChangeStarted',
   ApplyQuery: 'compass-query-bar/ApplyQuery',
   ResetQuery: 'compass-query-bar/ResetQuery',
-  ApplyFromHistory: 'compass-query-bar/ApplyFromHistory',
+  ApplyFromHistoryStarted: 'compass-query-bar/ApplyFromHistoryStarted',
+  ApplyFromHistoryFinished: 'compass-query-bar/ApplyFromHistoryFinished',
   RecentQueriesFetched: 'compass-query-bar/RecentQueriesFetched',
   FavoriteQueriesFetched: 'compass-query-bar/FavoriteQueriesFetched',
   InterpretStarted: 'compass-query-bar/InterpretStarted',
@@ -95,11 +118,35 @@ export const toggleQueryOptions = (
   return { type: QueryBarActions.ToggleQueryOptions, force };
 };
 
-type ChangeFieldAction<T = QueryProperty> = {
+type ChangeFieldTextAction = {
+  type: typeof QueryBarActions.ChangeFieldText;
+  name: QueryProperty;
+  string: string;
+  requestId: string;
+};
+
+type ChangeFieldValueAction<T = QueryProperty> = {
   type: typeof QueryBarActions.ChangeField;
   name: T;
   value: FormField<T>;
+  requestId: string;
 };
+
+export function hasPendingFieldValidation(state: QueryBarState): boolean {
+  return (
+    Object.keys(state.pendingParseFieldRequestIds).length > 0 ||
+    state.pendingHistoryRequestId !== null
+  );
+}
+
+// Filter changes update `filter.value` right away, so only a pending text edit
+// or query leaves it behind the text that is about to replace it
+function isFilterValueOutdated(state: QueryBarState): boolean {
+  const requestId = state.pendingParseFieldRequestIds.filter;
+  return (
+    requestId !== undefined && requestId !== state.lastFilterChangeRequestId
+  );
+}
 
 type QueryUnsafeIntegerReceivedAction = {
   type: typeof QueryBarActions.QueryUnsafeIntegerReceived;
@@ -120,9 +167,19 @@ export function unsafeIntegerReceived(
 export const changeField = (
   name: QueryProperty,
   stringValue: string
-): QueryBarThunkAction<void, ChangeFieldAction> => {
-  return (dispatch, getState, { preferences }) => {
-    const parsedValue = validateField(name, stringValue, {
+): QueryBarThunkAction<
+  Promise<void>,
+  ChangeFieldTextAction | ChangeFieldValueAction
+> => {
+  return async (dispatch, getState, { preferences }) => {
+    const requestId = new UUID().toString();
+    dispatch({
+      type: QueryBarActions.ChangeFieldText,
+      name,
+      string: stringValue,
+      requestId,
+    });
+    const parsedValue = await validateField(name, stringValue, {
       maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
       maxTimeMSEnvLimit: preferences.getPreferences().maxTimeMSEnvLimit,
     });
@@ -130,6 +187,7 @@ export const changeField = (
     dispatch({
       type: QueryBarActions.ChangeField,
       name,
+      requestId,
       value: {
         string: stringValue,
         valid: isValid,
@@ -147,12 +205,28 @@ type ApplyQueryAction = {
 
 export const applyQuery = (
   source: string
-): QueryBarThunkAction<false | BaseQuery, ApplyQueryAction> => {
-  return (dispatch, getState, { preferences }) => {
+): QueryBarThunkAction<Promise<false | BaseQuery>, ApplyQueryAction> => {
+  return async (dispatch, getState, { preferences }) => {
+    // While a field is being validated its parsed value still belongs to the
+    // previous text, so applying now would run an outdated query
+    if (hasPendingFieldValidation(getState().queryBar)) {
+      return false;
+    }
     const {
       queryBar: { fields, favoriteQueries },
     } = getState();
-    if (!isQueryFieldsValid(fields, preferences.getPreferences())) {
+    if (!isQueryValid(fields)) {
+      return false;
+    }
+    if (!(await isQueryFieldsValid(fields, preferences.getPreferences()))) {
+      return false;
+    }
+    // The form was edited, reset or started parsing a new query during
+    // validation, so `fields` is outdated
+    if (
+      getState().queryBar.fields !== fields ||
+      hasPendingFieldValidation(getState().queryBar)
+    ) {
       return false;
     }
     const query = mapFormFieldsToQuery(fields);
@@ -178,48 +252,79 @@ type ResetQueryAction = {
 
 export const resetQuery = (
   source: string
-): QueryBarThunkAction<false | Record<string, unknown>> => {
-  return (dispatch, getState, { preferences }) => {
+): QueryBarThunkAction<false | Record<string, unknown>, ResetQueryAction> => {
+  return (dispatch, getState) => {
     if (isEqualDefaultQuery(getState().queryBar.fields)) {
       return false;
     }
-    const fields = mapQueryToFormFields(
-      preferences.getPreferences(),
-      DEFAULT_FIELD_VALUES
-    );
+    const fields = getDefaultFormFields();
     dispatch({ type: QueryBarActions.ResetQuery, fields, source });
     return cloneDeep(DEFAULT_QUERY_VALUES);
   };
 };
 
-type SetQueryAction = {
-  type: typeof QueryBarActions.SetQuery;
+type SetQueryStartedAction = {
+  type: typeof QueryBarActions.SetQueryStarted;
+  names: QueryProperty[];
+  requestId: string;
+};
+
+type SetQueryFinishedAction = {
+  type: typeof QueryBarActions.SetQueryFinished;
   fields: QueryFormFields;
+  requestId: string;
 };
 
 export const setQuery = (
   query: BaseQuery
-): QueryBarThunkAction<void, SetQueryAction> => {
-  return (dispatch, getState, { preferences }) => {
-    const fields = mapQueryToFormFields(preferences.getPreferences(), query);
-    dispatch({ type: QueryBarActions.SetQuery, fields });
+): QueryBarThunkAction<
+  Promise<void>,
+  SetQueryStartedAction | SetQueryFinishedAction
+> => {
+  return async (dispatch, getState, { preferences }) => {
+    const requestId = new UUID().toString();
+    dispatch({
+      type: QueryBarActions.SetQueryStarted,
+      names: QUERY_PROPERTIES.filter((name) => name in query),
+      requestId,
+    });
+    const fields = await mapQueryToFormFields(
+      preferences.getPreferences(),
+      query
+    );
+    dispatch({ type: QueryBarActions.SetQueryFinished, fields, requestId });
   };
+};
+
+type FilterChangeStartedAction = {
+  type: typeof QueryBarActions.FilterChangeStarted;
+  filter: Document;
+  requestId: string;
 };
 
 export const applyFilterChange = (
   event: ChangeFilterEvent
-): QueryBarThunkAction<void> => {
-  return (dispatch, getState) => {
-    const currentFilterValue = getState().queryBar.fields.filter.value;
-    dispatch(
-      setQuery({
-        filter: changeFilter(
-          event.type,
-          currentFilterValue,
-          event.payload
-        ) as Document,
-      })
-    );
+): QueryBarThunkAction<
+  Promise<void>,
+  FilterChangeStartedAction | SetQueryFinishedAction
+> => {
+  return async (dispatch, getState, { preferences }) => {
+    // Building on the outdated value would drop the pending edit once this
+    // change replaces its request
+    if (isFilterValueOutdated(getState().queryBar)) {
+      return;
+    }
+    const filter = changeFilter(
+      event.type,
+      getState().queryBar.fields.filter.value,
+      event.payload
+    ) as Document;
+    const requestId = new UUID().toString();
+    dispatch({ type: QueryBarActions.FilterChangeStarted, filter, requestId });
+    const fields = await mapQueryToFormFields(preferences.getPreferences(), {
+      filter,
+    });
+    dispatch({ type: QueryBarActions.SetQueryFinished, fields, requestId });
   };
 };
 
@@ -237,9 +342,16 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
   };
 };
 
-type ApplyFromHistoryAction = {
-  type: typeof QueryBarActions.ApplyFromHistory;
+type ApplyFromHistoryStartedAction = {
+  type: typeof QueryBarActions.ApplyFromHistoryStarted;
+  requestId: string;
+};
+
+type ApplyFromHistoryFinishedAction = {
+  type: typeof QueryBarActions.ApplyFromHistoryFinished;
   fields: QueryFormFields;
+  requestId: string;
+  fieldsToRetain: QueryProperty[];
   // bulk update queries: the bulk update modal reads its
   // filter from the last applied query
   applyToSource?: string;
@@ -248,30 +360,28 @@ type ApplyFromHistoryAction = {
 export const applyFromHistory = (
   query: BaseQuery & { update?: Document },
   currentQueryFieldsToRetain: QueryProperty[] = []
-): QueryBarThunkAction<void, ApplyFromHistoryAction> => {
-  return (dispatch, getState, { localAppRegistry, preferences }) => {
-    const currentFields = getState().queryBar.fields;
-    const currentQuery = currentQueryFieldsToRetain.reduce<
-      Record<string, Document | number | string>
-    >((acc, key) => {
-      const { value } = currentFields[key];
-      if (value) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-    const fields = mapQueryToFormFields(preferences.getPreferences(), {
+): QueryBarThunkAction<
+  Promise<void>,
+  ApplyFromHistoryStartedAction | ApplyFromHistoryFinishedAction
+> => {
+  return async (dispatch, getState, { localAppRegistry, preferences }) => {
+    const requestId = new UUID().toString();
+    dispatch({ type: QueryBarActions.ApplyFromHistoryStarted, requestId });
+    const fields = await mapQueryToFormFields(preferences.getPreferences(), {
       ...DEFAULT_FIELD_VALUES,
       ...query,
-      ...currentQuery,
     });
+    const isLatestRequest =
+      getState().queryBar.pendingHistoryRequestId === requestId;
     dispatch({
-      type: QueryBarActions.ApplyFromHistory,
+      type: QueryBarActions.ApplyFromHistoryFinished,
       fields,
+      requestId,
+      fieldsToRetain: currentQueryFieldsToRetain,
       applyToSource: query.update ? 'crud' : undefined,
     });
 
-    if (query.update) {
+    if (isLatestRequest && query.update) {
       localAppRegistry?.emit('favorites-open-bulk-update-favorite', query);
     }
   };
@@ -555,6 +665,19 @@ const updateFavoriteQuery = (
   };
 };
 
+function withUnsafeIntegerDiagnostic<F extends FormField<unknown>>(
+  state: QueryBarState,
+  name: QueryProperty,
+  field: F
+): F {
+  return {
+    ...field,
+    valid:
+      field.valid &&
+      !(name === 'filter' && field.string === state.unsafeIntegerFilterString),
+  };
+}
+
 export const queryBarReducer: Reducer<QueryBarState, Action> = (
   state = INITIAL_STATE,
   action
@@ -583,13 +706,44 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
     };
   }
 
-  if (isAction<ChangeFieldAction>(action, QueryBarActions.ChangeField)) {
+  if (
+    isAction<ChangeFieldTextAction>(action, QueryBarActions.ChangeFieldText)
+  ) {
     return {
       ...state,
       fields: {
         ...state.fields,
-        [action.name]: action.value,
+        [action.name]: {
+          ...state.fields[action.name],
+          string: action.string,
+        },
       },
+      pendingParseFieldRequestIds: {
+        ...state.pendingParseFieldRequestIds,
+        [action.name]: action.requestId,
+      },
+      pendingHistoryRequestId: null,
+    };
+  }
+
+  if (
+    isAction<ChangeFieldValueAction>(action, QueryBarActions.ChangeField) &&
+    state.pendingParseFieldRequestIds[action.name] === action.requestId
+  ) {
+    return {
+      ...state,
+      fields: {
+        ...state.fields,
+        [action.name]: withUnsafeIntegerDiagnostic(
+          state,
+          action.name,
+          action.value
+        ),
+      },
+      pendingParseFieldRequestIds: omit(
+        state.pendingParseFieldRequestIds,
+        action.name
+      ),
     };
   }
 
@@ -608,16 +762,74 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
           valid: false,
         },
       },
+      unsafeIntegerFilterString: state.fields.filter.string,
     };
   }
 
-  if (isAction<SetQueryAction>(action, QueryBarActions.SetQuery)) {
+  if (
+    isAction<SetQueryStartedAction>(action, QueryBarActions.SetQueryStarted)
+  ) {
+    return {
+      ...state,
+      pendingParseFieldRequestIds: {
+        ...state.pendingParseFieldRequestIds,
+        ...Object.fromEntries(
+          action.names.map((name) => [name, action.requestId])
+        ),
+      },
+      pendingHistoryRequestId: null,
+    };
+  }
+
+  if (
+    isAction<FilterChangeStartedAction>(
+      action,
+      QueryBarActions.FilterChangeStarted
+    )
+  ) {
     return {
       ...state,
       fields: {
         ...state.fields,
-        ...action.fields,
+        filter: { ...state.fields.filter, value: action.filter },
       },
+      pendingParseFieldRequestIds: {
+        ...state.pendingParseFieldRequestIds,
+        filter: action.requestId,
+      },
+      pendingHistoryRequestId: null,
+      lastFilterChangeRequestId: action.requestId,
+    };
+  }
+
+  if (
+    isAction<SetQueryFinishedAction>(action, QueryBarActions.SetQueryFinished)
+  ) {
+    // Fields edited, reset or set by a newer query meanwhile no longer point
+    // at this request, so they keep their newer value.
+    const fieldsToUpdate = QUERY_PROPERTIES.filter(
+      (name) => state.pendingParseFieldRequestIds[name] === action.requestId
+    );
+    if (fieldsToUpdate.length === 0) {
+      return state;
+    }
+    return {
+      ...state,
+      fields: {
+        ...state.fields,
+        ...Object.fromEntries(
+          fieldsToUpdate
+            .filter((name) => name in action.fields)
+            .map((name) => [
+              name,
+              withUnsafeIntegerDiagnostic(state, name, action.fields[name]),
+            ])
+        ),
+      },
+      pendingParseFieldRequestIds: omitBy(
+        state.pendingParseFieldRequestIds,
+        (requestId) => requestId === action.requestId
+      ),
     };
   }
 
@@ -639,6 +851,8 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
     return {
       ...state,
       fields: action.fields,
+      pendingParseFieldRequestIds: {},
+      pendingHistoryRequestId: null,
       lastAppliedQuery: {
         source: action.source,
         query: {
@@ -650,18 +864,49 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
   }
 
   if (
-    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
+    isAction<ApplyFromHistoryStartedAction>(
+      action,
+      QueryBarActions.ApplyFromHistoryStarted
+    )
   ) {
     return {
       ...state,
-      expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
-      fields: action.fields,
+      pendingHistoryRequestId: action.requestId,
+    };
+  }
+
+  if (
+    isAction<ApplyFromHistoryFinishedAction>(
+      action,
+      QueryBarActions.ApplyFromHistoryFinished
+    )
+  ) {
+    // Any newer edit, reset or query selection made while the history query
+    // was parsed cancels it.
+    if (state.pendingHistoryRequestId !== action.requestId) {
+      return state;
+    }
+    // Retained fields are taken from the current state rather than parsed
+    // with the history query, so an edit still being validated is kept
+    const fields = {
+      ...action.fields,
+      ...pick(state.fields, action.fieldsToRetain),
+    };
+    return {
+      ...state,
+      expanded: state.expanded || doesQueryHaveExtraOptionsSet(fields),
+      fields,
+      pendingParseFieldRequestIds: pick(
+        state.pendingParseFieldRequestIds,
+        action.fieldsToRetain
+      ),
+      pendingHistoryRequestId: null,
       lastAppliedQuery: action.applyToSource
         ? {
             source: action.applyToSource,
             query: {
               ...state.lastAppliedQuery.query,
-              [action.applyToSource]: mapFormFieldsToQuery(action.fields),
+              [action.applyToSource]: mapFormFieldsToQuery(fields),
             },
           }
         : state.lastAppliedQuery,
@@ -678,6 +923,8 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
+      pendingParseFieldRequestIds: {},
+      pendingHistoryRequestId: null,
     };
   }
 

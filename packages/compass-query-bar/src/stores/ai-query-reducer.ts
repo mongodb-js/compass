@@ -298,15 +298,21 @@ export const runAIQuery = (
       return;
     }
 
+    const isCurrentRequest = () =>
+      getState().aiQuery.aiQueryRequestId === requestId;
+
     let query;
     let generatedFields: QueryFormFields;
     try {
       query = jsonResponse?.content?.query;
-      generatedFields = parseQueryAttributesToFormFields(
+      generatedFields = await parseQueryAttributesToFormFields(
         query,
         preferences.getPreferences()
       );
     } catch (err: any) {
+      if (!isCurrentRequest()) {
+        return;
+      }
       trackAndLogFailed({
         errorName: 'could_not_parse_fields',
         statusCode: (err as AtlasServiceError).statusCode,
@@ -320,6 +326,10 @@ export const runAIQuery = (
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
       });
+      return;
+    }
+
+    if (!isCurrentRequest()) {
       return;
     }
 
@@ -366,12 +376,16 @@ export const runAIQuery = (
     }
 
     const queryFields = {
-      ...mapQueryToFormFields(
+      ...(await mapQueryToFormFields(
         preferences.getPreferences(),
         DEFAULT_FIELD_VALUES
-      ),
+      )),
       ...generatedFields,
     };
+
+    if (!isCurrentRequest()) {
+      return;
+    }
 
     log.info(
       mongoLogId(1_001_000_199),

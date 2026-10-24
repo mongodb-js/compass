@@ -17,7 +17,7 @@ describe('createQueryWithHistoryAutocompleter', function () {
   afterEach(function () {
     sinon.restore();
   });
-  it('calls fetchSavedQueries when activatePlugin is called', async function () {
+  it('initializes query text before validation and fetches saved queries on activation', async function () {
     const mockService = {
       getQueryFromUserInput: sinon
         .stub()
@@ -29,9 +29,10 @@ describe('createQueryWithHistoryAutocompleter', function () {
         hosts: ['localhost:27017'],
       }),
     };
-    activatePlugin(
+    const { store } = activatePlugin(
       {
         namespace: 'test.coll',
+        query: { filter: { _id: 42 } },
         isReadonly: true,
         serverVersion: '6.0.0',
         isSearchIndexesSupported: true,
@@ -66,8 +67,14 @@ describe('createQueryWithHistoryAutocompleter', function () {
         cleanup: () => {},
       } as any
     );
+    expect(store.getState().queryBar.fields.filter.string).to.equal(
+      '{ _id: 42 }'
+    );
     await waitFor(() => {
       expect(loadAllStub).to.have.been.calledTwice;
+      expect(store.getState().queryBar.fields.filter.value).to.deep.equal({
+        _id: 42,
+      });
     });
   });
 });
