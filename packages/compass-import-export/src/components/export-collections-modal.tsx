@@ -48,6 +48,10 @@ const collectionListStyles = css({
   gap: spacing[100],
 });
 
+const modalBodyStyles = css({
+  paddingTop: spacing[400],
+});
+
 const loaderStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -178,7 +182,7 @@ function ExportCollectionsModal({
         title="Export collections"
         subtitle={`Database ${databaseName}`}
       />
-      <ModalBody>
+      <ModalBody className={modalBodyStyles}>
         {status === 'loading-collections' && (
           <div className={loaderStyles}>
             <SpinLoader />
