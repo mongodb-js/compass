@@ -11,6 +11,7 @@ import type {
   LeafyGreenVirtualTable,
   LeafyGreenTable,
   SortingState,
+  MenuAction,
 } from '@mongodb-js/compass-components';
 import {
   css,
@@ -33,6 +34,7 @@ import {
   ItemActionGroup,
   useLeafyGreenTable,
   SpinLoader,
+  DropdownMenuButton,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -47,6 +49,8 @@ import {
   buildChartsUrl,
   buildMonitoringUrl,
 } from '@mongodb-js/atlas-service/provider';
+
+type DataAction = 'export';
 
 type Item = {
   _id: string;
@@ -68,6 +72,7 @@ type ItemsTableProps<T> = {
   onItemClick: (id: string) => void;
   onDeleteItemClick?: (id: string) => void;
   onCreateItemClick?: () => void;
+  onExportItemsClick?: () => void;
   onRefreshClick?: () => void;
   isRefreshing?: boolean;
   renderLoadSampleDataBanner?: () => React.ReactNode;
@@ -119,6 +124,7 @@ const TableControls: React.FunctionComponent<{
   namespace?: string;
   itemType: string;
   onCreateItemClick?: () => void;
+  onExportItemsClick?: () => void;
   onRefreshClick?: () => void;
   isRefreshing?: boolean;
   renderLoadSampleDataBanner?: () => React.ReactNode;
@@ -126,6 +132,7 @@ const TableControls: React.FunctionComponent<{
   namespace,
   itemType,
   onCreateItemClick,
+  onExportItemsClick,
   onRefreshClick,
   isRefreshing = false,
   renderLoadSampleDataBanner,
@@ -168,6 +175,23 @@ const TableControls: React.FunctionComponent<{
     openCollectionsWorkspace,
     openDatabasesWorkspace,
   ]);
+
+  const dataActions = useMemo(() => {
+    const actions: MenuAction<DataAction>[] = [];
+    if (onExportItemsClick) {
+      actions.push({ action: 'export', label: `Export ${itemType}s…` });
+    }
+    return actions;
+  }, [itemType, onExportItemsClick]);
+
+  const onDataAction = useCallback(
+    (action: DataAction) => {
+      if (action === 'export') {
+        onExportItemsClick?.();
+      }
+    },
+    [onExportItemsClick]
+  );
 
   const banner = renderLoadSampleDataBanner?.();
 
@@ -223,6 +247,24 @@ const TableControls: React.FunctionComponent<{
             >
               Visualize your data
             </Button>
+          )}
+
+          {dataActions.length > 0 && (
+            <div className={controlStyles} data-testid="export-controls">
+              {/* One compact menu instead of a button per action: the toolbar
+                  is already crowded, and the label hides on narrow widths. */}
+              <DropdownMenuButton<DataAction>
+                data-testid={`${itemType}s-data-actions`}
+                actions={dataActions}
+                onAction={onDataAction}
+                buttonText="Export"
+                buttonProps={{
+                  size: 'small',
+                  leftGlyph: <Icon role="presentation" glyph="Export" />,
+                  className: createButtonStyles,
+                }}
+              />
+            </div>
           )}
 
           {onCreateItemClick && (
@@ -401,6 +443,7 @@ const ItemsTableInner = <T extends Item>({
   items,
   onItemClick,
   onCreateItemClick,
+  onExportItemsClick,
   onRefreshClick,
   isRefreshing,
   renderLoadSampleDataBanner,
@@ -414,6 +457,7 @@ const ItemsTableInner = <T extends Item>({
   items: T[];
   onItemClick: (id: string) => void;
   onCreateItemClick?: () => void;
+  onExportItemsClick?: () => void;
   onRefreshClick?: () => void;
   isRefreshing?: boolean;
   renderLoadSampleDataBanner?: () => React.ReactNode;
@@ -429,6 +473,7 @@ const ItemsTableInner = <T extends Item>({
             itemType={itemType}
             namespace={namespace}
             onCreateItemClick={onCreateItemClick}
+            onExportItemsClick={onExportItemsClick}
             onRefreshClick={onRefreshClick}
             isRefreshing={isRefreshing}
             renderLoadSampleDataBanner={renderLoadSampleDataBanner}
@@ -532,6 +577,7 @@ export const VirtualItemsTable = <T extends Item>({
   onItemClick,
   onDeleteItemClick,
   onCreateItemClick,
+  onExportItemsClick,
   onRefreshClick,
   isRefreshing,
   renderLoadSampleDataBanner,
@@ -574,6 +620,7 @@ export const VirtualItemsTable = <T extends Item>({
       items={items}
       onItemClick={onItemClick}
       onCreateItemClick={onCreateItemClick}
+      onExportItemsClick={onExportItemsClick}
       onRefreshClick={onRefreshClick}
       isRefreshing={isRefreshing}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}
@@ -603,6 +650,7 @@ export const ItemsTable = <T extends Item>({
   onItemClick,
   onDeleteItemClick,
   onCreateItemClick,
+  onExportItemsClick,
   onRefreshClick,
   isRefreshing,
   renderLoadSampleDataBanner,
@@ -635,6 +683,7 @@ export const ItemsTable = <T extends Item>({
       items={items}
       onItemClick={onItemClick}
       onCreateItemClick={onCreateItemClick}
+      onExportItemsClick={onExportItemsClick}
       onRefreshClick={onRefreshClick}
       isRefreshing={isRefreshing}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}

@@ -60,7 +60,17 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     enableShell: preferencesShellEnabled,
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
-  } = usePreferences(['enableShell', 'readOnly', 'readWrite']);
+    enableImportExport,
+    enableExportMultipleCollections,
+  } = usePreferences([
+    'enableShell',
+    'readOnly',
+    'readWrite',
+    'enableImportExport',
+    'enableExportMultipleCollections',
+  ]);
+  const isExportCollectionsEnabled =
+    enableImportExport && enableExportMultipleCollections;
   const isRenameCollectionEnabled = !preferencesReadWrite;
 
   const id = useId();
@@ -273,6 +283,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               isPerformanceTabSupported,
               isAtlas: !!connectionInfo.atlasMetadata,
               canDeleteDatabase: item.canDeleteDatabase,
+              isExportCollectionsEnabled,
             })
           );
         }
@@ -302,7 +313,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, isRenameCollectionEnabled]
+    [onItemAction, isRenameCollectionEnabled, isExportCollectionsEnabled]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';

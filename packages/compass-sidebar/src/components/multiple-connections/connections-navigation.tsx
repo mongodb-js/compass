@@ -707,6 +707,9 @@ const onNamespaceAction = (
       case 'drop-database':
         emit('open-drop-database', ns.database, { connectionId });
         return;
+      case 'export-collections':
+        emit('open-export-collections', ns.database, { connectionId });
+        return;
       case 'rename-collection':
         emit('open-rename-collection', ns, { connectionId });
         return;

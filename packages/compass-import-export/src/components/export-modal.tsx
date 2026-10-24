@@ -46,7 +46,7 @@ import {
 
 type ExportFileTypes = 'json' | 'csv';
 
-const AdvancedCSVFormat: React.FunctionComponent<{
+export const AdvancedCSVFormat: React.FunctionComponent<{
   escapeFormulae: boolean;
   onEscapeFormulaeChange: (newVal: boolean) => void;
 }> = ({ escapeFormulae, onEscapeFormulaeChange }) => {

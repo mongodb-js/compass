@@ -124,6 +124,17 @@ export const createNewCollection = (
   };
 };
 
+export const exportCollections = (
+  connectionId: string,
+  dbName: string
+): CollectionsThunkAction<void> => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('open-export-collections', dbName, {
+      connectionId,
+    });
+  };
+};
+
 export const deleteCollection = (
   connectionId: string,
   namespace: string

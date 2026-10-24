@@ -1106,6 +1106,58 @@ describe('ConnectionsNavigationTree', function () {
           .visible;
         expect(within(contextMenu).getByText('Disconnect')).to.be.visible;
       });
+
+      it('should show export collections in the context menu when enabled', async function () {
+        await renderConnectionsNavigationTree(
+          {
+            expanded: { connection_ready: {} },
+          },
+          {
+            enableExportMultipleCollections: true,
+          }
+        );
+
+        const databaseElement = within(
+          screen.getByTestId('connection_ready.db_initial')
+        ).getByTestId('base-navigation-item');
+
+        await assertContextMenuItems(databaseElement, [
+          'Create collection',
+          'Export collections…',
+          { separator: true },
+          'Create database',
+          'Drop database',
+          { separator: true },
+          'Open MongoDB shell',
+          'View performance metrics',
+          'Show connection info',
+          'Refresh databases',
+          { separator: true },
+          'Disconnect',
+        ]);
+      });
+
+      it('should not show export collections when import/export is disabled', async function () {
+        await renderConnectionsNavigationTree(
+          {
+            expanded: { connection_ready: {} },
+          },
+          {
+            enableExportMultipleCollections: true,
+            enableImportExport: false,
+          }
+        );
+
+        const databaseElement = within(
+          screen.getByTestId('connection_ready.db_initial')
+        ).getByTestId('base-navigation-item');
+        userEvent.click(databaseElement, { button: 2 });
+
+        const contextMenu = screen.getByTestId('context-menu');
+        expect(() =>
+          within(contextMenu).getByText('Export collections…')
+        ).to.throw();
+      });
     });
 
     describe('collection context menu', function () {

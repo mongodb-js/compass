@@ -9,6 +9,13 @@ import {
   openExport,
   connectionDisconnected,
 } from '../modules/export';
+import {
+  cancelExportCollections,
+  closeExportCollections,
+  connectionDisconnected as exportCollectionsConnectionDisconnected,
+  exportCollectionsReducer,
+  openExportCollections,
+} from '../modules/export-collections';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -19,6 +26,7 @@ export function configureStore(services: ExportPluginServices) {
   return createStore(
     combineReducers({
       export: exportReducer,
+      exportCollections: exportCollectionsReducer,
     }),
     applyMiddleware(thunk.withExtraArgument(services))
   );
@@ -109,14 +117,35 @@ export function activatePlugin(
       );
     }
   );
+  on(
+    globalAppRegistry,
+    'open-export-collections',
+    function onOpenExportCollections(
+      databaseName: string,
+      { connectionId }: ConnectionMeta = {}
+    ) {
+      if (!connectionId) {
+        throw new Error(
+          'Cannot open Export collections modal without specifying connectionId'
+        );
+      }
+
+      void store.dispatch(
+        openExportCollections({ connectionId, databaseName })
+      );
+    }
+  );
   on(connections, 'disconnected', function (connectionId: string) {
     store.dispatch(connectionDisconnected(connectionId));
+    store.dispatch(exportCollectionsConnectionDisconnected(connectionId));
   });
 
   addCleanup(() => {
     // We use close and not cancel because cancel doesn't actually cancel
     // everything
     store.dispatch(closeExport());
+    store.dispatch(cancelExportCollections());
+    store.dispatch(closeExportCollections());
   });
 
   return {
