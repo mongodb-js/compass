@@ -218,7 +218,10 @@ describe('Collections', () => {
     userEvent.click(
       screen.getByTestId('collections-data-actions-show-actions')
     );
-    userEvent.click(screen.getByText('Export collections…'));
+    expect(
+      screen.getByTestId('collections-data-actions-show-actions')
+    ).to.have.text('Collections');
+    userEvent.click(screen.getByText('Export…'));
     expect(exportSpy.calledOnce).to.be.true;
   });
 

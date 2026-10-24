@@ -179,10 +179,10 @@ const TableControls: React.FunctionComponent<{
   const dataActions = useMemo(() => {
     const actions: MenuAction<DataAction>[] = [];
     if (onExportItemsClick) {
-      actions.push({ action: 'export', label: `Export ${itemType}s…` });
+      actions.push({ action: 'export', label: 'Export…', icon: 'Export' });
     }
     return actions;
-  }, [itemType, onExportItemsClick]);
+  }, [onExportItemsClick]);
 
   const onDataAction = useCallback(
     (action: DataAction) => {
@@ -251,16 +251,16 @@ const TableControls: React.FunctionComponent<{
 
           {dataActions.length > 0 && (
             <div className={controlStyles} data-testid="export-controls">
-              {/* One compact menu instead of a button per action: the toolbar
-                  is already crowded, and the label hides on narrow widths. */}
+              {/* One compact "Collections" menu instead of a button per
+                  action, the toolbar is already crowded. */}
               <DropdownMenuButton<DataAction>
                 data-testid={`${itemType}s-data-actions`}
                 actions={dataActions}
                 onAction={onDataAction}
-                buttonText="Export"
+                buttonText={`${itemType === 'collection' ? 'Collections' : 'Databases'}`}
+                hideOnNarrow={false}
                 buttonProps={{
                   size: 'small',
-                  leftGlyph: <Icon role="presentation" glyph="Export" />,
                   className: createButtonStyles,
                 }}
               />
