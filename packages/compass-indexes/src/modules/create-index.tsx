@@ -1,7 +1,5 @@
-import type { Document } from 'mongodb';
 import { ObjectId } from 'bson';
-import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
-import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
+import type { CreateIndexesOptions, IndexDirection, Document } from 'mongodb';
 import React from 'react';
 import type { Action, Dispatch, Reducer } from 'redux';
 import { Badge, Link } from '@mongodb-js/compass-components';
@@ -25,6 +23,8 @@ export const ActionTypes = {
   CreateIndexOpened: 'compass-indexes/create-index/create-index-shown',
   CreateIndexClosed: 'compass-indexes/create-index/create-index-hidden',
 
+  CreateIndexFormValidationStarted:
+    'compass-indexes/create-index/create-index-form-validation-started',
   CreateIndexFormSubmitted:
     'compass-indexes/create-index/create-index-form-submitted',
 } as const;
@@ -75,6 +75,11 @@ export type CreateIndexOpenedAction = {
 
 type CreateIndexClosedAction = {
   type: typeof ActionTypes.CreateIndexClosed;
+};
+
+type CreateIndexFormValidationStartedAction = {
+  type: typeof ActionTypes.CreateIndexFormValidationStarted;
+  submissionId: string;
 };
 
 /**
@@ -281,6 +286,10 @@ export type State = {
   // Client-side validation error
   error: string | null;
 
+  // Id of the submit currently being validated before index creation, unique
+  // per submit so that a retry can't make an earlier abandoned submit current
+  submissionId: string | null;
+
   // form fields related
   fields: Field[];
 
@@ -292,6 +301,7 @@ export const INITIAL_STATE: State = {
   indexId: new ObjectId().toHexString(),
   isVisible: false,
   error: null,
+  submissionId: null,
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
 };
@@ -361,10 +371,30 @@ function fieldTypeToIndexDirection(type: string): IndexDirection {
 }
 
 export const createIndexFormSubmitted = (): IndexesThunkAction<
-  void,
-  ErrorEncounteredAction | CreateIndexFormSubmittedAction
+  Promise<void>,
+  | ErrorEncounteredAction
+  | CreateIndexFormValidationStartedAction
+  | CreateIndexFormSubmittedAction
 > => {
-  return (dispatch, getState, { track }) => {
+  return async (dispatch, getState, { track }) => {
+    if (getState().createIndex.submissionId) {
+      return;
+    }
+    const submissionId = new ObjectId().toHexString();
+    dispatch({
+      type: ActionTypes.CreateIndexFormValidationStarted,
+      submissionId,
+    });
+    const { indexId } = getState().createIndex;
+
+    // Closing the modal, a validation error or a newer submit makes this one stale.
+    const isStale = () => getState().createIndex.submissionId !== submissionId;
+    const fail = (error: string) => {
+      if (!isStale()) {
+        dispatch(errorEncountered(error));
+      }
+    };
+
     track('Create Index Button Clicked', {
       context: 'Create Index Modal',
     });
@@ -381,7 +411,7 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
         })
       );
     } catch (e) {
-      dispatch(errorEncountered((e as any).message));
+      fail((e as any).message);
       return;
     }
 
@@ -390,15 +420,15 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     // Check for collation errors.
     let collation: Record<string, unknown> | null;
     try {
-      collation = parse(formIndexOptions.collation.value ?? '', {
-        mode: ParseMode.Loose,
-      });
+      collation = (await parseShellBSON(
+        formIndexOptions.collation.value ?? ''
+      )) as Record<string, unknown>;
     } catch {
       collation = null;
     }
 
     if (formIndexOptions.collation.enabled && !collation) {
-      dispatch(errorEncountered('You must provide a valid collation object'));
+      fail('You must provide a valid collation object');
       return;
     }
 
@@ -426,22 +456,18 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
         formIndexOptions.expireAfterSeconds.value
       );
       if (isNaN(options.expireAfterSeconds)) {
-        dispatch(
-          errorEncountered(
-            `Bad TTL: "${String(formIndexOptions.expireAfterSeconds.value)}"`
-          )
-        );
+        fail(`Bad TTL: "${String(formIndexOptions.expireAfterSeconds.value)}"`);
         return;
       }
     }
 
     if (formIndexOptions.wildcardProjection.enabled) {
       try {
-        options.wildcardProjection = parseShellBSON(
+        options.wildcardProjection = (await parseShellBSON(
           formIndexOptions.wildcardProjection.value ?? ''
-        );
+        )) as Document;
       } catch (err) {
-        dispatch(errorEncountered(`Bad WildcardProjection: ${String(err)}`));
+        fail(`Bad WildcardProjection: ${String(err)}`);
         return;
       }
     }
@@ -449,24 +475,22 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     if (formIndexOptions.columnstoreProjection.enabled) {
       try {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
-        options.columnstoreProjection = parseShellBSON(
+        options.columnstoreProjection = await parseShellBSON(
           formIndexOptions.columnstoreProjection.value ?? ''
         );
       } catch (err) {
-        dispatch(errorEncountered(`Bad ColumnstoreProjection: ${String(err)}`));
+        fail(`Bad ColumnstoreProjection: ${String(err)}`);
         return;
       }
     }
 
     if (formIndexOptions.partialFilterExpression.enabled) {
       try {
-        options.partialFilterExpression = parseShellBSON(
+        options.partialFilterExpression = (await parseShellBSON(
           formIndexOptions.partialFilterExpression.value ?? ''
-        );
+        )) as Document;
       } catch (err) {
-        dispatch(
-          errorEncountered(`Bad PartialFilterExpression: ${String(err)}`)
-        );
+        fail(`Bad PartialFilterExpression: ${String(err)}`);
         return;
       }
     }
@@ -485,10 +509,14 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
       }
     }
 
+    if (isStale()) {
+      return;
+    }
+
     dispatch({ type: ActionTypes.CreateIndexFormSubmitted });
     void dispatch(
       createRegularIndex(
-        getState().createIndex.indexId,
+        indexId,
         spec,
         options,
         !!formIndexOptions.buildInRollingProcess.value
@@ -582,6 +610,19 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       error: action.error,
+      submissionId: null,
+    };
+  }
+
+  if (
+    isAction<CreateIndexFormValidationStartedAction>(
+      action,
+      ActionTypes.CreateIndexFormValidationStarted
+    )
+  ) {
+    return {
+      ...state,
+      submissionId: action.submissionId,
     };
   }
 
@@ -598,6 +639,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
+      submissionId: null,
     };
   }
 
@@ -610,6 +652,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isVisible: false,
+      submissionId: null,
     };
   }
 

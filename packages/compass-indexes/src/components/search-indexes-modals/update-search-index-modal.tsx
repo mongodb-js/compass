@@ -6,7 +6,6 @@ import {
 } from '../../modules/search-indexes';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import { isAtlasVectorSearchSupportedForServerVersion } from '../../utils/vector-search-indexes';
 
@@ -22,7 +21,7 @@ type UpdateSearchIndexModalProps = {
   onUpdateIndexClick: (index: {
     name: string;
     type?: string;
-    definition: Document;
+    definition: string;
   }) => void;
   onCloseModalClick: () => void;
   onClearError: () => void;

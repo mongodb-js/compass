@@ -33,13 +33,11 @@ import {
   editorContainerDarkModeStyles,
   overflowWrapStyles,
 } from './drawer-view-styles';
-import type { Document } from 'mongodb';
 import {
   CodemirrorMultilineEditor,
   useJsonSchemaAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
@@ -96,7 +94,7 @@ type CreateSearchIndexViewProps = {
   onResetCreateState: () => void;
   createIndex: (index: {
     name: string;
-    definition: Document;
+    definition: string;
     type?: string;
   }) => void;
   onIndexDefinitionEdit: (isDirty: boolean) => void;
@@ -220,7 +218,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     });
     createIndex({
       name,
-      definition: parseShellBSON(indexDefinition),
+      definition: indexDefinition,
       type: currentIndexType,
     });
   }, [name, indexDefinition, createIndex, currentIndexType, track]);
