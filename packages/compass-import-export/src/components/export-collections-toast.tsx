@@ -35,7 +35,9 @@ export function showExportCollectionsInProgressToast({
       : docsWrittenText(docsWritten);
 
   openToast(exportCollectionsToastId, {
-    title: `Exporting ${collectionCount} collections from "${databaseName}"…`,
+    title: `Exporting ${collectionCount} collection${
+      collectionCount !== 1 ? 's' : ''
+    } from "${databaseName}"…`,
     description: (
       <ToastBody
         statusMessage={`${

@@ -129,9 +129,11 @@ export const exportCollections = (
   dbName: string
 ): CollectionsThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('open-export-collections', dbName, {
-      connectionId,
-    });
+    globalAppRegistry.emit(
+      'open-export-collections',
+      { databaseName: dbName, origin: 'collections-list' },
+      { connectionId }
+    );
   };
 };
 

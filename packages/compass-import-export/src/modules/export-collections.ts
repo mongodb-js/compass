@@ -2,6 +2,7 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import _ from 'lodash';
 
 import { exportCollectionsToDirectory } from '../export/export-collections';
+import type { ExportCollectionsResult } from '../export/export-collections';
 import type { ExportJSONFormat } from '../export/export-json';
 import type { CSVExportPhase } from '../export/export-csv';
 import {
@@ -119,17 +120,27 @@ type ExportFinishedAction = {
   type: typeof ExportCollectionsActionTypes.ExportFinished;
 };
 
+export type ExportCollectionsOrigin = 'sidebar' | 'collections-list';
+
 export const openExportCollections = ({
   connectionId,
   databaseName,
+  origin,
 }: {
   connectionId: string;
   databaseName: string;
+  origin: ExportCollectionsOrigin;
 }): ExportThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { connections }) => {
+  return async (dispatch, getState, { connections, track }) => {
     if (getState().exportCollections.status === 'in-progress') {
       return;
     }
+
+    track(
+      'Export Collections Opened',
+      { origin },
+      connections.getConnectionById(connectionId)?.info
+    );
 
     dispatch({
       type: ExportCollectionsActionTypes.Open,
@@ -219,11 +230,13 @@ export const runExportCollections = ({
   return async (
     dispatch,
     getState,
-    { connections, logger: { log, mongoLogId } }
+    { connections, track, logger: { log, mongoLogId } }
   ) => {
     const { connectionId, databaseName, selectedCollections } =
       getState().exportCollections;
 
+    const startTime = Date.now();
+    let result: ExportCollectionsResult | undefined;
     const exportAbortController = new AbortController();
     dispatch({
       type: ExportCollectionsActionTypes.RunExport,
@@ -268,7 +281,7 @@ export const runExportCollections = ({
 
     try {
       const dataService = connections.getDataServiceForConnection(connectionId);
-      const result = await exportCollectionsToDirectory({
+      result = await exportCollectionsToDirectory({
         databaseName,
         collectionNames: selectedCollections,
         directoryPath,
@@ -321,6 +334,29 @@ export const runExportCollections = ({
     } finally {
       dispatch({ type: ExportCollectionsActionTypes.ExportFinished });
     }
+
+    const failedCount = result
+      ? result.collections.filter((collection) => collection.error).length
+      : selectedCollections.length;
+    const stopped = !!(exportAbortController.signal.aborted || result?.aborted);
+    track(
+      'Export Collections Completed',
+      {
+        file_type: fileType,
+        json_format: fileType === 'json' ? jsonFormatVariant : undefined,
+        include_metadata: includeMetadata,
+        collection_count: selectedCollections.length,
+        failed_count: failedCount,
+        number_of_docs: (result?.collections ?? []).reduce(
+          (total, collection) => total + collection.docsWritten,
+          0
+        ),
+        success: !!result && failedCount === 0 && !stopped,
+        stopped,
+        duration: Date.now() - startTime,
+      },
+      connections.getConnectionById(connectionId)?.info
+    );
   };
 };
 

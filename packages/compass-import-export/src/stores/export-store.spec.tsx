@@ -41,4 +41,25 @@ describe('ExportStore [Store]', function () {
     expect(store.getState().export.connectionId).to.equal('TEST');
     expect(store.getState().export.namespace).to.equal('test.coll');
   });
+
+  it(`throws when 'open-export-collections' is emitted without connection metadata`, function () {
+    expect(() => {
+      globalAppRegistry.emit('open-export-collections', {
+        databaseName: 'store',
+        origin: 'sidebar',
+      });
+    }).to.throw();
+  });
+
+  it('opens the export collections modal for the database', function () {
+    globalAppRegistry.emit(
+      'open-export-collections',
+      { databaseName: 'store', origin: 'sidebar' },
+      { connectionId: 'TEST' }
+    );
+    const state = store.getState().exportCollections;
+    expect(state.isOpen).to.equal(true);
+    expect(state.connectionId).to.equal('TEST');
+    expect(state.databaseName).to.equal('store');
+  });
 });

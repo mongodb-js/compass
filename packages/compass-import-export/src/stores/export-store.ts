@@ -16,6 +16,7 @@ import {
   exportCollectionsReducer,
   openExportCollections,
 } from '../modules/export-collections';
+import type { ExportCollectionsOrigin } from '../modules/export-collections';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -121,7 +122,10 @@ export function activatePlugin(
     globalAppRegistry,
     'open-export-collections',
     function onOpenExportCollections(
-      databaseName: string,
+      {
+        databaseName,
+        origin,
+      }: { databaseName: string; origin: ExportCollectionsOrigin },
       { connectionId }: ConnectionMeta = {}
     ) {
       if (!connectionId) {
@@ -131,7 +135,7 @@ export function activatePlugin(
       }
 
       void store.dispatch(
-        openExportCollections({ connectionId, databaseName })
+        openExportCollections({ connectionId, databaseName, origin })
       );
     }
   );
