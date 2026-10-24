@@ -205,7 +205,7 @@ describe('Collections', () => {
   it('does not render the export menu without an export handler', () => {
     renderCollectionsList({ collections: colls });
 
-    expect(screen.queryByTestId('export-controls')).to.not.exist;
+    expect(screen.queryByTestId('data-actions-controls')).to.not.exist;
   });
 
   it('renders the export menu when an export handler is passed', () => {

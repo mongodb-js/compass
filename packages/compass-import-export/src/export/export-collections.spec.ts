@@ -2,12 +2,14 @@ import os from 'os';
 import fs from 'fs';
 import path from 'path';
 import { EJSON } from 'bson';
+import type { Document } from 'bson';
 import { expect } from 'chai';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 import {
+  assignFileNames,
   collectionNameToFileName,
   exportCollectionsToDirectory,
   getCollectionMetadata,
@@ -91,7 +93,7 @@ describe('exportCollectionsToDirectory', function () {
     const orders = EJSON.parse(
       await fs.promises.readFile(path.join(tmpdir, 'orders.json'), 'utf8')
     );
-    expect(orders.map((doc: any) => doc.orderNo)).to.deep.equal([1, 2, 3]);
+    expect(orders.map((doc: Document) => doc.orderNo)).to.deep.equal([1, 2, 3]);
   });
 
   it('writes one CSV file per collection with every field', async function () {
@@ -146,22 +148,23 @@ describe('exportCollectionsToDirectory', function () {
       $jsonSchema: { required: ['email'] },
     });
     const emailIndex = metadata.indexes.find(
-      (index: any) => index.name === 'email_1'
+      (index: Document) => index.name === 'email_1'
     );
     expect(emailIndex.key).to.deep.equal({ email: 1 });
     expect(emailIndex.unique).to.equal(true);
   });
 
   it('reports a failing collection and continues with the rest', async function () {
-    const failingDataService = {
-      ...dataService,
+    const failingDataService: Parameters<
+      typeof exportCollectionsToDirectory
+    >[0]['dataService'] = {
       collectionInfo: dataService.collectionInfo.bind(dataService),
       indexes: dataService.indexes.bind(dataService),
-      findCursor: (ns: string, ...args: any[]) => {
+      findCursor: (ns, filter, options) => {
         if (ns.endsWith('.customers')) {
           throw new Error('cursor failed');
         }
-        return (dataService.findCursor as any)(ns, ...args);
+        return dataService.findCursor(ns, filter, options);
       },
     };
 
@@ -169,7 +172,7 @@ describe('exportCollectionsToDirectory', function () {
       databaseName: testDB,
       collectionNames: ['customers', 'orders'],
       directoryPath: tmpdir,
-      dataService: failingDataService as any,
+      dataService: failingDataService,
       fileType: 'json',
       variant: 'default',
       includeMetadata: false,
@@ -213,9 +216,9 @@ describe('exportCollectionsToDirectory', function () {
       dataService,
     });
     expect(metadata.options).to.deep.equal({});
-    expect(metadata.indexes.map((index: any) => index.name)).to.deep.equal([
-      '_id_',
-    ]);
+    expect(metadata.indexes.map((index: Document) => index.name)).to.deep.equal(
+      ['_id_']
+    );
   });
 });
 
@@ -226,5 +229,89 @@ describe('collectionNameToFileName', function () {
 
   it('percent-encodes characters that are not valid in file names', function () {
     expect(collectionNameToFileName('a:b/c?d%e')).to.equal('a%3Ab%2Fc%3Fd%25e');
+  });
+
+  it('avoids names that Windows reserves or rejects', function () {
+    expect(collectionNameToFileName('con')).to.equal('%63on');
+    expect(collectionNameToFileName('NUL.backup')).to.equal('%4EUL.backup');
+    expect(collectionNameToFileName('console')).to.equal('console');
+    expect(collectionNameToFileName('logs.')).to.equal('logs%2E');
+    expect(collectionNameToFileName('logs ')).to.equal('logs%20');
+  });
+
+  it('never produces a name that looks like a metadata file', function () {
+    expect(collectionNameToFileName('orders.metadata')).to.equal(
+      'orders%2Emetadata'
+    );
+  });
+});
+
+describe('assignFileNames', function () {
+  it('keeps names that only differ by case apart', function () {
+    const fileNames = assignFileNames(['Orders', 'orders', 'ORDERS'], 'json');
+    expect([...fileNames.values()]).to.deep.equal([
+      'Orders',
+      // No upper case letters to encode, so every letter is encoded.
+      '%6F%72%64%65%72%73',
+      '%4F%52%44%45%52%53',
+    ]);
+    const lowerCased = [...fileNames.values()].map((name) =>
+      name?.toLowerCase()
+    );
+    expect(new Set(lowerCased).size).to.equal(3);
+  });
+
+  it('does not reuse the name of another collection metadata file', function () {
+    const fileNames = assignFileNames(['orders', 'Orders.metadata'], 'json');
+    expect(fileNames.get('Orders.metadata')).to.equal('Orders%2Emetadata');
+  });
+});
+
+describe('exportCollectionsToDirectory with clashing names', function () {
+  const cluster = mochaTestServer();
+  let dataService: DataService;
+  let tmpdir: string;
+
+  beforeEach(async function () {
+    tmpdir = path.join(
+      os.tmpdir(),
+      'compass-export-collections-test',
+      `clash-${Date.now()}`
+    );
+    dataService = await connect({
+      connectionOptions: { connectionString: cluster().connectionString },
+    });
+    await dataService.dropDatabase(`${testDB}-clash`).catch(() => undefined);
+    await dataService.insertOne(`${testDB}-clash.Orders`, { upper: true });
+    await dataService.insertOne(`${testDB}-clash.orders`, { lower: true });
+  });
+
+  afterEach(async function () {
+    await fs.promises.rm(tmpdir, { recursive: true, force: true });
+    await dataService.disconnect();
+  });
+
+  it('writes a separate file for each collection', async function () {
+    const result = await exportCollectionsToDirectory({
+      databaseName: `${testDB}-clash`,
+      collectionNames: ['Orders', 'orders'],
+      directoryPath: tmpdir,
+      dataService,
+      fileType: 'json',
+      variant: 'default',
+      includeMetadata: false,
+    });
+
+    expect(result.collections.map((c) => c.error)).to.deep.equal([
+      undefined,
+      undefined,
+    ]);
+    const contents = await Promise.all(
+      result.collections.map(({ filePath }) =>
+        fs.promises.readFile(filePath, 'utf8')
+      )
+    );
+    expect(contents[0]).to.include('upper');
+    expect(contents[1]).to.include('lower');
   });
 });

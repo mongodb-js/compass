@@ -49,14 +49,75 @@ type ExportCollectionsOptions = {
 // at least one platform. They are percent-encoded so that the original name
 // can be recovered from the file name.
 // eslint-disable-next-line no-control-regex -- control characters are not valid in file names
-const UNSAFE_FILE_NAME_CHARACTERS = /[<>:"/\\|?*%\x00-\x1f]/g;
+const UNSAFE_FILE_NAME_CHARACTER = /[<>:"/\\|?*%\x00-\x1f]/;
 
-export function collectionNameToFileName(collectionName: string): string {
-  return collectionName.replace(
-    UNSAFE_FILE_NAME_CHARACTERS,
-    (char) =>
-      `%${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`
-  );
+// Device names that Windows reserves regardless of the extension.
+const WINDOWS_RESERVED_NAME = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\.|$)/i;
+
+const METADATA_FILE_SUFFIX = '.metadata.json';
+
+function percentEncode(char: string): string {
+  return `%${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`;
+}
+
+/**
+ * Turns a collection name into a file name (without extension) that is valid
+ * on every platform. `encodeAlso` percent-encodes more characters, which is
+ * used to tell apart names that only differ by case on case-insensitive file
+ * systems. The result is decoded back with `fileNameToCollectionName()`.
+ */
+export function collectionNameToFileName(
+  collectionName: string,
+  encodeAlso?: RegExp
+): string {
+  let fileName = [...collectionName]
+    .map((char) =>
+      UNSAFE_FILE_NAME_CHARACTER.test(char) || encodeAlso?.test(char)
+        ? percentEncode(char)
+        : char
+    )
+    .join('');
+  // Windows doesn't allow file names ending with a dot or a space.
+  fileName = fileName.replace(/[. ]$/, percentEncode);
+  if (WINDOWS_RESERVED_NAME.test(fileName)) {
+    fileName = percentEncode(fileName[0]) + fileName.slice(1);
+  }
+  // A data file must not look like the metadata file of another collection.
+  return fileName.replace(/\.(metadata)$/i, '%2E$1');
+}
+
+/**
+ * Picks a file name for every collection so that no two files clash, also on
+ * case-insensitive file systems (Windows, macOS): `Orders` and `orders` would
+ * otherwise overwrite each other. Collections without a free name map to
+ * `undefined`.
+ */
+export function assignFileNames(
+  collectionNames: string[],
+  fileType: 'json' | 'csv'
+): Map<string, string | undefined> {
+  const usedPaths = new Set<string>();
+  const fileNames = new Map<string, string | undefined>();
+  for (const collectionName of collectionNames) {
+    const candidates = [
+      collectionNameToFileName(collectionName),
+      collectionNameToFileName(collectionName, /[A-Z]/),
+      collectionNameToFileName(collectionName, /[A-Za-z]/),
+    ];
+    const fileName = candidates.find((candidate) => {
+      const paths = [
+        `${candidate}.${fileType}`,
+        candidate + METADATA_FILE_SUFFIX,
+      ];
+      return paths.every((filePath) => !usedPaths.has(filePath.toLowerCase()));
+    });
+    if (fileName) {
+      usedPaths.add(`${fileName}.${fileType}`.toLowerCase());
+      usedPaths.add((fileName + METADATA_FILE_SUFFIX).toLowerCase());
+    }
+    fileNames.set(collectionName, fileName);
+  }
+  return fileNames;
 }
 
 /**
@@ -106,6 +167,7 @@ export async function getCollectionMetadata({
 async function exportCollection({
   databaseName,
   collectionName,
+  fileName,
   directoryPath,
   dataService,
   fileType,
@@ -116,8 +178,8 @@ async function exportCollection({
   progressCallback,
 }: Omit<ExportCollectionsOptions, 'collectionNames' | 'onCollectionStart'> & {
   collectionName: string;
+  fileName: string;
 }): Promise<CollectionExportResult> {
-  const fileName = collectionNameToFileName(collectionName);
   const filePath = path.join(directoryPath, `${fileName}.${fileType}`);
 
   if (includeMetadata) {
@@ -127,12 +189,16 @@ async function exportCollection({
       dataService,
     });
     await fs.promises.writeFile(
-      path.join(directoryPath, `${fileName}.metadata.json`),
+      path.join(directoryPath, fileName + METADATA_FILE_SUFFIX),
       EJSON.stringify(metadata, undefined, 2, { relaxed: false })
     );
   }
 
-  const output = fs.createWriteStream(filePath);
+  // Opening the file first makes a failure to create it (e.g. a read-only
+  // folder) reject here, instead of an 'error' event on a stream that nothing
+  // listens to yet.
+  const fileHandle = await fs.promises.open(filePath, 'w');
+  const output = fileHandle.createWriteStream();
   try {
     const baseExportOptions = {
       ns: `${databaseName}.${collectionName}`,
@@ -180,21 +246,32 @@ export async function exportCollectionsToDirectory({
 
   await fs.promises.mkdir(options.directoryPath, { recursive: true });
 
+  const fileNames = assignFileNames(collectionNames, options.fileType);
   const collections: CollectionExportResult[] = [];
   for (const [index, collectionName] of collectionNames.entries()) {
     if (options.abortSignal?.aborted) {
       break;
     }
     onCollectionStart?.(collectionName, index);
+    const fileName = fileNames.get(collectionName);
     try {
-      collections.push(await exportCollection({ ...options, collectionName }));
+      if (!fileName) {
+        throw new Error(
+          'Its file name would overwrite the file of another collection.'
+        );
+      }
+      collections.push(
+        await exportCollection({ ...options, collectionName, fileName })
+      );
     } catch (err) {
       debug('failed to export collection', { collectionName, err });
       collections.push({
         collectionName,
         filePath: path.join(
           options.directoryPath,
-          `${collectionNameToFileName(collectionName)}.${options.fileType}`
+          `${fileName ?? collectionNameToFileName(collectionName)}.${
+            options.fileType
+          }`
         ),
         docsWritten: 0,
         aborted: false,

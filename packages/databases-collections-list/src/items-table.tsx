@@ -250,14 +250,16 @@ const TableControls: React.FunctionComponent<{
           )}
 
           {dataActions.length > 0 && (
-            <div className={controlStyles} data-testid="export-controls">
+            <div className={controlStyles} data-testid="data-actions-controls">
               {/* One compact "Collections" menu instead of a button per
                   action, the toolbar is already crowded. */}
               <DropdownMenuButton<DataAction>
                 data-testid={`${itemType}s-data-actions`}
                 actions={dataActions}
                 onAction={onDataAction}
-                buttonText={`${itemType === 'collection' ? 'Collections' : 'Databases'}`}
+                buttonText={
+                  itemType === 'collection' ? 'Collections' : 'Databases'
+                }
                 hideOnNarrow={false}
                 buttonProps={{
                   size: 'small',

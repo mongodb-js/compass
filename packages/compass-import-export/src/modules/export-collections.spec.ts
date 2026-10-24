@@ -24,6 +24,8 @@ function loadedState(): ExportCollectionsState {
   } as any);
   return exportCollectionsReducer(opened, {
     type: ExportCollectionsActionTypes.LoadCollectionsSuccess,
+    connectionId: 'connection-1',
+    databaseName: 'store',
     collections,
   } as any);
 }
@@ -71,9 +73,27 @@ describe('exportCollectionsReducer', function () {
     const closed = exportCollectionsReducer(opened, closeExportCollections());
     const state = exportCollectionsReducer(closed, {
       type: ExportCollectionsActionTypes.LoadCollectionsSuccess,
+      connectionId: 'connection-1',
+      databaseName: 'store',
       collections,
     } as any);
     expect(state).to.deep.equal(initialState);
+  });
+
+  it('ignores collections loaded for a previously opened database', function () {
+    const reopened = exportCollectionsReducer(initialState, {
+      type: ExportCollectionsActionTypes.Open,
+      connectionId: 'connection-1',
+      databaseName: 'other',
+    } as any);
+    const state = exportCollectionsReducer(reopened, {
+      type: ExportCollectionsActionTypes.LoadCollectionsSuccess,
+      connectionId: 'connection-1',
+      databaseName: 'store',
+      collections,
+    } as any);
+    expect(state.status).to.equal('loading-collections');
+    expect(state.collections).to.deep.equal([]);
   });
 
   it('hides the modal but keeps the state while an export runs', function () {

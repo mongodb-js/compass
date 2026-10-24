@@ -75,15 +75,31 @@ type CloseAction = {
   type: typeof ExportCollectionsActionTypes.Close;
 };
 
-type LoadCollectionsSuccessAction = {
+// The connection and database the collections were loaded for, so a slow
+// response for a modal that was closed and reopened on another database is
+// ignored.
+type LoadedFor = {
+  connectionId: string;
+  databaseName: string;
+};
+
+type LoadCollectionsSuccessAction = LoadedFor & {
   type: typeof ExportCollectionsActionTypes.LoadCollectionsSuccess;
   collections: ExportableCollection[];
 };
 
-type LoadCollectionsErrorAction = {
+type LoadCollectionsErrorAction = LoadedFor & {
   type: typeof ExportCollectionsActionTypes.LoadCollectionsError;
   errorMessage: string;
 };
+
+function isLoadingFor(state: ExportCollectionsState, action: LoadedFor) {
+  return (
+    state.status === 'loading-collections' &&
+    state.connectionId === action.connectionId &&
+    state.databaseName === action.databaseName
+  );
+}
 
 type ToggleCollectionAction = {
   type: typeof ExportCollectionsActionTypes.ToggleCollection;
@@ -139,11 +155,15 @@ export const openExportCollections = ({
       );
       dispatch({
         type: ExportCollectionsActionTypes.LoadCollectionsSuccess,
+        connectionId,
+        databaseName,
         collections: _.sortBy(exportable, 'name'),
       });
     } catch (err) {
       dispatch({
         type: ExportCollectionsActionTypes.LoadCollectionsError,
+        connectionId,
+        databaseName,
         errorMessage:
           (err as Error | undefined)?.message ?? 'Failed to load collections.',
       });
@@ -330,7 +350,7 @@ export const exportCollectionsReducer: Reducer<
       ExportCollectionsActionTypes.LoadCollectionsSuccess
     )
   ) {
-    if (state.status !== 'loading-collections') {
+    if (!isLoadingFor(state, action)) {
       return state;
     }
     return {
@@ -351,7 +371,7 @@ export const exportCollectionsReducer: Reducer<
       ExportCollectionsActionTypes.LoadCollectionsError
     )
   ) {
-    if (state.status !== 'loading-collections') {
+    if (!isLoadingFor(state, action)) {
       return state;
     }
     return {
