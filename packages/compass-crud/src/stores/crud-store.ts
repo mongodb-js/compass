@@ -9,10 +9,9 @@ import HadronDocument, {
   Document,
   objectToIdiomaticEJSON,
 } from 'hadron-document';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
-import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
+import { ParseMode, toJSString, parse } from '@mongodb-js/shell-bson-parser';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { EJSON } from 'bson';
@@ -320,6 +319,7 @@ type BulkUpdateState = {
   syntaxError?: Error;
   serverError?: Error;
   previewAbortController?: AbortController;
+  isValidating: boolean;
   affected?: number;
 };
 
@@ -403,6 +403,7 @@ class CrudStoreImpl
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
   collectionModel: Collection;
+  insertViewRequestId = 0;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
@@ -525,6 +526,7 @@ class CrudStoreImpl
       },
       syntaxError: undefined,
       serverError: undefined,
+      isValidating: false,
     };
   }
 
@@ -1084,16 +1086,30 @@ class CrudStoreImpl
   }
 
   async updateBulkUpdatePreview(updateText: string) {
-    if (this.state.bulkUpdate.previewAbortController) {
-      this.state.bulkUpdate.previewAbortController.abort();
-    }
+    this.state.bulkUpdate.previewAbortController?.abort();
+    const abortController = new AbortController();
+
+    // Store the text and abort controller before awaiting anything so that
+    // other calls can see them and runBulkUpdate is blocked until this settles
+    this.setState({
+      bulkUpdate: {
+        ...this.state.bulkUpdate,
+        updateText,
+        previewAbortController: abortController,
+        isValidating: true,
+      },
+    });
 
     // Don't try and calculate the update preview if we know it won't work. Just
     // see if the update will parse.
     if (!this.state.isUpdatePreviewSupported) {
       try {
-        parseShellBSON(updateText);
+        await parseShellBSON(updateText);
       } catch (err: any) {
+        if (abortController.signal.aborted) {
+          return;
+        }
+
         this.setState({
           bulkUpdate: {
             ...this.state.bulkUpdate,
@@ -1104,8 +1120,13 @@ class CrudStoreImpl
             serverError: undefined,
             syntaxError: err,
             previewAbortController: undefined,
+            isValidating: false,
           },
         });
+        return;
+      }
+
+      if (abortController.signal.aborted) {
         return;
       }
 
@@ -1120,26 +1141,16 @@ class CrudStoreImpl
           serverError: undefined,
           syntaxError: undefined,
           previewAbortController: undefined,
+          isValidating: false,
         },
       });
 
       return;
     }
 
-    const abortController = new AbortController();
-
-    // set the abort controller in the state before we start doing anything so
-    // that other calls can see it
-    this.setState({
-      bulkUpdate: {
-        ...this.state.bulkUpdate,
-        previewAbortController: abortController,
-      },
-    });
-
     let update: BSONObject | BSONObject[];
     try {
-      update = parseShellBSON(updateText);
+      update = await parseShellBSON(updateText);
     } catch (err: any) {
       if (abortController.signal.aborted) {
         // ignore this result because it is stale
@@ -1156,6 +1167,7 @@ class CrudStoreImpl
           serverError: undefined,
           syntaxError: err,
           previewAbortController: undefined,
+          isValidating: false,
         },
       });
 
@@ -1192,6 +1204,7 @@ class CrudStoreImpl
           serverError: err,
           syntaxError: undefined,
           previewAbortController: undefined,
+          isValidating: false,
         },
       });
 
@@ -1211,11 +1224,18 @@ class CrudStoreImpl
         serverError: undefined,
         syntaxError: undefined,
         previewAbortController: undefined,
+        isValidating: false,
       },
     });
   }
 
   async runBulkUpdate() {
+    // The update button is disabled while validation is pending, so this is
+    // only reachable through a race - the current text isn't validated yet
+    if (this.state.bulkUpdate.isValidating) {
+      return;
+    }
+
     const query = this.queryBar.getLastAppliedQuery('crud');
     this.track(
       'Bulk Update Executed',
@@ -1240,7 +1260,7 @@ class CrudStoreImpl
     const { filter = {} } = query;
     let update;
     try {
-      update = parseShellBSON(this.state.bulkUpdate.updateText);
+      update = await parseShellBSON(this.state.bulkUpdate.updateText);
     } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
@@ -1317,8 +1337,21 @@ class CrudStoreImpl
    *
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocumentView(view: InsertDocumentView) {
+  async toggleInsertDocumentView(view: InsertDocumentView) {
     const { insertView: from, doc, editorText } = this.state.insert;
+    const requestId = ++this.insertViewRequestId;
+    // Conversion is async, so the dialog may have been closed, edited or
+    // switched again by the time it finishes, and writing the result would undo that
+    const hasInsertChanged = () => {
+      const current = this.state.insert;
+      return (
+        requestId !== this.insertViewRequestId ||
+        !current.isOpen ||
+        current.insertView !== from ||
+        current.editorText !== editorText ||
+        current.doc !== doc
+      );
+    };
     const common: Pick<
       InsertState,
       'error' | 'csfleState' | 'mode' | 'isOpen' | 'isCommentNeeded'
@@ -1330,24 +1363,39 @@ class CrudStoreImpl
       isCommentNeeded: this.state.insert.isCommentNeeded,
     };
 
-    if (view === 'list') {
-      const hadronDoc =
-        !editorText || editorText === ''
-          ? doc
-          : parseInsertDocument(from, editorText);
-      this.setState({
-        insert: { ...common, insertView: 'list', doc: hadronDoc, editorText },
-      });
+    const converted = await this.convertInsertDocument(
+      from,
+      view,
+      doc,
+      editorText
+    );
+    if (hasInsertChanged()) {
       return;
     }
-
-    const nextEditorText =
-      from === 'list'
-        ? serializeInsertDocument(view, doc)
-        : convertInsertText(from, view, editorText ?? '');
     this.setState({
-      insert: { ...common, insertView: view, doc, editorText: nextEditorText },
+      insert: { ...common, insertView: view, ...converted },
     });
+  }
+
+  async convertInsertDocument(
+    from: InsertDocumentView,
+    to: InsertDocumentView,
+    doc: InsertState['doc'],
+    editorText: InsertState['editorText']
+  ): Promise<Pick<InsertState, 'doc' | 'editorText'>> {
+    if (to === 'list') {
+      return {
+        doc: editorText ? await parseInsertDocument(from, editorText) : doc,
+        editorText,
+      };
+    }
+    return {
+      doc,
+      editorText:
+        from === 'list'
+          ? serializeInsertDocument(to, doc)
+          : await convertInsertText(from, to, editorText ?? ''),
+    };
   }
 
   /**
@@ -1381,9 +1429,11 @@ class CrudStoreImpl
       const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
         this.state.ns
       );
-      const docs = parseInsertDocumentArray(
-        this.state.insert.insertView,
-        this.state.insert.editorText ?? ''
+      const docs = (
+        await parseInsertDocumentArray(
+          this.state.insert.insertView,
+          this.state.insert.editorText ?? ''
+        )
       ).map((doc) => {
         if (schemaFields) {
           doc.preserveTypesFromSchema(schemaFields);
@@ -1463,7 +1513,7 @@ class CrudStoreImpl
         this.state.ns
       );
       if (this.state.insert.insertView !== 'list') {
-        const hadronDoc = parseInsertDocument(
+        const hadronDoc = await parseInsertDocument(
           this.state.insert.insertView,
           this.state.insert.editorText ?? ''
         );
@@ -1723,10 +1773,38 @@ class CrudStoreImpl
 
     const { defaultSortOrder } = this.preferences.getPreferences();
 
+    // don't start showing the loading indicator and cancel button immediately.
+    // Started before publishing the fetching status so the view never sees
+    // fetching without the debounce in place
+    const cancelDebounceLoad = this.debounceLoading();
+
+    // Mark the refresh as in progress before any await so that a concurrent
+    // refresh is rejected by the status check above, and can be cancelled
+    this.setState({
+      lastCountRunMaxTimeMS: countOptions.maxTimeMS,
+      status: DOCUMENTS_STATUS_FETCHING,
+      abortController,
+      error: null,
+      count: null, // we don't know the new count yet
+      loadingCount: true,
+    });
+
     let sort = query.sort;
 
     if (!sort && allowDefaultSort && defaultSortOrder) {
-      sort = validateSort(defaultSortOrder);
+      sort = await validateSort(defaultSortOrder);
+    }
+
+    if (signal.aborted) {
+      cancelDebounceLoad();
+      this.setState({
+        status: DOCUMENTS_STATUS_ERROR,
+        error: signal.reason as Error,
+        loadingCount: false,
+        abortController: null,
+        resultId: resultId(),
+      });
+      return;
     }
 
     const findOptions = {
@@ -1838,19 +1916,6 @@ class CrudStoreImpl
         }
       ),
     ] as const;
-
-    // This is so that the UI can update to show that we're fetching
-    this.setState({
-      lastCountRunMaxTimeMS: countOptions.maxTimeMS,
-      status: DOCUMENTS_STATUS_FETCHING,
-      abortController,
-      error: null,
-      count: null, // we don't know the new count yet
-      loadingCount: true,
-    });
-
-    // don't start showing the loading indicator and cancel button immediately
-    const cancelDebounceLoad = this.debounceLoading();
 
     const stateChanges = {};
 
@@ -2090,7 +2155,7 @@ class CrudStoreImpl
     const { filter } = this.queryBar.getLastAppliedQuery('crud');
     let update;
     try {
-      update = parseShellBSON(this.state.bulkUpdate.updateText);
+      update = await parseShellBSON(this.state.bulkUpdate.updateText);
     } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
@@ -2318,8 +2383,10 @@ export async function findAndModifyWithFLEFallback(
 }
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
-export function parseShellBSON(source: string): BSONObject | BSONObject[] {
-  const parsed = _parseShellBSON(source, {
+export async function parseShellBSON(
+  source: string
+): Promise<BSONObject | BSONObject[]> {
+  const parsed = await parse(source, {
     mode: ParseMode.Strict,
     allowComments: true,
     allowMethods: true,
@@ -2361,12 +2428,12 @@ function insertModeForTelemetry(
  * Parse the insert editor text into its plain value, using shell syntax or
  * EJSON depending on the active insert view.
  */
-export function parseInsertDocumentText(
+export async function parseInsertDocumentText(
   view: InsertDocumentView,
   text: string
-): unknown {
+): Promise<unknown> {
   return view === 'shell'
-    ? parseShellBSON(text)
+    ? await parseShellBSON(text)
     : EJSON.parse(text, { relaxed: false });
 }
 
@@ -2386,23 +2453,23 @@ export function toInsertHadronDocument(parsed: unknown): HadronDocument {
  * Parse the insert editor text into a single HadronDocument, using shell
  * syntax or EJSON depending on the active insert view.
  */
-export function parseInsertDocument(
+export async function parseInsertDocument(
   view: InsertDocumentView,
   text: string
-): HadronDocument {
-  return toInsertHadronDocument(parseInsertDocumentText(view, text));
+): Promise<HadronDocument> {
+  return toInsertHadronDocument(await parseInsertDocumentText(view, text));
 }
 
 /**
  * Parse the insert editor text into an array of HadronDocuments (for the
  * multiple-document case), using shell syntax or EJSON.
  */
-export function parseInsertDocumentArray(
+export async function parseInsertDocumentArray(
   view: InsertDocumentView,
   text: string
-): HadronDocument[] {
+): Promise<HadronDocument[]> {
   if (view === 'shell') {
-    const parsed = parseShellBSON(text);
+    const parsed = await parseShellBSON(text);
     return (Array.isArray(parsed) ? parsed : [parsed]).map(
       (doc) => new HadronDocument(assertPlainDocument(doc))
     );
@@ -2426,18 +2493,18 @@ function serializeInsertDocument(
  * Convert insert editor text between EJSON and shell syntax when switching
  * views.
  */
-function convertInsertText(
+async function convertInsertText(
   from: InsertDocumentView,
   to: InsertDocumentView,
   text: string
-): string {
+): Promise<string> {
   if (from === to || from === 'list' || to === 'list' || !text.trim()) {
     return text;
   }
   try {
     const value =
       from === 'shell'
-        ? parseShellBSON(text)
+        ? await parseShellBSON(text)
         : EJSON.parse(text, { relaxed: false });
     return to === 'shell'
       ? (toJSString(value) ?? text)

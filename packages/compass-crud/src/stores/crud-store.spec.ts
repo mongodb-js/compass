@@ -348,6 +348,7 @@ describe('store', function () {
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{\n  $set: {\n\n  },\n}',
+          isValidating: false,
         },
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
@@ -450,7 +451,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'list');
       });
 
-      store.toggleInsertDocumentView('list');
+      void store.toggleInsertDocumentView('list');
 
       await listener;
 
@@ -458,7 +459,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'json');
       });
 
-      store.toggleInsertDocumentView('json');
+      void store.toggleInsertDocumentView('json');
 
       await listener;
     });
@@ -468,7 +469,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'json');
         expect(state.insert.editorText).to.include('"foo"');
       });
-      store.toggleInsertDocumentView('json');
+      void store.toggleInsertDocumentView('json');
       await listener;
 
       listener = waitForState(store, (state) => {
@@ -477,7 +478,7 @@ describe('store', function () {
         expect(state.insert.editorText).to.match(/foo:/);
         expect(state.insert.editorText).to.not.include('"foo"');
       });
-      store.toggleInsertDocumentView('shell');
+      void store.toggleInsertDocumentView('shell');
       await listener;
 
       listener = waitForState(store, (state) => {
@@ -486,7 +487,7 @@ describe('store', function () {
           foo: 1,
         });
       });
-      store.toggleInsertDocumentView('json');
+      void store.toggleInsertDocumentView('json');
       await listener;
     });
 
@@ -513,24 +514,26 @@ describe('store', function () {
 
       await store.openInsertDocumentDialog(complexDoc);
 
-      const currentObject = (view: InsertDocumentView) => {
+      const currentObject = async (view: InsertDocumentView) => {
         const { doc, editorText } = store.state.insert;
         return view === 'list'
           ? doc?.generateObject()
-          : parseInsertDocument(view, editorText ?? '').generateObject();
+          : (
+              await parseInsertDocument(view, editorText ?? '')
+            ).generateObject();
       };
 
       const switchTo = async (view: InsertDocumentView) => {
         const listener = waitForState(store, (state) => {
           expect(state).to.have.nested.property('insert.insertView', view);
         });
-        store.toggleInsertDocumentView(view);
+        void store.toggleInsertDocumentView(view);
         await listener;
-        expect(currentObject(view)).to.deep.equal(complexDoc);
+        expect(await currentObject(view)).to.deep.equal(complexDoc);
       };
 
       expect(store.state.insert.insertView).to.equal('shell');
-      expect(currentObject('shell')).to.deep.equal(complexDoc);
+      expect(await currentObject('shell')).to.deep.equal(complexDoc);
 
       await switchTo('json');
       await switchTo('list');
@@ -539,12 +542,60 @@ describe('store', function () {
       await switchTo('json');
       await switchTo('shell');
     });
+
+    it('keeps the dialog closed when it is closed while switching views', async function () {
+      const switching = store.toggleInsertDocumentView('json');
+      store.closeInsertDocumentDialog();
+      await switching;
+
+      expect(store.state.insert.isOpen).to.equal(false);
+    });
+
+    it('keeps the newer text when it is edited while switching views', async function () {
+      const switching = store.toggleInsertDocumentView('json');
+      store.updateInsertDocText('{ bar: 2 }');
+      await switching;
+
+      expect(store.state.insert.editorText).to.equal('{ bar: 2 }');
+      expect(store.state.insert.insertView).to.equal('shell');
+    });
+
+    it('keeps the latest view when an earlier switch finishes after it was requested', async function () {
+      const conversions: {
+        to: InsertDocumentView;
+        resolve: () => void;
+      }[] = [];
+      const convert = store.convertInsertDocument.bind(store);
+      sinon
+        .stub(store, 'convertInsertDocument')
+        .callsFake(async (from, to, doc, editorText) => {
+          await new Promise<void>((resolve) =>
+            conversions.push({ to, resolve })
+          );
+          return convert(from, to, doc, editorText);
+        });
+
+      const toJSON = store.toggleInsertDocumentView('json');
+      const toList = store.toggleInsertDocumentView('list');
+      expect(conversions.map(({ to }) => to)).to.deep.equal(['json', 'list']);
+
+      conversions[0].resolve();
+      await toJSON;
+      expect(store.state.insert.insertView).to.equal('shell');
+
+      conversions[1].resolve();
+      await toList;
+      expect(store.state.insert.insertView).to.equal('list');
+      expect(store.state.insert.doc?.generateObject()).to.deep.equal({
+        foo: new Int32(1),
+      });
+    });
   });
 
   describe('#parseInsertDocument', function () {
-    it('parses a shell document literal', function () {
+    it('parses a shell document literal', async function () {
       expect(
-        parseInsertDocument('shell', '{ foo: 1 }').generateObject()
+        (await parseInsertDocument('shell', '{ foo: 1 }')).generateObject()
       ).to.deep.equal({ foo: new Int32(1) });
     });
 
@@ -553,17 +604,17 @@ describe('store', function () {
       '/foo/',
       'new ObjectId("64eff8f8f8f8f8f8f8f8f8f8")',
     ]) {
-      it(`rejects the object-valued shell expression ${text}`, function () {
-        expect(() => parseInsertDocument('shell', text)).to.throw(
+      it(`rejects the object-valued shell expression ${text}`, async function () {
+        await expect(parseInsertDocument('shell', text)).to.be.rejectedWith(
           'The provided definition is not a valid document.'
         );
       });
     }
 
-    it('rejects object-valued shell expressions in the array case', function () {
-      expect(() =>
+    it('rejects object-valued shell expressions in the array case', async function () {
+      await expect(
         parseInsertDocumentArray('shell', '[{ foo: 1 }, new Date()]')
-      ).to.throw('The provided definition is not a valid document.');
+      ).to.be.rejectedWith('The provided definition is not a valid document.');
     });
   });
 
@@ -955,7 +1006,7 @@ describe('store', function () {
       void store.openBulkUpdateModal();
 
       await waitForState(store, (state) => {
-        expect(state.bulkUpdate.previewAbortController).to.not.exist;
+        expect(state.bulkUpdate.isValidating).to.equal(false);
       });
 
       const bulkUpdate = store.state.bulkUpdate;
@@ -978,6 +1029,7 @@ describe('store', function () {
           ],
         },
         previewAbortController: undefined,
+        isValidating: false,
         serverError: undefined,
         syntaxError: undefined,
         updateText: '{\n  $set: {\n\n  },\n}',
@@ -989,7 +1041,7 @@ describe('store', function () {
       void store.openBulkUpdateModal();
 
       await waitForState(store, (state) => {
-        expect(state.bulkUpdate.previewAbortController).to.not.exist;
+        expect(state.bulkUpdate.isValidating).to.equal(false);
       });
 
       store.closeBulkUpdateModal();
@@ -1014,6 +1066,7 @@ describe('store', function () {
           ],
         },
         previewAbortController: undefined,
+        isValidating: false,
         serverError: undefined,
         syntaxError: undefined,
         updateText: '{\n  $set: {\n\n  },\n}',
@@ -1980,6 +2033,41 @@ describe('store', function () {
           await listener;
         });
 
+        it('fetches only once when refreshed twice with a default sort order', async function () {
+          await preferences.savePreferences({
+            defaultSortOrder: '{ _id: -1 }',
+          });
+          const findSpy = sinon.spy(store.dataService, 'find');
+
+          await Promise.all([
+            store.refreshDocuments(),
+            store.refreshDocuments(),
+          ]);
+
+          // Shard key lookup also uses find, so only count document fetches
+          const documentFetches = findSpy
+            .getCalls()
+            .filter((call) => call.args[0] === 'compass-crud.test');
+          expect(documentFetches).to.have.length(1);
+        });
+
+        it('does not fetch when cancelled while validating the default sort order', async function () {
+          await preferences.savePreferences({
+            defaultSortOrder: '{ _id: -1 }',
+          });
+          const findSpy = sinon.spy(store.dataService, 'find');
+
+          const refreshing = store.refreshDocuments();
+          store.cancelOperation();
+          await refreshing;
+
+          expect(findSpy).to.not.have.been.called;
+          expect(store.state.status).to.equal('error');
+          expect(store.state.error?.message).to.equal(
+            'This operation was aborted'
+          );
+        });
+
         it('emits documents-refreshed event on the global app registry', async function () {
           let emittedPayload: any = null;
           let emittedExtra: any = null;
@@ -2112,18 +2200,25 @@ describe('store', function () {
       });
 
       it('aborts the queries', async function () {
-        const spy = sinon.spy(dataService, 'aggregate');
+        // Fetching is published before the queries start, so cancel from
+        // inside the count aggregate to make sure we abort in-flight queries
+        const aggregate = dataService.aggregate.bind(dataService);
+        const spy = sinon
+          .stub(dataService, 'aggregate')
+          .callsFake((...args: Parameters<DataService['aggregate']>) => {
+            const result = aggregate(...args);
+            store.cancelOperation();
+            return result;
+          });
 
         const listener = waitForStates(store, [
           (state) => {
-            // cancel the operation as soon as the query starts
+            expect(state.debouncingLoad).to.equal(true);
             expect(state.status).to.equal('fetching');
             expect(state.count).to.be.null;
             expect(state.loadingCount).to.be.true; // initially count is still loading
             expect(state.error).to.be.null;
             expect(state.abortController).to.not.be.null;
-
-            store.cancelOperation();
           },
 
           (state) => {
@@ -2788,6 +2883,7 @@ describe('store', function () {
             changes: [],
           },
           previewAbortController: undefined,
+          isValidating: false,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',
@@ -2818,10 +2914,40 @@ describe('store', function () {
             changes: [],
           },
           previewAbortController: undefined,
+          isValidating: false,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',
         });
+      });
+
+      it('stores the new text immediately and ignores stale validation results', async function () {
+        await store.openBulkUpdateModal();
+
+        const stale = store.updateBulkUpdatePreview('{ $set: { a:  } }');
+        expect(store.state.bulkUpdate.updateText).to.equal('{ $set: { a:  } }');
+        expect(store.state.bulkUpdate.isValidating).to.equal(true);
+
+        const latest = store.updateBulkUpdatePreview('{ $set: { b: 1 } }');
+        await Promise.all([stale, latest]);
+
+        expect(store.state.bulkUpdate.updateText).to.equal(
+          '{ $set: { b: 1 } }'
+        );
+        expect(store.state.bulkUpdate.syntaxError).to.not.exist;
+        expect(store.state.bulkUpdate.isValidating).to.equal(false);
+      });
+
+      it('does not run the update while validation is pending', async function () {
+        const updateManyStub = sinon.stub().resolves();
+        dataService.updateMany = updateManyStub;
+        await store.openBulkUpdateModal();
+
+        const pending = store.updateBulkUpdatePreview('{ $set: { b: 1 } }');
+        await store.runBulkUpdate();
+        await pending;
+
+        expect(updateManyStub.called).to.be.false;
       });
     });
 
@@ -2846,7 +2972,7 @@ describe('store', function () {
       });
 
       it('calls dataService.previewUpdate()', async function () {
-        void store.openBulkUpdateModal();
+        await store.openBulkUpdateModal();
         mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
 
@@ -2864,6 +2990,7 @@ describe('store', function () {
             ],
           },
           previewAbortController: undefined,
+          isValidating: false,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',

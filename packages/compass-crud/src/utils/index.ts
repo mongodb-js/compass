@@ -96,9 +96,9 @@ function isValidSortDirection(direction: any): boolean {
   );
 }
 
-export function validateSort(input: string) {
+export async function validateSort(input: string) {
   try {
-    const value = parse(input, {
+    const value = await parse(input, {
       mode: ParseMode.Loose,
     });
     if (value === '') {

@@ -335,6 +335,7 @@ export type BulkUpdateModalProps = {
   syntaxError?: Error & { loc?: { index: number } };
   serverError?: Error & Pick<MongoServerError, 'errInfo'>;
   enablePreview?: boolean;
+  isValidating?: boolean;
   closeBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
@@ -351,6 +352,7 @@ export default function BulkUpdateModal({
   syntaxError,
   serverError,
   enablePreview = false,
+  isValidating = false,
   closeBulkUpdateModal,
   updateBulkUpdatePreview,
   runBulkUpdate,
@@ -414,7 +416,12 @@ export default function BulkUpdateModal({
   }, [count]);
 
   const bulkUpdateUpdateId = useId();
-  const disabled = !!(syntaxError || serverError || violations.length > 0);
+  const disabled = !!(
+    syntaxError ||
+    isValidating ||
+    serverError ||
+    violations.length > 0
+  );
 
   const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
 
