@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { AnyAction } from 'redux';
 
 import {
   ExportCollectionsActionTypes,
@@ -21,13 +22,13 @@ function loadedState(): ExportCollectionsState {
     type: ExportCollectionsActionTypes.Open,
     connectionId: 'connection-1',
     databaseName: 'store',
-  } as any);
+  } as AnyAction);
   return exportCollectionsReducer(opened, {
     type: ExportCollectionsActionTypes.LoadCollectionsSuccess,
     connectionId: 'connection-1',
     databaseName: 'store',
     collections,
-  } as any);
+  } as AnyAction);
 }
 
 describe('exportCollectionsReducer', function () {
@@ -36,7 +37,7 @@ describe('exportCollectionsReducer', function () {
       type: ExportCollectionsActionTypes.Open,
       connectionId: 'connection-1',
       databaseName: 'store',
-    } as any);
+    } as AnyAction);
     expect(state.isOpen).to.equal(true);
     expect(state.databaseName).to.equal('store');
     expect(state.status).to.equal('loading-collections');
@@ -69,14 +70,14 @@ describe('exportCollectionsReducer', function () {
       type: ExportCollectionsActionTypes.Open,
       connectionId: 'connection-1',
       databaseName: 'store',
-    } as any);
+    } as AnyAction);
     const closed = exportCollectionsReducer(opened, closeExportCollections());
     const state = exportCollectionsReducer(closed, {
       type: ExportCollectionsActionTypes.LoadCollectionsSuccess,
       connectionId: 'connection-1',
       databaseName: 'store',
       collections,
-    } as any);
+    } as AnyAction);
     expect(state).to.deep.equal(initialState);
   });
 
@@ -85,13 +86,13 @@ describe('exportCollectionsReducer', function () {
       type: ExportCollectionsActionTypes.Open,
       connectionId: 'connection-1',
       databaseName: 'other',
-    } as any);
+    } as AnyAction);
     const state = exportCollectionsReducer(reopened, {
       type: ExportCollectionsActionTypes.LoadCollectionsSuccess,
       connectionId: 'connection-1',
       databaseName: 'store',
       collections,
-    } as any);
+    } as AnyAction);
     expect(state.status).to.equal('loading-collections');
     expect(state.collections).to.deep.equal([]);
   });
@@ -101,7 +102,7 @@ describe('exportCollectionsReducer', function () {
     let state = exportCollectionsReducer(loadedState(), {
       type: ExportCollectionsActionTypes.RunExport,
       exportAbortController: abortController,
-    } as any);
+    } as AnyAction);
     expect(state.isOpen).to.equal(false);
     expect(state.status).to.equal('in-progress');
 
@@ -110,7 +111,7 @@ describe('exportCollectionsReducer', function () {
 
     state = exportCollectionsReducer(state, {
       type: ExportCollectionsActionTypes.ExportFinished,
-    } as any);
+    } as AnyAction);
     expect(state).to.deep.equal(initialState);
   });
 });
