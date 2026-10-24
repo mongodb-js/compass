@@ -49,7 +49,7 @@
     "@leafygreen-ui/drawer": "^5.2.4",
     "@leafygreen-ui/emotion": "^5.2.1",
     "@leafygreen-ui/guide-cue": "^8.2.1",
-    "@leafygreen-ui/hooks": "^9.3.2",
+    "@leafygreen-ui/hooks": "^9.3.3",
     "@leafygreen-ui/icon": "^14.9.1",
     "@leafygreen-ui/icon-button": "^17.1.6",
     "@leafygreen-ui/info-sprinkle": "^5.0.12",
