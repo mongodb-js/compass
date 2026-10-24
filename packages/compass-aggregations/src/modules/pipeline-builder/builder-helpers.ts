@@ -1,4 +1,5 @@
 import type { PipelineBuilderThunkAction, RootState } from '..';
+import type { Document } from 'bson';
 import { getStageOperator } from '../../utils/stage';
 import type { PipelineBuilder } from './pipeline-builder';
 import { loadPreviewForStagesFrom, pipelineFromStore } from './stage-editor';
@@ -19,21 +20,23 @@ export const updatePipelinePreview =
     }
   };
 
-export function getStagesFromBuilderState(
+export async function getStagesFromBuilderState(
   state: RootState,
   pipelineBuilder: PipelineBuilder
-) {
+): Promise<(Document | null)[]> {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
-    return pipelineBuilder.stages.map((stage) => stage.toBSON());
+    return await Promise.all(
+      pipelineBuilder.stages.map((stage) => stage.toBSON())
+    );
   } else {
     return pipelineBuilder.getPipelineFromSource();
   }
 }
 
-export function getPipelineFromBuilderState(
+export async function getPipelineFromBuilderState(
   state: RootState,
   pipelineBuilder: PipelineBuilder
-) {
+): Promise<Document[]> {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return pipelineBuilder.getPipelineFromStages();
   } else {

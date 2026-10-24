@@ -8,6 +8,7 @@ import {
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
+import { collationStringChanged } from './collation-string';
 import {
   showConfirmation,
   ConfirmationModalVariant,
@@ -132,11 +133,14 @@ function restorePipeline(
 export const openStoredPipeline = (
   pipelineData: SavedPipeline,
   updatePreview = true
-): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder, logger: { debug } }) => {
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder, logger: { debug } }) => {
     try {
-      pipelineBuilder.reset(pipelineData.pipelineText);
+      await pipelineBuilder.reset(pipelineData.pipelineText);
       dispatch(restorePipeline(pipelineData, pipelineBuilder));
+      await dispatch(
+        collationStringChanged(pipelineData.collationString ?? '')
+      );
       if (updatePreview) {
         dispatch(updatePipelinePreview());
       }
@@ -162,7 +166,7 @@ export const openStoredPipeline = (
  * Save the current state of your pipeline
  */
 export const saveCurrentPipeline =
-  (): PipelineBuilderThunkAction<void> =>
+  (): PipelineBuilderThunkAction<Promise<void>> =>
   async (
     dispatch,
     getState,
@@ -199,14 +203,14 @@ export const saveCurrentPipeline =
 
     await pipelineStorage?.createOrUpdate(savedPipeline.id, savedPipeline);
 
-    const stagesLength = (() => {
-      try {
-        return getPipelineFromBuilderState(getState(), pipelineBuilder).length;
-      } catch {
-        // For the case where pipeline contains syntax errors
-        return undefined;
-      }
-    })();
+    const stagesLength = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    ).then(
+      (stages) => stages.length,
+      // For the case where pipeline contains syntax errors
+      () => undefined
+    );
 
     track(
       'Aggregation Saved',

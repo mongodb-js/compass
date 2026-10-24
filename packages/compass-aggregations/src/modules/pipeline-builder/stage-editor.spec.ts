@@ -31,6 +31,8 @@ import Sinon from 'sinon';
 import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
+import { collationStringChanged } from '../collation-string';
+import { toggleAutoPreview } from '../auto-preview';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -41,7 +43,10 @@ import {
 import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
-import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+import {
+  createDefaultConnectionInfo,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
@@ -175,6 +180,14 @@ function createStore({
   const pipelineBuilder = Sinon.spy(
     new PipelineBuilder(dataService, preferences, pipelineSource)
   ) as unknown as PipelineBuilder;
+  // Store stages are created from builder stages in the app, so ids must match
+  for (const stage of stages) {
+    const builderStage =
+      stage.type === 'stage' && pipelineBuilder.stages[stage.idxInPipeline];
+    if (builderStage) {
+      builderStage.id = stage.id;
+    }
+  }
 
   const globalAppRegistry = new AppRegistry();
   const connectionInfoRef = {
@@ -305,6 +318,20 @@ describe('stageEditor', function () {
       }
     );
 
+    it('records the parser error for an invalid value when operator changes', async function () {
+      store = createStore({ stages: PIPELINE });
+      await store.dispatch(changeStageValue(0, `{_id: ObjectId('invalid')}`));
+
+      store.dispatch(changeStageOperator(0, '$addFields'));
+
+      await waitFor(() => {
+        expect(store.getState().stages[0]).to.have.nested.property(
+          'syntaxError.code',
+          'InvalidStageValue'
+        );
+      });
+    });
+
     it('should return stage snippet when stage was in initial state', function () {
       // Adding a new empty stage
       store.dispatch(addStage());
@@ -338,11 +365,11 @@ describe('stageEditor', function () {
       );
     });
 
-    it('should not return stage snippet if stage was changed before switching the operators', function () {
+    it('should not return stage snippet if stage was changed before switching the operators', async function () {
       store.dispatch(addStage());
       let stages = store.getState().stages;
       store.dispatch(changeStageOperator(stages.length - 1, '$match'));
-      store.dispatch(changeStageValue(stages.length - 1, '{ _id: 1 }'));
+      await store.dispatch(changeStageValue(stages.length - 1, '{ _id: 1 }'));
       const snippet = store.dispatch(
         changeStageOperator(stages.length - 1, '$limit')
       );
@@ -351,10 +378,10 @@ describe('stageEditor', function () {
       expect(stages[stages.length - 1]).to.have.property('value', '{ _id: 1 }');
     });
 
-    it('should not return stage snippet if stage value was changed without changing operator first', function () {
+    it('should not return stage snippet if stage value was changed without changing operator first', async function () {
       store.dispatch(addStage());
       const { stages } = store.getState();
-      store.dispatch(changeStageValue(stages.length - 1, '321'));
+      await store.dispatch(changeStageValue(stages.length - 1, '321'));
       const snippet = store.dispatch(
         changeStageOperator(stages.length - 1, '$match')
       );
@@ -407,14 +434,14 @@ describe('stageEditor', function () {
       },
     ].forEach(function ({ contextTitle, stages, idx, idxInPipeline }) {
       context(contextTitle, function () {
-        it('should update stage value', function () {
+        it('should update stage value', async function () {
           const store = createStore({ stages });
           expect(store.getState().stages[idx]).to.have.property(
             'value',
             '"match-and-limit"'
           );
 
-          store.dispatch(changeStageValue(idx, '{_id: 2}'));
+          await store.dispatch(changeStageValue(idx, '{_id: 2}'));
 
           expect(store.getState().stages[idx]).to.have.property(
             'value',
@@ -426,6 +453,31 @@ describe('stageEditor', function () {
             idxInPipeline
           );
         });
+      });
+    });
+
+    it('records shell parser errors that babel validation does not catch', async function () {
+      const store = createStore({ stages: PIPELINE });
+      await store.dispatch(changeStageValue(2, `{_id: ObjectId('invalid')}`));
+      expect(store.getState().stages[2])
+        .to.have.property('syntaxError')
+        .that.is.instanceOf(Error);
+    });
+
+    it('does not apply the parser error to another stage if the stage was removed while parsing', async function () {
+      const store = createStore({ stages: PIPELINE });
+      const nextStage = store.getState().stages[1] as StoreStage;
+      const changePromise = store.dispatch(
+        changeStageValue(0, `{_id: ObjectId('invalid')}`)
+      );
+      store.dispatch(removeStage(0));
+      await changePromise;
+
+      expect(store.getState().stages).to.have.lengthOf(PIPELINE.length - 1);
+      expect(store.getState().stages[0]).to.include({
+        id: nextStage.id,
+        value: nextStage.value,
+        syntaxError: null,
       });
     });
   });
@@ -886,6 +938,37 @@ describe('stageEditor', function () {
           });
         }
 
+        context('when cancelled while collation is parsing', function () {
+          beforeEach(function () {
+            // Not awaited, so collation stays pending during the preview
+            void store.dispatch(collationStringChanged('{ locale: "fr" }'));
+          });
+
+          it('should not run preview when auto preview is turned off', async function () {
+            const preview = store.dispatch(loadStagePreview(0));
+            store.dispatch(toggleAutoPreview(false));
+            await preview;
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            expect(store.dataService.aggregate).not.to.be.called;
+          });
+
+          it('should not run preview when the stage is disabled', async function () {
+            const preview = store.dispatch(loadStagePreview(0));
+            store.dispatch(changeStageDisabled(0, true));
+            await preview;
+            // Later stages re-preview without stage 0, so only check that no
+            // aggregation includes the disabled stage
+            const ranDisabledStage = (
+              store.dataService.aggregate as Sinon.SinonSpy
+            )
+              .getCalls()
+              .some(({ args }) =>
+                (args[1] as Document[]).some((stage) => stage.$match?._id === 1)
+              );
+            expect(ranDisabledStage).to.eq(false);
+          });
+        });
+
         it('should load preview for valid stage', async function () {
           await store.dispatch(loadStagePreview(0));
           // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -894,14 +977,16 @@ describe('stageEditor', function () {
 
         it('should not load preview for disabled stage', async function () {
           store.dispatch(changeStageDisabled(0, true));
-          Sinon.resetHistory();
           await store.dispatch(loadStagePreview(0));
+          // changeStageDisabled refreshes later stages in the background
           // eslint-disable-next-line @typescript-eslint/unbound-method
-          expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
+          expect(store.pipelineBuilder.getPreviewForStage).not.to.be.calledWith(
+            0
+          );
         });
 
         it('should not load preview for invalid stage', async function () {
-          store.dispatch(changeStageValue(0, '{ foo: '));
+          await store.dispatch(changeStageValue(0, '{ foo: '));
           Sinon.resetHistory();
           await store.dispatch(loadStagePreview(0));
           // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -909,7 +994,7 @@ describe('stageEditor', function () {
         });
 
         it('should not load preview for stage if any previous stages are invalid', async function () {
-          store.dispatch(changeStageValue(0, '{ foo: '));
+          await store.dispatch(changeStageValue(0, '{ foo: '));
           Sinon.resetHistory();
           await store.dispatch(loadStagePreview(1));
           // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -917,7 +1002,7 @@ describe('stageEditor', function () {
         });
 
         it('should load preview for stage if invalid previous stages are disabled', async function () {
-          store.dispatch(changeStageValue(0, '{ foo: '));
+          await store.dispatch(changeStageValue(0, '{ foo: '));
           store.dispatch(changeStageDisabled(0, true));
           Sinon.resetHistory();
           await store.dispatch(loadStagePreview(1));
@@ -925,10 +1010,10 @@ describe('stageEditor', function () {
           expect(store.pipelineBuilder.getPreviewForStage).to.be.called;
         });
 
-        it('should cancel preview for stage when new stage state is invalid', function () {
-          store.dispatch(changeStageValue(0, '{ foo: 1 }'));
+        it('should cancel preview for stage when new stage state is invalid', async function () {
+          await store.dispatch(changeStageValue(0, '{ foo: 1 }'));
           Sinon.resetHistory();
-          store.dispatch(changeStageValue(0, '{ foo: '));
+          await store.dispatch(changeStageValue(0, '{ foo: '));
           // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
           expect(
@@ -992,6 +1077,19 @@ describe('stageEditor', function () {
         );
       }
 
+      // Parse runs in a worker, which fake timers can't advance
+      function stubPipelineParse(
+        searchStore: ReturnType<typeof createSearchPreviewStore>
+      ) {
+        Sinon.replace(
+          searchStore.pipelineBuilder,
+          'getPipelineFromStages',
+          Sinon.fake.resolves([
+            { $search: { text: { query: 'foo', path: 'title' } } },
+          ])
+        );
+      }
+
       function replaceAggregate(
         dataService: DataService,
         implementation: (...args: unknown[]) => Promise<unknown[]>
@@ -1026,6 +1124,7 @@ describe('stageEditor', function () {
           Promise.resolve([{ type: '$search', scores: [scoreDetails] }])
         );
         const searchStore = createSearchPreviewStore({ dataService });
+        stubPipelineParse(searchStore);
 
         const first = searchStore.dispatch(loadStagePreview(0));
         await clock.tickAsync(200);
@@ -1052,6 +1151,7 @@ describe('stageEditor', function () {
           return Promise.resolve([{ type: '$search', scores: [latestScore] }]);
         });
         const searchStore = createSearchPreviewStore({ dataService });
+        stubPipelineParse(searchStore);
 
         const first = searchStore.dispatch(loadStagePreview(0));
         await clock.tickAsync(200);
@@ -1264,7 +1364,7 @@ describe('stageEditor', function () {
           });
 
           it('should not run aggregation if any previous stages are invalid', async function () {
-            store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
+            await store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
             Sinon.resetHistory();
             await store.dispatch(runStage(idxToRun));
             expect(
@@ -1275,7 +1375,7 @@ describe('stageEditor', function () {
 
           it('should run aggregation if invalid previous stages are disabled', async function () {
             const store = createStore({ stages });
-            store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
+            await store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
             store.dispatch(changeStageDisabled(invalidIdx, true));
             Sinon.resetHistory();
             await store.dispatch(runStage(idxToRun));
@@ -1313,9 +1413,11 @@ describe('stageEditor', function () {
   });
 
   describe('updateWizardValue', function () {
-    it('modifies the form values of wizard if there is a wizard at provided index', function () {
+    it('modifies the form values of wizard if there is a wizard at provided index', async function () {
       store.dispatch(addWizard('sort', '$sort'));
-      store.dispatch(updateWizardValue(3, JSON.stringify({ name: 'Test' })));
+      await store.dispatch(
+        updateWizardValue(3, JSON.stringify({ name: 'Test' }))
+      );
 
       const itemAtIndex = store.getState().stages[3];
       expect(itemAtIndex.type).to.equal('wizard');
@@ -1324,9 +1426,9 @@ describe('stageEditor', function () {
       );
     });
 
-    it('validates the wizard value', function () {
+    it('validates the wizard value', async function () {
       store.dispatch(addWizard('sort', '$sort'));
-      store.dispatch(updateWizardValue(3, `{ name: value }`));
+      await store.dispatch(updateWizardValue(3, `{ name: value }`));
 
       const itemAtIndex = store.getState().stages[3] as Wizard;
       expect(itemAtIndex.type).to.equal('wizard');
@@ -1336,8 +1438,10 @@ describe('stageEditor', function () {
       );
     });
 
-    it('does nothing if item at provided index is not a wizard', function () {
-      store.dispatch(updateWizardValue(0, JSON.stringify({ name: 'Test' })));
+    it('does nothing if item at provided index is not a wizard', async function () {
+      await store.dispatch(
+        updateWizardValue(0, JSON.stringify({ name: 'Test' }))
+      );
 
       const itemAtIndex = store.getState().stages[0];
       expect((itemAtIndex as any).formValues).to.be.undefined;
@@ -1345,9 +1449,9 @@ describe('stageEditor', function () {
   });
 
   describe('convertWizardToStage', function () {
-    it('converts wizard to stage', function () {
+    it('converts wizard to stage', async function () {
       store.dispatch(addWizard('sort', '$sort'));
-      store.dispatch(updateWizardValue(3, '{ name: -1 }'));
+      await store.dispatch(updateWizardValue(3, '{ name: -1 }'));
 
       const wizard = store.getState().stages[3] as Wizard;
       expect(wizard.type).to.equal('wizard');
@@ -1368,9 +1472,9 @@ describe('stageEditor', function () {
       expect(itemAtIndex.type).to.equal('stage');
     });
 
-    it('does nothing if wizard has error', function () {
+    it('does nothing if wizard has error', async function () {
       store.dispatch(addWizard('sort', '$sort'));
-      store.dispatch(updateWizardValue(3, '{ name: something }'));
+      await store.dispatch(updateWizardValue(3, '{ name: something }'));
 
       store.dispatch(convertWizardToStage(3));
 

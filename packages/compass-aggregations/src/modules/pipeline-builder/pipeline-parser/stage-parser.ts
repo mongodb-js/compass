@@ -2,7 +2,7 @@ import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
 import type Stage from '../stage';
 
-import { generate, parseShellBSON, PipelineParserError } from './utils';
+import { generate, PipelineParserError } from './utils';
 
 export type StageLike = t.ObjectExpression & {
   properties: [t.ObjectProperty & { key: t.Identifier | t.StringLiteral }];
@@ -16,21 +16,6 @@ export function isNodeDisabled(node: t.Node): boolean {
 
 export function setNodeDisabled(node: t.Node, value: boolean) {
   (node as any)[kDisabled] = value;
-}
-
-export function isValidStageNode(node?: t.ObjectExpression): boolean {
-  if (node) {
-    try {
-      // TODO: either export ejson-shell-parser logic that validates the AST or
-      // move the logic in this package to avoid generating source from ast
-      // before validating it again
-      parseShellBSON(generate(node));
-      return true;
-    } catch {
-      return false;
-    }
-  }
-  return false;
 }
 
 export function isStageLike(
@@ -97,11 +82,9 @@ export function assertStageNode(
     error = 'Stage value can not be empty';
     errorCode = StageAssertionErrorCodes.NoStageValue;
     causedBy = node.properties[0].key;
-  } else if (!loose && !isValidStageNode(node)) {
-    error = 'Stage value is invalid';
-    errorCode = StageAssertionErrorCodes.InvalidStageValue;
-    causedBy = node.properties[0].value;
   }
+  // Stage values are validated by shell-bson-parser, which only runs async
+  // (in a worker), so InvalidStageValue errors are recorded after parsing
 
   if (error) {
     throw new PipelineParserError(error, causedBy?.loc?.start, errorCode);

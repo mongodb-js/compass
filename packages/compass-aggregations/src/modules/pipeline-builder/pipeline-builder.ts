@@ -26,6 +26,7 @@ export class PipelineBuilder {
   private _stages: Stage[] = [];
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
+  private parsePromise: Promise<void> = Promise.resolve();
 
   constructor(
     dataService: DataService,
@@ -33,7 +34,8 @@ export class PipelineBuilder {
     source = DEFAULT_PIPELINE
   ) {
     this.previewManager = new PipelinePreviewManager(dataService, preferences);
-    this.changeSource(source);
+    // Parsed pipeline lands later, callers can wait for it with this.parsePromise
+    void this.changeSource(source);
     this.sourceToStages();
   }
 
@@ -88,37 +90,52 @@ export class PipelineBuilder {
     return this.stages.filter((stage) => !stage.isEmpty);
   }
 
-  private parseSourceToPipeline() {
+  private async parseSourceToPipeline(source: string): Promise<void> {
+    let pipeline: Document[] | null;
+    let parseError: PipelineParserError | null = null;
     try {
-      this.pipeline = parseShellBSON<Document[]>(this.source);
+      const parsed = await parseShellBSON<Document[]>(source);
       // parseShellBSON will parse various values, not all of them are valid
       // aggregation pipelines
-      if (!Array.isArray(this.pipeline)) {
-        throw new Error('Pipeline should be an array');
-      }
-    } catch {
-      this.pipeline = null;
+      pipeline = Array.isArray(parsed) ? parsed : null;
+    } catch (e) {
+      pipeline = null;
+      parseError = new PipelineParserError((e as Error).message);
+    }
+    // The source might have changed again while this was parsing
+    if (this.source !== source) {
+      return;
+    }
+    this.pipeline = pipeline;
+    // Keep syntax errors from validateSource() if there are any, otherwise
+    // report what the parser rejected (e.g. `ObjectId("invalid")`)
+    if (parseError && this._syntaxError.length === 0) {
+      this.syntaxError = [parseError];
     }
   }
 
   /**
    * Completely reset pipeline state with provided source
    */
-  reset(source = DEFAULT_PIPELINE) {
+  async reset(source = DEFAULT_PIPELINE): Promise<void> {
     this.pipeline = [];
     this.stages = [];
     this.syntaxError = [];
-    this.changeSource(source);
+    const parsed = this.changeSource(source);
     this.sourceToStages();
+    await parsed;
   }
 
   /**
-   * Change the pipeline source and validate it
+   * Change the pipeline source and validate it. Babel validation (node, syntax
+   * errors) is applied synchronously; the parsed pipeline lands once the
+   * returned promise resolves.
    */
-  changeSource(source: string): void {
+  changeSource(source: string): Promise<void> {
     this.source = source;
-    this.parseSourceToPipeline();
     this.validateSource();
+    this.parsePromise = this.parseSourceToPipeline(source);
+    return this.parsePromise;
   }
 
   /**
@@ -153,7 +170,14 @@ export class PipelineBuilder {
    * Parse current pipeline source to runnable pipeline. Will throw if pipeline
    * contains errors
    */
-  getPipelineFromSource(): Document[] {
+  async getPipelineFromSource(): Promise<Document[]> {
+    // A newer edit can replace parsePromise while we wait, and the superseded
+    // parse discards its result, so wait until the settled parse is current.
+    let parsePromise: Promise<void>;
+    do {
+      parsePromise = this.parsePromise;
+      await parsePromise;
+    } while (parsePromise !== this.parsePromise);
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
     }
@@ -166,13 +190,15 @@ export class PipelineBuilder {
   /**
    * Generate pipeline source from stages and update current pipeline source
    */
-  stagesToSource(): void {
+  stagesToSource(): Promise<void> {
     if (!this.node) {
       throw new Error(
         'Trying to generate source from stages with invalid pipeline'
       );
     }
-    this.changeSource(PipelineParser.generate(this.node, this.nonEmptyStages));
+    return this.changeSource(
+      PipelineParser.generate(this.node, this.nonEmptyStages)
+    );
   }
 
   /**
@@ -242,8 +268,12 @@ export class PipelineBuilder {
    * Get runnable pipeline from current pipeline stages. Will throw if pipeline
    * contains errors
    */
-  getPipelineFromStages(stages = this.nonEmptyStages): Document[] {
-    return parseShellBSON<Document[]>(this.getPipelineStringFromStages(stages));
+  async getPipelineFromStages(
+    stages = this.nonEmptyStages
+  ): Promise<Document[]> {
+    return await parseShellBSON<Document[]>(
+      this.getPipelineStringFromStages(stages)
+    );
   }
 
   /**
@@ -270,17 +300,17 @@ export class PipelineBuilder {
   /**
    * Request preview documents for pipeline stage at provided index
    */
-  getPreviewForStage(
+  async getPreviewForStage(
     idx: number,
     namespace: string,
-    options: PreviewOptions,
+    getPreviewOptions: () => Promise<PreviewOptions>,
     force = false
   ): Promise<Document[]> {
     return this.previewManager.getPreviewForStage(
       idx,
       namespace,
-      this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
-      options,
+      () => this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
+      getPreviewOptions,
       force
     );
   }
@@ -289,33 +319,38 @@ export class PipelineBuilder {
    * Returns true if previous preview request was done for the same pipeline for
    * a specific stage
    */
-  isLastStagePreviewEqual(
+  async isLastStagePreviewEqual(
     idx: number,
-    pipeline: Document[] = this.getPipelineFromStages(
-      this.stages.slice(0, idx + 1)
-    )
-  ) {
-    return this.previewManager.isLastPipelineEqual(idx, pipeline);
+    pipeline?: Document[]
+  ): Promise<boolean> {
+    return this.previewManager.isLastPipelineEqual(
+      idx,
+      pipeline ??
+        (await this.getPipelineFromStages(this.stages.slice(0, idx + 1)))
+    );
   }
 
   /**
    * Request preview for current pipeline source
    */
-  getPreviewForPipeline(
+  async getPreviewForPipeline(
     namespace: string,
-    options: PreviewOptions,
+    getPreviewOptions: () => Promise<PreviewOptions>,
     filterOutputStage = false
   ): Promise<Document[]> {
-    // For preview we ignore $out/$merge stage.
-    const pipeline = [...this.getPipelineFromSource()];
-    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
-      pipeline.pop();
-    }
+    const getPipeline = async () => {
+      const pipeline = await this.getPipelineFromSource();
+      const resultPipeline = [...pipeline];
+      if (filterOutputStage && isLastStageOutputStage(resultPipeline)) {
+        resultPipeline.pop();
+      }
+      return resultPipeline;
+    };
     return this.previewManager.getPreviewForStage(
       FULL_PIPELINE_PREVIEW_ID,
       namespace,
-      pipeline,
-      options
+      getPipeline,
+      getPreviewOptions
     );
   }
 
@@ -323,10 +358,11 @@ export class PipelineBuilder {
    * Returns true if previous preview request was done for the same pipeline for
    * the whole pipeline
    */
-  isLastPipelinePreviewEqual(
-    pipeline: Document[] = this.getPipelineFromSource(),
+  async isLastPipelinePreviewEqual(
+    pipeline?: Document[],
     filterOutputStage = false
-  ) {
+  ): Promise<boolean> {
+    pipeline = pipeline ?? (await this.getPipelineFromSource());
     pipeline = [...pipeline];
     // For preview we ignore $out/$merge stage.
     if (filterOutputStage && isLastStageOutputStage(pipeline)) {

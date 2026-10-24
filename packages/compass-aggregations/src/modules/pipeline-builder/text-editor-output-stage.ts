@@ -3,6 +3,7 @@ import type { AggregateOptions, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
+import { getCollationForExecution } from '../collation-string';
 import { EditorActionTypes, canRunPipeline } from './text-editor-pipeline';
 import type { EditorValueChangeAction } from './text-editor-pipeline';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
@@ -162,10 +163,13 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
 
     try {
       dispatch({ type: OutputStageActionTypes.FetchStarted });
-      const pipeline = pipelineBuilder.getPipelineFromSource();
+      const [pipeline, collation] = await Promise.all([
+        pipelineBuilder.getPipelineFromSource(),
+        getCollationForExecution(collationString),
+      ]);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collationString.value ?? undefined,
+        collation: collation ?? undefined,
       };
       const { signal } = new AbortController();
       await aggregatePipeline({

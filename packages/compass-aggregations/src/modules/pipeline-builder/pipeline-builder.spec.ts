@@ -7,21 +7,21 @@ import Stage from './stage';
 describe('PipelineBuilder', function () {
   const pipelineBuilder = new PipelineBuilder(mockDataService(), {} as any);
   const sandbox = sinon.createSandbox();
-  beforeEach(function () {
-    pipelineBuilder.reset();
+  beforeEach(async function () {
+    await pipelineBuilder.reset();
     sandbox.spy(pipelineBuilder);
   });
   afterEach(function () {
     sandbox.restore();
   });
 
-  it('resets builder', function () {
+  it('resets builder', async function () {
     const source = `[{$match: {name: /berlin/i}}]`;
 
-    pipelineBuilder.reset(source);
+    await pipelineBuilder.reset(source);
     expect(pipelineBuilder.source, 'resets to new value').to.deep.equal(source);
 
-    pipelineBuilder.reset();
+    await pipelineBuilder.reset();
     expect(pipelineBuilder.source, 'resets to default value').to.deep.equal(
       DEFAULT_PIPELINE
     );
@@ -39,8 +39,8 @@ describe('PipelineBuilder', function () {
     ];
 
     tests.forEach(({ source, pipeline }) => {
-      it(`should change source value to ${source}`, function () {
-        pipelineBuilder.changeSource(source);
+      it(`should change source value to ${source}`, async function () {
+        await pipelineBuilder.changeSource(source);
         expect(pipelineBuilder.source).to.eq(source);
         expect(pipelineBuilder.pipeline).to.deep.eq(pipeline);
         expect(pipelineBuilder.syntaxError).to.have.lengthOf(
@@ -50,9 +50,35 @@ describe('PipelineBuilder', function () {
     });
   });
 
-  it('converts source to stages', function () {
+  it('reports parser errors that babel validation does not catch', async function () {
+    await pipelineBuilder.changeSource(
+      `[{$match: {_id: ObjectId('invalid')}}]`
+    );
+    expect(pipelineBuilder.pipeline).to.be.null;
+    expect(pipelineBuilder.syntaxError).to.have.lengthOf(1);
+    try {
+      await pipelineBuilder.getPipelineFromSource();
+      expect.fail('expected getPipelineFromSource to throw');
+    } catch (e) {
+      expect(e).to.equal(pipelineBuilder.syntaxError[0]);
+    }
+  });
+
+  describe('getPipelineFromSource', function () {
+    it('returns the pipeline for a source changed while it was parsing', async function () {
+      await pipelineBuilder.changeSource(`[{$match: {_id: 1}}]`);
+
+      void pipelineBuilder.changeSource(`[{$match: {_id: 2}}]`);
+      const pipeline = pipelineBuilder.getPipelineFromSource();
+      void pipelineBuilder.changeSource(`[{$match: {_id: 3}}]`);
+
+      expect(await pipeline).to.deep.eq([{ $match: { _id: 3 } }]);
+    });
+  });
+
+  it('converts source to stages', async function () {
     const source = `[{$match: {name: /berlin/i}}]`;
-    pipelineBuilder.changeSource(source);
+    await pipelineBuilder.changeSource(source);
     pipelineBuilder.sourceToStages();
 
     expect(pipelineBuilder.syntaxError.length).to.equal(0);
@@ -71,9 +97,9 @@ describe('PipelineBuilder', function () {
     expect(pipelineBuilder.stages.length).to.equal(1);
   });
 
-  it('adds stage after index', function () {
+  it('adds stage after index', async function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
-    pipelineBuilder.reset(pipeline);
+    await pipelineBuilder.reset(pipeline);
     pipelineBuilder.addStage(0);
     expect(pipelineBuilder.stages.length).to.equal(3);
 
@@ -82,17 +108,17 @@ describe('PipelineBuilder', function () {
     expect(pipelineBuilder.stages[2].operator).to.equal('$unwind');
   });
 
-  it('removes stage', function () {
+  it('removes stage', async function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
-    pipelineBuilder.reset(pipeline);
+    await pipelineBuilder.reset(pipeline);
     pipelineBuilder.removeStage(0);
     expect(pipelineBuilder.stages.length).to.equal(1);
     expect(pipelineBuilder.stages[0].operator).to.equal('$unwind');
   });
 
-  it('moves stage', function () {
+  it('moves stage', async function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
-    pipelineBuilder.reset(pipeline);
+    await pipelineBuilder.reset(pipeline);
     pipelineBuilder.moveStage(1, 0);
     expect(pipelineBuilder.stages.length).to.equal(2);
     expect(pipelineBuilder.stages[0].operator).to.equal('$unwind');
@@ -101,24 +127,35 @@ describe('PipelineBuilder', function () {
 
   it('gets preview for stage', async function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
-    pipelineBuilder.reset(pipeline);
+    await pipelineBuilder.reset(pipeline);
 
     const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock
       .expects('getPreviewForStage')
-      .withArgs(
-        1,
-        'airbnb.listings',
-        [{ $match: {} }, { $unwind: 'users' }],
-        {},
-        true
-      )
-      .returns([{ _id: 1 }]);
+      .once()
+      .callsFake(
+        async (idx, namespace, getPipeline, getPreviewOptions, force) => {
+          expect([
+            idx,
+            namespace,
+            await getPipeline(),
+            await getPreviewOptions(),
+            force,
+          ]).to.deep.eq([
+            1,
+            'airbnb.listings',
+            [{ $match: {} }, { $unwind: 'users' }],
+            {},
+            true,
+          ]);
+          return [{ _id: 1 }];
+        }
+      );
 
     const data = await pipelineBuilder.getPreviewForStage(
       1,
       'airbnb.listings',
-      {},
+      () => Promise.resolve({}),
       true
     );
     expect(data).to.deep.equal([{ _id: 1 }]);
@@ -129,22 +166,30 @@ describe('PipelineBuilder', function () {
 
   it('gets preview for pipeline', async function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
-    pipelineBuilder.reset(pipeline);
+    await pipelineBuilder.reset(pipeline);
 
     const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock
       .expects('getPreviewForStage')
-      .withArgs(
-        Infinity,
-        'airbnb.listings',
-        [{ $match: {} }, { $unwind: 'users' }],
-        {}
-      )
-      .returns([{ _id: 1 }, { _id: 2 }]);
+      .once()
+      .callsFake(async (idx, namespace, getPipeline, getPreviewOptions) => {
+        expect([
+          idx,
+          namespace,
+          await getPipeline(),
+          await getPreviewOptions(),
+        ]).to.deep.eq([
+          Infinity,
+          'airbnb.listings',
+          [{ $match: {} }, { $unwind: 'users' }],
+          {},
+        ]);
+        return [{ _id: 1 }, { _id: 2 }];
+      });
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',
-      {}
+      () => Promise.resolve({})
     );
     expect(data).to.deep.equal([{ _id: 1 }, { _id: 2 }]);
 
@@ -154,22 +199,30 @@ describe('PipelineBuilder', function () {
 
   it('gets preview for pipeline with output stage when filtering it out', async function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
-    pipelineBuilder.reset(pipeline);
+    await pipelineBuilder.reset(pipeline);
 
     const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock
       .expects('getPreviewForStage')
-      .withArgs(
-        Infinity,
-        'airbnb.listings',
-        [{ $match: {} }, { $unwind: 'users' }],
-        {}
-      )
-      .returns([{ _id: 1 }, { _id: 2 }]);
+      .once()
+      .callsFake(async (idx, namespace, getPipeline, getPreviewOptions) => {
+        expect([
+          idx,
+          namespace,
+          await getPipeline(),
+          await getPreviewOptions(),
+        ]).to.deep.eq([
+          Infinity,
+          'airbnb.listings',
+          [{ $match: {} }, { $unwind: 'users' }],
+          {},
+        ]);
+        return [{ _id: 1 }, { _id: 2 }];
+      });
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',
-      {},
+      () => Promise.resolve({}),
       true
     );
     expect(data).to.deep.equal([{ _id: 1 }, { _id: 2 }]);
@@ -180,24 +233,24 @@ describe('PipelineBuilder', function () {
 
   it('throws when previewing a pipeline with output stage and not fitlering it out', async function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
-    pipelineBuilder.reset(pipeline);
+    await pipelineBuilder.reset(pipeline);
 
     const error = await pipelineBuilder
-      .getPreviewForPipeline('airbnb.listings', {})
+      .getPreviewForPipeline('airbnb.listings', () => Promise.resolve({}))
       .catch((e) => e);
     expect(error).to.be.instanceOf(Error);
   });
 
-  it('should handle leading and trailing stages of the pipeline', function () {
-    pipelineBuilder.reset(`// leading comment\n[{$match: {_id: 1}}]`);
+  it('should handle leading and trailing stages of the pipeline', async function () {
+    await pipelineBuilder.reset(`// leading comment\n[{$match: {_id: 1}}]`);
     expect(pipelineBuilder.syntaxError).to.have.lengthOf(0);
 
-    pipelineBuilder.reset(`[{$match: {_id: 1}}]\n// trailing comment`);
+    await pipelineBuilder.reset(`[{$match: {_id: 1}}]\n// trailing comment`);
     expect(pipelineBuilder.syntaxError).to.have.lengthOf(0);
   });
 
   describe('stagesToSource', function () {
-    it('converts stages to source', function () {
+    it('converts stages to source', async function () {
       const stages = [new Stage(), new Stage(), new Stage()];
 
       stages[0].changeOperator('$match');
@@ -211,7 +264,7 @@ describe('PipelineBuilder', function () {
 
       pipelineBuilder.stages = stages;
 
-      pipelineBuilder.stagesToSource();
+      await pipelineBuilder.stagesToSource();
 
       expect(pipelineBuilder.source).to.eq(`[
   {
@@ -228,18 +281,23 @@ describe('PipelineBuilder', function () {
 ]`);
     });
 
-    it('throws if enabled stages has syntax errors', function () {
+    it('throws if enabled stages has syntax errors', async function () {
       const stages = [new Stage()];
 
       stages[0].changeOperator('$match');
       stages[0].changeValue('{ _id: 1');
 
       pipelineBuilder.stages = stages;
-
-      expect(() => pipelineBuilder.stagesToSource()).to.throw();
+      let error: unknown;
+      try {
+        await pipelineBuilder.stagesToSource();
+      } catch (e) {
+        error = e;
+      }
+      expect(error).to.be.instanceOf(Error);
     });
 
-    it('converts stages to source if stages with syntax errors are disabled', function () {
+    it('converts stages to source if stages with syntax errors are disabled', async function () {
       const stages = [new Stage()];
 
       stages[0].changeOperator('$match');
@@ -248,7 +306,7 @@ describe('PipelineBuilder', function () {
 
       pipelineBuilder.stages = stages;
 
-      pipelineBuilder.stagesToSource();
+      await pipelineBuilder.stagesToSource();
 
       expect(pipelineBuilder.source).to.eq(`[
   // {
@@ -257,16 +315,16 @@ describe('PipelineBuilder', function () {
 ]`);
     });
 
-    it('ignores empty stages', function () {
+    it('ignores empty stages', async function () {
       const stages = [new Stage(), new Stage(), new Stage()];
       pipelineBuilder.stages = stages;
-      pipelineBuilder.stagesToSource();
+      await pipelineBuilder.stagesToSource();
       expect(pipelineBuilder.source).to.eq('[]');
     });
   });
 
-  it('treats empty source as empty pipeline', function () {
-    pipelineBuilder.reset('   ');
+  it('treats empty source as empty pipeline', async function () {
+    await pipelineBuilder.reset('   ');
     expect(pipelineBuilder).to.have.property('syntaxError').to.have.lengthOf(0);
     expect(pipelineBuilder).to.have.property('pipeline').deep.eq([]);
     expect(pipelineBuilder).to.have.property('node');

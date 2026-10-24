@@ -1,7 +1,12 @@
 import React, { type ComponentProps } from 'react';
 import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  within,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import {
@@ -359,7 +364,6 @@ describe('FocusModeStagePreview', function () {
           stageOperator: '$search',
           documents: [],
           stageValue: '{ "index": "movies" }',
-          searchIndexName: 'movies',
           onCloseFocusMode,
         },
         {
@@ -368,13 +372,21 @@ describe('FocusModeStagePreview', function () {
           diagnoseSearchStage,
         }
       );
-      userEvent.click(screen.getByTestId('focus-mode-diagnose-search-button'));
-      expect(onCloseFocusMode).to.have.been.calledOnce;
-      expect(diagnoseSearchStage).to.have.been.calledOnceWith({
-        stageOperator: '$search',
-        indexName: 'movies',
-        stageValue: '{ "index": "movies" }',
+      // Index name is parsed async, so retry the click until it resolves and
+      // reset spies each attempt to assert on a single click
+      await waitFor(() => {
+        diagnoseSearchStage.resetHistory();
+        onCloseFocusMode.resetHistory();
+        userEvent.click(
+          screen.getByTestId('focus-mode-diagnose-search-button')
+        );
+        expect(diagnoseSearchStage).to.have.been.calledOnceWith({
+          stageOperator: '$search',
+          indexName: 'movies',
+          stageValue: '{ "index": "movies" }',
+        });
       });
+      expect(onCloseFocusMode).to.have.been.calledOnce;
     });
   });
 

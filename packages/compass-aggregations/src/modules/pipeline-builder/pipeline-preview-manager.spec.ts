@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { Document } from 'mongodb';
 import { mockDataService } from '../../../test/mocks/data-service';
 import {
   createPreviewAggregation,
@@ -19,9 +20,15 @@ describe('PipelinePreviewManager', function () {
     const dataService = mockDataService({ data: [{ foo: 'bar' }] });
     const previewManager = new PipelinePreviewManager(dataService, preferences);
     expect(
-      await previewManager.getPreviewForStage(0, 'test.test', [], {
-        debounceMs: 10,
-      })
+      await previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 10,
+          })
+      )
     ).to.deep.eq([{ foo: 'bar' }]);
   });
 
@@ -30,7 +37,12 @@ describe('PipelinePreviewManager', function () {
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     try {
-      const result = previewManager.getPreviewForStage(0, 'test.test', []);
+      const result = previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      );
       previewManager.cancelPreviewForStage(0);
       await result;
       expect.fail('Expected promise to reject');
@@ -44,23 +56,41 @@ describe('PipelinePreviewManager', function () {
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     previewManager
-      .getPreviewForStage(0, 'test.test', [], {
-        debounceMs: 10,
-      })
+      .getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 10,
+          })
+      )
       .catch(() => {
         /* ignore error */
       });
     previewManager
-      .getPreviewForStage(0, 'test.test', [], {
-        debounceMs: 10,
-      })
+      .getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 10,
+          })
+      )
       .catch(() => {
         /* ignore error */
       });
 
-    await previewManager.getPreviewForStage(0, 'test.test', [], {
-      debounceMs: 10,
-    });
+    await previewManager.getPreviewForStage(
+      0,
+      'test.test',
+      () => Promise.resolve([]),
+      () =>
+        Promise.resolve({
+          debounceMs: 10,
+        })
+    );
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(dataService.aggregate).to.have.been.calledOnce;
@@ -71,15 +101,33 @@ describe('PipelinePreviewManager', function () {
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     await Promise.allSettled([
-      previewManager.getPreviewForStage(0, 'test.test', [], {
-        debounceMs: 0,
-      }),
-      previewManager.getPreviewForStage(1, 'test.test', [], {
-        debounceMs: 0,
-      }),
-      previewManager.getPreviewForStage(2, 'test.test', [], {
-        debounceMs: 0,
-      }),
+      previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 0,
+          })
+      ),
+      previewManager.getPreviewForStage(
+        1,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 0,
+          })
+      ),
+      previewManager.getPreviewForStage(
+        2,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 0,
+          })
+      ),
     ]);
 
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -90,9 +138,16 @@ describe('PipelinePreviewManager', function () {
     const dataService = mockDataService({ data: [] });
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
-    previewManager.getPreviewForStage(0, 'test.test', []).catch(() => {
-      /* ignore error */
-    });
+    previewManager
+      .getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      )
+      .catch(() => {
+        /* ignore error */
+      });
 
     expect(previewManager.cancelPreviewForStage(0)).to.eq(true);
   });
@@ -102,19 +157,158 @@ describe('PipelinePreviewManager', function () {
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
     await Promise.allSettled([
-      previewManager.getPreviewForStage(0, 'test.test', [], {
-        debounceMs: 10,
-      }),
-      previewManager.getPreviewForStage(1, 'test.test', []),
-      previewManager.getPreviewForStage(2, 'test.test', []),
-      previewManager.getPreviewForStage(3, 'test.test', []),
-      previewManager.getPreviewForStage(4, 'test.test', []),
+      previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () =>
+          Promise.resolve({
+            debounceMs: 10,
+          })
+      ),
+      previewManager.getPreviewForStage(
+        1,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      ),
+      previewManager.getPreviewForStage(
+        2,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      ),
+      previewManager.getPreviewForStage(
+        3,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      ),
+      previewManager.getPreviewForStage(
+        4,
+        'test.test',
+        () => Promise.resolve([]),
+        () => Promise.resolve({})
+      ),
       Promise.resolve(previewManager.clearQueue(1)),
     ]);
 
     // Only pipeline for stage 0 was executed
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(dataService.aggregate).to.have.been.calledOnce;
+  });
+
+  describe('when the pipeline is still being parsed', function () {
+    function createPendingPipeline() {
+      let resolve!: (pipeline: Document[]) => void;
+      const promise = new Promise<Document[]>((r) => (resolve = r));
+      return { promise, resolve };
+    }
+
+    it('should not run a preview cancelled before parsing finished', async function () {
+      const dataService = mockDataService({ data: [] });
+      const previewManager = new PipelinePreviewManager(
+        dataService,
+        preferences
+      );
+      const pending = createPendingPipeline();
+
+      const result = previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => pending.promise,
+        () => Promise.resolve({ debounceMs: 0 })
+      );
+      expect(previewManager.cancelPreviewForStage(0)).to.eq(true);
+      pending.resolve([]);
+
+      const [settled] = await Promise.allSettled([result]);
+      expect(settled).to.have.nested.property('reason.name', 'AbortError');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(dataService.aggregate).not.to.have.been.called;
+    });
+
+    it('should not run previews stopped before parsing finished', async function () {
+      const dataService = mockDataService({ data: [] });
+      const previewManager = new PipelinePreviewManager(
+        dataService,
+        preferences
+      );
+      const pending = createPendingPipeline();
+
+      const result = previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => pending.promise,
+        () => Promise.resolve({ debounceMs: 0 })
+      );
+      previewManager.clearQueue();
+      pending.resolve([]);
+
+      await Promise.allSettled([result]);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(dataService.aggregate).not.to.have.been.called;
+    });
+
+    it('should not run a preview cancelled while options were resolving', async function () {
+      const dataService = mockDataService({ data: [] });
+      const previewManager = new PipelinePreviewManager(
+        dataService,
+        preferences
+      );
+      let resolveOptions!: (options: { debounceMs: number }) => void;
+      const options = new Promise<{ debounceMs: number }>(
+        (r) => (resolveOptions = r)
+      );
+
+      const result = previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve([]),
+        () => options
+      );
+      expect(previewManager.cancelPreviewForStage(0)).to.eq(true);
+      resolveOptions({ debounceMs: 0 });
+
+      const [settled] = await Promise.allSettled([result]);
+      expect(settled).to.have.nested.property('reason.name', 'AbortError');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(dataService.aggregate).not.to.have.been.called;
+    });
+
+    it('should not let an older request that parsed last replace a newer one', async function () {
+      const dataService = mockDataService({ data: [] });
+      const previewManager = new PipelinePreviewManager(
+        dataService,
+        preferences
+      );
+      const olderPipeline = createPendingPipeline();
+      const newerPipeline = [{ $match: { newer: true } }];
+
+      const older = previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => olderPipeline.promise,
+        () => Promise.resolve({ debounceMs: 0 })
+      );
+      const newer = previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        () => Promise.resolve(newerPipeline),
+        () => Promise.resolve({ debounceMs: 0 })
+      );
+      olderPipeline.resolve([{ $match: { older: true } }]);
+
+      const [olderResult, newerResult] = await Promise.allSettled([
+        older,
+        newer,
+      ]);
+      expect(olderResult).to.have.nested.property('reason.name', 'AbortError');
+      expect(newerResult).to.have.property('status', 'fulfilled');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(dataService.aggregate).to.have.been.calledOnce;
+      expect(previewManager.isLastPipelineEqual(0, newerPipeline)).to.eq(true);
+    });
   });
 
   describe('createPreviewAggregation', function () {

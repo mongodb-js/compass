@@ -12,6 +12,9 @@ import reducer, {
   changeViewType,
 } from './aggregation';
 import type { State as AggregateState } from './aggregation';
+import type { Document } from 'mongodb';
+import { countDocuments } from './count-documents';
+import { editPipeline } from './workspace';
 import type { RootState } from '.';
 import rootReducer from '../modules';
 import configureStore from '../../test/configure-store';
@@ -271,6 +274,34 @@ describe('aggregation module', function () {
       expect(aggregateSpy.callCount).to.equal(0);
     });
   });
+  describe('countDocuments', function () {
+    it('does not run or record the count if the user returns to the builder while parsing', async function () {
+      const aggregateSpy = spy((_ns: string, _pipeline: Document[]) =>
+        Promise.resolve([{ count: 5 }])
+      );
+      const store: AggregationsStore = (
+        await configureStore(
+          { pipeline: [] },
+          { aggregate: aggregateSpy, isCancelError: (() => true) as any }
+        )
+      ).plugin.store;
+
+      const countPromise = store.dispatch(countDocuments());
+      store.dispatch(editPipeline());
+      await countPromise;
+
+      const countCalls = aggregateSpy
+        .getCalls()
+        .filter(({ args: [, pipeline] }) =>
+          pipeline.some((stage) => '$count' in stage)
+        );
+      expect(countCalls).to.be.empty;
+      expect(store.getState().countDocuments).to.deep.equal({
+        loading: false,
+      });
+    });
+  });
+
   it('should switch results view type', function () {
     const store = getMockedStore(
       {

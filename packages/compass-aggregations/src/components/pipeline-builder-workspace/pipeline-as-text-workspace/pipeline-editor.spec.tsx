@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import { screen, within, cleanup } from '@mongodb-js/testing-library-compass';
 import { MongoServerError } from 'mongodb';
 import { expect } from 'chai';
+import type { SearchIndex } from 'mongodb-data-service';
 import sinon from 'sinon';
 
 import {
@@ -33,9 +34,8 @@ const renderPipelineEditor = (
       syntaxErrors={[]}
       serverError={null}
       serverVersion="4.2"
-      searchIndexName={null}
-      searchStageOperator={null}
-      showSearchIndexDoesNotExistBanner={false}
+      searchIndexesStatus="READY"
+      searchIndexes={[]}
       onChangePipelineText={() => {}}
       onViewSearchIndexesClick={() => {}}
       onCreateSearchIndexClick={() => {}}
@@ -88,16 +88,14 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "nonexistent" } }]',
-            searchIndexName: 'nonexistent',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: true,
+            searchIndexes: [],
           },
           {},
           { enableSearchActivationExperiment: true }
         );
 
-        expect(screen.getByTestId('search-index-does-not-exist-banner')).to
-          .exist;
+        expect(await screen.findByTestId('search-index-does-not-exist-banner'))
+          .to.exist;
         expect(screen.getByText('View Search Indexes')).to.exist;
         expect(screen.getByText('Create a New Index')).to.exist;
       });
@@ -106,16 +104,14 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $vectorSearch: { index: "nonexistent" } }]',
-            searchIndexName: 'nonexistent',
-            searchStageOperator: '$vectorSearch',
-            showSearchIndexDoesNotExistBanner: true,
+            searchIndexes: [],
           },
           {},
           { enableSearchActivationExperiment: true }
         );
 
-        expect(screen.getByTestId('search-index-does-not-exist-banner')).to
-          .exist;
+        expect(await screen.findByTestId('search-index-does-not-exist-banner'))
+          .to.exist;
         expect(screen.getByText('View Search Indexes')).to.exist;
         expect(screen.getByText('Create a New Index')).to.exist;
       });
@@ -123,9 +119,7 @@ describe('PipelineEditor', function () {
       it('should NOT show search index does not exist banner when index exists', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $search: { index: "existing-index" } }]',
-          searchIndexName: 'existing-index',
-          searchStageOperator: '$search',
-          showSearchIndexDoesNotExistBanner: false,
+          searchIndexes: [{ name: 'existing-index' } as SearchIndex],
         });
 
         expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
@@ -135,9 +129,7 @@ describe('PipelineEditor', function () {
       it('should NOT show search index does not exist banner for non-search stages', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $match: { _id: 1 } }]',
-          searchIndexName: null,
-          searchStageOperator: null,
-          showSearchIndexDoesNotExistBanner: false,
+          searchIndexes: [],
         });
 
         expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
@@ -148,9 +140,7 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "nonexistent" } }]',
-            searchIndexName: 'nonexistent',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: true,
+            searchIndexes: [],
             serverError: new MongoServerError({ message: 'Server error' }),
           },
           {},
@@ -166,9 +156,7 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "nonexistent" } }]',
-            searchIndexName: 'nonexistent',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: true,
+            searchIndexes: [],
             syntaxErrors: [new PipelineParserError('Syntax error')],
           },
           {},
@@ -187,9 +175,7 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "test-index" } }]',
-            searchIndexName: 'test-index',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: false,
+            searchIndexes: [{ name: 'test-index' } as SearchIndex],
             serverError: new MongoServerError({
               message:
                 "geoWithin requires path 'location' to be indexed as 'geo'",
@@ -200,15 +186,13 @@ describe('PipelineEditor', function () {
         );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
-        expect(screen.getByText('Edit Search Index')).to.exist;
+        expect(await screen.findByText('Edit Search Index')).to.exist;
       });
 
       it('should NOT show edit link for non-definition server errors', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $search: { index: "test-index" } }]',
-          searchIndexName: 'test-index',
-          searchStageOperator: '$search',
-          showSearchIndexDoesNotExistBanner: false,
+          searchIndexes: [{ name: 'test-index' } as SearchIndex],
           serverError: new MongoServerError({
             message: 'Connection timeout',
           }),
@@ -221,9 +205,7 @@ describe('PipelineEditor', function () {
       it('should NOT show edit link when no search index name found', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $match: { _id: 1 } }]',
-          searchIndexName: null,
-          searchStageOperator: null,
-          showSearchIndexDoesNotExistBanner: false,
+          searchIndexes: [],
           serverError: new MongoServerError({
             message:
               "geoWithin requires path 'location' to be indexed as 'geo'",
@@ -239,9 +221,7 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "test-index" } }]',
-            searchIndexName: 'test-index',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: false,
+            searchIndexes: [{ name: 'test-index' } as SearchIndex],
             serverError: new MongoServerError({
               message:
                 "geoWithin requires path 'location' to be indexed as 'geo'",
@@ -252,7 +232,7 @@ describe('PipelineEditor', function () {
           { enableSearchActivationExperiment: true }
         );
 
-        const editLink = screen.getByText('Edit Search Index');
+        const editLink = await screen.findByText('Edit Search Index');
         editLink.click();
 
         expect(onEditSearchIndexClick.calledOnce).to.be.true;

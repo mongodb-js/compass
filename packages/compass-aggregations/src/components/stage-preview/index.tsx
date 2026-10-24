@@ -20,8 +20,12 @@ import {
   isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
-  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
+import {
+  isSearchIndexStale,
+  useSearchIndexNameFromStage,
+} from '../../utils/use-search-index-name';
+import type { SearchIndex } from 'mongodb-data-service';
 
 import LoadingOverlay from '../loading-overlay';
 import { AtlasStagePreview } from './atlas-stage-preview';
@@ -155,8 +159,7 @@ type StagePreviewProps = {
   documents: DocumentType[] | null;
   stageMetadata: StagePreviewMetadata | null;
   shouldRenderStage: boolean;
-  showSearchIndexStaleResultsBanner: boolean;
-  searchIndexName: string | null;
+  searchIndexes: SearchIndex[];
   serverErrorStageIdx: number | null;
   pipeline: string | null;
 };
@@ -170,11 +173,18 @@ function StagePreviewBody({
   isMissingAtlasOnlyStageSupport,
   shouldRenderStage,
   isLoading,
-  showSearchIndexStaleResultsBanner,
-  searchIndexName,
+  searchIndexes,
   serverErrorStageIdx,
   pipeline,
 }: StagePreviewProps) {
+  const searchIndexName = useSearchIndexNameFromStage(
+    stageOperator,
+    stageValue
+  );
+  const showSearchIndexStaleResultsBanner = isSearchIndexStale(
+    searchIndexName,
+    searchIndexes
+  );
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
     trackIsInSample: false,
@@ -373,16 +383,6 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     !stage.disabled && !stage.syntaxError && !stage.syntaxError && stage.value
   );
 
-  const searchIndexName = getSearchIndexNameFromSearchStage(
-    stage.stageOperator,
-    stage.value
-  );
-  const showSearchIndexStaleResultsBanner =
-    !!searchIndexName &&
-    state.searchIndexes.indexes.some(
-      (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
-    );
-
   const pipeline = getPipelineStringForStage(
     state.pipelineBuilder.stageEditor.stages,
     ownProps.index
@@ -397,8 +397,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     documents: stage.previewDocs,
     stageMetadata: stage.stageMetadata,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
-    showSearchIndexStaleResultsBanner,
-    searchIndexName,
+    searchIndexes: state.searchIndexes.indexes,
     serverErrorStageIdx: getIndexOfFirstStageWithServerError(
       state.pipelineBuilder.stageEditor.stages,
       ownProps.index

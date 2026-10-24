@@ -40,13 +40,15 @@ export const gotoOutResults = (
 
 export const viewOutResults = (
   index: number
-): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     if (getState().focusMode.isEnabled) {
       dispatch(disableFocusMode());
     }
     const state = getState();
-    const stage = getStagesFromBuilderState(state, pipelineBuilder)[index];
+    const stage = (await getStagesFromBuilderState(state, pipelineBuilder))[
+      index
+    ];
     const namespace = getDestinationNamespaceFromStage(state.namespace, stage);
     if (namespace) {
       dispatch(gotoOutResults(namespace));

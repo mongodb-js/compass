@@ -2,18 +2,20 @@ import type { AnyAction } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import { isAction } from '../utils/is-action';
+import { getCollationForExecution } from './collation-string';
 
 export type ExplainMode = 'visual-tree' | 'raw-output' | 'interpret';
 
 export const explainAggregation = (
   mode: ExplainMode
-): PipelineBuilderThunkAction<void> => {
-  return (_dispatch, getState, { pipelineBuilder, localAppRegistry }) => {
-    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
-    const {
-      collationString: { value: collation },
-      maxTimeMS,
-    } = getState();
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (_dispatch, getState, { pipelineBuilder, localAppRegistry }) => {
+    const pipeline = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
+    const { collationString, maxTimeMS } = getState();
+    const collation = await getCollationForExecution(collationString);
     const payload = { aggregation: { pipeline, collation, maxTimeMS } };
 
     if (mode === 'interpret') {
@@ -28,14 +30,17 @@ export const explainAggregation = (
   };
 };
 
-export const explainAggregationVisualTree =
-  (): PipelineBuilderThunkAction<void> => explainAggregation('visual-tree');
+export const explainAggregationVisualTree = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => explainAggregation('visual-tree');
 
-export const explainAggregationRawOutput =
-  (): PipelineBuilderThunkAction<void> => explainAggregation('raw-output');
+export const explainAggregationRawOutput = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => explainAggregation('raw-output');
 
-export const explainAggregationInterpret =
-  (): PipelineBuilderThunkAction<void> => explainAggregation('interpret');
+export const explainAggregationInterpret = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => explainAggregation('interpret');
 
 const ExplainInterpretActionTypes = {
   Started: 'compass-aggregations/InterpretStarted',

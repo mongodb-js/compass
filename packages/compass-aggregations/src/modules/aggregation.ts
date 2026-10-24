@@ -19,6 +19,7 @@ import {
 } from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
 import { isAction } from '../utils/is-action';
+import { getCollationForExecution } from './collation-string';
 import {
   showConfirmation,
   ConfirmationModalVariant,
@@ -321,7 +322,10 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
       preferences,
     }
   ) => {
-    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    const pipeline = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
 
     if (
       !(await confirmWriteOperationIfNeeded({
@@ -438,7 +442,7 @@ const fetchAggregationData = (
       maxTimeMS,
       dataService: { dataService },
       aggregation: { limit, abortController: _abortController, pipeline },
-      collationString: { value: collation },
+      collationString,
     } = getState();
 
     if (!dataService) {
@@ -457,6 +461,7 @@ const fetchAggregationData = (
         abortController,
       });
 
+      const collation = await getCollationForExecution(collationString);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collation ?? undefined,
@@ -535,39 +540,43 @@ const fetchAggregationData = (
   };
 };
 
-export const exportAggregationResults =
-  (): PipelineBuilderThunkAction<void> => {
-    return (
-      _dispatch,
-      getState,
-      { pipelineBuilder, connectionScopedAppRegistry }
-    ) => {
-      const {
-        namespace,
-        maxTimeMS,
-        countDocuments: { count },
-        collationString: { value: collation },
-      } = getState();
+export const exportAggregationResults = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => {
+  return async (
+    _dispatch,
+    getState,
+    { pipelineBuilder, connectionScopedAppRegistry }
+  ) => {
+    const {
+      namespace,
+      maxTimeMS,
+      countDocuments: { count },
+      collationString,
+    } = getState();
 
-      const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    const [pipeline, collation] = await Promise.all([
+      getPipelineFromBuilderState(getState(), pipelineBuilder),
+      getCollationForExecution(collationString),
+    ]);
 
-      const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        allowDiskUse: true,
-        collation: collation ?? undefined,
-      };
-
-      connectionScopedAppRegistry.emit('open-export', {
-        namespace,
-        aggregation: {
-          stages: pipeline,
-          options,
-        },
-        origin: 'aggregations-toolbar',
-        count,
-      });
+    const options: AggregateOptions = {
+      maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+      allowDiskUse: true,
+      collation: collation ?? undefined,
     };
+
+    connectionScopedAppRegistry.emit('open-export', {
+      namespace,
+      aggregation: {
+        stages: pipeline,
+        options,
+      },
+      origin: 'aggregations-toolbar',
+      count,
+    });
   };
+};
 
 export const changeViewType = (newViewType: 'document' | 'json') => {
   return {

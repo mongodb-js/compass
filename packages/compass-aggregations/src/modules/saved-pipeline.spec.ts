@@ -1,9 +1,12 @@
 import reducer, {
   savedPipelineAdd,
+  saveCurrentPipeline,
   SAVED_PIPELINE_ADD,
 } from './saved-pipeline';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import configureStore from '../../test/configure-store';
 
 describe('saved pipelines module', function () {
   describe('#addSavedPipelines', function () {
@@ -18,6 +21,22 @@ describe('saved pipelines module', function () {
         },
         type: SAVED_PIPELINE_ADD,
       });
+    });
+  });
+
+  describe('#saveCurrentPipeline', function () {
+    it('tracks the save when the pipeline has syntax errors', async function () {
+      const result = await configureStore({
+        pipelineText: `[{$match: {_id: ObjectId('invalid')}}]`,
+      });
+      result.track.resetHistory();
+
+      await result.plugin.store.dispatch(saveCurrentPipeline());
+
+      expect(result.track).to.have.been.calledWithMatch(
+        'Aggregation Saved',
+        Sinon.match({ id: Sinon.match.string, num_stages: undefined })
+      );
     });
   });
 

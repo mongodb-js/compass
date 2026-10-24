@@ -46,8 +46,8 @@ describe('builder-helpers', function () {
       });
     });
     describe('in text editor mode', function () {
-      it('should return filtered stage names', function () {
-        store.dispatch(changePipelineMode('as-text'));
+      it('should return filtered stage names', async function () {
+        await store.dispatch(changePipelineMode('as-text'));
         store.dispatch(addStage());
         expect(
           getPipelineStageOperatorsFromBuilderState(store.getState())
@@ -84,33 +84,33 @@ describe('builder-helpers', function () {
     describe('text mode (no index)', function () {
       it('returns true when $rerank is the first stage in the parsed pipeline', async function () {
         const store = await createStore('[{ $rerank: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsRerankFirstStage(store.getState())).to.equal(true);
       });
 
       it('returns false when any stage precedes $rerank in the parsed pipeline', async function () {
         const store = await createStore('[{ $match: {} }, { $rerank: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
 
       it('returns false when parsed pipeline has no $rerank', async function () {
         const store = await createStore('[{ $match: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
 
       it('returns true when text has syntax errors and $rerank is the first operator', async function () {
         const store = await createStore('[]');
-        store.dispatch(changePipelineMode('as-text'));
-        store.dispatch(changeEditorValue('[{ $rerank: '));
+        await store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changeEditorValue('[{ $rerank: '));
         expect(getIsRerankFirstStage(store.getState())).to.equal(true);
       });
 
       it('returns false when text has syntax errors and any stage precedes $rerank', async function () {
         const store = await createStore('[]');
-        store.dispatch(changePipelineMode('as-text'));
-        store.dispatch(changeEditorValue('[{ $match: {} }, { $rerank: '));
+        await store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changeEditorValue('[{ $match: {} }, { $rerank: '));
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
     });
@@ -149,7 +149,7 @@ describe('builder-helpers', function () {
     describe('text mode', function () {
       it('returns false when $rerank is first but previewDocs is null', async function () {
         const store = await createStore('[{ $rerank: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsRerankFirstStageBannerVisible(store.getState())).to.equal(
           false
         );
@@ -157,7 +157,7 @@ describe('builder-helpers', function () {
 
       it('returns true when $rerank is first and previewDocs has results', async function () {
         const store = await createStore('[{ $rerank: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         store.dispatch({
           type: EditorActionTypes.EditorPreviewFetchSuccess,
           previewDocs: [new HadronDocument({ _id: 1 })],
@@ -201,7 +201,7 @@ describe('builder-helpers', function () {
     describe('in text editor mode', function () {
       it('returns true for an empty pipeline text', async function () {
         const store = await createStore('[]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
           true
         );
@@ -209,8 +209,8 @@ describe('builder-helpers', function () {
 
       it('returns false once the editor value changes', async function () {
         const store = await createStore('[]');
-        store.dispatch(changePipelineMode('as-text'));
-        store.dispatch(changeEditorValue('[{ $match: { _id: 1 } }]'));
+        await store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changeEditorValue('[{ $match: { _id: 1 } }]'));
         expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
           false
         );

@@ -3,12 +3,12 @@ import HadronDocument from 'hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
-import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
 import { isAction } from '../../utils/is-action';
+import { getCollationForExecution } from '../collation-string';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
@@ -236,7 +236,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
       },
     } = getState();
 
-    if (pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
+    if (await pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
       return;
     }
 
@@ -256,20 +256,22 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
         type: EditorActionTypes.EditorPreviewFetch,
       });
 
-      const options: PreviewOptions = {
-        maxTimeMS: capMaxTimeMSAtPreferenceLimit(
-          preferences,
-          maxTimeMS ?? DEFAULT_MAX_TIME_MS
-        ),
-        collation: collationString.value ?? undefined,
-        sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
-        previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: collectionStats?.document_count,
+      const getPreviewOptions = async () => {
+        const collation = await getCollationForExecution(collationString);
+        return {
+          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            preferences,
+            maxTimeMS ?? DEFAULT_MAX_TIME_MS
+          ),
+          collation: collation ?? undefined,
+          sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
+          previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
+          totalDocumentCount: collectionStats?.document_count,
+        };
       };
-
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
         namespace,
-        options,
+        getPreviewOptions,
         true // Filter output stage
       );
 
@@ -291,8 +293,8 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
 
 export const changeEditorValue = (
   newValue: string
-): PipelineBuilderThunkAction<void, EditorValueChangeAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+): PipelineBuilderThunkAction<Promise<void>, EditorValueChangeAction> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipelineBuilder: {
         textEditor: {
@@ -305,7 +307,23 @@ export const changeEditorValue = (
       return;
     }
 
-    pipelineBuilder.changeSource(newValue);
+    const parsed = pipelineBuilder.changeSource(newValue);
+
+    // Text and syntax errors are known right away so the editor never lags
+    // behind typing; a null pipeline keeps the previous one until parsed.
+    dispatch({
+      type: EditorActionTypes.EditorValueChange,
+      pipelineText: newValue,
+      pipeline: null,
+      syntaxErrors: pipelineBuilder.syntaxError,
+    });
+
+    await parsed;
+
+    // A newer edit already took over
+    if (pipelineBuilder.source !== newValue) {
+      return;
+    }
 
     dispatch({
       type: EditorActionTypes.EditorValueChange,
