@@ -12,12 +12,16 @@ import {
   type CollectionsState,
   deleteCollection,
   createNewCollection,
+  exportCollections,
 } from '../modules/collections';
 import type Collection from '@mongodb-js/mongodb-collection-model';
 import toNS from 'mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import {
+  usePreference,
+  usePreferences,
+} from '@mongodb-js/compass-preferences-model/provider';
 import {
   useTrackOnChange,
   type TrackFunction,
@@ -38,6 +42,7 @@ type CollectionsListProps = {
   isEditable: boolean;
   onDeleteCollectionClick(connectionId: string, ns: string): void;
   onCreateCollectionClick(connectionId: string, dbName: string): void;
+  onExportCollectionsClick: (connectionId: string, dbName: string) => void;
   onRefreshClick(): void;
 };
 
@@ -50,9 +55,15 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   isEditable: isInstanceWritable,
   onDeleteCollectionClick: _onDeleteCollectionClick,
   onCreateCollectionClick: _onCreateCollectionClick,
+  onExportCollectionsClick: _onExportCollectionsClick,
   onRefreshClick,
 }) => {
   const isCompassInWritableMode = !usePreference('readOnly');
+  const { enableImportExport, enableExportMultipleCollections } =
+    usePreferences(['enableImportExport', 'enableExportMultipleCollections']);
+  // Exporting only reads data, so it doesn't depend on `isEditable`.
+  const isExportCollectionsEnabled =
+    enableImportExport && enableExportMultipleCollections;
   const isEditable = useMemo(() => {
     return isCompassInWritableMode && isInstanceWritable;
   }, [isCompassInWritableMode, isInstanceWritable]);
@@ -78,6 +89,10 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
     _onCreateCollectionClick(connectionId, toNS(namespace).database);
   }, [connectionId, namespace, _onCreateCollectionClick]);
 
+  const onExportCollectionsClick = useCallback(() => {
+    _onExportCollectionsClick(connectionId, toNS(namespace).database);
+  }, [connectionId, namespace, _onExportCollectionsClick]);
+
   const onDeleteCollectionClick = useCallback(
     (ns: string) => {
       _onDeleteCollectionClick(connectionId, ns);
@@ -99,6 +114,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
 
   const actions = Object.assign(
     { onCollectionClick, onRefreshClick },
+    isExportCollectionsEnabled ? { onExportCollectionsClick } : {},
     isEditable
       ? {
           onCreateCollectionClick,
@@ -133,6 +149,7 @@ const ConnectedCollections = connect(
     onRefreshClick: refreshCollections,
     onDeleteCollectionClick: deleteCollection,
     onCreateCollectionClick: createNewCollection,
+    onExportCollectionsClick: exportCollections,
   }
 )(Collections);
 

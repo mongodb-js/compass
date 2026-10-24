@@ -1476,6 +1476,79 @@ type ExportCompletedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the modal to export several collections of a
+ * database is opened.
+ *
+ * @category Import/Export
+ */
+type ExportCollectionsOpenedEvent = ConnectionScopedEvent<{
+  name: 'Export Collections Opened';
+  payload: {
+    /**
+     * The trigger location for the export.
+     */
+    origin: 'sidebar' | 'collections-list';
+  };
+}>;
+
+/**
+ * This event is fired when an export of several collections of a database
+ * completes.
+ *
+ * @category Import/Export
+ */
+type ExportCollectionsCompletedEvent = ConnectionScopedEvent<{
+  name: 'Export Collections Completed';
+  payload: {
+    /**
+     * The file type of the exported data, either CSV or JSON.
+     */
+    file_type: 'csv' | 'json';
+
+    /**
+     * Specifies the format of the JSON files if the file_type is 'json'.
+     */
+    json_format?: 'default' | 'relaxed' | 'canonical';
+
+    /**
+     * Indicates whether a metadata file with indexes and collection options
+     * was written for each collection.
+     */
+    include_metadata: boolean;
+
+    /**
+     * The number of collections selected for export.
+     */
+    collection_count: number;
+
+    /**
+     * The number of collections that failed to export.
+     */
+    failed_count: number;
+
+    /**
+     * The total number of documents exported across all collections.
+     */
+    number_of_docs: number;
+
+    /**
+     * Indicates whether every selected collection was exported.
+     */
+    success: boolean;
+
+    /**
+     * Indicates whether the export was stopped before completion.
+     */
+    stopped: boolean;
+
+    /**
+     * The duration of the export operation in milliseconds.
+     */
+    duration: number;
+  };
+}>;
+
+/**
  * This event is fired when a data import completes.
  *
  * @category Import/Export
@@ -4434,6 +4507,8 @@ export type TelemetryEvent =
   | EditorTypeChangedEvent
   | ErrorFetchingAttributesEvent
   | ExplainPlanExecutedEvent
+  | ExportCollectionsCompletedEvent
+  | ExportCollectionsOpenedEvent
   | ExportCompletedEvent
   | ExportOpenedEvent
   | ExtendedJSONConversionAttemptedEvent

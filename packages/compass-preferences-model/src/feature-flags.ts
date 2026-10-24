@@ -198,6 +198,19 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable connection folders in the sidebar',
     },
   },
+
+  /*
+   * Feature flag for exporting several collections of a database at once.
+   */
+  {
+    name: 'enableExportMultipleCollections',
+    stage: 'development',
+    // Desktop-only: import/export is disabled in Compass Web.
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Export multiple collections of a database at once',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
