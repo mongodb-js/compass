@@ -1071,6 +1071,34 @@ describe('DataService', function () {
       });
     });
 
+    describe('#collectionOptions', function () {
+      afterEach(async function () {
+        await mongoClient
+          .db(testDatabaseName)
+          .dropCollection('capped')
+          .catch(() => undefined);
+      });
+
+      it('returns the options the collection was created with', async function () {
+        await dataService.createCollection(`${testDatabaseName}.capped`, {
+          capped: true,
+          size: 4096,
+          max: 10,
+        });
+        const options = await dataService.collectionOptions(
+          testDatabaseName,
+          'capped'
+        );
+        expect(options).to.include({ capped: true, size: 4096, max: 10 });
+      });
+
+      it('returns an empty object for a collection that does not exist', async function () {
+        expect(
+          await dataService.collectionOptions(testDatabaseName, 'missing')
+        ).to.deep.equal({});
+      });
+    });
+
     describe('#createIndex', function () {
       context('when options are provided', function () {
         it('creates a new index with the provided options', async function () {

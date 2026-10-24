@@ -29,7 +29,10 @@ type ExportCollectionsOptions = {
   databaseName: string;
   collectionNames: string[];
   directoryPath: string;
-  dataService: Pick<DataService, 'findCursor' | 'collectionInfo' | 'indexes'>;
+  dataService: Pick<
+    DataService,
+    'findCursor' | 'collectionOptions' | 'indexes'
+  >;
   fileType: 'json' | 'csv';
   // Only used for JSON.
   variant: ExportJSONFormat;
@@ -120,6 +123,12 @@ export function assignFileNames(
   return fileNames;
 }
 
+const OPTIONS_NOT_RECREATED = new Set([
+  'viewOn',
+  'pipeline',
+  'encryptedFields',
+]);
+
 /**
  * Builds the contents of `<collection>.metadata.json`: the collection options
  * and the index specifications needed to recreate the collection. The shape
@@ -133,34 +142,37 @@ export async function getCollectionMetadata({
 }: {
   databaseName: string;
   collectionName: string;
-  dataService: Pick<DataService, 'collectionInfo' | 'indexes'>;
+  dataService: Pick<DataService, 'collectionOptions' | 'indexes'>;
 }): Promise<Document> {
   const ns = `${databaseName}.${collectionName}`;
-  const [info, indexes] = await Promise.all([
-    dataService.collectionInfo(databaseName, collectionName),
+  const [allOptions, indexes] = await Promise.all([
+    dataService.collectionOptions(databaseName, collectionName),
     dataService.indexes(ns),
   ]);
 
-  const options: Document = {};
-  if (info?.validation) {
-    options.validator = info.validation.validator;
-    options.validationLevel = info.validation.validationLevel;
-    options.validationAction = info.validation.validationAction;
-  }
-  if (info?.collation) {
-    options.collation = info.collation;
-  }
+  // Everything createCollection accepts (capped, timeseries, validator,
+  // collation, clusteredIndex, expireAfterSeconds, ...) except what can't be
+  // recreated from the exported documents: views aren't exported, and
+  // encrypted collections need their keys.
+  const options = Object.fromEntries(
+    Object.entries(allOptions).filter(
+      ([key]) => !OPTIONS_NOT_RECREATED.has(key)
+    )
+  );
 
   return {
     collectionName,
     type: 'collection',
     options,
-    indexes: indexes.map(({ name, key, version, extra }) => ({
-      v: version,
-      key,
-      name,
-      ...extra,
-    })),
+    indexes: indexes
+      // A clustered index is created through the `clusteredIndex` option.
+      .filter(({ extra }) => !extra.clustered)
+      .map(({ name, key, version, extra }) => ({
+        v: version,
+        key,
+        name,
+        ...extra,
+      })),
   };
 }
 

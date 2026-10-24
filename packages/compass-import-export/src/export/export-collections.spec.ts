@@ -158,7 +158,7 @@ describe('exportCollectionsToDirectory', function () {
     const failingDataService: Parameters<
       typeof exportCollectionsToDirectory
     >[0]['dataService'] = {
-      collectionInfo: dataService.collectionInfo.bind(dataService),
+      collectionOptions: dataService.collectionOptions.bind(dataService),
       indexes: dataService.indexes.bind(dataService),
       findCursor: (ns, filter, options) => {
         if (ns.endsWith('.customers')) {
@@ -207,6 +207,39 @@ describe('exportCollectionsToDirectory', function () {
       'customers',
     ]);
     expect(result.collections[0].aborted).to.equal(true);
+  });
+
+  it('keeps capped and time series options in the metadata', async function () {
+    await dataService.createCollection(`${testDB}.logs`, {
+      capped: true,
+      size: 4096,
+      max: 100,
+    });
+    await dataService.createCollection(`${testDB}.metrics`, {
+      timeseries: {
+        timeField: 'at',
+        metaField: 'sensor',
+        granularity: 'hours',
+      },
+    });
+
+    const logs = await getCollectionMetadata({
+      databaseName: testDB,
+      collectionName: 'logs',
+      dataService,
+    });
+    expect(logs.options).to.include({ capped: true, size: 4096, max: 100 });
+
+    const metrics = await getCollectionMetadata({
+      databaseName: testDB,
+      collectionName: 'metrics',
+      dataService,
+    });
+    expect(metrics.options.timeseries).to.include({
+      timeField: 'at',
+      metaField: 'sensor',
+      granularity: 'hours',
+    });
   });
 
   it('builds metadata through the data service', async function () {
