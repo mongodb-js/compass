@@ -444,16 +444,16 @@ describe('csfle-handler', function () {
     };
 
     describe('#textToEncryptedFieldConfig', function () {
-      it('converts a shell BSON text to its BSON JS object representation', function () {
+      it('converts a shell BSON text to its BSON JS object representation', async function () {
         // Single direction
-        expect(textToEncryptedFieldConfig(exampleString)).to.deep.equal({
+        expect(await textToEncryptedFieldConfig(exampleString)).to.deep.equal({
           ...exampleObject,
           '$compass.error': null,
           '$compass.rawText': exampleString,
         });
 
         // Round trip
-        const obj = textToEncryptedFieldConfig(
+        const obj = await textToEncryptedFieldConfig(
           encryptedFieldConfigToText(exampleObject)
         );
         if (!obj) {
@@ -466,28 +466,28 @@ describe('csfle-handler', function () {
         });
       });
 
-      it('records the error for invalid shell BSON text', function () {
-        expect(textToEncryptedFieldConfig('{')).to.deep.equal({
+      it('records the error for invalid shell BSON text', async function () {
+        expect(await textToEncryptedFieldConfig('{')).to.deep.equal({
           '$compass.error': 'Unexpected token (3:0) in (\n{\n)',
           '$compass.rawText': '{',
         });
       });
 
-      it('records the error for parseable but invalid shell BSON text', function () {
-        expect(textToEncryptedFieldConfig('asdf')).to.deep.equal({
+      it('records the error for parseable but invalid shell BSON text', async function () {
+        expect(await textToEncryptedFieldConfig('asdf')).to.deep.equal({
           '$compass.error': 'Field contained invalid input',
           '$compass.rawText': 'asdf',
         });
       });
 
-      it('converts an empty string to undefined', function () {
-        expect(textToEncryptedFieldConfig('')).to.equal(undefined);
-        expect(textToEncryptedFieldConfig('  ')).to.equal(undefined);
+      it('converts an empty string to undefined', async function () {
+        expect(await textToEncryptedFieldConfig('')).to.equal(undefined);
+        expect(await textToEncryptedFieldConfig('  ')).to.equal(undefined);
       });
     });
 
     describe('#encryptedFieldConfigToText', function () {
-      it('converts a BSON JS object representation to shell BSON text', function () {
+      it('converts a BSON JS object representation to shell BSON text', async function () {
         const normalize = (s: string) =>
           s.replace(/\s+/g, ' ').replace(/-/g, '');
         // Single direction
@@ -498,7 +498,7 @@ describe('csfle-handler', function () {
         expect(
           normalize(
             encryptedFieldConfigToText(
-              textToEncryptedFieldConfig(exampleString)
+              await textToEncryptedFieldConfig(exampleString)
             )
           )
         ).to.equal(normalize(exampleString));
@@ -510,7 +510,7 @@ describe('csfle-handler', function () {
     });
 
     describe('#adjustCSFLEParams', function () {
-      it('revives the encrypted field config', function () {
+      it('revives the encrypted field config', async function () {
         const connectionOptions: ConnectionOptions = {
           connectionString: 'mongodb://localhost',
           fleOptions: {
@@ -527,7 +527,7 @@ describe('csfle-handler', function () {
             },
           },
         };
-        expect(adjustCSFLEParams(connectionOptions)).to.deep.equal({
+        expect(await adjustCSFLEParams(connectionOptions)).to.deep.equal({
           ...connectionOptions,
           fleOptions: {
             storeCredentials: false,

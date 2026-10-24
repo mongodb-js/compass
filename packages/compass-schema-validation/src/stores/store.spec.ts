@@ -16,8 +16,6 @@ import {
 } from '../modules/validation';
 import { fetchSampleDocuments } from '../modules/sample-documents';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
-import type { Store } from 'redux';
-import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -105,7 +103,7 @@ const schemaAccessor = {
 };
 
 describe('Schema Validation Store', function () {
-  let store: Store<RootState, RootAction>;
+  let store: ReturnType<typeof onActivated>['store'];
   let deactivate: null | (() => void) = null;
   let sandbox: Sinon.SinonSandbox;
 
@@ -175,17 +173,27 @@ describe('Schema Validation Store', function () {
     context('when the action is VALIDATOR_CHANGED', function () {
       const validator = '{ name: { $type: 4 } }';
 
-      it('updates the validator in state', function (done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().validation.validator).to.equal(validator);
-          done();
-        });
-        store.dispatch(validatorChanged(validator));
+      it('updates the validator in state', async function () {
+        await store.dispatch(validatorChanged(validator));
+        expect(store.getState().validation.validator).to.equal(validator);
+        expect(store.getState().validation.syntaxError).to.equal(null);
       });
 
-      it('prevents closing the tab', function () {
-        store.dispatch(validatorChanged(validator));
+      it('reports a syntax error for invalid input', async function () {
+        await store.dispatch(validatorChanged('{ name: '));
+        expect(store.getState().validation.syntaxError).to.not.equal(null);
+      });
+
+      it('ignores a stale syntax check after the validator changed again', async function () {
+        const stale = store.dispatch(validatorChanged('{ name: '));
+        await store.dispatch(validatorChanged(validator));
+        await stale;
+        expect(store.getState().validation.validator).to.equal(validator);
+        expect(store.getState().validation.syntaxError).to.equal(null);
+      });
+
+      it('prevents closing the tab', async function () {
+        await store.dispatch(validatorChanged(validator));
         expect(store.getState().validation.isChanged).to.be.true;
         deactivate?.();
         const fnProvidedToOnTabClose = (

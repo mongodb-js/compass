@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Document } from 'mongodb';
 import {
   encryptedFieldConfigToText,
-  textToEncryptedFieldConfig,
+  textToUnparsedEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
 import {
   FormFieldContainer,
@@ -70,7 +70,9 @@ function EncryptedFieldConfigInput({
           text={encryptedFieldsMapText}
           onChangeText={(newText) => {
             setEncryptedFieldsMapText(newText);
-            onChange(textToEncryptedFieldConfig(newText));
+            // Parsing is async, so the form gets the raw text straight away and
+            // parses it when saving or connecting
+            onChange(textToUnparsedEncryptedFieldConfig(newText));
           }}
         />
       </FormFieldContainer>

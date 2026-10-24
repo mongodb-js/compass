@@ -12,9 +12,7 @@ import type {
   KMSTLSProviderType,
 } from './csfle-kms-fields';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
-import parseShellStringToEJSON, {
-  ParseMode,
-} from '@mongodb-js/shell-bson-parser';
+import { ParseMode, parse } from '@mongodb-js/shell-bson-parser';
 
 const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
   storeCredentials: false,
@@ -279,7 +277,9 @@ export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {
   );
 }
 
-export function textToEncryptedFieldConfig(text: string): Document | undefined {
+export async function textToEncryptedFieldConfig(
+  text: string
+): Promise<Document | undefined> {
   if (!text.trim()) {
     return undefined;
   }
@@ -290,7 +290,7 @@ export function textToEncryptedFieldConfig(text: string): Document | undefined {
 
   let parsed: Document = {};
   try {
-    parsed = parseShellStringToEJSON(text, {
+    parsed = await parse(text, {
       mode: ParseMode.Strict,
     });
     if (!parsed || typeof parsed !== 'object') {
@@ -313,6 +313,16 @@ export function textToEncryptedFieldConfig(text: string): Document | undefined {
   return parsed;
 }
 
+// Same shape that saved connections use, adjustCSFLEParams parses it later
+export function textToUnparsedEncryptedFieldConfig(
+  text: string
+): Document | undefined {
+  if (!text.trim()) {
+    return undefined;
+  }
+  return { '$compass.error': null, '$compass.rawText': text };
+}
+
 export function encryptedFieldConfigToText(
   config: Readonly<Document> | undefined
 ): string {
@@ -332,18 +342,18 @@ export function encryptedFieldConfigToText(
 // UUIDs, which are not serialized correctly by the connection model.
 // To account for this, we regenerate the actual values from its
 // text representation on connection form load.
-export function adjustCSFLEParams(
+export async function adjustCSFLEParams(
   connectionOptions: Readonly<ConnectionOptions>
-): ConnectionOptions {
+): Promise<ConnectionOptions> {
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryptionOptions = connectionOptions.fleOptions?.autoEncryption;
   if (autoEncryptionOptions?.schemaMap?.['$compass.error'] === null) {
-    autoEncryptionOptions.schemaMap = textToEncryptedFieldConfig(
+    autoEncryptionOptions.schemaMap = await textToEncryptedFieldConfig(
       autoEncryptionOptions.schemaMap['$compass.rawText']
     );
   }
   if (autoEncryptionOptions?.encryptedFieldsMap?.['$compass.error'] === null) {
-    autoEncryptionOptions.encryptedFieldsMap = textToEncryptedFieldConfig(
+    autoEncryptionOptions.encryptedFieldsMap = await textToEncryptedFieldConfig(
       autoEncryptionOptions.encryptedFieldsMap['$compass.rawText']
     );
   }
