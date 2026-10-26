@@ -100,8 +100,6 @@ export async function exportJSON({
     }
     throw err;
   } finally {
-    // Finish the array output
-    output.write(']\n');
     void input.close();
   }
 
