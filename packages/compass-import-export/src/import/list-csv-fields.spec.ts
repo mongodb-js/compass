@@ -63,6 +63,23 @@ describe('listCSVFields', function () {
     expect(result.headerFields).to.deep.equal(['_id', 'value']);
   });
 
+  it('keeps multi-byte characters that are split across chunks', async function () {
+    const bytes = Buffer.from('name\ncaf\u00e9\n', 'utf8');
+    const splitAt = bytes.indexOf(0xa9); // second byte of the two-byte \u00e9
+    const input = Readable.from([
+      bytes.subarray(0, splitAt),
+      bytes.subarray(splitAt),
+    ]);
+
+    const result = await listCSVFields({
+      input,
+      delimiter: ',',
+      newline: '\n',
+    });
+
+    expect(result.preview).to.deep.equal([['caf\u00e9']]);
+  });
+
   it('errors if a file is not valid utf8', async function () {
     const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
     const input = Readable.from(latin1Buffer);
