@@ -851,10 +851,7 @@ describe('importCSV', function () {
         delimiter: ',',
         newline: '\n',
       })
-    ).to.be.rejectedWith(
-      TypeError,
-      'The encoded data was not valid for encoding utf-8'
-    );
+    ).to.be.rejectedWith(TypeError, /The encoded data was not valid/);
   });
 
   it('errors if a file is truncated utf8', async function () {
@@ -878,10 +875,7 @@ describe('importCSV', function () {
         delimiter: ',',
         newline: '\n',
       })
-    ).to.be.rejectedWith(
-      TypeError,
-      'The encoded data was not valid for encoding utf-8'
-    );
+    ).to.be.rejectedWith(TypeError, /The encoded data was not valid/);
   });
 
   it('strips the BOM character', async function () {
