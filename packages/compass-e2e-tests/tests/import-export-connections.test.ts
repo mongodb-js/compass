@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass.ts';
-import { screenshotIfFailed, skipForWeb } from '../helpers/compass.ts';
 import {
+  screenshotIfFailed,
+  skipForWeb,
   init,
   cleanup,
   runCompassOnce,

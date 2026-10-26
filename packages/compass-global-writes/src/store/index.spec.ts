@@ -20,7 +20,6 @@ import type {
   ShardZoneMapping,
 } from '../services/atlas-global-writes-service';
 import { waitFor } from '@mongodb-js/testing-library-compass';
-import Sinon from 'sinon';
 import * as globalWritesReducer from './reducer';
 
 const DB = 'test';
@@ -79,8 +78,8 @@ const expectPolling = async ({
   interval,
   reverse,
 }: {
-  spy: Sinon.SinonSpy;
-  clock: Sinon.SinonFakeTimers;
+  spy: sinon.SinonSpy;
+  clock: sinon.SinonFakeTimers;
   interval: number;
   reverse?: boolean;
 }) => {
@@ -214,8 +213,8 @@ function createStore({
 }
 
 describe('GlobalWritesStore Store', function () {
-  let confirmationStub: Sinon.SinonStub;
-  let clock: Sinon.SinonFakeTimers;
+  let confirmationStub: sinon.SinonStub;
+  let clock: sinon.SinonFakeTimers;
 
   beforeEach(() => {
     confirmationStub = sinon
@@ -267,11 +266,11 @@ describe('GlobalWritesStore Store', function () {
     it('not managed -> sharding -> shard key correct', async function () {
       let mockShardKey = false;
       let mockManagedNamespace = false;
-      const hasShardKey = Sinon.fake(() => mockShardKey);
+      const hasShardKey = sinon.fake(() => mockShardKey);
       // initial state === unsharded
       const store = createStore({
         hasShardKey,
-        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+        isNamespaceManaged: sinon.fake(() => mockManagedNamespace),
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('UNSHARDED');
@@ -320,7 +319,7 @@ describe('GlobalWritesStore Store', function () {
       let mockFailure = false;
       // initial state === unsharded
       const store = createStore({
-        hasShardingError: Sinon.fake(() => mockFailure),
+        hasShardingError: sinon.fake(() => mockFailure),
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('UNSHARDED');
@@ -378,7 +377,7 @@ describe('GlobalWritesStore Store', function () {
       });
       const store = createStore({
         isNamespaceManaged: () => true,
-        hasShardKey: Sinon.fake(() => mockShardKey),
+        hasShardKey: sinon.fake(() => mockShardKey),
         failsOnShardZoneRequest: () => true,
       });
       await waitFor(() => {
@@ -403,7 +402,7 @@ describe('GlobalWritesStore Store', function () {
         });
         const store = createStore({
           isNamespaceManaged: () => true,
-          failsToFetchShardKey: Sinon.fake(() => mockFailure),
+          failsToFetchShardKey: sinon.fake(() => mockFailure),
         });
         await waitFor(() => {
           expect(store.getState().status).to.equal('SHARDING');
@@ -425,7 +424,7 @@ describe('GlobalWritesStore Store', function () {
         });
         const store = createStore({
           isNamespaceManaged: () => true,
-          failsToFetchDeploymentStatus: Sinon.fake(() => mockFailure),
+          failsToFetchDeploymentStatus: sinon.fake(() => mockFailure),
         });
         await waitFor(() => {
           expect(store.getState().status).to.equal('SHARDING');
@@ -442,14 +441,14 @@ describe('GlobalWritesStore Store', function () {
 
     it('sharding -> cancelling request -> not managed', async function () {
       let mockManagedNamespace = true;
-      const hasShardKey = Sinon.fake(() => false);
+      const hasShardKey = sinon.fake(() => false);
       confirmationStub.resolves(true);
       // initial state === sharding
       clock = sinon.useFakeTimers({
         shouldAdvanceTime: true,
       });
       const store = createStore({
-        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+        isNamespaceManaged: sinon.fake(() => mockManagedNamespace),
         hasShardKey,
       });
       await waitFor(() => {
@@ -509,7 +508,7 @@ describe('GlobalWritesStore Store', function () {
       });
       let mockManagedNamespace = false;
       const store = createStore({
-        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+        isNamespaceManaged: sinon.fake(() => mockManagedNamespace),
         hasShardKey: () => true,
       });
       await waitFor(() => {
@@ -627,7 +626,7 @@ describe('GlobalWritesStore Store', function () {
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardKey: () => true,
-        failsOnShardingRequest: Sinon.fake(() => mockFailure),
+        failsOnShardingRequest: sinon.fake(() => mockFailure),
       });
 
       await waitFor(() => {
@@ -753,8 +752,8 @@ describe('GlobalWritesStore Store', function () {
         shouldAdvanceTime: true,
       });
       const store = createStore({
-        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
-        hasShardingError: Sinon.fake(() => mockShardingError),
+        isNamespaceManaged: sinon.fake(() => mockManagedNamespace),
+        hasShardingError: sinon.fake(() => mockShardingError),
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');
@@ -779,8 +778,8 @@ describe('GlobalWritesStore Store', function () {
       });
       const store = createStore({
         isNamespaceManaged: () => true,
-        hasShardingError: Sinon.fake(() => mockShardingError),
-        hasShardKey: Sinon.fake(() => mockShardKey),
+        hasShardingError: sinon.fake(() => mockShardingError),
+        hasShardKey: sinon.fake(() => mockShardKey),
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');

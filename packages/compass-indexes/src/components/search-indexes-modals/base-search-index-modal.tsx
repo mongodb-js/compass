@@ -23,12 +23,11 @@ import {
   Tooltip,
   useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
-import type { Annotation } from '@mongodb-js/compass-editor';
+import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorMultilineEditor,
   createSearchIndexAutocompleter,
 } from '@mongodb-js/compass-editor';
-import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {

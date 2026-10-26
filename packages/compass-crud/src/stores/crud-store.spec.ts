@@ -19,6 +19,7 @@ import type {
   CrudStore,
   CrudStoreOptions,
   DocumentsPluginServices,
+  InsertDocumentView,
 } from './crud-store';
 import {
   findAndModifyWithFLEFallback,
@@ -29,7 +30,6 @@ import {
   parseInsertDocument,
   parseInsertDocumentArray,
 } from './crud-store';
-import type { InsertDocumentView } from './crud-store';
 import { Int32, Long, Double, Decimal128, ObjectId, Binary } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {

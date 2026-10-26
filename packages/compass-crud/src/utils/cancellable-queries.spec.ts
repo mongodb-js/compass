@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
@@ -6,7 +6,6 @@ import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 import { countDocuments, fetchShardingKeys } from './cancellable-queries';
 
-import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';

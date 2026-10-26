@@ -1,4 +1,8 @@
-import { openToast } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
@@ -6,12 +10,8 @@ import {
   getPipelineFromBuilderState,
   getPipelineStringFromBuilderState,
   mapPipelineModeToEditorViewType,
+  updatePipelinePreview,
 } from './pipeline-builder/builder-helpers';
-import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
-import {
-  showConfirmation,
-  ConfirmationModalVariant,
-} from '@mongodb-js/compass-components';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { AnyAction } from 'redux';
 

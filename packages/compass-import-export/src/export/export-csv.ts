@@ -17,6 +17,7 @@ import {
   stringifyCSVValue,
   formatCSVLine,
   formatCSVValue,
+  formatCSVHeaderName,
 } from '../csv/csv-utils';
 import type {
   ExportAggregation,
@@ -24,7 +25,6 @@ import type {
   ExportResult,
 } from './export-types';
 
-import { formatCSVHeaderName } from '../csv/csv-utils';
 import type { Delimiter, Linebreak, PathPart } from '../csv/csv-types';
 import { createDebug } from '../utils/logger';
 import type { AggregationCursor, FindCursor } from 'mongodb';

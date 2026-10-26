@@ -30,8 +30,8 @@ import PipelineEmptyResults from './pipeline-empty-results';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
+  getStageOperator,
 } from '../../utils/stage';
-import { getStageOperator } from '../../utils/stage';
 import { gotoOutResults } from '../../modules/out-results-fn';
 import {
   isRerankNotEnabledError,

@@ -1,5 +1,4 @@
-import type { Action } from 'redux';
-import { createStore, type Reducer } from 'redux';
+import type { Action, createStore, type Reducer } from 'redux';
 import type { QueryExpression, InputExpression } from '../modules/transpiler';
 import { isValidExportMode } from '../modules/transpiler';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';

@@ -1,7 +1,9 @@
 import type { Reducer } from 'redux';
 import toNS from '@mongodb-js/mongodb-ns';
-import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type {
+  FavoriteQuery,
+  SavedPipeline,
+} from '@mongodb-js/my-queries-storage';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';

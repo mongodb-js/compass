@@ -6,8 +6,6 @@ import type {
   EditAction,
   FieldPath,
   Relationship,
-} from '../services/data-model-storage';
-import {
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,

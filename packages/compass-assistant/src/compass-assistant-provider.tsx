@@ -59,6 +59,8 @@ import type {
 import {
   atlasAiServiceLocator,
   toolsControllerLocator,
+  AI_MODEL_AGENT_VERSION,
+  AI_MODEL_CHAT_VERSION,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
@@ -89,10 +91,6 @@ import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
-import {
-  AI_MODEL_AGENT_VERSION,
-  AI_MODEL_CHAT_VERSION,
-} from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 

@@ -8,7 +8,10 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionStorage,
+  ImportConnectionOptions,
+} from '@mongodb-js/connection-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type {
@@ -39,7 +42,6 @@ import {
   getLatestEndOfLifeServerVersion,
   isEndOfLifeVersion,
 } from '../utils/end-of-life-server';
-import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 import { getErrorCodeCauseChain } from '../utils/telemetry';
 import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
 

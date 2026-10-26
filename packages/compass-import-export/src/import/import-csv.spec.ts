@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import os from 'node:os';
-import _ from 'lodash';
+import _, { omit } from 'lodash';
 import assert from 'node:assert';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
@@ -13,7 +13,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
-import { omit } from 'lodash';
 
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';

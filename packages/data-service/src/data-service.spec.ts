@@ -21,7 +21,6 @@ import { runCommand } from './run-command';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
 import { range } from 'lodash';
-import ConnectionString from 'mongodb-connection-string-url';
 import type { DataServiceImplLogger, MongoLogId } from './logger';
 
 const { expect } = chai;

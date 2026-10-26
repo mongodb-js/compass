@@ -18,21 +18,21 @@ import { WorkspaceTab as PerformanceWorkspace } from '@mongodb-js/compass-server
 import {
   DatabasesWorkspaceTab,
   CollectionsWorkspaceTab,
-} from '@mongodb-js/compass-databases-collections';
-import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
-import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
-import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
-import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
-import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
-import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
-import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
-import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
-import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
-import {
   CreateNamespacePlugin,
   DropNamespacePlugin,
   RenameCollectionPlugin,
 } from '@mongodb-js/compass-databases-collections';
+import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
+import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
+import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
+import {
+  CompassAggregationsPlugin,
+  CreateViewPlugin,
+} from '@mongodb-js/compass-aggregations';
+import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
+import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
+import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
+import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';

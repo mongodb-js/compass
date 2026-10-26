@@ -1,7 +1,9 @@
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { Preferences, type PreferencesAccess } from './preferences';
-import type { UserPreferences } from './preferences-schema';
-import { type AllPreferences } from './preferences-schema';
+import type {
+  UserPreferences,
+  type AllPreferences,
+} from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
 

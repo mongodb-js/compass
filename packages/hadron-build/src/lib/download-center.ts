@@ -1,5 +1,4 @@
-import { createReadStream, createWriteStream } from 'node:fs';
-import { promises as fs } from 'node:fs';
+import { createReadStream, createWriteStream, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { DownloadCenter } from '@mongodb-js/dl-center';
 import download from 'download';

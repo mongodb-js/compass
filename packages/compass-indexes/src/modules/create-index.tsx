@@ -1,6 +1,5 @@
-import type { Document } from 'mongodb';
+import type { Document, CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { ObjectId } from 'bson';
-import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import React from 'react';
 import type { Action, Dispatch, Reducer } from 'redux';

@@ -1,7 +1,6 @@
-import type { AnyAction } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 
-import type { Reducer } from 'redux';
 import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
 import { openToast } from '@mongodb-js/compass-components';
 

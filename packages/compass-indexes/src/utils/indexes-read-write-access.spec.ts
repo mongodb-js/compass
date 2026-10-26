@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { useSelector } from 'react-redux';
+import { useSelector, Provider } from 'react-redux';
 import { renderHook } from '@mongodb-js/testing-library-compass';
-import { Provider } from 'react-redux';
 import React from 'react';
 import { selectReadWriteAccess } from './indexes-read-write-access';
 import { setupStore } from '../../test/setup-store';

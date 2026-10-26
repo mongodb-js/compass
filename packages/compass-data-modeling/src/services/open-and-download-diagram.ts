@@ -1,5 +1,8 @@
-import type { SetModelEdit } from './data-model-storage';
-import { EditListSchema, type Edit } from './data-model-storage';
+import type {
+  SetModelEdit,
+  EditListSchema,
+  type Edit,
+} from './data-model-storage';
 import { downloadFile } from './export-diagram';
 import { z } from '@mongodb-js/compass-user-data';
 

@@ -1,5 +1,8 @@
-import { type z, AtlasUserData } from '@mongodb-js/compass-user-data';
-import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
+import type {
+  AtlasServiceLike,
+  type z,
+  AtlasUserData,
+} from '@mongodb-js/compass-user-data';
 import {
   getDefaultsForStoredPreferences,
   getPreferencesValidator,

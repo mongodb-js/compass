@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
-import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import {
+  useOpenWorkspace,
+  useWorkspaceTabId,
+} from '@mongodb-js/compass-workspaces/provider';
 import {
   Button,
   EmptyContent,
@@ -26,7 +29,6 @@ import SearchIndexActions from './search-index-actions';
 import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
 import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import {
   useSearchActivationProgramP1,
   useTelemetry,
