@@ -6,7 +6,7 @@ import type { Sort } from 'mongodb';
 import { MongoClient, MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
 import sinon from 'sinon';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import ConnectionString from 'mongodb-connection-string-url';
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
 import type {
@@ -1282,7 +1282,7 @@ describe('DataService', function () {
 
       it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', async function () {
         sandbox.spy(dataService, 'aggregateCursor');
-        const connectionStringReplacement = new ConnectionStringUrl(
+        const connectionStringReplacement = new ConnectionString(
           cluster().connectionString
         );
         connectionStringReplacement.searchParams.set(
@@ -1421,7 +1421,7 @@ describe('DataService', function () {
 
       it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', function () {
         sandbox.spy(dataService, 'aggregate');
-        const connectionStringReplacement = new ConnectionStringUrl(
+        const connectionStringReplacement = new ConnectionString(
           cluster().connectionString
         );
         connectionStringReplacement.searchParams.set(
