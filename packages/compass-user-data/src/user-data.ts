@@ -504,7 +504,7 @@ export class AtlasUserData<
       for (const item of docs) {
         try {
           const parsedData = this.deserialize(item.data as string);
-          result.data.push(this.validator.parse(parsedData) as z.output<T>);
+          result.data.push(this.validator.parse(parsedData));
         } catch (error) {
           result.errors.push(error as Error);
         }

@@ -50,7 +50,7 @@ describe('UserStorage', function () {
       try {
         await userStorage.updateUser(storedUser.id, {
           lastUsed: 'something-unacceptable',
-        } as any);
+        });
         expect.fail('Expected lastUsed prop to fail due to date validation');
       } catch (e) {
         expect(e).to.be.an.instanceOf(z.ZodError);
@@ -61,7 +61,7 @@ describe('UserStorage', function () {
       try {
         await userStorage.updateUser(storedUser.id, {
           createdAt: 'something-unacceptable',
-        } as any);
+        });
         expect.fail('Expected createdAt prop to fail due to date validation');
       } catch (e) {
         expect(e).to.be.an.instanceOf(z.ZodError);

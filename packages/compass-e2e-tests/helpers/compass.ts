@@ -1411,7 +1411,7 @@ function traceArg(arg: unknown): string {
   if (arg === null || typeof arg !== 'object') {
     return String(arg);
   }
-  const ctor = (arg as object).constructor?.name;
+  const ctor = arg.constructor?.name;
   if (ctor && ctor !== 'Object' && ctor !== 'Array') {
     return `<${ctor}>`;
   }
