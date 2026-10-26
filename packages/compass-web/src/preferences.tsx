@@ -8,6 +8,7 @@ import {
   type FeatureFlags,
 } from '@mongodb-js/compass-preferences-model/provider';
 import { useEffect, useState } from 'react';
+import { isImportExportSupported } from '@mongodb-js/compass-import-export';
 import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
 
 // Minimal AtlasService surface used by the preferences bootstrap. A real
@@ -21,7 +22,7 @@ export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableAggregationBuilderRunPipeline: true,
   enableAggregationBuilderExtraOptions: true,
   enableAtlasSearchIndexes: false,
-  enableImportExport: false,
+  enableImportExport: isImportExportSupported(),
   enableGenAIFeatures: true,
   enableGenAIFeaturesAtlasProject: false,
   enableGenAISampleDocumentPassing: false,
