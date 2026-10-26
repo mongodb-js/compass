@@ -8,9 +8,9 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['./scripts/**/*.ts', './src/**/*.ts', './src/**/*.tsx'],
+      // Development scripts run on Node.js
+      files: ['./scripts/**/*.ts'],
       rules: {
-        // This plugin is an exception from the general rule
         '@typescript-eslint/no-restricted-imports': 'off',
       },
     },
