@@ -39,7 +39,7 @@ export function showInProgressToast({
   }
 
   openToast(importToastId, {
-    title: `Importing ${path.basename(fileName)}…`,
+    title: `Importing ${fileName}\u2026`,
     description: (
       <ToastBody
         statusMessage={statusMessage}
@@ -61,7 +61,7 @@ export function showStartingToast({
   cancelImport: () => void;
 }) {
   openToast(importToastId, {
-    title: `Importing ${path.basename(fileName)}…`,
+    title: `Importing ${fileName}\u2026`,
     description: (
       <ToastBody
         statusMessage="Starting…"
@@ -160,11 +160,7 @@ function getToastErrorsText(errors: Error[]) {
     rawErrorsText.length > toastMessageCharacterLimit
       ? `${rawErrorsText.substring(0, toastMessageCharacterLimit)}…`
       : rawErrorsText
-  }${
-    errors.length > 2
-      ? '\nMore errors occurred, open the error log to view.\n'
-      : ''
-  }`;
+  }${errors.length > 2 ? '\nMore errors occurred.\n' : ''}`;
   return errorsText;
 }
 
@@ -172,45 +168,23 @@ export function showCompletedWithErrorsToast({
   errors,
   docsWritten,
   docsProcessed,
-  actionHandler,
 }: {
   errors: Error[];
   docsWritten: number;
   docsProcessed: number;
-  actionHandler?: () => void;
 }) {
-  const statusMessage = getToastErrorsText(errors);
   openToast(importToastId, {
     title: `Import completed ${docsWritten}/${docsProcessed} with errors:`,
-    description: (
-      <ToastBody
-        statusMessage={statusMessage}
-        actionHandler={actionHandler}
-        actionText="view log"
-      />
-    ),
+    description: <ToastBody statusMessage={getToastErrorsText(errors)} />,
     variant: 'warning',
   });
 }
 
-export function showCancelledToast({
-  errors,
-  actionHandler,
-}: {
-  errors: Error[];
-  actionHandler?: () => void;
-}) {
+export function showCancelledToast({ errors }: { errors: Error[] }) {
   if (errors.length > 0) {
-    const statusMessage = getToastErrorsText(errors);
     openToast(importToastId, {
       title: 'Import aborted with the following errors:',
-      description: (
-        <ToastBody
-          statusMessage={statusMessage}
-          actionHandler={actionHandler}
-          actionText="view log"
-        />
-      ),
+      description: <ToastBody statusMessage={getToastErrorsText(errors)} />,
       variant: 'warning',
     });
     return;

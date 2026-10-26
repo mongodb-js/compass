@@ -63,7 +63,7 @@ describe('listCSVFields', function () {
     expect(result.headerFields).to.deep.equal(['_id', 'value']);
   });
 
-  it('keeps multi-byte characters that are split across chunks', async function () {
+  it('keep multi-byte characters that are split across chunks', async function () {
     const bytes = Buffer.from('name\ncaf\u00e9\n', 'utf8');
     const splitAt = bytes.indexOf(0xa9); // second byte of the two-byte \u00e9
     const input = Readable.from([
@@ -78,6 +78,18 @@ describe('listCSVFields', function () {
     });
 
     expect(result.preview).to.deep.equal([['caf\u00e9']]);
+  });
+
+  it('reject when reading the input fails', async function () {
+    const input = new Readable({
+      read() {
+        this.destroy(new Error('read failed'));
+      },
+    });
+
+    await expect(
+      listCSVFields({ input, delimiter: ',', newline: '\n' })
+    ).to.be.rejectedWith(Error, 'read failed');
   });
 
   it('errors if a file is not valid utf8', async function () {

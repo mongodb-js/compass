@@ -16,7 +16,7 @@ async function collect(readable: Readable): Promise<Buffer[]> {
 
 describe('web-streams', function () {
   describe('readableFromWeb', function () {
-    it('emits the bytes of the web stream as Buffers', async function () {
+    it('emit the bytes of the web stream as Buffers', async function () {
       const webStream = new ReadableStream<Uint8Array>({
         start(controller) {
           controller.enqueue(new TextEncoder().encode('hello '));
@@ -32,7 +32,7 @@ describe('web-streams', function () {
       expect(Buffer.concat(chunks).toString('utf8')).to.equal('hello world');
     });
 
-    it('cancels the web stream when destroyed', async function () {
+    it('cancel the web stream when destroyed', async function () {
       const cancel = sinon.spy();
       const webStream = new ReadableStream<Uint8Array>({
         pull(controller) {
@@ -48,7 +48,7 @@ describe('web-streams', function () {
       expect(cancel).to.have.been.calledOnce;
     });
 
-    it('errors when the web stream errors', async function () {
+    it('error when the web stream errors', async function () {
       const webStream = new ReadableStream<Uint8Array>({
         pull(controller) {
           controller.error(new Error('read failed'));
@@ -84,7 +84,7 @@ describe('web-streams', function () {
       });
     });
 
-    it('writes chunks to the web stream and closes it on end', async function () {
+    it('write chunks to the web stream and close it on end', async function () {
       await streamPromises.pipeline(
         Readable.from(['a', 'b', 'c']),
         writableFromWeb(webStream)
@@ -95,7 +95,7 @@ describe('web-streams', function () {
       expect(abort).to.not.have.been.called;
     });
 
-    it('batches chunks that queue up while a write is pending', async function () {
+    it('batch chunks that queue up while a write is pending', async function () {
       const writable = writableFromWeb(webStream);
 
       writable.write('a');
@@ -107,7 +107,7 @@ describe('web-streams', function () {
       expect(written).to.deep.equal(['a', 'bc']);
     });
 
-    it('aborts the web stream when destroyed with an error', async function () {
+    it('abort the web stream when destroyed with an error', async function () {
       const writable = writableFromWeb(webStream);
       const error = new Error('export failed');
 
@@ -118,7 +118,7 @@ describe('web-streams', function () {
       expect(close).to.not.have.been.called;
     });
 
-    it('aborts the web stream when destroyed before it finished', async function () {
+    it('abort the web stream when destroyed before it finished', async function () {
       const writable = writableFromWeb(webStream);
       writable.write('a');
 

@@ -651,23 +651,8 @@ describe('Collection import', function () {
 
       await browser.waitUntil(async () => {
         const text = await toastElement.getText();
-        return (
-          text.includes('Document failed validation') &&
-          text.includes('VIEW LOG')
-        );
+        return text.includes('Document failed validation');
       });
-
-      // Find the log file
-      const logFilePath = path.resolve(
-        compass.userDataPath || '',
-        'ImportErrorLogs',
-        `import-${filename}.log`
-      );
-      await expect(fs.stat(logFilePath)).to.not.be.rejected;
-
-      // Check the log file contents for 3 errors.
-      const logFileContent = await fs.readFile(logFilePath, 'utf-8');
-      expect(logFileContent.includes('schemaRulesNotSatisfied:'));
 
       // Close the toast
       await browser
@@ -1285,28 +1270,14 @@ describe('Collection import', function () {
       .$(Selectors.closeToastButton(Selectors.ImportToast))
       .waitForDisplayed();
 
-    // Displays first two errors in the toast and view log.
+    // Displays first two errors in the toast.
     // (It tries to display two, but it also limits the text)
     const toastText = await toastElement.getText();
     expect(toastText).to.include('Import completed 0/3 with errors:');
     expect(
       (toastText.match(/E11000 duplicate key error collection/g) || []).length
     ).to.equal(2);
-    expect(toastText).to.include('VIEW LOG');
-
-    const logFilePath = path.resolve(
-      compass.userDataPath || '',
-      'ImportErrorLogs',
-      `import-${fileName}.log`
-    );
-    await expect(fs.stat(logFilePath)).to.not.be.rejected;
-
-    // Check the log file contents for 3 errors.
-    const logFileContent = await fs.readFile(logFilePath, 'utf-8');
-    const errorCount = (
-      logFileContent.match(/E11000 duplicate key error collection/g) || []
-    ).length;
-    expect(errorCount).to.equal(3);
+    expect(toastText).to.include('More errors occurred.');
 
     // Close toast.
     await browser.clickVisible(
