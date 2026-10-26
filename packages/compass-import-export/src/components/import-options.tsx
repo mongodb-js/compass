@@ -65,7 +65,7 @@ const delimiters: {
 ];
 
 type ImportOptionsProps = {
-  selectImportFileName: (fileName: string) => void;
+  selectImportFile: (file: File) => void;
   setDelimiter: (delimiter: Delimiter) => void;
   delimiter: Delimiter;
   fileType: AcceptedFileType | '';
@@ -77,7 +77,7 @@ type ImportOptionsProps = {
 };
 
 function ImportOptions({
-  selectImportFileName,
+  selectImportFile,
   setDelimiter,
   delimiter,
   fileType,
@@ -101,7 +101,7 @@ function ImportOptions({
     <form onSubmit={handleOnSubmit} className={formStyles}>
       <ImportFileInput
         fileName={fileName}
-        selectImportFileName={selectImportFileName}
+        selectImportFile={selectImportFile}
       />
       <Body as="h3" className={optionsHeadingStyles}>
         Options

@@ -259,6 +259,8 @@ export function guessFileType({
   return new Promise<GuessFileTypeResult>((resolve, reject) => {
     void (async () => {
       const newlineDetector = new NewlineDetector();
+      // pipe() doesn't forward errors from the source
+      input.once('error', reject);
       input = input.pipe(newlineDetector);
 
       input.once('error', function (err) {

@@ -28,7 +28,7 @@ import {
   startImport,
   cancelImport,
   skipCSVAnalyze,
-  selectImportFileName,
+  selectImportFile,
   setDelimiter,
   setStopOnErrors,
   setIgnoreBlanks,
@@ -86,7 +86,7 @@ type ImportModalProps = {
   /**
    * See `<ImportOptions />`
    */
-  selectImportFileName: (fileName: string) => void;
+  selectImportFile: (file: File) => void;
   setDelimiter: (delimiter: Delimiter) => void;
   delimiter: Delimiter;
   fileType: AcceptedFileType | '';
@@ -123,7 +123,7 @@ function ImportModal({
   errors,
   status,
 
-  selectImportFileName,
+  selectImportFile,
   setDelimiter,
   delimiter,
   fileType,
@@ -179,7 +179,7 @@ function ImportModal({
           autoOpen
           onCancel={handleClose}
           fileName={fileName}
-          selectImportFileName={selectImportFileName}
+          selectImportFile={selectImportFile}
         />
       </div>
     );
@@ -199,7 +199,7 @@ function ImportModal({
           setDelimiter={setDelimiter}
           fileType={fileType}
           fileName={fileName}
-          selectImportFileName={selectImportFileName}
+          selectImportFile={selectImportFile}
           stopOnErrors={stopOnErrors}
           setStopOnErrors={setStopOnErrors}
           ignoreBlanks={ignoreBlanks}
@@ -274,7 +274,7 @@ const mapStateToProps = (state: RootImportState) => ({
   isOpen: state.import.isOpen,
   errors: state.import.firstErrors,
   fileType: state.import.fileType,
-  fileName: state.import.fileName,
+  fileName: state.import.file?.name ?? '',
   status: state.import.status,
   delimiter: state.import.delimiter,
   stopOnErrors: state.import.stopOnErrors,
@@ -293,7 +293,7 @@ export default connect(mapStateToProps, {
   startImport,
   cancelImport,
   skipCSVAnalyze,
-  selectImportFileName,
+  selectImportFile,
   setDelimiter,
   setStopOnErrors,
   setIgnoreBlanks,

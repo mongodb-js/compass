@@ -3,7 +3,13 @@ import { expect } from 'chai';
 import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 import type { ImportStore } from '../stores/import-store';
 import { ImportPlugin } from '../index';
-import { onStarted, openImport, selectImportFileName } from './import';
+import { fixtures } from '../../test/fixtures';
+import {
+  createChangedOnDiskFile,
+  createFile,
+  readFixtureFile,
+} from '../../test/files';
+import { onStarted, openImport, selectImportFile } from './import';
 
 const { activatePluginWithConnections } = createPluginTestHelpers(ImportPlugin);
 
@@ -33,7 +39,6 @@ describe('import [module]', function () {
       mockStore.dispatch(
         onStarted({
           abortController,
-          errorLogFilePath: 'test',
         })
       );
 
@@ -82,35 +87,44 @@ describe('import [module]', function () {
     });
   });
 
-  describe('#selectImportFileName', function () {
-    it('updates the file name', async function () {
-      const fileName = path.join(
-        __dirname,
-        '..',
-        '..',
-        'test',
-        'json',
-        'good.json'
-      );
+  describe('#selectImportFile', function () {
+    it('select the file', async function () {
+      const file = await readFixtureFile(fixtures.json.good);
 
-      expect(mockStore.getState().import.fileName).to.equal('');
+      expect(mockStore.getState().import.file).to.equal(null);
 
-      await mockStore.dispatch(selectImportFileName(fileName) as any);
+      await mockStore.dispatch(selectImportFile(file) as any);
 
-      expect(mockStore.getState().import.fileName).to.equal(fileName);
+      expect(mockStore.getState().import.file).to.equal(file);
+      expect(mockStore.getState().import.fileType).to.equal('json');
+      expect(mockStore.getState().import.firstErrors).to.deep.equal([]);
     });
 
-    it('adds an error when the file does not exist', async function () {
-      const noExistFile = path.join(__dirname, 'no-exist.json');
+    it('add an error when the file is not valid UTF-8', async function () {
+      const file = createFile(
+        [new Uint8Array([0x61, 0x2c, 0x62, 0x0a, 0xff, 0x2c, 0x63, 0x0a])],
+        'latin1.csv'
+      );
 
-      expect(mockStore.getState().import.fileName).to.equal('');
-      expect(mockStore.getState().import.firstErrors.length).to.equal(0);
+      await mockStore.dispatch(selectImportFile(file) as any);
 
-      await mockStore.dispatch(selectImportFileName(noExistFile) as any);
+      expect(mockStore.getState().import.file).to.equal(null);
+      expect(mockStore.getState().import.firstErrors).to.have.length(1);
+      expect(mockStore.getState().import.firstErrors[0].message).to.include(
+        'Unable to load the file. Make sure the file is valid CSV or JSON.'
+      );
+    });
 
-      expect(mockStore.getState().import.fileName).to.equal('');
+    it('add an error when the file changed on disk after it was selected', async function () {
+      const file = createChangedOnDiskFile('changed.json');
 
-      expect(mockStore.getState().import.firstErrors.length).to.equal(1);
+      await mockStore.dispatch(selectImportFile(file) as any);
+
+      expect(mockStore.getState().import.file).to.equal(null);
+      expect(mockStore.getState().import.firstErrors).to.have.length(1);
+      expect(mockStore.getState().import.firstErrors[0].message).to.include(
+        'The file changed since it was selected. Select it again.'
+      );
     });
   });
 });
