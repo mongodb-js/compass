@@ -35,10 +35,7 @@ import {
   showStartingToast,
 } from '../components/import-toast';
 import type { ImportThunkAction } from '../stores/import-store';
-import { openFile } from '../utils/open-file';
-
-const checkFileExists = promisify(fs.exists);
-const getFileStats = promisify(fs.stat);
+import { readableFromWeb } from '../utils/web-streams';
 
 /**
  * ## Action names
@@ -88,13 +85,11 @@ type ImportState = {
   isInProgressMessageOpen: boolean;
   firstErrors: Error[];
   fileType: AcceptedFileType | '';
-  fileName: string;
-  errorLogFilePath: string;
+  file: File | null;
   fileIsMultilineJSON: boolean;
   useHeaderLines: boolean;
   status: ProcessStatus;
 
-  fileStats: null | fs.Stats;
   analyzeBytesProcessed: number;
   analyzeBytesTotal: number;
   delimiter: Delimiter;
@@ -123,12 +118,10 @@ export const INITIAL_STATE: ImportState = {
   isOpen: false,
   isInProgressMessageOpen: false,
   firstErrors: [],
-  fileName: '',
-  errorLogFilePath: '',
+  file: null,
   fileIsMultilineJSON: false,
   useHeaderLines: true,
   status: PROCESS_STATUS.UNSPECIFIED,
-  fileStats: null,
   analyzeBytesProcessed: 0,
   analyzeBytesTotal: 0,
   delimiter: ',',
@@ -148,14 +141,11 @@ export const INITIAL_STATE: ImportState = {
 
 export const onStarted = ({
   abortController,
-  errorLogFilePath,
 }: {
   abortController: AbortController;
-  errorLogFilePath: string;
 }) => ({
   type: STARTED,
   abortController,
-  errorLogFilePath,
 });
 
 const onFinished = ({
@@ -177,23 +167,15 @@ const onFileSelectError = (error: Error) => ({
   error,
 });
 
-export function getUserDataFolderPath() {
-  const basepath = getStoragePath();
-  if (basepath === undefined) {
-    throw new Error('cannot access user data folder path');
+// Chromium throws a NotReadableError when reading a File whose contents
+// changed on disk after it was selected.
+function toFileReadError(err: any) {
+  if (err?.name === 'NotReadableError') {
+    return new Error(
+      'The file changed since it was selected. Select it again.'
+    );
   }
-  return basepath;
-}
-
-async function getErrorLogPath(fileName: string) {
-  // Create the error log output file.
-  const userDataPath = getUserDataFolderPath();
-  const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
-  await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
-
-  const errorLogFileName = `import-${path.basename(fileName)}.log`;
-
-  return path.join(importErrorLogsPath, errorLogFileName);
+  return err;
 }
 
 export const startImport = (): ImportThunkAction<Promise<void>> => {
@@ -212,10 +194,9 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     const {
       import: {
-        fileName,
+        file,
         fileType,
         fileIsMultilineJSON,
-        fileStats,
         delimiter,
         newline,
         ignoreBlanks: ignoreBlanks_,
@@ -227,8 +208,13 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       },
     } = getState();
 
+    if (!file) {
+      return;
+    }
+
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
-    const fileSize = fileStats?.size || 0;
+    const fileName = file.name;
+    const fileSize = file.size;
     const fields: Record<string, CSVParsableFieldType> = Object.create(null);
     for (const [name, type] of transform) {
       if (exclude.includes(name)) {
@@ -236,24 +222,9 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       }
       fields[name] = type;
     }
-    const input = fs.createReadStream(fileName, 'utf8');
+    const input = readableFromWeb(file.stream());
 
     const firstErrors: ErrorJSON[] = [];
-
-    let errorLogFilePath: string | undefined;
-    let errorLogWriteStream: fs.WriteStream | undefined;
-    try {
-      errorLogFilePath = await getErrorLogPath(fileName);
-
-      errorLogWriteStream = errorLogFilePath
-        ? fs.createWriteStream(errorLogFilePath)
-        : undefined;
-    } catch (err: any) {
-      (err as Error).message = `unable to create import error log file: ${
-        (err as Error).message
-      }`;
-      firstErrors.push(err as Error);
-    }
 
     log.info(
       mongoLogId(1001000080),
@@ -268,7 +239,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         delimiter,
         ignoreBlanks,
         stopOnErrors,
-        errorLogFilePath,
         exclude,
         transform,
       }
@@ -279,7 +249,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     dispatch(
       onStarted({
         abortController,
-        errorLogFilePath: errorLogFilePath || '',
       })
     );
 
@@ -293,7 +262,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       numErrors += 1;
       if (firstErrors.length < 5) {
         // Only store the first few errors in memory.
-        // The log file tracks all of them.
         // If we are importing a massive file with many errors we don't
         // want to run out of memory. We show the first few errors in the UI.
         firstErrors.push(err);
@@ -331,7 +299,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           dataService,
           ns,
           input,
-          output: errorLogWriteStream,
           delimiter,
           newline,
           fields,
@@ -346,7 +313,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           dataService,
           ns,
           input,
-          output: errorLogWriteStream,
           abortSignal,
           stopOnErrors,
           jsonVariant: fileIsMultilineJSON ? 'jsonl' : 'json',
@@ -356,7 +322,8 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       }
 
       progressCallback.flush();
-    } catch (err: any) {
+    } catch (error: any) {
+      const err = toFileReadError(error);
       track(
         'Import Completed',
         {
@@ -376,7 +343,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
         ns,
-        errorLogFilePath,
         docsWritten: err.result?.docsWritten,
         error: err.message,
       });
@@ -397,8 +363,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
       dispatch(onFailed(err as Error));
       return;
-    } finally {
-      errorLogWriteStream?.close();
     }
 
     track(
@@ -424,25 +388,9 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       docsProcessed: result.docsProcessed,
     });
 
-    const openErrorLogFilePathActionHandler = errorLogFilePath
-      ? () => {
-          if (errorLogFilePath) {
-            track(
-              'Import Error Log Opened',
-              {
-                errorCount: numErrors,
-              },
-              connections.getConnectionById(connectionId)?.info
-            );
-            void openFile(errorLogFilePath);
-          }
-        }
-      : undefined;
-
     if (result.aborted) {
       showCancelledToast({
         errors: firstErrors,
-        actionHandler: openErrorLogFilePathActionHandler,
       });
     } else {
       const onReviewDocumentsClick = appRegistry
@@ -466,7 +414,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           docsWritten: result.docsWritten,
           errors: firstErrors,
           docsProcessed: result.docsProcessed,
-          actionHandler: openErrorLogFilePathActionHandler,
         });
       } else {
         showCompletedToast({
@@ -573,13 +520,12 @@ const loadTypes = (
   values: string[][]
 ): ImportThunkAction<Promise<void>> => {
   return async (dispatch, getState, { logger: { log, mongoLogId } }) => {
-    const {
-      fileName,
-      delimiter,
-      newline,
-      ignoreBlanks,
-      analyzeAbortController,
-    } = getState().import;
+    const { file, delimiter, newline, ignoreBlanks, analyzeAbortController } =
+      getState().import;
+
+    if (!file) {
+      return;
+    }
 
     // if there's already an analyzeCSVFields in flight, abort that first
     if (analyzeAbortController) {
@@ -589,15 +535,13 @@ const loadTypes = (
 
     const abortController = new AbortController();
     const abortSignal = abortController.signal;
-    const fileStats = await getFileStats(fileName);
-    const fileSize = fileStats?.size || 0;
     dispatch({
       type: ANALYZE_STARTED,
       abortController,
-      analyzeBytesTotal: fileSize,
+      analyzeBytesTotal: file.size,
     });
 
-    const input = fs.createReadStream(fileName);
+    const input = readableFromWeb(file.stream());
 
     const progressCallback = _.throttle(function ({
       bytesProcessed,
@@ -645,7 +589,7 @@ const loadTypes = (
       );
       dispatch({
         type: ANALYZE_FAILED,
-        error: err,
+        error: toFileReadError(err),
       });
     }
   };
@@ -653,9 +597,13 @@ const loadTypes = (
 
 const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>> => {
   return async (dispatch, getState, { logger: { log, mongoLogId } }) => {
-    const { fileName, delimiter, newline } = getState().import;
+    const { file, delimiter, newline } = getState().import;
 
-    const input = fs.createReadStream(fileName);
+    if (!file) {
+      return;
+    }
+
+    const input = readableFromWeb(file.stream());
 
     try {
       const result = await listCSVFields({ input, delimiter, newline });
@@ -720,7 +668,7 @@ const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>> => {
       // The most likely way to get here is if the file is not encoded as UTF8.
       dispatch({
         type: ANALYZE_FAILED,
-        error: err,
+        error: toFileReadError(err),
       });
     }
   };
@@ -759,18 +707,12 @@ export const setFieldType = (path: string, bsonType: string) => {
   };
 };
 
-export const selectImportFileName = (
-  fileName: string
+export const selectImportFile = (
+  file: File
 ): ImportThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { logger: { log, mongoLogId } }) => {
     try {
-      const exists = await checkFileExists(fileName);
-      if (!exists) {
-        throw new Error(`File ${fileName} not found`);
-      }
-      const fileStats = await getFileStats(fileName);
-
-      const input = fs.createReadStream(fileName, 'utf8');
+      const input = readableFromWeb(file.stream());
       const detected = await guessFileType({ input });
 
       if (detected.type === 'unknown') {
@@ -785,8 +727,7 @@ export const selectImportFileName = (
         type: FILE_SELECTED,
         delimiter: detected.type === 'csv' ? detected.csvDelimiter : undefined,
         newline: detected.type === 'csv' ? detected.newline : undefined,
-        fileName,
-        fileStats,
+        file,
         fileIsMultilineJSON,
         fileType,
       });
@@ -796,13 +737,14 @@ export const selectImportFileName = (
       if (detected.type === 'csv') {
         await dispatch(loadCSVPreviewDocs());
       }
-    } catch (err: any) {
+    } catch (error: any) {
+      const err = toFileReadError(error);
       log.info(
         mongoLogId(1_001_000_189),
         'Import',
         'Import select file error',
         {
-          fileName,
+          fileName: file.name,
           error: err?.message,
         }
       );
@@ -829,7 +771,7 @@ export const setDelimiter = (
   delimiter: Delimiter
 ): ImportThunkAction<Promise<void>> => {
   return async (dispatch, getState, { logger: { debug } }) => {
-    const { fileName, fileType, fileIsMultilineJSON } = getState().import;
+    const { file, fileType, fileIsMultilineJSON } = getState().import;
     dispatch({
       type: SET_DELIMITER,
       delimiter: delimiter,
@@ -841,7 +783,7 @@ export const setDelimiter = (
     // so hopefully fine.
     if (fileType === 'csv') {
       debug('preview needs updating because delimiter changed', {
-        fileName,
+        fileName: file?.name,
         fileType,
         delimiter,
         fileIsMultilineJSON,
@@ -942,9 +884,8 @@ export const importReducer: Reducer<ImportState> = (
       ...state,
       delimiter: action.delimiter,
       newline: action.newline,
-      fileName: action.fileName,
+      file: action.file,
       fileType: action.fileType,
-      fileStats: action.fileStats,
       fileIsMultilineJSON: action.fileIsMultilineJSON,
       status: PROCESS_STATUS.UNSPECIFIED,
       firstErrors: [],
@@ -1095,7 +1036,6 @@ export const importReducer: Reducer<ImportState> = (
       firstErrors: [],
       status: PROCESS_STATUS.STARTED,
       abortController: action.abortController,
-      errorLogFilePath: action.errorLogFilePath,
     };
   }
 

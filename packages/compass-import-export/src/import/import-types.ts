@@ -6,7 +6,6 @@ import type { DataService } from 'mongodb-data-service';
 export type ImportOptions = {
   dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>;
   ns: string;
-  output?: Writable;
   abortSignal?: AbortSignal;
   progressCallback?: (progress: ImportProgress) => void;
   errorCallback?: (error: ErrorJSON) => void;

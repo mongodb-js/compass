@@ -1,16 +1,11 @@
 /* eslint-disable no-console */
-import os from 'node:os';
 import assert from 'node:assert';
-import fs from 'node:fs';
-import path from 'node:path';
-import { Readable } from 'node:stream';
 import { BSONError, EJSON } from 'bson';
 import { MongoBulkWriteError } from 'mongodb';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import temp from 'temp';
 import { omit } from 'lodash';
 
 import type { DataService } from 'mongodb-data-service';
@@ -73,13 +68,10 @@ describe('importJSON', function () {
 
         const ns = 'db.col';
 
-        const output = temp.createWriteStream();
-
         const result = await importJSON({
           dataService,
           ns,
           input: fs.createReadStream(filepath),
-          output,
           abortSignal: abortController.signal,
           progressCallback,
           jsonVariant: fixtureType,
@@ -165,13 +157,10 @@ describe('importJSON', function () {
 
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const result = await importJSON({
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
-      output,
       progressCallback,
       jsonVariant: 'jsonl',
     });
@@ -205,13 +194,10 @@ describe('importJSON', function () {
 
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const result = await importJSON({
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
-      output,
       progressCallback,
       jsonVariant: 'jsonl',
     });
@@ -238,13 +224,10 @@ describe('importJSON', function () {
   it('errors if a json file does not parse', async function () {
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const promise = importJSON({
       dataService,
       ns,
       input: Readable.from('x'),
-      output,
       // should fail regardless of stopOnErrors because the whole file doesn't parse
       stopOnErrors: false,
       jsonVariant: 'json',
@@ -259,13 +242,10 @@ describe('importJSON', function () {
   it('errors if a jsonl file does not parse', async function () {
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const promise = importJSON({
       dataService,
       ns,
       input: Readable.from('x'),
-      output,
       // should fail regardless of stopOnErrors because the whole file doesn't parse
       stopOnErrors: false,
       jsonVariant: 'jsonl',
@@ -280,13 +260,10 @@ describe('importJSON', function () {
   it('errors if a json file is passed as jsonl', async function () {
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const promise = importJSON({
       dataService,
       ns,
       input: Readable.from('[{"a": 1}]'),
-      output,
       stopOnErrors: true,
       jsonVariant: 'jsonl',
     });
@@ -300,13 +277,10 @@ describe('importJSON', function () {
   it('errors if a jsonl file is passed as json', async function () {
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const promise = importJSON({
       dataService,
       ns,
       input: Readable.from('{"a": 1}'),
-      output,
       // should fail regardless of stopOnErrors because the whole file doesn't parse
       stopOnErrors: false,
       jsonVariant: 'json',
@@ -321,13 +295,10 @@ describe('importJSON', function () {
   it('errors if a json file contains things that are not arrays', async function () {
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const promise = importJSON({
       dataService,
       ns,
       input: Readable.from('5'),
-      output,
       // should fail regardless of stopOnErrors because the whole file doesn't parse
       stopOnErrors: false,
       jsonVariant: 'json',
@@ -342,13 +313,10 @@ describe('importJSON', function () {
   it('errors if a jsonl file contains things that are not objects', async function () {
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const promise = importJSON({
       dataService,
       ns,
       input: Readable.from('{ "a": 1}\n5'),
-      output,
       stopOnErrors: true,
       jsonVariant: 'jsonl',
     });
@@ -384,13 +352,10 @@ describe('importJSON', function () {
 
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const promise = importJSON({
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
-      output,
       stopOnErrors: true,
       jsonVariant: 'jsonl',
     });
@@ -401,7 +366,7 @@ describe('importJSON', function () {
     );
   });
 
-  it('reports and writes parse errors (stopOnErrors=false)', async function () {
+  it('report parse errors (stopOnErrors=false)', async function () {
     const lines: string[] = [];
 
     lines.push(
@@ -426,7 +391,6 @@ describe('importJSON', function () {
 
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
@@ -434,7 +398,6 @@ describe('importJSON', function () {
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
-      output,
       stopOnErrors: false,
       jsonVariant: 'jsonl',
       progressCallback,
@@ -461,9 +424,6 @@ describe('importJSON', function () {
     const errors = errorCallback.args.map((args) => args[0]);
 
     expect(errors).to.deep.equal(expectedErrors);
-
-    const errorsText = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorsText).to.equal(formatErrorLines(expectedErrors));
   });
 
   it('errors if there are database errors (stopOnErrors=true)', async function () {
@@ -471,7 +431,6 @@ describe('importJSON', function () {
 
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
@@ -487,7 +446,6 @@ describe('importJSON', function () {
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
-      output,
       stopOnErrors: true,
       jsonVariant: 'jsonl',
       progressCallback,
@@ -500,12 +458,11 @@ describe('importJSON', function () {
     );
   });
 
-  it('reports and writes database errors (stopOnErrors=false)', async function () {
+  it('report database errors (stopOnErrors=false)', async function () {
     const lines = [{ i: 0 }, { i: 1 }].map((doc) => JSON.stringify(doc));
 
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
@@ -521,7 +478,6 @@ describe('importJSON', function () {
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
-      output,
       stopOnErrors: false,
       jsonVariant: 'jsonl',
       progressCallback,
@@ -559,16 +515,6 @@ describe('importJSON', function () {
       expect(error).to.deep.contain(expectedErrors[index]);
       expect(error).to.have.nested.property('errInfo.details');
     }
-
-    const outputErrors = await fs.promises.readFile(output.path, 'utf8');
-    const parsedOutputErrors = outputErrors
-      .trim()
-      .split('\n')
-      .map((err) => JSON.parse(err));
-    for (const [index, error] of parsedOutputErrors.entries()) {
-      expect(error).to.deep.contain(expectedErrors[index]);
-      expect(error).to.have.nested.property('errInfo.details');
-    }
   });
 
   it('responds to abortSignal.aborted', async function () {
@@ -578,13 +524,10 @@ describe('importJSON', function () {
 
     const ns = 'db.col';
 
-    const output = temp.createWriteStream();
-
     const result = await importJSON({
       dataService,
       ns,
       input: fs.createReadStream(fixtures.csv.complex),
-      output,
       abortSignal: abortController.signal,
       jsonVariant: 'jsonl',
     });
@@ -604,15 +547,12 @@ describe('importJSON', function () {
     const replaced = text.replace(/\n/g, '\r\n');
     const input = Readable.from(replaced);
 
-    const output = temp.createWriteStream();
-
     const ns = 'db.col';
 
     await importJSON({
       dataService,
       ns,
       input,
-      output,
       jsonVariant: 'json',
     });
 
@@ -639,8 +579,6 @@ describe('importJSON', function () {
     const latin1Buffer = Buffer.from(JSON.stringify(testDocs), 'latin1');
     const input = Readable.from(latin1Buffer);
 
-    const output = temp.createWriteStream();
-
     const ns = 'db.col';
 
     await expect(
@@ -648,7 +586,6 @@ describe('importJSON', function () {
         dataService,
         ns,
         input,
-        output,
         jsonVariant: 'json',
       })
     ).to.be.rejectedWith(
@@ -661,15 +598,12 @@ describe('importJSON', function () {
     const text = await fs.promises.readFile(fixtures.json.good, 'utf8');
     const input = Readable.from('\uFEFF' + text);
 
-    const output = temp.createWriteStream();
-
     const ns = 'db.col';
 
     await importJSON({
       dataService,
       ns,
       input,
-      output,
       jsonVariant: 'json',
     });
 
@@ -686,7 +620,3 @@ describe('importJSON', function () {
     }
   });
 });
-
-function formatErrorLines(errors: ErrorJSON[]) {
-  return errors.map((err) => JSON.stringify(err)).join(os.EOL) + os.EOL;
-}
