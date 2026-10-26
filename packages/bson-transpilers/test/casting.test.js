@@ -1,7 +1,7 @@
 'use strict';
 /* eslint new-cap: 0 no-sync: 0 */
-const path = require('path');
-const fs = require('fs');
+const path = require('node:path');
+const fs = require('node:fs');
 const chai = require('chai');
 const expect = chai.expect;
 
