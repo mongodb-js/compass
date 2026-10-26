@@ -7,8 +7,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
-  TEST_COMPASS_WEB,
   getDefaultConnectionNames,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
@@ -105,8 +103,6 @@ describe('Collection import', function () {
   let telemetry: Telemetry;
 
   before(async function () {
-    skipForWeb(this, 'import not yet available in compass-web');
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -121,10 +117,6 @@ describe('Collection import', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
     await telemetry.stop();
   });
