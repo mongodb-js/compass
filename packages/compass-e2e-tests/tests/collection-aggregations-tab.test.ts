@@ -1174,8 +1174,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports exporting aggregation results', async function () {
-    skipForWeb(this, 'export is not yet available in compass-web');
-
     // Set first stage to $match.
     await browser.selectStageOperator(0, '$match');
     await browser.setCodemirrorEditorValue(
