@@ -1373,6 +1373,24 @@ export const exportModalExportField = (fieldName: string): string => {
   return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
 
+// Collections menu of the database's collections view
+export const CollectionsDataActionsButton =
+  '[data-testid="collections-data-actions-show-actions"]';
+export const CollectionsDataActionsExport =
+  '[data-testid="collections-data-actions-export-action"]';
+
+// Export collections modal
+export const ExportCollectionsModal =
+  '[data-testid="export-collections-modal"]';
+export const ExportCollectionsSelectAll =
+  '[data-testid="export-collections-modal"] [data-testid="export-collections-select-all"]';
+export const exportCollectionsItem = (collectionName: string): string =>
+  `[data-testid="export-collections-modal"] [data-testid="export-collections-item-${collectionName}"]`;
+export const ExportCollectionsExportButton =
+  '[data-testid="export-collections-modal"] [data-testid="export-collections-export-button"]';
+export const ExportCollectionsToast =
+  '[data-testid="toast-export-collections-toast"]';
+
 // Export to language modal
 export const ExportToLanguageModal = '[data-testid="export-to-language-modal"]';
 export const ExportToLanguageLanguageField =

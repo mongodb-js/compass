@@ -202,6 +202,29 @@ describe('Collections', () => {
     expect(deleteSpy.calledOnce).to.be.true;
   });
 
+  it('does not render the export menu without an export handler', () => {
+    renderCollectionsList({ collections: colls });
+
+    expect(screen.queryByTestId('data-actions-controls')).to.not.exist;
+  });
+
+  it('renders the export menu when an export handler is passed', () => {
+    const exportSpy = Sinon.spy();
+    renderCollectionsList({
+      collections: colls,
+      onExportCollectionsClick: exportSpy,
+    });
+
+    userEvent.click(
+      screen.getByTestId('collections-data-actions-show-actions')
+    );
+    expect(
+      screen.getByTestId('collections-data-actions-show-actions')
+    ).to.have.text('Collections');
+    userEvent.click(screen.getByText('Export…'));
+    expect(exportSpy.calledOnce).to.be.true;
+  });
+
   it('renders "-" for a collection whose storage size was not reported', () => {
     renderCollectionsList({
       collections: [

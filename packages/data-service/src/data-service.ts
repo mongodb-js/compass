@@ -453,6 +453,16 @@ export interface DataService {
   ): Promise<CollectionInfoDetails>;
 
   /**
+   * Returns the options of a collection as reported by the listCollections
+   * command, for example `capped`, `timeseries` or `validator`, so that
+   * the collection can be recreated with createCollection.
+   *
+   * @param dbName database name
+   * @param collName collection name
+   */
+  collectionOptions(dbName: string, collName: string): Promise<Document>;
+
+  /**
    * Get the stats for a collection.
    *
    * @param databaseName - The database name.
@@ -1381,6 +1391,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
         ...collInfo,
       }) ?? null
     );
+  }
+
+  @op(mongoLogId(1_001_000_451))
+  async collectionOptions(dbName: string, collName: string): Promise<Document> {
+    const [collInfo] = await this._listCollections(dbName, { name: collName });
+    return (collInfo as Partial<CollectionInfo> | undefined)?.options ?? {};
   }
 
   @op(mongoLogId(1_001_000_031))
