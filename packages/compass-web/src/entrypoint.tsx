@@ -35,6 +35,7 @@ import {
 } from '@mongodb-js/compass-sidebar';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
+import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import {
   CompassAggregationsPlugin,
   CreateViewPlugin,
@@ -363,6 +364,8 @@ function CompassWorkspace({
             renderModals={() => {
               return (
                 <>
+                  <ImportPlugin></ImportPlugin>
+                  <ExportPlugin></ExportPlugin>
                   <CreateViewPlugin></CreateViewPlugin>
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
