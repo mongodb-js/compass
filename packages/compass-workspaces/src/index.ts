@@ -18,8 +18,8 @@ import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
-import type {
-  MongoDBInstance,
+import {
+  type MongoDBInstance,
   type MongoDBInstancesManager,
   MongoDBInstancesManagerEvents,
 } from '@mongodb-js/compass-app-stores/provider';

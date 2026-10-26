@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
-import type {
-  BadgeVariant,
-  GlyphName,
+import {
+  type BadgeVariant,
+  type GlyphName,
   Badge,
   cx,
   css,

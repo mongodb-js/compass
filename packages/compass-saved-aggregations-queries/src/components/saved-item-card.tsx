@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import type {
-  MenuAction,
+import {
+  type MenuAction,
   Card,
   css,
   useDefaultAction,

@@ -1,6 +1,6 @@
-import type {
-  IpcEvents,
-  ModifyApplicationMenuParams,
+import {
+  type IpcEvents,
+  type ModifyApplicationMenuParams,
   transformAppMenu,
   type CompassAppMenu,
   type MenuItemConstructorOptions,

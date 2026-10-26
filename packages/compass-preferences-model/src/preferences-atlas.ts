@@ -1,5 +1,5 @@
-import type {
-  AtlasServiceLike,
+import {
+  type AtlasServiceLike,
   type z,
   AtlasUserData,
 } from '@mongodb-js/compass-user-data';

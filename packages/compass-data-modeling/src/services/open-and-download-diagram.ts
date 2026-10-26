@@ -1,5 +1,5 @@
-import type {
-  SetModelEdit,
+import {
+  type SetModelEdit,
   EditListSchema,
   type Edit,
 } from './data-model-storage';

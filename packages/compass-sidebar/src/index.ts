@@ -1,5 +1,5 @@
-import type {
-  ActivateHelpers,
+import {
+  type ActivateHelpers,
   registerCompassPlugin,
   type AppRegistry,
 } from '@mongodb-js/compass-app-registry';
