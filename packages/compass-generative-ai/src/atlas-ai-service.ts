@@ -17,7 +17,7 @@ import {
   mergeChunkResponses,
   validateSchemaSize,
   needsBatching,
-} from './mock-data-generator';
+} from '@mongodb-js/mock-data-generator';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 import {
