@@ -26,7 +26,7 @@ import {
 import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
 import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 
 // Used in the `comment` on the aggregate command to help identify

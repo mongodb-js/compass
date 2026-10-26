@@ -1,6 +1,10 @@
 import { configuredKMSProviders } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
+import {
+  isLocalhost,
+  isDigitalOcean,
+  isAtlas,
+} from '@mongodb-js/mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';

@@ -1,4 +1,4 @@
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import keyBy from 'lodash/keyBy';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { CreateShardKeyData } from '../store/reducer';

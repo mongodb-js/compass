@@ -32,7 +32,7 @@ import type {
   DataService,
   InstanceDetails,
 } from 'mongodb-data-service';
-import { identifyServerName } from 'mongodb-build-info';
+import { identifyServerName } from '@mongodb-js/mongodb-build-info';
 import Sinon from 'sinon';
 import React from 'react';
 import type {

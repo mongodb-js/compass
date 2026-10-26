@@ -1,6 +1,6 @@
 import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';

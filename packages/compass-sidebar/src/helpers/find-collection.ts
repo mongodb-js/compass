@@ -1,4 +1,4 @@
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { Database } from '../modules/databases';
 
 export function findCollection(ns: string, databases: Database[]) {

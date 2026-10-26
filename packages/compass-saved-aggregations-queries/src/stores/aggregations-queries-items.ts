@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import type { SavedQueryAggregationThunkAction } from '.';

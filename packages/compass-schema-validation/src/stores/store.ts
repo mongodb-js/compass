@@ -2,7 +2,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import type { DataService, RootState } from '../modules';
 import reducer, { INITIAL_STATE } from '../modules';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { activateValidation } from '../modules/validation';
 import { editModeChanged } from '../modules/edit-mode';
 import semver from 'semver';

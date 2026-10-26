@@ -2,7 +2,7 @@ import type { Reducer, AnyAction, Action } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from '@mongodb-js/compass-app-registry';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { WorkspacesServices } from '..';
 import type {
   WorkspaceTab,

@@ -4,7 +4,7 @@ import type { Document } from 'bson';
 import { pipeline } from 'stream/promises';
 import { Transform } from 'stream';
 import type { Readable, Writable } from 'stream';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import Parser from 'stream-json/Parser';

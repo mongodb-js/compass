@@ -16,7 +16,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { generateScript } from '@mongodb-js/mock-data-generator';
 import type { DataGenerationStep } from './types';
 import { DataGenerationSteps, type FakerSchema } from './types';

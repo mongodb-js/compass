@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { DataModelingState } from '../../store/reducer';
 import {
   css,
