@@ -69,7 +69,7 @@
   "dependencies": {
     "@faker-js/faker": "^10.5.0",
     "@mongodb-js/mongodb-schema": "^12.7.2",
-    "@mongodb-js/shell-bson-parser": "^2.0.0",
+    "@mongodb-js/shell-bson-parser": "^1.6.3",
     "lodash": "^4.18.1",
     "prettier": "^2.8.8",
     "zod": "^4.6.7"
