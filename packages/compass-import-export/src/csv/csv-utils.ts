@@ -575,11 +575,11 @@ export function parseCSVValue(
   // from the dropdown.
 
   if (type === 'binData') {
-    return new Binary(Buffer.from(value, 'base64'), Binary.SUBTYPE_DEFAULT);
+    return Binary.createFromBase64(value, Binary.SUBTYPE_DEFAULT);
   }
 
   if (type === 'md5') {
-    return new Binary(Buffer.from(value, 'base64'), Binary.SUBTYPE_MD5);
+    return Binary.createFromBase64(value, Binary.SUBTYPE_MD5);
   }
 
   if (type === 'timestamp') {
