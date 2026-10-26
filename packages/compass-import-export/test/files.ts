@@ -63,3 +63,74 @@ export function createFakeFileHandle(name: string) {
     text: () => Buffer.concat(chunks).toString('utf8'),
   };
 }
+
+type FakeFile = { contents: Uint8Array[]; lastModified: number };
+
+// An in-memory stand-in for the origin private file system, which the test
+// environment doesn't have. Like the real one, writes only become visible
+// when the writable is closed.
+export function createFakeDirectory() {
+  const files = new Map<string, FakeFile>();
+  const created: string[] = [];
+
+  function getFile(name: string) {
+    const file = files.get(name);
+    if (!file) {
+      throw new DOMException(`${name} not found`, 'NotFoundError');
+    }
+    return file;
+  }
+
+  const directory = {
+    getFileHandle(name: string, options?: { create?: boolean }) {
+      if (!files.has(name)) {
+        if (!options?.create) {
+          return Promise.reject(
+            new DOMException(`${name} not found`, 'NotFoundError')
+          );
+        }
+        files.set(name, { contents: [], lastModified: Date.now() });
+        created.push(name);
+      }
+      return Promise.resolve({
+        name,
+        getFile() {
+          const { contents, lastModified } = getFile(name);
+          return Promise.resolve(
+            new NodeFile(contents, name, { lastModified }) as unknown as File
+          );
+        },
+        createWritable() {
+          const chunks: Uint8Array[] = [];
+          return Promise.resolve(
+            new WritableStream<Uint8Array>({
+              write(chunk) {
+                chunks.push(chunk);
+              },
+              close() {
+                getFile(name).contents = chunks;
+              },
+            })
+          );
+        },
+      });
+    },
+    removeEntry(name: string) {
+      getFile(name);
+      files.delete(name);
+      return Promise.resolve();
+    },
+    keys() {
+      return [...files.keys()][Symbol.iterator]();
+    },
+  };
+
+  return {
+    directory: directory as unknown as FileSystemDirectoryHandle,
+    created,
+    names: () => [...files.keys()],
+    addFile(name: string, lastModified: number) {
+      files.set(name, { contents: [], lastModified });
+    },
+  };
+}
