@@ -35,3 +35,31 @@ export function createChangedOnDiskFile(name: string): File {
     },
   } as unknown as File;
 }
+
+export function createFakeFileHandle(name: string) {
+  const chunks: Uint8Array[] = [];
+  const state = { closed: false, aborted: false };
+  const handle = {
+    name,
+    createWritable() {
+      return Promise.resolve(
+        new WritableStream<Uint8Array>({
+          write(chunk) {
+            chunks.push(chunk);
+          },
+          close() {
+            state.closed = true;
+          },
+          abort() {
+            state.aborted = true;
+          },
+        })
+      );
+    },
+  } as unknown as FileSystemFileHandle;
+  return {
+    handle,
+    state,
+    text: () => Buffer.concat(chunks).toString('utf8'),
+  };
+}

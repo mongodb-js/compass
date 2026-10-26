@@ -15,7 +15,6 @@ import {
   Modal,
   css,
   spacing,
-  createElectronFileInputBackend,
   FormFieldContainer,
   Checkbox,
   Accordion,
@@ -32,6 +31,7 @@ import {
   backToSelectFieldsToExport,
   readyToExport,
   runExport,
+  exportFileFailed,
 } from '../modules/export';
 import type { ExportStatus, FieldsToExportOption } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
@@ -139,11 +139,12 @@ type ExportModalProps = {
   selectFieldsToExport: () => void;
   readyToExport: (selectedFieldOption?: 'all-fields') => void;
   runExport: (exportOptions: {
-    filePath: string;
+    fileHandle: FileSystemFileHandle;
     fileType: 'csv' | 'json';
     jsonFormatVariant: ExportJSONFormat;
     escapeFormulae: boolean;
   }) => void;
+  exportFileFailed: (errorMessage: string) => void;
   backToSelectFieldOptions: () => void;
   backToSelectFieldsToExport: () => void;
   closeExport: () => void;
@@ -162,6 +163,7 @@ function ExportModal({
   selectFieldsToExport,
   readyToExport,
   runExport,
+  exportFileFailed,
   isOpen,
   closeExport,
   status,
@@ -212,10 +214,10 @@ function ExportModal({
     selectFieldsToExport();
   }, [readyToExport, selectFieldsToExport, fieldsToExportOption]);
 
-  const onSelectExportFilePath = useCallback(
-    (filePath: string) => {
+  const startExport = useCallback(
+    (fileHandle: FileSystemFileHandle) => {
       runExport({
-        filePath,
+        fileHandle,
         fileType,
         jsonFormatVariant,
         escapeFormulae,
@@ -225,41 +227,49 @@ function ExportModal({
   );
 
   const onClickExport = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-require-imports
-    const electron: typeof import('@electron/remote') = require('@electron/remote');
-    const fileBackend = createElectronFileInputBackend(electron, null)();
-
-    fileBackend.onFilesChosen((files: string[]) => {
-      if (files.length > 0) {
-        onSelectExportFilePath(files[0]);
-      }
-    });
-
-    fileBackend.openFileChooser({
-      multi: false,
-      mode: 'save',
-      title: 'Target output file',
-      defaultPath: `${ns}.${fileType}`,
-      buttonLabel: 'Select',
-      filters: [
-        { name: fileType, extensions: [fileType] },
-        { name: 'All Files', extensions: ['*'] },
-      ],
-    });
-  }, [fileType, ns, onSelectExportFilePath]);
+    if (!window.showSaveFilePicker) {
+      exportFileFailed('This browser does not support saving files.');
+      return;
+    }
+    window
+      .showSaveFilePicker({
+        suggestedName: `${ns}.${fileType}`,
+        types: [
+          {
+            description: fileType.toUpperCase(),
+            accept: {
+              [fileType === 'csv' ? 'text/csv' : 'application/json']: [
+                `.${fileType}`,
+              ],
+            },
+          },
+        ],
+      })
+      .then(startExport, (err: Error) => {
+        // AbortError means the user closed the dialog without picking a file
+        if (err?.name !== 'AbortError') {
+          exportFileFailed(err?.message);
+        }
+      });
+  }, [fileType, ns, startExport, exportFileFailed]);
 
   const onSelectExportFileNameEvent = useCallback(
-    ({ detail: filePath }: CustomEventInit<string>) => {
-      onSelectExportFilePath(filePath!);
+    ({ detail: fileName }: CustomEventInit<string>) => {
+      void (async () => {
+        const directory = await navigator.storage.getDirectory();
+        startExport(
+          await directory.getFileHandle(fileName ?? '', { create: true })
+        );
+      })();
     },
-    [onSelectExportFilePath]
+    [startExport]
   );
 
   useEffect(() => {
     if (isOpen) {
-      // For e2e testing we can't set the value of a file output
-      // for security reasons, so we listen to a dom event that sets it.
-      // https://github.com/electron-userland/spectron/issues/23
+      // WebdriverIO can't drive the native save dialog, so e2e tests dispatch
+      // this event with a file name instead. The export is written to the
+      // origin private file system, where the test reads it back.
       document.addEventListener(
         'selectExportFileName',
         onSelectExportFileNameEvent
@@ -420,6 +430,7 @@ const ConnectedExportModal = connect(
     backToSelectFieldsToExport,
     readyToExport,
     runExport,
+    exportFileFailed,
   }
 )(ExportModal);
 
