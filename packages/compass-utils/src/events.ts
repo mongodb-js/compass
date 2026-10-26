@@ -129,5 +129,7 @@ export function errorFromEvent(event: unknown): Error {
   if (event instanceof Error) return event;
   const { error, message } = (event ?? {}) as Partial<ErrorEvent>;
   if (error instanceof Error) return error;
-  return new Error(typeof message === 'string' ? message : 'Unknown error');
+  return new Error(
+    typeof message === 'string' ? message : `Unknown error: ${String(message)}`
+  );
 }
