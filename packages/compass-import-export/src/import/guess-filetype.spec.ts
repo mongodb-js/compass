@@ -180,10 +180,7 @@ describe('guessFileType', function () {
       guessFileType({
         input: Readable.from(latin1Buffer),
       })
-    ).to.be.rejectedWith(
-      TypeError,
-      'The encoded data was not valid for encoding utf-8'
-    );
+    ).to.be.rejectedWith(TypeError, /The encoded data was not valid/);
   });
 
   it('does not mind a BOM character', async function () {

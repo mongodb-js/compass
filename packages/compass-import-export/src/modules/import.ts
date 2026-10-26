@@ -750,9 +750,9 @@ export const selectImportFile = (
       );
 
       if (
-        err?.message?.includes(
-          'The encoded data was not valid for encoding utf-8'
-        )
+        // Node.js says "...not valid for encoding utf-8", Chromium's
+        // TextDecoder just "...not valid."
+        err?.message?.includes('The encoded data was not valid')
       ) {
         err.message = `Unable to load the file. Make sure the file is valid CSV or JSON. Error: ${
           err?.message as string
