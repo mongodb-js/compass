@@ -326,7 +326,7 @@ This document was automatically generated on Mon Oct 26 2026.
 | **[has-property-descriptors](#4616611d5db8c73d2811bc79dd6cbde0b69f1cc891c1f997448bc79546ba9913)**                           | 1.0.2        | MIT                                 |
 | **[has-symbols](#c0d7b7b02fe7161b003559eb9011d0e346cb07ad54c046cb4da80d42c1f682b4)**                                        | 1.1.0        | MIT                                 |
 | **[has-tostringtag](#e39d802569f1249ba08678c5fb24fc1b87ee4c92cc0f6eaa259f5b54038f2e13)**                                    | 1.0.2        | MIT                                 |
-| **[hasown](#ace41f4c3d63ecdc85c94d28b43fc006fc67f35c24ecaa112b631dbcb5c0b39d)**                                             | 2.0.2        | MIT                                 |
+| **[hasown](#ba2e3a5fbd1028da71e02d351c424d0d8063ffc9afe439a85d8b952077be8b8b)**                                             | 2.0.4        | MIT                                 |
 | **[hast-util-sanitize](#15ecf7010d395f379d15f053801693920822dfe43d665df0ae2c3f89b2d817ae)**                                 | 4.1.0        | MIT                                 |
 | **[hast-util-to-html](#392c8e648f8daf1083c8fc4fa70573c1b0281b1939faca0dba58ef623a22ec5e)**                                  | 8.0.4        | MIT                                 |
 | **[hast-util-whitespace](#ae0b636dad5ee9a78106d664aab90ec6855927623c2c0da231e2bdfb3e6b2604)**                               | 2.0.1        | MIT                                 |
@@ -25795,9 +25795,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="ace41f4c3d63ecdc85c94d28b43fc006fc67f35c24ecaa112b631dbcb5c0b39d"></a>
+<a id="ba2e3a5fbd1028da71e02d351c424d0d8063ffc9afe439a85d8b952077be8b8b"></a>
 
-### [hasown](https://www.npmjs.com/package/hasown) (version 2.0.2)
+### [hasown](https://www.npmjs.com/package/hasown) (version 2.0.4)
 
 License tags: MIT
 
