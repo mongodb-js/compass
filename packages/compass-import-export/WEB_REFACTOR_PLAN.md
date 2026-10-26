@@ -5,7 +5,7 @@
 Make `@mongodb-js/compass-import-export` run with no Node.js or Electron APIs, so that the same code serves both Compass desktop and Compass Web. File access moves to web platform APIs:
 
 - **Import** reads a `File` from `<input type="file">`. This works in every browser.
-- **Export** writes through `showSaveFilePicker()` and `FileSystemWritableFileStream`. Only Chromium has these, so export is **Chromium-only for now**: Electron, Chrome and Edge. Other browsers have the button hidden (see "Browser support").
+- **Export** writes through `showSaveFilePicker()` and `FileSystemWritableFileStream`. Only Chromium has these, so import / export targets **Chromium only**: Electron, Chrome and Edge. In other browsers Compass Web hides the feature entirely (see "Browser support").
 - **Temporary storage** for the two-pass CSV export uses the Origin Private File System (OPFS).
 
 Stream processing keeps the Node stream programming model. Code keeps importing `stream`, which the shared ESLint plugin config allows and which Compass Web aliases to [`readable-stream`](https://github.com/nodejs/readable-stream) v4.
@@ -93,10 +93,12 @@ These changes don't affect behavior.
 
 ### Phase 2: Import from a `File`
 
-- **Selection.** `FilePickerDialog` returns path strings, which doesn't work on web. Decision: extend `FilePickerDialog` so it can report `File` objects from its HTML input, and use that in `ImportFileInput`. Keep the input id `import-file_file_input`, because e2e `browser.selectFile` targets it.
+- **Selection.** `FilePickerDialog` returns path strings, which doesn't work on web, and it is deprecated in favor of `FileSelector`. `ImportFileInput` uses `FileSelector`, which reports `File` objects. The input keeps the id `import-file_file_input`, because e2e `browser.selectFile` targets it. React doesn't wire `onCancel` for `<input>`, so the native `cancel` event is caught where it bubbles up to a wrapper element.
 
 - **State.** Replace `fileName: string` and `fileStats: fs.Stats` with `file: File`, and derive the name and size from it. The import store already holds non-serializable values (`abortController`, `analyzeAbortController`), so this follows the existing pattern.
-- **Thunks.** `selectImportFileName`, `loadCSVPreviewDocs`, `loadTypes` and `startImport` each open `Readable.fromWeb(file.stream())`. A `File` can be re-read cheaply. Remove the `checkFileExists` check.
+- **Thunks.** `selectImportFile` (was `selectImportFileName`), `loadCSVPreviewDocs`, `loadTypes` and `startImport` each open `readableFromWeb(file.stream())`. A `File` can be re-read cheaply. Remove the `checkFileExists` check.
+- **Chunk boundaries.** `File.stream()` chunks can split a multi-byte character, and papaparse decodes every chunk on its own (`chunk.toString()`), which turned split characters into U+FFFD. This already affected preview and type analysis. `Utf8Validator` now emits decoded text, so chunks end on character boundaries.
+- **Read errors.** `guessFileType` and `listCSVFields` used `.pipe()`, which doesn't forward source errors, so a read error hung or crashed them. They now listen on the source.
 - **Modified files.** Reading a `File` whose file on disk changed after selection throws `NotReadableError`. Map that error to "The file changed since it was selected. Select it again."
 - **UTF-8 decoding is fatal.** Invalid UTF-8 fails the import, following `TextDecoder` rules (`new TextDecoder('utf-8', { fatal: true })`). This is a behavior change:
   - Today `selectImportFileName` and `startImport` open the file with `createReadStream(fileName, 'utf8')`. Node decodes with `StringDecoder`, which replaces invalid bytes with U+FFFD before `Utf8Validator` sees them.
@@ -116,50 +118,55 @@ These changes don't affect behavior.
   ```
   The call must stay inside the click handler, because the API requires user activation.
 - **State.** `runExport` receives the handle instead of `filePath`, and the toast title uses `handle.name`.
-- **Output.** `Writable.fromWeb(await handle.createWritable())`. Remove the `outputWriteStream.close()` from `finally`, because `pipeline` ends or destroys the stream.
-- **Cancel semantics change.** `createWritable()` writes to a swap file. The file only becomes visible on `close()`, and `abort()` discards it. A cancelled or failed export therefore leaves no file, where today it leaves a partial one. Update the cancelled toast copy to say this.
+- **Output.** `writableFromWeb(await handle.createWritable())`. Remove the `outputWriteStream.close()` from `finally`, because `pipeline` ends or destroys the stream.
+- **Cancel semantics change.** `createWritable()` writes to a swap file. The data only becomes visible on `close()`, and `abort()` discards it. `runExport` destroys an output that didn't finish, so a cancelled or failed export leaves an empty file (the picker already created it) instead of a partial one. The cancelled toast no longer offers "show file".
 - **Write batching.** Each `FileSystemWritableFileStream.write()` is an IPC round trip to the browser process, and the exporters emit one small chunk per document. `writableFromWeb` implements `writev` (Phase 1), so chunks that queue up behind a pending write are sent as one.
 - **Fix the write after end in the JSON export.**
   - `export-json.ts` pushes `]` in the transform's `final`. Then its `finally` block writes `]\n` to `output` again, after `pipeline` has already ended or destroyed the stream.
-  - Today that write is silently lost: the expected fixtures (for example `test/docs/all-bson-types.exported.default.ejson`) end in `]` with no trailing newline. On a `Writable.fromWeb` it becomes an error.
+  - That write is silently dropped, both by Node.js and by readable-stream, because the stream is already destroyed. The expected fixtures (for example `test/docs/all-bson-types.exported.default.ejson`) end in `]` with no trailing newline.
   - Fix: delete the `output.write(']\n')` in `finally`. The output stays byte-identical to today, so the existing fixture assertions don't change.
-  - Add a spec that fails on any `error` event from `output` after `exportJSON*` resolves.
-- **"Show in folder".** A handle exposes no filesystem path. Remove the toast action and `utils/reveal-file.ts`. The `show-file` IPC handler in `compass/src/main/window-manager.ts` can go too, if nothing else uses it.
-- **Electron.** Compass sets no `setPermissionRequestHandler`. Verify that `showSaveFilePicker` and `createWritable` work in the current Electron version without extra permission wiring. Also verify that the native dialog doesn't block e2e (see COMPASS-10717 in `set-export-filename.ts`).
+  - The spec records writes made after `output.writableEnded`, and expects none.
+- **"Show in folder".** A handle exposes no filesystem path. Remove the toast action and `utils/reveal-file.ts`. The `show-file` IPC handler in `compass/src/main/window-manager.ts` stays: other packages use it.
+- **Picker errors.** `AbortError` (the user closed the dialog) is ignored. Other errors show in the existing "Error creating output file" banner.
+- **Electron.** Checked in an Electron 45 probe of a `file://` page with `nodeIntegration`: secure context, `showSaveFilePicker` present, OPFS read / write works, and `readableFromWeb` / `writableFromWeb` round-trip data with Node's `stream`. An aborted writable leaves the file empty. The picker dialog itself was not exercised (it needs a person).
 
 ### Phase 4: CSV temp file in OPFS
 
 - In `export-csv.ts`, replace `os.tmpdir()` and `fs` with:
   ```ts
   const dir = await navigator.storage.getDirectory();
-  const tmp = await dir.getFileHandle(`export-${crypto.randomUUID()}.jsonl`, {
+  const tmp = await dir.getFileHandle(`export-csv-${random}.jsonl`, {
     create: true,
   });
-  // write: Writable.fromWeb(await tmp.createWritable())
-  // read:  Readable.fromWeb((await tmp.getFile()).stream())
+  // write: writableFromWeb(await tmp.createWritable())
+  // read:  readableFromWeb((await tmp.getFile()).stream())
   // clean: await dir.removeEntry(tmp.name)
   ```
-- A crash leaves orphaned files behind. When an export starts, delete `export-*.jsonl` entries older than a day.
-- OPFS counts against the origin's storage quota. Map `QuotaExceededError` to a clear message that says the export is too large for the available browser storage.
+- A crash leaves orphaned files behind. When an export starts, delete `export-csv-*` entries older than a day.
+- OPFS counts against the origin's storage quota. Chromium's `QuotaExceededError` message is readable as is and reaches the failed toast, so there is no custom copy.
 - We rejected re-running the cursor in place of a temp file: the second pass isn't a consistent snapshot, so its columns could differ from the header written from the first pass.
 
 ### Phase 5: Import error log
 
+Done together with Phase 2, because the `startImport` rewrite touched the same code.
+
 - Remove the on-disk error log: `getErrorLogPath`, `getUserDataFolderPath`, `errorLogFilePath` in state, `utils/open-file.ts`, and the "View log" toast action.
 - Keep the in-memory `firstErrors` (the first 5 errors) shown in the UI. Keep the error count.
+- Remove the `output` option from `importCSV` / `importJSON` / `doImport`. `doImport` only reported database write errors to `errorCallback` when `output` was set, so it now always reports them. Without that, dropping the log would have hidden write errors from the UI.
 - If users still need the full log later, collect it in OPFS and offer a download through `URL.createObjectURL`. That's out of scope here.
 
 ### Phase 6: Clean up dependencies
 
-- Remove `@electron/remote`, `electron`, `hadron-ipc` and `@mongodb-js/compass-utils` (if no longer used) from `package.json`. Run `npm run depcheck`.
-- Enable the Phase 0 lint rule for all of `src/**`.
+- Remove `@electron/remote`, `@mongodb-js/hadron-ipc` and `@mongodb-js/compass-utils` from `package.json`. Move `electron` to `devDependencies`, because `electron-mocha` needs it. Run `npm run depcheck`.
+- Remove the lint override for `src/**`. It stays for `scripts/**`.
 
 ### Phase 7: Enable in Compass Web
 
 - Render `<ImportPlugin>` and `<ExportPlugin>` in `compass-web/src/entrypoint.tsx`, matching desktop `workspace.tsx`.
-- Set `enableImportExport` to `true` in `compass-web/src/preferences.tsx`, behind a feature flag for the first release.
-- On browsers without `showSaveFilePicker`, hide the export entry points (CRUD toolbar, add-data menu, aggregation "Export"). Import stays available. (Decided.)
-- Remove `skipForWeb` from `collection-import.test.ts` and `collection-export.test.ts`.
+- `compass-import-export` exports `isImportExportSupported()`. It checks for `window.showSaveFilePicker` and `navigator.storage.getDirectory`.
+- `compass-web/src/preferences.tsx` sets `enableImportExport: isImportExportSupported()`. Every entry point (CRUD toolbar, add-data menu, document list, aggregation "Export") already checks that preference. So in browsers without the APIs, the feature stays hidden as it is today, and no per-browser logic is needed.
+- The export modal keeps a guard for a missing `showSaveFilePicker` as a backstop.
+- Remove `skipForWeb` from the import, export and aggregation-export e2e tests.
 
 ## Browser support
 
@@ -169,28 +176,29 @@ These changes don't affect behavior.
 | Export target | `showSaveFilePicker`, `createWritable` | yes                               | no      | no     |
 | CSV temp file | OPFS `createWritable`                  | yes                               | yes     | verify |
 
-To support export in Firefox and Safari later: stream the export into an OPFS file, then trigger a download of `await handle.getFile()` through an `<a download>` link. This costs twice the disk space and gives no save-location choice up front.
+Firefox and Safari get neither import nor export until they ship these APIs. No fallbacks are planned.
 
 ## Testing
 
-- **Unit specs.** Core specs keep using Node `fs.createReadStream` fixtures. That's fine, because `readable-stream` and Node streams interoperate. Add a few cases that feed `Readable.fromWeb(new Blob([...]).stream())`, to cover the real web input path. Include the truncated UTF-8 case.
-- **Thunk / component specs.** Build `File` objects (`new File([contents], 'name.csv')`) instead of temp paths. For export, give a fake handle whose `createWritable()` returns a `WritableStream` that collects chunks. Assert on the collected output.
+- **Unit specs.** Core specs keep using Node `fs.createReadStream` fixtures. That's fine, because `readable-stream` and Node streams interoperate. The whole suite also passes with `stream` aliased to readable-stream 4.5.1 (Compass Web's polyfill) through a require hook.
+- **Thunk / component specs.** Build `File` objects instead of temp paths. jsdom's `File` has no `.stream()`, so `test/files.ts` builds them with Node's `File`. For export, a fake handle's `createWritable()` returns a `WritableStream` that collects chunks. An in-memory fake stands in for OPFS.
 - **E2E, import.** `browser.selectFile(Selectors.ImportFileInput, path)` keeps working against the `<input type="file">`.
-- **E2E, export.** WebdriverIO can't drive `showSaveFilePicker`. Keep the `selectExportFileName` event, but pass a name. The page creates an OPFS handle with that name and hands it to `runExport`. `setExportFilename` then reads the result back with `browser.execute` (from OPFS through `getFile().text()`) instead of `fs.readFile`. The same hook works for desktop and web.
+- **E2E, export.** WebdriverIO can't drive `showSaveFilePicker`. Keep the `selectExportFileName` event, but pass a name. The page creates an OPFS handle with that name and hands it to `runExport`. The new `browser.readExportedFile` reads the result back from OPFS instead of `fs.readFile`. The same hook works for desktop and web.
 
 ## Risks
 
-| Risk                                                                                   | Mitigation                                                                                                   |
-| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Throughput regression from per-chunk IPC writes                                        | `writev` batching in `writableFromWeb`. Benchmark a 1 GB export before and after.                            |
-| Twice the disk space during export (swap file), three times for CSV (OPFS temp + swap) | Document it. Most exports are far below disk limits.                                                         |
-| Users relying on partial files after a cancel                                          | Clear cancel toast copy.                                                                                     |
-| Fatal UTF-8 decoding rejects files that import today                                   | Intended (Phase 2). Release note. Error copy already points users at the encoding.                           |
-| `showSaveFilePicker` behavior in Electron (permissions, modal blocking e2e)            | Verify before starting Phase 3. If blocked, keep the Electron dialog behind an injected service until fixed. |
+| Risk                                                                                   | Mitigation                                                                            |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Throughput regression from per-chunk IPC writes                                        | `writev` batching in `writableFromWeb`. Benchmark a 1 GB export before and after.     |
+| Twice the disk space during export (swap file), three times for CSV (OPFS temp + swap) | Document it. Most exports are far below disk limits.                                  |
+| Users relying on partial files after a cancel                                          | Clear cancel toast copy.                                                              |
+| Fatal UTF-8 decoding rejects files that import today                                   | Intended (Phase 2). Release note. Error copy already points users at the encoding.    |
+| `showSaveFilePicker` behavior in Electron (permissions, modal blocking e2e)            | API availability verified in Electron 45. The real dialog still needs a manual check. |
 
 ## Decisions
 
-1. `FilePickerDialog` gets a `File[]` callback. Import uses it.
+1. Import uses the existing `FileSelector`. `FilePickerDialog` is deprecated, so it isn't extended.
 2. "Show in folder" (export) and "View error log" (import) are removed on desktop too.
-3. On browsers without `showSaveFilePicker`, Compass Web hides export. There is no OPFS-plus-download fallback for now.
+3. Target Chromium only. Browsers without the APIs don't get import / export at all, through `isImportExportSupported()`. There are no fallbacks.
 4. Invalid UTF-8 is fatal, using `TextDecoder` rules.
+5. The CSV export keeps its two-pass design, with the temp file in OPFS.
