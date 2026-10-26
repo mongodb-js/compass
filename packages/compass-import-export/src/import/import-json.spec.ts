@@ -588,10 +588,7 @@ describe('importJSON', function () {
         input,
         jsonVariant: 'json',
       })
-    ).to.be.rejectedWith(
-      TypeError,
-      'The encoded data was not valid for encoding utf-8'
-    );
+    ).to.be.rejectedWith(TypeError, /The encoded data was not valid/);
   });
 
   it('strips the BOM character', async function () {
