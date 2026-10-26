@@ -8,8 +8,9 @@ export async function waitForExportToFinishAndCloseToast(
   const toastElement = browser.$(Selectors.ExportToast);
   await toastElement.waitForDisplayed();
 
-  const exportShowFileButtonElement = browser.$(Selectors.ExportToastShowFile);
-  await exportShowFileButtonElement.waitForDisplayed();
+  await browser.waitUntil(async () => {
+    return (await toastElement.getText()).includes('Export completed.');
+  });
   await browser
     .$(Selectors.closeToastButton(Selectors.ExportToast))
     .waitForDisplayed();

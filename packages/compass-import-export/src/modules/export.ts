@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import type { Writable } from 'node:stream';
 import type { Action, AnyAction, Reducer } from 'redux';
 import _ from 'lodash';
 import {
@@ -29,6 +30,7 @@ import {
   exportJSONFromQuery,
 } from '../export/export-json';
 import type { ExportJSONFormat } from '../export/export-json';
+import { writableFromWeb } from '../utils/web-streams';
 import type { ExportThunkAction } from '../stores/export-store';
 
 export type FieldsToExport = {
@@ -260,6 +262,13 @@ type ExportFileErrorAction = {
   errorMessage: string;
 };
 
+export const exportFileFailed = (
+  errorMessage: string
+): ExportFileErrorAction => ({
+  type: ExportActionTypes.ExportFileError,
+  errorMessage,
+});
+
 type RunExportAction = {
   type: typeof ExportActionTypes.RunExport;
   exportAbortController: AbortController;
@@ -361,12 +370,12 @@ export const selectFieldsToExport = (): ExportThunkAction<
 };
 
 export const runExport = ({
-  filePath,
+  fileHandle,
   fileType,
   jsonFormatVariant,
   escapeFormulae = true,
 }: {
-  filePath: string;
+  fileHandle: FileSystemFileHandle;
   fileType: 'csv' | 'json';
   jsonFormatVariant: ExportJSONFormat;
   escapeFormulae?: boolean;
@@ -376,14 +385,12 @@ export const runExport = ({
     getState,
     { connections, preferences, track, logger: { log, mongoLogId } }
   ) => {
-    let outputWriteStream: fs.WriteStream;
+    const fileName = fileHandle.name;
+    let output: Writable;
     try {
-      outputWriteStream = fs.createWriteStream(filePath);
+      output = writableFromWeb(await fileHandle.createWritable());
     } catch (err: any) {
-      dispatch({
-        type: ExportActionTypes.ExportFileError,
-        errorMessage: err?.message || 'Error creating output file.',
-      });
+      dispatch(exportFileFailed(err?.message || 'Error creating output file.'));
       return;
     }
 
@@ -432,7 +439,7 @@ export const runExport = ({
 
     log.info(mongoLogId(1_001_000_185), 'Export', 'Start export', {
       namespace,
-      filePath,
+      fileName,
       fileType,
       exportFullCollection,
       jsonFormatVariant,
@@ -463,7 +470,7 @@ export const runExport = ({
       showInProgressToast({
         cancelExport: () => dispatch(cancelExport()),
         docsWritten: index,
-        filePath,
+        fileName,
         namespace,
         csvPhase,
       });
@@ -483,7 +490,7 @@ export const runExport = ({
         dataService,
         preferences,
         progressCallback,
-        output: outputWriteStream,
+        output,
       };
       if (aggregation) {
         if (fileType === 'csv') {
@@ -518,7 +525,7 @@ export const runExport = ({
       log.info(mongoLogId(1_001_000_186), 'Export', 'Finished export', {
         namespace,
         docsWritten: exportResult.docsWritten,
-        filePath,
+        fileName,
       });
 
       exportSucceeded = true;
@@ -534,7 +541,12 @@ export const runExport = ({
       });
       showFailedToast(err);
     } finally {
-      outputWriteStream.close();
+      // Exports that fail or get cancelled before they reach the output never
+      // end it. Destroying it discards what was written instead of leaving
+      // the file open.
+      if (!output.writableFinished) {
+        output.destroy();
+      }
     }
 
     const aborted = !!(
@@ -582,14 +594,11 @@ export const runExport = ({
     }
 
     if (exportResult?.aborted) {
-      showCancelledToast({
-        docsWritten: exportResult?.docsWritten ?? 0,
-        filePath,
-      });
+      showCancelledToast();
     } else {
       showCompletedToast({
         docsWritten: exportResult?.docsWritten ?? 0,
-        filePath,
+        fileName,
       });
     }
 
