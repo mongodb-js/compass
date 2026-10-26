@@ -99,7 +99,7 @@ async function _gatherFields({
   });
 
   try {
-    await pipeline(
+    await streamPromises.pipeline(
       [input, analyzeStream],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );

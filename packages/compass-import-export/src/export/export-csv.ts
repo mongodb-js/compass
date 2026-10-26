@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import { Transform } from 'node:stream';
+import { Transform , promises as streamPromises } from 'node:stream';
 import type { Readable, Writable } from 'node:stream';
 import path from 'node:path';
 import os from 'node:os';
@@ -154,7 +154,7 @@ async function _exportCSV({
   });
 
   try {
-    await pipeline(
+    await streamPromises.pipeline(
       [input, rowStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
@@ -246,7 +246,7 @@ async function loadEJSONFileAndColumns({
   const columnStream = new ColumnStream(progressCallback);
 
   try {
-    await pipeline(
+    await streamPromises.pipeline(
       [inputStream, columnStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
