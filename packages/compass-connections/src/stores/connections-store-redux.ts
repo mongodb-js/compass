@@ -29,7 +29,7 @@ import { getNotificationTriggers } from '../components/connection-status-notific
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import { isAtlasStream } from '@mongodb-js/mongodb-build-info';
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import { showEndOfLifeMongoDBWarningModal as _showEndOfLifeMongoDBWarningModal } from '../components/end-of-life-connection-modal';
 import ConnectionString from 'mongodb-connection-string-url';

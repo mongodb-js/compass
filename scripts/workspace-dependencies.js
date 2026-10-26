@@ -1,5 +1,5 @@
 'use strict';
-const path = require('path');
+const path = require('node:path');
 const { runInDir } = require('./run-in-dir');
 
 const ROOT_DIR = path.resolve(__dirname, '..');

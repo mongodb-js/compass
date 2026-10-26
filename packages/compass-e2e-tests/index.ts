@@ -1,5 +1,5 @@
 import util from 'node:util';
-import path from 'path';
+import path from 'node:path';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
 import Mocha from 'mocha';

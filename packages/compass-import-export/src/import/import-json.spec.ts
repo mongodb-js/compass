@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-import os from 'os';
-import assert from 'assert';
+import os from 'node:os';
+import assert from 'node:assert';
 import { BSONError, EJSON } from 'bson';
 import { MongoBulkWriteError } from 'mongodb';
-import fs from 'fs';
-import path from 'path';
-import { Readable } from 'stream';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Readable } from 'node:stream';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';

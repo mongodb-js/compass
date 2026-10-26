@@ -1,5 +1,5 @@
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
   AggregateOptions,

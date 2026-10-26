@@ -1,8 +1,8 @@
 import { z } from '@mongodb-js/compass-user-data';
 import { expect } from 'chai';
-import os from 'os';
-import path from 'path';
-import fs from 'fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import fs from 'node:fs/promises';
 import type { UserStorage, User } from './user-storage';
 import { UserStorageImpl } from './user-storage';
 import { users as UserFixtures } from '../test/fixtures';

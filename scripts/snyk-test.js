@@ -1,6 +1,6 @@
 'use strict';
-const { promises: fs } = require('fs');
-const path = require('path');
+const { promises: fs } = require('node:fs');
+const path = require('node:path');
 const fetch = require('make-fetch-happen');
 
 const MAKE_FETCH_HAPPEN_OPTIONS = {

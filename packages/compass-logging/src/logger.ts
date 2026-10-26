@@ -4,7 +4,7 @@ import {
   mongoLogId,
 } from 'mongodb-log-writer/mongo-log-writer';
 import createDebug from 'debug';
-import type { Writable } from 'stream';
+import type { Writable } from 'node:stream';
 
 export type Logger = {
   log: ReturnType<MongoLogWriter['bindComponent']>;

@@ -1,9 +1,9 @@
 #!/usr/bin/env ts-node
 /* eslint-disable no-console */
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { join, resolve } from 'path';
+import { join, resolve } from 'node:path';
 import { parse } from '@fast-csv/parse';
 import type { SimpleEvalCase } from '../test/assistant.eval';
 

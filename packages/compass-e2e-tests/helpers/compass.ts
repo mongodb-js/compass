@@ -1,4 +1,4 @@
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 import { ObjectId, EJSON } from 'bson';
 import {
   promises as fs,
@@ -7,13 +7,13 @@ import {
   openSync,
   rmdirSync,
   writeSync,
-} from 'fs';
+} from 'node:fs';
 import type Mocha from 'mocha';
-import os from 'os';
-import { execFile } from 'child_process';
-import type { ExecFileOptions, ExecFileException } from 'child_process';
-import { promisify } from 'util';
-import zlib from 'zlib';
+import os from 'node:os';
+import { execFile } from 'node:child_process';
+import type { ExecFileOptions, ExecFileException } from 'node:child_process';
+import { promisify } from 'node:util';
+import zlib from 'node:zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
@@ -52,7 +52,7 @@ import {
   MONOREPO_ROOT_PATH,
 } from './test-runner-paths.ts';
 import treeKill from 'tree-kill';
-import path from 'path';
+import path from 'node:path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures.ts';
 import { dialogOpenLocator } from './dialog-open-locator-strategy.ts';
 import { getExtension } from './redirect-extension.ts';

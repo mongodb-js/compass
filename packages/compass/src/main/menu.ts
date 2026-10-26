@@ -8,8 +8,8 @@ import {
   shell,
 } from 'electron';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import createDebug from 'debug';
 import type { THEMES } from '@mongodb-js/compass-preferences-model';
 

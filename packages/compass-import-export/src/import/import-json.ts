@@ -1,5 +1,5 @@
 import { EJSON } from 'bson';
-import type { Readable } from 'stream';
+import type { Readable } from 'node:stream';
 import toNS from '@mongodb-js/mongodb-ns';
 import Parser from 'stream-json/Parser';
 import StreamArray from 'stream-json/streamers/StreamArray';

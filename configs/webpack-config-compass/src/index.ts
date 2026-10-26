@@ -9,8 +9,8 @@ import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error no types exist for this library
 import DuplicatePackageCheckerPlugin from '@cerner/duplicate-package-checker-webpack-plugin';
-import path from 'path';
-import { builtinModules } from 'module';
+import path from 'node:path';
+import { builtinModules } from 'node:module';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { WebpackPluginStartElectron } from './webpack-plugin-start-electron';
 import type { ConfigArgs, WebpackConfig } from './args';

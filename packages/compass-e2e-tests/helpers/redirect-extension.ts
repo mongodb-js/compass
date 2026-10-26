@@ -1,8 +1,8 @@
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import JSZip from 'jszip';
 import Debug from 'debug';
-import { tmpdir } from 'os';
+import { tmpdir } from 'node:os';
 
 const debug = Debug('compass-e2e-tests:redirect-extension');
 

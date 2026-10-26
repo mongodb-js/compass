@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable mocha/max-top-level-suites */
 import _ from 'lodash';
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Document } from 'bson';
 import chai from 'chai';
 import sinon from 'sinon';

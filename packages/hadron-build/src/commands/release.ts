@@ -1,8 +1,8 @@
 import Target from '../lib/target';
 import createCLI from 'mongodb-js-cli';
-import util from 'util';
-import path from 'path';
-import { promises as fs } from 'fs';
+import util from 'node:util';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import del from 'del';
 import _ from 'lodash';
 import asar from 'asar';

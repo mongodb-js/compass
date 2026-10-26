@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-import assert from 'assert';
-import path from 'path';
+import assert from 'node:assert';
+import path from 'node:path';
 import { expect } from 'chai';
-import fs from 'fs';
-import { Readable } from 'stream';
+import fs from 'node:fs';
+import { Readable } from 'node:stream';
 
 import { guessFileType } from './guess-filetype';
 import { listCSVFields } from './list-csv-fields';

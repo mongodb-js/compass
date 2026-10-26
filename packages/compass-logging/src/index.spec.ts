@@ -1,5 +1,5 @@
 import { createLogger } from './';
-import { once } from 'events';
+import { once } from 'node:events';
 import { expect } from 'chai';
 
 describe('createLogger', function () {

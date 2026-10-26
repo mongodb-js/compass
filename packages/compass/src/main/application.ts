@@ -1,6 +1,6 @@
 import './disable-node-deprecations'; // Separate module so it runs first
-import path from 'path';
-import { EventEmitter } from 'events';
+import path from 'node:path';
+import { EventEmitter } from 'node:events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
 import { app, safeStorage, session, utilityProcess } from 'electron';
 import { ipcMain } from '@mongodb-js/hadron-ipc';

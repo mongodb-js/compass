@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { WorkspaceTab } from './index';
 import {
   renderWithActiveConnection,

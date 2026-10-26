@@ -6,7 +6,7 @@ import type {
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';
 

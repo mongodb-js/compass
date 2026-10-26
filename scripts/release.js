@@ -1,10 +1,10 @@
 'use strict';
 const fetch = require('make-fetch-happen');
 const semver = require('semver');
-const util = require('util');
-const execFile = util.promisify(require('child_process').execFile);
-const path = require('path');
-const { promises: fs } = require('fs');
+const util = require('node:util');
+const execFile = util.promisify(require('node:child_process').execFile);
+const path = require('node:path');
+const { promises: fs } = require('node:fs');
 
 const monorepoRoot = path.join(__dirname, '..');
 const compassPackagePath = path.join(monorepoRoot, 'packages', 'compass');

@@ -2,8 +2,8 @@ import type {
   PutObjectCommandInput,
   PutObjectCommandOutput,
 } from '@aws-sdk/client-s3';
-import child_process from 'child_process';
-import path from 'path';
+import child_process from 'node:child_process';
+import path from 'node:path';
 
 // TODO(SRE-4971): replace with a compass-web-only bucket when provisioned
 export const DOWNLOADS_BUCKET = 'cdn-origin-compass';

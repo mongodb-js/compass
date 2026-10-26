@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import os from 'os';
+import os from 'node:os';
 import { EJSON, Long } from 'bson';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -10,7 +10,7 @@ import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
-import { Readable, Writable } from 'stream';
+import { Readable, Writable } from 'node:stream';
 import type { FindCursor } from 'mongodb';
 
 import allTypesDocs from '../../test/docs/all-bson-types';

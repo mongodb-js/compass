@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
-import path from 'path';
-import os from 'os';
-import crypto from 'crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import crypto from 'node:crypto';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { getDefaultsForStoredPreferences } from './preferences-schema';
 import { expect } from 'chai';

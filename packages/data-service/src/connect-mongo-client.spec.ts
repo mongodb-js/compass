@@ -1,5 +1,5 @@
-import assert from 'assert';
-import asyncHooks from 'async_hooks';
+import assert from 'node:assert';
+import asyncHooks from 'node:async_hooks';
 import { expect } from 'chai';
 import type { MongoClientOptions } from 'mongodb';
 

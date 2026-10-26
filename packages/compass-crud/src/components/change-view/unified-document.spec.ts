@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { expect } from 'chai';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import type { Document } from 'bson';
 import { ObjectId } from 'bson';
 

@@ -10,7 +10,7 @@ import type { HadronIpcRenderer } from './ipc-provider-renderer';
 import { ApplicationMenu } from './ipc-provider-renderer';
 import type { HadronIpcMain } from './ipc-provider-main';
 import { RendererDefinedMenuState } from './ipc-provider-main';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 
 function serializable<T>(obj: T): T {
   try {

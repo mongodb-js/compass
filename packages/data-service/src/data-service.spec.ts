@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert from 'node:assert';
 import { bsonType, Int32, ObjectId, UUID } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -13,7 +13,7 @@ import type {
   ConnectionFleOptions,
   ConnectionOptions,
 } from './connection-options';
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import type { ClientMockOptions } from '../test/helpers';
 import { createMongoClientMock } from '../test/helpers';
 import { createClonedClient } from './connect-mongo-client';

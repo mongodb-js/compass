@@ -1,13 +1,13 @@
-import assert from 'assert/strict';
-import { EventEmitter } from 'events';
-import os from 'os';
+import assert from 'node:assert/strict';
+import { EventEmitter } from 'node:events';
+import os from 'node:os';
 import { createLogger } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { FeedURLOptions } from 'electron';
 import { app, dialog, BrowserWindow, autoUpdater, shell } from 'electron';
-import { setTimeout as wait } from 'timers/promises';
-import path from 'path';
-import fs from 'fs';
+import { setTimeout as wait } from 'node:timers/promises';
+import path from 'node:path';
+import fs from 'node:fs';
 import dl from 'electron-dl';
 import type { CompassApplication } from './application';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
@@ -16,7 +16,7 @@ import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type { Response } from '@mongodb-js/devtools-proxy-support';
-import { pathToFileURL } from 'url';
+import { pathToFileURL } from 'node:url';
 
 const { log, mongoLogId, debug } = createLogger('COMPASS-AUTO-UPDATES');
 const track = createIpcTrack();

@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import { brotliCompressSync } from 'zlib';
+import fs from 'node:fs';
+import path from 'node:path';
+import { brotliCompressSync } from 'node:zlib';
 import {
   DIST_DIR,
   DOWNLOADS_BUCKET,

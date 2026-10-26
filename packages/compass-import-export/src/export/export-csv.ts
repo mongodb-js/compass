@@ -1,16 +1,16 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
-import { pipeline } from 'stream/promises';
-import { Transform } from 'stream';
-import type { Readable, Writable } from 'stream';
+import { pipeline } from 'node:stream/promises';
+import { Transform } from 'node:stream';
+import type { Readable, Writable } from 'node:stream';
 import toNS from '@mongodb-js/mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import Parser from 'stream-json/Parser';
 import StreamValues from 'stream-json/streamers/StreamValues';
-import path from 'path';
-import os from 'os';
+import path from 'node:path';
+import os from 'node:os';
 
 import { lookupValueForPath, ColumnRecorder } from './export-utils';
 import {
