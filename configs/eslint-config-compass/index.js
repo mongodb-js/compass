@@ -155,6 +155,7 @@ module.exports = {
   rules: {
     ...shared.rules,
     'import/enforce-node-protocol-usage': ['error', 'always'],
+    'import/no-duplicates': ['error', { 'prefer-inline': false }],
     '@mongodb-js/compass/no-inline-emotion-css': 'error',
     '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
     '@mongodb-js/compass/unique-mongodb-log-id': [
