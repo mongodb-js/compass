@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import type { CompassBrowser } from '../compass-browser.ts';
 import { LOG_SCREENSHOTS_PATH } from '../test-runner-paths.ts';
@@ -37,12 +38,20 @@ export async function setComboBoxValue(
     // Handle existing as well as new values
     `[aria-label="${comboboxValue}"],[aria-label='Field: "${comboboxValue}"']`
   );
+  // TEMP: capture the UI around "element not interactable" on CI. The "before"
+  // screenshot is kept in memory (no pause, unlike browser.screenshot()) and
+  // only written if the click fails.
+  const before = await browser.takeScreenshot();
   try {
     await browser.clickVisible(optionElement);
   } catch (err) {
-    await browser.saveScreenshot(
-      path.join(LOG_SCREENSHOTS_PATH, `combobox-click-failed-${Date.now()}.png`)
+    const prefix = path.join(
+      LOG_SCREENSHOTS_PATH,
+      `combobox-click-failed-${Date.now()}`
     );
+    await fs.promises.mkdir(LOG_SCREENSHOTS_PATH, { recursive: true });
+    await fs.promises.writeFile(`${prefix}-before.png`, before, 'base64');
+    await browser.saveScreenshot(`${prefix}-after.png`);
     throw err;
   }
   await comboboxListSelectorElement.waitForDisplayed({ reverse: true });
