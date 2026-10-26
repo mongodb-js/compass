@@ -74,7 +74,7 @@ import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { useConnectionFormSetting } from './use-connect-form-settings';
 import ConnectionString from 'mongodb-connection-string-url';
-import { isAtlas } from 'mongodb-build-info';
+import { isAtlas } from '@mongodb-js/mongodb-build-info';
 
 export type ConnectionPersonalizationOptions = {
   name: string;

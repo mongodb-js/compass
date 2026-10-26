@@ -18,7 +18,7 @@ import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
   SCHEMA_ANALYSIS_STATE_COMPLETE,

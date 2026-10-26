@@ -1,7 +1,7 @@
 import type { Document } from 'bson';
 import type { Readable } from 'stream';
 import Papa from 'papaparse';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 
 import { makeDocFromCSV, parseCSVHeaderName } from '../csv/csv-utils';
 import { doImport } from './import-utils';

@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
 import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import { UUID } from 'bson';

@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
 import { startAnalysis } from './analysis-process';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { getDiagramName } from '../services/open-and-download-diagram';
 import {
   DEFAULT_SAMPLING_OPTIONS,

@@ -9,7 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import type { ShardKey } from '../store/reducer';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 
 const codeBlockContainerStyles = css({
   display: 'flex',

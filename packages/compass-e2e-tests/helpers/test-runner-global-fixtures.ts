@@ -27,7 +27,7 @@ import type { MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 // @ts-expect-error no types for this package
 import logRunning from 'why-is-node-running';
-import { isEnterprise } from 'mongodb-build-info';
+import { isEnterprise } from '@mongodb-js/mongodb-build-info';
 import {
   buildCompass,
   closeWebdriverTrace,

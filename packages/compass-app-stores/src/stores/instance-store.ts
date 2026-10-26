@@ -1,6 +1,6 @@
 import type { MongoDBInstanceProps } from '@mongodb-js/mongodb-instance-model';
 import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type {
   ConnectionInfo,
   ConnectionsService,

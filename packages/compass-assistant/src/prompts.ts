@@ -10,7 +10,7 @@ import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
-import { isAtlas } from 'mongodb-build-info';
+import { isAtlas } from '@mongodb-js/mongodb-build-info';
 
 export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
 

@@ -13,7 +13,7 @@ import { getCurrentModel, openDiagram } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 import { reselectCollections } from '../store/reselect-collections-wizard';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 
 const DATA_MODEL_CONNECTION_ID = dataModel.connectionId;

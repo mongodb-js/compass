@@ -22,7 +22,7 @@ import {
   selectFieldsForCurrentModel,
   updateRelationship,
 } from '../../store/diagram';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { Relationship } from '../../services/data-model-storage';
 import { cloneDeep } from 'lodash';
 import {

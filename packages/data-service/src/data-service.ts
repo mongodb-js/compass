@@ -58,7 +58,7 @@ import type {
 } from 'mongodb';
 import { ReadPreference } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import parseNamespace from 'mongodb-ns';
+import parseNamespace from '@mongodb-js/mongodb-ns';
 import type {
   ConnectionFleOptions,
   ConnectionOptions,

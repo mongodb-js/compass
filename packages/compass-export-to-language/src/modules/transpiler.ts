@@ -1,4 +1,4 @@
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import compiler from 'bson-transpilers';
 import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 

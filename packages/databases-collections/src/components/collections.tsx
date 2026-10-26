@@ -14,7 +14,7 @@ import {
   createNewCollection,
 } from '../modules/collections';
 import type Collection from '@mongodb-js/mongodb-collection-model';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';

@@ -1,7 +1,7 @@
 'use strict';
 const Reflux = require('reflux');
 const Actions = require('../actions');
-const toNS = require('mongodb-ns');
+const toNS = require('@mongodb-js/mongodb-ns');
 const { round, isEmpty } = require('lodash');
 
 const debug = require('debug')('mongodb-compass:server-stats:top-store');

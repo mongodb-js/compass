@@ -4,7 +4,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { map } from 'lodash';
 import type { Document, Element } from 'hadron-document';
 import HadronDocument from 'hadron-document';
-import mongodbns from 'mongodb-ns';
+import mongodbns from '@mongodb-js/mongodb-ns';
 import BreadcrumbComponent from './breadcrumb';
 import CellRenderer from './cell-renderer';
 import RowNumberRenderer from './row-number-renderer';

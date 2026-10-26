@@ -10,7 +10,7 @@ import type {
   CollectionInfoNameOnly,
   ListCollectionsOptions,
 } from './run-command';
-import parseNamespace from 'mongodb-ns';
+import parseNamespace from '@mongodb-js/mongodb-ns';
 import _ from 'lodash';
 import type { UnboundDataServiceImplLogger } from './logger';
 import { mongoLogId } from './logger';

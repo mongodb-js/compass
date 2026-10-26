@@ -23,7 +23,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import {
   LoadSampleDataZeroBanner,
   LoadSampleDataZeroState,

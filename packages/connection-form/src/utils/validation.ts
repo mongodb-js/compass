@@ -1,5 +1,5 @@
 import type { MongoClientOptions, AutoEncryptionOptions } from 'mongodb';
-import { isLocalhost } from 'mongodb-build-info';
+import { isLocalhost } from '@mongodb-js/mongodb-build-info';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ConnectionStringParsingOptions } from 'mongodb-connection-string-url';
