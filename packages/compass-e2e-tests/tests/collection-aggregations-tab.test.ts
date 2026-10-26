@@ -1,13 +1,10 @@
 import { promises as fs } from 'node:fs';
 import chai from 'chai';
-import type { ChainablePromiseElement } from 'webdriverio';
-import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
-  outputFilename,
   serverSatisfies,
   skipForWeb,
   getDefaultConnectionNames,
@@ -1213,7 +1210,7 @@ describe('Collection aggregations tab', function () {
 );`);
 
     // Set the filename.
-    const filename = outputFilename('aggregated-numbers.json');
+    const filename = 'aggregated-numbers.json';
     await browser.setExportFilename(filename);
 
     // Wait for the modal to go away.
@@ -1222,7 +1219,7 @@ describe('Collection aggregations tab', function () {
     await browser.waitForExportToFinishAndCloseToast();
 
     // Confirm that we exported what we expected to export
-    const text = await fs.readFile(filename, 'utf-8');
+    const text = await browser.readExportedFile(filename);
     const docs = JSON.parse(text);
 
     expect(docs).to.have.lengthOf(1);

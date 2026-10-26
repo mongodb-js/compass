@@ -1,8 +1,6 @@
 import path from 'node:path';
 import React from 'react';
 import { openToast, ToastBody } from '@mongodb-js/compass-components';
-
-import revealFile from '../utils/reveal-file';
 import type { CSVExportPhase } from '../export/export-csv';
 
 const exportToastId = 'export-toast';
@@ -12,13 +10,13 @@ const docsWrittenText = (docsWritten: number) => {
 };
 
 export function showInProgressToast({
-  filePath,
+  fileName,
   namespace,
   cancelExport,
   docsWritten,
   csvPhase,
 }: {
-  filePath: string;
+  fileName: string;
   namespace: string;
   cancelExport: () => void;
   docsWritten: number;
@@ -34,7 +32,7 @@ export function showInProgressToast({
 
   // Update the toast with the new progress.
   openToast(exportToastId, {
-    title: `Exporting "${namespace}" to ${path.basename(filePath)}…`,
+    title: `Exporting "${namespace}" to ${fileName}\u2026`,
     description: (
       <ToastBody
         statusMessage={statusMessage}
@@ -71,41 +69,22 @@ export function showStartingToast({
 
 export function showCompletedToast({
   docsWritten,
-  filePath,
+  fileName,
 }: {
   docsWritten: number;
-  filePath: string;
+  fileName: string;
 }) {
   openToast(exportToastId, {
     title: 'Export completed.',
-    description: (
-      <ToastBody
-        statusMessage={docsWrittenText(docsWritten)}
-        actionHandler={() => revealFile(filePath)}
-        actionText="show file"
-      />
-    ),
+    description: `${docsWrittenText(docsWritten)} Saved to ${fileName}.`,
     variant: 'success',
   });
 }
 
-export function showCancelledToast({
-  docsWritten,
-  filePath,
-}: {
-  filePath: string;
-  docsWritten: number;
-}) {
+export function showCancelledToast() {
   openToast(exportToastId, {
     title: 'Export aborted.',
-    description:
-      docsWritten > 0 ? (
-        <ToastBody
-          statusMessage={docsWrittenText(docsWritten)}
-          actionHandler={() => revealFile(filePath)}
-          actionText="show file"
-        />
-      ) : null,
+    description: null,
     variant: 'warning',
   });
 }

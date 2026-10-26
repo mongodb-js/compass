@@ -11,9 +11,8 @@ import { Provider } from 'react-redux';
 
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { closeExport, openExport } from '../modules/export';
-import { configureStore } from '../stores/export-store';
-import { ExportModal } from './export-modal';
+import sinon from 'sinon';
+import { createFakeFileHandle } from '../../test/files';
 
 function renderModal(exportState: any = {}) {
   // TODO: mutating state directly doesn't guarantee that we are testing the
@@ -111,6 +110,67 @@ describe('ExportModal Component', function () {
       expect(screen.getByText('Aggregation on orange.pineapple')).to.be.visible;
       expect(screen.getByTestId('export-button')).be.visible;
       expect(screen.queryByTestId('export-projection-banner')).to.not.exist;
+    });
+  });
+
+  describe('when the user clicks Export', function () {
+    let showSaveFilePicker: sinon.SinonStub;
+
+    beforeEach(function () {
+      showSaveFilePicker = sinon.stub();
+      (window as any).showSaveFilePicker = showSaveFilePicker;
+      renderModal({
+        status: 'ready-to-export',
+        isOpen: true,
+        namespace: 'test.coll',
+        exportFullCollection: true,
+      });
+    });
+
+    afterEach(function () {
+      delete (window as any).showSaveFilePicker;
+    });
+
+    it('open the picked file for writing', async function () {
+      const file = createFakeFileHandle('test.coll.json');
+      const createWritable = sinon.spy(file.handle, 'createWritable');
+      showSaveFilePicker.resolves(file.handle);
+
+      userEvent.click(screen.getByTestId('export-button'));
+
+      await waitFor(() => {
+        expect(createWritable).to.have.been.calledOnce;
+      });
+      expect(showSaveFilePicker).to.have.been.calledOnceWith(
+        sinon.match({ suggestedName: 'test.coll.json' })
+      );
+    });
+
+    it('show an error when the file picker fails', async function () {
+      showSaveFilePicker.rejects(
+        new DOMException('Not allowed in this context', 'SecurityError')
+      );
+
+      userEvent.click(screen.getByTestId('export-button'));
+
+      expect(
+        await screen.findByText(
+          'Error creating output file: Not allowed in this context'
+        )
+      ).to.be.visible;
+    });
+
+    it('not show an error when the user closes the file picker', async function () {
+      showSaveFilePicker.rejects(
+        new DOMException('The user aborted a request.', 'AbortError')
+      );
+
+      userEvent.click(screen.getByTestId('export-button'));
+      await waitFor(() => {
+        expect(showSaveFilePicker).to.have.been.calledOnce;
+      });
+
+      expect(screen.queryByText(/Error creating output file/)).to.not.exist;
     });
   });
 

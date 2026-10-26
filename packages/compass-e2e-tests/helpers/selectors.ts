@@ -1366,8 +1366,6 @@ export const ExportJSONFormatCanonical =
 export const ExportToast = '[data-testid="toast-export-toast"]';
 export const ExportToastAbort =
   '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]';
-export const ExportToastShowFile =
-  '[data-testid="toast-export-toast"] [data-testid="toast-action-show file"]';
 
 export const exportModalExportField = (fieldName: string): string => {
   return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
