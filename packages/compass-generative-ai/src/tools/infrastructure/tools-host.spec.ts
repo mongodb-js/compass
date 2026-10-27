@@ -4,6 +4,7 @@ import { MessageChannel } from 'node:worker_threads';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { createToolsRpcClient } from './rpc-client';
+import { encodeConnectParams } from './connect-params';
 import { ToolsHost } from './tools-host';
 import type { ToolDefinitionInfo } from './tools-host';
 
@@ -53,11 +54,17 @@ describe('ToolsHost', function () {
     const result = (await client.call('performToolCall', {
       toolName: 'find',
       toolArgs: { database: 'test', collection: 'coll' },
-      connectParams: {
+      connectParams: encodeConnectParams({
         connectionId: 'c1',
         connectionString: 'mongodb://localhost:27019',
-        connectOptions: { serverSelectionTimeoutMS: 500 },
-      },
+        connectOptions: {
+          productName: 'test',
+          productDocsLink: 'http://example.com/docs',
+          // Fail fast when nothing is listening: the driver's default server
+          // selection timeout (30s) would outlive this suite's timeout.
+          serverSelectionTimeoutMS: 500,
+        },
+      }),
     })) as { content: unknown[]; isError?: boolean };
 
     expect(result).to.be.an('object');

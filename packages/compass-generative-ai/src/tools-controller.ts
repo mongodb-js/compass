@@ -4,6 +4,7 @@ import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod/v4';
 import { openUtilityPort } from '@mongodb-js/compass-utils';
 import { createToolsRpcClient } from './tools/infrastructure/rpc-client';
+import { encodeConnectParams } from './tools/infrastructure/connect-params';
 import type { ToolsRpcPort } from './tools/infrastructure/messages';
 import type { ToolDefinitionInfo } from './tools/infrastructure/tools-host';
 import type { ToolsConnectParams } from './tools-connection-manager';
@@ -54,7 +55,8 @@ export class ToolsController {
   private readonly track: TrackFunction;
   private readonly getTelemetryAnonymousId: () => string;
   private readonly openPort: () => ToolsRpcPort;
-  private initialConfig: {
+  /** Latest config known to the renderer, sent when the utility starts */
+  private currentConfig: {
     enableMCPTelemetry: boolean;
     maxTimeMS?: number;
   };
@@ -78,7 +80,7 @@ export class ToolsController {
     this.preferences = preferences;
     this.track = track;
     this.openPort = openPort ?? (() => openUtilityPort('ai-assistant'));
-    this.initialConfig = { enableMCPTelemetry, maxTimeMS };
+    this.currentConfig = { enableMCPTelemetry, maxTimeMS };
   }
 
   setActiveTools(toolGroups: Set<ToolGroup>): void {
@@ -140,7 +142,9 @@ export class ToolsController {
               {
                 toolName: definition.name,
                 toolArgs: args,
-                connectParams,
+                // Encoded: connection options can hold BSON values that
+                // structured cloning would flatten (see connect-params.ts)
+                connectParams: encodeConnectParams(connectParams),
               },
               options.abortSignal
             );
@@ -194,6 +198,12 @@ export class ToolsController {
 
   setContext(context: ToolsContext): void {
     this.context = context;
+    // The utility may not be started yet: remember the latest config so
+    // startup sends this rather than the values the controller was built with.
+    this.currentConfig = {
+      enableMCPTelemetry: context.enableMCPTelemetry,
+      maxTimeMS: context.maxTimeMS,
+    };
     // Keep the MCP server's runtime config in the utility in sync with
     // Compass preferences; it can no longer be mutated directly from here.
     void this.portClient?.call('setUserConfig', {
@@ -229,7 +239,7 @@ export class ToolsController {
       this.portClient = createToolsRpcClient(this.openPort());
       await this.withStartupTimeout(async () => {
         await this.portClient!.call('setUserConfig', {
-          ...this.initialConfig,
+          ...this.currentConfig,
           telemetryAnonymousId: this.getTelemetryAnonymousId(),
         });
 

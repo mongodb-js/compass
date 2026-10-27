@@ -425,6 +425,23 @@ describe('ToolsController', function () {
       expect(result.query).to.equal('new query');
     });
 
+    it('uses the context set before startup when the server starts', async function () {
+      // Context often arrives before the first message starts the utility;
+      // those values must not be replaced by the constructor defaults.
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        maxTimeMS: 1234,
+        connections: [],
+      });
+
+      await toolsController.startServer();
+      const runner = (openHosts[0] as any).runner;
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(runner.userConfig.telemetry).to.equal('enabled');
+      expect(runner.userConfig.maxTimeMS).to.equal(1234);
+    });
+
     it('syncs telemetry setting with the utility host runner', async function () {
       await toolsController.startServer();
       const runner = (openHosts[0] as any).runner;

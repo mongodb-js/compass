@@ -13,11 +13,11 @@ import type {
   UserConfig,
 } from 'mongodb-mcp-server';
 import { serveToolsRequests } from './server';
+import { decodeConnectParams } from './connect-params';
 import type { ToolsRpcMethod, ToolsRpcPort } from './messages';
 import { createConnectionErrorHandler } from '../../tools-connection-error-handler';
 import { ToolsLogger } from '../../tools-logger';
 import { ToolsConnectionManager } from '../../tools-connection-manager';
-import type { ToolsConnectParams } from '../../tools-connection-manager';
 import { removeZodTransforms } from '../../remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from '../../available-tools';
 
@@ -179,11 +179,16 @@ export class ToolsHost {
           }));
       }
       case 'performToolCall': {
-        const { toolName, toolArgs, connectParams } = params as {
+        const {
+          toolName,
+          toolArgs,
+          connectParams: encodedConnectParams,
+        } = params as {
           toolName: string;
           toolArgs: unknown;
-          connectParams: ToolsConnectParams;
+          connectParams: string;
         };
+        const connectParams = decodeConnectParams(encodedConnectParams);
         await this.ensureServerStarted();
         const toolBase = this.server?.tools.find((t) => t.name === toolName);
         if (!toolBase) {
