@@ -21,30 +21,17 @@
  */
 
 // Inject CSP to prevent any CSP violations.
+import { injectCSP } from './utils/csp';
+injectCSP();
 
 // Setup paths and environment variables for electron globals
+import { setupHadronDistribution } from '../setup-hadron-distribution';
+setupHadronDistribution();
 
 // DNS Configuration
 // Ensures IPv4 is preferred over IPv6 to avoid potential connection issues
 // See: https://github.com/nodejs/node/issues/40537
 import dns from 'node:dns';
-
-// Event Emitter Configuration
-// Increases the default maximum number of listeners to prevent
-// potential memory leaks in development mode
-import EventEmitter from 'node:events';
-import { setupHadronDistribution } from '../setup-hadron-distribution';
-import { injectCSP } from './utils/csp';
-
-// ----------------------------------------------------------------------------
-// NOTE: keep this import last to avoid any potential issues with stateful setup
-// interfering with the bootstrap, and make sure the rest of the bootstrap has
-// taken effect.
-
-import { app } from './application';
-
-injectCSP();
-setupHadronDistribution();
 dns.setDefaultResultOrder('ipv4first');
 
 // Configure NODE_OPTIONS to ensure sub-processes (like the shell) also prefer IPv4
@@ -52,5 +39,17 @@ process.env.NODE_OPTIONS ??= '';
 if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
   process.env.NODE_OPTIONS += ` --dns-result-order=ipv4first`;
 }
+
+// Event Emitter Configuration
+// Increases the default maximum number of listeners to prevent
+// potential memory leaks in development mode
+import EventEmitter from 'node:events';
 EventEmitter.defaultMaxListeners = 100;
+
+// ----------------------------------------------------------------------------
+// NOTE: keep this import last to avoid any potential issues with stateful setup
+// interfering with the bootstrap, and make sure the rest of the bootstrap has
+// taken effect.
+
+import { app } from './application';
 void app.init();

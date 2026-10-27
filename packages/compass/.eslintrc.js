@@ -13,6 +13,14 @@ module.exports = {
       env: { node: true, browser: true },
     },
     {
+      files: ['./src/app/index.ts'],
+      rules: {
+        'import/first': 'off',
+        'import/newline-after-import': 'off',
+        'import/order': 'off',
+      },
+    },
+    {
       // Main process code
       files: ['./src/main/**/*.*'],
       env: { node: true, browser: false },
