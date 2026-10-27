@@ -7,7 +7,7 @@ import yargs from 'yargs';
 import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
-import { execFileSync } from 'child_process';
+import { execFileSync } from 'node:child_process';
 
 export const RUN_ID = (() => {
   const commitHash = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {

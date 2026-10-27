@@ -1,6 +1,6 @@
 'use strict';
 const detect = require('./detect-coordinates');
-const assert = require('assert');
+const assert = require('node:assert');
 const legacyPairs = require('../../test/fixtures/legacy_pairs.json');
 const geoJSONTemplate = require('../../test/fixtures/geo_json.json');
 const unpromotedDoublesTemplate = require('../../test/fixtures/unpromoted_doubles.json');

@@ -5,8 +5,8 @@ import sinon from 'sinon';
 import { setupIntercom, resetIntercomAllowedCache } from './setup-intercom';
 import { expect } from 'chai';
 import type { IntercomScript } from './intercom-script';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import {
+  type PreferencesAccess,
   createSandboxFromDefaultPreferences,
   type User,
 } from '@mongodb-js/compass-preferences-model';

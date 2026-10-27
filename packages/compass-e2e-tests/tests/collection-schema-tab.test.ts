@@ -17,7 +17,7 @@ import {
   cleanUpDownloadedFile,
   waitForFileDownload,
 } from '../helpers/downloads.ts';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 
 const { expect } = chai;
 

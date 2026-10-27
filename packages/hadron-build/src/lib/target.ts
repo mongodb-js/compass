@@ -1,8 +1,8 @@
 import chalk from 'chalk';
-import { readFileSync, promises as fs } from 'fs';
+import { readFileSync, promises as fs } from 'node:fs';
 import _ from 'lodash';
 import semver from 'semver';
-import path from 'path';
+import path from 'node:path';
 import normalizePkg from 'normalize-package-data';
 import parseGitHubRepoURL from 'parse-github-repo-url';
 import type packager from 'electron-packager';

@@ -1,5 +1,5 @@
 import type { Document } from 'bson';
-import type { Readable } from 'stream';
+import type { Readable } from 'node:stream';
 import Papa from 'papaparse';
 import toNS from '@mongodb-js/mongodb-ns';
 

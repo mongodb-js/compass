@@ -3,8 +3,6 @@ import type { UserConfigurablePreferences } from '@mongodb-js/compass-preference
 import {
   getSettingDescription,
   featureFlags,
-} from '@mongodb-js/compass-preferences-model/provider';
-import {
   SORT_ORDER_VALUES,
   LEGACY_UUID_ENCODINGS,
   TIMEZONES,

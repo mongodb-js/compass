@@ -1,6 +1,6 @@
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 import { app as electronApp } from 'electron';
-import path from 'path';
+import path from 'node:path';
 import { createLogger } from '@mongodb-js/compass-logging';
 import type { RegistryItem } from 'winreg-ts';
 import { Registry } from 'winreg-ts';

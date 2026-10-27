@@ -1,7 +1,7 @@
-import { promises as fs } from 'fs';
-import os from 'os';
-import path from 'path';
-import { randomBytes } from 'crypto';
+import { promises as fs } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { randomBytes } from 'node:crypto';
 import lodash from 'lodash';
 import type { CompassBrowser } from '../../compass-browser.ts';
 import {

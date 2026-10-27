@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
-import type { BadgeVariant, GlyphName } from '@mongodb-js/compass-components';
 import {
+  type BadgeVariant,
+  type GlyphName,
   Badge,
   cx,
   css,

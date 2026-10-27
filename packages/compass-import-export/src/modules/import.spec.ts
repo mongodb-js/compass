@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import path from 'path';
+import path from 'node:path';
 import { onStarted, openImport, selectImportFileName } from './import';
 import type { ImportStore } from '../stores/import-store';
 import { ImportPlugin } from '../index';

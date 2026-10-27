@@ -1,6 +1,6 @@
 import type * as plugin from '@mongodb-js/oidc-plugin';
 import { defaultsDeep } from 'lodash';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 export type AtlasUserInfo = {
   sub: string;

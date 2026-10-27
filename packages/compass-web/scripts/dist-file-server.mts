@@ -3,9 +3,9 @@
  * distribution. Can be used for e2e / local dev when compass-web in MMS needs
  * to be replaced with the local resource
  */
-import http from 'http';
-import fs from 'fs';
-import path from 'path';
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const distDir = path.resolve(import.meta.dirname, '..', 'dist');
 

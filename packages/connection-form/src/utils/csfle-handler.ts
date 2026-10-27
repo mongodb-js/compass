@@ -11,8 +11,8 @@ import type {
   KMSTLSProviderName,
   KMSTLSProviderType,
 } from './csfle-kms-fields';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
 import parseShellStringToEJSON, {
+  toJSString,
   ParseMode,
 } from '@mongodb-js/shell-bson-parser';
 

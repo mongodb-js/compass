@@ -9,6 +9,7 @@ import {
   openToast,
   closeToast,
   ToastBody,
+  createElectronFileInputBackend,
 } from '@mongodb-js/compass-components';
 import ensureError from 'ensure-error';
 
@@ -28,7 +29,6 @@ import {
   onAutoupdateSuccess,
 } from './components/update-toasts';
 
-import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 

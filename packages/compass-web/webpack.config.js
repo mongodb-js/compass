@@ -1,5 +1,5 @@
 'use strict';
-const path = require('path');
+const path = require('node:path');
 const {
   webpack,
   createWebConfig,
@@ -7,8 +7,8 @@ const {
   merge,
   HtmlWebpackPlugin,
 } = require('@mongodb-js/webpack-config-compass');
-const { execFile, spawn, execFileSync } = require('child_process');
-const { promisify } = require('util');
+const { execFile, spawn, execFileSync } = require('node:child_process');
+const { promisify } = require('node:util');
 const { createWebSocketProxy } = require('./scripts/ws-proxy');
 
 const execFileAsync = promisify(execFile);

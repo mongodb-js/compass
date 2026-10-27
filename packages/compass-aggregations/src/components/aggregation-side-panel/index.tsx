@@ -13,10 +13,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { toggleSidePanel } from '../../modules/side-panel';
-import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';
+import { STAGE_WIZARD_USE_CASES, UseCaseCard } from './stage-wizard-use-cases';
 import { FeedbackLink } from './feedback-link';
 import { addWizard } from '../../modules/pipeline-builder/stage-editor';
-import { UseCaseCard } from './stage-wizard-use-cases';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 

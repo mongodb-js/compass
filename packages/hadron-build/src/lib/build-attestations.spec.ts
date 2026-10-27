@@ -1,6 +1,6 @@
 /* eslint-disable mocha/max-top-level-suites */
 import chai from 'chai';
-import path from 'path';
+import path from 'node:path';
 import {
   getBuildVersion,
   getBuildSpecificAttestations,

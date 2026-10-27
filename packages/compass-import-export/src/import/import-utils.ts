@@ -1,7 +1,7 @@
-import os from 'os';
+import os from 'node:os';
 import type { Document } from 'bson';
-import type { Readable, Writable, Duplex } from 'stream';
-import { addAbortSignal } from 'stream';
+import type { Readable, Writable, Duplex } from 'node:stream';
+import { addAbortSignal } from 'node:stream';
 import type { ImportResult, ErrorJSON, ImportOptions } from './import-types';
 import { ImportWriter } from './import-writer';
 import { createDebug } from '../utils/logger';

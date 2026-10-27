@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import type { Document } from 'bson';
 
 import { DocStatsCollector } from './import-utils';

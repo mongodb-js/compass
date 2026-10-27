@@ -1,11 +1,11 @@
-import os from 'os';
-import { once } from 'events';
-import { promises as fs, createReadStream, createWriteStream } from 'fs';
-import stream from 'stream';
-import { promisify } from 'util';
-import path from 'path';
+import os from 'node:os';
+import { once } from 'node:events';
+import { promises as fs, createReadStream, createWriteStream } from 'node:fs';
+import stream from 'node:stream';
+import { promisify } from 'node:util';
+import path from 'node:path';
 import createDebug from 'debug';
-import zlib from 'zlib';
+import zlib from 'node:zlib';
 import { app, shell, dialog, clipboard } from 'electron';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
 import type { MongoLogWriter } from 'mongodb-log-writer';

@@ -1,13 +1,11 @@
 import type { Reducer } from 'redux';
 import { UUID } from 'bson';
 import { isAction } from './util';
-import type {
-  DataModelCollection,
-  EditAction,
-  FieldPath,
-  Relationship,
-} from '../services/data-model-storage';
 import {
+  type DataModelCollection,
+  type EditAction,
+  type FieldPath,
+  type Relationship,
   validateEdit,
   type Edit,
   type MongoDBDataModelDescription,

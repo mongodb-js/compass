@@ -4,13 +4,13 @@ import {
   render,
   waitFor,
   userEvent,
+  MockDataService as TestHelpersMockDataService,
 } from '@mongodb-js/testing-library-compass';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { expect } from 'chai';
 import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import { ConnectFnProvider } from '@mongodb-js/compass-connections';
-import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/testing-library-compass';
 import { sandboxConnectionStorage } from './connection-storage';
 import { SandboxConnectionStorage } from '../sandbox/sandbox-connection-storage';
 import { CompassWebPreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';

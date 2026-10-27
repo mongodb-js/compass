@@ -1,5 +1,4 @@
-import type { Action, Reducer } from 'redux';
-import type { AnyAction } from 'redux';
+import type { Action, Reducer, AnyAction } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { ObjectId } from 'bson';

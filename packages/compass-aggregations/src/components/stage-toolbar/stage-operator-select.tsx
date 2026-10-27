@@ -24,8 +24,8 @@ import {
   applyFeatureFlagChangesToFilteredOperators,
   filterStageOperators,
   isSearchStage,
+  isAtlasOnly,
 } from '../../utils/stage';
-import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 import type { CollectionStats } from '../../modules/collection-stats';
 import semver from 'semver';

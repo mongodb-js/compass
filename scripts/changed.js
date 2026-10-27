@@ -1,5 +1,5 @@
 'use strict';
-const { spawnSync } = require('child_process');
+const { spawnSync } = require('node:child_process');
 const prompts = require('prompts');
 const { runInDir } = require('./run-in-dir');
 const { withProgress } = require('@mongodb-js/monorepo-tools');

@@ -15,7 +15,7 @@ export const WorkspacesStorageServiceProviderDesktop: React.FunctionComponent<{
           relaxed: false,
         }),
       deserialize: (content: string) => EJSON.parse(content),
-    }) as IUserData<typeof WorkspacesStateSchema>
+    })
   );
   return (
     <WorkspacesStorageServiceContext.Provider value={storageRef}>

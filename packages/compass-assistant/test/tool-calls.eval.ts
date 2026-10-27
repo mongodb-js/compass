@@ -37,7 +37,7 @@ import type {
 import { ToolCallScorers } from 'mongodb-assistant-eval/scorers';
 import { seedServer } from './fixtures/databases/seed-server';
 import { seedDatabases } from './fixtures/databases';
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
 import { EVAL_CLUSTER_UID, EVAL_MODEL, instructions } from './eval-config';
 

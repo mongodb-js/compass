@@ -1,7 +1,7 @@
-import { Transform } from 'stream';
-import { pipeline } from 'stream/promises';
+import { Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { EJSON } from 'bson';
-import type { Writable } from 'stream';
+import type { Writable } from 'node:stream';
 import toNS from '@mongodb-js/mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';

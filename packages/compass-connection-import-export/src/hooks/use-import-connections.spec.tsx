@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { useImportConnections } from './use-import-connections';
 import type { ImportExportResult } from './common';
-import os from 'os';
-import path from 'path';
-import { promises as fs } from 'fs';
+import os from 'node:os';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
 import {

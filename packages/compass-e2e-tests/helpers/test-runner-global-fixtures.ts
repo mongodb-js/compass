@@ -1,6 +1,6 @@
 import gunzip from './gunzip.ts';
 import delay from './delay.ts';
-import fs from 'fs';
+import fs from 'node:fs';
 import {
   assertTestingWebAtlasCloud,
   context,
@@ -46,7 +46,7 @@ import {
   waitForCompassWebSandboxToBeReady,
   waitForCompassWebStaticAssetsToBeReady,
 } from './compass-web-sandbox.ts';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils.ts';
 import type { ClusterTypes } from './commands/index.ts';
 

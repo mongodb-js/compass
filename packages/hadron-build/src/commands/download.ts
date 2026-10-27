@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import Target from '../lib/target';
 import { downloadAssetFromEvergreen } from '../lib/download-center';
 import { getBuildAttestations } from '../lib/build-attestations';

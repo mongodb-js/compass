@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
   createNoopLogger,
   LoggerProvider,
@@ -52,8 +52,10 @@ import {
   ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/src/connection-info-provider';
 import type { State } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { createDefaultConnectionInfo } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { getDataServiceForConnection } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
+import {
+  createDefaultConnectionInfo,
+  getDataServiceForConnection,
+} from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
 import {
   useConnectionActions,
   useStore,

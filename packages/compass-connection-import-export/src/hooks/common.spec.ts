@@ -7,7 +7,7 @@ import {
 } from './common';
 import { renderHook, act, waitFor } from '@mongodb-js/testing-library-compass';
 import { useState } from 'react';
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 
 describe('common utilities', function () {
   describe('useImportExportConnectionsCommon', function () {

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import {
   EJSON,
   BSONRegExp,

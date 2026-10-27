@@ -9,8 +9,8 @@ import {
   useDarkMode,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
-import type { WorkspacesState } from '../stores/workspaces';
 import {
+  type WorkspacesState,
   closeTab,
   closeAllOtherTabs,
   getActiveTab,

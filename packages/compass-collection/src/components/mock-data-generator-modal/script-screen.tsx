@@ -18,8 +18,11 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from '@mongodb-js/mongodb-ns';
 import { generateScript } from '@mongodb-js/mock-data-generator';
-import type { DataGenerationStep } from './types';
-import { DataGenerationSteps, type FakerSchema } from './types';
+import {
+  type DataGenerationStep,
+  DataGenerationSteps,
+  type FakerSchema,
+} from './types';
 import type { ArrayLengthMap } from '@mongodb-js/mock-data-generator';
 import type { CollectionState } from '../../modules/collection-tab';
 import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';

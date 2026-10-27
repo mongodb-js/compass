@@ -1,7 +1,7 @@
-import path from 'path';
+import path from 'node:path';
 import { expect } from 'chai';
-import fs from 'fs';
-import { Readable } from 'stream';
+import fs from 'node:fs';
+import { Readable } from 'node:stream';
 import { guessFileType } from './guess-filetype';
 import { fixtures } from '../../test/fixtures';
 
@@ -213,7 +213,7 @@ describe('guessFileType', function () {
   });
 
   it('detects csv with CRLF line endings and no trailing newline from a file stream', async function () {
-    const os = await import('os');
+    const os = await import('node:os');
     const tmpFile = path.join(os.tmpdir(), `guess-filetype-${Date.now()}.csv`);
     fs.writeFileSync(tmpFile, '"col1","col2"\r\n"val1","val2"');
     try {

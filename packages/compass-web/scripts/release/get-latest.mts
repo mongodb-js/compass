@@ -1,4 +1,4 @@
-import { parseArgs } from 'util';
+import { parseArgs } from 'node:util';
 import {
   ALLOWED_PUBLISH_ENVIRONMENTS,
   DOWNLOADS_BUCKET_PUBLIC_HOST,

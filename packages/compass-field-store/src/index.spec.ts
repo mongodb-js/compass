@@ -1,5 +1,4 @@
-import FieldStorePlugin from './';
-import { useAutocompleteFields } from './';
+import FieldStorePlugin, { useAutocompleteFields } from './';
 import { expect } from 'chai';
 import { useFieldStoreService } from './stores/field-store-service';
 import {

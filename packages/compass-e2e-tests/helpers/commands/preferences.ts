@@ -4,7 +4,7 @@ import type {
   UserPreferences,
 } from '@mongodb-js/compass-preferences-model';
 import { isTestingWeb } from '../test-runner-context.ts';
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 
 async function _waitUntilPreferencesAccessAvailable(
   browser: CompassBrowser

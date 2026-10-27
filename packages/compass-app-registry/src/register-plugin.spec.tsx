@@ -10,7 +10,7 @@ import {
 } from './';
 import { createStore } from 'redux';
 import { connect } from 'react-redux';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 
 describe('registerCompassPlugin', function () {
   it('allows registering plugins with a reflux-ish store', function () {

@@ -1,6 +1,6 @@
 'use strict';
 const bsonTranspilers = require('..');
-const assert = require('assert');
+const assert = require('node:assert');
 
 const { BsonTranspilersUnimplementedError } = require('../helper/error');
 

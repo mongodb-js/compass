@@ -1,7 +1,7 @@
-import os from 'os';
+import os from 'node:os';
 import { expect } from 'chai';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import Sinon from 'sinon';
 import React from 'react';
 import type { DataService } from 'mongodb-data-service';

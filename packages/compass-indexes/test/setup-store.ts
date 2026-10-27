@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import Sinon from 'sinon';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type {

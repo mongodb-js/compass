@@ -31,7 +31,7 @@ setupHadronDistribution();
 // DNS Configuration
 // Ensures IPv4 is preferred over IPv6 to avoid potential connection issues
 // See: https://github.com/nodejs/node/issues/40537
-import dns from 'dns';
+import dns from 'node:dns';
 dns.setDefaultResultOrder('ipv4first');
 
 // Configure NODE_OPTIONS to ensure sub-processes (like the shell) also prefer IPv4
@@ -43,7 +43,7 @@ if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
 // Event Emitter Configuration
 // Increases the default maximum number of listeners to prevent
 // potential memory leaks in development mode
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 EventEmitter.defaultMaxListeners = 100;
 
 // ----------------------------------------------------------------------------

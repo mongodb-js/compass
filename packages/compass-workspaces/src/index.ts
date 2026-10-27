@@ -18,7 +18,11 @@ import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import {
+  type MongoDBInstance,
+  type MongoDBInstancesManager,
+  MongoDBInstancesManagerEvents,
+} from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from '@mongodb-js/mongodb-collection-model';
 import type Database from '@mongodb-js/mongodb-database-model';
@@ -30,10 +34,6 @@ import {
 import { WorkspacesStoreContext } from './stores/context';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import {
-  type MongoDBInstancesManager,
-  MongoDBInstancesManagerEvents,
-} from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { workspacesStorageServiceLocator } from './services/workspaces-storage';

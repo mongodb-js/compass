@@ -1,7 +1,7 @@
 import type { Document } from 'bson';
 
 import type { DataService } from 'mongodb-data-service';
-import type { Writable } from 'stream';
+import type { Writable } from 'node:stream';
 
 export type ImportOptions = {
   dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>;
