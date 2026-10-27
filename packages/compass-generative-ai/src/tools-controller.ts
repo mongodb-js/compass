@@ -142,8 +142,6 @@ export class ToolsController {
               {
                 toolName: definition.name,
                 toolArgs: args,
-                // Encoded: connection options can hold BSON values that
-                // structured cloning would flatten (see connect-params.ts)
                 connectParams: encodeConnectParams(connectParams),
               },
               options.abortSignal
@@ -198,14 +196,10 @@ export class ToolsController {
 
   setContext(context: ToolsContext): void {
     this.context = context;
-    // The utility may not be started yet: remember the latest config so
-    // startup sends this rather than the values the controller was built with.
     this.currentConfig = {
       enableMCPTelemetry: context.enableMCPTelemetry,
       maxTimeMS: context.maxTimeMS,
     };
-    // Keep the MCP server's runtime config in the utility in sync with
-    // Compass preferences; it can no longer be mutated directly from here.
     void this.portClient?.call('setUserConfig', {
       enableMCPTelemetry: context.enableMCPTelemetry,
       maxTimeMS: context.maxTimeMS,

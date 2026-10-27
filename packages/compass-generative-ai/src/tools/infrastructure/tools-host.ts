@@ -1,25 +1,18 @@
 import type { Logger } from '@mongodb-js/compass-logging';
 import { z } from 'zod/v4';
-import {
-  Keychain,
-  TransportRunnerBase,
-  UserConfigSchema,
-} from 'mongodb-mcp-server';
-import type {
-  DefaultMetrics,
-  Metrics,
-  Server,
-  TransportRunnerConfig,
-  UserConfig,
-} from 'mongodb-mcp-server';
+import { Keychain, UserConfigSchema } from 'mongodb-mcp-server';
+import type { Server } from 'mongodb-mcp-server';
 import { serveToolsRequests } from './server';
 import { decodeConnectParams } from './connect-params';
+import type { ConnectParamsWire } from './connect-params';
 import type { ToolsRpcMethod, ToolsRpcPort } from './messages';
 import { createConnectionErrorHandler } from '../../tools-connection-error-handler';
 import { ToolsLogger } from '../../tools-logger';
 import { ToolsConnectionManager } from '../../tools-connection-manager';
 import { removeZodTransforms } from '../../remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from '../../available-tools';
+import { InMemoryRunner } from './in-memory-runner';
+import { NoopMetrics } from './noop-metrics';
 
 export type ToolDefinitionInfo = {
   name: string;
@@ -30,44 +23,6 @@ export type ToolDefinitionInfo = {
 type ToolsHostConfig = {
   logger: Logger;
 };
-
-class NoopDefaultMetrics {
-  observe(): void {
-    // no-op
-  }
-}
-
-class NoopMetrics implements Metrics<DefaultMetrics> {
-  constructor() {}
-  get<K extends keyof DefaultMetrics>(_key: K): DefaultMetrics[K] {
-    return new NoopDefaultMetrics() as unknown as DefaultMetrics[K];
-  }
-  getMetrics(): Promise<string> {
-    return Promise.resolve('');
-  }
-}
-
-/**
- * In-memory MCP runner that doesn't bind to any external transport.
- * The server is kept in memory for direct programmatic access.
- */
-class InMemoryRunner extends TransportRunnerBase {
-  public server?: Server;
-  public readonly userConfig: UserConfig;
-
-  constructor(config: TransportRunnerConfig) {
-    super(config);
-    this.userConfig = config.userConfig;
-  }
-
-  async start(): Promise<void> {
-    this.server = await this.setupServer();
-  }
-
-  async closeTransport(): Promise<void> {
-    await this.server?.close();
-  }
-}
 
 /**
  * Utility-process side of the assistant database tools. Owns the MCP server,
@@ -80,9 +35,6 @@ export class ToolsHost {
   private readonly runner: InMemoryRunner;
   private connectionManager: ToolsConnectionManager;
   private readonly disposable: Disposable;
-  // The utility has no preferences of its own: the renderer delivers the
-  // telemetry anonymous id (and the rest of the runtime config) through
-  // setUserConfig.
   private telemetryAnonymousId = '';
 
   constructor(port: ToolsRpcPort, { logger }: ToolsHostConfig) {
@@ -91,9 +43,6 @@ export class ToolsHost {
       disabledTools: ['connect'],
       loggers: ['mcp'],
       readOnly: true,
-      // NOTE: the preferences could change at runtime. As a best-effort way
-      // of keeping them in sync the renderer sends setUserConfig whenever
-      // the context changes.
       telemetry: 'disabled',
     });
 
@@ -186,7 +135,7 @@ export class ToolsHost {
         } = params as {
           toolName: string;
           toolArgs: unknown;
-          connectParams: string;
+          connectParams: ConnectParamsWire;
         };
         const connectParams = decodeConnectParams(encodedConnectParams);
         await this.ensureServerStarted();

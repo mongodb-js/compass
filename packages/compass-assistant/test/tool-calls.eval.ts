@@ -89,10 +89,6 @@ let toolsInitialized = false;
 async function ensureToolsInitialized(): Promise<void> {
   if (toolsInitialized) return;
   await toolsController.startServer();
-  toolsController.setActiveTools(new Set<ToolGroup>(['db-read']));
-  if (!toolsController.getActiveTools()['find']) {
-    throw new Error('Failed to start ToolsController server for eval tools');
-  }
   toolsInitialized = true;
 }
 
@@ -224,6 +220,8 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
       input: custom,
       connectionConfig,
     });
+
+    assert(tools['find'], 'ToolsController did not provide database tools');
 
     const contextPrompt = buildContextPromptText({
       custom,
