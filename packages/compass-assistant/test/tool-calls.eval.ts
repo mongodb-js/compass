@@ -18,7 +18,7 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 import {
@@ -32,11 +32,12 @@ import type {
   ConversationEvalCaseInputWithCustom,
   ConversationTaskOutput,
   BraintrustConversationEvalCaseWithCustom,
+  MessageBase,
 } from 'mongodb-assistant-eval/eval';
 import { ToolCallScorers } from 'mongodb-assistant-eval/scorers';
 import { seedServer } from './fixtures/databases/seed-server';
 import { seedDatabases } from './fixtures/databases';
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
 import { EVAL_CLUSTER_UID, EVAL_MODEL, instructions } from './eval-config';
 
@@ -227,7 +228,7 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
       system: contextPrompt,
       prompt: input.messages
         .map(
-          (m) =>
+          (m: MessageBase) =>
             `${m.role === 'assistant' ? 'Assistant' : 'User'}: ${m.content}`
         )
         .join('\n\n'),

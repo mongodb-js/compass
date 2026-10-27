@@ -7,7 +7,7 @@ import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 
 import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';

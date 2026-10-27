@@ -1,5 +1,5 @@
 'use strict';
-const path = require('path');
+const path = require('node:path');
 const {
   webpack,
   createWebConfig,
@@ -7,8 +7,8 @@ const {
   merge,
   HtmlWebpackPlugin,
 } = require('@mongodb-js/webpack-config-compass');
-const { execFile, spawn, execFileSync } = require('child_process');
-const { promisify } = require('util');
+const { execFile, spawn, execFileSync } = require('node:child_process');
+const { promisify } = require('node:util');
 const { createWebSocketProxy } = require('./scripts/ws-proxy');
 
 const execFileAsync = promisify(execFile);
@@ -103,7 +103,7 @@ module.exports = (env, args) => {
         // 'mongodb-log-writer': localPolyfill('mongodb-log-writer'),
         v8: false,
         electron: false,
-        'hadron-ipc': false,
+        '@mongodb-js/hadron-ipc': false,
 
         // TODO(COMPASS-7411): compass-user-data
         // can't disable the whole module, imports used directly in module scope

@@ -1,5 +1,5 @@
-import path from 'path';
-import { promises as fs } from 'fs';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import { EJSON } from 'bson';
 import yaml from 'js-yaml';
 import type { Options as YargsOptions } from 'yargs-parser';
@@ -177,7 +177,7 @@ function validatePreferences(
       obj[key] = allPreferencesProps[key].validator.parse(value) as any;
     } catch (e) {
       // Show the first error
-      error(`${key}: ${(e as z.ZodError).errors[0].message}`);
+      error(`${key}: ${(e as z.ZodError).issues[0].message}`);
     }
   }
   return [obj, errors];

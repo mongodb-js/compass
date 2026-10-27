@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import ts from 'typescript';
-import { spawnSync } from 'child_process';
-import { appendFileSync } from 'fs';
+import { spawnSync } from 'node:child_process';
+import { appendFileSync } from 'node:fs';
 
 const FILEPATH = 'packages/compass-preferences-model/src/feature-flags.ts';
 

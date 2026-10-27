@@ -1,6 +1,6 @@
 'use strict';
 const { RuleTester } = require('eslint');
-const path = require('path');
+const path = require('node:path');
 const rule = require('./unique-mongodb-log-id');
 
 const ruleTester = new RuleTester();

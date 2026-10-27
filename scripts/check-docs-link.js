@@ -1,7 +1,7 @@
 'use strict';
-const fs = require('fs');
-const childProcess = require('child_process');
-const path = require('path');
+const fs = require('node:fs');
+const childProcess = require('node:child_process');
+const path = require('node:path');
 const fetch = require('make-fetch-happen');
 const { JSDOM } = require('jsdom');
 

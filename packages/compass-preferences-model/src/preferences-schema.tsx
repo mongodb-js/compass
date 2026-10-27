@@ -267,11 +267,7 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
       : false
     : OmitFromHelp;
 
-  validator: z.Schema<
-    AllPreferences[K],
-    z.ZodTypeDef,
-    AllPreferences[K] | undefined
-  >;
+  validator: z.ZodType<AllPreferences[K], AllPreferences[K] | undefined>;
   type: PreferenceType<AllPreferences[K]>;
   secrets?: K extends keyof UserPreferences
     ? AllPreferences[K] extends string
@@ -395,12 +391,11 @@ export const storedUserPreferencesProps: Required<{
       short: 'Compass UI Theme',
     },
     validator: z
-
-      .effect(z.enum(THEMES_VALUES), {
-        type: 'preprocess',
-        transform: (val) =>
+      .preprocess<unknown, z.ZodEnum<Record<THEMES, THEMES>>, THEMES>(
+        (val) =>
           typeof val !== 'string' ? val : (val || 'light').toUpperCase(),
-      })
+        z.enum(THEMES_VALUES)
+      )
       .optional()
       .default('LIGHT'),
     type: 'string',
@@ -429,7 +424,7 @@ export const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: z.string().uuid().optional(),
+    validator: z.uuid().optional(),
     type: 'string',
   },
   /**
@@ -1080,7 +1075,7 @@ export const storedUserPreferencesProps: Required<{
     // Internally either a URL or a DevtoolsProxyOptions object as JSON
     validator: z
       .union([
-        z.string().url(),
+        z.url(),
         z.literal(''),
         z.custom<string>((val) => {
           if (typeof val !== 'string') return false;

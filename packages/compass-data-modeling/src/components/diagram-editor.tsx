@@ -61,7 +61,7 @@ import {
   getHighlightedFields,
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { FIELD_TYPES } from '../utils/field-types';
 import { getNamespaceRelationships } from '../utils/utils';
 import AnalysisProgressStatus from './analysis-progress-status';

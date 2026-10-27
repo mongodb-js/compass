@@ -30,7 +30,7 @@ import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
 import {
   isAssistantThinking,

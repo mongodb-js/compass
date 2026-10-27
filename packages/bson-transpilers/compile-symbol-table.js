@@ -1,8 +1,8 @@
 'use strict';
 /* eslint-disable no-sync */
-const path = require('path');
+const path = require('node:path');
 
-const fs = require('fs');
+const fs = require('node:fs');
 
 const yaml = require('js-yaml');
 const schema = yaml.DEFAULT_SCHEMA.extend(require('js-yaml-js-types').all);

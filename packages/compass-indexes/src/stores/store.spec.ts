@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
 import { type IndexesStore } from './store';

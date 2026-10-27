@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
   createNoopLogger,
   LoggerProvider,
@@ -32,17 +32,17 @@ import type {
   DataService,
   InstanceDetails,
 } from 'mongodb-data-service';
-import { identifyServerName } from 'mongodb-build-info';
+import { identifyServerName } from '@mongodb-js/mongodb-build-info';
 import Sinon from 'sinon';
 import React from 'react';
 import type {
   AllPreferences,
   PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import {
   PreferencesProvider,
   ReadOnlyPreferenceAccess,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ExperimentTestGroup } from '@mongodb-js/compass-telemetry';
@@ -52,8 +52,10 @@ import {
   ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/src/connection-info-provider';
 import type { State } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { createDefaultConnectionInfo } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { getDataServiceForConnection } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
+import {
+  createDefaultConnectionInfo,
+  getDataServiceForConnection,
+} from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
 import {
   useConnectionActions,
   useStore,

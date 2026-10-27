@@ -1,4 +1,4 @@
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';

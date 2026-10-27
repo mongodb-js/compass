@@ -13,7 +13,7 @@ const throwIfNotTestEnv = () => {
   }
 };
 
-export class noopUserData<T extends z.Schema> extends IUserData<T> {
+export class noopUserData<T extends z.ZodType> extends IUserData<T> {
   write(): Promise<boolean> {
     throwIfNotTestEnv();
     return Promise.resolve(true);
@@ -26,7 +26,7 @@ export class noopUserData<T extends z.Schema> extends IUserData<T> {
     throwIfNotTestEnv();
     return Promise.resolve({ data: [], errors: [] });
   }
-  readOne(): Promise<z.output<T>> {
+  readOne(): Promise<z.output<T> | undefined> {
     throwIfNotTestEnv();
     return Promise.resolve(undefined);
   }

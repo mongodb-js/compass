@@ -15,7 +15,7 @@ import {
   showErrorDetails,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 import RateLimitExceededBanner from '../rate-limit-exceeded-banner';
@@ -30,8 +30,8 @@ import PipelineEmptyResults from './pipeline-empty-results';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
+  getStageOperator,
 } from '../../utils/stage';
-import { getStageOperator } from '../../utils/stage';
 import { gotoOutResults } from '../../modules/out-results-fn';
 import {
   isRerankNotEnabledError,

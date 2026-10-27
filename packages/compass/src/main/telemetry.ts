@@ -1,9 +1,9 @@
 import { Analytics } from '@segment/analytics-node';
 import { app } from 'electron';
-import { ipcMain } from 'hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import { createLogger } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
-import type { EventEmitter } from 'events';
+import type { EventEmitter } from 'node:events';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 import type { IdentifyEvent } from '@mongodb-js/compass-telemetry';
 import { getDeviceId } from '@mongodb-js/device-id';

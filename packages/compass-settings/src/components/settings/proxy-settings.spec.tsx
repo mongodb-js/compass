@@ -11,7 +11,7 @@ import { Provider } from 'react-redux';
 import { ProxySettings } from './proxy-settings';
 import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
-import { proxyPreferenceToProxyOptions } from 'compass-preferences-model';
+import { proxyPreferenceToProxyOptions } from '@mongodb-js/compass-preferences-model';
 
 describe('ProxyOptions', function () {
   let container: HTMLElement;

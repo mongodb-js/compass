@@ -1,4 +1,4 @@
-import { inspect } from 'util';
+import { inspect, promisify } from 'node:util';
 import { ObjectId, EJSON } from 'bson';
 import {
   promises as fs,
@@ -7,17 +7,16 @@ import {
   openSync,
   rmdirSync,
   writeSync,
-} from 'fs';
+} from 'node:fs';
 import type Mocha from 'mocha';
-import os from 'os';
-import { execFile } from 'child_process';
-import type { ExecFileOptions, ExecFileException } from 'child_process';
-import { promisify } from 'util';
-import zlib from 'zlib';
+import os from 'node:os';
+import { execFile } from 'node:child_process';
+import type { ExecFileOptions, ExecFileException } from 'node:child_process';
+import zlib from 'node:zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import { packageCompass } from 'hadron-build';
+import { packageCompass } from '@mongodb-js/hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors.ts';
@@ -37,6 +36,7 @@ import {
   isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
   getAtlasCloudEnvironmentFromContext,
+  COMPASS_WEB_ENTRYPOINT_HOST,
 } from './test-runner-context.ts';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -52,11 +52,10 @@ import {
   MONOREPO_ROOT_PATH,
 } from './test-runner-paths.ts';
 import treeKill from 'tree-kill';
-import path from 'path';
+import path from 'node:path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures.ts';
 import { dialogOpenLocator } from './dialog-open-locator-strategy.ts';
 import { getExtension } from './redirect-extension.ts';
-import { COMPASS_WEB_ENTRYPOINT_HOST } from './test-runner-context.ts';
 
 export {
   getDefaultConnectionStrings,
@@ -1411,7 +1410,7 @@ function traceArg(arg: unknown): string {
   if (arg === null || typeof arg !== 'object') {
     return String(arg);
   }
-  const ctor = (arg as object).constructor?.name;
+  const ctor = arg.constructor?.name;
   if (ctor && ctor !== 'Object' && ctor !== 'Array') {
     return `<${ctor}>`;
   }

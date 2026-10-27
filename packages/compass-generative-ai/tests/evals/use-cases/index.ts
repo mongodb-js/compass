@@ -1,6 +1,6 @@
 import { findQueries } from './find-query';
 import { aggregateQueries } from './aggregate-query';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { UUID } from 'bson';
 
 export type GenAiUsecase = {

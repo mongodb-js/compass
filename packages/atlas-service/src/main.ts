@@ -1,6 +1,6 @@
 import { shell, app } from 'electron';
 import type Electron from 'electron';
-import { URL, URLSearchParams } from 'url';
+import { URL, URLSearchParams } from 'node:url';
 import type {
   AuthFlowType,
   MongoDBOIDCError,
@@ -20,19 +20,19 @@ import {
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
-import type { Agent } from 'https';
+import type { Agent } from 'node:https';
 import type {
   AtlasServiceBackendPreset,
   AtlasUserInfo,
   AtlasServiceConfig,
 } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { HadronIpcMain } from 'hadron-ipc';
-import { ipcMain } from 'hadron-ipc';
+import type { HadronIpcMain } from '@mongodb-js/hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import { SecretStore } from './secret-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
 import { ATLAS_ADMIN_API_AUTH_ENDPOINTS } from './atlas-admin-api-auth-endpoints';

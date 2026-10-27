@@ -5,17 +5,17 @@ import {
   InlineDefinition,
   ServerIcon,
 } from '@mongodb-js/compass-components';
-import { getToolDescription } from '../utils';
-import type { ToolUIPart } from 'ai';
-import type { BasicConnectionInfo } from '../compass-assistant-provider';
-import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
 import {
+  getToolDescription,
   cleanToolCallOutput,
   getToolState,
   getToolDisplayName,
   getExpandableContentText,
   toolHasOutput,
 } from '../utils';
+import type { ToolUIPart } from 'ai';
+import type { BasicConnectionInfo } from '../compass-assistant-provider';
+import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
 import { ActionCardMessage } from './action-card-message';
 import { getToolCallTitle } from './tool-call-title';
 import { TOOL_DENIAL_REASONS } from '../prompts';

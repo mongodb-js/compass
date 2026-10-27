@@ -14,9 +14,9 @@ import type {
   BSONObject,
   BSONValue,
   HadronShellSyntaxOptions,
+  HadronEJSONOptions,
 } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
-import type { HadronEJSONOptions } from './utils';
 import type { Binary, MongoServerError } from 'mongodb';
 import { DocumentEvents, type DocumentEventsType } from './document-events';
 import { ElementEvents } from './element-events';

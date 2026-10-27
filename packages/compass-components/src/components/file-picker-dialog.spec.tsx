@@ -1,7 +1,7 @@
 import React from 'react';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { setImmediate as tick } from 'timers/promises';
+import { setImmediate as tick } from 'node:timers/promises';
 
 import {
   render,

@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import { promisify } from 'util';
-import fs from 'fs';
-import path from 'path';
+import { promisify } from 'node:util';
+import fs from 'node:fs';
+import path from 'node:path';
 import type { Reducer } from 'redux';
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';

@@ -8,7 +8,10 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionStorage,
+  ImportConnectionOptions,
+} from '@mongodb-js/connection-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type {
@@ -24,12 +27,12 @@ import { assign, cloneDeep, isEqual, merge } from 'lodash';
 import {
   proxyPreferenceToProxyOptions,
   type PreferencesAccess,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import { isAtlasStream } from 'mongodb-build-info';
-import EventEmitter from 'events';
+import { isAtlasStream } from '@mongodb-js/mongodb-build-info';
+import EventEmitter from 'node:events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import { showEndOfLifeMongoDBWarningModal as _showEndOfLifeMongoDBWarningModal } from '../components/end-of-life-connection-modal';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -39,7 +42,6 @@ import {
   getLatestEndOfLifeServerVersion,
   isEndOfLifeVersion,
 } from '../utils/end-of-life-server';
-import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 import { getErrorCodeCauseChain } from '../utils/telemetry';
 import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
 

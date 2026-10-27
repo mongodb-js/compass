@@ -1,7 +1,7 @@
 import browserslist from 'browserslist';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import { execSync } from 'child_process';
-import path from 'path';
+import { execSync } from 'node:child_process';
+import path from 'node:path';
 import type { ConfigArgs } from './args';
 import { shouldEnableHotReload } from './args';
 import chalk from 'chalk';

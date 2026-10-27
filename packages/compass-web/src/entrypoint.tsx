@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
+  createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
@@ -50,7 +51,7 @@ import {
   PreferencesProvider,
   usePreferences,
   usePreferencesContext,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import {
   atlasServiceLocator,
@@ -99,10 +100,11 @@ import {
   type RecentQueryStorageAccess,
   type PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
-import { createServiceProvider } from '@mongodb-js/compass-app-registry';
-import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
+import {
+  CompassAssistantProvider,
+  APP_NAMES_FOR_PROMPT,
+} from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
-import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { Link, setMultiplexLink } from './multiplex-link';
 import { useSyncHistory } from './use-sync-history';
 import type { History } from './use-sync-history';

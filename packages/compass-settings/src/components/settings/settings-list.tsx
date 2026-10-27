@@ -1,14 +1,12 @@
 import React, { useCallback } from 'react';
-import type { UserConfigurablePreferences } from 'compass-preferences-model';
+import type { UserConfigurablePreferences } from '@mongodb-js/compass-preferences-model';
 import {
   getSettingDescription,
   featureFlags,
-} from 'compass-preferences-model/provider';
-import {
   SORT_ORDER_VALUES,
   LEGACY_UUID_ENCODINGS,
   TIMEZONES,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
 import {
   Checkbox,

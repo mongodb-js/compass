@@ -5,9 +5,9 @@ import {
   type ExportConnectionOptions,
   type ConnectionInfo,
 } from './main';
-import fs from 'fs/promises';
-import path from 'path';
-import os from 'os';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
 import type {
   AutoConnectPreferences,
   ConnectionStorage,

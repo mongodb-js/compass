@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { EventEmitter } from 'events';
-import { listen, onceEvent, waitUntil } from './events';
+import { EventEmitter } from 'node:events';
+import { errorFromEvent, listen, once, waitUntil } from './events';
 
 describe('events', function () {
   describe('listen', function () {
@@ -44,10 +44,10 @@ describe('events', function () {
     });
   });
 
-  describe('onceEvent', function () {
+  describe('once', function () {
     it('resolves with the event from an EventTarget', async function () {
       const target = new EventTarget();
-      const next = onceEvent<[Event]>(target, 'ping');
+      const next = once<[Event]>(target, 'ping');
       const event = new Event('ping');
       target.dispatchEvent(event);
       expect(await next).to.deep.equal([event]);
@@ -55,26 +55,16 @@ describe('events', function () {
 
     it('resolves with the emitted arguments from an EventEmitter', async function () {
       const emitter = new EventEmitter();
-      const next = onceEvent(emitter, 'ping');
+      const next = once(emitter, 'ping');
       emitter.emit('ping', 1, 2);
       expect(await next).to.deep.equal([1, 2]);
       expect(emitter.listenerCount('ping')).to.equal(0);
     });
 
-    it('skips events the filter rejects', async function () {
-      const emitter = new EventEmitter();
-      const next = onceEvent<[number]>(emitter, 'n', {
-        filter: (n) => n > 1,
-      });
-      emitter.emit('n', 1);
-      emitter.emit('n', 2);
-      expect(await next).to.deep.equal([2]);
-    });
-
     it('rejects with the reason when the signal aborts', async function () {
       const emitter = new EventEmitter();
       const controller = new AbortController();
-      const next = onceEvent(emitter, 'never', { signal: controller.signal });
+      const next = once(emitter, 'never', { signal: controller.signal });
       controller.abort(new Error('stop'));
       const error = await next.catch((err: Error) => err);
       expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
@@ -82,7 +72,7 @@ describe('events', function () {
     });
 
     it('rejects straight away for an already aborted signal', async function () {
-      const error = await onceEvent(new EventEmitter(), 'x', {
+      const error = await once(new EventEmitter(), 'x', {
         signal: AbortSignal.abort(new Error('already')),
       }).catch((err: Error) => err);
       expect(error).to.be.instanceOf(Error).with.property('message', 'already');
@@ -90,31 +80,29 @@ describe('events', function () {
   });
 
   describe('waitUntil', function () {
-    it('resolves with the first value pick returns', async function () {
+    it('resolves with the arguments of the first event the filter accepts', async function () {
       const emitter = new EventEmitter();
-      const next = waitUntil(emitter, 'n', (n: number) =>
-        n > 1 ? `got ${n}` : undefined
-      );
+      const next = waitUntil(emitter, 'n', (n: number) => n > 1);
       emitter.emit('n', 1);
       emitter.emit('n', 2);
-      expect(await next).to.equal('got 2');
+      expect(await next).to.deep.equal([2]);
     });
 
-    it('resolves with the first match when matches are emitted synchronously', async function () {
+    it('stops filtering after the first match', async function () {
       const emitter = new EventEmitter();
-      const picks: number[] = [];
+      const seen: number[] = [];
       const next = waitUntil(emitter, 'n', (n: number) => {
-        picks.push(n);
-        return n;
+        seen.push(n);
+        return true;
       });
       emitter.emit('n', 1);
       emitter.emit('n', 2);
-      expect(await next).to.equal(1);
-      expect(picks).to.deep.equal([1]);
+      await next;
+      expect(seen).to.deep.equal([1]);
       expect(emitter.listenerCount('n')).to.equal(0);
     });
 
-    it('rejects when pick throws', async function () {
+    it('rejects when the filter throws', async function () {
       const emitter = new EventEmitter();
       const next = waitUntil(emitter, 'n', () => {
         throw new Error('bad message');
@@ -125,6 +113,57 @@ describe('events', function () {
         .to.be.instanceOf(Error)
         .with.property('message', 'bad message');
       expect(emitter.listenerCount('n')).to.equal(0);
+    });
+
+    it('rejects with the reason when the signal aborts', async function () {
+      const emitter = new EventEmitter();
+      const controller = new AbortController();
+      const next = waitUntil(emitter, 'n', () => true, {
+        signal: controller.signal,
+      });
+      controller.abort(new Error('stop'));
+      const error = await next.catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
+      expect(emitter.listenerCount('n')).to.equal(0);
+    });
+
+    it('stops filtering as soon as the signal aborts', async function () {
+      const emitter = new EventEmitter();
+      const controller = new AbortController();
+      const seen: number[] = [];
+      const next = waitUntil(
+        emitter,
+        'n',
+        (n: number) => {
+          seen.push(n);
+          return false;
+        },
+        { signal: controller.signal }
+      );
+      controller.abort(new Error('stop'));
+      emitter.emit('n', 1);
+      const error = await next.catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
+      expect(seen).to.deep.equal([]);
+    });
+  });
+
+  describe('errorFromEvent', function () {
+    it('returns an Error dispatched as the event itself', function () {
+      const error = new Error('direct');
+      expect(errorFromEvent(error)).to.equal(error);
+    });
+
+    it('returns the Error an ErrorEvent carries', function () {
+      const error = new Error('carried');
+      expect(errorFromEvent({ error, message: 'other' })).to.equal(error);
+    });
+
+    it('builds an Error from the message when there is none', function () {
+      const error = errorFromEvent({ message: 'only a message' });
+      expect(error)
+        .to.be.instanceOf(Error)
+        .with.property('message', 'only a message');
     });
   });
 });

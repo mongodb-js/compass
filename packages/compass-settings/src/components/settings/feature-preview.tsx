@@ -1,10 +1,10 @@
 import React from 'react';
 import SettingsList from './settings-list';
-import type { FeatureFlagDefinition } from 'compass-preferences-model/provider';
+import type { FeatureFlagDefinition } from '@mongodb-js/compass-preferences-model/provider';
 import {
   usePreference,
   featureFlags,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 
 export const previewFeatureFlagFields = featureFlags
   .filter((definition) => {

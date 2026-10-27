@@ -5,11 +5,11 @@ import sinon from 'sinon';
 import { setupIntercom, resetIntercomAllowedCache } from './setup-intercom';
 import { expect } from 'chai';
 import type { IntercomScript } from './intercom-script';
-import type { PreferencesAccess } from 'compass-preferences-model';
 import {
+  type PreferencesAccess,
   createSandboxFromDefaultPreferences,
   type User,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 
 // Picking something which won't be blocked by CORS
 const FAKE_HADRON_AUTO_UPDATE_ENDPOINT = 'https://compass.mongodb.com';

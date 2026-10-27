@@ -1,4 +1,4 @@
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {

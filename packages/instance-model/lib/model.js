@@ -2,7 +2,7 @@
 const AmpersandModel = require('ampersand-model');
 const {
   Collection: MongoDbDatabaseCollection,
-} = require('mongodb-database-model');
+} = require('@mongodb-js/mongodb-database-model');
 const TopologyType = require('./topology-type');
 const ServerType = require('./server-type');
 const Environment = require('./environment');

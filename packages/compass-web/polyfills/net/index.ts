@@ -1,5 +1,5 @@
 import { ipVersion } from 'is-ip';
-import { Duplex } from 'stream';
+import { Duplex } from 'node:stream';
 import { getMultiplexLink } from '../../src/multiplex-link';
 
 type ConnectOptions = {

@@ -7,8 +7,8 @@
  * polyfill to emit 'secureConnect' instead of 'connect', which is what the
  * MongoDB driver expects from a TLS socket.
  */
-import type { SocketConnectOpts } from 'net';
-import { createConnection } from 'net';
+import type { SocketConnectOpts } from 'node:net';
+import { createConnection } from 'node:net';
 
 export const connect = (options: { host: string; port: number }) => {
   return createConnection({

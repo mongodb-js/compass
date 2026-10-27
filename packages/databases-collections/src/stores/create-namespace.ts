@@ -1,7 +1,7 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import {} from '@mongodb-js/compass-connections/provider';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { Action, AnyAction } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
@@ -13,7 +13,7 @@ import reducer, {
   open,
   topologyChanged,
 } from '../modules/create-namespace';
-import type toNS from 'mongodb-ns';
+import type toNS from '@mongodb-js/mongodb-ns';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import {

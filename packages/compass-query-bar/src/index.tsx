@@ -20,7 +20,7 @@ import {
 } from './components/hooks';
 import type { QueryBarService } from './components/hooks';
 import QueryBarComponent from './components/query-bar';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import {

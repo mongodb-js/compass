@@ -1,4 +1,4 @@
-import { setTimeout as wait } from 'timers/promises';
+import { setTimeout as wait } from 'node:timers/promises';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import {
@@ -8,10 +8,10 @@ import {
 } from './auto-update-manager';
 import type { DownloadItem } from 'electron';
 import { dialog, autoUpdater, BrowserWindow } from 'electron';
-import os from 'os';
+import os from 'node:os';
 import dl from 'electron-dl';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { ipcMain } from 'hadron-ipc';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 
 function setStateAndWaitForUpdate(
   initial: AutoUpdateManagerState,

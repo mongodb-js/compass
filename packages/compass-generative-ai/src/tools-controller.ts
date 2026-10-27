@@ -8,7 +8,7 @@ import type { ToolsRpcPort } from './tools/infrastructure/messages';
 import type { ToolDefinitionInfo } from './tools/infrastructure/tools-host';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import {

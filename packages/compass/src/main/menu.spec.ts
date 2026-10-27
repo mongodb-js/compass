@@ -1,9 +1,9 @@
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, Menu, app, dialog } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';

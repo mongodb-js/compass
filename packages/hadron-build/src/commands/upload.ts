@@ -1,7 +1,7 @@
-import path from 'path';
-import os from 'os';
-import { promises as fs } from 'fs';
-import { deepStrictEqual } from 'assert';
+import path from 'node:path';
+import os from 'node:os';
+import { promises as fs } from 'node:fs';
+import { deepStrictEqual } from 'node:assert';
 import semver from 'semver';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';

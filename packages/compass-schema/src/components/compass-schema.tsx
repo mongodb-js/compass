@@ -29,7 +29,7 @@ import {
   Badge,
   Icon,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';

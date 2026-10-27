@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {

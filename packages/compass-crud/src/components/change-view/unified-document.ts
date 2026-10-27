@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert from 'node:assert';
 import type { Delta } from 'jsondiffpatch';
 import * as jsondiffpatch from 'jsondiffpatch/with-text-diffs';
 

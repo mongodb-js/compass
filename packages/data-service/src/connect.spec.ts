@@ -1,11 +1,11 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 
 import createTestEnvs from '@mongodb-js/devtools-docker-test-envs';
 import { expect } from 'chai';
-import util from 'util';
+import util from 'node:util';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import path from 'path';
-import os from 'os';
+import path from 'node:path';
+import os from 'node:os';
 import type { MongoClientOptions } from 'mongodb';
 import { UUID } from 'mongodb';
 

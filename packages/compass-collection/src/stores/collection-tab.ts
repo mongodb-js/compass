@@ -1,5 +1,8 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  DataService,
+  connectionInfoRefLocator,
+} from '@mongodb-js/compass-connections/provider';
 import { createStore, applyMiddleware } from 'redux';
 
 import thunk from 'redux-thunk';
@@ -17,10 +20,9 @@ import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
-import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
 import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
 import {

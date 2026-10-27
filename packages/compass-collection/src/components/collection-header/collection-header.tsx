@@ -8,10 +8,9 @@ import {
   useDarkMode,
   Breadcrumbs,
 } from '@mongodb-js/compass-components';
-import type { BreadcrumbItem } from '@mongodb-js/compass-components';
-import type { Signal } from '@mongodb-js/compass-components';
+import type { BreadcrumbItem, Signal } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import CollectionHeaderActions from '../collection-header-actions';
 import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';

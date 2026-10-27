@@ -23,12 +23,11 @@ import {
   Tooltip,
   useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
-import type { Annotation } from '@mongodb-js/compass-editor';
+import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorMultilineEditor,
   createSearchIndexAutocompleter,
 } from '@mongodb-js/compass-editor';
-import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
@@ -41,7 +40,7 @@ import {
   ATLAS_VECTOR_SEARCH_TEMPLATE,
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import {
   useTrackOnChange,

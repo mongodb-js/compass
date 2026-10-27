@@ -2,11 +2,11 @@
  * A high-level wrapper around electron's builtin [BrowserWindow][0] class.
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
-import { pathToFileURL } from 'url';
-import path from 'path';
-import type { HadronIpcMainEvent } from 'hadron-ipc';
-import { ipcMain } from 'hadron-ipc';
-import { once } from 'events';
+import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+import type { HadronIpcMainEvent } from '@mongodb-js/hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
+import { once } from 'node:events';
 import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,

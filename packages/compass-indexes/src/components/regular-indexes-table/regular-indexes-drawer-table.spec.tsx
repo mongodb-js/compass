@@ -10,8 +10,10 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { RegularIndexesDrawerTable } from './regular-indexes-drawer-table';
-import { renderNameOverride } from './regular-indexes-drawer-table';
+import {
+  RegularIndexesDrawerTable,
+  renderNameOverride,
+} from './regular-indexes-drawer-table';
 import { InlineDefinition } from '@mongodb-js/compass-components';
 import { setupStore } from '../../../test/setup-store';
 import { mockRegularIndex } from '../../../test/helpers';

@@ -16,12 +16,12 @@ import {
   cleanUpDownloadedFile,
   waitForFileDownload,
 } from '../helpers/downloads.ts';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import tesseract from 'tesseract.js';
-import toNS from 'mongodb-ns';
-import path from 'path';
-import os from 'os';
-import fs from 'fs/promises';
+import toNS from '@mongodb-js/mongodb-ns';
+import path from 'node:path';
+import os from 'node:os';
+import fs from 'node:fs/promises';
 import { Key, type ChainablePromiseElement } from 'webdriverio';
 
 const { recognize } = tesseract;

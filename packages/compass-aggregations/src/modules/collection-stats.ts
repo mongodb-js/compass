@@ -1,5 +1,5 @@
 import type { Action, Reducer } from 'redux';
-import type Collection from 'mongodb-collection-model';
+import type Collection from '@mongodb-js/mongodb-collection-model';
 import { isAction } from '../utils/is-action';
 
 export type CollectionStats = {

@@ -10,13 +10,13 @@ import {
 } from '@mongodb-js/connection-storage/provider';
 // This plugin is an exception from the rule
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import type {
   ImportExportResult,
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 
@@ -46,7 +46,7 @@ export function useExportConnections({
   open,
   trackingProps,
 }: {
-  finish: (result: ImportExportResult) => void;
+  finish: (result: ImportExportResult, filename?: string) => void;
   open: boolean;
   trackingProps?: Record<string, unknown>;
 }): {
@@ -135,7 +135,7 @@ export function useExportConnections({
         });
         return;
       }
-      finish('succeeded');
+      finish('succeeded', filename);
     })();
   }, [connectionList, passphrase, removeSecrets, filename, finish]);
 

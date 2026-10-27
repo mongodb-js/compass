@@ -3,7 +3,7 @@ import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import { UUID } from 'bson';
 import { isCancelError } from '@mongodb-js/compass-utils';
 
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -15,10 +15,10 @@ import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-import { type PreferencesAccess } from 'compass-preferences-model/provider';
+import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
   SCHEMA_ANALYSIS_STATE_COMPLETE,
@@ -48,7 +48,7 @@ import {
   isValidFakerMethod,
   MAX_COLLECTION_NESTING_DEPTH,
 } from '../components/mock-data-generator-modal/utils';
-import { getDefaultFakerMethod } from '../components/mock-data-generator-modal/script-generation-utils';
+import { getDefaultFakerMethod } from '@mongodb-js/mock-data-generator';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -69,7 +69,6 @@ function isAction<A extends AnyAction>(
 }
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
-export const UNRECOGNIZED_FAKER_METHOD = 'Unrecognized';
 
 function getErrorDetails(error: Error): SchemaAnalysisError {
   if (error instanceof ProcessSchemaUnsupportedStateError) {

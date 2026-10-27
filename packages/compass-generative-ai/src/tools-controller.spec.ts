@@ -11,7 +11,7 @@ import { ToolsHost } from './tools/infrastructure/tools-host';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 
 describe('ToolsController', function () {

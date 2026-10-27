@@ -1,10 +1,10 @@
 'use strict';
-const path = require('path');
-const { promises: fs } = require('fs');
+const path = require('node:path');
+const { promises: fs } = require('node:fs');
 const { traverse, parseAsync } = require('@babel/core');
-const { Module } = require('module');
-const { execFile } = require('child_process');
-const { promisify } = require('util');
+const { Module } = require('node:module');
+const { execFile } = require('node:child_process');
+const { promisify } = require('node:util');
 const { minVersion } = require('semver');
 
 const execFileAsync = promisify(execFile);
@@ -51,7 +51,10 @@ async function collectAllAbsoluteImports(entryPoints = []) {
       // Keep second part for namespaced imports, but drop everything else
       const [a, b] = importPath.split('/');
       const moduleName = a.startsWith('@') ? `${a}/${b}` : a;
-      if (IGNORED_ABSOLUTE_IMPORTS.includes(moduleName)) {
+      if (
+        importPath.startsWith('node:') ||
+        IGNORED_ABSOLUTE_IMPORTS.includes(moduleName)
+      ) {
         return;
       }
       absoluteImports.add(moduleName);

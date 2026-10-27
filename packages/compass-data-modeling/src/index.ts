@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';

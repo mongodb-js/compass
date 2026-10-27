@@ -24,10 +24,10 @@ import {
   ConfirmationModalVariant,
 } from '@mongodb-js/compass-components';
 import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
-import toNS from 'mongodb-ns';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import toNS from '@mongodb-js/mongodb-ns';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 
 // Used in the `comment` on the aggregate command to help identify
 // the operation in server logs and currentOp.

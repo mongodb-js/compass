@@ -1,15 +1,16 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass.ts';
-import { screenshotIfFailed, skipForWeb } from '../helpers/compass.ts';
 import {
+  screenshotIfFailed,
+  skipForWeb,
   init,
   cleanup,
   runCompassOnce,
   subtestTitle,
 } from '../helpers/compass.ts';
-import os from 'os';
-import path from 'path';
-import { promises as fs } from 'fs';
+import os from 'node:os';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import * as Selectors from '../helpers/selectors.ts';
 import type { Telemetry } from '../helpers/telemetry.ts';
 import { startTelemetryServer } from '../helpers/telemetry.ts';

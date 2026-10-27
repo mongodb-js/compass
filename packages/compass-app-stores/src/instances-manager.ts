@@ -1,9 +1,9 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   MongoDBInstance,
   type MongoDBInstanceProps,
-} from 'mongodb-instance-model';
+} from '@mongodb-js/mongodb-instance-model';
 
 export const MongoDBInstancesManagerEvents = {
   InstanceCreated: 'instance-started',

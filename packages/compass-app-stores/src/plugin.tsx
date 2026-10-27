@@ -9,8 +9,8 @@ import { createInstancesStore } from './stores';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { type MongoDBInstancesManager } from './instances-manager';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 
 interface MongoDBInstancesProviderProps {
   children?: React.ReactNode;

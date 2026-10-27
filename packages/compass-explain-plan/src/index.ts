@@ -8,7 +8,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 
 const ExplainPlanModalPlugin = registerCompassPlugin(
   {

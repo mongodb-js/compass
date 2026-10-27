@@ -1,5 +1,5 @@
 'use strict';
-var assert = require('assert');
+var assert = require('node:assert');
 var Collection = require('../');
 var CollectionCollection = require('../').Collection;
 

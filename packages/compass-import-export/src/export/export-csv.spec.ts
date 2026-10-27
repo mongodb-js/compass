@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import _ from 'lodash';
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
-import { Readable, Writable } from 'stream';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Readable, Writable } from 'node:stream';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -29,7 +29,7 @@ import { importJSON } from '../import/import-json';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 const { expect } = chai;
 chai.use(sinonChai);

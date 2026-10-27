@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
 import { Preferences } from './preferences';
 import { expect } from 'chai';
 import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';

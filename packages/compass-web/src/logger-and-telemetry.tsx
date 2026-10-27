@@ -1,13 +1,13 @@
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { MongoLogWriter } from 'mongodb-log-writer/mongo-log-writer';
-import type { Writable } from 'stream';
+import type { Writable } from 'node:stream';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import {
   useCurrentValueRef,
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import type { TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 
 /** @public */
 export type TrackFunction = (

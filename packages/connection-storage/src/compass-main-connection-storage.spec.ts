@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 
-import fs from 'fs/promises';
-import path from 'path';
-import os from 'os';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
 import { UUID } from 'bson';
 import { sortBy } from 'lodash';
 
@@ -294,7 +294,7 @@ describe('ConnectionStorage', function () {
           },
         });
       } catch (e) {
-        expect(e).to.have.nested.property('errors[0].message', 'Invalid uuid');
+        expect(e).to.have.nested.property('issues[0].message', 'Invalid UUID');
       }
     });
 
@@ -309,7 +309,7 @@ describe('ConnectionStorage', function () {
           },
         });
       } catch (e) {
-        expect(e).to.have.nested.property('errors[0].message', 'Invalid uuid');
+        expect(e).to.have.nested.property('issues[0].message', 'Invalid UUID');
       }
     });
 

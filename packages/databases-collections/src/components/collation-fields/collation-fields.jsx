@@ -6,8 +6,8 @@ import {
   Option,
   SelectSize,
   FormFieldContainer,
+  css,
 } from '@mongodb-js/compass-components';
-import { css } from '@mongodb-js/compass-components';
 
 const optionsSelectDropdownStyles = css({
   zIndex: 1,

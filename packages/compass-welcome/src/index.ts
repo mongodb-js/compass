@@ -7,7 +7,7 @@ import {
   WebWelcomeTab,
 } from './components';
 import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import welcomeModalStore from './stores/welcome-modal-store';

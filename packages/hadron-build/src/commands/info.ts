@@ -2,10 +2,10 @@ import _ from 'lodash';
 import Target from '../lib/target';
 import Table from 'cli-table';
 import * as yaml from 'js-yaml';
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 import { flatten } from 'flatnest';
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import type { CommandModule, Argv } from 'yargs';
 import type {
   BuilderCallbackParsedArgs,

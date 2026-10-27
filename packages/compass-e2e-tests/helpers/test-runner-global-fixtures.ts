@@ -1,6 +1,6 @@
 import gunzip from './gunzip.ts';
 import delay from './delay.ts';
-import fs from 'fs';
+import fs from 'node:fs';
 import {
   assertTestingWebAtlasCloud,
   context,
@@ -27,7 +27,7 @@ import type { MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 // @ts-expect-error no types for this package
 import logRunning from 'why-is-node-running';
-import { isEnterprise } from 'mongodb-build-info';
+import { isEnterprise } from '@mongodb-js/mongodb-build-info';
 import {
   buildCompass,
   closeWebdriverTrace,
@@ -46,7 +46,7 @@ import {
   waitForCompassWebSandboxToBeReady,
   waitForCompassWebStaticAssetsToBeReady,
 } from './compass-web-sandbox.ts';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils.ts';
 import type { ClusterTypes } from './commands/index.ts';
 

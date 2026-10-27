@@ -5,7 +5,7 @@ import {
 } from '@mongodb-js/connection-storage/provider';
 // This plugin is an exception from the rule
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import {
   COMMON_INITIAL_STATE,
   useImportExportConnectionsCommon,

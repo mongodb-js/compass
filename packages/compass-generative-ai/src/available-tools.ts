@@ -1,4 +1,4 @@
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 
 type ToolDefinition = {
   name: string;

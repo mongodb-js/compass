@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 
 import type { RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
@@ -19,8 +19,7 @@ import type {
 } from '../../modules/regular-indexes';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useRegularIndexesTable } from './use-regular-indexes-table';
-import type { CommonIndexInfo } from './use-regular-indexes-table';
-import type { MergedIndex } from './use-regular-indexes-table';
+import type { CommonIndexInfo, MergedIndex } from './use-regular-indexes-table';
 import TypeField from './type-field';
 import {
   COLUMNS_FOR_DRAWER,

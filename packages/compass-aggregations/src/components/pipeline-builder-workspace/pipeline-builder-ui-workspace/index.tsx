@@ -9,9 +9,9 @@ import type { RootState } from '../../../modules';
 import {
   addStage,
   moveStage,
+  addWizard,
 } from '../../../modules/pipeline-builder/stage-editor';
 import AggregationSidePanel from '../../aggregation-side-panel';
-import { addWizard } from '../../../modules/pipeline-builder/stage-editor';
 import PipelineBuilderInputDocuments from '../../pipeline-builder-input-documents';
 import AddStage from '../../add-stage';
 import UseCaseDroppableArea from '../../use-case-droppable-area';

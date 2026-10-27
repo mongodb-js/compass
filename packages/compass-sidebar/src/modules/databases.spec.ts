@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 import databasesReducer, { INITIAL_STATE, changeDatabases } from './databases';
 
