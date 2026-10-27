@@ -1,12 +1,13 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { MessageChannel } from 'worker_threads';
 import { ToolsController } from './tools-controller';
 import type { ToolGroup } from './tools-controller';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { ToolsConnectParams } from './tools-connection-manager';
-import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
+import { ToolsHost } from './tools/infrastructure/tools-host';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
@@ -14,6 +15,10 @@ import {
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 
 describe('ToolsController', function () {
+  // The MCP server starts in the utility host on the other end of the port;
+  // starting it and registering tools is not instant.
+  this.timeout(10_000);
+
   let sandbox: sinon.SinonSandbox;
   let logger: Logger;
   let toolsController: ToolsController;
@@ -23,6 +28,30 @@ describe('ToolsController', function () {
 
   const baseTools = ['atlas-connection-error-debugger'];
 
+  // Every controller gets its own channel with a real ToolsHost on the other
+  // end, so the tests exercise the whole rpc boundary.
+  const openChannels: MessageChannel[] = [];
+  const openHosts: ToolsHost[] = [];
+
+  function createController(
+    overrides: Partial<ConstructorParameters<typeof ToolsController>[0]> = {}
+  ): ToolsController {
+    const channel = new MessageChannel();
+    const host = new ToolsHost(channel.port2, { logger });
+    openChannels.push(channel);
+    openHosts.push(host);
+    return new ToolsController({
+      enableMCPTelemetry: false,
+      logger,
+      getTelemetryAnonymousId,
+      track: createNoopTrack(),
+      preferences,
+      atlasAdminApi,
+      openPort: () => channel.port1,
+      ...overrides,
+    });
+  }
+
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
     logger = createNoopLogger();
@@ -30,18 +59,20 @@ describe('ToolsController', function () {
     preferences = await createSandboxFromDefaultPreferences();
     atlasAdminApi = {} as AtlasAdminApiService;
 
-    toolsController = new ToolsController({
-      enableMCPTelemetry: false,
-      logger,
-      getTelemetryAnonymousId,
-      track: createNoopTrack(),
-      preferences,
-      atlasAdminApi,
-    });
+    toolsController = createController();
   });
 
   afterEach(async function () {
     await toolsController.stopServer();
+    for (const host of openHosts) {
+      host.stop();
+    }
+    for (const channel of openChannels) {
+      channel.port1.close();
+      channel.port2.close();
+    }
+    openChannels.length = 0;
+    openHosts.length = 0;
     sandbox.restore();
   });
 
@@ -53,10 +84,6 @@ describe('ToolsController', function () {
     it('initializes with empty tool groups', function () {
       const tools = toolsController.getActiveTools();
       expect(Object.keys(tools)).to.have.lengthOf(baseTools.length);
-    });
-
-    it('server is initially undefined', function () {
-      expect(toolsController.server).to.be.undefined;
     });
   });
 
@@ -244,14 +271,7 @@ describe('ToolsController', function () {
       });
 
       it('ignores db tools if the server is not started', function () {
-        const newController = new ToolsController({
-          enableMCPTelemetry: false,
-          logger,
-          getTelemetryAnonymousId,
-          track: createNoopTrack(),
-          preferences,
-          atlasAdminApi,
-        });
+        const newController = createController();
         newController.setActiveTools(new Set(['db-read']));
 
         expect(Object.keys(newController.getActiveTools())).to.deep.equal(
@@ -276,38 +296,8 @@ describe('ToolsController', function () {
         ];
 
         for (const toolName of readonlyToolNames) {
-          expect(tools).to.have.property(toolName);
+          expect(tools, toolName).to.have.property(toolName);
         }
-      });
-
-      it('ensures all read only database tools are retrievable from the server after initialization', function () {
-        expect(toolsController.server).to.not.be.undefined;
-        expect(toolsController.server?.tools).to.not.be.undefined;
-
-        if (
-          toolsController.server &&
-          toolsController.server.tools.length === 0
-        ) {
-          toolsController.server.registerTools();
-        }
-
-        const serverTools = toolsController.server?.tools ?? [];
-        const serverToolNames = serverTools.map((tool) => tool.name);
-
-        for (const tool of READ_ONLY_DATABASE_TOOLS) {
-          expect(
-            serverToolNames,
-            `Expected server to have tool: ${tool.name}`
-          ).to.include(tool.name);
-        }
-
-        // Verify the count matches
-        expect(
-          serverToolNames.filter((name) =>
-            READ_ONLY_DATABASE_TOOLS.map((t) => t.name).includes(name)
-          ).length,
-          'Expected all READ_ONLY_DATABASE_TOOLS to be in server tools'
-        ).to.equal(READ_ONLY_DATABASE_TOOLS.length);
       });
 
       it('does not include non-readonly tools', function () {
@@ -318,12 +308,11 @@ describe('ToolsController', function () {
         expect(tools).to.not.have.property('update-many');
       });
 
-      it('database tools have needsApproval and strict properties', function () {
+      it('database tools have needsApproval property', function () {
         const tools = toolsController.getActiveTools();
         const listDatabasesTool = tools['list-databases'];
 
         expect(listDatabasesTool).to.have.property('needsApproval', true);
-        expect(listDatabasesTool).to.have.property('strict', true);
       });
 
       it('collection-schema tool has a custom description that instructs the model to use it before queries and aggregations', function () {
@@ -436,42 +425,45 @@ describe('ToolsController', function () {
       expect(result.query).to.equal('new query');
     });
 
-    it('syncs telemetry setting with runner userConfig', function () {
+    it('syncs telemetry setting with the utility host runner', async function () {
+      await toolsController.startServer();
+      const runner = (openHosts[0] as any).runner;
+
       toolsController.setContext({
         enableMCPTelemetry: true,
         connections: [],
       });
-      expect((toolsController as any).runner.userConfig.telemetry).to.equal(
-        'enabled'
-      );
+      // give the rpc call a moment to land
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(runner.userConfig.telemetry).to.equal('enabled');
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         connections: [],
       });
-      expect((toolsController as any).runner.userConfig.telemetry).to.equal(
-        'disabled'
-      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(runner.userConfig.telemetry).to.equal('disabled');
     });
 
-    it('syncs maxTimeMS setting with runner userConfig', function () {
+    it('syncs maxTimeMS setting with the utility host runner', async function () {
+      await toolsController.startServer();
+      const runner = (openHosts[0] as any).runner;
+
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: 5000,
         connections: [],
       });
-      expect((toolsController as any).runner.userConfig.maxTimeMS).to.equal(
-        5000
-      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(runner.userConfig.maxTimeMS).to.equal(5000);
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: undefined,
         connections: [],
       });
-      expect((toolsController as any).runner.userConfig.maxTimeMS).to.equal(
-        undefined
-      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(runner.userConfig.maxTimeMS).to.equal(undefined);
     });
   });
 
@@ -508,22 +500,21 @@ describe('ToolsController', function () {
 
   describe('server lifecycle', function () {
     describe('startServer', function () {
-      it('starts the MCP server', async function () {
-        expect(toolsController.server).to.be.undefined;
-
+      it('fetches the db tool definitions from the utility host', async function () {
         await toolsController.startServer();
+        toolsController.setActiveTools(new Set(['db-read']));
 
-        expect(toolsController.server).to.not.be.undefined;
+        expect(toolsController.getActiveTools()).to.have.property('find');
       });
 
-      it('does not restart server if already started', async function () {
-        await toolsController.startServer();
-        const firstServer = toolsController.server;
+      it('does not open a second port if already started', async function () {
+        const openPort = sandbox.stub().returns(openChannels[0].port1);
+        const controller = createController({ openPort });
 
-        await toolsController.startServer();
-        const secondServer = toolsController.server;
+        await controller.startServer();
+        await controller.startServer();
 
-        expect(firstServer).to.equal(secondServer);
+        expect(openPort.calledOnce).to.be.true;
       });
 
       it('logs when server starts successfully', async function () {
@@ -540,21 +531,16 @@ describe('ToolsController', function () {
           logStub.calledWith(
             sinon.match.number,
             'ToolsController',
-            'In-memory MCP server started successfully'
+            'Assistant tools utility process client started successfully'
           )
         ).to.be.true;
       });
 
       it('handles errors during server startup gracefully', async function () {
-        const errorController = new ToolsController({
-          enableMCPTelemetry: false,
-          logger,
+        const errorController = createController({
           getTelemetryAnonymousId: () => {
             throw new Error('Telemetry error');
           },
-          track: createNoopTrack(),
-          preferences,
-          atlasAdminApi,
         });
 
         // Should not throw even if there's an error
@@ -567,12 +553,22 @@ describe('ToolsController', function () {
     describe('stopServer', function () {
       it('stops the MCP server', async function () {
         await toolsController.startServer();
-        expect(toolsController.server).to.not.be.undefined;
 
         await toolsController.stopServer();
 
         // Server should be cleaned up
         expect(() => toolsController.stopServer()).to.not.throw();
+      });
+
+      it('drops the db tools after stopping', async function () {
+        await toolsController.startServer();
+        toolsController.setActiveTools(new Set(['db-read']));
+        expect(toolsController.getActiveTools()).to.have.property('find');
+
+        await toolsController.stopServer();
+        expect(Object.keys(toolsController.getActiveTools())).to.deep.equal(
+          baseTools
+        );
       });
 
       it('handles stop when server is not running', async function () {
@@ -583,11 +579,6 @@ describe('ToolsController', function () {
       });
 
       it('logs when server stops successfully', async function () {
-        // TODO: flushTimeout.unref is not a function
-        if ((process as any).type === 'renderer') {
-          return this.skip();
-        }
-
         await toolsController.startServer();
         const logStub = sandbox.stub(logger.log, 'info');
 
@@ -606,19 +597,6 @@ describe('ToolsController', function () {
           )
         ).to.be.true;
       });
-    });
-  });
-
-  describe('server property', function () {
-    it('returns undefined when server is not started', function () {
-      expect(toolsController.server).to.be.undefined;
-    });
-
-    it('returns server instance when started', async function () {
-      await toolsController.startServer();
-
-      expect(toolsController.server).to.not.be.undefined;
-      expect(toolsController.server).to.have.property('tools');
     });
   });
 
