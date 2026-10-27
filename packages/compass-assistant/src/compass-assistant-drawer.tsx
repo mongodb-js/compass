@@ -123,6 +123,7 @@ export const ClearChatButton: React.FunctionComponent<{
       // One chat instance is used for the entire Assistant service, so a new
       // thread id is what marks a cleared conversation as a new chat. It is
       // used by e.g. SuggestedPrompts to reset the selected index.
+      // eslint-disable-next-line react-hooks/immutability
       chat.threadId = new UUID().toString();
 
       // Set messages directly on the chat instance (not through the hook's
