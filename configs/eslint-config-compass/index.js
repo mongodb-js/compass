@@ -158,7 +158,7 @@ module.exports = {
     'import/no-duplicates': ['error', { 'prefer-inline': false }],
     'import/newline-after-import': 'error',
     'import/first': 'error',
-    // 'import/order': 'error',
+    'import/order': 'error',
     '@mongodb-js/compass/no-inline-emotion-css': 'error',
     '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
     '@mongodb-js/compass/unique-mongodb-log-id': [
