@@ -7,6 +7,7 @@ import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+
 describe('createQueryWithHistoryAutocompleter', function () {
   let preferences: PreferencesAccess;
   let loadAllStub: sinon.SinonStub;

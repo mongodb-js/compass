@@ -13,8 +13,6 @@ import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
 import { omit } from 'lodash';
 
-temp.track();
-
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 
@@ -26,6 +24,8 @@ import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { getBsonType } from 'hadron-type-checker';
+
+temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);

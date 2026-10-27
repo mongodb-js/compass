@@ -10,6 +10,7 @@
 // This can be removed immediately after we are done moving other plugins to the
 // new webpack configuration.
 const path = require('node:path');
+
 process.env.WEBPACK_CLI_SKIP_IMPORT_LOCAL = true;
 // Make sure webpack-cli and @webpack-cli/serve use webpack modules resolved
 // from the config package to ensure that everything is running a version

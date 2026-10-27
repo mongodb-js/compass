@@ -7,6 +7,7 @@ import type {
 import { transformAppMenu } from './types';
 import { uuid } from './util';
 import createDebug from 'debug';
+
 const debug = createDebug('compass-electron-menu:ipc-provider-renderer');
 export interface HadronIpcRenderer {
   on<K extends keyof IpcEvents>(

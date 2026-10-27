@@ -5,6 +5,7 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
 import type { CopyDocumentFormat } from '../stores/crud-store';
+
 type BSONObject = TypeCastMap['Object'];
 
 export const documentStyles = css({

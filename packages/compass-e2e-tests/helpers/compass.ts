@@ -12,8 +12,6 @@ import type { RebuildOptions } from '@electron/rebuild';
 import { packageCompass } from '@mongodb-js/hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-export * as Selectors from './selectors.ts';
-export * as Commands from './commands/index.ts';
 import * as Commands from './commands/index.ts';
 import type { CompassBrowser } from './compass-browser.ts';
 import type { LogEntry } from './telemetry.ts';
@@ -49,6 +47,9 @@ import path from 'node:path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures.ts';
 import { dialogOpenLocator } from './dialog-open-locator-strategy.ts';
 import { getExtension } from './redirect-extension.ts';
+
+export * as Selectors from './selectors.ts';
+export * as Commands from './commands/index.ts';
 
 export {
   getDefaultConnectionStrings,

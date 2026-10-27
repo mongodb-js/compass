@@ -1,4 +1,5 @@
 const chai = require('chai');
+
 const expect = chai.expect;
 const React = require('react');
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');

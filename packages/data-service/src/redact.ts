@@ -1,5 +1,6 @@
 import type { ConnectionOptions } from './connection-options';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+
 export { redactConnectionString };
 
 export function redactConnectionOptions(

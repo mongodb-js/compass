@@ -32,9 +32,6 @@ import {
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 
-const { log, mongoLogId } = createLogger('COMPASS-APP');
-const track = createIpcTrack();
-
 import './index.less';
 import 'source-code-pro/source-code-pro.css';
 import {
@@ -42,6 +39,9 @@ import {
   type ApplicationMenuProvider,
 } from '@mongodb-js/compass-electron-menu';
 import { ApplicationMenu } from '@mongodb-js/compass-electron-menu/ipc-provider-renderer';
+
+const { log, mongoLogId } = createLogger('COMPASS-APP');
+const track = createIpcTrack();
 
 const DEFAULT_APP_VERSION = '0.0.0';
 

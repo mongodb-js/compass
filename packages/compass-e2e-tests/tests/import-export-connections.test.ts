@@ -17,6 +17,7 @@ import { startTelemetryServer } from '../helpers/telemetry.ts';
 import { UUID } from 'bson';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import Debug from 'debug';
+
 const debug = Debug('import-export-connections');
 
 function waitForConnections() {

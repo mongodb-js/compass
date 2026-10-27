@@ -23,6 +23,7 @@ import type { IndexesDataServiceProps } from '../stores/store';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { RollingIndexesService } from './rolling-indexes-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+
 const reducer = combineReducers({
   // From instance.isWritable. Used to know if the create button should be
   // enabled.

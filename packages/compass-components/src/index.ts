@@ -2,22 +2,6 @@
 // main entrypoint to ensure that emotion is reconfigured before any component
 // modules generate their stylesheets
 import './force-emotion-speedy';
-// -------------------------------
-
-export * from './components/leafygreen';
-export {
-  default as emotion,
-  flush,
-  hydrate,
-  cx,
-  merge,
-  getRegisteredStyles,
-  injectGlobal,
-  keyframes,
-  css,
-  sheet,
-  cache,
-} from '@leafygreen-ui/emotion';
 import ConfirmationModal from './components/modals/confirmation-modal';
 import MarketingModal from './components/modals/marketing-modal';
 import type {
@@ -36,15 +20,36 @@ import {
   WarningSummary,
 } from './components/error-warning-summary';
 import { RadioBoxGroup } from './components/radio-box-group';
+import { ResizeHandle, ResizeDirection } from './components/resize-handle';
+import { Accordion } from './components/accordion';
+import { CollapsibleFieldSet } from './components/collapsible-field-set';
+import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
+import ResizableSidebar, {
+  defaultSidebarWidth,
+} from './components/resizeable-sidebar';
+import IndexIcon from './components/index-icon';
+// -------------------------------
+
+export * from './components/leafygreen';
+export {
+  default as emotion,
+  flush,
+  hydrate,
+  cx,
+  merge,
+  getRegisteredStyles,
+  injectGlobal,
+  keyframes,
+  css,
+  sheet,
+  cache,
+} from '@leafygreen-ui/emotion';
 export {
   SpinLoader,
   SpinLoaderWithLabel,
   CancelLoader,
   ProgressLoaderWithCancel,
 } from './components/loader';
-import { ResizeHandle, ResizeDirection } from './components/resize-handle';
-import { Accordion } from './components/accordion';
-import { CollapsibleFieldSet } from './components/collapsible-field-set';
 export {
   Tab as WorkspaceTab,
   type WorkspaceTabCoreProps,
@@ -53,10 +58,6 @@ export {
   TabThemeProvider,
   useTabTheme,
 } from './components/workspace-tabs/use-tab-theme';
-import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
-import ResizableSidebar, {
-  defaultSidebarWidth,
-} from './components/resizeable-sidebar';
 
 export type {
   ItemAction,
@@ -101,7 +102,6 @@ export { VisuallyHidden } from '@react-aria/visually-hidden';
 export { openToast, closeToast, ToastArea } from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';
 

@@ -12,8 +12,6 @@ import temp from 'temp';
 import type { Document } from 'bson';
 import type { FindCursor } from 'mongodb';
 
-temp.track();
-
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 
@@ -30,6 +28,8 @@ import { importJSON } from '../import/import-json';
 import allTypesDoc from '../../test/docs/all-bson-types';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+
+temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);

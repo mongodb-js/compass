@@ -13,11 +13,12 @@ import {
 } from './stores/connections-store-redux';
 import { cloneDeep } from 'lodash';
 import { ConnectionsStoreContext } from './stores/store-context';
-export type { ConnectionFeature } from './utils/connection-supports';
-export { connectionSupports, connectable } from './utils/connection-supports';
 import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
 import { useInitialValue } from '@mongodb-js/compass-components';
 import ConnectionsComponent from './stores/connections';
+
+export type { ConnectionFeature } from './utils/connection-supports';
+export { connectionSupports, connectable } from './utils/connection-supports';
 
 const CompassConnectionsPlugin = registerCompassPlugin(
   {

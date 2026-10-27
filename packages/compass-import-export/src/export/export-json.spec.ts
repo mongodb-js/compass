@@ -15,14 +15,14 @@ import type { FindCursor } from 'mongodb';
 
 import allTypesDocs from '../../test/docs/all-bson-types';
 
-temp.track();
-
 import { fixtures } from '../../test/fixtures';
 
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { getBsonType } from 'hadron-type-checker';
+
+temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);

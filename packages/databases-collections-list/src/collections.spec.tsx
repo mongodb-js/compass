@@ -21,6 +21,7 @@ import {
   createCollection,
   createTimeSeries,
 } from '../test/utils';
+
 const colls: CollectionProps[] = [
   createCollection({
     name: 'foo',

@@ -1,4 +1,5 @@
 import { types } from 'node:util';
+
 export const isAnyArrayBuffer = types.isAnyArrayBuffer;
 export const isArgumentsObject = types.isArgumentsObject;
 export const isArrayBuffer = types.isArrayBuffer;

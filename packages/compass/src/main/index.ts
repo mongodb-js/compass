@@ -1,6 +1,5 @@
 // THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
 import { setupHadronDistribution } from '../setup-hadron-distribution';
-setupHadronDistribution();
 // ------------------------------------------------------------
 
 import { app, dialog, crashReporter } from 'electron';
@@ -19,6 +18,8 @@ import {
 import chalk from 'chalk';
 import { installEarlyLoggingListener } from './logging';
 import { installEarlyOpenUrlListener } from './window-manager';
+
+setupHadronDistribution();
 
 crashReporter.start({ uploadToServer: false });
 

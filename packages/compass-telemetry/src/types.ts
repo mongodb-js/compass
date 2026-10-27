@@ -2,6 +2,7 @@ import type {
   ConnectionScopedProperties,
   TelemetryEvent,
 } from './telemetry-events';
+
 export type { TelemetryEvent, ExtraConnectionData } from './telemetry-events';
 
 type TelemetryConnectionInfo = {

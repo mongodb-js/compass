@@ -14,6 +14,7 @@ import * as Selectors from '../helpers/selectors.ts';
 import chai from 'chai';
 import { createSidebarDatabase } from '../helpers/mongo-clients.ts';
 import { getShellOutputText } from '../helpers/commands/index.ts';
+
 const { expect } = chai;
 
 describe('Shell', function () {

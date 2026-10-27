@@ -3,13 +3,6 @@ import { aggregateQueries } from './aggregate-query';
 import toNS from '@mongodb-js/mongodb-ns';
 import { UUID } from 'bson';
 
-export type GenAiUsecase = {
-  namespace: string;
-  userInput: string;
-  expectedOutput: string;
-  name: string;
-};
-
 import airbnbListings from '../fixtures/airbnb.listingsAndReviews';
 import berlinBars from '../fixtures/berlin.cocktailbars';
 import netflixMovies from '../fixtures/netflix.movies';
@@ -21,6 +14,13 @@ import {
   buildAggregateQueryPrompt,
   buildFindQueryPrompt,
 } from '../../../src/utils/gen-ai-prompt';
+
+export type GenAiUsecase = {
+  namespace: string;
+  userInput: string;
+  expectedOutput: string;
+  name: string;
+};
 
 type DatasetSamples = {
   [key: string]: {

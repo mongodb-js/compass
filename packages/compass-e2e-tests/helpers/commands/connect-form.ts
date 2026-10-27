@@ -9,6 +9,7 @@ import {
   isTestingWebAtlasCloud,
 } from '../test-runner-context.ts';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+
 const debug = Debug('compass-e2e-tests');
 
 export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
