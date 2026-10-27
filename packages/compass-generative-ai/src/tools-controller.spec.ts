@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { MessageChannel } from 'worker_threads';
+import { MessageChannel } from 'node:worker_threads';
 import { ToolsController } from './tools-controller';
 import type { ToolGroup } from './tools-controller';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';

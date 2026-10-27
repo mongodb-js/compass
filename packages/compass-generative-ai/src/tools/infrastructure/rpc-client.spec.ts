@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { MessageChannel } from 'worker_threads';
+import { MessageChannel } from 'node:worker_threads';
 import { createToolsRpcClient } from './rpc-client';
 import { serveToolsRequests } from './server';
 

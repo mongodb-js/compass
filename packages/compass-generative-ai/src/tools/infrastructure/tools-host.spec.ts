@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { MessageChannel } from 'worker_threads';
+import { MessageChannel } from 'node:worker_threads';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { createToolsRpcClient } from './rpc-client';
