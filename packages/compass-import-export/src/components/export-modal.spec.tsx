@@ -7,13 +7,13 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { configureStore } from '../stores/export-store';
-import { ExportModal } from './export-modal';
 import { Provider } from 'react-redux';
-import { closeExport, openExport } from '../modules/export';
 
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import { closeExport, openExport } from '../modules/export';
+import { configureStore } from '../stores/export-store';
+import { ExportModal } from './export-modal';
 
 function renderModal(exportState: any = {}) {
   // TODO: mutating state directly doesn't guarantee that we are testing the

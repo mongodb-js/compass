@@ -3,8 +3,8 @@ import { cleanup, screen, waitFor } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../test/configure-store';
-import FocusMode from './focus-mode';
 import { disableFocusMode, enableFocusMode } from '../../modules/focus-mode';
+import FocusMode from './focus-mode';
 
 const renderFocusMode = async () => {
   const result = await renderWithStore(<FocusMode />, {

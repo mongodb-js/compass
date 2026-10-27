@@ -1,4 +1,6 @@
 import { expect } from 'chai';
+import Sinon from 'sinon';
+import type { FieldData, FieldPath } from '../services/data-model-storage';
 import {
   traverseSchema,
   getFieldFromSchema,
@@ -6,8 +8,6 @@ import {
   getSchemaWithNewTypes,
   bulkUpdateSchema,
 } from './schema-traversal';
-import Sinon from 'sinon';
-import type { FieldData, FieldPath } from '../services/data-model-storage';
 
 describe('traverseSchema', function () {
   let sandbox: Sinon.SinonSandbox;

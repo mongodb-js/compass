@@ -17,13 +17,13 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
-import ShellInfoModal from '../shell-info-modal';
-import ShellHeader from '../shell-header/shell-header';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { Shell } from '@mongosh/browser-repl';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
+import ShellInfoModal from '../shell-info-modal';
+import ShellHeader from '../shell-header/shell-header';
 import type { RootState } from '../../stores/store';
 import { selectRuntimeById, saveHistory } from '../../stores/store';
-import { useLogger } from '@mongodb-js/compass-logging/provider';
 
 const compassShellStyles = css({
   display: 'flex',

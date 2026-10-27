@@ -5,16 +5,16 @@ import type {
   ClientEncryptionTlsOptions,
   Document,
 } from 'mongodb';
+import parseShellStringToEJSON, {
+  toJSString,
+  ParseMode,
+} from '@mongodb-js/shell-bson-parser';
 import type {
   KMSProviderName,
   KMSProviderType,
   KMSTLSProviderName,
   KMSTLSProviderType,
 } from './csfle-kms-fields';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
-import parseShellStringToEJSON, {
-  ParseMode,
-} from '@mongodb-js/shell-bson-parser';
 
 const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
   storeCredentials: false,

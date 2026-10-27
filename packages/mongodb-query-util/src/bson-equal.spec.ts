@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { bsonEqual } from '.';
-
 import { ObjectId, Decimal128, Long, Int32, Double } from 'bson';
+import { bsonEqual } from '.';
 
 describe('#bsonEqual', function () {
   context('when the value is an object id', function () {

@@ -9,12 +9,12 @@ import {
   DocumentEvents,
   ElementEvents,
 } from 'hadron-document';
+import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { calculateShowMoreToggleOffset, HadronElement } from './element';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
-import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 
 function useHadronDocument(doc: HadronDocumentType) {
   const forceUpdate = useForceUpdate();

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import React from 'react';
 import {
   Body,
@@ -7,7 +8,6 @@ import {
   openToast,
   ToastBody,
 } from '@mongodb-js/compass-components';
-import path from 'path';
 
 const importToastId = 'import-toast';
 const bloatedDocumentSignalToastId = 'import-toast-bloated-document';

@@ -1,5 +1,6 @@
 import parse, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { Stage } from '.';
+
 export function getStageIndexFields(stage: Stage): Record<string, string> {
   if (
     stage.stage === 'EXPRESS_IXSCAN' &&

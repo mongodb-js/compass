@@ -1,4 +1,5 @@
-import assert from 'assert';
+import assert from 'node:assert';
+import EventEmitter from 'node:events';
 import { bsonType, Int32, ObjectId, UUID } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -6,22 +7,20 @@ import type { Sort } from 'mongodb';
 import { MongoClient, MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
 import sinon from 'sinon';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import ConnectionString from 'mongodb-connection-string-url';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { range } from 'lodash';
+import type { ClientMockOptions } from '../test/helpers';
+import { createMongoClientMock } from '../test/helpers';
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
 import type {
   ConnectionFleOptions,
   ConnectionOptions,
 } from './connection-options';
-import EventEmitter from 'events';
-import type { ClientMockOptions } from '../test/helpers';
-import { createMongoClientMock } from '../test/helpers';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
-import { range } from 'lodash';
-import ConnectionString from 'mongodb-connection-string-url';
 import type { DataServiceImplLogger, MongoLogId } from './logger';
 
 const { expect } = chai;
@@ -1283,7 +1282,7 @@ describe('DataService', function () {
 
       it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', async function () {
         sandbox.spy(dataService, 'aggregateCursor');
-        const connectionStringReplacement = new ConnectionStringUrl(
+        const connectionStringReplacement = new ConnectionString(
           cluster().connectionString
         );
         connectionStringReplacement.searchParams.set(
@@ -1422,7 +1421,7 @@ describe('DataService', function () {
 
       it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', function () {
         sandbox.spy(dataService, 'aggregate');
-        const connectionStringReplacement = new ConnectionStringUrl(
+        const connectionStringReplacement = new ConnectionString(
           cluster().connectionString
         );
         connectionStringReplacement.searchParams.set(

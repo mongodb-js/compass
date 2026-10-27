@@ -6,19 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { connect, shallowEqual, useSelector } from 'react-redux';
-import type { RootState } from '../../modules';
-import {
-  updateIndex,
-  updateSearchIndexClosed,
-} from '../../modules/search-indexes';
-import {
-  openIndexesListDrawerView,
-  setIsDirty,
-} from '../../modules/indexes-drawer';
-import {
-  useOnAsyncSuccess,
-  useIndexDefinitionChange,
-} from './drawer-view-hooks';
 import {
   Badge,
   BadgeVariant,
@@ -35,6 +22,34 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocompleter,
+} from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
+import type { Document } from 'mongodb';
+import type { SearchIndex } from 'mongodb-data-service';
+import {
+  useConnectionInfo,
+  useConnectionInfoRef,
+} from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { parseShellBSON } from '../../utils/parse-shell-bson';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
+import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
+import { useJsonSchema } from '../../utils/use-json-schema';
+import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
+import {
+  openIndexesListDrawerView,
+  setIsDirty,
+} from '../../modules/indexes-drawer';
+import {
+  updateIndex,
+  updateSearchIndexClosed,
+} from '../../modules/search-indexes';
+import type { RootState } from '../../modules';
+import {
   containerStyles,
   contentStyles,
   buttonContainerStyles,
@@ -42,25 +57,10 @@ import {
   editorContainerDarkModeStyles,
   overflowWrapStyles,
 } from './drawer-view-styles';
-import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
 import {
-  CodemirrorMultilineEditor,
-  useJsonSchemaAutocompleter,
-} from '@mongodb-js/compass-editor';
-import type { EditorRef } from '@mongodb-js/compass-editor';
-import type { Document } from 'mongodb';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
-import type { SearchIndex } from 'mongodb-data-service';
-import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
-import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
-import {
-  useConnectionInfo,
-  useConnectionInfoRef,
-} from '@mongodb-js/compass-connections/provider';
-import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
-import { useJsonSchema } from '../../utils/use-json-schema';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+  useOnAsyncSuccess,
+  useIndexDefinitionChange,
+} from './drawer-view-hooks';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',

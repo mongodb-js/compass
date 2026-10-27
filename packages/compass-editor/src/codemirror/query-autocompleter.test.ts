@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { createQueryAutocompleter } from './query-autocompleter';
 import { setupCodemirrorCompleter } from '../../test/completer';
+import { createQueryAutocompleter } from './query-autocompleter';
 
 const pineFields = ['pineapple', 'pine tree', 'pinecone', 'apple'];
 

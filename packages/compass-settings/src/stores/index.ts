@@ -6,13 +6,13 @@ import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import { PreferencesSandbox } from './preferences-sandbox';
-import type { SettingsTabId } from './settings';
-import { openModal, reducer as settingsReducer } from './settings';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import { openModal, reducer as settingsReducer } from './settings';
+import type { SettingsTabId } from './settings';
+import { PreferencesSandbox } from './preferences-sandbox';
 
 export type Public<T> = { [K in keyof T]: T[K] };
 

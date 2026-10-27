@@ -1,18 +1,18 @@
+import type { Readable } from 'node:stream';
 import type { Document } from 'bson';
-import type { Readable } from 'stream';
 import Papa from 'papaparse';
 import toNS from '@mongodb-js/mongodb-ns';
 
 import { makeDocFromCSV, parseCSVHeaderName } from '../csv/csv-utils';
-import { doImport } from './import-utils';
 import type {
   Delimiter,
   Linebreak,
   IncludedFields,
   PathPart,
 } from '../csv/csv-types';
-import type { ImportResult, ImportOptions } from './import-types';
 import { createDebug } from '../utils/logger';
+import { doImport } from './import-utils';
+import type { ImportResult, ImportOptions } from './import-types';
 
 const debug = createDebug('import-csv');
 

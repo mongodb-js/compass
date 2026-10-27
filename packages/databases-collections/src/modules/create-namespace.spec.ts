@@ -1,5 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import type { Binary } from 'bson';
+import { UUID } from 'bson';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import reducer, {
   type OpenAction,
   INITIAL_STATE,
@@ -14,9 +17,6 @@ import reducer, {
   toggleIsRunning,
   topologyChanged,
 } from './create-namespace';
-import type { Binary } from 'bson';
-import { UUID } from 'bson';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 describe('create collection module', function () {
   describe('#reducer', function () {

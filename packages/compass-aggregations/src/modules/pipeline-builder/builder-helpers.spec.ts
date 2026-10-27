@@ -1,11 +1,14 @@
 import { expect } from 'chai';
+import HadronDocument from 'hadron-document';
+import { SAVING_PIPELINE_APPLY } from '../saving-pipeline';
+import configureStore from '../../../test/configure-store';
+import type { AggregationsStore } from '../../stores/store';
 import {
   getPipelineStageOperatorsFromBuilderState,
   getIsRerankFirstStage,
   getIsRerankFirstStageBannerVisible,
   getIsNewPipelineFromBuilderState,
 } from './builder-helpers';
-import { SAVING_PIPELINE_APPLY } from '../saving-pipeline';
 import {
   addStage,
   changeStageDisabled,
@@ -13,9 +16,6 @@ import {
 } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
 import { changeEditorValue, EditorActionTypes } from './text-editor-pipeline';
-import configureStore from '../../../test/configure-store';
-import type { AggregationsStore } from '../../stores/store';
-import HadronDocument from 'hadron-document';
 
 async function createStore(
   pipelineText = `[{$match: {_id: 1}}, {$limit: 10}]`

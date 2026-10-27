@@ -1,7 +1,7 @@
-import { AiChatbotInvalidResponseError } from '../chatbot-errors';
-import { type AiQueryPrompt } from './gen-ai-prompt';
 import type { LanguageModel } from 'ai';
 import { streamText } from 'ai';
+import { AiChatbotInvalidResponseError } from '../chatbot-errors';
+import { type AiQueryPrompt } from './gen-ai-prompt';
 
 export async function getAiQueryResponse(
   model: LanguageModel,

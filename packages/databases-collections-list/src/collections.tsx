@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
-import type { BadgeVariant, GlyphName } from '@mongodb-js/compass-components';
 import {
+  type BadgeVariant,
+  type GlyphName,
   Badge,
   cx,
   css,
@@ -16,9 +17,9 @@ import {
   InlineDefinition,
   nbsp,
 } from '@mongodb-js/compass-components';
-import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { CollectionProps } from '@mongodb-js/mongodb-collection-model';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { ItemsTable, VirtualItemsTable } from './items-table';
 
 type BadgeProp = {
   id: string;

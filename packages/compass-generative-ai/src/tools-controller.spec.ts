@@ -1,12 +1,8 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { ToolsController } from './tools-controller';
-import type { ToolGroup } from './tools-controller';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
-import type { ToolsConnectParams } from './tools-connection-manager';
-import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
@@ -16,6 +12,10 @@ import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver
 import { DeviceId } from '@mongodb-js/mcp-tools-mongodb';
 import { ApiClient } from '@mongodb-js/mcp-atlas-api-client';
 import type { ITelemetry } from '@mongodb-js/mcp-types';
+import type { ToolsConnectParams } from './tools-connection-manager';
+import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
+import type { ToolGroup } from './tools-controller';
+import { ToolsController } from './tools-controller';
 import type { CompassMcpTelemetry } from './compass-mcp-telemetry';
 
 describe('ToolsController', function () {
@@ -481,7 +481,7 @@ describe('ToolsController', function () {
           timestamp: new Date().toISOString(),
           source: 'mdbmcp',
           properties: {},
-        } as any,
+        },
       ]);
     };
 

@@ -1,5 +1,5 @@
 'use strict';
-const assert = require('assert');
+const assert = require('node:assert');
 const transpilers = require('../index');
 
 const SAMPLE = transpilers.shell.java;

@@ -1,9 +1,9 @@
 import HadronDocument from 'hadron-document';
 import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
-import type { PipelineBuilderThunkAction } from '.';
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
+import type { PipelineBuilderThunkAction } from '.';
 
 export const ActionTypes = {
   CollapseToggled: 'aggregations/input-documents/CollapseToggled',

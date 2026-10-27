@@ -1,19 +1,19 @@
-import { openToast } from '@mongodb-js/compass-components';
-import { createId } from './id';
-import type { PipelineBuilderThunkAction } from '.';
+import {
+  openToast,
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type { AnyAction } from 'redux';
+import { createId } from './id';
 import {
   getPipelineFromBuilderState,
   getPipelineStringFromBuilderState,
   mapPipelineModeToEditorViewType,
+  updatePipelinePreview,
 } from './pipeline-builder/builder-helpers';
-import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
-import {
-  showConfirmation,
-  ConfirmationModalVariant,
-} from '@mongodb-js/compass-components';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
-import type { AnyAction } from 'redux';
+import type { PipelineBuilderThunkAction } from '.';
 
 const PREFIX = 'aggregations/saved-pipeline';
 

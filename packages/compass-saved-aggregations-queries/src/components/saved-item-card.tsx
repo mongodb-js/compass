@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
-import type { MenuAction } from '@mongodb-js/compass-components';
-import { cx, useDarkMode } from '@mongodb-js/compass-components';
 import {
+  type MenuAction,
   Card,
   css,
   useDefaultAction,
@@ -18,6 +17,7 @@ import {
   ItemActionMenu,
   useFormattedDate,
 } from '@mongodb-js/compass-components';
+import { cx, useDarkMode } from '@mongodb-js/compass-components';
 import type { Item } from '../stores/aggregations-queries-items';
 
 export type Action = 'open' | SavedItemAction;

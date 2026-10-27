@@ -1,9 +1,9 @@
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { AtlasServiceBackendPreset, AtlasServiceConfig } from './util';
-import { getAtlasConfigForPreset, throwIfNotOk } from './util';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { type UserDataType } from '@mongodb-js/compass-user-data';
+import { getAtlasConfigForPreset, throwIfNotOk } from './util';
+import type { AtlasServiceBackendPreset, AtlasServiceConfig } from './util';
 
 export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;

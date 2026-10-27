@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import clipboard from 'clipboardy';
+import { MongoClient } from 'mongodb';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -13,7 +14,6 @@ import type { QueryOptions } from '../helpers/commands/index.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
-import { MongoClient } from 'mongodb';
 import { context as runnerContext } from '../helpers/test-runner-context.ts';
 
 async function openMenuForQueryItem(

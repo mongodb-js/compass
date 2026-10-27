@@ -8,16 +8,16 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { SaveMenu } from './pipeline-menus';
-import PipelineName from './pipeline-name';
-import PipelineExtraSettings from './pipeline-extra-settings';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { RootState } from '../../../modules';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
 import { getIsNewPipelineFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import ModifySourceBanner from '../../modify-source-banner';
 
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import PipelineExportActions from '../pipeline-export-actions';
+import PipelineExtraSettings from './pipeline-extra-settings';
+import PipelineName from './pipeline-name';
+import { SaveMenu } from './pipeline-menus';
 
 const containerStyles = css({
   display: 'flex',

@@ -6,20 +6,20 @@ import {
   useCurrentValueRef,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import type {
+  WorkspaceTab,
+  CollectionTabInfo,
+} from '@mongodb-js/workspace-info';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import {
   getActiveTab,
   type WorkspacesState,
   type OpenWorkspaceOptions,
 } from '../stores/workspaces';
-import type {
-  WorkspaceTab,
-  CollectionTabInfo,
-} from '@mongodb-js/workspace-info';
 
-import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
-import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import Workspaces from './workspaces';
 
 type WorkspacesWithSidebarProps = {
   /**

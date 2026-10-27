@@ -3,8 +3,8 @@ import { cleanup, render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import AdvancedOptionsTabs from './advanced-options-tabs';
 import { ConnectionFormSettingsContext } from '../../hooks/use-connect-form-settings';
+import AdvancedOptionsTabs from './advanced-options-tabs';
 
 const testUrl = 'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true';
 

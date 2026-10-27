@@ -7,13 +7,6 @@ import {
   waitFor,
   within,
 } from '@mongodb-js/testing-library-compass';
-import {
-  CompassAssistantProvider,
-  createDefaultChat,
-  useAssistantActions,
-  type AssistantMessage,
-  type ThreadedChat,
-} from './compass-assistant-provider';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -24,12 +17,6 @@ import {
 import { type AtlasService } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import { CompassAssistantDrawer } from './compass-assistant-drawer';
-import {
-  createBrokenTransport,
-  createChat,
-  createMockChat,
-} from '../test/utils';
 import {
   ToolsControllerProvider,
   type AtlasAiService,
@@ -40,16 +27,29 @@ import {
   AI_MODEL_AGENT_VERSION,
   AI_MODEL_CHAT_VERSION,
 } from '@mongodb-js/compass-generative-ai/provider';
-import type { ActiveConnectionInfo } from './assistant-global-state';
-import {
-  AssistantGlobalStateProvider,
-  useSyncAssistantGlobalState,
-} from './assistant-global-state';
 import type {
   CollectionSubtab,
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
 import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
+import {
+  createBrokenTransport,
+  createChat,
+  createMockChat,
+} from '../test/utils';
+import {
+  AssistantGlobalStateProvider,
+  useSyncAssistantGlobalState,
+} from './assistant-global-state';
+import type { ActiveConnectionInfo } from './assistant-global-state';
+import { CompassAssistantDrawer } from './compass-assistant-drawer';
+import {
+  CompassAssistantProvider,
+  createDefaultChat,
+  useAssistantActions,
+  type AssistantMessage,
+  type ThreadedChat,
+} from './compass-assistant-provider';
 
 function createMockProvider({
   mockAtlasService,

@@ -1,32 +1,24 @@
-import { inspect } from 'util';
-import { ObjectId, EJSON } from 'bson';
-import {
-  promises as fs,
-  closeSync,
-  mkdirSync,
-  openSync,
-  rmdirSync,
-  writeSync,
-} from 'fs';
+import { inspect, promisify } from 'node:util';
+import { promises as fs, closeSync, rmdirSync } from 'node:fs';
+import os from 'node:os';
+import { execFile } from 'node:child_process';
+import type { ExecFileOptions, ExecFileException } from 'node:child_process';
+import zlib from 'node:zlib';
+import path from 'node:path';
 import type Mocha from 'mocha';
-import os from 'os';
-import { execFile } from 'child_process';
-import type { ExecFileOptions, ExecFileException } from 'child_process';
-import { promisify } from 'util';
-import zlib from 'zlib';
+import { ObjectId, EJSON } from 'bson';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
 import { packageCompass } from '@mongodb-js/hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-export * as Selectors from './selectors.ts';
-export * as Commands from './commands/index.ts';
+import Debug from 'debug';
+import semver from 'semver';
+import treeKill from 'tree-kill';
 import * as Commands from './commands/index.ts';
 import type { CompassBrowser } from './compass-browser.ts';
 import type { LogEntry } from './telemetry.ts';
-import Debug from 'debug';
-import semver from 'semver';
 import { CHROME_STARTUP_FLAGS, CI_FLAGS } from './chrome-startup-flags.ts';
 import {
   DEFAULT_CONNECTIONS_SERVER_INFO,
@@ -37,6 +29,7 @@ import {
   isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
   getAtlasCloudEnvironmentFromContext,
+  COMPASS_WEB_ENTRYPOINT_HOST,
 } from './test-runner-context.ts';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -51,12 +44,12 @@ import {
   DOWNLOADS_PATH,
   MONOREPO_ROOT_PATH,
 } from './test-runner-paths.ts';
-import treeKill from 'tree-kill';
-import path from 'path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures.ts';
 import { dialogOpenLocator } from './dialog-open-locator-strategy.ts';
 import { getExtension } from './redirect-extension.ts';
-import { COMPASS_WEB_ENTRYPOINT_HOST } from './test-runner-context.ts';
+
+export * as Selectors from './selectors.ts';
+export * as Commands from './commands/index.ts';
 
 export {
   getDefaultConnectionStrings,
@@ -370,6 +363,7 @@ export class Compass {
 
   addDebugger(): void {
     const browser = this.browser;
+    const debugClient = debug.extend('webdriver:client');
     const browserProto = Object.getPrototypeOf(browser);
 
     // We can pull the own property names straight from browser, but brings up a
@@ -431,7 +425,11 @@ export class Compass {
 
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
-        traceWebdriverCommand(`${prop}(${args.map(traceArg).join(', ')})`);
+        debugClient(
+          `${prop}(${args
+            .map((arg) => redact(inspect(arg, { breakLength: Infinity })))
+            .join(', ')})`
+        );
 
         const stack = new Error(prop).stack ?? '';
 
@@ -1379,43 +1377,12 @@ const SENSITIVE_ENV_VARS = [
 
 let webdriverTraceFd: number | undefined;
 
-function traceWebdriverCommand(message: string): void {
-  if (webdriverTraceFd === undefined) {
-    mkdirSync(LOG_PATH, { recursive: true });
-    webdriverTraceFd = openSync(
-      path.join(LOG_PATH, 'webdriver-trace.log'),
-      'a'
-    );
-  }
-  writeSync(webdriverTraceFd, `${new Date().toISOString()} ${message}\n`);
-}
-
 export function closeWebdriverTrace(): void {
   if (webdriverTraceFd === undefined) {
     return;
   }
   closeSync(webdriverTraceFd);
   webdriverTraceFd = undefined;
-}
-
-// WebdriverIO passes whole Browser/Element graphs around, and those reference
-// the browser session, the driver capabilities and the element's own error.
-// Inspecting them deeply buries the actual failure in unrelated internals.
-function traceArg(arg: unknown): string {
-  if (typeof arg === 'string') {
-    return redact(arg);
-  }
-  if (typeof arg === 'function') {
-    return `<${arg.name || 'function'}>`;
-  }
-  if (arg === null || typeof arg !== 'object') {
-    return String(arg);
-  }
-  const ctor = (arg as object).constructor?.name;
-  if (ctor && ctor !== 'Object' && ctor !== 'Array') {
-    return `<${ctor}>`;
-  }
-  return redact(inspect(arg, { depth: 1, breakLength: Infinity }));
 }
 
 function redact(value: string): string {

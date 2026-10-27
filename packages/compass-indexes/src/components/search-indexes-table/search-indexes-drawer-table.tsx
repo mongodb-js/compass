@@ -12,6 +12,11 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import {
+  useSearchActivationProgramP1,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 import { isReadyStatus } from '../../utils/fetch-status';
 import { dropSearchIndex } from '../../modules/search-indexes';
 import {
@@ -22,14 +27,10 @@ import {
 import type { SearchIndexType } from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
-import SearchIndexActions from './search-index-actions';
 import type { RootState } from '../../modules';
-import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { ZeroSearchIndexesGraphic } from '../icons/zero-search-indexes-graphic';
+import SearchIndexActions from './search-index-actions';
 import {
   getIndexFields,
   useSearchIndexesTable,
@@ -38,7 +39,6 @@ import {
   COLUMNS_FOR_DRAWER,
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './search-indexes-columns';
-import { ZeroSearchIndexesGraphic } from '../icons/zero-search-indexes-graphic';
 
 const searchIndexDetailsForDrawerStyles = css({
   display: 'flex',

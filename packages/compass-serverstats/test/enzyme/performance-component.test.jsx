@@ -1,10 +1,11 @@
 const chai = require('chai');
+
 const expect = chai.expect;
 const React = require('react');
+const { render, screen } = require('@mongodb-js/testing-library-compass');
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');
 const TopStore = require('../../src/stores/top-store');
 const { PerformanceComponent } = require('../../src/components/');
-const { render, screen } = require('@mongodb-js/testing-library-compass');
 
 describe('rtss', function () {
   context('when connected to a mongos', function () {

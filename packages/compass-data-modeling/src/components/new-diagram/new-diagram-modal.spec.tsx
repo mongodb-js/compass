@@ -6,11 +6,11 @@ import {
   waitFor,
   within,
 } from '@mongodb-js/testing-library-compass';
-import NewDiagramModal from './new-diagram-modal';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { createNewDiagram } from '../../store/generate-diagram-wizard';
 import { renderWithStore } from '../../../test/setup-store';
 import type { DataModelingStore } from '../../../test/setup-store';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import NewDiagramModal from './new-diagram-modal';
 
 function getComboboxByTestId(testId: string) {
   return within(screen.getByTestId(testId)).getByRole('combobox');

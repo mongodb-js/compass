@@ -11,6 +11,27 @@ import {
   withDarkMode,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
+import type { Document } from 'hadron-document';
+import { useTabState } from '@mongodb-js/compass-workspaces/provider';
+import {
+  useIsLastAppliedQueryOutdated,
+  useLastAppliedQuery,
+} from '@mongodb-js/compass-query-bar';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
+import {
+  DOCUMENTS_STATUS_ERROR,
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_FETCHED_INITIAL,
+  DOCUMENTS_STATUS_INITIAL,
+} from '../constants/documents-statuses';
+import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
+import { getToolbarSignal } from '../utils/toolbar-signal';
+import {
+  useDocumentEditsTelemetry,
+  type DocumentEditsMode,
+} from '../hooks/use-document-edits-telemetry';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
 import type { BulkUpdateModalProps } from './bulk-update-modal';
@@ -23,28 +44,7 @@ import type { DocumentTableViewProps } from './table-view/document-table-view';
 import DocumentTableView from './table-view/document-table-view';
 import type { CrudToolbarProps } from './crud-toolbar';
 import { CrudToolbar } from './crud-toolbar';
-import type { Document } from 'hadron-document';
-import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
-import {
-  DOCUMENTS_STATUS_ERROR,
-  DOCUMENTS_STATUS_FETCHING,
-  DOCUMENTS_STATUS_FETCHED_INITIAL,
-  DOCUMENTS_STATUS_INITIAL,
-} from '../constants/documents-statuses';
-import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
-import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
-import { useTabState } from '@mongodb-js/compass-workspaces/provider';
-import {
-  useIsLastAppliedQueryOutdated,
-  useLastAppliedQuery,
-} from '@mongodb-js/compass-query-bar';
-import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
-import {
-  useDocumentEditsTelemetry,
-  type DocumentEditsMode,
-} from '../hooks/use-document-edits-telemetry';
 
 const DOCUMENT_EDITS_MODES = {
   List: 'list',

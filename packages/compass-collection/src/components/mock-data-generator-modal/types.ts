@@ -1,5 +1,5 @@
-import type { MockDataSchemaToolOutput } from '@mongodb-js/mock-data-generator';
 import type {
+  MockDataSchemaToolOutput,
   FakerFieldMapping,
   FakerSchema,
 } from '@mongodb-js/mock-data-generator';

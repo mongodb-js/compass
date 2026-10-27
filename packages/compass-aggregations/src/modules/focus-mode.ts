@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
-import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import { addStage, pipelineFromStore } from './pipeline-builder/stage-editor';
+import type { PipelineBuilderThunkAction } from '.';
 
 const ActionTypes = {
   FocusModeEnabled: 'compass-aggregations/focusModeEnabled',

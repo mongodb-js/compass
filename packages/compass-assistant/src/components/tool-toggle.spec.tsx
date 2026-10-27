@@ -5,11 +5,11 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { ToolToggle } from './tool-toggle';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { renderWithProvider } from '../../test/utils';
+import { ToolToggle } from './tool-toggle';
 
 describe('ToolToggle', function () {
   describe('rendering', function () {

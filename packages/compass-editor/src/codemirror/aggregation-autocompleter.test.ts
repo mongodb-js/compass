@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { STAGE_OPERATOR_NAMES } from '@mongodb-js/mongodb-constants';
-import { createAggregationAutocompleter } from './aggregation-autocompleter';
 import { setupCodemirrorCompleter } from '../../test/completer';
+import { createAggregationAutocompleter } from './aggregation-autocompleter';
 
 describe('query autocompleter', function () {
   const { getCompletions, applySnippet, cleanup } = setupCodemirrorCompleter(

@@ -1,4 +1,3 @@
-import type { RootAction } from '.';
 import { isAction } from '../util';
 import { ValidationActions } from './validation';
 import type {
@@ -6,6 +5,7 @@ import type {
   ValidationFetchedAction,
   ValidationFetchErroredAction,
 } from './validation';
+import type { RootAction } from '.';
 
 export const IS_LOADED_CHANGED =
   'validation/namespace/IS_LOADED_CHANGED' as const;

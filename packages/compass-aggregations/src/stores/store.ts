@@ -3,6 +3,25 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from '@mongodb-js/mongodb-ns';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ENVS } from '@mongodb-js/mongodb-constants';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
+import type Database from '@mongodb-js/mongodb-database-model';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { PipelineStorageAccess } from '@mongodb-js/my-queries-storage/provider';
+import type {
+  ConnectionInfoRef,
+  ConnectionScopedAppRegistry,
+} from '@mongodb-js/compass-connections/provider';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -13,14 +32,11 @@ import {
 } from '../modules/explain';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import {
   mapBuilderStageToStoreStage,
   mapStoreStagesToStageIdAndType,
 } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
-import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type { ENVS } from '@mongodb-js/mongodb-constants';
 import {
   setCollectionFields,
   setCollections,
@@ -32,27 +48,11 @@ import {
 } from '../modules/search-indexes';
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
 import type { DataService } from '../modules/data-service';
-import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
-import type Database from '@mongodb-js/mongodb-database-model';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { PipelineStorageAccess } from '@mongodb-js/my-queries-storage/provider';
 import { maxTimeMSChanged } from '../modules/max-time-ms';
-import type {
-  ConnectionInfoRef,
-  ConnectionScopedAppRegistry,
-} from '@mongodb-js/compass-connections/provider';
-import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import {
   pickCollectionStats,
   collectionStatsFetched,
 } from '../modules/collection-stats';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{

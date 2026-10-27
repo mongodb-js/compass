@@ -1,15 +1,15 @@
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, Menu, app, dialog } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
+import { RendererDefinedMenuState } from '@mongodb-js/compass-electron-menu/ipc-provider-main';
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
 import { quitItem } from './menu';
 import { AutoUpdateManagerStates } from './auto-update-manager';
-import { RendererDefinedMenuState } from '@mongodb-js/compass-electron-menu/ipc-provider-main';
 
 function serializable<T>(obj: T): T {
   try {

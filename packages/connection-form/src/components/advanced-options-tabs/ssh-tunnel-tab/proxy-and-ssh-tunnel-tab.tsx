@@ -17,12 +17,12 @@ import type {
   TunnelType,
 } from '../../../utils/connection-ssh-handler';
 
+import type { ConnectionFormError } from '../../../utils/validation';
+import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 import SshTunnelIdentity from './ssh-tunnel-identity';
 import SshTunnelPassword from './ssh-tunnel-password';
 import Socks from './socks';
 import { AppProxy } from './app-proxy';
-import type { ConnectionFormError } from '../../../utils/validation';
-import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 interface TabOption {
   id: string;

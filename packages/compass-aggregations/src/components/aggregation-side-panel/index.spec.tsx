@@ -1,6 +1,5 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { AggregationSidePanel } from './index';
 import {
   cleanup,
   screen,
@@ -8,9 +7,10 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { DndContext } from '@dnd-kit/core';
 import { expect } from 'chai';
-import { renderWithStore } from '../../../test/configure-store';
 import sinon from 'sinon';
+import { renderWithStore } from '../../../test/configure-store';
 import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';
+import { AggregationSidePanel } from './index';
 
 const renderAggregationSidePanel = (
   props: Partial<ComponentProps<typeof AggregationSidePanel>> = {}

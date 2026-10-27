@@ -7,12 +7,6 @@ import type { Action, AnyAction } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import reducer, {
-  kmsProvidersRetrieved,
-  serverVersionRetrieved,
-  open,
-  topologyChanged,
-} from '../modules/create-namespace';
 import type toNS from '@mongodb-js/mongodb-ns';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -21,6 +15,12 @@ import {
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import reducer, {
+  kmsProvidersRetrieved,
+  serverVersionRetrieved,
+  open,
+  topologyChanged,
+} from '../modules/create-namespace';
 
 type NS = ReturnType<typeof toNS>;
 

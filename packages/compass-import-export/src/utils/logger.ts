@@ -1,4 +1,5 @@
 import debug from 'debug';
+
 const PREFIX = 'mongodb-compass-import-export';
 
 const _LOGGERS: Record<string, debug.Debugger> = Object.create(null);

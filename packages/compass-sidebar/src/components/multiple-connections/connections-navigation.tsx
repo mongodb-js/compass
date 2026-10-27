@@ -35,7 +35,6 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import type { RootState, SidebarThunkAction } from '../../modules';
 import {
   type useConnectionsWithStatus,
   ConnectionStatus,
@@ -45,16 +44,6 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
-import {
-  onDatabaseExpand,
-  fetchAllCollections,
-  type Database,
-} from '../../modules/databases';
-import {
-  type ConnectionsFilter,
-  useFilteredConnections,
-} from '../use-filtered-connections';
-import NavigationItemsFilter from '../navigation-items-filter';
 import {
   type ConnectionImportExportAction,
   useOpenConnectionImportExportModal,
@@ -67,6 +56,17 @@ import {
   buildMonitoringUrl,
   buildQueryInsightsUrl,
 } from '@mongodb-js/atlas-service/provider';
+import NavigationItemsFilter from '../navigation-items-filter';
+import {
+  type ConnectionsFilter,
+  useFilteredConnections,
+} from '../use-filtered-connections';
+import {
+  onDatabaseExpand,
+  fetchAllCollections,
+  type Database,
+} from '../../modules/databases';
+import type { RootState, SidebarThunkAction } from '../../modules';
 
 const connectionsContainerStyles = css({
   height: '100%',

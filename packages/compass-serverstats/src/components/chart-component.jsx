@@ -2,8 +2,8 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const { palette } = require('@mongodb-js/compass-components');
-const Actions = require('../actions');
 const d3 = require('d3');
+const Actions = require('../actions');
 const chartFn = require('../d3/').realTimeLineChart;
 
 // const debug = require('debug')('mongodb-compass:server-stats:chart-component');

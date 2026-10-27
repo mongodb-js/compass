@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { sync as globSync } from 'glob';
 import { spawnSync, type SpawnOptions } from 'node:child_process';
+import { sync as globSync } from 'glob';
 import createDebug from 'debug';
 import { Minimatch } from 'minimatch';
 

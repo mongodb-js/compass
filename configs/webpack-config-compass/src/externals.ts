@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 
 export const sharedExternals: string[] = [
   // Electron should always stay external. For electron webpack target this

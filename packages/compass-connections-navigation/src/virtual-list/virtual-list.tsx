@@ -1,11 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import {
-  isPlaceholderItem,
-  useVirtualNavigationTree,
-  type VirtualTreeItem,
-  type VirtualItem,
-} from './use-virtual-navigation-tree';
-import {
   FixedSizeList as List,
   type ListChildComponentProps,
 } from 'react-window';
@@ -20,6 +14,12 @@ import {
 import { type SidebarActionableItem, type SidebarTreeItem } from '../tree-data';
 import { type Actions } from '../constants';
 import { type NavigationItemActions } from '../item-actions';
+import {
+  isPlaceholderItem,
+  useVirtualNavigationTree,
+  type VirtualTreeItem,
+  type VirtualItem,
+} from './use-virtual-navigation-tree';
 
 function useDefaultAction<T extends VirtualTreeItem>(
   item: T,

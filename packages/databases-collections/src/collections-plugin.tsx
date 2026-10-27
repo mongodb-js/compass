@@ -3,12 +3,12 @@ import {
   databaseModelLocator,
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
-import { activatePlugin as activateCollectionsTabPlugin } from './stores/collections-store';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
+import { activatePlugin as activateCollectionsTabPlugin } from './stores/collections-store';
 
 export const CollectionsWorkspaceName = 'Collections' as const;
 

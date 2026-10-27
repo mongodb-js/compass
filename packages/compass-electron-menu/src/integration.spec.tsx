@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events';
 import React from 'react';
 import { render } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
@@ -10,7 +11,6 @@ import type { HadronIpcRenderer } from './ipc-provider-renderer';
 import { ApplicationMenu } from './ipc-provider-renderer';
 import type { HadronIpcMain } from './ipc-provider-main';
 import { RendererDefinedMenuState } from './ipc-provider-main';
-import { EventEmitter } from 'events';
 
 function serializable<T>(obj: T): T {
   try {

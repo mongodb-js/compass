@@ -1,5 +1,5 @@
-import reducer from './is-modified';
 import { expect } from 'chai';
+import reducer from './is-modified';
 
 describe('isModified module', function () {
   describe('#reducer', function () {

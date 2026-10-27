@@ -15,9 +15,9 @@ import {
   BSONSymbol,
   Decimal128,
 } from 'bson';
-import BSONValue from './bson-value';
 import { expect } from 'chai';
 import { render, cleanup, screen } from '@mongodb-js/testing-library-compass';
+import BSONValue from './bson-value';
 import { BSONDisplayOptionsProvider } from './document-list/bson-display-options-context';
 
 describe('BSONValue', function () {

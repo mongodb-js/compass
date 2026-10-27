@@ -1,6 +1,6 @@
-import http from 'http';
-import { once } from 'events';
-import type { AddressInfo } from 'net';
+import http from 'node:http';
+import { once } from 'node:events';
+import type { AddressInfo } from 'node:net';
 
 export type MockAtlasServerResponse = {
   status: number;

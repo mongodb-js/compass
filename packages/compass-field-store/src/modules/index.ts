@@ -3,10 +3,10 @@ import { uniq, omit } from 'lodash';
 import type { SchemaField, Schema } from '@mongodb-js/mongodb-schema';
 import { parseSchema } from '@mongodb-js/mongodb-schema';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import type { SchemaFieldSubset } from './fields';
-import { mergeSchema } from './fields';
 import type { ThunkAction } from 'redux-thunk';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { SchemaFieldSubset } from './fields';
+import { mergeSchema } from './fields';
 
 function isAction<A extends Action>(
   action: Action,

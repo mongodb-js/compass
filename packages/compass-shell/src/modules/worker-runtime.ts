@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events';
 import type {
   ConnectionInfoRef,
   DataService,
@@ -5,7 +6,6 @@ import type {
 import type { MongoLogWriter } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
-import { EventEmitter } from 'events';
 
 declare const __webpack_require__: typeof require;
 declare const __non_webpack_require__: typeof require;

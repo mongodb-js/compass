@@ -1,8 +1,11 @@
 import { expect } from 'chai';
 
-import { setupStore } from '../../test/setup-store';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import { EJSON, ObjectId } from 'bson';
+import Sinon from 'sinon';
+import { setupStore } from '../../test/setup-store';
 
+import type { IndexesStore } from '../stores/store';
 import {
   createIndexClosed,
   createIndexFormSubmitted,
@@ -16,9 +19,6 @@ import {
   updateFieldName,
 } from './create-index';
 import type { OptionNames } from './create-index';
-import type { IndexesStore } from '../stores/store';
-import { EJSON, ObjectId } from 'bson';
-import Sinon from 'sinon';
 
 describe('create-index module', function () {
   let store: IndexesStore;

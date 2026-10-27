@@ -6,8 +6,7 @@ import {
   TextArea,
 } from '@mongodb-js/compass-components';
 
-import KMSTLSOptions from './kms-tls-options';
-import KMSLocalKeyGenerator from './kms-local-key-generator';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type {
   KMSProviderType,
@@ -16,7 +15,8 @@ import type {
   KMSField,
 } from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import KMSTLSOptions from './kms-tls-options';
+import KMSLocalKeyGenerator from './kms-local-key-generator';
 
 function KMSProviderFieldsForm<T extends KMSProviderType>({
   updateConnectionFormField,

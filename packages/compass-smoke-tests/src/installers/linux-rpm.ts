@@ -4,8 +4,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 import createDebug from 'debug';
 
-import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
+import type { InstalledAppInfo, InstallablePackage } from './types';
 
 const debug = createDebug('compass:smoketests:linux-rpm');
 

@@ -8,18 +8,18 @@ import {
   spacing,
   Tooltip,
 } from '@mongodb-js/compass-components';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from '@mongodb-js/compass-preferences-model/provider';
+import { UUID } from 'bson';
 import { AssistantChat } from './components/assistant-chat';
 import {
   ASSISTANT_DRAWER_ID,
   AssistantContext,
   type ThreadedChat,
 } from './compass-assistant-provider';
-import {
-  useIsAIFeatureEnabled,
-  usePreference,
-} from '@mongodb-js/compass-preferences-model/provider';
 import { useChat } from './@ai-sdk/react/use-chat';
-import { UUID } from 'bson';
 import { stopChat } from './utils';
 
 const assistantTitleStyles = css({

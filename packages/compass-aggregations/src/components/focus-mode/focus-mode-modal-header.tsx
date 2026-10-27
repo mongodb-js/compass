@@ -17,6 +17,10 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../modules';
 import {
   addStageInFocusMode,
@@ -29,7 +33,6 @@ import {
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import {
   createSearchIndex,
   refreshSearchIndexes,
@@ -37,9 +40,6 @@ import {
 import type { ServerEnvironment } from '../../modules/env';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
 import { useRerankInsight } from '../rerank-first-stage-banner';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type Stage = {
   idxInStore: number;

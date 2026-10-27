@@ -1,7 +1,7 @@
 import Sinon from 'sinon';
-import { RollingIndexesService } from './rolling-indexes-service';
 import { expect } from 'chai';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import { RollingIndexesService } from './rolling-indexes-service';
 
 describe('RollingIndexesService', function () {
   let atlasServiceStub: Sinon.SinonStubbedInstance<AtlasService>;

@@ -1,14 +1,14 @@
+import { expect } from 'chai';
+import Sinon from 'sinon';
 import * as GuideCueGroups from './guide-cue-groups';
 import { GuideCueService, type Cue } from './guide-cue-service';
 import { type GuideCueStorage } from './guide-cue-storage';
-import { expect } from 'chai';
 import {
   DuplicateCueStepError,
   GroupStepsCompleteError,
   InvalidCueStepError,
   UnregisteredGroupError,
 } from './guide-cue-exceptions';
-import Sinon from 'sinon';
 
 class TestGuideCueStorage implements GuideCueStorage {
   private data: string[] = [];

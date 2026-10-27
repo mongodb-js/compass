@@ -1,9 +1,10 @@
 'use strict';
-import type { Element, ElementEventsType } from './element';
-import { ElementList } from './element';
 import EventEmitter from 'eventemitter3';
 import { EJSON, UUID } from 'bson';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
+import type { Binary, MongoServerError } from 'mongodb';
+import type { Element, ElementEventsType } from './element';
+import { ElementList } from './element';
 import type {
   KeyInclusionOptions,
   ObjectGeneratorOptions,
@@ -14,10 +15,9 @@ import type {
   BSONObject,
   BSONValue,
   HadronShellSyntaxOptions,
+  HadronEJSONOptions,
 } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
-import type { HadronEJSONOptions } from './utils';
-import type { Binary, MongoServerError } from 'mongodb';
 import { DocumentEvents, type DocumentEventsType } from './document-events';
 import { ElementEvents } from './element-events';
 

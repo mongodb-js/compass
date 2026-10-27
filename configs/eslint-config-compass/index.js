@@ -1,9 +1,26 @@
 'use strict';
 
 const path = require('path');
+const { execFileSync } = require('child_process');
 const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
 const chaiFriendly = require('eslint-plugin-chai-friendly');
+
+// The import plugin decides which modules are builtin based on this version,
+// so it should match the Node.js bundled with Electron rather than the one
+// running eslint. Electron exposes no version file, so ask the binary itself.
+// If the binary is not downloaded, the plugin falls back to the running Node.js.
+function getElectronNodeVersion() {
+  try {
+    return execFileSync(
+      require('electron'),
+      ['--print', 'process.versions.node'],
+      { env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, encoding: 'utf8' }
+    ).trim();
+  } catch {
+    return undefined;
+  }
+}
 
 // TODO(COMPASS-9459): disabling a bunch of new rules to unblock automatic updates
 const tempNewEslintRulesDisabled = {
@@ -129,9 +146,19 @@ const testTsOverrides = {
 };
 
 module.exports = {
-  plugins: [...shared.plugins, '@mongodb-js/compass', 'chai-friendly'],
+  plugins: [
+    ...shared.plugins,
+    '@mongodb-js/compass',
+    'chai-friendly',
+    'import',
+  ],
   rules: {
     ...shared.rules,
+    'import/enforce-node-protocol-usage': ['error', 'always'],
+    'import/no-duplicates': ['error', { 'prefer-inline': false }],
+    'import/newline-after-import': 'error',
+    'import/first': 'error',
+    'import/order': 'error',
     '@mongodb-js/compass/no-inline-emotion-css': 'error',
     '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
     '@mongodb-js/compass/unique-mongodb-log-id': [
@@ -164,5 +191,6 @@ module.exports = {
   ],
   settings: {
     ...shared.settings,
+    'import/node-version': getElectronNodeVersion(),
   },
 };

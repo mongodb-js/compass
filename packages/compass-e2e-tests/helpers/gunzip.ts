@@ -1,9 +1,9 @@
-import Debug from 'debug';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
+import { createGunzip } from 'node:zlib';
+import path from 'node:path';
 import { glob as globAsync } from 'glob';
-import { createReadStream, createWriteStream } from 'fs';
-import { pipeline } from 'stream/promises';
-import { createGunzip } from 'zlib';
-import path from 'path';
+import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests:gunzip');
 

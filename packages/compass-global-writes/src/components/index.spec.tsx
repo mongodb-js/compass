@@ -1,8 +1,8 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mongodb-js/testing-library-compass';
-import { GlobalWrites } from './index';
 import { renderWithStore } from './../../tests/create-store';
+import { GlobalWrites } from './index';
 
 describe('Compass GlobalWrites Plugin', function () {
   it('renders plugin in NOT_READY state', async function () {

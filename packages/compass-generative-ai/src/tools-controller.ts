@@ -16,14 +16,18 @@ import {
   QUERY_COUNT_MAX_TIME_MS_CAP,
   type MongoDBToolServer,
 } from '@mongodb-js/mcp-tools-mongodb';
-import {
-  createCompassMcpTelemetry,
-  type CompassMcpTelemetry,
-} from './compass-mcp-telemetry';
 import type {
   ServerMetadata,
   ToolExecutionContext,
 } from '@mongodb-js/mcp-types';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import {
+  createCompassMcpTelemetry,
+  type CompassMcpTelemetry,
+} from './compass-mcp-telemetry';
 import { createConnectionErrorHandler } from './tools-connection-error-handler';
 import { ToolsLogger } from './tools-logger';
 import {
@@ -34,10 +38,6 @@ import {
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
-import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import {
   debugConnection,
   debugConnectionDescription,

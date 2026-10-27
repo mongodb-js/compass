@@ -7,9 +7,9 @@ import {
   within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 import type { Stage } from './stage-operator-select';
 import { StageOperatorSelect } from './stage-operator-select';
-import Sinon from 'sinon';
 
 describe('StageOperatorSelect', function () {
   const mockStages: Stage[] = [

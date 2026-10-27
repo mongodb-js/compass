@@ -5,29 +5,7 @@ import { map } from 'lodash';
 import type { Document, Element } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import mongodbns from '@mongodb-js/mongodb-ns';
-import BreadcrumbComponent from './breadcrumb';
-import CellRenderer from './cell-renderer';
-import RowNumberRenderer from './row-number-renderer';
-import FullWidthCellRenderer from './full-width-cell-renderer';
-import RowActionsRenderer from './row-actions-renderer';
-import HeaderComponent from './header-cell-renderer';
-import type { DocumentTableRowNode } from './cell-editor';
-import CellEditor from './cell-editor';
-import { gridTheme } from './grid-theme';
-
-import './document-table-view.less';
 import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
-import type {
-  BSONObject,
-  CrudActions,
-  CrudStore,
-  TableState,
-} from '../../stores/crud-store';
-import type {
-  GridActions,
-  GridStoreTriggerParams,
-  TableHeaderType,
-} from '../../stores/grid-store';
 import type {
   CellDoubleClickedEvent,
   ColDef,
@@ -39,6 +17,27 @@ import type {
 } from 'ag-grid-community';
 import { AllCommunityModule } from 'ag-grid-community';
 import { withPreferences } from '@mongodb-js/compass-preferences-model/provider';
+import type {
+  BSONObject,
+  CrudActions,
+  CrudStore,
+  TableState,
+} from '../../stores/crud-store';
+import type {
+  GridActions,
+  GridStoreTriggerParams,
+  TableHeaderType,
+} from '../../stores/grid-store';
+import BreadcrumbComponent from './breadcrumb';
+import CellRenderer from './cell-renderer';
+import RowNumberRenderer from './row-number-renderer';
+import FullWidthCellRenderer from './full-width-cell-renderer';
+import RowActionsRenderer from './row-actions-renderer';
+import HeaderComponent from './header-cell-renderer';
+import type { DocumentTableRowNode } from './cell-editor';
+import CellEditor from './cell-editor';
+import { gridTheme } from './grid-theme';
+import './document-table-view.less';
 
 const MIXED = 'Mixed' as const;
 

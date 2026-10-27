@@ -1,10 +1,10 @@
 import type { Store } from 'redux';
-import type { RootState } from '.';
 import { expect } from 'chai';
-import { toggleSidePanel } from './side-panel';
-import configureStore from '../../test/configure-store';
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
+import configureStore from '../../test/configure-store';
+import { toggleSidePanel } from './side-panel';
+import type { RootState } from '.';
 
 describe('side-panel module', function () {
   describe('#actions', function () {

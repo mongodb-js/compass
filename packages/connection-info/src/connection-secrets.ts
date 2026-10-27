@@ -2,13 +2,13 @@ import _ from 'lodash';
 import ConnectionString, {
   CommaAndColonSeparatedRecord,
 } from 'mongodb-connection-string-url';
-import type { ConnectionInfo } from './connection-info';
 import type {
   Document,
   MongoClientOptions,
   AuthMechanismProperties,
   AutoEncryptionOptions,
 } from 'mongodb';
+import type { ConnectionInfo } from './connection-info';
 
 export interface ConnectionSecrets {
   password?: string;

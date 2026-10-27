@@ -9,13 +9,13 @@ import {
   Overline,
   WarningSummary,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../../modules';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import type HadronDocument from 'hadron-document';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
+import type { RootState } from '../../../modules';
 import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
-import { OutputStageBanner } from './pipeline-stages-preview';
 import { AtlasStagePreview } from '../../stage-preview/atlas-stage-preview';
 import {
   isMissingAtlasStageSupport,
@@ -27,8 +27,8 @@ import {
   collapsePreviewDocs,
 } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import SearchNoResults from '../../search-no-results';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../../search-index-stale-results-banner';
+import { OutputStageBanner } from './pipeline-stages-preview';
 
 const containerStyles = css({
   display: 'flex',

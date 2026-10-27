@@ -10,8 +10,8 @@ import {
   createDispatchHook,
   createSelectorHook,
 } from 'react-redux';
-import type { configureStore } from '..';
 import type { Store } from 'redux';
+import type { configureStore } from '..';
 
 type WorkspacesStore =
   ReturnType<typeof configureStore> extends Store<infer S, infer A> & {

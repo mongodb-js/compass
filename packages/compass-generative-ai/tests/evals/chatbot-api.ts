@@ -1,10 +1,10 @@
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
+import { AI_MODEL_SLIM_VERSION } from '../../src/model-version';
 import type {
   ConversationEvalCaseInput,
   ConversationTaskOutput,
 } from './types';
-import { AI_MODEL_SLIM_VERSION } from '../../src/model-version';
 
 export async function makeChatbotCall(
   input: ConversationEvalCaseInput

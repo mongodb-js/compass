@@ -6,11 +6,11 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ServerErrorBanner from './server-error-banner';
 import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import { wrapWithExperimentProvider } from '../../test/configure-store';
+import ServerErrorBanner from './server-error-banner';
 
 const CONNECTION: ConnectionInfo = {
   id: 'test',

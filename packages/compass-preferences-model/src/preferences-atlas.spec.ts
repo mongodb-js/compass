@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
 import { AtlasPreferencesStorage } from './preferences-atlas';
 import { getDefaultsForStoredPreferences } from './preferences-schema';
-import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
 
 const PREFERENCES_URL = 'https://cloud.mongodb.com/ui/userData/AppPreferences';
 

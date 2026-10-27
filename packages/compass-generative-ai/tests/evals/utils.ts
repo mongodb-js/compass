@@ -1,6 +1,6 @@
 import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
-import type { Message } from './types';
 import { EJSON } from 'bson';
+import type { Message } from './types';
 
 export function allText(messages: Message[]): string {
   return messages.map((m) => m.content).join('\n');

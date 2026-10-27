@@ -9,9 +9,9 @@ import type {
   UserConfigurablePreferences,
   UserPreferences,
   DeriveValueFunction,
+  CompassRunningEnvironment,
 } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
-import type { CompassRunningEnvironment } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
 import type { FeatureFlags } from './feature-flags';

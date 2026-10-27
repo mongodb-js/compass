@@ -1,7 +1,7 @@
-import path from 'path';
-import os from 'os';
+import path from 'node:path';
+import os from 'node:os';
+import fs from 'node:fs/promises';
 import { expect } from 'chai';
-import fs from 'fs/promises';
 
 import { HistoryStorage } from './history-storage';
 

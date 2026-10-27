@@ -1,8 +1,8 @@
+import Debug from 'debug';
 import { connectionNameFromString } from '../compass.ts';
 import type { CompassBrowser } from '../compass-browser.ts';
 import type { ConnectFormState } from '../connect-form-state.ts';
 import * as Selectors from '../selectors.ts';
-import Debug from 'debug';
 import {
   getDefaultConnectionNames,
   getDefaultConnectionStrings,

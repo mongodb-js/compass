@@ -1,5 +1,5 @@
+import { inspect } from 'node:util';
 import type { CompassBrowser } from '../compass-browser.ts';
-import { inspect } from 'util';
 
 /**
  * Sets an environment variable override in Compass, both web and desktop.

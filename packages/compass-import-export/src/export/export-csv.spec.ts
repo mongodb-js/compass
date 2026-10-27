@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Readable, Writable } from 'node:stream';
 import _ from 'lodash';
-import assert from 'assert';
-import fs from 'fs';
-import path from 'path';
-import { Readable, Writable } from 'stream';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -12,24 +12,23 @@ import temp from 'temp';
 import type { Document } from 'bson';
 import type { FindCursor } from 'mongodb';
 
-temp.track();
-
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 
-import { fixtures } from '../../test/fixtures';
-
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import type { CSVParsableFieldType } from '../csv/csv-types';
 import type { CSVExportPhase } from '../export/export-csv';
-import { exportCSVFromAggregation, exportCSVFromQuery } from './export-csv';
 import { guessFileType } from '../import/guess-filetype';
 import { analyzeCSVFields } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { fixtures } from '../../test/fixtures';
+import { exportCSVFromAggregation, exportCSVFromQuery } from './export-csv';
+
+temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);

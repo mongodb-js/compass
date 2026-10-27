@@ -1,5 +1,4 @@
 import React from 'react';
-import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
 import type { DiagramInstance } from '@mongodb-js/compass-components';
@@ -13,6 +12,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { raceWithAbort } from '@mongodb-js/compass-utils';
 import { mapFieldDataToJsonSchema } from '../utils/utils';
+import type { StaticModel } from './data-model-storage';
 
 function moveSvgDefsToViewportElement(
   container: Element,

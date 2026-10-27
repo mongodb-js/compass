@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+import { ConnectionString } from 'mongodb-connection-string-url';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -10,8 +12,6 @@ import {
   connectionNameFromString,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
-import { expect } from 'chai';
-import { ConnectionString } from 'mongodb-connection-string-url';
 
 describe('forceConnectionOptions', function () {
   let compass: Compass;

@@ -1,7 +1,7 @@
-import { parseRecord } from './parse-record';
 import { expect } from 'chai';
 import yaml from 'js-yaml';
 import yargsParser from 'yargs-parser';
+import { parseRecord } from './parse-record';
 
 describe('parseRecord', function () {
   let errors: string[];

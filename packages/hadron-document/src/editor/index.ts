@@ -1,3 +1,5 @@
+import { type TypeCastTypes } from 'hadron-type-checker';
+import type { Element } from '../element';
 import StandardEditor from './standard';
 import StringEditor from './string';
 import Decimal128Editor from './decimal128';
@@ -9,8 +11,6 @@ import NullEditor from './null';
 import UndefinedEditor from './undefined';
 import ObjectIdEditor from './objectid';
 import UUIDEditor from './uuid';
-import type { Element } from '../element';
-import { type TypeCastTypes } from 'hadron-type-checker';
 
 const init = (element: Element, displayType?: TypeCastTypes) => ({
   Standard: new StandardEditor(element, displayType),

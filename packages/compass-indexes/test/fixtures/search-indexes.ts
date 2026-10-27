@@ -1,4 +1,5 @@
 import type { SearchIndex } from 'mongodb-data-service';
+
 export const searchIndexes: SearchIndex[] = [
   {
     id: '1',

@@ -7,6 +7,7 @@ import type { DataService } from 'mongodb-data-service';
 import configureReduxStore, {
   MockAtlasAiService,
 } from '../../../test/configure-store';
+import { toggleAutoPreview } from '../auto-preview';
 import {
   AIPipelineActionTypes,
   AI_INPUT_VISIBLE_STORAGE_KEY,
@@ -16,7 +17,6 @@ import {
   showInput,
   hideInput,
 } from './pipeline-ai';
-import { toggleAutoPreview } from '../auto-preview';
 
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();

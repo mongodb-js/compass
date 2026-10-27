@@ -1,4 +1,5 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
   MAX_DATABASE_PLACEHOLDER_ITEMS,
@@ -8,7 +9,6 @@ import type {
   VirtualPlaceholderItem,
   VirtualTreeItem,
 } from './virtual-list/use-virtual-navigation-tree';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type DatabaseOrCollectionStatus =
   'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';

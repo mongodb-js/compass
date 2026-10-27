@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import createDebug from 'debug';
 import { sign as _garasign } from '@mongodb-js/signing-utils';
 import type Target from './target';

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
-import { doesQueryHaveExtraOptionsSet, mapQueryToFormFields } from './query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { doesQueryHaveExtraOptionsSet, mapQueryToFormFields } from './query';
 
 describe('#doesQueryHaveExtraOptionsSet', function () {
   it('returns true when there is a non filter option, false otherwise', function () {

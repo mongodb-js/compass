@@ -1,11 +1,11 @@
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import { configureStore as _configureStore } from '../src/stores';
 import type {
   SettingsPluginServices,
   SettingsThunkExtraArgs,
 } from '../src/stores';
-import { configureStore as _configureStore } from '../src/stores';
-import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 class MockAtlasAuthService extends AtlasAuthService {
   isAuthenticated() {

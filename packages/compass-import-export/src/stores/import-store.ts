@@ -3,17 +3,17 @@ import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import {
   cancelImport,
   importReducer,
   openImport,
   connectionDisconnected,
 } from '../modules/import';
-import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
-import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type ImportPluginServices = {
   globalAppRegistry: AppRegistry;

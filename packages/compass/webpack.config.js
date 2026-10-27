@@ -1,7 +1,7 @@
 'use strict';
 // @ts-check
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 // @ts-ignore
 const { Target: HadronBuildTarget } = require('@mongodb-js/hadron-build');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');

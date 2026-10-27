@@ -2,14 +2,31 @@ import type { Action, Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
+import { cancellableWait } from '@mongodb-js/compass-utils';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
-import type Stage from './stage';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
+import {
+  createSearchStageMetadata,
+  injectSearchScoreMetadata,
+} from '../../utils/search-score-injection';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
+import { aggregatePipeline } from '../../utils/cancellable-aggregation';
+import {
+  getDestinationNamespaceFromStage,
+  isOutputStage,
+  stageOperatorsWithAutoEmbedPreview,
+} from '../../utils/stage';
+import { fetchExplainForPipeline } from '../insights';
+import type Stage from './stage';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   createPreviewAggregation,
@@ -17,35 +34,18 @@ import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
-import {
-  createSearchStageMetadata,
-  injectSearchScoreMetadata,
-} from '../../utils/search-score-injection';
-import type { StagePreviewMetadata } from '../../utils/search-score-injection';
-import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import {
-  getDestinationNamespaceFromStage,
-  isOutputStage,
-  stageOperatorsWithAutoEmbedPreview,
-} from '../../utils/stage';
 import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
-import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type { ServerEnvironment } from './../env';
 import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
-import { cancellableWait } from '@mongodb-js/compass-utils';
-import {
-  ExperimentTestGroups,
-  ExperimentTestNames,
-} from '@mongodb-js/compass-telemetry/provider';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:

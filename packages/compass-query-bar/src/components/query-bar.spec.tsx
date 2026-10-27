@@ -10,16 +10,8 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import QueryBar from './query-bar';
-import { Provider } from '../stores/context';
-import { configureStore } from '../stores/query-bar-store';
-import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
-import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import { AIQueryActionTypes } from '../stores/ai-query-reducer';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { mapQueryToFormFields } from '../utils/query';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
@@ -31,6 +23,14 @@ import {
   createElectronRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/electron';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import { Provider } from '../stores/context';
+import { configureStore } from '../stores/query-bar-store';
+import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
+import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import { AIQueryActionTypes } from '../stores/ai-query-reducer';
+import { mapQueryToFormFields } from '../utils/query';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import QueryBar from './query-bar';
 
 const noop = () => {
   /* no op */
