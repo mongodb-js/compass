@@ -120,12 +120,9 @@ export const ClearChatButton: React.FunctionComponent<{
       await stopChat(chat);
       clearError();
 
-      // TODO: We use one chat instance for the entire Assistant service but when a conversation is cleared,
-      // we need to treat it as a new chat. So, we override the ID to a newly generated one.
-      // This is used by e.g. SuggestedPrompts to reset the state of the selected index.
-      // @ts-expect-error This is a readonly property but we need to mutate it to generate a new ID
-      // eslint-disable-next-line react-hooks/immutability
-      chat.id = chat.generateId();
+      // One chat instance is used for the entire Assistant service, so a new
+      // thread id is what marks a cleared conversation as a new chat. It is
+      // used by e.g. SuggestedPrompts to reset the selected index.
       chat.threadId = new UUID().toString();
 
       // Set messages directly on the chat instance (not through the hook's
