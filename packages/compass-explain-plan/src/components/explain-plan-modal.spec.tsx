@@ -5,11 +5,11 @@ import {
   screen,
   render as _render,
 } from '@mongodb-js/testing-library-compass';
+import { Provider } from 'react-redux';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
+import { activatePlugin } from '../stores';
 import type { ExplainPlanModalProps } from './explain-plan-modal';
 import { ExplainPlanModal } from './explain-plan-modal';
-import { Provider } from 'react-redux';
-import { activatePlugin } from '../stores';
-import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 
 function render(
   props: Partial<ExplainPlanModalProps>,

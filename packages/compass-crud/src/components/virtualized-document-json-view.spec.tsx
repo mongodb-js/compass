@@ -11,11 +11,11 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { type VirtualListRef } from '@mongodb-js/compass-components';
 
-import VirtualizedDocumentJsonView from './virtualized-document-json-view';
 import {
   getCodemirrorEditorValue,
   setCodemirrorEditorValue,
 } from '@mongodb-js/compass-editor';
+import VirtualizedDocumentJsonView from './virtualized-document-json-view';
 
 const createBigDocument = (variable: number) =>
   new HadronDocument({

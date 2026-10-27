@@ -12,12 +12,12 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import DirectConnectionInput from './direct-connection-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorMessageByFieldNameAndIndex,
   fieldNameHasError,
 } from '../../../utils/validation';
+import DirectConnectionInput from './direct-connection-input';
 
 const listInputStyles = css({
   maxWidth: spacing[7] * 5,

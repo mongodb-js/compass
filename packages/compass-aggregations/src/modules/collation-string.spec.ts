@@ -1,8 +1,8 @@
+import { expect } from 'chai';
 import reducer, {
   collationStringChanged,
   COLLATION_STRING_CHANGED,
 } from './collation-string';
-import { expect } from 'chai';
 
 describe('collation string module', function () {
   describe('#collationStringChanged', function () {

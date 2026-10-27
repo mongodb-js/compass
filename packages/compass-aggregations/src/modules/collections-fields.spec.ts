@@ -1,14 +1,14 @@
 import type { Document } from 'mongodb';
 import { expect } from 'chai';
+import sinon from 'sinon';
+import configureStore from '../../test/configure-store';
+import type { AggregationsStore } from '../stores/store';
 import reducer, {
   ActionTypes,
   setCollections,
   setCollectionFields,
   fetchCollectionFields,
 } from './collections-fields';
-import configureStore from '../../test/configure-store';
-import sinon from 'sinon';
-import type { AggregationsStore } from '../stores/store';
 
 describe('collections-fields module', function () {
   describe('#reducer', function () {

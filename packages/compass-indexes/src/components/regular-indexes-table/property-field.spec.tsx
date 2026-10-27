@@ -7,9 +7,9 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import PropertyField, { getPropertyTooltip } from './property-field';
 import getIndexHelpLink from '../../utils/index-link-helper';
 import type { HELP_URL_KEY } from '../../utils/index-link-helper';
+import PropertyField, { getPropertyTooltip } from './property-field';
 
 describe('PropertyField', function () {
   before(cleanup);

@@ -7,7 +7,6 @@ import type {
   PrimitiveSchemaType,
   ConstantSchemaType,
 } from '@mongodb-js/mongodb-schema';
-import type { FieldInfo, SampleValue } from './schema-analysis-types';
 import type { ArrayLengthMap } from '@mongodb-js/mock-data-generator';
 import type {
   ObjectId,
@@ -19,6 +18,7 @@ import type {
   Decimal128,
 } from 'bson';
 import { getBsonType } from 'hadron-type-checker';
+import type { FieldInfo, SampleValue } from './schema-analysis-types';
 
 /**
  * This module transforms mongodb-schema output into a flat, LLM-friendly format using

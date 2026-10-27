@@ -3,8 +3,6 @@ import {
   registerCompassPlugin,
   type AppRegistry,
 } from '@mongodb-js/compass-app-registry';
-import SidebarPlugin from './plugin';
-import { createSidebarStore } from './stores';
 import {
   type MongoDBInstancesManager,
   mongoDBInstancesManagerLocator,
@@ -14,6 +12,8 @@ import type { ConnectionsService } from '@mongodb-js/compass-connections/provide
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { createSidebarStore } from './stores';
+import SidebarPlugin from './plugin';
 import { AtlasClusterConnectionsOnly } from './components/multiple-connections/connections-navigation';
 
 export const CompassSidebarPlugin = registerCompassPlugin(

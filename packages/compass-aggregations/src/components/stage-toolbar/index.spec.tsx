@@ -1,17 +1,17 @@
 import React from 'react';
 import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import type { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
-import type { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-import StageToolbar from './';
 import {
   changeStageCollapsed,
   changeStageDisabled,
 } from '../../modules/pipeline-builder/stage-editor';
+import StageToolbar from './';
 
 const renderStageToolbar = async (
   pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],

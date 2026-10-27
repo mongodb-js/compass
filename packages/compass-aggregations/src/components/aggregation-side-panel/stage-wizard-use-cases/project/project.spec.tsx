@@ -1,7 +1,5 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import ProjectForm, { mapProjectFormStateToStageValue } from './project';
-import type { ProjectionType } from './project';
 import {
   render,
   screen,
@@ -16,6 +14,8 @@ import {
 } from '../../../../../test/form-helper';
 import type { StageWizardFields } from '..';
 import { MULTI_SELECT_LABEL } from '../field-combobox';
+import type { ProjectionType } from './project';
+import ProjectForm, { mapProjectFormStateToStageValue } from './project';
 
 const SAMPLE_FIELDS: StageWizardFields = [
   {

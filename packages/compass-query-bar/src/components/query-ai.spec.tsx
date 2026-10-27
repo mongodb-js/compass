@@ -10,17 +10,7 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import { Provider } from '../stores/context';
 
-import { QueryAI } from './query-ai';
-import type { QueryBarExtraArgs } from '../stores/query-bar-store';
-import { configureStore } from '../stores/query-bar-store';
-import {
-  AIQueryActionTypes,
-  changeAIPromptText,
-} from '../stores/ai-query-reducer';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
@@ -29,6 +19,16 @@ import {
   createNoopLogger,
 } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
+import type { QueryBarExtraArgs } from '../stores/query-bar-store';
+import { configureStore } from '../stores/query-bar-store';
+import {
+  AIQueryActionTypes,
+  changeAIPromptText,
+} from '../stores/ai-query-reducer';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { mapQueryToFormFields } from '../utils/query';
+import { Provider } from '../stores/context';
+import { QueryAI } from './query-ai';
 
 const noop = () => {
   /* no op */

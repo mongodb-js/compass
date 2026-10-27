@@ -9,14 +9,14 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 
+import COLLATION_OPTIONS from '../../constants/collation';
+
 const optionsSelectDropdownStyles = css({
   zIndex: 1,
   'button[aria-expanded=true]': {
     zIndex: 20,
   },
 });
-
-import COLLATION_OPTIONS from '../../constants/collation';
 
 function CollationOptions(values) {
   const unifiedValues = values.map((elem) => ({

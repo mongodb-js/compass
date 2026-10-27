@@ -1,9 +1,9 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen, userEvent } from '@mongodb-js/testing-library-compass';
-import { ShardingState } from './sharding';
-import { renderWithStore } from '../../../tests/create-store';
 import Sinon from 'sinon';
+import { renderWithStore } from '../../../tests/create-store';
+import { ShardingState } from './sharding';
 
 function renderWithProps(
   props?: Partial<React.ComponentProps<typeof ShardingState>>

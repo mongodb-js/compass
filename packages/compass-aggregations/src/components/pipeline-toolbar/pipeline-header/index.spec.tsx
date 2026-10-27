@@ -3,9 +3,9 @@ import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
+import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import { renderWithStore } from '../../../../test/configure-store';
 import { PipelineHeader } from '.';
-import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 
 describe('PipelineHeader', function () {
   let container: HTMLElement;

@@ -3,6 +3,7 @@ import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
 
@@ -24,7 +25,6 @@ import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 
 import { useRegularIndexesTable } from './use-regular-indexes-table';
 import { COLUMNS, COLUMNS_WITH_ACTIONS } from './regular-indexes-columns';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];

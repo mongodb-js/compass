@@ -31,7 +31,6 @@ import type {
   ValidationServerAction,
   ValidationState,
 } from '../modules/validation';
-import { ActionSelector, LevelSelector } from './validation-selectors';
 import type { RootState } from '../modules';
 import {
   checkValidator,
@@ -44,6 +43,7 @@ import {
 import { clearSampleDocuments } from '../modules/sample-documents';
 import { enableEditRules } from '../modules/edit-mode';
 import { generateValidationRules } from '../modules/rules-generation';
+import { ActionSelector, LevelSelector } from './validation-selectors';
 
 const validationEditorStyles = css({
   padding: spacing[400],

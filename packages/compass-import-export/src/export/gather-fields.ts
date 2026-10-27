@@ -7,8 +7,8 @@ import type { Document, FindOptions } from 'mongodb';
 import toNS from '@mongodb-js/mongodb-ns';
 import { isInternalFieldPath } from 'hadron-document';
 
-import type { ExportQuery } from './export-types';
 import { createDebug } from '../utils/logger';
+import type { ExportQuery } from './export-types';
 
 const debug = createDebug('export-json');
 

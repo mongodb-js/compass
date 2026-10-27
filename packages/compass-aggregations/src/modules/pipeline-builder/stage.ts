@@ -1,5 +1,6 @@
 import * as babelParser from '@babel/parser';
 import * as t from '@babel/types';
+import type { Document } from 'bson';
 import {
   isNodeDisabled,
   setNodeDisabled,
@@ -12,7 +13,6 @@ import {
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { generate, parseShellBSON } from './pipeline-parser/utils';
 import { getId } from './stage-ids';
-import type { Document } from 'bson';
 
 function createStageNode({
   key,

@@ -15,12 +15,12 @@ import {
 } from '@leafygreen-ui/drawer';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { isEqual } from 'lodash';
-import { rafraf } from '../utils/rafraf';
-import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
-import { useSyncStateOnPropChange } from '../hooks/use-sync-state-on-prop-change';
 import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
+import { useSyncStateOnPropChange } from '../hooks/use-sync-state-on-prop-change';
+import { rafraf } from '../utils/rafraf';
 import { useInitialValue } from '../hooks/use-initial-value';
 import { useCurrentValueRef } from '../hooks/use-current-value-ref';
+import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
 
 type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
 

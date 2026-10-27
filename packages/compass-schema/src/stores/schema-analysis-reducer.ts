@@ -3,6 +3,10 @@ import { isInternalFieldPath } from 'hadron-document';
 import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, MongoError } from 'mongodb';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
+import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
+import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
+import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import { UUID } from 'bson';
 import { type AnalysisState } from '../constants/analysis-states';
 import {
   ANALYSIS_STATE_ANALYZING,
@@ -14,12 +18,8 @@ import {
   analyzeSchema,
   calculateSchemaMetadata,
 } from '../modules/schema-analysis';
-import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
-import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
-import { mongoLogId } from '@mongodb-js/compass-logging/provider';
-import type { SchemaThunkAction } from './store';
-import { UUID } from 'bson';
 import { isAction } from '../utils';
+import type { SchemaThunkAction } from './store';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 

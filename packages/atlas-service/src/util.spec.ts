@@ -1,6 +1,6 @@
+import { expect } from 'chai';
 import { getTrackingUserInfo } from './util';
 import type { AtlasUserInfo } from './util';
-import { expect } from 'chai';
 
 describe('getTrackingUserInfo', function () {
   it('should return required tracking info from user info', function () {

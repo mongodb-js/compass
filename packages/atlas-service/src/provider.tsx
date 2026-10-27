@@ -1,14 +1,14 @@
-export * from './url-builders';
-
 import React, { createContext, useContext, useMemo } from 'react';
-import type { AtlasAuthService } from './atlas-auth-service';
-import { AtlasService, type AtlasServiceOptions } from './atlas-service';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
   createServiceLocator,
   createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
 import { useInitialValue } from '@mongodb-js/compass-components';
+import { AtlasService, type AtlasServiceOptions } from './atlas-service';
+import type { AtlasAuthService } from './atlas-auth-service';
+
+export * from './url-builders';
 
 const AtlasAuthServiceContext = createContext<AtlasAuthService | null>(null);
 

@@ -15,6 +15,10 @@ import {
 import { Document } from '@mongodb-js/compass-crud';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
+import {
+  useSearchActivationProgramP1,
+  useSearchActivationProgramP2,
+} from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../modules';
 import {
   isSearchStage,
@@ -24,9 +28,6 @@ import {
 } from '../../utils/stage';
 
 import LoadingOverlay from '../loading-overlay';
-import { AtlasStagePreview } from './atlas-stage-preview';
-import OutputStagePreivew from './output-stage-preview';
-import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getIndexOfFirstStageWithServerError,
@@ -35,10 +36,6 @@ import {
 import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 import SearchNoResults from '../search-no-results';
-import {
-  useSearchActivationProgramP1,
-  useSearchActivationProgramP2,
-} from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 import {
   SearchStageDiagnoseButton,
@@ -50,6 +47,9 @@ import {
   useShouldShowAnalyzeOutput,
   type AnalyzableDocument,
 } from '../search-analyze-output-button';
+import StagePreviewHeader from './stage-preview-header';
+import OutputStagePreivew from './output-stage-preview';
+import { AtlasStagePreview } from './atlas-stage-preview';
 
 const centeredContent = css({
   display: 'flex',

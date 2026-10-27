@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import { startTelemetryServer } from '../helpers/telemetry.ts';
 import type { Telemetry } from '../helpers/telemetry.ts';
@@ -14,7 +15,6 @@ import {
   isTestingWeb,
   isTestingWebAtlasCloud,
 } from '../helpers/test-runner-context.ts';
-import { expect } from 'chai';
 
 describe('MongoDB Assistant (with real backend)', function () {
   let compass: Compass;

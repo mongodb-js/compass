@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import Document, { DocumentEvents } from '../src/';
-import SharedExamples from './shared-examples';
 import { ObjectId, Long, Int32, Double } from 'bson';
-import type { BSONValue } from '../src/';
 import Sinon from 'sinon';
+import Document, { DocumentEvents } from '../src/';
+import type { BSONValue } from '../src/';
+import SharedExamples from './shared-examples';
 
 function updateDocOf(doc: Document) {
   const { updateDoc } = doc.generateUpdateUnlessChangedInBackgroundQuery();

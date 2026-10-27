@@ -3,6 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { createLogger } from '@mongodb-js/compass-logging';
+
 const { debug } = createLogger('SQUIRREL-STARTUP');
 
 function runUpdateExe(args: string[]): Promise<void> {

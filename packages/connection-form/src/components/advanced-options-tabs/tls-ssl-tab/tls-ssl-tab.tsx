@@ -16,9 +16,9 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
 import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
-import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
 
 export const checkboxDescriptionStyles = css({
   marginTop: spacing[100],

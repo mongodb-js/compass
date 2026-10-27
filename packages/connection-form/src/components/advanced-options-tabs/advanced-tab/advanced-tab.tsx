@@ -7,9 +7,9 @@ import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
+import type { ConnectionFormError } from '../../../utils/validation';
 import UrlOptions from './url-options';
 import ReadPreferenceForm from './read-preference-form';
-import type { ConnectionFormError } from '../../../utils/validation';
 
 function AdvancedTab({
   errors,

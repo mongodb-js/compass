@@ -1,6 +1,4 @@
 import { expect } from 'chai';
-import { isAssistantThinking, getToolState, partIsToolUI } from './utils';
-import type { AssistantMessage } from './compass-assistant-provider';
 import type {
   ChatStatus,
   ToolUIPart,
@@ -8,6 +6,8 @@ import type {
   UIDataTypes,
   UITools,
 } from 'ai';
+import { isAssistantThinking, getToolState, partIsToolUI } from './utils';
+import type { AssistantMessage } from './compass-assistant-provider';
 
 describe('utils', function () {
   describe('partIsToolUI', function () {

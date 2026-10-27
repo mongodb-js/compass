@@ -6,22 +6,22 @@ import {
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 
+import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
+import { connectionSupports } from '@mongodb-js/compass-connections';
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
 import type { FetchStatus } from '../utils/fetch-status';
 import { FetchReasons } from '../utils/fetch-reason';
 import type { FetchReason } from '../utils/fetch-reason';
 import { isAction } from '../utils/is-action';
-import type { CreateIndexSpec } from './create-index';
-import type { IndexesThunkAction, RootState } from '.';
 import {
   hideModalDescription,
   unhideModalDescription,
 } from '../utils/modal-descriptions';
-import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
-import type { AtlasIndexStats } from './rolling-indexes-service';
-import { connectionSupports } from '@mongodb-js/compass-connections';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
+import type { AtlasIndexStats } from './rolling-indexes-service';
+import type { CreateIndexSpec } from './create-index';
+import type { IndexesThunkAction, RootState } from '.';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<

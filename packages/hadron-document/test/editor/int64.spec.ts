@@ -1,7 +1,7 @@
 import { Long } from 'bson';
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { Int64Editor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('Int64Editor', function () {
   describe('#start', function () {

@@ -1,11 +1,11 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { ToolsConnectionManager } from './tools-connection-manager';
-import type { ToolsConnectParams } from './tools-connection-manager';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import { ConnectionStateConnected } from 'mongodb-mcp-server';
 import type { LoggerBase } from 'mongodb-mcp-server';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type { ToolsConnectParams } from './tools-connection-manager';
+import { ToolsConnectionManager } from './tools-connection-manager';
 
 describe('ToolsConnectionManager', function () {
   let sandbox: Sinon.SinonSandbox;

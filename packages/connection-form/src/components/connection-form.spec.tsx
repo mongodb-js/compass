@@ -9,11 +9,11 @@ import {
   within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import Sinon from 'sinon';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { defaultConnectionString } from '../constants/default-connection';
 import ConnectionForm from './connection-form';
 import type { ConnectionFormProps } from './connection-form';
-import Sinon from 'sinon';
-import { defaultConnectionString } from '../constants/default-connection';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const DEFAULT_CONNECTION: ConnectionInfo = {
   id: 'default',

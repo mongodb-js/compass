@@ -5,9 +5,9 @@ import type {
   AtlasSignInEntrypoint,
   TrackFunction,
 } from '@mongodb-js/compass-telemetry';
+import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { AtlasUserInfo } from '../util';
 import type { AtlasAuthService } from '../provider';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,

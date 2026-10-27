@@ -1,11 +1,6 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
-  activateIndexesPlugin,
-  type IndexesDataServiceProps,
-} from './stores/store';
-import Indexes from './components/indexes/indexes';
-import {
   connectionInfoRefLocator,
   type DataServiceLocator,
   dataServiceLocator,
@@ -19,11 +14,16 @@ import {
   telemetryLocator,
   experimentationServiceLocator,
 } from '@mongodb-js/compass-telemetry/provider';
-import { IndexesTabTitle } from './plugin-title';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
-import { IndexesDrawer } from './plugin-drawer';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import { IndexesDrawer } from './plugin-drawer';
+import { IndexesTabTitle } from './plugin-title';
+import Indexes from './components/indexes/indexes';
+import {
+  activateIndexesPlugin,
+  type IndexesDataServiceProps,
+} from './stores/store';
 
 export const CompassIndexesPluginProvider = registerCompassPlugin(
   {

@@ -10,8 +10,8 @@ import {
   cx,
   Description,
 } from '@mongodb-js/compass-components';
-import { useAssistantProjectId } from '../compass-assistant-provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import { useAssistantProjectId } from '../compass-assistant-provider';
 
 const shimmerBorderStyles = css({
   '@keyframes shimmer-border': {

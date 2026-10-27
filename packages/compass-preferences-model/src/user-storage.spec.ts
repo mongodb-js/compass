@@ -1,11 +1,11 @@
-import { z } from '@mongodb-js/compass-user-data';
-import { expect } from 'chai';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { z } from '@mongodb-js/compass-user-data';
+import { expect } from 'chai';
+import { users as UserFixtures } from '../test/fixtures';
 import type { UserStorage, User } from './user-storage';
 import { UserStorageImpl } from './user-storage';
-import { users as UserFixtures } from '../test/fixtures';
 
 describe('UserStorage', function () {
   let tmpDir: string;

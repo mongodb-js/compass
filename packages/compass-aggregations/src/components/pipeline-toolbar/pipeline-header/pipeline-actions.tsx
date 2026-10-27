@@ -12,6 +12,12 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreferences,
+} from '@mongodb-js/compass-preferences-model/provider';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../../modules';
 import { runAggregation } from '../../../modules/aggregation';
 import { updateView } from '../../../modules/update-view';
@@ -21,13 +27,7 @@ import {
   getPipelineStageOperatorsFromBuilderState,
 } from '../../../modules/pipeline-builder/builder-helpers';
 import { openCreateIndexModal } from '../../../modules/insights';
-import {
-  useIsAIFeatureEnabled,
-  usePreferences,
-} from '@mongodb-js/compass-preferences-model/provider';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
-import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   display: 'flex',

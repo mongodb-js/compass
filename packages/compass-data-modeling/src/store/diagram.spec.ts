@@ -1,5 +1,12 @@
 import { expect } from 'chai';
+import { UUID } from 'bson';
+import Sinon from 'sinon';
 import { type DataModelingStore, setupStore } from '../../test/setup-store';
+import type {
+  Edit,
+  MongoDBDataModelDescription,
+  StaticModel,
+} from '../services/data-model-storage';
 import {
   applyEdit,
   getCurrentDiagramFromState,
@@ -12,13 +19,6 @@ import {
   addCollection,
   renameCollection,
 } from './diagram';
-import type {
-  Edit,
-  MongoDBDataModelDescription,
-  StaticModel,
-} from '../services/data-model-storage';
-import { UUID } from 'bson';
-import Sinon from 'sinon';
 import {
   type AnalysisFinishedAction,
   AnalysisProcessActionTypes,

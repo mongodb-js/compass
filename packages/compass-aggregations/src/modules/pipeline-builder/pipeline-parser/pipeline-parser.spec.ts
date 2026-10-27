@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import PipelineParser from './pipeline-parser';
 import Stage from '../stage';
+import PipelineParser from './pipeline-parser';
 
 const pipelines = [
   {

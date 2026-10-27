@@ -9,11 +9,11 @@ import {
   spacing,
   TextInput,
 } from '@mongodb-js/compass-components';
-import { createView, changeViewName, close } from '../../modules/create-view';
-import type { CreateViewRootState } from '../../stores/create-view';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
+import type { CreateViewRootState } from '../../stores/create-view';
+import { createView, changeViewName, close } from '../../modules/create-view';
 
 const progressContainerStyles = css({
   display: 'flex',

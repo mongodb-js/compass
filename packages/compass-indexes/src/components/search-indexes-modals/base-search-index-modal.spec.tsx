@@ -5,7 +5,6 @@ import {
 } from '@mongodb-js/mongodb-constants';
 import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import { expect } from 'chai';
-import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import {
@@ -23,6 +22,7 @@ import {
   getCodemirrorEditorValue,
   setCodemirrorEditorValue,
 } from '@mongodb-js/compass-editor';
+import { BaseSearchIndexModal } from './base-search-index-modal';
 
 function normalizedTemplateNamed(name: string) {
   const snippet =

@@ -9,9 +9,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { connect } from 'react-redux';
+import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import type { RootState } from './modules';
 import IndexesListDrawerView from './components/drawer-views/indexes-list-drawer-view';
-import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import CreateSearchIndexView from './components/drawer-views/create-search-index-drawer-view';
 import EditSearchIndexView from './components/drawer-views/edit-search-index-drawer-view';
 import { openIndexesListDrawerView } from './modules/indexes-drawer';

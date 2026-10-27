@@ -1,19 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect, shallowEqual, useSelector } from 'react-redux';
-import type { RootState } from '../../modules';
-import {
-  createIndex,
-  createSearchIndexClosed,
-} from '../../modules/search-indexes';
-import {
-  openIndexesListDrawerView,
-  setIsDirty,
-} from '../../modules/indexes-drawer';
-import {
-  useOnAsyncSuccess,
-  useIndexDefinitionChange,
-} from './drawer-view-hooks';
-import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
   Body,
   Button,
@@ -25,21 +11,12 @@ import {
   Tooltip,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import {
-  containerStyles,
-  contentStyles,
-  buttonContainerStyles,
-  editorContainerStyles,
-  editorContainerDarkModeStyles,
-  overflowWrapStyles,
-} from './drawer-view-styles';
 import type { Document } from 'mongodb';
 import {
   CodemirrorMultilineEditor,
   useJsonSchemaAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
@@ -48,17 +25,40 @@ import {
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
 import type { SearchIndex } from 'mongodb-data-service';
 import {
-  VectorSearchIndexTemplateDropdown,
-  type VectorIndexTemplateChoice,
-} from '../search-index-template-dropdown/vector-search-index-template-dropdown';
-import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import {
   useConnectionInfo,
   useConnectionInfoRef,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import {
+  VectorSearchIndexTemplateDropdown,
+  type VectorIndexTemplateChoice,
+} from '../search-index-template-dropdown/vector-search-index-template-dropdown';
+import { parseShellBSON } from '../../utils/parse-shell-bson';
+import type { SearchIndexType } from '../../modules/indexes-drawer';
+import {
+  openIndexesListDrawerView,
+  setIsDirty,
+} from '../../modules/indexes-drawer';
+import {
+  createIndex,
+  createSearchIndexClosed,
+} from '../../modules/search-indexes';
+import type { RootState } from '../../modules';
 import { useJsonSchema } from '../../utils/use-json-schema';
+import {
+  containerStyles,
+  contentStyles,
+  buttonContainerStyles,
+  editorContainerStyles,
+  editorContainerDarkModeStyles,
+  overflowWrapStyles,
+} from './drawer-view-styles';
+import {
+  useOnAsyncSuccess,
+  useIndexDefinitionChange,
+} from './drawer-view-hooks';
 
 /**
  * Strips snippet tab-stop placeholders (e.g. `${1:default}` → `default`)

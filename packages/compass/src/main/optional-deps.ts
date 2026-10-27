@@ -21,6 +21,7 @@ const attempts = [
 ] as const;
 const expectedPackages: string[] =
   require('../../package.json').config.hadron.rebuild.onlyModules;
+
 if (
   expectedPackages.some((pkg) => !attempts.find(([, pkg2]) => pkg === pkg2))
 ) {

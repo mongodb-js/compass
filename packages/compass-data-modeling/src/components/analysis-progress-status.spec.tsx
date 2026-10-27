@@ -1,13 +1,13 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen, waitFor } from '@mongodb-js/testing-library-compass';
-import AnalysisProgressStatus from './analysis-progress-status';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { renderWithStore, testConnections } from '../../test/setup-store';
 import {
   AnalysisProcessActionTypes,
   startAnalysis,
 } from '../store/analysis-process';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import AnalysisProgressStatus from './analysis-progress-status';
 
 describe('AnalysisProgressStatus', () => {
   async function renderAnalysisProgressStatus({

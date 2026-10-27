@@ -1,8 +1,8 @@
 import toNS from '@mongodb-js/mongodb-ns';
 import keyBy from 'lodash/keyBy';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
-import type { CreateShardKeyData } from '../store/reducer';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { CreateShardKeyData } from '../store/reducer';
 
 const TIMESTAMP_REGEX = /\[\d{1,2}:\d{2}:\d{2}\.\d{3}\]/;
 

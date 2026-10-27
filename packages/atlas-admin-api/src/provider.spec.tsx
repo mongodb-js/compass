@@ -1,7 +1,7 @@
+import { EventEmitter } from 'node:events';
 import React from 'react';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { EventEmitter } from 'node:events';
 import { render } from '@mongodb-js/testing-library-compass';
 import {
   AppRegistryProvider,

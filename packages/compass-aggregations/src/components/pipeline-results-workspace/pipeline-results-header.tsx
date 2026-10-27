@@ -1,8 +1,5 @@
 import React, { useCallback } from 'react';
 import { css, Overline, spacing } from '@mongodb-js/compass-components';
-import type { ResultsViewType } from './pipeline-results-list';
-import PipelinePagination from './pipeline-pagination';
-import PipelineResultsViewControls from './pipeline-results-view-controls';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
@@ -14,6 +11,9 @@ import { getStageOperator, isOutputStage } from '../../utils/stage';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import PipelineExportActions from '../pipeline-toolbar/pipeline-export-actions';
+import PipelineResultsViewControls from './pipeline-results-view-controls';
+import PipelinePagination from './pipeline-pagination';
+import type { ResultsViewType } from './pipeline-results-list';
 
 type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;

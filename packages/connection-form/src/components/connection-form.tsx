@@ -23,10 +23,6 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
-import ConnectionStringInput from './connection-string-input';
-import AdvancedConnectionOptions from './advanced-connection-options';
-import ReadPreferenceForm from './advanced-options-tabs/advanced-tab/read-preference-form';
-import { ConnectionFormModalActions } from './connection-form-modal-actions';
 import {
   useConnectForm,
   type ConnectionPersonalizationOptions,
@@ -40,6 +36,10 @@ import {
   useConnectionFormSetting,
 } from '../hooks/use-connect-form-settings';
 import { useConnectionColor } from '../hooks/use-connection-color';
+import { ConnectionFormModalActions } from './connection-form-modal-actions';
+import ReadPreferenceForm from './advanced-options-tabs/advanced-tab/read-preference-form';
+import AdvancedConnectionOptions from './advanced-connection-options';
+import ConnectionStringInput from './connection-string-input';
 import FormHelp from './form-help/form-help';
 
 const descriptionStyles = css({

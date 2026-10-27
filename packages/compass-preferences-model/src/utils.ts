@@ -1,7 +1,7 @@
-import { usePreference } from './react';
-import type { AllPreferences, PreferencesAccess, User } from '.';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
+import { usePreference } from './react';
 import { allPreferencesProps } from './preferences-schema';
+import type { AllPreferences, PreferencesAccess, User } from '.';
 
 /**
  * Checks if a given preference name is valid (exists in the preferences schema).

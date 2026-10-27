@@ -5,6 +5,9 @@ import Sinon from 'sinon';
 import { Double } from 'bson';
 import type { TypeCastTypes } from 'hadron-type-checker';
 
+import { setComboboxValue } from '../../../../../test/form-helper';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
 import { makeCreateCondition } from './match-condition-form';
 import MatchForm, {
   areUniqueExpressions,
@@ -15,10 +18,7 @@ import MatchForm, {
   toMatchConditionExpression,
   toMatchGroupExpression,
 } from './match';
-import { setComboboxValue } from '../../../../../test/form-helper';
-import { SINGLE_SELECT_LABEL } from '../field-combobox';
 import { makeCreateGroup } from './match-group-form';
-import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
 
 import type { MatchCondition } from './match';
 import type { CreateConditionFn } from './match-condition-form';

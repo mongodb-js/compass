@@ -14,16 +14,16 @@ import type {
   TransportRunnerConfig,
   UserConfig,
 } from 'mongodb-mcp-server';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createConnectionErrorHandler } from './tools-connection-error-handler';
 import { ToolsLogger } from './tools-logger';
 import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
-import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import {
   debugConnection,
   debugConnectionDescription,

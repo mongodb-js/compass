@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import HadronDocument from 'hadron-document';
+import type { BSONObject } from '../stores/crud-store';
 import type { EditableDocumentProps } from './editable-document';
 import EditableDocument from './editable-document';
 import type { ReadonlyDocumentProps } from './readonly-document';
 import ReadonlyDocument from './readonly-document';
-import type { BSONObject } from '../stores/crud-store';
 
 export type DocumentProps = {
   doc: HadronDocument | BSONObject;

@@ -3,10 +3,10 @@ import { useCurrentValueRef } from '@mongodb-js/compass-components';
 import type { syntaxTree } from '@codemirror/language';
 import type { Text } from '@codemirror/state';
 import type { EditorRef } from '../types';
-import type { Annotation } from './../editor';
 import { createCodemirrorLinter } from '../linter';
 import type { LintConfig } from '../linter';
 import { wrapLinterAnnotation } from '../lint-tooltip-exit-delay';
+import type { Annotation } from './../editor';
 
 type SyntaxNode = ReturnType<typeof syntaxTree>['topNode'];
 

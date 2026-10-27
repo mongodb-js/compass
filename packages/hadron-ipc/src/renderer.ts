@@ -1,7 +1,7 @@
-import { getResponseChannel } from './common';
 import electron from 'electron';
 import type { IpcRenderer } from 'electron';
 import createDebug from 'debug';
+import { getResponseChannel } from './common';
 import { deserializeErrorFromIpc, isSerializedError } from './serialized-error';
 
 const debug = createDebug('hadron-ipc:renderer');

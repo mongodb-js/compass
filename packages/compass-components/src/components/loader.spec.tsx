@@ -6,8 +6,8 @@ import {
   screen,
   fireEvent,
 } from '@mongodb-js/testing-library-compass';
-import { SpinLoader, CancelLoader } from './loader';
 import { expect } from 'chai';
+import { SpinLoader, CancelLoader } from './loader';
 
 function renderLoader() {
   return render(<SpinLoader size="12px" />);

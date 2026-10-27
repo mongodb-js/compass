@@ -1,7 +1,7 @@
 import React from 'react';
+import { spacing, css, Tooltip, Body } from '@mongodb-js/compass-components';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
-import { spacing, css, Tooltip, Body } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 

@@ -1,15 +1,15 @@
 import React, { useRef, useContext } from 'react';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from './types';
-import type { ExperimentTestName } from './growth-experiments';
-import { ExperimentationContext } from './experimentation-provider';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 import {
   useCurrentValueRef,
   useInitialValue,
 } from '@mongodb-js/compass-components';
+import { createTrack, type TelemetryServiceOptions } from './generic-track';
+import type { TrackFunction } from './types';
+import type { ExperimentTestName } from './growth-experiments';
+import { ExperimentationContext } from './experimentation-provider';
 
 const noop = () => {
   // noop

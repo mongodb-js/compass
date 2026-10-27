@@ -1,9 +1,9 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
 import { map, sortBy, sum, slice } from 'lodash';
-import shared from './shared';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { palette } from '@mongodb-js/compass-components';
+import shared from './shared';
 import { createD3Tip } from './create-d3-tip';
 
 const minicharts_d3fns_few = (changeQueryFn) => {

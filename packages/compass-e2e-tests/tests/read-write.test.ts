@@ -1,10 +1,10 @@
+import { expect } from 'chai';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
 } from '../helpers/compass.ts';
-import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import type { Compass } from '../helpers/compass.ts';

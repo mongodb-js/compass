@@ -1,9 +1,9 @@
 import path from 'node:path';
-import { expect } from 'chai';
 import fs from 'node:fs';
 import { Readable } from 'node:stream';
-import { guessFileType } from './guess-filetype';
+import { expect } from 'chai';
 import { fixtures } from '../../test/fixtures';
+import { guessFileType } from './guess-filetype';
 
 const expectedDelimiters = {
   'bad.csv': ',',

@@ -1,6 +1,5 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { ERROR_UPDATING_VIEW, updateView } from './update-view';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from '@mongodb-js/compass-app-registry';
@@ -9,6 +8,7 @@ import {
   ConnectionScopedAppRegistryImpl,
 } from '@mongodb-js/compass-connections/provider';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+import { ERROR_UPDATING_VIEW, updateView } from './update-view';
 
 // Importing this to stub showConfirmation
 import * as updateViewSlice from './update-view';

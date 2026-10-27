@@ -1,9 +1,9 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
-import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
 import { connectionSupports } from '@mongodb-js/compass-connections';
 import toNS from '@mongodb-js/mongodb-ns';
+import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
 
 /**
  * No dots in DB name error message.

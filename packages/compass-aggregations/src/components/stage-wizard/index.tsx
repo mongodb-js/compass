@@ -15,9 +15,11 @@ import {
   Badge,
   WarningSummary,
 } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
+import type { TypeCastTypes } from 'hadron-type-checker';
+import { useFieldsSchema } from '@mongodb-js/compass-field-store';
 import type { StageWizardUseCase } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { STAGE_WIZARD_USE_CASES } from '../aggregation-side-panel/stage-wizard-use-cases';
-import { connect } from 'react-redux';
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
 import {
   convertWizardToStage,
@@ -32,8 +34,6 @@ import { getSchema } from '../../utils/get-schema';
 import { getStageHelpLink } from '../../utils/stage';
 import type { SortableProps } from '../pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 import type { DocumentSchema } from '../../utils/get-schema';
-import type { TypeCastTypes } from 'hadron-type-checker';
-import { useFieldsSchema } from '@mongodb-js/compass-field-store';
 
 const containerStyles = css({
   display: 'flex',

@@ -2,15 +2,15 @@ import React from 'react';
 import { render, screen, fireEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
-
-import SSHTunnelIdentity from './ssh-tunnel-identity';
-import type { ConnectionFormError } from '../../../utils/validation';
-import { errorMessageByFieldName } from '../../../utils/validation';
 import {
   FileInputBackendProvider,
   createJSDomFileInputDummyBackend,
 } from '@mongodb-js/compass-components';
+import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
+
+import type { ConnectionFormError } from '../../../utils/validation';
+import { errorMessageByFieldName } from '../../../utils/validation';
+import SSHTunnelIdentity from './ssh-tunnel-identity';
 
 const formFields: {
   key: keyof SSHConnectionOptions;

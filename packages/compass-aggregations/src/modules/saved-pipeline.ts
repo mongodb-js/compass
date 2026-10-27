@@ -3,9 +3,9 @@ import {
   showConfirmation,
   ConfirmationModalVariant,
 } from '@mongodb-js/compass-components';
-import { createId } from './id';
-import type { PipelineBuilderThunkAction } from '.';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type { AnyAction } from 'redux';
+import { createId } from './id';
 import {
   getPipelineFromBuilderState,
   getPipelineStringFromBuilderState,
@@ -13,7 +13,7 @@ import {
   updatePipelinePreview,
 } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
-import type { AnyAction } from 'redux';
+import type { PipelineBuilderThunkAction } from '.';
 
 const PREFIX = 'aggregations/saved-pipeline';
 

@@ -8,15 +8,15 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+
+import HadronDocument from 'hadron-document';
 import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../../test/configure-store';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-
-import { PipelinePreview } from './pipeline-preview';
-import HadronDocument from 'hadron-document';
 import type { ConfigureStoreOptions } from '../../../stores/store';
+import { PipelinePreview } from './pipeline-preview';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelinePreview>> = {},

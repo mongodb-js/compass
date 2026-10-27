@@ -2,6 +2,17 @@ import React, { useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 
+import {
+  Body,
+  Button,
+  css,
+  EmptyContent,
+  IndexKeysBadge,
+  InlineDefinition,
+  nbsp,
+  spacing,
+} from '@mongodb-js/compass-components';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
 
@@ -18,6 +29,8 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
+import { createIndexOpened } from '../../modules/create-index';
 import { useRegularIndexesTable } from './use-regular-indexes-table';
 import type { CommonIndexInfo, MergedIndex } from './use-regular-indexes-table';
 import TypeField from './type-field';
@@ -25,19 +38,6 @@ import {
   COLUMNS_FOR_DRAWER,
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './regular-indexes-columns';
-import {
-  Body,
-  Button,
-  css,
-  EmptyContent,
-  IndexKeysBadge,
-  InlineDefinition,
-  nbsp,
-  spacing,
-} from '@mongodb-js/compass-components';
-import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
-import { createIndexOpened } from '../../modules/create-index';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 
 const indexDetailsForDrawerStyles = css({
   display: 'flex',

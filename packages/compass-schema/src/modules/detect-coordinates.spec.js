@@ -1,10 +1,10 @@
 'use strict';
-const detect = require('./detect-coordinates');
 const assert = require('node:assert');
+const _ = require('lodash');
 const legacyPairs = require('../../test/fixtures/legacy_pairs.json');
 const geoJSONTemplate = require('../../test/fixtures/geo_json.json');
 const unpromotedDoublesTemplate = require('../../test/fixtures/unpromoted_doubles.json');
-const _ = require('lodash');
+const detect = require('./detect-coordinates');
 
 describe('detect-coordinates', function () {
   describe('GeoJSON Documents', function () {

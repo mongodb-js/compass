@@ -9,6 +9,13 @@ import {
   useDarkMode,
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
+import toNS from '@mongodb-js/mongodb-ns';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
+import type {
+  WorkspaceTab,
+  CollectionTabInfo,
+  DatabaseTabInfo,
+} from '@mongodb-js/workspace-info';
 import {
   type WorkspacesState,
   closeTab,
@@ -23,16 +30,9 @@ import {
   selectTab,
   type OpenWorkspaceOptions,
 } from '../stores/workspaces';
-import { useWorkspacePlugins } from './workspaces-provider';
-import toNS from '@mongodb-js/mongodb-ns';
-import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
+import { useWorkspacePlugins } from './workspaces-provider';
 import { WorkspaceTabContextProvider } from './workspace-tab-context-provider';
-import type {
-  WorkspaceTab,
-  CollectionTabInfo,
-  DatabaseTabInfo,
-} from '@mongodb-js/workspace-info';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',

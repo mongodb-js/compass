@@ -1,5 +1,7 @@
-import chai from 'chai';
 import { promises as fs } from 'node:fs';
+import chai from 'chai';
+import type { ChainablePromiseElement } from 'webdriverio';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -17,14 +19,12 @@ import {
   createNumbersCollection,
 } from '../helpers/mongo-clients.ts';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline.ts';
-import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode.ts';
 import {
   isTestingWeb,
   isTestingWebAtlasCloud,
 } from '../helpers/test-runner-context.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
-import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 

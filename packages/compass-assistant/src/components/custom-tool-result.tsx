@@ -7,11 +7,11 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import React from 'react';
+import type { AtlasConnectionDebugResult } from '@mongodb-js/compass-generative-ai/provider';
 import { mapAtlasConnectionDebugResult } from '../tool-result-mapper';
 import type { ToolResultField, ToolResultFields } from '../tool-result-mapper';
 import { isDebuggerToolCall } from '../utils';
-import React from 'react';
-import type { AtlasConnectionDebugResult } from '@mongodb-js/compass-generative-ai/provider';
 
 const cardStyles = css({
   borderRadius: spacing[200],

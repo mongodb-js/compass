@@ -1,10 +1,10 @@
+import { z } from '@mongodb-js/compass-user-data';
 import {
   type SetModelEdit,
   EditListSchema,
   type Edit,
 } from './data-model-storage';
 import { downloadFile } from './export-diagram';
-import { z } from '@mongodb-js/compass-user-data';
 
 const kCurrentVersion = 1;
 const kFileTypeDescription = 'Compass Data Modeling Diagram';

@@ -15,7 +15,6 @@ import {
   AIExperienceEntry,
   createAIPlaceholderHTMLPlaceholder,
 } from '@mongodb-js/compass-generative-ai/provider';
-import { connect } from '../stores/context';
 import {
   useIsAIFeatureEnabled,
   usePreference,
@@ -25,14 +24,21 @@ import {
   useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  useFavoriteQueryStorageAccess,
+  useRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage/provider';
+import {
+  useSyncAssistantGlobalState,
+  useAssistantActions,
+} from '@mongodb-js/compass-assistant';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { connect } from '../stores/context';
 
 import {
   OPTION_DEFINITION,
   type QueryOption,
 } from '../constants/query-option-definition';
-import QueryOptionComponent from './query-option';
-import QueryHistoryButtonPopover from './query-history-button-popover';
-import { QueryBarRow } from './query-bar-row';
 import {
   applyQuery,
   openExportToLanguage,
@@ -46,22 +52,16 @@ import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery } from '../utils/query';
 import { isQueryValid } from '../utils/validate-query';
 import type { QueryProperty } from '../constants/query-properties';
-import { QueryAI } from './query-ai';
 import type {
   QueryBarThunkDispatch,
   RootState,
 } from '../stores/query-bar-store';
 import { hideInput, showInput } from '../stores/ai-query-reducer';
-import {
-  useFavoriteQueryStorageAccess,
-  useRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage/provider';
+import QueryOptionComponent from './query-option';
+import QueryHistoryButtonPopover from './query-history-button-popover';
+import { QueryBarRow } from './query-bar-row';
+import { QueryAI } from './query-ai';
 import { useQueryBarQuery } from './hooks';
-import {
-  useSyncAssistantGlobalState,
-  useAssistantActions,
-} from '@mongodb-js/compass-assistant';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 const queryBarFormStyles = css({
   display: 'flex',

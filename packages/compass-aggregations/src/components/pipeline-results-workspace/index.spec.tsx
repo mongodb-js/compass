@@ -4,10 +4,10 @@ import React from 'react';
 import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { renderWithStore } from '../../../test/configure-store';
 import type { AggregationsPluginServices } from '../../stores/store';
 import { PipelineResultsWorkspace } from './index';
-import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
 
 const rerankPreferences = {
   preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }),

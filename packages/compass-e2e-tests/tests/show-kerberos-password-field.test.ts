@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -7,7 +8,6 @@ import {
   TEST_COMPASS_WEB,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
-import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors.ts';
 import type { ConnectFormState } from '../helpers/connect-form-state.ts';
 

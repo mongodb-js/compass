@@ -1,11 +1,11 @@
-import FieldStorePlugin, { useAutocompleteFields } from './';
 import { expect } from 'chai';
-import { useFieldStoreService } from './stores/field-store-service';
 import {
   createPluginTestHelpers,
   cleanup,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
+import { useFieldStoreService } from './stores/field-store-service';
+import FieldStorePlugin, { useAutocompleteFields } from './';
 
 describe('useAutocompleteFields', function () {
   afterEach(cleanup);

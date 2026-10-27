@@ -1,12 +1,12 @@
 import type { Reducer } from 'redux';
-import { isAction } from './util';
-import type { DataModelingThunkAction } from './reducer';
-import { exportToJson, exportToPng } from '../services/export-diagram';
-import { selectCurrentModelFromState } from './diagram';
 import { openToast } from '@mongodb-js/compass-components';
 import type { DiagramInstance } from '@mongodb-js/compass-components';
 import { isCancelError } from '@mongodb-js/compass-utils';
+import { exportToJson, exportToPng } from '../services/export-diagram';
 import { downloadDiagram } from '../services/open-and-download-diagram';
+import { selectCurrentModelFromState } from './diagram';
+import type { DataModelingThunkAction } from './reducer';
+import { isAction } from './util';
 
 export type ExportDiagramFormat = 'png' | 'json' | 'diagram';
 

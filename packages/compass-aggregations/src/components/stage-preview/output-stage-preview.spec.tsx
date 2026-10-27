@@ -4,8 +4,8 @@ import { cleanup, render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { OutputStage } from './output-stage-preview';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import { OutputStage } from './output-stage-preview';
 
 describe('OutputStagePreview', function () {
   let preferences: PreferencesAccess;

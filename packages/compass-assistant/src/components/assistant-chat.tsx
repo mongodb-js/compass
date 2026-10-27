@@ -1,10 +1,4 @@
 import React, { useCallback, useEffect, useContext, useRef } from 'react';
-import type {
-  AssistantMessage,
-  ThreadedChat,
-} from '../compass-assistant-provider';
-import { AssistantActionsContext } from '../compass-assistant-provider';
-import { useChat } from '../@ai-sdk/react/use-chat';
 import {
   LgChatChatWindow,
   LgChatLeafygreenChatProvider,
@@ -23,23 +17,29 @@ import {
   useTelemetry,
   useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
-import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
-import { SuggestedPrompts } from './suggested-prompts';
-import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import { ToolToggle } from './tool-toggle';
-import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
+import type {
+  AssistantMessage,
+  ThreadedChat,
+} from '../compass-assistant-provider';
+import { AssistantActionsContext } from '../compass-assistant-provider';
+import { useChat } from '../@ai-sdk/react/use-chat';
+import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { useAssistantGlobalState } from '../assistant-global-state';
 import {
   isAssistantThinking,
   partIsApprovalRequest,
   partIsToolUI,
   stopChat,
 } from '../utils';
-import { AtlasConnectionStatus } from './atlas-connection-status';
 import { TOOL_DENIAL_REASONS } from '../prompts';
+import { SuggestedPrompts } from './suggested-prompts';
+import { ToolToggle } from './tool-toggle';
+import { ToolsIntroCard } from './tools-intro-card';
+import { AtlasConnectionStatus } from './atlas-connection-status';
 import { AssistantChatMessage } from './assistant-chat-message';
 
 const { ChatWindow } = LgChatChatWindow;

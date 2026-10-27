@@ -5,9 +5,9 @@ import {
   screen,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { SignalPopover, SignalHooksProvider } from './signal-popover';
 import { expect } from 'chai';
 import Sinon from 'sinon';
+import { SignalPopover, SignalHooksProvider } from './signal-popover';
 
 const signals = [
   {

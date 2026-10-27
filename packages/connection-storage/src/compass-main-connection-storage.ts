@@ -1,6 +1,6 @@
+import fsPromises from 'node:fs/promises';
 import { type HadronIpcMain, ipcMain } from '@mongodb-js/hadron-ipc';
 import { safeStorage } from 'electron';
-import fsPromises from 'node:fs/promises';
 import ConnectionString from 'mongodb-connection-string-url';
 
 import type {
@@ -9,8 +9,9 @@ import type {
 } from '@mongodb-js/connection-info';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
-import { deleteCompassAppNameParam } from './utils';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
+import { FileUserData, z } from '@mongodb-js/compass-user-data';
+import { deleteCompassAppNameParam } from './utils';
 import {
   serializeConnections,
   deserializeConnections,
@@ -19,7 +20,6 @@ import type {
   ImportConnectionOptions,
   ExportConnectionOptions,
 } from './import-export-connection';
-import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import type {
   ConnectionStorage,
   AutoConnectPreferences,

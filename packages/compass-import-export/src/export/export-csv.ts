@@ -1,33 +1,33 @@
 import fs from 'node:fs';
-import { EJSON } from 'bson';
-import type { Document } from 'bson';
 import { pipeline } from 'node:stream/promises';
 import { Transform } from 'node:stream';
 import type { Readable, Writable } from 'node:stream';
+import path from 'node:path';
+import os from 'node:os';
+import { EJSON } from 'bson';
+import type { Document } from 'bson';
 import toNS from '@mongodb-js/mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import Parser from 'stream-json/Parser';
 import StreamValues from 'stream-json/streamers/StreamValues';
-import path from 'node:path';
-import os from 'node:os';
 
-import { lookupValueForPath, ColumnRecorder } from './export-utils';
+import type { AggregationCursor, FindCursor } from 'mongodb';
 import {
   stringifyCSVValue,
   formatCSVLine,
   formatCSVValue,
   formatCSVHeaderName,
 } from '../csv/csv-utils';
+import type { Delimiter, Linebreak, PathPart } from '../csv/csv-types';
+import { createDebug } from '../utils/logger';
+import { lookupValueForPath, ColumnRecorder } from './export-utils';
 import type {
   ExportAggregation,
   ExportQuery,
   ExportResult,
 } from './export-types';
 
-import type { Delimiter, Linebreak, PathPart } from '../csv/csv-types';
-import { createDebug } from '../utils/logger';
-import type { AggregationCursor, FindCursor } from 'mongodb';
 import { createAggregationCursor, createFindCursor } from './export-cursor';
 
 const debug = createDebug('export-csv');

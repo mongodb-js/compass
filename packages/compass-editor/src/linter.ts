@@ -1,8 +1,8 @@
 import { linter } from '@codemirror/lint';
 import { syntaxTree } from '@codemirror/language';
-import type { Annotation } from './editor';
 import { EditorView } from '@codemirror/view';
 import type { Extension } from '@codemirror/state';
+import type { Annotation } from './editor';
 import { lintTooltipExitDelay } from './lint-tooltip-exit-delay';
 
 // Do not show inline (on-hover) tooltips for linting errors,

@@ -1,3 +1,6 @@
+/* eslint-disable import/newline-after-import */
+/* eslint-disable import/first */
+/* eslint-disable import/order */
 // THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
 import { setupHadronDistribution } from '../setup-hadron-distribution';
 setupHadronDistribution();

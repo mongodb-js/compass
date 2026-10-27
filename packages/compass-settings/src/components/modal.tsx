@@ -10,6 +10,9 @@ import {
   focusRing,
 } from '@mongodb-js/compass-components';
 
+import type { SettingsTabId } from '../stores/settings';
+import { saveSettings, closeModal, selectTab } from '../stores/settings';
+import type { RootState } from '../stores';
 import GeneralSettings, { generalFields } from './settings/general';
 import { ProxySettings, proxyFields } from './settings/proxy-settings';
 import OIDCSettings, { oidcFields } from './settings/oidc-settings';
@@ -22,9 +25,6 @@ import FeaturePreviewSettings, {
   developmentFeatureFlagFields,
 } from './settings/feature-preview';
 import Sidebar from './sidebar';
-import type { SettingsTabId } from '../stores/settings';
-import { saveSettings, closeModal, selectTab } from '../stores/settings';
-import type { RootState } from '../stores';
 
 type Settings = {
   tabId: SettingsTabId;

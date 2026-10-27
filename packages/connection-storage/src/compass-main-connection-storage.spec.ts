@@ -1,22 +1,21 @@
-import { expect } from 'chai';
-
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import { expect } from 'chai';
 import { UUID } from 'bson';
 import { sortBy } from 'lodash';
 
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import Sinon from 'sinon';
+
+import connection1310 from '../test/fixtures/favorite_connection_1.31.0.json';
+import connection1380 from '../test/fixtures/favorite_connection_1.38.0.json';
 import {
   initCompassMainConnectionStorage,
   type CompassMainConnectionStorage,
   type ConnectionWithLegacyProps,
   type ConnectionStorageIPCMain,
 } from './compass-main-connection-storage';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import Sinon from 'sinon';
-
-import connection1310 from '../test/fixtures/favorite_connection_1.31.0.json';
-import connection1380 from '../test/fixtures/favorite_connection_1.38.0.json';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');

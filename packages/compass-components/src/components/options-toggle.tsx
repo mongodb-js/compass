@@ -4,8 +4,8 @@ import { spacing } from '@leafygreen-ui/tokens';
 import type { InferredPolymorphicComponentType } from '@leafygreen-ui/polymorphic';
 
 import { useFocusRing } from '../hooks/use-focus-ring';
-import { Link, Icon } from './leafygreen';
 import { mergeProps } from '../utils/merge-props';
+import { Link, Icon } from './leafygreen';
 
 const optionContainerStyles = css({
   textAlign: 'center',

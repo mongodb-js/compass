@@ -9,8 +9,8 @@ import {
   render,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
-import { getDataServiceForConnection } from './connections-store-redux';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import { getDataServiceForConnection } from './connections-store-redux';
 
 const mockConnections = [
   {

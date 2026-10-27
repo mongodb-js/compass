@@ -1,5 +1,5 @@
-import reducer from './limit';
 import { expect } from 'chai';
+import reducer from './limit';
 
 describe('limit module', function () {
   describe('#reducer', function () {

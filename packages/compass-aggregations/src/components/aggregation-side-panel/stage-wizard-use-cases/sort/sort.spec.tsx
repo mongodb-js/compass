@@ -7,7 +7,6 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { SortForm } from './sort';
 import sinon from 'sinon';
 import {
   setSelectValue,
@@ -15,6 +14,7 @@ import {
 } from '../../../../../test/form-helper';
 import type { StageWizardFields } from '..';
 import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import { SortForm } from './sort';
 
 const SAMPLE_FIELDS: StageWizardFields = [
   {

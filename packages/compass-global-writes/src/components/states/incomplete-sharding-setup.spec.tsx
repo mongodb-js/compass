@@ -1,14 +1,14 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen, userEvent } from '@mongodb-js/testing-library-compass';
+import Sinon from 'sinon';
+import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { renderWithStore } from '../../../tests/create-store';
+import { type ShardZoneData } from '../../store/reducer';
 import {
   IncompleteShardingSetup,
   type IncompleteShardingSetupProps,
 } from './incomplete-sharding-setup';
-import Sinon from 'sinon';
-import { renderWithStore } from '../../../tests/create-store';
-import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { type ShardZoneData } from '../../store/reducer';
 
 describe('IncompleteShardingSetup', function () {
   const shardZones: ShardZoneData[] = [
