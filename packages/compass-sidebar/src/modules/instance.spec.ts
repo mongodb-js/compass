@@ -1,9 +1,6 @@
 import { expect } from 'chai';
-import { createInstance } from '../../test/helpers';
 import { spy, stub, type SinonSpy } from 'sinon';
 import type { DataService } from 'mongodb-data-service';
-import { setupInstance } from './instance';
-import type { RootState } from '.';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type {
@@ -11,6 +8,9 @@ import type {
   MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { createInstance } from '../../test/helpers';
+import { setupInstance } from './instance';
+import type { RootState } from '.';
 
 describe('sidebar instance', function () {
   let instanceOnSpy: SinonSpy;

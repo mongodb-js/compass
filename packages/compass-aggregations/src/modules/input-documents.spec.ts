@@ -9,8 +9,8 @@ import reducer, {
   refreshInputDocuments,
   ActionTypes,
 } from './input-documents';
-import type { RootState } from '.';
 import type { DataService } from './data-service';
+import type { RootState } from '.';
 
 describe('input documents module', function () {
   afterEach(function () {

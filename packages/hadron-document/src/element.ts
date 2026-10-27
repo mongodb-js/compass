@@ -2,8 +2,6 @@
 
 import EventEmitter from 'eventemitter3';
 import { isPlainObject, isArray, isEqual, isString } from 'lodash';
-import type { ObjectGeneratorOptions } from './object-generator';
-import ObjectGenerator from './object-generator';
 import TypeChecker, {
   convertBinaryUUID,
   getBsonType,
@@ -11,11 +9,13 @@ import TypeChecker, {
 } from 'hadron-type-checker';
 import { Binary, UUID } from 'bson';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
+import type { TypeCastTypes } from 'hadron-type-checker';
+import type { ObjectId } from 'bson';
+import type { ObjectGeneratorOptions } from './object-generator';
+import ObjectGenerator from './object-generator';
 import DateEditor from './editor/date';
 import { ElementEvents, type ElementEventsType } from './element-events';
 import type { Document } from './document';
-import type { TypeCastTypes } from 'hadron-type-checker';
-import type { ObjectId } from 'bson';
 import type {
   BSONArray,
   BSONObject,

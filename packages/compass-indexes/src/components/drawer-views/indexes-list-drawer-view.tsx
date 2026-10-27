@@ -1,16 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
-import type { RootState } from '../../modules';
-import type { State as RegularIndexesState } from '../../modules/regular-indexes';
-import type { State as SearchIndexesState } from '../../modules/search-indexes';
-import {
-  openCreateSearchIndexDrawerView,
-  refreshAllIndexes,
-  setRegularIndexesAccordionOpen,
-  startPollingAllIndexes,
-  stopPollingAllIndexes,
-} from '../../modules/indexes-drawer';
-import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
   Accordion,
   Button,
@@ -22,6 +11,20 @@ import {
   SpinLoader,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { RootState } from '../../modules';
+import type { State as RegularIndexesState } from '../../modules/regular-indexes';
+import type { State as SearchIndexesState } from '../../modules/search-indexes';
+import {
+  openCreateSearchIndexDrawerView,
+  refreshAllIndexes,
+  setRegularIndexesAccordionOpen,
+  startPollingAllIndexes,
+  stopPollingAllIndexes,
+} from '../../modules/indexes-drawer';
+import type { SearchIndexType } from '../../modules/indexes-drawer';
 import { createIndexOpened } from '../../modules/create-index';
 import { FetchStatuses } from '../../utils/fetch-status';
 import type { FetchStatus } from '../../utils/fetch-status';
@@ -31,9 +34,6 @@ import ViewPipelineIncompatibleBanner from '../view-incompatible-components/view
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import RegularIndexesDrawerTable from '../regular-indexes-table/regular-indexes-drawer-table';
 import SearchIndexesDrawerTable from '../search-indexes-table/search-indexes-drawer-table';
 

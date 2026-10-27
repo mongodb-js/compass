@@ -4,12 +4,12 @@ import {
   render as _render,
   screen,
 } from '@mongodb-js/testing-library-compass';
-import { ExplainPlanView } from './explain-plan-view';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import { activatePlugin } from '../stores';
+import { ExplainPlanView } from './explain-plan-view';
 
 const simpleExplain = new ExplainPlan({
   queryPlanner: {

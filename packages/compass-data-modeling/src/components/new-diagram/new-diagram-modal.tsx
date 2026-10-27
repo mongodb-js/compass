@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
+import { Modal } from '@mongodb-js/compass-components';
 import type { DataModelingState } from '../../store/reducer';
 import type { GenerateDiagramWizardState } from '../../store/generate-diagram-wizard';
 import {
@@ -7,12 +8,11 @@ import {
   confirmSelectedCollections,
   gotoStep,
 } from '../../store/generate-diagram-wizard';
-import { Modal } from '@mongodb-js/compass-components';
-import SetupDiagramStep from './setup-diagram-step';
-import SelectCollectionsStep from './select-collections-step';
 import { selectIsAnalysisInProgress } from '../../store/analysis-process';
 import { ModalStepContainer } from '../model-step-container';
 import { areSamplingOptionsValid } from '../../store/sampling-options';
+import SelectCollectionsStep from './select-collections-step';
+import SetupDiagramStep from './setup-diagram-step';
 import DiagramSettingsStep from './new-diagram-settings-step';
 
 type NewDiagramModalProps = {

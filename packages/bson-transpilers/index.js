@@ -1,5 +1,6 @@
 'use strict';
 const antlr4 = require('antlr4');
+const yaml = require('js-yaml');
 const ECMAScriptLexer = require('./lib/antlr/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/antlr/ECMAScriptParser.js');
 
@@ -12,7 +13,6 @@ const {
   BsonTranspilersUnimplementedError,
 } = require('./helper/error');
 
-const yaml = require('js-yaml');
 const schema = yaml.DEFAULT_SCHEMA.extend(require('js-yaml-js-types').all);
 
 const getCodeGenerationVisitor = require('./codegeneration/CodeGenerationVisitor');

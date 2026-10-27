@@ -1,5 +1,6 @@
 'use strict';
 const config = require('../config/error.json');
+
 const errors = {};
 
 Object.keys(config).forEach((error) => {

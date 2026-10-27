@@ -18,15 +18,15 @@ import {
 
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import toSimplifiedFieldInfo from './to-simplified-field-info';
+import HadronDocument from 'hadron-document';
 import {
   openMockDataGeneratorSettings,
   analyzeCollectionSchema,
 } from '../../modules/collection-tab';
 import type { CollectionState } from '../../modules/collection-tab';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
+import toSimplifiedFieldInfo from './to-simplified-field-info';
 import type { MockDataGeneratorState } from './types';
-import HadronDocument from 'hadron-document';
 import { FAKER_API_LINK } from './constants';
 
 interface RawSchemaConfirmationScreenProps {

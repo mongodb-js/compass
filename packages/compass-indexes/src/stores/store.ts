@@ -1,8 +1,22 @@
 import type { Store } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
+import thunk from 'redux-thunk';
+import type { DataService } from 'mongodb-data-service';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type {
+  Collection,
+  MongoDBInstance,
+} from '@mongodb-js/compass-app-stores/provider';
+import type { Logger } from '@mongodb-js/compass-logging';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { IndexesThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
-import thunk from 'redux-thunk';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { COLL_INITIAL_STATE, VIEW_INITIAL_STATE } from '../modules/index-view';
@@ -17,31 +31,17 @@ import {
   fetchSearchIndexes,
   stopPollingSearchIndexes,
 } from '../modules/search-indexes';
-import type { DataService } from 'mongodb-data-service';
-import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import type {
-  Collection,
-  MongoDBInstance,
-} from '@mongodb-js/compass-app-stores/provider';
-import type { Logger } from '@mongodb-js/compass-logging';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
-import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import {
   collectionStatsFetched,
   extractCollectionStats,
 } from '../modules/collection-stats';
-import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RollingIndexesService } from '../modules/rolling-indexes-service';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
   openIndexesListDrawerView,
 } from '../modules/indexes-drawer';
 import type { SearchIndexType } from '../modules/indexes-drawer';
-import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 export type IndexesDataServiceProps =
   | 'indexes'

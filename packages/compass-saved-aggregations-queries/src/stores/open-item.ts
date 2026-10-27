@@ -1,8 +1,8 @@
 import type { Action, ActionCreator, AnyAction, Reducer } from 'redux';
-import type { SavedQueryAggregationThunkAction } from '.';
-import type { Item } from './aggregations-queries-items';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import type { Item } from './aggregations-queries-items';
+import type { SavedQueryAggregationThunkAction } from '.';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,

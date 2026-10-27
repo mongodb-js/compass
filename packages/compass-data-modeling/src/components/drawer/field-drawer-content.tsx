@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import type {
-  FieldPath,
-  Relationship,
-} from '../../services/data-model-storage';
 import {
   Combobox,
   ComboboxOption,
   TextInput,
   useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
+import type {
+  FieldPath,
+  Relationship,
+} from '../../services/data-model-storage';
 import {
   changeFieldType,
   createNewRelationship,
@@ -21,12 +21,6 @@ import {
   selectRelationship,
 } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
-import {
-  DMDrawerSection,
-  DMFormFieldContainer,
-} from './drawer-section-components';
-import { useChangeOnBlur } from './use-change-on-blur';
-import { RelationshipsSection } from './relationships-section';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
 import {
   areFieldPathsEqual,
@@ -34,6 +28,12 @@ import {
   isRelationshipOfAField,
 } from '../../utils/utils';
 import { FIELD_TYPES } from '../../utils/field-types';
+import {
+  DMDrawerSection,
+  DMFormFieldContainer,
+} from './drawer-section-components';
+import { useChangeOnBlur } from './use-change-on-blur';
+import { RelationshipsSection } from './relationships-section';
 
 type FieldDrawerContentProps = {
   namespace: string;

@@ -16,10 +16,7 @@ import {
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { Annotation } from '@mongodb-js/compass-editor';
-import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
-import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
-import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import {
   useTelemetry,
@@ -28,12 +25,15 @@ import {
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { COLLECTION, VIEW, TIME_SERIES } from '@mongodb-js/mongodb-constants';
 import {
   getSearchStageInfoFromPipeline,
   getStageOperator,
 } from '../../../utils/stage';
 import type { SearchStageOperator } from '../../../utils/stage';
-import { COLLECTION, VIEW, TIME_SERIES } from '@mongodb-js/mongodb-constants';
+import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
+import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
+import type { RootState } from '../../../modules';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,

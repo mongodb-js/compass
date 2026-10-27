@@ -1,5 +1,5 @@
-import { getStagesFromBuilderState } from './pipeline-builder/builder-helpers';
 import { getDestinationNamespaceFromStage } from '../utils/stage';
+import { getStagesFromBuilderState } from './pipeline-builder/builder-helpers';
 import { disableFocusMode } from './focus-mode';
 import type { PipelineBuilderThunkAction } from '.';
 

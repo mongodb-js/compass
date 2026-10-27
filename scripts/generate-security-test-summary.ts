@@ -1,9 +1,9 @@
 #!/usr/bin/env ts-node
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import ts from 'typescript';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import ts from 'typescript';
 
 const securityTestTag = '@securityTest';
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { StageWizard } from './index';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import * as StageWizardUseCases from '../aggregation-side-panel/stage-wizard-use-cases';
+import { StageWizard } from './index';
 
 const renderStageWizard = (
   props: Partial<ComponentProps<typeof StageWizard>> = {}

@@ -6,15 +6,6 @@ import type {
 import { createStore, applyMiddleware } from 'redux';
 
 import thunk from 'redux-thunk';
-import reducer, {
-  selectTab,
-  collectionMetadataFetched,
-  cancelSchemaAnalysis,
-  openMockDataGeneratorModal,
-  mockDataGeneratorModalClosed,
-} from '../modules/collection-tab';
-import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
-import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -23,8 +14,17 @@ import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/prov
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
-import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
 import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
+import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
+import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
+import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
+import reducer, {
+  selectTab,
+  collectionMetadataFetched,
+  cancelSchemaAnalysis,
+  openMockDataGeneratorModal,
+  mockDataGeneratorModalClosed,
+} from '../modules/collection-tab';
 import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
   SCHEMA_ANALYSIS_STATE_ERROR,

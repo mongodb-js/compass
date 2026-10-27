@@ -5,16 +5,16 @@ import React, { useContext } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { cloneDeep } from 'lodash';
+import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
+import { useInitialValue } from '@mongodb-js/compass-components';
+import { ConnectionsStoreContext } from './stores/store-context';
 import {
   autoconnectCheck,
   configureStore,
   disconnect,
   loadConnections,
 } from './stores/connections-store-redux';
-import { cloneDeep } from 'lodash';
-import { ConnectionsStoreContext } from './stores/store-context';
-import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
-import { useInitialValue } from '@mongodb-js/compass-components';
 import ConnectionsComponent from './stores/connections';
 
 export type { ConnectionFeature } from './utils/connection-supports';

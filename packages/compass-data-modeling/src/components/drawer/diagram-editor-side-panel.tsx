@@ -1,15 +1,13 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import toNS from '@mongodb-js/mongodb-ns';
-import type { DataModelingState } from '../../store/reducer';
 import {
   css,
   DrawerSection,
   ItemActionControls,
   spacing,
 } from '@mongodb-js/compass-components';
-import CollectionDrawerContent from './collection-drawer-content';
-import RelationshipDrawerContent from './relationship-drawer-content';
+import type { DataModelingState } from '../../store/reducer';
 import {
   deleteCollection,
   deleteRelationship,
@@ -18,10 +16,12 @@ import {
   type SelectedItems,
 } from '../../store/diagram';
 import { getDefaultRelationshipName } from '../../utils';
-import FieldDrawerContent from './field-drawer-content';
 import type { FieldPath } from '../../services/data-model-storage';
 import { getFieldFromSchema } from '../../utils/schema-traversal';
 import { isIdField } from '../../utils/utils';
+import FieldDrawerContent from './field-drawer-content';
+import CollectionDrawerContent from './collection-drawer-content';
+import RelationshipDrawerContent from './relationship-drawer-content';
 import DiagramOverviewDrawerContent from './diagram-overview-drawer-content';
 
 export const DATA_MODELING_DRAWER_ID = 'data-modeling-drawer';

@@ -1,7 +1,7 @@
-import { fetchExplainForPipeline } from './insights';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import configureStore from '../../test/configure-store';
+import { fetchExplainForPipeline } from './insights';
 
 const simpleExplain = {
   queryPlanner: {

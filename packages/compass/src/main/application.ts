@@ -4,13 +4,6 @@ import { EventEmitter } from 'node:events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
 import { app, safeStorage, session, utilityProcess } from 'electron';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
-import type { AutoUpdateManagerState } from './auto-update-manager';
-import { CompassAutoUpdateManager } from './auto-update-manager';
-import { CompassLogging } from './logging';
-import { CompassTelemetry } from './telemetry';
-import { CompassWindowManager } from './window-manager';
-import { CompassMenu } from './menu';
-import { setupCSFLELibrary } from './setup-csfle-library';
 import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
@@ -21,8 +14,6 @@ import {
 } from '@mongodb-js/compass-preferences-model';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { setupTheme } from './theme';
-import { setupProtocolHandlers } from './protocol-handling';
 import { initCompassMainConnectionStorage } from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type {
@@ -36,8 +27,17 @@ import {
   extractProxySecrets,
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
-import { handleSquirrelWindowsStartup } from './squirrel-startup';
 import { utilityPortChannel } from '@mongodb-js/compass-utils';
+import type { AutoUpdateManagerState } from './auto-update-manager';
+import { CompassAutoUpdateManager } from './auto-update-manager';
+import { CompassLogging } from './logging';
+import { CompassTelemetry } from './telemetry';
+import { CompassWindowManager } from './window-manager';
+import { CompassMenu } from './menu';
+import { setupCSFLELibrary } from './setup-csfle-library';
+import { setupTheme } from './theme';
+import { setupProtocolHandlers } from './protocol-handling';
+import { handleSquirrelWindowsStartup } from './squirrel-startup';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();

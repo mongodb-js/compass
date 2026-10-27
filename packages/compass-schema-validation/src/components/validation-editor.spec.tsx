@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { ValidationEditor } from './validation-editor';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { ValidationEditor } from './validation-editor';
 
 async function renderValidationEditor(
   props: Partial<React.ComponentProps<typeof ValidationEditor>>

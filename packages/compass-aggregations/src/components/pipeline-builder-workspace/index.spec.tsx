@@ -8,8 +8,8 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { renderWithStore } from '../../../test/configure-store';
-import { PipelineBuilderWorkspace } from '.';
 import { toggleSidePanel } from '../../modules/side-panel';
+import { PipelineBuilderWorkspace } from '.';
 
 const renderBuilderWorkspace = async (
   props: Partial<ComponentProps<typeof PipelineBuilderWorkspace>> = {}

@@ -1,6 +1,15 @@
 import { expect } from 'chai';
-import { type GlobalWritesStore } from '.';
+import sinon from 'sinon';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 import { setupStore } from '../../tests/create-store';
+import type {
+  AtlasShardKey,
+  AutomationAgentDeploymentStatusApiResponse,
+  AutomationAgentProcess,
+  ClusterDetailsApiResponse,
+  ManagedNamespace,
+  ShardZoneMapping,
+} from '../services/atlas-global-writes-service';
 import {
   createShardKey,
   type CreateShardKeyData,
@@ -10,17 +19,8 @@ import {
   POLLING_INTERVAL,
   type ShardKey,
 } from './reducer';
-import sinon from 'sinon';
-import type {
-  AtlasShardKey,
-  AutomationAgentDeploymentStatusApiResponse,
-  AutomationAgentProcess,
-  ClusterDetailsApiResponse,
-  ManagedNamespace,
-  ShardZoneMapping,
-} from '../services/atlas-global-writes-service';
-import { waitFor } from '@mongodb-js/testing-library-compass';
 import * as globalWritesReducer from './reducer';
+import { type GlobalWritesStore } from '.';
 
 const DB = 'test';
 const COLL = 'coll';

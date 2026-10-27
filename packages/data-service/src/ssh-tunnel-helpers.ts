@@ -1,5 +1,5 @@
-import type { ConnectionOptions } from './connection-options';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
+import type { ConnectionOptions } from './connection-options';
 
 export function getTunnelOptions(
   connectionOptions: ConnectionOptions,

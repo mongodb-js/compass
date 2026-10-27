@@ -3,7 +3,26 @@ import type { Document } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
-import { PipelineBuilder } from './pipeline-builder';
+import HadronDocument from 'hadron-document';
+import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
+import Sinon from 'sinon';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import {
+  createNoopTrack,
+  ExperimentTestGroups,
+} from '@mongodb-js/compass-telemetry/provider';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
+import AppRegistry from '@mongodb-js/compass-app-registry';
+import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
+import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+import { mockDataService } from '../../../test/mocks/data-service';
+import reducer from '../';
+import { getId } from './stage-ids';
+import type Stage from './stage';
+import { DEFAULT_PREVIEW_DEBOUNCE_MS } from './pipeline-preview-manager';
+import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
 import {
   changeStageOperator,
   changeStageValue,
@@ -22,26 +41,7 @@ import {
   convertWizardToStage,
   StageEditorActionTypes,
 } from './stage-editor';
-import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
-import { DEFAULT_PREVIEW_DEBOUNCE_MS } from './pipeline-preview-manager';
-import HadronDocument from 'hadron-document';
-import reducer from '../';
-import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
-import Sinon from 'sinon';
-import type Stage from './stage';
-import { mockDataService } from '../../../test/mocks/data-service';
-import { getId } from './stage-ids';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import {
-  createNoopTrack,
-  ExperimentTestGroups,
-} from '@mongodb-js/compass-telemetry/provider';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
-import AppRegistry from '@mongodb-js/compass-app-registry';
-import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
-import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+import { PipelineBuilder } from './pipeline-builder';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 

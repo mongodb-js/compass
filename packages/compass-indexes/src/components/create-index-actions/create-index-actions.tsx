@@ -1,10 +1,10 @@
 import React from 'react';
 import { css, Banner, spacing, Button } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { areAllFieldsFilledIn } from '../../utils/create-index-modal-validation';
 import type { Field } from '../../modules/create-index';
 import type { RootState } from '../../modules';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   display: 'flex',

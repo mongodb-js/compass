@@ -1,11 +1,16 @@
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { promises as fs } from 'node:fs';
 import { useCallback, useEffect, useState } from 'react';
 import {
   type ConnectionStorage,
   useConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
 // This plugin is an exception from the rule
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { promises as fs } from 'node:fs';
+import {
+  useConnectionActions,
+  useConnectionsList,
+} from '@mongodb-js/compass-connections/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   COMMON_INITIAL_STATE,
   useImportExportConnectionsCommon,
@@ -15,11 +20,6 @@ import type {
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
-import {
-  useConnectionActions,
-  useConnectionsList,
-} from '@mongodb-js/compass-connections/provider';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
   isExistingConnection: boolean;

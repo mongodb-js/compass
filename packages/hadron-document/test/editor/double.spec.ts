@@ -1,7 +1,7 @@
 import { Double } from 'bson';
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { DoubleEditor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('DoubleEditor', function () {
   describe('#start', function () {

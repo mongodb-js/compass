@@ -8,10 +8,10 @@ import {
   waitFor,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import BulkUpdateModal from './bulk-update-modal';
 
 import { FavoriteQueryStorageProvider } from '@mongodb-js/my-queries-storage/provider';
 import { createElectronFavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
+import BulkUpdateModal from './bulk-update-modal';
 
 // Create mock storage access object for testing
 const mockFavoriteQueryStorage = createElectronFavoriteQueryStorage({

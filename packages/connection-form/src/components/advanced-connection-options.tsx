@@ -8,9 +8,9 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
-import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 import type { ConnectionFormError } from '../utils/validation';
+import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
 
 const disabledOverlayStyles = css({
   position: 'absolute',

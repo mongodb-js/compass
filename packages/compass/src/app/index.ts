@@ -21,10 +21,8 @@
  */
 
 // Inject CSP to prevent any CSP violations.
-import { injectCSP } from './utils/csp';
 
 // Setup paths and environment variables for electron globals
-import { setupHadronDistribution } from '../setup-hadron-distribution';
 
 // DNS Configuration
 // Ensures IPv4 is preferred over IPv6 to avoid potential connection issues
@@ -35,6 +33,8 @@ import dns from 'node:dns';
 // Increases the default maximum number of listeners to prevent
 // potential memory leaks in development mode
 import EventEmitter from 'node:events';
+import { setupHadronDistribution } from '../setup-hadron-distribution';
+import { injectCSP } from './utils/csp';
 
 // ----------------------------------------------------------------------------
 // NOTE: keep this import last to avoid any potential issues with stateful setup

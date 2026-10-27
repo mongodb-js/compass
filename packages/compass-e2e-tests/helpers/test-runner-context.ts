@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import {
   getConnectionTitle,
   type ConnectionInfo,
@@ -7,7 +8,6 @@ import yargs from 'yargs';
 import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
-import { execFileSync } from 'node:child_process';
 
 export const RUN_ID = (() => {
   const commitHash = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {

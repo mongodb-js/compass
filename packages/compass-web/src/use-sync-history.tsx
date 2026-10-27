@@ -8,11 +8,11 @@ import type {
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
 import type { History, Blocker } from 'history';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   getRouteFromWorkspaceTab,
   getWorkspaceTabFromRoute,
 } from './url-builder';
-import { useCallback, useEffect, useRef } from 'react';
 
 export type { History };
 

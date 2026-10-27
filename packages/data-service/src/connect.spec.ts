@@ -1,20 +1,20 @@
 import { promises as fs } from 'node:fs';
 
-import createTestEnvs from '@mongodb-js/devtools-docker-test-envs';
-import { expect } from 'chai';
 import util from 'node:util';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
 import path from 'node:path';
 import os from 'node:os';
+import createTestEnvs from '@mongodb-js/devtools-docker-test-envs';
+import { expect } from 'chai';
+import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 import { UUID } from 'mongodb';
 
+import { MongoLogWriter } from 'mongodb-log-writer';
 import connect from './connect';
 import type { ConnectionOptions } from './connection-options';
 import type { DataServiceImpl, default as DataService } from './data-service';
 import { redactConnectionOptions } from './redact';
 import { runCommand } from './run-command';
-import { MongoLogWriter } from 'mongodb-log-writer';
 
 const IS_CI = process.env.EVERGREEN_BUILD_VARIANT || process.env.CI === 'true';
 const SHOULD_DEBUG =

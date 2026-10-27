@@ -7,8 +7,8 @@ import {
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import Settings from './settings';
 import { INITIAL_STATE } from '../../modules/settings';
+import Settings from './settings';
 
 function renderSettings(
   props: Partial<React.ComponentProps<typeof Settings>> = {},

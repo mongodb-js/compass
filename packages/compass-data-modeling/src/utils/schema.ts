@@ -1,9 +1,9 @@
+import type { FieldPath, FieldData } from '../services/data-model-storage';
 import {
   getDirectChildren,
   getFieldFromSchema,
   traverseSchema,
 } from './schema-traversal';
-import type { FieldPath, FieldData } from '../services/data-model-storage';
 
 export function getNewUnusedFieldName(
   jsonSchema: FieldData,

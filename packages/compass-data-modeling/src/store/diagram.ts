@@ -1,6 +1,12 @@
 import type { Reducer } from 'redux';
 import { UUID } from 'bson';
-import { isAction } from './util';
+import { memoize } from 'lodash';
+import {
+  getCoordinatesForNewNode,
+  type openToast as _openToast,
+  showConfirmation,
+  showPrompt,
+} from '@mongodb-js/compass-components';
 import {
   type DataModelCollection,
   type EditAction,
@@ -11,15 +17,6 @@ import {
   type MongoDBDataModelDescription,
   type StaticModel,
 } from '../services/data-model-storage';
-import { AnalysisProcessActionTypes } from './analysis-process';
-import { memoize } from 'lodash';
-import type { DataModelingState, DataModelingThunkAction } from './reducer';
-import {
-  getCoordinatesForNewNode,
-  type openToast as _openToast,
-  showConfirmation,
-  showPrompt,
-} from '@mongodb-js/compass-components';
 import {
   getDiagramContentsFromFile,
   getDiagramName,
@@ -29,11 +26,14 @@ import {
   getFieldFromSchema,
   getSchemaWithNewTypes,
 } from '../utils/schema-traversal';
-import { applyEdit as _applyEdit } from './apply-edit';
 import {
   extractFieldsFromFieldData,
   getNewUnusedFieldName,
 } from '../utils/schema';
+import type { DataModelingState, DataModelingThunkAction } from './reducer';
+import { AnalysisProcessActionTypes } from './analysis-process';
+import { applyEdit as _applyEdit } from './apply-edit';
+import { isAction } from './util';
 
 function isNonEmptyArray<T>(arr: T[]): arr is [T, ...T[]] {
   return Array.isArray(arr) && arr.length > 0;

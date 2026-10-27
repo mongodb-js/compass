@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { css, palette } from '@mongodb-js/compass-components';
 import Pipeline from '../pipeline';
 import { clonePipeline } from '../../modules/clone-pipeline';
 import { saveCurrentPipeline } from '../../modules/saved-pipeline';
@@ -23,7 +24,6 @@ import {
 
 import type { RootState } from '../../modules';
 import type { PipelineProps } from '../pipeline/pipeline';
-import { css, palette } from '@mongodb-js/compass-components';
 import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
 import { isSearchStage } from '../../utils/stage';
 

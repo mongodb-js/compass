@@ -11,6 +11,8 @@ import {
   Decimal128,
 } from 'bson';
 import { expect } from 'chai';
+import moment from 'moment';
+import Sinon from 'sinon';
 import { Document, Element, ElementEvents } from '../src/';
 import type { ElementList } from '../src/element';
 import {
@@ -18,8 +20,6 @@ import {
   DEFAULT_VISIBLE_ELEMENTS,
   isValueExpandable,
 } from '../src/element';
-import moment from 'moment';
-import Sinon from 'sinon';
 
 describe('Element', function () {
   describe('#get', function () {

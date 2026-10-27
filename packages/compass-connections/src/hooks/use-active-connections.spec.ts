@@ -1,4 +1,3 @@
-import { useActiveConnections } from './use-active-connections';
 import {
   cleanup,
   renderHookWithConnections,
@@ -6,6 +5,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { useActiveConnections } from './use-active-connections';
 
 const mockConnections: ConnectionInfo[] = [
   {

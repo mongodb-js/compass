@@ -1,9 +1,9 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
 import { render, screen } from '@mongodb-js/testing-library-compass';
-import JSONEditor from './json-editor';
 import HadronDocument from 'hadron-document';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
+import JSONEditor from './json-editor';
 
 function renderJSONEditor(
   props: Partial<ComponentProps<typeof JSONEditor>> = {}

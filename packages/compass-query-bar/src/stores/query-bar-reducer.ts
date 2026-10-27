@@ -1,13 +1,14 @@
 import type { Action, Reducer } from 'redux';
 import { cloneDeep, isEmpty } from 'lodash';
 import type { Document } from 'mongodb';
+import type {
+  RecentQuery,
+  FavoriteQuery,
+} from '@mongodb-js/my-queries-storage';
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
 } from '../constants/query-bar-store';
-import type { QueryBarThunkAction } from './query-bar-store';
-import { AIQueryActionTypes } from './ai-query-reducer';
-import type { AIQuerySucceededAction } from './ai-query-reducer';
 import type {
   QueryProperty,
   BaseQuery,
@@ -24,10 +25,9 @@ import { isQueryFieldsValid, validateField } from '../utils/validate-query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
 import { getQueryAttributes, isAction, isQueryEqual } from '../utils';
-import type {
-  RecentQuery,
-  FavoriteQuery,
-} from '@mongodb-js/my-queries-storage';
+import type { AIQuerySucceededAction } from './ai-query-reducer';
+import { AIQueryActionTypes } from './ai-query-reducer';
+import type { QueryBarThunkAction } from './query-bar-store';
 
 type QueryBarState = {
   isReadonlyConnection: boolean;

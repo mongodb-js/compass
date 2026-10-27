@@ -35,12 +35,11 @@ import {
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 
+import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { BSONObject } from '../stores/crud-store';
 import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
-
-import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const modalContentStyles = css({
   width: '100%',

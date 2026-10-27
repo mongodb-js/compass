@@ -1,10 +1,10 @@
+import { expect } from 'chai';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { cloneDeep } from 'lodash';
 import {
   serializeConnections,
   deserializeConnections,
 } from './import-export-connection';
-import { expect } from 'chai';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { cloneDeep } from 'lodash';
 
 const CONNECTIONS: ConnectionInfo[] = [
   {

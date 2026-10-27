@@ -9,8 +9,8 @@ import {
   TextInput,
 } from '@mongodb-js/compass-components';
 
-import type { Item } from '../stores/aggregations-queries-items';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { Item } from '../stores/aggregations-queries-items';
 
 interface SelectState {
   database?: string;

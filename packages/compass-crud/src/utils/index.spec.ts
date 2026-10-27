@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 
+import Document from 'hadron-document';
+import { BSON } from 'bson';
 import {
   objectContainsRegularExpression,
   shouldShowUnboundArrayInsight,
   validateSort,
 } from './';
-import Document from 'hadron-document';
-import { BSON } from 'bson';
 
 describe('utils', function () {
   describe('objectContainsRegularExpression', function () {

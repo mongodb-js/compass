@@ -2,6 +2,8 @@ import type { Action, Reducer } from 'redux';
 import type { Document } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { isAction } from '../../utils/is-action';
+import type { RestorePipelineAction } from '../saved-pipeline';
+import { RESTORE_PIPELINE } from '../saved-pipeline';
 import {
   getPipelineFromBuilderState,
   mapPipelineModeToEditorViewType,
@@ -9,8 +11,6 @@ import {
 } from './builder-helpers';
 import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
-import type { RestorePipelineAction } from '../saved-pipeline';
-import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {
   LoadGeneratedPipelineAction,

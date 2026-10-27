@@ -1,14 +1,14 @@
 import React from 'react';
-import { Provider } from '../stores/context';
-import { configureStore } from '../stores/query-bar-store';
-import { useIsLastAppliedQueryOutdated } from './hooks';
 import {
   renderHook,
   cleanup,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import { Provider } from '../stores/context';
+import { configureStore } from '../stores/query-bar-store';
 import { applyQuery, changeField } from '../stores/query-bar-reducer';
+import { useIsLastAppliedQueryOutdated } from './hooks';
 
 describe('useIsLastAppliedQueryOutdated', function () {
   function render(source = 'foo') {

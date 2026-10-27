@@ -1,21 +1,21 @@
 // THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
-import { setupHadronDistribution } from '../setup-hadron-distribution';
-// ------------------------------------------------------------
-
 import { app, dialog, crashReporter } from 'electron';
-import { handleUncaughtException } from './handle-uncaught-exception';
-import { handleUnhandledRejection } from './handle-unhandled-rejection';
 import { initialize as initializeElectronRemote } from '@electron/remote/main';
-import {
-  doImportConnections,
-  doExportConnections,
-} from './import-export-connections';
 import {
   parseAndValidateGlobalPreferences,
   getHelpText,
   getExampleConfigFile,
 } from '@mongodb-js/compass-preferences-model';
 import chalk from 'chalk';
+import { setupHadronDistribution } from '../setup-hadron-distribution';
+// ------------------------------------------------------------
+
+import { handleUncaughtException } from './handle-uncaught-exception';
+import { handleUnhandledRejection } from './handle-unhandled-rejection';
+import {
+  doImportConnections,
+  doExportConnections,
+} from './import-export-connections';
 import { installEarlyLoggingListener } from './logging';
 import { installEarlyOpenUrlListener } from './window-manager';
 

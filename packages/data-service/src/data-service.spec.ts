@@ -1,4 +1,5 @@
 import assert from 'node:assert';
+import EventEmitter from 'node:events';
 import { bsonType, Int32, ObjectId, UUID } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -7,20 +8,19 @@ import { MongoClient, MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
 import sinon from 'sinon';
 import ConnectionString from 'mongodb-connection-string-url';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { range } from 'lodash';
+import type { ClientMockOptions } from '../test/helpers';
+import { createMongoClientMock } from '../test/helpers';
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
 import type {
   ConnectionFleOptions,
   ConnectionOptions,
 } from './connection-options';
-import EventEmitter from 'node:events';
-import type { ClientMockOptions } from '../test/helpers';
-import { createMongoClientMock } from '../test/helpers';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
-import { range } from 'lodash';
 import type { DataServiceImplLogger, MongoLogId } from './logger';
 
 const { expect } = chai;

@@ -1,9 +1,9 @@
 import process from 'node:process';
 
 import type { ParentPort } from 'electron';
+import { listen } from '@mongodb-js/compass-utils';
 import { onPort } from '../ipc.mts';
 import { createUtilityLogger } from '../logging.mts';
-import { listen } from '@mongodb-js/compass-utils';
 
 export const name = 'embedded-shell';
 

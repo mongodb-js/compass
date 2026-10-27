@@ -16,12 +16,12 @@ import type { ConnectionOptions } from 'mongodb-data-service';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Binary } from 'bson';
 
-import ConnectionForm from '../../../';
-import { getNextKmsProviderName } from './kms-provider-content';
 import {
   FileInputBackendProvider,
   createJSDomFileInputDummyBackend,
 } from '@mongodb-js/compass-components';
+import ConnectionForm from '../../../';
+import { getNextKmsProviderName } from './kms-provider-content';
 
 const openAdvancedTab = async (
   tabId: 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced' | 'csfle'

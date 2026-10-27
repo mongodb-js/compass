@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import { expect } from 'chai';
 import { ROOT_DIR } from '../../test/test-helpers';
 import Target from '../lib/target';
 import {
@@ -10,7 +11,6 @@ import {
   writeVersionFile,
   createApplicationAsar,
 } from './release';
-import { expect } from 'chai';
 
 async function copyCompassBuildAssetsToDir(tmpDir: string) {
   await fs.copyFile(

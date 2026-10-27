@@ -1,3 +1,4 @@
+import type { FieldSchema } from '../../../utils/get-schema';
 import UseCaseCard from './use-case-card';
 import SortUseCase from './sort/sort';
 import LookupUseCase from './lookup/lookup';
@@ -7,7 +8,6 @@ import GroupWithStatistics from './group/group-with-statistics';
 import MatchUseCase from './match/match';
 import GroupWithSubset from './group/group-with-subset';
 import TextSearch from './search/text-search';
-import type { FieldSchema } from '../../../utils/get-schema';
 
 export type StageWizardFields = FieldSchema[];
 

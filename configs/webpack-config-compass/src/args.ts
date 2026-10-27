@@ -1,6 +1,6 @@
+import path from 'node:path';
 import type { Configuration, WebpackOptionsNormalized } from 'webpack';
 import { merge } from 'webpack-merge';
-import path from 'node:path';
 
 export type WebpackConfig = Configuration &
   Pick<WebpackOptionsNormalized, 'devServer'>;

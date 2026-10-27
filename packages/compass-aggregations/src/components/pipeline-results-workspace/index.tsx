@@ -25,8 +25,6 @@ import {
   cancelAggregation,
   retryAggregation,
 } from '../../modules/aggregation';
-import PipelineResultsList from './pipeline-results-list';
-import PipelineEmptyResults from './pipeline-empty-results';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
@@ -41,6 +39,8 @@ import {
   isRerankVersionSupported,
 } from '../../utils/search-stage-errors';
 import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
+import PipelineEmptyResults from './pipeline-empty-results';
+import PipelineResultsList from './pipeline-results-list';
 
 const containerStyles = css({
   overflow: 'hidden',

@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+import Sinon from 'sinon';
 import reducer, {
   savingPipelineNameChanged,
   savingPipelineApply,
@@ -9,8 +11,6 @@ import reducer, {
   SAVING_PIPELINE_OPEN,
   INITIAL_STATE,
 } from './saving-pipeline';
-import { expect } from 'chai';
-import Sinon from 'sinon';
 
 describe('saving-pipeline module', function () {
   describe('#savingPipelineNameChanged', function () {

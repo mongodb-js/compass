@@ -6,11 +6,11 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { Provider } from 'react-redux';
+import { openToast as _openToast } from '@mongodb-js/compass-components';
 import { activateDataModelingStore } from '../src/store';
 import type { DataModelingStoreServices } from '../src/store';
 import inMemoryStorage from '../src/services/data-model-storage-in-memory';
-import { Provider } from 'react-redux';
-import { openToast as _openToast } from '@mongodb-js/compass-components';
 
 type ConnectionInfoWithMockData = ConnectionInfo & {
   databases: Array<{

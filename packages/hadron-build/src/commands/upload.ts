@@ -7,6 +7,8 @@ import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { diffString } from 'json-diff';
 import download from 'download';
+import createCLI from 'mongodb-js-cli';
+import type { Argv, CommandModule } from 'yargs';
 import type { Asset, TargetAssets } from '../lib/target';
 import Target from '../lib/target';
 import {
@@ -16,8 +18,6 @@ import {
   uploadManifest,
 } from '../lib/download-center';
 import { getBuildAttestations } from '../lib/build-attestations';
-import createCLI from 'mongodb-js-cli';
-import type { Argv, CommandModule } from 'yargs';
 import type { BuilderCallbackParsedArgs } from './utils';
 
 type UploadArgv = BuilderCallbackParsedArgs<typeof buildUploadCommandOptions>;

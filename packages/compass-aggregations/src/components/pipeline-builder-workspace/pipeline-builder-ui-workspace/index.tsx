@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 import { css, spacing } from '@mongodb-js/compass-components';
 
-import { SortableList } from './sortable-list';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import ResizeHandle from '../../resize-handle';
 import type { RootState } from '../../../modules';
 import {
@@ -16,9 +16,9 @@ import PipelineBuilderInputDocuments from '../../pipeline-builder-input-document
 import AddStage from '../../add-stage';
 import UseCaseDroppableArea from '../../use-case-droppable-area';
 import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
-import PipelineBuilderDndWrapper from './dnd-wrapper';
 import { prettify } from '../../../modules/pipeline-builder/pipeline-parser/utils';
-import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import PipelineBuilderDndWrapper from './dnd-wrapper';
+import { SortableList } from './sortable-list';
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',

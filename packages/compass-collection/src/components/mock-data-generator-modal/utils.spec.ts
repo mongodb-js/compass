@@ -1,13 +1,13 @@
 import { expect } from 'chai';
+
+import Sinon from 'sinon';
+import { faker } from '@faker-js/faker/locale/en';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
   areFakerArgsValid,
   isValidFakerMethod,
   validateDocumentCount,
 } from './utils';
-
-import Sinon from 'sinon';
-import { faker } from '@faker-js/faker/locale/en';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { MAX_DOCUMENT_COUNT } from './constants';
 
 describe('Mock Data Generator Utils', () => {

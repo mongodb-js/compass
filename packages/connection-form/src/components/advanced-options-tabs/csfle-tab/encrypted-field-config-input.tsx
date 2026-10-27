@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import type { Document } from 'mongodb';
 import {
-  encryptedFieldConfigToText,
-  textToEncryptedFieldConfig,
-} from '../../../utils/csfle-handler';
-import {
   FormFieldContainer,
   Label,
   Banner,
@@ -13,6 +9,10 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  encryptedFieldConfigToText,
+  textToEncryptedFieldConfig,
+} from '../../../utils/csfle-handler';
 
 const errorContainerStyles = css({
   padding: spacing[400],

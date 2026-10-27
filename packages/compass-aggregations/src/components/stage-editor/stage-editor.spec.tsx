@@ -5,10 +5,10 @@ import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compa
 import { expect } from 'chai';
 import type { MongoServerError } from 'mongodb';
 
-import { StageEditor } from './stage-editor';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { wrapWithExperimentProvider } from '../../../test/configure-store';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+import { StageEditor } from './stage-editor';
 
 const renderStageEditor = (
   props: Partial<ComponentProps<typeof StageEditor>> = {},

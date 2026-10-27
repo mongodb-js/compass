@@ -12,6 +12,12 @@ import {
   Tooltip,
 } from '@mongodb-js/compass-components';
 
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  useSearchActivationProgramP1,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { isReadyStatus } from '../../utils/fetch-status';
 import {
   dropSearchIndex,
@@ -25,22 +31,16 @@ import {
 } from '../../modules/search-indexes';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
-import SearchIndexActions from './search-index-actions';
 import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
 import type { RootState } from '../../modules';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
-import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 
-import { useSearchIndexesTable } from './use-search-indexes-table';
-import { COLUMNS, COLUMNS_WITH_ACTIONS } from './search-indexes-columns';
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
+import { useSearchIndexesTable } from './use-search-indexes-table';
+import { COLUMNS, COLUMNS_WITH_ACTIONS } from './search-indexes-columns';
+import SearchIndexActions from './search-index-actions';
 
 type SearchIndexesTableProps = {
   namespace: string;

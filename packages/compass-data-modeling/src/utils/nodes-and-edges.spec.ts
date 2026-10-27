@@ -1,9 +1,9 @@
 import { expect } from 'chai';
+import { type Relationship } from '../services/data-model-storage';
 import {
   getExtendedFields,
   relationshipToDiagramEdge,
 } from './nodes-and-edges';
-import { type Relationship } from '../services/data-model-storage';
 
 describe('getExtendedFields', function () {
   describe('flat schema', function () {

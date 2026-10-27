@@ -1,16 +1,16 @@
 import { z } from '@mongodb-js/compass-user-data';
-import type { FeatureFlags } from './feature-flags';
-import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
-import { parseRecord } from './parse-record';
 import {
   extractProxySecrets,
   mergeProxySecrets,
 } from '@mongodb-js/devtools-proxy-support/proxy-options';
+import type { GlyphName } from '@mongodb-js/compass-components';
+import type { FeatureFlags } from './feature-flags';
+import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
+import { parseRecord } from './parse-record';
 import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
 } from './utils';
-import type { GlyphName } from '@mongodb-js/compass-components';
 import { TIMEZONE_OPTIONS, isSupportedTimezone } from './timezone';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;

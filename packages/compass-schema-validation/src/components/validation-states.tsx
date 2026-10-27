@@ -17,15 +17,15 @@ import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { changeZeroState } from '../modules/zero-state';
 import type { EditModeState } from '../modules/edit-mode';
 import type { RootState } from '../modules';
-import ValidationEditor from './validation-editor';
-import { SampleDocuments } from './sample-documents';
-import { ZeroGraphic } from './zero-graphic';
 import {
   clearRulesGenerationError,
   generateValidationRules,
   stopRulesGeneration,
   type RulesGenerationError,
 } from '../modules/rules-generation';
+import ValidationEditor from './validation-editor';
+import { SampleDocuments } from './sample-documents';
+import { ZeroGraphic } from './zero-graphic';
 
 const validationStatesStyles = css({
   padding: spacing[400],

@@ -4,15 +4,15 @@ import {
   dataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 
-import CompassSchema from './components/compass-schema';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { activateSchemaPlugin } from './stores/store';
-import type { RequiredDataServiceProps } from './stores/store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
+import type { RequiredDataServiceProps } from './stores/store';
+import { activateSchemaPlugin } from './stores/store';
+import CompassSchema from './components/compass-schema';
 import { SchemaTabTitle } from './plugin-title';
 
 const CompassSchemaPluginProvider = registerCompassPlugin(

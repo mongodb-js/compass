@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import electronPath from 'electron';
 import url from 'node:url';
+import electronPath from 'electron';
 // @ts-expect-error no types for this package
 import { electronToChromium } from 'electron-to-chromium';
 

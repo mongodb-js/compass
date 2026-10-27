@@ -1,11 +1,11 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { expect } from 'chai';
 import {
   parseAndValidateGlobalPreferences,
   getHelpText,
 } from './global-config';
-import { expect } from 'chai';
 
 describe('Global config file handling', function () {
   let tmpdir: string;

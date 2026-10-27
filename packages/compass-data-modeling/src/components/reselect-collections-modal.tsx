@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../store/reducer';
 import {
   Combobox,
   ComboboxOption,
   Modal,
 } from '@mongodb-js/compass-components';
+import type { DataModelingState } from '../store/reducer';
 import { selectIsAnalysisInProgress } from '../store/analysis-process';
 import type { ReselectCollectionsWizardState } from '../store/reselect-collections-wizard';
 import {
@@ -18,10 +18,10 @@ import {
   changeSamplingOptions,
   gotoStep,
 } from '../store/reselect-collections-wizard';
-import { SelectCollectionsList } from './select-collections-list';
 import { useSavedConnections } from '../utils/use-saved-connections';
-import { ModalStepContainer } from './model-step-container';
 import { areSamplingOptionsValid } from '../store/sampling-options';
+import { SelectCollectionsList } from './select-collections-list';
+import { ModalStepContainer } from './model-step-container';
 import { DiagramSettingsContent } from './diagram-settings-content';
 
 const SelectCollectionsStep = connect(

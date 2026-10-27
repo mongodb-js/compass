@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
 import type HadronDocument from 'hadron-document';
 import { KeylineCard, useMergeRefs } from '@mongodb-js/compass-components';
-import Document, { type DocumentProps } from './document';
-import { useDocumentItemContextMenu } from './use-document-item-context-menu';
 import {
   useChangeQueryBarQuery,
   useQueryBarQuery,
 } from '@mongodb-js/compass-query-bar';
+import Document, { type DocumentProps } from './document';
+import { useDocumentItemContextMenu } from './use-document-item-context-menu';
 
 export type DocumentListViewItemProps = {
   doc: HadronDocument;

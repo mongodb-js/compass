@@ -2,8 +2,8 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { ToolUIPart } from 'ai';
-import { getToolCallTitle } from './tool-call-title';
 import { TOOL_DENIAL_REASONS } from '../prompts';
+import { getToolCallTitle } from './tool-call-title';
 
 describe('getToolCallTitle', function () {
   const baseToolCall: ToolUIPart = {

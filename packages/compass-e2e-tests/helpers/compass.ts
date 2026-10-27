@@ -1,22 +1,24 @@
 import { inspect, promisify } from 'node:util';
-import { ObjectId, EJSON } from 'bson';
 import { promises as fs, closeSync, rmdirSync } from 'node:fs';
-import type Mocha from 'mocha';
 import os from 'node:os';
 import { execFile } from 'node:child_process';
 import type { ExecFileOptions, ExecFileException } from 'node:child_process';
 import zlib from 'node:zlib';
+import path from 'node:path';
+import type Mocha from 'mocha';
+import { ObjectId, EJSON } from 'bson';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
 import { packageCompass } from '@mongodb-js/hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import Debug from 'debug';
+import semver from 'semver';
+import treeKill from 'tree-kill';
 import * as Commands from './commands/index.ts';
 import type { CompassBrowser } from './compass-browser.ts';
 import type { LogEntry } from './telemetry.ts';
-import Debug from 'debug';
-import semver from 'semver';
 import { CHROME_STARTUP_FLAGS, CI_FLAGS } from './chrome-startup-flags.ts';
 import {
   DEFAULT_CONNECTIONS_SERVER_INFO,
@@ -42,8 +44,6 @@ import {
   DOWNLOADS_PATH,
   MONOREPO_ROOT_PATH,
 } from './test-runner-paths.ts';
-import treeKill from 'tree-kill';
-import path from 'node:path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures.ts';
 import { dialogOpenLocator } from './dialog-open-locator-strategy.ts';
 import { getExtension } from './redirect-extension.ts';

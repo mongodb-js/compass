@@ -1,5 +1,6 @@
 import * as babelParser from '@babel/parser';
 import { expect } from 'chai';
+import Stage from '../stage';
 import StageParser, {
   assertStageNode,
   getStageOperatorFromNode,
@@ -10,7 +11,6 @@ import StageParser, {
 } from './stage-parser';
 import type { StageLike } from './stage-parser';
 import { generate } from './utils';
-import Stage from '../stage';
 
 describe('StageParser', function () {
   describe('Stage node helpers', function () {

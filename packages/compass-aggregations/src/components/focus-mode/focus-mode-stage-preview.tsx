@@ -8,9 +8,11 @@ import {
 } from '@mongodb-js/compass-components';
 import type HadronDocument from 'hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
+import { connect } from 'react-redux';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
-import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import OutputStagePreview from '../stage-preview/output-stage-preview';
 import { AtlasStagePreview } from '../stage-preview/atlas-stage-preview';
@@ -29,7 +31,6 @@ import {
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { disableFocusMode } from '../../modules/focus-mode';
 import SearchNoResults from '../search-no-results';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 import {
   SearchStageDiagnoseButton,
@@ -40,7 +41,6 @@ import {
   buildAnalyzeOutputContext,
   useShouldShowAnalyzeOutput,
 } from '../search-analyze-output-button';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 const containerStyles = css({

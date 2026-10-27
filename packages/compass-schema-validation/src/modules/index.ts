@@ -1,5 +1,16 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
+import type { ThunkAction } from 'redux-thunk';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type {
+  ConnectionInfoRef,
+  DataService as OriginalDataService,
+} from '@mongodb-js/compass-connections/provider';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { analyzeSchema } from '@mongodb-js/compass-schema';
 import type { NamespaceAction, NamespaceState } from './namespace';
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE } from './namespace';
 import type { ServerVersionAction, ServerVersionState } from './server-version';
@@ -21,22 +32,11 @@ import type { IsLoadedAction, IsLoadedState } from './is-loaded';
 import isLoaded, { INITIAL_STATE as IS_LOADED_STATE } from './is-loaded';
 import type { EditModeAction, EditModeState } from './edit-mode';
 import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
-import type { ThunkAction } from 'redux-thunk';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import type {
-  ConnectionInfoRef,
-  DataService as OriginalDataService,
-} from '@mongodb-js/compass-connections/provider';
-import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { RulesGenerationState } from './rules-generation';
 import {
   INITIAL_STATE as RULES_GENERATION_STATE,
   rulesGenerationReducer,
 } from './rules-generation';
-import type { analyzeSchema } from '@mongodb-js/compass-schema';
 
 /**
  * Reset action constant.

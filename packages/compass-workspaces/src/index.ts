@@ -1,23 +1,8 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import type { OpenWorkspaceOptions } from './stores/workspaces';
-import workspacesReducer, {
-  collectionRemoved,
-  collectionRenamed,
-  databaseRemoved,
-  getInitialTabState,
-  cleanupLocalAppRegistries,
-  connectionDisconnected,
-  updateDatabaseInfo,
-  updateCollectionInfo,
-  loadSavedWorkspaces,
-  beforeUnloading,
-} from './stores/workspaces';
-import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
 import {
   type MongoDBInstance,
   type MongoDBInstancesManager,
@@ -31,14 +16,29 @@ import {
   type ConnectionInfo,
   type ConnectionsService,
 } from '@mongodb-js/compass-connections/provider';
-import { WorkspacesStoreContext } from './stores/context';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
-import { workspacesStorageServiceLocator } from './services/workspaces-storage';
 import type { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
 import { type IUserData } from '@mongodb-js/compass-user-data';
+import { workspacesStorageServiceLocator } from './services/workspaces-storage';
+import { WorkspacesStoreContext } from './stores/context';
+import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
+import Workspaces from './components';
+import workspacesReducer, {
+  collectionRemoved,
+  collectionRenamed,
+  databaseRemoved,
+  getInitialTabState,
+  cleanupLocalAppRegistries,
+  connectionDisconnected,
+  updateDatabaseInfo,
+  updateCollectionInfo,
+  loadSavedWorkspaces,
+  beforeUnloading,
+} from './stores/workspaces';
+import type { OpenWorkspaceOptions } from './stores/workspaces';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;

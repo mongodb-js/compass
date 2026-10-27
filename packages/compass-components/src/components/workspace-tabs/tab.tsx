@@ -12,8 +12,8 @@ import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 import { LogoIcon } from '../icons/logo-icon';
 import { ServerIcon } from '../icons/server-icon';
-import { useTabTheme } from './use-tab-theme';
 import { useContextMenuGroups } from '../context-menu';
+import { useTabTheme } from './use-tab-theme';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;

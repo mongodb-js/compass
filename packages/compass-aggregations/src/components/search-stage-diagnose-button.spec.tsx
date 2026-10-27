@@ -6,8 +6,8 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { SearchStageDiagnoseButton } from './search-stage-diagnose-button';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { SearchStageDiagnoseButton } from './search-stage-diagnose-button';
 
 const CONNECTION: ConnectionInfo = {
   id: 'test',

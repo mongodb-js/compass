@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
-import { useWorkspaceTabId } from './workspace-tab-state-provider';
 import { useCurrentValueRef } from '@mongodb-js/compass-components';
+import { useWorkspaceTabId } from './workspace-tab-state-provider';
 
 export type WorkspaceDestroyHandler = () => boolean;
 

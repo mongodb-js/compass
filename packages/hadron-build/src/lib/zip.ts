@@ -1,9 +1,9 @@
-import createDebug from 'debug';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import zipFolder from 'zip-folder';
 import { promisify } from 'node:util';
+import zipFolder from 'zip-folder';
+import createDebug from 'debug';
 import type Target from './target';
 
 const debug = createDebug('hadron-build:zip');

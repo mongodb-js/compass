@@ -1,5 +1,5 @@
-import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'node:events';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { ExplainVerbosity, ClientEncryption, ReadPreference } from 'mongodb';
 import type {
   AggregateOptions,
@@ -58,6 +58,16 @@ import type {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from '@mongodb-js/mongodb-ns';
+import {
+  raceWithAbort,
+  createCancelError,
+  isCancelError,
+} from '@mongodb-js/compass-utils';
+import type {
+  DevtoolsConnectionState,
+  DevtoolsConnectOptions,
+} from '@mongodb-js/devtools-connect';
+import { omit } from 'lodash';
 import type {
   ConnectionFleOptions,
   ConnectionOptions,
@@ -91,11 +101,6 @@ import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
-import {
-  raceWithAbort,
-  createCancelError,
-  isCancelError,
-} from '@mongodb-js/compass-utils';
 import type {
   CurrentOpProgress,
   IndexBuildProgress,
@@ -111,12 +116,6 @@ import type {
   UnboundDataServiceImplLogger,
 } from './logger';
 import { WithLogContext, debug, mongoLogId } from './logger';
-import type {
-  DevtoolsConnectionState,
-  DevtoolsConnectOptions,
-} from '@mongodb-js/devtools-connect';
-
-import { omit } from 'lodash';
 
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],

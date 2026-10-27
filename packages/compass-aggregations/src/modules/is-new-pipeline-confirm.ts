@@ -1,9 +1,9 @@
-import type { PipelineBuilderThunkAction } from '.';
-import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import { showConfirmation } from '@mongodb-js/compass-components';
-import type Stage from './pipeline-builder/stage';
 import type { Document } from 'bson';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
+import type Stage from './pipeline-builder/stage';
 import type { PipelineParserError } from './pipeline-builder/pipeline-parser/utils';
+import type { PipelineBuilderThunkAction } from '.';
 
 export const ActionTypes = {
   NewPipelineConfirmed:

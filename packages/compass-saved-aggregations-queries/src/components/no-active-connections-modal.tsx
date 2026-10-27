@@ -4,9 +4,9 @@ import {
   type MapStateToProps,
   connect,
 } from 'react-redux';
+import { Banner, InfoModal } from '@mongodb-js/compass-components';
 import { type RootState } from '../stores';
 import { closeModal } from '../stores/open-item';
-import { Banner, InfoModal } from '@mongodb-js/compass-components';
 
 type NoActiveConnectionsModalProps = {
   isOpened: boolean;

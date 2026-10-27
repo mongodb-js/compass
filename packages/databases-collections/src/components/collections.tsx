@@ -7,12 +7,6 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import {
-  refreshCollections,
-  type CollectionsState,
-  deleteCollection,
-  createNewCollection,
-} from '../modules/collections';
 import type Collection from '@mongodb-js/mongodb-collection-model';
 import toNS from '@mongodb-js/mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -22,6 +16,12 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import {
+  refreshCollections,
+  type CollectionsState,
+  deleteCollection,
+  createNewCollection,
+} from '../modules/collections';
 
 const ERROR_WARNING = 'An error occurred while loading collections';
 

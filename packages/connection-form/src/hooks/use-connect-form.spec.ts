@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import { renderHook, act } from '@mongodb-js/testing-library-compass';
 import {
   handleConnectionFormFieldUpdate,
   useConnectForm,
 } from './use-connect-form';
-import { renderHook, act } from '@mongodb-js/testing-library-compass';
 
 describe('use-connect-form hook', function () {
   describe('isDirty', function () {

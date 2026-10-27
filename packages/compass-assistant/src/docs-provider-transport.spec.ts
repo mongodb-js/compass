@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  DocsProviderTransport,
-  shouldExcludeMessage,
-} from './docs-provider-transport';
-import type { AssistantMessage } from './compass-assistant-provider';
 import { MockLanguageModelV3 } from 'ai/test';
 import { jsonSchema, readUIMessageStream, tool, type UIMessageChunk } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import type { AssistantMessage } from './compass-assistant-provider';
+import {
+  DocsProviderTransport,
+  shouldExcludeMessage,
+} from './docs-provider-transport';
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;

@@ -1,11 +1,5 @@
-import type {
-  AggregationsPluginServices,
-  ConfigureStoreOptions,
-} from '../src/stores/store';
-import { mockDataService } from './mocks/data-service';
 import type { RenderPluginWithConnectionsResult } from '@mongodb-js/testing-library-compass';
 import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
-import { CompassAggregationsPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import React from 'react';
 import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
@@ -13,6 +7,12 @@ import {
   CompassExperimentationProvider,
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
+import { CompassAggregationsPlugin } from '../src/index';
+import type {
+  AggregationsPluginServices,
+  ConfigureStoreOptions,
+} from '../src/stores/store';
+import { mockDataService } from './mocks/data-service';
 
 const noopAsyncResult = {
   asyncStatus: null,

@@ -9,11 +9,11 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import SSLTab, { getTLSOptionForConnectionString } from './tls-ssl-tab';
 import {
   FileInputBackendProvider,
   createJSDomFileInputDummyBackend,
 } from '@mongodb-js/compass-components';
+import SSLTab, { getTLSOptionForConnectionString } from './tls-ssl-tab';
 
 describe('SchemaInput', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;

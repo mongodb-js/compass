@@ -1,6 +1,6 @@
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { StandardEditor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('StandardEditor', function () {
   describe('#start', function () {

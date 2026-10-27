@@ -1,23 +1,23 @@
 import type { Action, Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
+import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
-import type { PreviewOptions } from './pipeline-preview-manager';
-import {
-  DEFAULT_PREVIEW_LIMIT,
-  DEFAULT_SAMPLE_SIZE,
-} from './pipeline-preview-manager';
 import { isAction } from '../../utils/is-action';
-import type { PipelineParserError } from './pipeline-parser/utils';
-import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
-import type { PipelineModeToggledAction } from './pipeline-mode';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
-import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import { fetchExplainForPipeline } from '../insights';
+import type { PipelineModeToggledAction } from './pipeline-mode';
+import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
+import type { PipelineParserError } from './pipeline-parser/utils';
+import {
+  DEFAULT_PREVIEW_LIMIT,
+  DEFAULT_SAMPLE_SIZE,
+} from './pipeline-preview-manager';
+import type { PreviewOptions } from './pipeline-preview-manager';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {
   LoadGeneratedPipelineAction,

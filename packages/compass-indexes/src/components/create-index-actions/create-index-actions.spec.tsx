@@ -8,11 +8,11 @@ import {
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
-import { setupStore } from '../../../test/setup-store';
 import { Provider } from 'react-redux';
+import { setupStore } from '../../../test/setup-store';
 
-import CreateIndexActions from '.';
 import { ActionTypes } from '../../modules/create-index';
+import CreateIndexActions from '.';
 
 describe('CreateIndexActions Component', function () {
   let clearErrorSpy: any;

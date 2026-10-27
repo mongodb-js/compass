@@ -10,8 +10,6 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { ConnectionsNavigationTree } from './connections-navigation-tree';
-import type { ConnectedConnection, Connection } from './tree-data';
 import type {
   AllPreferences,
   PreferencesAccess,
@@ -21,6 +19,8 @@ import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provi
 import { type WorkspaceTab } from '@mongodb-js/workspace-info';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectedConnection, Connection } from './tree-data';
+import { ConnectionsNavigationTree } from './connections-navigation-tree';
 
 const connections: Connection[] = [
   {

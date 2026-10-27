@@ -7,14 +7,14 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { SavePipelineCard } from './saved-pipeline-card';
+import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
 import {
   confirmOpenPipeline,
   confirmDeletePipeline,
   getSavedPipelines,
 } from '../../modules/saved-pipeline';
 import type { RootState } from '../../modules';
-import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import { SavePipelineCard } from './saved-pipeline-card';
 
 const savedPipelinesStyles = css({
   width: '400px',

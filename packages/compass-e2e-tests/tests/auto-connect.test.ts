@@ -1,3 +1,6 @@
+import os from 'node:os';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass.ts';
 import {
@@ -9,9 +12,6 @@ import {
   connectionNameFromString,
 } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import os from 'node:os';
-import path from 'node:path';
-import { promises as fs } from 'node:fs';
 import { getDefaultConnectionNames } from '../helpers/test-runner-context.ts';
 
 const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';

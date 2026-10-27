@@ -1,4 +1,4 @@
-import type { ApplicationMenuProvider, CompassAppMenu } from './';
+import createDebug from 'debug';
 import type {
   IpcEvents,
   MenuItemConstructorOptions,
@@ -6,7 +6,7 @@ import type {
 } from './types';
 import { transformAppMenu } from './types';
 import { uuid } from './util';
-import createDebug from 'debug';
+import type { ApplicationMenuProvider, CompassAppMenu } from './';
 
 const debug = createDebug('compass-electron-menu:ipc-provider-renderer');
 export interface HadronIpcRenderer {

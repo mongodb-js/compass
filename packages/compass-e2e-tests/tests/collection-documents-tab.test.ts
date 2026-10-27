@@ -1,6 +1,8 @@
 import chai from 'chai';
 import clipboard from 'clipboardy';
 import { EJSON } from 'bson';
+import type { ChainablePromiseElement } from 'webdriverio';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   deleteCommonVariedProperties,
@@ -25,10 +27,8 @@ import {
   isTestingWebAtlasCloud,
   context as testRunnerContext,
 } from '../helpers/test-runner-context.ts';
-import type { ChainablePromiseElement } from 'webdriverio';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
-import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 

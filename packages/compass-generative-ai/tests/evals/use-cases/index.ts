@@ -1,5 +1,3 @@
-import { findQueries } from './find-query';
-import { aggregateQueries } from './aggregate-query';
 import toNS from '@mongodb-js/mongodb-ns';
 import { UUID } from 'bson';
 
@@ -14,6 +12,8 @@ import {
   buildAggregateQueryPrompt,
   buildFindQueryPrompt,
 } from '../../../src/utils/gen-ai-prompt';
+import { aggregateQueries } from './aggregate-query';
+import { findQueries } from './find-query';
 
 export type GenAiUsecase = {
   namespace: string;

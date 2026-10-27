@@ -1,12 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen, userEvent } from '@mongodb-js/testing-library-compass';
+import Sinon from 'sinon';
+import { renderWithStore } from '../../../tests/create-store';
 import {
   ShardKeyMismatch,
   type ShardKeyMismatchProps,
 } from './shard-key-mismatch';
-import { renderWithStore } from '../../../tests/create-store';
-import Sinon from 'sinon';
 
 describe('ShardKeyMismatch', function () {
   const baseProps: ShardKeyMismatchProps = {

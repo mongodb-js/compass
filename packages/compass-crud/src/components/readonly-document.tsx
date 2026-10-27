@@ -2,8 +2,8 @@ import React from 'react';
 import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
-import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
+import { getInsightsForDocument } from '../utils';
 import type { CopyDocumentFormat } from '../stores/crud-store';
 
 type BSONObject = TypeCastMap['Object'];

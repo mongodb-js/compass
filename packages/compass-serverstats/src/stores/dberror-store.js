@@ -1,7 +1,7 @@
 'use strict';
 const Reflux = require('reflux');
-const Actions = require('../actions');
 const { isEqual } = require('lodash');
+const Actions = require('../actions');
 
 const DBErrorStore = Reflux.createStore({
   init: function () {

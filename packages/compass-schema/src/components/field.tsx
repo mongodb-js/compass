@@ -18,13 +18,13 @@ import type {
   SchemaField,
   SchemaType,
 } from '@mongodb-js/mongodb-schema';
-import { FieldType, sortTypes } from './type';
-import Minichart from './minichart';
-import detectCoordinates from '../modules/detect-coordinates';
 import {
   useQueryBarQuery,
   useChangeQueryBarQuery,
 } from '@mongodb-js/compass-query-bar';
+import detectCoordinates from '../modules/detect-coordinates';
+import { FieldType, sortTypes } from './type';
+import Minichart from './minichart';
 
 const toggleCollapseButtonIconStyles = css({
   color: palette.gray.dark2,

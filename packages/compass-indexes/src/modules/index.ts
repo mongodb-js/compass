@@ -1,6 +1,15 @@
 import { combineReducers } from 'redux';
 import type { Action, AnyAction } from 'redux';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { DataService } from 'mongodb-data-service';
+import type { Logger } from '@mongodb-js/compass-logging';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { IndexesDataServiceProps } from '../stores/store';
 import isWritable from './is-writable';
 import indexView from './index-view';
 import isReadonlyView from './is-readonly-view';
@@ -13,16 +22,7 @@ import namespace from './namespace';
 import createIndex from './create-index';
 import collectionStats from './collection-stats';
 import indexesDrawer from './indexes-drawer';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type { DataService } from 'mongodb-data-service';
-import type { Logger } from '@mongodb-js/compass-logging';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
-import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import type { IndexesDataServiceProps } from '../stores/store';
-import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { RollingIndexesService } from './rolling-indexes-service';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 
 const reducer = combineReducers({
   // From instance.isWritable. Used to know if the create button should be

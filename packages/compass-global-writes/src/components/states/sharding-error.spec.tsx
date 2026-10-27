@@ -1,9 +1,9 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen, userEvent } from '@mongodb-js/testing-library-compass';
-import { ShardingError } from './sharding-error';
-import { renderWithStore } from '../../../tests/create-store';
 import Sinon from 'sinon';
+import { renderWithStore } from '../../../tests/create-store';
+import { ShardingError } from './sharding-error';
 
 const shardingError = 'This is an error';
 function renderWithProps(

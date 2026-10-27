@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
-import { expect } from 'chai';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { expect } from 'chai';
 import type { Document } from 'bson';
 import { ObjectId } from 'bson';
 
+import { fixtureGroups } from '../../../test/before-after-fixtures';
 import type {
   ObjectPath,
   ObjectBranch,
@@ -14,7 +15,6 @@ import type {
 } from './unified-document';
 import { unifyDocuments } from './unified-document';
 import { unBSON } from './bson-utils';
-import { fixtureGroups } from '../../../test/before-after-fixtures';
 
 function lookupValue(path: ObjectPath, value: any): any {
   const [head, ...rest] = path;

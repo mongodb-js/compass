@@ -11,17 +11,17 @@ import {
   rafraf,
 } from '@mongodb-js/compass-components';
 
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { RootState } from '../modules';
 
+import { hasSyntaxError } from '../utils/stage';
+import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
+import { getIsRerankFirstStageBannerVisible } from '../modules/pipeline-builder/builder-helpers';
 import ResizeHandle from './resize-handle';
 import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
 import { RerankFirstStageBanner } from './rerank-first-stage-banner';
 import StagePreview from './stage-preview';
-import { hasSyntaxError } from '../utils/stage';
-import type { EditorRef } from '@mongodb-js/compass-editor';
-import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
-import { getIsRerankFirstStageBannerVisible } from '../modules/pipeline-builder/builder-helpers';
 import type { SortableProps } from './pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 
 const stageStyles = css({

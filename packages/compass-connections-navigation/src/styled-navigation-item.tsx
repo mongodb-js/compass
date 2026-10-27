@@ -4,8 +4,8 @@ import {
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
 import { palette, useDarkMode } from '@mongodb-js/compass-components';
-import { getConnectionId, type SidebarTreeItem } from './tree-data';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
+import { getConnectionId, type SidebarTreeItem } from './tree-data';
 
 type AcceptedStyles = {
   '--item-bg-color'?: string;
