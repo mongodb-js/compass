@@ -4,7 +4,7 @@ import { pipeline } from 'stream/promises';
 import type { DataService } from 'mongodb-data-service';
 import { SchemaAnalyzer } from '@mongodb-js/mongodb-schema';
 import type { Document, FindOptions } from 'mongodb';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { isInternalFieldPath } from 'hadron-document';
 
 import type { ExportQuery } from './export-types';

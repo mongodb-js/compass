@@ -3,8 +3,8 @@ import { activatePlugin } from './query-bar-store';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { AppRegistry } from '@mongodb-js/compass-app-registry';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 describe('createQueryWithHistoryAutocompleter', function () {

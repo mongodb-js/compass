@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import parseNs from 'mongodb-ns';
+import parseNs from '@mongodb-js/mongodb-ns';
 import type { Document } from 'bson';
 import type { CreateViewThunkAction } from '../../stores/create-view';
 import { isAction } from '../../utils/is-action';

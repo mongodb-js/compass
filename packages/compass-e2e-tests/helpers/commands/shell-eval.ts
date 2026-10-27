@@ -4,9 +4,27 @@ import * as Selectors from '../selectors.ts';
 export async function getShellOutputText(
   browser: CompassBrowser
 ): Promise<string[]> {
-  return await browser.$$(Selectors.ShellOutput).map((element) => {
-    return element.getText();
-  });
+  // Output is rendered with virtualized Codemirror editors, so the DOM text can
+  // be missing lines. Read editor state where present, see codemirror.ts
+  return await browser.execute(function (selector) {
+    // eslint-disable-next-line no-restricted-globals
+    return Array.from(document.querySelectorAll<HTMLElement>(selector)).map(
+      (element) => {
+        const editors = Array.from(
+          element.querySelectorAll('[data-codemirror]')
+        );
+        if (editors.length === 0) {
+          return element.innerText.trim();
+        }
+        return (
+          editors
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing private Codemirror state
+            .map((node: any) => node._cm.state.sliceDoc() as string)
+            .join('\n')
+        );
+      }
+    );
+  }, Selectors.ShellOutput);
 }
 
 const SHELL_ERROR_PATTERNS = [

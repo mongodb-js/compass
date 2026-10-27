@@ -51,7 +51,10 @@ async function collectAllAbsoluteImports(entryPoints = []) {
       // Keep second part for namespaced imports, but drop everything else
       const [a, b] = importPath.split('/');
       const moduleName = a.startsWith('@') ? `${a}/${b}` : a;
-      if (IGNORED_ABSOLUTE_IMPORTS.includes(moduleName)) {
+      if (
+        importPath.startsWith('node:') ||
+        IGNORED_ABSOLUTE_IMPORTS.includes(moduleName)
+      ) {
         return;
       }
       absoluteImports.add(moduleName);

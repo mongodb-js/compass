@@ -50,13 +50,13 @@
     "@mongodb-js/atlas-service": "^1.5.1",
     "@mongodb-js/compass-components": "^1.70.2",
     "@mongodb-js/compass-connections": "^2.6.0",
+    "@mongodb-js/compass-preferences-model": "^3.6.0",
     "@mongodb-js/compass-telemetry": "^1.35.1",
     "@mongodb-js/compass-workspaces": "^1.6.0",
     "@mongodb-js/connection-info": "^0.29.3",
-    "compass-preferences-model": "^3.6.0",
-    "mongodb-collection-model": "^5.42.3",
-    "mongodb-database-model": "^2.42.3",
-    "mongodb-ns": "^3.2.0",
+    "@mongodb-js/mongodb-collection-model": "^5.42.3",
+    "@mongodb-js/mongodb-database-model": "^2.42.3",
+    "@mongodb-js/mongodb-ns": "^3.2.9",
     "react": "^18.3.1"
   },
   "devDependencies": {

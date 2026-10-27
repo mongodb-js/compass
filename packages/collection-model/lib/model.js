@@ -1,14 +1,14 @@
 'use strict';
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
-const toNs = require('mongodb-ns');
+const toNs = require('@mongodb-js/mongodb-ns');
 const { getProperties } = require('./collection-properties');
 
 const NamespaceCache = new Map();
 
 /**
  * @param {string} ns
- * @returns {import('mongodb-ns')}
+ * @returns {import('@mongodb-js/mongodb-ns')}
  */
 function getNamespaceInfo(ns) {
   if (!NamespaceCache.has(ns)) {

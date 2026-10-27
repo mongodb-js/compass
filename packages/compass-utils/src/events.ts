@@ -1,6 +1,10 @@
+import type { EventEmitter } from 'node:events';
+
 export type EventSource =
   | Pick<EventTarget, 'addEventListener' | 'removeEventListener'>
-  | Pick<NodeJS.EventEmitter, 'once' | 'on' | 'off'>;
+  | Pick<EventEmitter, 'once' | 'on' | 'off'>;
+
+type Listener = EventListener & ((...args: never[]) => void);
 
 function isEventTarget(
   et: unknown
@@ -13,6 +17,32 @@ function isEventTarget(
   );
 }
 
+function addListener(
+  es: EventSource,
+  event: string,
+  listener: Listener,
+  { once = false }: { once?: boolean } = {}
+) {
+  if (isEventTarget(es)) {
+    es.addEventListener(event, listener, { once });
+    return;
+  }
+
+  if (once) {
+    es.once(event, listener);
+  } else {
+    es.on(event, listener);
+  }
+}
+
+function removeListener(es: EventSource, event: string, listener: Listener) {
+  if (isEventTarget(es)) {
+    es.removeEventListener(event, listener);
+    return;
+  }
+  es.off(event, listener);
+}
+
 /**
  * Adds `listener` and returns a Disposable that removes it, so callers can use
  * `using` or a DisposableStack instead of keeping track of the listener. Works
@@ -22,90 +52,84 @@ function isEventTarget(
  * removed after it first runs.
  */
 export function listen<Args extends unknown[]>(
-  target: EventSource,
+  es: EventSource,
   event: string,
   listener: (...args: Args) => void,
   { once = false }: { once?: boolean } = {}
 ): Disposable {
-  // One untyped handle for both shapes; callers type `listener` themselves
-  const handler = listener as unknown as EventListener &
-    ((...args: never[]) => void);
-  if (isEventTarget(target)) {
-    target.addEventListener(event, handler, { once });
-    return {
-      [Symbol.dispose]: target.removeEventListener.bind(target, event, handler),
-    };
-  }
-  if (once) {
-    target.once(event, handler);
-  } else {
-    target.on(event, handler);
-  }
-  // `off` also removes a listener added with `once`, which Node.js wraps
-  return { [Symbol.dispose]: target.off.bind(target, event, handler) };
+  addListener(es, event, listener as unknown as Listener, { once });
+  return {
+    [Symbol.dispose]: () =>
+      removeListener(es, event, listener as unknown as Listener),
+  };
+}
+
+function rejectOnAbort(
+  signal: AbortSignal | undefined,
+  reject: (reason: unknown) => void
+) {
+  return signal && listen(signal, 'abort', () => reject(signal.reason));
 }
 
 /**
- * Resolves with the arguments of the next `event` that `filter` accepts (any,
- * if there is no filter), like Node.js's `events.once`, for both kinds of
- * target. Rejects if `filter` throws or `signal` aborts. The listener is
- * removed either way.
+ * Resolves with the arguments of the next `event`, like Node.js's
+ * `events.once`, for both kinds of target. Rejects if `signal` aborts.
  */
-export async function onceEvent<Args extends unknown[]>(
-  target: EventSource,
+export async function once<Args extends unknown[]>(
+  es: EventSource,
   event: string,
-  {
-    signal,
-    filter,
-  }: { signal?: AbortSignal; filter?: (...args: Args) => boolean } = {}
+  { signal }: { signal?: AbortSignal } = {}
 ): Promise<Args> {
-  if (signal?.aborted) {
-    throw signal.reason;
-  }
+  signal?.throwIfAborted();
   const { promise, resolve, reject } = Promise.withResolvers<Args>();
-  const listening: Disposable[] = [];
-  let settled = false;
-  // Settle and remove the listeners synchronously, inside the listener that
-  // decided the outcome: an emitter can emit again before any promise
-  // callback runs, and the filter must not see those events.
-  const settle = (outcome: () => void) => {
-    if (settled) return;
-    settled = true;
-    for (const listener of listening) listener[Symbol.dispose]();
-    outcome();
-  };
-  listening.push(
-    listen(target, event, (...args: Args) => {
-      if (settled) return;
-      try {
-        if (!filter || filter(...args)) settle(() => resolve(args));
-      } catch (error) {
-        settle(() => reject(error));
-      }
-    })
-  );
-  if (signal) {
-    listening.push(
-      listen(signal, 'abort', () => settle(() => reject(signal.reason)))
-    );
-  }
+  using _listener = listen<Args>(es, event, (...args) => resolve(args), {
+    once: true,
+  });
+  using _abort = rejectOnAbort(signal, reject);
   return await promise;
 }
 
 /**
- * Resolves with the first non-undefined value `pick` returns for an `event`.
- * `pick` may throw to reject instead, e.g. when an error message arrives.
+ * Resolves with the arguments of the first `event` that `filter` accepts.
+ * `filter` may throw to reject instead, e.g. when an error message arrives.
  */
-export async function waitUntil<T, Args extends unknown[] = unknown[]>(
-  target: EventSource,
+export async function waitUntil<Args extends unknown[] = unknown[]>(
+  es: EventSource,
   event: string,
-  pick: (...args: Args) => T | undefined,
-  options: { signal?: AbortSignal } = {}
-): Promise<T> {
-  let picked: T | undefined;
-  await onceEvent<Args>(target, event, {
-    ...options,
-    filter: (...args) => (picked = pick(...args)) !== undefined,
+  filter: (...args: Args) => boolean,
+  { signal }: { signal?: AbortSignal } = {}
+): Promise<Args> {
+  signal?.throwIfAborted();
+  const { promise, resolve, reject } = Promise.withResolvers<Args>();
+  // Stop listening inside the listener: an emitter can emit again before any
+  // promise callback runs, and `filter` must not see those events.
+  using waiter = listen<Args>(es, event, (...args) => {
+    try {
+      if (!filter(...args)) return;
+      waiter[Symbol.dispose]();
+      resolve(args);
+    } catch (error) {
+      waiter[Symbol.dispose]();
+      reject(error);
+    }
   });
-  return picked as T;
+  using _abort = rejectOnAbort(signal, (error) => {
+    waiter[Symbol.dispose]();
+    reject(error);
+  });
+  return await promise;
+}
+
+/**
+ * The Error behind an `error` event. A DOM ErrorEvent carries it on `.error`;
+ * Node-style emitters and libraries like web-worker dispatch the Error itself.
+ * Falls back to an Error built from the event's message.
+ */
+export function errorFromEvent(event: unknown): Error {
+  if (event instanceof Error) return event;
+  const { error, message } = (event ?? {}) as Partial<ErrorEvent>;
+  if (error instanceof Error) return error;
+  return new Error(
+    typeof message === 'string' ? message : `Unknown error: ${String(message)}`
+  );
 }

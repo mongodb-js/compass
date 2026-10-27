@@ -16,7 +16,7 @@ import type {
   PipelineStorage,
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type MyQueriesServices = {

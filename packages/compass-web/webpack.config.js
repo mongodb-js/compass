@@ -103,7 +103,7 @@ module.exports = (env, args) => {
         // 'mongodb-log-writer': localPolyfill('mongodb-log-writer'),
         v8: false,
         electron: false,
-        'hadron-ipc': false,
+        '@mongodb-js/hadron-ipc': false,
 
         // TODO(COMPASS-7411): compass-user-data
         // can't disable the whole module, imports used directly in module scope

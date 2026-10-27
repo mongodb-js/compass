@@ -14,7 +14,7 @@ import {
   analyzeSchema,
   calculateSchemaMetadata,
 } from '../modules/schema-analysis';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
+import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { SchemaThunkAction } from './store';

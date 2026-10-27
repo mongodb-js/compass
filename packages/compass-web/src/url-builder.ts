@@ -3,7 +3,7 @@ import type {
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 
 export const defaultHeaders = {
   'X-Request-Origin': 'atlas-data-explorer',

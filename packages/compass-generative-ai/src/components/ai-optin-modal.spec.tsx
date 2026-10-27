@@ -2,9 +2,9 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 import { expect } from 'chai';
 import { AIOptInModal } from './ai-optin-modal';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import Sinon from 'sinon';
 
 let mockPreferences: PreferencesAccess;

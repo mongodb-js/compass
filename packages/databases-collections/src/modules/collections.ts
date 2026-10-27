@@ -1,10 +1,10 @@
-import type Collection from 'mongodb-collection-model';
-import type Database from 'mongodb-database-model';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type Collection from '@mongodb-js/mongodb-collection-model';
+import type Database from '@mongodb-js/mongodb-database-model';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { CollectionsThunkExtraArg } from '../stores/collections-store';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 
 function isAction<A extends Action>(
   action: Action,

@@ -186,6 +186,18 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable settings in compass web',
     },
   },
+
+  /*
+   * Feature flag for connection folders in the sidebar.
+   */
+  {
+    name: 'enableConnectionFolders',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable connection folders in the sidebar',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;

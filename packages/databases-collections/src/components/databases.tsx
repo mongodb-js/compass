@@ -9,7 +9,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { ZeroGraphic } from './zero-graphic';
 import type { Database, DatabasesState } from '../modules/databases';
 import {
@@ -23,7 +23,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import {
   LoadSampleDataZeroBanner,
   LoadSampleDataZeroState,

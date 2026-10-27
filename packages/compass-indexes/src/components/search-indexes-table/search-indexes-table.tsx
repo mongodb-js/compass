@@ -31,7 +31,7 @@ import {
   useSearchActivationProgramP1,
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 

@@ -34,7 +34,7 @@ import {
 } from '../modules/collection-stats';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RollingIndexesService } from '../modules/rolling-indexes-service';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,

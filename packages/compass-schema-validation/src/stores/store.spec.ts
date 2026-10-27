@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import AppRegistry, {
   createActivateHelpers,
 } from '@mongodb-js/compass-app-registry';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 
 import {
   validatorChanged,
@@ -19,7 +19,7 @@ import { toJSString } from '@mongodb-js/shell-bson-parser';
 import type { Store } from 'redux';
 import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';

@@ -8,8 +8,8 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
-import { usePreferences } from 'compass-preferences-model/provider';
-import toNS from 'mongodb-ns';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import toNS from '@mongodb-js/mongodb-ns';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   buildChartsUrl,

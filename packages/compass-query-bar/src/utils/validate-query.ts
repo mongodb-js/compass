@@ -1,6 +1,6 @@
 import { isObject } from 'lodash';
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
-import type { UserPreferences } from 'compass-preferences-model';
+import type { UserPreferences } from '@mongodb-js/compass-preferences-model';
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,

@@ -10,7 +10,7 @@ import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import { DeviceId } from '@mongodb-js/mcp-tools-mongodb';

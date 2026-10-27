@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
-import type { UserConfigurablePreferences } from 'compass-preferences-model';
+import type { UserConfigurablePreferences } from '@mongodb-js/compass-preferences-model';
 
 import {
   FormModal,

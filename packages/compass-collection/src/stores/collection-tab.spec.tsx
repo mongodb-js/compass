@@ -10,9 +10,9 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { useLocalAppRegistry } from '@mongodb-js/compass-app-registry';
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { AllPreferences } from 'compass-preferences-model/provider';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model/provider';
 import {
   WorkspacesServiceProvider,
   type WorkspacesService,

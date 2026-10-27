@@ -9,8 +9,8 @@ import { expect } from 'chai';
 import Sinon from 'sinon';
 
 import { SavedItemCard } from './saved-item-card';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 const now = Date.now();
 

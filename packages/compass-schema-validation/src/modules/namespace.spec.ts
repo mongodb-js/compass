@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import reducer, { namespaceChanged, NAMESPACE_CHANGED } from './namespace';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 
 describe('namespace module', function () {
   describe('#namespaceChanged', function () {

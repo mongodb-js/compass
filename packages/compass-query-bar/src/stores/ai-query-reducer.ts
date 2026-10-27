@@ -1,6 +1,6 @@
 import type { Action, Reducer } from 'redux';
 import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { UUID } from 'bson';
 
 import type { QueryBarThunkAction } from './query-bar-store';

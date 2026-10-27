@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-collection-model",
+  "name": "@mongodb-js/mongodb-collection-model",
   "description": "MongoDB collection model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "5.42.3",
@@ -29,10 +29,10 @@
     "test-ci-electron": "npm run test-electron"
   },
   "dependencies": {
+    "@mongodb-js/mongodb-ns": "^3.2.9",
     "ampersand-collection": "^2.0.2",
     "ampersand-model": "^8.0.1",
-    "mongodb-data-service": "^22.41.3",
-    "mongodb-ns": "^3.2.0"
+    "mongodb-data-service": "^22.41.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.29",

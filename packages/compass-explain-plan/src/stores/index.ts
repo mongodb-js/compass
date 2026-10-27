@@ -16,7 +16,7 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type ExplainPlanInput =
