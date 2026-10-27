@@ -220,7 +220,19 @@ export class ToolsHost {
     }
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
+    // Aborts requests still in flight and stops answering new ones
     this.disposable[Symbol.dispose]();
+    try {
+      await this.connectionManager.disconnect();
+      await this.runner.server?.close();
+    } catch (error: any) {
+      this.logger.log.error(
+        this.logger.mongoLogId(1_001_000_446),
+        'ToolsHost',
+        'Error when attempting to stop the MCP server',
+        { error: error.message }
+      );
+    }
   }
 }

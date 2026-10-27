@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import { MessageChannel } from 'node:worker_threads';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -23,8 +24,8 @@ describe('ToolsHost', function () {
     });
   });
 
-  afterEach(function () {
-    host.stop();
+  afterEach(async function () {
+    await host.stop();
     channel.port1.close();
     channel.port2.close();
   });
@@ -55,7 +56,7 @@ describe('ToolsHost', function () {
       connectParams: {
         connectionId: 'c1',
         connectionString: 'mongodb://localhost:27019',
-        connectOptions: {},
+        connectOptions: { serverSelectionTimeoutMS: 500 },
       },
     })) as { content: unknown[]; isError?: boolean };
 
@@ -71,5 +72,24 @@ describe('ToolsHost', function () {
     });
     expect((host as any).runner.userConfig.telemetry).to.equal('enabled');
     expect((host as any).runner.userConfig.maxTimeMS).to.equal(1000);
+  });
+
+  it('releases the server and the connection when stopped', async function () {
+    const client = createToolsRpcClient(channel.port1);
+    await client.call('listDatabaseTools');
+    const connectionManager = (host as any).connectionManager;
+    const disconnect = sinon.spy(connectionManager, 'disconnect');
+
+    await host.stop();
+
+    expect(disconnect).to.have.been.called;
+    const settled = await Promise.race([
+      client
+        .call('listDatabaseTools')
+        .then(() => 'answered')
+        .catch(() => 'rejected'),
+      new Promise((resolve) => setTimeout(() => resolve('pending'), 100)),
+    ]);
+    expect(settled).to.equal('pending');
   });
 });

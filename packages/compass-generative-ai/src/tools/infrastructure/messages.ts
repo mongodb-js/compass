@@ -2,6 +2,7 @@ import type { EventSource } from '@mongodb-js/compass-utils';
 
 export type ToolsRpcPort = {
   postMessage(message: unknown): void;
+  close(): void;
 } & EventSource;
 
 export type ToolsRpcMethod =

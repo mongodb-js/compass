@@ -12,10 +12,12 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import type { ToolSet, ToolCallPart } from 'ai';
 import { MongoClient } from 'mongodb';
+import { MessageChannel } from 'node:worker_threads';
 import {
   ToolsController,
   type ToolGroup,
 } from '@mongodb-js/compass-generative-ai/provider';
+import { ToolsHost } from '@mongodb-js/compass-generative-ai/utility';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
@@ -65,6 +67,9 @@ const DEFAULT_EVAL_TASK_CONFIG: EvalTaskConfig = {
 
 const logger = createNoopLogger('EVAL-TOOLS-CONTROLLER');
 
+const evalChannel = new MessageChannel();
+new ToolsHost(evalChannel.port2, { logger });
+
 const toolsController = new ToolsController({
   logger,
   getTelemetryAnonymousId: () => 'eval-anonymous-id',
@@ -72,6 +77,7 @@ const toolsController = new ToolsController({
   enableMCPTelemetry: false,
   preferences: defaultPreferencesInstance,
   atlasAdminApi: {} as AtlasAdminApiService,
+  openPort: () => evalChannel.port1,
 });
 
 let toolsInitialized = false;
@@ -83,7 +89,8 @@ let toolsInitialized = false;
 async function ensureToolsInitialized(): Promise<void> {
   if (toolsInitialized) return;
   await toolsController.startServer();
-  if (!toolsController.server) {
+  toolsController.setActiveTools(new Set<ToolGroup>(['db-read']));
+  if (!toolsController.getActiveTools()['find']) {
     throw new Error('Failed to start ToolsController server for eval tools');
   }
   toolsInitialized = true;

@@ -21,7 +21,7 @@ export function serveToolsRequests(
 ): Disposable {
   const controllers = new Map<number, AbortController>();
 
-  return listen(port, 'message', (event: { data: unknown }) => {
+  const stopListening = listen(port, 'message', (event: { data: unknown }) => {
     const message = event.data;
     if (!isToolsRpcMessage(message)) return;
 
@@ -64,4 +64,14 @@ export function serveToolsRequests(
         controllers.delete(message.id);
       });
   });
+
+  return {
+    [Symbol.dispose]() {
+      stopListening[Symbol.dispose]();
+      for (const controller of controllers.values()) {
+        controller.abort();
+      }
+      controllers.clear();
+    },
+  };
 }

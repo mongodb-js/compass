@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import { MessageChannel } from 'node:worker_threads';
 import { createToolsRpcClient } from './rpc-client';
 import { serveToolsRequests } from './server';
@@ -116,5 +117,54 @@ describe('tools rpc', function () {
     // let stray messages arrive
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(called).to.equal(0);
+  });
+
+  it('closes the port when the client is closed', function () {
+    const close = sinon.spy(channel.port1, 'close');
+    const client = createToolsRpcClient(channel.port1);
+
+    client.close();
+
+    expect(close).to.have.been.calledOnce;
+    close.restore();
+  });
+
+  it('does not send an abort message for a request that already settled', async function () {
+    const client = createToolsRpcClient(channel.port1);
+    const controller = new AbortController();
+    const postMessage = sinon.spy(channel.port1, 'postMessage');
+    serveToolsRequests(channel.port2, () => Promise.resolve('ok'));
+
+    await client.call('performToolCall', undefined, controller.signal);
+    postMessage.resetHistory();
+
+    controller.abort(new Error('too late'));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(postMessage).to.not.have.been.called;
+    postMessage.restore();
+  });
+
+  it('aborts in-flight requests when the server is disposed', async function () {
+    const client = createToolsRpcClient(channel.port1);
+    let serverSignal: AbortSignal | undefined;
+    const server = serveToolsRequests(
+      channel.port2,
+      (_method, _params, signal) => {
+        serverSignal = signal;
+        return new Promise((_resolve, reject) => {
+          signal.addEventListener('abort', () => reject(signal.reason));
+        });
+      }
+    );
+
+    void client.call('performToolCall').catch(() => {
+      // the request is aborted below; the rejection is expected
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    server[Symbol.dispose]();
+
+    expect(serverSignal?.aborted).to.equal(true);
   });
 });

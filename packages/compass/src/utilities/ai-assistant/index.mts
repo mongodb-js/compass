@@ -28,7 +28,14 @@ export function main(parentPort: ParentPort): Disposable {
       // stack moved out; the listener dies with its closed port.
       const host = new ToolsHost(port, { logger });
       listen(port, 'close', () => {
-        host.stop();
+        void host.stop().catch((error) => {
+          logger.log.error(
+            logger.mongoLogId(1_001_000_447),
+            'ai-assistant',
+            'Error when stopping the tools host',
+            { error: error instanceof Error ? error.message : String(error) }
+          );
+        });
       });
     })
   );

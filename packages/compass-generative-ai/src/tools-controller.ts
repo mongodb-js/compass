@@ -18,6 +18,8 @@ import {
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
+const ASSISTANT_TOOLS_STARTUP_TIMEOUT_MS = 10_000;
+
 type CompassContext = {
   enableMCPTelemetry: boolean;
   maxTimeMS?: number;
@@ -57,6 +59,7 @@ export class ToolsController {
     maxTimeMS?: number;
   };
   private portClient: ReturnType<typeof createToolsRpcClient> | null = null;
+  private startPromise: Promise<void> | null = null;
   private dbToolDefinitions: ToolDefinitionInfo[] = [];
 
   constructor({
@@ -210,11 +213,12 @@ export class ToolsController {
     this.connectionIdByToolCallId[toolCallId] = connectionId;
   }
 
-  public async startServer(): Promise<void> {
-    if (this.portClient) {
-      return;
-    }
+  public startServer(): Promise<void> {
+    this.startPromise ??= this.startServerOnce();
+    return this.startPromise;
+  }
 
+  private async startServerOnce(): Promise<void> {
     try {
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_402),
@@ -223,18 +227,16 @@ export class ToolsController {
       );
 
       this.portClient = createToolsRpcClient(this.openPort());
-      // Deliver the runtime config before anything else can run in the
-      // utility: telemetry is best-effort disabled from the start.
-      await this.portClient.call('setUserConfig', {
-        ...this.initialConfig,
-        telemetryAnonymousId: this.getTelemetryAnonymousId(),
+      await this.withStartupTimeout(async () => {
+        await this.portClient!.call('setUserConfig', {
+          ...this.initialConfig,
+          telemetryAnonymousId: this.getTelemetryAnonymousId(),
+        });
+
+        this.dbToolDefinitions = (await this.portClient!.call(
+          'listDatabaseTools'
+        )) as ToolDefinitionInfo[];
       });
-      // Handshake doubles as the one-time schema fetch: the db tool
-      // definitions are static for the life of the server, so
-      // getActiveTools can stay synchronous for its callers.
-      this.dbToolDefinitions = (await this.portClient.call(
-        'listDatabaseTools'
-      )) as ToolDefinitionInfo[];
 
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_403),
@@ -253,7 +255,18 @@ export class ToolsController {
       this.portClient?.close();
       this.portClient = null;
       this.dbToolDefinitions = [];
+      this.startPromise = null;
     }
+  }
+
+  private async withStartupTimeout<T>(start: () => Promise<T>): Promise<T> {
+    const timeout = new Promise<never>((_resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error('Timed out waiting for the assistant tools utility'));
+      }, ASSISTANT_TOOLS_STARTUP_TIMEOUT_MS);
+      timer.unref?.();
+    });
+    return await Promise.race([start(), timeout]);
   }
 
   public async stopServer(): Promise<void> {
@@ -267,6 +280,7 @@ export class ToolsController {
     }
     const client = this.portClient;
     this.portClient = null;
+    this.startPromise = null;
     this.dbToolDefinitions = [];
     try {
       await client.call('stopServer');

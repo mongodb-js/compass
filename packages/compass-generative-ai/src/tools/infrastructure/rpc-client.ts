@@ -22,20 +22,37 @@ export function createToolsRpcClient(port: ToolsRpcPort): {
   let nextId = 0;
   const pending = new Map<
     number,
-    { resolve: (value: unknown) => void; reject: (reason: unknown) => void }
+    {
+      resolve: (value: unknown) => void;
+      reject: (reason: unknown) => void;
+      /** Removes the abort listener the call installed, if any */
+      stopListeningForAbort?: () => void;
+    }
   >();
+
+  const settle = (
+    id: number,
+    settleEntry: (entry: {
+      resolve: (value: unknown) => void;
+      reject: (reason: unknown) => void;
+      stopListeningForAbort?: () => void;
+    }) => void
+  ): void => {
+    const entry = pending.get(id);
+    if (!entry) return;
+    pending.delete(id);
+    entry.stopListeningForAbort?.();
+    settleEntry(entry);
+  };
 
   const stopListening = listen(port, 'message', (event: { data: unknown }) => {
     const message = event.data;
     if (!isResponse(message)) return;
 
-    const entry = pending.get(message.id);
-    if (!entry) return;
-
-    pending.delete(message.id);
-
-    if (message.ok) entry.resolve(message.result);
-    else entry.reject(new Error(message.error));
+    settle(message.id, (entry) => {
+      if (message.ok) entry.resolve(message.result);
+      else entry.reject(new Error(message.error));
+    });
   });
 
   return {
@@ -49,11 +66,16 @@ export function createToolsRpcClient(port: ToolsRpcPort): {
         }
         pending.set(id, { resolve, reject });
         if (signal) {
-          listen(signal, 'abort', () => {
-            pending.delete(id);
-            port.postMessage({ kind: 'abort', id } satisfies ToolsRpcAbort);
-            reject(signal.reason ?? new Error('The operation was aborted'));
+          const stopListeningForAbort = listen(signal, 'abort', () => {
+            settle(id, (entry) => {
+              port.postMessage({ kind: 'abort', id } satisfies ToolsRpcAbort);
+              entry.reject(
+                signal.reason ?? new Error('The operation was aborted')
+              );
+            });
           });
+          pending.get(id)!.stopListeningForAbort = () =>
+            stopListeningForAbort[Symbol.dispose]();
         }
         port.postMessage({
           kind: 'request',
@@ -64,11 +86,13 @@ export function createToolsRpcClient(port: ToolsRpcPort): {
       });
     },
     close() {
-      for (const { reject } of pending.values()) {
-        reject(new Error('Tools rpc client closed'));
+      for (const id of [...pending.keys()]) {
+        settle(id, (entry) =>
+          entry.reject(new Error('Tools rpc client closed'))
+        );
       }
-      pending.clear();
       stopListening[Symbol.dispose]();
+      port.close();
     },
   };
 }

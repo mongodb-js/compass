@@ -65,7 +65,7 @@ describe('ToolsController', function () {
   afterEach(async function () {
     await toolsController.stopServer();
     for (const host of openHosts) {
-      host.stop();
+      await host.stop();
     }
     for (const channel of openChannels) {
       channel.port1.close();
@@ -515,6 +515,33 @@ describe('ToolsController', function () {
         await controller.startServer();
 
         expect(openPort.calledOnce).to.be.true;
+      });
+
+      it('shares one startup between concurrent calls', async function () {
+        const openPort = sandbox.stub().returns(openChannels[0].port1);
+        const controller = createController({ openPort });
+        controller.setActiveTools(new Set(['db-read']));
+
+        await Promise.all([controller.startServer(), controller.startServer()]);
+
+        expect(openPort.calledOnce).to.be.true;
+        expect(controller.getActiveTools()).to.have.property('find');
+      });
+
+      it('gives up on a utility that never answers', async function () {
+        this.timeout(20_000);
+        const silentChannel = new MessageChannel();
+        openChannels.push(silentChannel);
+        const controller = createController({
+          openPort: () => silentChannel.port1,
+        });
+        controller.setActiveTools(new Set(['db-read']));
+
+        await controller.startServer();
+
+        expect(Object.keys(controller.getActiveTools())).to.deep.equal(
+          baseTools
+        );
       });
 
       it('logs when server starts successfully', async function () {
