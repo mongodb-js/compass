@@ -14,6 +14,7 @@ import {
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import { DeviceId } from '@mongodb-js/mcp-tools-mongodb';
+import { ApiClient } from '@mongodb-js/mcp-atlas-api-client';
 import type { ITelemetry } from '@mongodb-js/mcp-types';
 import type { CompassMcpTelemetry } from './compass-mcp-telemetry';
 
@@ -550,6 +551,85 @@ describe('ToolsController', function () {
         'hosting_mode',
         'compass'
       );
+    });
+
+    describe('when a database tool runs', function () {
+      let sendEvents: sinon.SinonStub;
+
+      beforeEach(async function () {
+        sendEvents = sandbox.stub(ApiClient.prototype, 'sendEvents').resolves();
+        sandbox.stub(NodeDriverServiceProvider, 'connect').resolves({
+          close: sandbox.stub().resolves(),
+          initialDb: 'test',
+          listDatabases: sandbox.stub().resolves({
+            databases: [{ name: 'admin', sizeOnDisk: 1024 }],
+          }),
+        } as any);
+
+        await toolsController.startServer();
+        toolsController.setActiveTools(new Set(['db-read']));
+        toolsController.setConnectionIdForToolCall({
+          toolCallId: 'call-1',
+          connectionId: 'conn-1',
+        });
+      });
+
+      const setTelemetryEnabled = (enableMCPTelemetry: boolean) => {
+        toolsController.setContext({
+          enableMCPTelemetry,
+          connections: [
+            {
+              connectionId: 'conn-1',
+              connectionString: 'mongodb://localhost:27017',
+              connectOptions: {} as any,
+            },
+          ],
+        });
+      };
+
+      const runListDatabases = async () => {
+        const tools = toolsController.getActiveTools();
+        await tools['list-databases'].execute?.({}, {
+          toolCallId: 'call-1',
+        } as any);
+      };
+
+      // Tool telemetry is fire-and-forget, and the pipeline only drains on
+      // close or on its timer, so give the event time to reach the client.
+      const waitForSend = async () => {
+        const deadline = Date.now() + 2000;
+        while (!sendEvents.called && Date.now() < deadline) {
+          await new Promise((resolve) => setTimeout(resolve, 5));
+        }
+      };
+
+      it('reports the tool call to the Atlas API client', async function () {
+        setTelemetryEnabled(true);
+        await runListDatabases();
+        await toolsController.stopServer();
+        await waitForSend();
+
+        expect(sendEvents.called).to.equal(true);
+        const [events] = sendEvents.firstCall.args;
+        expect(events[0].properties).to.include({
+          command: 'list-databases',
+          component: 'tool',
+          category: 'mongodb',
+          result: 'success',
+          hosting_mode: 'compass',
+        });
+      });
+
+      it('reports nothing while telemetry is disabled', async function () {
+        setTelemetryEnabled(false);
+        await runListDatabases();
+        await toolsController.stopServer();
+
+        // Long enough for the fire-and-forget tool telemetry and the drain.
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        expect(sendEvents.called).to.equal(false);
+      });
     });
   });
 
