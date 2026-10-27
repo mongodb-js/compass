@@ -24,7 +24,7 @@ import {
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { type MockDataSchemaToolOutput } from '@mongodb-js/compass-generative-ai';
+import { type MockDataSchemaToolOutput } from '@mongodb-js/mock-data-generator';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import * as scriptGenerationUtils from '@mongodb-js/mock-data-generator';
 
