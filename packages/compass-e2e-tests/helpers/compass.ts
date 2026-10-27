@@ -1,13 +1,6 @@
 import { inspect, promisify } from 'node:util';
 import { ObjectId, EJSON } from 'bson';
-import {
-  promises as fs,
-  closeSync,
-  mkdirSync,
-  openSync,
-  rmdirSync,
-  writeSync,
-} from 'node:fs';
+import { promises as fs, closeSync, rmdirSync } from 'node:fs';
 import type Mocha from 'mocha';
 import os from 'node:os';
 import { execFile } from 'node:child_process';
@@ -369,6 +362,7 @@ export class Compass {
 
   addDebugger(): void {
     const browser = this.browser;
+    const debugClient = debug.extend('webdriver:client');
     const browserProto = Object.getPrototypeOf(browser);
 
     // We can pull the own property names straight from browser, but brings up a
@@ -430,7 +424,11 @@ export class Compass {
 
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
-        traceWebdriverCommand(`${prop}(${args.map(traceArg).join(', ')})`);
+        debugClient(
+          `${prop}(${args
+            .map((arg) => redact(inspect(arg, { breakLength: Infinity })))
+            .join(', ')})`
+        );
 
         const stack = new Error(prop).stack ?? '';
 
@@ -1378,43 +1376,12 @@ const SENSITIVE_ENV_VARS = [
 
 let webdriverTraceFd: number | undefined;
 
-function traceWebdriverCommand(message: string): void {
-  if (webdriverTraceFd === undefined) {
-    mkdirSync(LOG_PATH, { recursive: true });
-    webdriverTraceFd = openSync(
-      path.join(LOG_PATH, 'webdriver-trace.log'),
-      'a'
-    );
-  }
-  writeSync(webdriverTraceFd, `${new Date().toISOString()} ${message}\n`);
-}
-
 export function closeWebdriverTrace(): void {
   if (webdriverTraceFd === undefined) {
     return;
   }
   closeSync(webdriverTraceFd);
   webdriverTraceFd = undefined;
-}
-
-// WebdriverIO passes whole Browser/Element graphs around, and those reference
-// the browser session, the driver capabilities and the element's own error.
-// Inspecting them deeply buries the actual failure in unrelated internals.
-function traceArg(arg: unknown): string {
-  if (typeof arg === 'string') {
-    return redact(arg);
-  }
-  if (typeof arg === 'function') {
-    return `<${arg.name || 'function'}>`;
-  }
-  if (arg === null || typeof arg !== 'object') {
-    return String(arg);
-  }
-  const ctor = arg.constructor?.name;
-  if (ctor && ctor !== 'Object' && ctor !== 'Array') {
-    return `<${ctor}>`;
-  }
-  return redact(inspect(arg, { depth: 1, breakLength: Infinity }));
 }
 
 function redact(value: string): string {
