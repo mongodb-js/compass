@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { createToolsLoopbackChannel } from './tools-loopback';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import type { ToolsHost } from '@mongodb-js/compass-generative-ai/utility';
+import {
+  createToolsLoopbackChannel,
+  openToolsLoopback,
+} from './tools-loopback';
 
 describe('tools loopback channel', function () {
   let sandbox: sinon.SinonSandbox;
@@ -43,5 +48,16 @@ describe('tools loopback channel', function () {
 
     expect(openPort()).to.equal(port1);
     expect(hostPort).to.equal(port2);
+  });
+
+  it('opens a fresh port and host per open, so a closed one is never reused', function () {
+    const hosts = new Set<ToolsHost>();
+    const logger = createNoopLogger();
+
+    const first = openToolsLoopback(hosts, logger);
+    const second = openToolsLoopback(hosts, logger);
+
+    expect(first).to.not.equal(second);
+    expect(hosts.size).to.equal(2);
   });
 });
