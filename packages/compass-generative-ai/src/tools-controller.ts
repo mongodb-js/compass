@@ -200,11 +200,18 @@ export class ToolsController {
       enableMCPTelemetry: context.enableMCPTelemetry,
       maxTimeMS: context.maxTimeMS,
     };
-    void this.portClient?.call('setUserConfig', {
-      enableMCPTelemetry: context.enableMCPTelemetry,
-      maxTimeMS: context.maxTimeMS,
-      telemetryAnonymousId: this.getTelemetryAnonymousId(),
-    });
+    void this.portClient
+      ?.call('setUserConfig', {
+        enableMCPTelemetry: context.enableMCPTelemetry,
+        maxTimeMS: context.maxTimeMS,
+        telemetryAnonymousId: this.getTelemetryAnonymousId(),
+      })
+      .catch((error: unknown) => {
+        this.logger.debug(
+          'Error when updating assistant tools configuration',
+          error
+        );
+      });
   }
 
   setConnectionIdForToolCall({
@@ -287,7 +294,7 @@ export class ToolsController {
     this.startPromise = null;
     this.dbToolDefinitions = [];
     try {
-      await client.call('stopServer');
+      await client.call('stopServer', undefined, AbortSignal.timeout(10_000));
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_407),
         'ToolsController',
