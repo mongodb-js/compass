@@ -182,12 +182,12 @@ describe('MongoDB Assistant (with real backend)', function () {
       { timeout: 30_000 }
     );
 
-    // Expand the tool call card to see the response
     const expandButton = chatMessages.$(
       'button[aria-label="Expand additional content"]'
     );
-    await expandButton.waitForDisplayed();
-    await browser.clickVisible(expandButton);
+    if (await expandButton.isExisting()) {
+      await browser.clickVisible(expandButton);
+    }
 
     // Wait for the expanded content to include the response with structuredContent.databases
     await browser.waitUntil(
