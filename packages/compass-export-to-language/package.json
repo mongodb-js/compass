@@ -56,7 +56,7 @@
     "@mongodb-js/compass-preferences-model": "^3.6.0",
     "@mongodb-js/compass-telemetry": "^1.35.1",
     "@mongodb-js/mongodb-ns": "^3.2.9",
-    "@mongodb-js/shell-bson-parser": "^2.1.0",
+    "@mongodb-js/shell-bson-parser": "^1.6.3",
     "bson-transpilers": "^3.3.12",
     "@mongodb-js/compass-app-registry": "^9.15.2",
     "react": "^18.3.1",
