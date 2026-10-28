@@ -79,7 +79,7 @@ describe('PipelineBuilder', function () {
   it('converts source to stages', async function () {
     const source = `[{$match: {name: /berlin/i}}]`;
     await pipelineBuilder.changeSource(source);
-    pipelineBuilder.sourceToStages();
+    await pipelineBuilder.sourceToStages();
 
     expect(pipelineBuilder.syntaxError.length).to.equal(0);
     expect(pipelineBuilder.source).to.equal(source);

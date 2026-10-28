@@ -17,6 +17,7 @@ import {
   showInput,
   hideInput,
 } from './pipeline-ai';
+import { PipelineBuilder } from './pipeline-builder';
 
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -231,6 +232,47 @@ describe('AIPipelineReducer', function () {
       expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
         'ready'
       );
+    });
+
+    it('does not load a generated pipeline cancelled during parsing', async function () {
+      const store = await configureStore({
+        getAggregationFromUserInput: sandbox.stub().resolves({
+          content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
+        }),
+      });
+      store.dispatch(toggleAutoPreview(false));
+
+      let finishReset: (() => void) | undefined;
+      let resetStarted: (() => void) | undefined;
+      const pendingReset = new Promise<void>((resolve) => {
+        finishReset = resolve;
+      });
+      const started = new Promise<void>((resolve) => {
+        resetStarted = resolve;
+      });
+      const reset = sandbox
+        .stub(PipelineBuilder.prototype, 'reset')
+        .callsFake(async (_source) => {
+          resetStarted?.();
+          await pendingReset;
+        });
+
+      const generation = store.dispatch(
+        runAIPipelineGeneration('testing prompt')
+      );
+      await started;
+      store.dispatch(cancelAIPipelineGeneration());
+      finishReset?.();
+      try {
+        await generation;
+
+        expect(reset).to.have.been.calledOnce;
+        expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
+          'ready'
+        );
+      } finally {
+        reset.restore();
+      }
     });
   });
 

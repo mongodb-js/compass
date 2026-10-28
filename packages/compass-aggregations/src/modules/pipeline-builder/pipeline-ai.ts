@@ -322,6 +322,7 @@ export const runAIPipelineGeneration = (
         enableStorage: !isFLE,
       });
     } catch (err: any) {
+      cleanupAbortSignal(requestId);
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
@@ -354,13 +355,10 @@ export const runAIPipelineGeneration = (
         errorCode: (err as AtlasServiceError).errorCode,
       });
       return;
-    } finally {
-      // Remove the AbortController from the Map as we either finished
-      // waiting for the fetch or cancelled at this point.
-      cleanupAbortSignal(requestId);
     }
 
     if (signal.aborted) {
+      cleanupAbortSignal(requestId);
       log.info(
         mongoLogId(1_001_000_231),
         'AIPipeline',
@@ -386,6 +384,7 @@ export const runAIPipelineGeneration = (
         requestId,
         connectionInfo,
       });
+      cleanupAbortSignal(requestId);
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
         errorMessage: (err as Error).message,
@@ -393,7 +392,24 @@ export const runAIPipelineGeneration = (
       return;
     }
 
-    await pipelineBuilder.reset(pipelineText);
+    try {
+      await pipelineBuilder.reset(pipelineText);
+      if (
+        signal.aborted ||
+        getState().pipelineBuilder.aiPipeline.aiPipelineRequestId !== requestId
+      ) {
+        return;
+      }
+    } finally {
+      cleanupAbortSignal(requestId);
+    }
+
+    if (
+      signal.aborted ||
+      getState().pipelineBuilder.aiPipeline.aiPipelineRequestId !== requestId
+    ) {
+      return;
+    }
 
     log.info(
       mongoLogId(1_001_000_228),

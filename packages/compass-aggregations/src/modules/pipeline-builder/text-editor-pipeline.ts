@@ -35,10 +35,19 @@ export const EditorActionTypes = {
     'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchError',
   EditorValueChange:
     'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorValueChange',
+  EditorPipelineParsed:
+    'compass-aggregations/pipeline-builder/text-editor-pipeline/EditorPipelineParsed',
 } as const;
 
 export type EditorValueChangeAction = {
   type: typeof EditorActionTypes.EditorValueChange;
+  pipelineText: string;
+  pipeline: Document[] | null;
+  syntaxErrors: PipelineParserError[];
+};
+
+export type EditorPipelineParsedAction = {
+  type: typeof EditorActionTypes.EditorPipelineParsed;
   pipelineText: string;
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
@@ -67,6 +76,7 @@ export type TextEditorAction =
   | EditorPreviewFetchErrorAction
   | EditorPreviewFetchSuccessAction
   | EditorPreviewFetchSkippedAction
+  | EditorPipelineParsedAction
   | EditorValueChangeAction;
 
 export type TextEditorState = {
@@ -132,6 +142,10 @@ const reducer: Reducer<TextEditorState, Action> = (
     isAction<EditorValueChangeAction>(
       action,
       EditorActionTypes.EditorValueChange
+    ) ||
+    isAction<EditorPipelineParsedAction>(
+      action,
+      EditorActionTypes.EditorPipelineParsed
     )
   ) {
     // On pipeline text change we preserve the previous pipeline in the state

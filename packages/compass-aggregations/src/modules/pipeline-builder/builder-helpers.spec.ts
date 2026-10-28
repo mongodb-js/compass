@@ -25,6 +25,34 @@ async function createStore(
 }
 
 describe('builder-helpers', function () {
+  describe('changePipelineMode', function () {
+    it('switches immediately and publishes the parsed pipeline afterward', async function () {
+      const store = await createStore();
+      store.dispatch(changeStageDisabled(0, true));
+
+      const switched = store.dispatch(changePipelineMode('as-text'));
+
+      expect(store.getState().pipelineBuilder.pipelineMode).to.eq('as-text');
+      await switched;
+      expect(
+        store.getState().pipelineBuilder.textEditor.pipeline.pipeline
+      ).to.deep.eq([{ $limit: 10 }]);
+    });
+
+    it('does not overwrite a text edit made while the switch is being parsed', async function () {
+      const store = await createStore();
+      const switched = store.dispatch(changePipelineMode('as-text'));
+      const edited = store.dispatch(changeEditorValue('[{$limit: 20}]'));
+
+      await Promise.all([switched, edited]);
+
+      const { pipelineText, pipeline } =
+        store.getState().pipelineBuilder.textEditor.pipeline;
+      expect(pipelineText).to.eq('[{$limit: 20}]');
+      expect(pipeline).to.deep.eq([{ $limit: 20 }]);
+    });
+  });
+
   describe('getPipelineStageOperatorsFromBuilderState', function () {
     let store: AggregationsStore;
     beforeEach(async function () {

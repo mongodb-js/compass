@@ -147,6 +147,7 @@ export type ChangeStageDisabledAction = {
   type: typeof StageEditorActionTypes.StageDisabledChange;
   id: number;
   disabled: boolean;
+  syntaxError: PipelineParserError | null;
 };
 
 export type StageAddAction = {
@@ -851,9 +852,28 @@ export const changeStageDisabled = (
       type: StageEditorActionTypes.StageDisabledChange,
       id,
       disabled: newVal,
+      syntaxError: stage.syntaxError,
     });
-    dispatch(loadPreviewForStagesFrom(id));
-    void dispatch(fetchExplainForPipeline());
+
+    void stage.validateWithParser().then(() => {
+      const currentIdx =
+        getState().pipelineBuilder.stageEditor.stages.findIndex(
+          (s) => s.type === 'stage' && s.id === stage.id
+        );
+      if (currentIdx === -1) {
+        return;
+      }
+      if (stage.syntaxError) {
+        dispatch({
+          type: StageEditorActionTypes.StageDisabledChange,
+          id: currentIdx,
+          disabled: stage.disabled,
+          syntaxError: stage.syntaxError,
+        });
+      }
+      dispatch(loadPreviewForStagesFrom(currentIdx));
+      void dispatch(fetchExplainForPipeline());
+    });
   };
 };
 
@@ -1466,6 +1486,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           serverError: null,
           previewDocs: null,
           disabled: action.disabled,
+          syntaxError: action.syntaxError,
         },
         ...state.stages.slice(action.id + 1),
       ],

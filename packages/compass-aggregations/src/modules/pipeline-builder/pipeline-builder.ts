@@ -39,7 +39,7 @@ export class PipelineBuilder {
     this.previewManager = new PipelinePreviewManager(dataService, preferences);
     // Parsed pipeline lands later, callers can wait for it with this.parsePromise
     void this.changeSource(source);
-    this.sourceToStages();
+    void this.sourceToStages();
   }
 
   /**
@@ -124,9 +124,8 @@ export class PipelineBuilder {
     this.pipeline = [];
     this.stages = [];
     this.syntaxError = [];
-    const parsed = this.changeSource(source);
-    this.sourceToStages();
-    await parsed;
+    await this.changeSource(source);
+    await this.sourceToStages();
   }
 
   /**
@@ -144,7 +143,7 @@ export class PipelineBuilder {
   /**
    * Generate stages from current source
    */
-  sourceToStages(): void {
+  async sourceToStages(): Promise<void> {
     try {
       const { root, stages } = PipelineParser.parse(this.source);
       this.node = root;
@@ -154,6 +153,8 @@ export class PipelineBuilder {
       this.syntaxError = this.stages
         .map((stage) => stage.syntaxError)
         .filter(Boolean) as PipelineParserError[];
+      // shell-bson validation
+      await Promise.all(this.stages.map((stage) => stage.validateWithParser()));
     } catch (e) {
       this.syntaxError = [e as PipelineParserError];
     }

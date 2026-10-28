@@ -16,6 +16,8 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+import { EditorActionTypes } from './text-editor-pipeline';
+import type { EditorPipelineParsedAction } from './text-editor-pipeline';
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
@@ -67,7 +69,10 @@ const reducer: Reducer<PipelineModeState, Action> = (
 
 export const changePipelineMode = (
   newMode: PipelineMode
-): PipelineBuilderThunkAction<Promise<void>, PipelineModeToggledAction> => {
+): PipelineBuilderThunkAction<
+  Promise<void>,
+  PipelineModeToggledAction | EditorPipelineParsedAction
+> => {
   return async (
     dispatch,
     getState,
@@ -77,21 +82,32 @@ export const changePipelineMode = (
       return;
     }
 
-    // Sync the PipelineBuilder. The parsed pipeline is dispatched below, so
-    // wait for the regenerated source to be parsed first.
-    if (newMode === 'as-text') {
-      await pipelineBuilder.stagesToSource();
-    } else {
-      pipelineBuilder.sourceToStages();
-    }
-
+    const parsedPromise =
+      newMode === 'as-text'
+        ? pipelineBuilder.stagesToSource()
+        : pipelineBuilder.sourceToStages();
+    const source = pipelineBuilder.source;
     dispatch({
       type: ActionTypes.PipelineModeToggled,
       mode: newMode,
-      pipelineText: pipelineBuilder.source,
-      pipeline: pipelineBuilder.pipeline,
+      pipelineText: source,
+      pipeline: newMode === 'as-text' ? null : pipelineBuilder.pipeline,
       syntaxErrors: pipelineBuilder.syntaxError,
       stages: pipelineBuilder.stages,
+    });
+
+    await parsedPromise;
+    if (
+      getState().pipelineBuilder.pipelineMode !== newMode ||
+      pipelineBuilder.source !== source
+    ) {
+      return;
+    }
+    dispatch({
+      type: EditorActionTypes.EditorPipelineParsed,
+      pipelineText: source,
+      pipeline: pipelineBuilder.pipeline,
+      syntaxErrors: pipelineBuilder.syntaxError,
     });
 
     try {
