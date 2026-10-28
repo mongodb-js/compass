@@ -212,6 +212,13 @@ module.exports = (_env, args) => {
       externals: Object.fromEntries(
         sharedExternals.map((name) => [name, `node-commonjs ${name}`])
       ),
+      resolve: {
+        alias: {
+          // Same as the renderer: Atlas Local is a native dependency the app
+          // does not ship for this flow, and bundling it only adds megabytes
+          '@mongodb-js/atlas-local': false,
+        },
+      },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         // Main forks one file per utility
