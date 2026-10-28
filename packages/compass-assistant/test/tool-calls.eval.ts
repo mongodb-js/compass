@@ -9,11 +9,11 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { MessageChannel } from 'node:worker_threads';
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import type { ToolSet, ToolCallPart } from 'ai';
 import { MongoClient } from 'mongodb';
-import { MessageChannel } from 'node:worker_threads';
 import {
   ToolsController,
   type ToolGroup,
