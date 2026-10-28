@@ -1,6 +1,7 @@
 // IMPORTANT: this import should always be the first one in compass-component
 // main entrypoint to ensure that emotion is reconfigured before any component
 // modules generate their stylesheets
+/* eslint-disable-next-line import/first, import/order */
 import './force-emotion-speedy';
 import ConfirmationModal from './components/modals/confirmation-modal';
 import MarketingModal from './components/modals/marketing-modal';
@@ -28,7 +29,6 @@ import ResizableSidebar, {
   defaultSidebarWidth,
 } from './components/resizeable-sidebar';
 import IndexIcon from './components/index-icon';
-// -------------------------------
 
 export * from './components/leafygreen';
 export {
