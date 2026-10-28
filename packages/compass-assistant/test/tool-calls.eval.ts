@@ -67,8 +67,11 @@ const DEFAULT_EVAL_TASK_CONFIG: EvalTaskConfig = {
 
 const logger = createNoopLogger('EVAL-TOOLS-CONTROLLER');
 
+// There is no utility process in Node, so the host runs in this one, on the
+// other end of a plain MessageChannel. Held in a variable so the run can
+// release its server and driver connection when it finishes.
 const evalChannel = new MessageChannel();
-new ToolsHost(evalChannel.port2, { logger });
+const evalHost = new ToolsHost(evalChannel.port2, { logger });
 
 const toolsController = new ToolsController({
   logger,
@@ -282,6 +285,7 @@ async function main() {
     });
   } finally {
     await toolsController.stopServer();
+    await evalHost.stop();
     await client.close();
     await cluster.close();
     // FIXME(COMPASS-10486): We need to have this otherwise the process hangs.

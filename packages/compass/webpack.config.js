@@ -63,6 +63,11 @@ module.exports = (_env, args) => {
   const utilitiesConfig = withoutStartElectron(
     createElectronMainConfig({
       ...opts,
+      // Utilities are never coverage instrumented: istanbul's preamble calls
+      // `new Function('return this')`, and utility processes are forked with
+      // NODE_OPTIONS forbidding code generation from strings (application.ts),
+      // so an instrumented utility crashes on load.
+      coverage: '',
       entry: utilityEntries,
       outputFilename: '[name].mjs',
     })
