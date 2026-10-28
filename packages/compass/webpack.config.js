@@ -63,6 +63,11 @@ module.exports = (_env, args) => {
   const utilitiesConfig = withoutStartElectron(
     createElectronMainConfig({
       ...opts,
+      // Utilities are never coverage instrumented: istanbul's preamble calls
+      // `new Function('return this')`, and utility processes are forked with
+      // NODE_OPTIONS forbidding code generation from strings (application.ts),
+      // so an instrumented utility crashes on load.
+      coverage: '',
       entry: utilityEntries,
       outputFilename: '[name].mjs',
     })
@@ -200,13 +205,34 @@ module.exports = (_env, args) => {
           'web-worker',
         ].map((name) => [name, `node-commonjs ${name}`])
       ),
-      plugins: [
-        new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // Main forks one file per utility
-        new webpack.optimize.LimitChunkCountPlugin({
-          maxChunks: Object.keys(utilityEntries).length,
-        }),
-      ],
+      resolve: {
+        alias: {
+          // Same as the renderer: Atlas Local is a native dependency the app
+          // does not ship for this flow, and bundling it only adds megabytes
+          '@mongodb-js/atlas-local': false,
+        },
+      },
+      // Utilities share the heavy Node-side dependencies (the driver, the MCP
+      // server, their transitive graph) instead of every utility bundling its
+      // own copy.
+      optimization: {
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            // Only the sharing rule: everything else stays in the utility that
+            // uses it, so this does not fragment the output
+            default: false,
+            defaultVendors: false,
+            utilitiesVendor: {
+              name: 'utilities-vendor',
+              chunks: 'all',
+              minChunks: 2,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      },
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
     merge(preloadConfig, {
       name: 'preload',
