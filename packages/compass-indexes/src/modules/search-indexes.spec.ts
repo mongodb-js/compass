@@ -504,11 +504,11 @@ describe('#getInitialAutoEmbedSearchIndexPipelineText', function () {
     expect(text).not.to.match(/\$\{\d+:/);
   });
 
-  it('replaces template tab-stops with literals (${5:string} → path, ${6:numCandidates} → 50, ${10:boolean} → false)', function () {
+  it('replaces template tab-stops with literals (${5:string} → path, ${6:string} → index, ${7:limit} → 10)', function () {
     const text =
       searchIndexesSlice.getInitialAutoEmbedSearchIndexPipelineText('idx');
     expect(text).to.include('path: "<field-to-search>"');
-    expect(text).to.include('numCandidates: 50');
-    expect(text).to.include('exact: false');
+    expect(text).to.include('index: "idx"');
+    expect(text).to.include('limit: 10');
   });
 });
