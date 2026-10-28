@@ -19,24 +19,35 @@ export function main(parentPort: ParentPort): Disposable {
 
   const logger = createUtilityLogger(parentPort, name);
 
+  const hosts = new Set<ToolsHost>();
+  ds.defer(() => {
+    for (const host of hosts) {
+      void host.stop();
+    }
+  });
+
   ds.use(
     onPort(parentPort, (port) => {
-      // One host per renderer: it owns the MCP server and the driver
-      // connections for that renderer's tool calls. When the renderer goes
-      // away (crash included), its port closes and the host is torn down.
-      // Not tracked in `ds`: ports arrive after main() returned and the
-      // stack moved out; the listener dies with its closed port.
       const host = new ToolsHost(port, { logger });
-      listen(port, 'close', () => {
-        void host.stop().catch((error) => {
-          logger.log.error(
-            logger.mongoLogId(1_001_000_454),
-            'ai-assistant',
-            'Error when stopping the tools host',
-            { error: error instanceof Error ? error.message : String(error) }
-          );
-        });
-      });
+      hosts.add(host);
+      listen(
+        port,
+        'close',
+        () => {
+          hosts.delete(host);
+          void host.stop().catch((error) => {
+            logger.log.error(
+              logger.mongoLogId(1_001_000_454),
+              'ai-assistant',
+              'Error when stopping the tools host',
+              {
+                error: error instanceof Error ? error.message : String(error),
+              }
+            );
+          });
+        },
+        { once: true }
+      );
     })
   );
 
