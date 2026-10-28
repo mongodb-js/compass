@@ -1,9 +1,13 @@
 import process from 'node:process';
 import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
-import { type ParentPort, type MessagePortMain, MessageChannelMain } from 'electron';
-import { main } from './index.mts';
+import {
+  type ParentPort,
+  type MessagePortMain,
+  MessageChannelMain,
+} from 'electron';
 import { once } from '@mongodb-js/compass-utils';
+import { main } from './index.mts';
 
 describe('embedded-shell utility', function () {
   let parentPort: ParentPort;

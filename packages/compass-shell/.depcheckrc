@@ -4,9 +4,6 @@ ignores:
   - '@types/chai'
   - '@types/sinon-chai'
   - 'electron'
-  # Required by @mongosh/node-runtime-worker-thread/dist/rpc.js, which
-  # ShellRuntime imports; that package bundles it rather than depending on it
-  - 'postmsg-rpc'
   - '@types/chai-dom'
   - '@types/react'
   - '@types/react-dom'

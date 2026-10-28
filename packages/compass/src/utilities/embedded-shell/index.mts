@@ -13,7 +13,7 @@ export const name = 'embedded-shell';
 // asar archive (it is unpacked when Compass is packaged)
 function resolveWorkerRuntimePath(): string {
   return createRequire(import.meta.url)
-    .resolve('@mongosh/node-runtime-worker-thread/dist/worker-runtime.js')
+    .resolve('@mongosh/node-runtime-worker-thread/worker-runtime')
     .replace(/\.asar(?!\.unpacked)/, '.asar.unpacked');
 }
 

@@ -24,7 +24,7 @@ function isRpcCall(data: unknown, func?: string): data is RpcCall {
 
 type ShellSessionOptions = {
   logger: Logger;
-  /** `@mongosh/node-runtime-worker-thread/dist/worker-runtime.js` on disk */
+  /** `@mongosh/node-runtime-worker-thread/worker-runtime` on disk */
   workerRuntimePath: string;
 };
 
