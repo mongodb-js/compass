@@ -132,6 +132,14 @@ describe('CompassToolCallScorers', function () {
       expect(scores.ToolCallAmountCorrect).to.equal(0);
     });
 
+    it('penalizes a schema lookup when the case expects no tool calls', async function () {
+      const scores = await score(
+        [{ role: 'assistant' }],
+        [call('collection-schema')]
+      );
+      expect(scores.ToolCallAmountCorrect).to.equal(0);
+    });
+
     it('counts the schema lookup when the case expects it', async function () {
       const expectSchemaThenFind = [
         {

@@ -25,16 +25,17 @@ function scoreRedirectsToEnableTools(answer: string, calledNames: string[]) {
 // The agent model often looks up the schema before the call a case expects. That
 // lookup is optional, so it is ignored unless the case expects it. A skill is
 // ignored the same way, but only when the case expects no tool calls, since
-// otherwise a skill sends the case to the trajectory scorer.
+// otherwise a skill sends the case to the trajectory scorer. When the case
+// expects no tool calls, a schema lookup is still a tool call and is kept.
 const OPTIONAL_CALLS = ['collection-schema', 'skill'];
 
 function withoutOptionalCalls(
   messages: OutputMessages,
   expectedNames: string[]
 ): OutputMessages {
-  const ignored = OPTIONAL_CALLS.filter(
-    (name) => !expectedNames.includes(name)
-  );
+  const ignored = expectedNames.length
+    ? OPTIONAL_CALLS.filter((name) => !expectedNames.includes(name))
+    : ['skill'];
   const ignoredCallIds = new Set(
     messages.flatMap((message) =>
       message.role === 'assistant'
