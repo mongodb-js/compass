@@ -3469,11 +3469,6 @@ const multiToolCases: ToolCallEvalCase[] = [
                 { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
-          ],
-        },
-        {
-          role: 'assistant-tool',
-          toolCalls: [
             {
               name: 'collection-indexes',
               arguments: [
@@ -4029,11 +4024,6 @@ const explicitToolCases: ToolCallEvalCase[] = [
                 { name: 'collection', type: 'string', value: 'movies' },
               ],
             },
-          ],
-        },
-        {
-          role: 'assistant-tool',
-          toolCalls: [
             {
               name: 'count',
               arguments: [
