@@ -19,7 +19,7 @@ export class InMemoryRunner extends TransportRunnerBase {
   }
 
   async start(): Promise<void> {
-    this.server = await this.setupServer();
+    this.server = await this.createServer();
   }
 
   async closeTransport(): Promise<void> {
