@@ -3,15 +3,15 @@ import type { ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod/v4';
 import { openUtilityPort } from '@mongodb-js/compass-utils';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createToolsRpcClient } from './tools/infrastructure/rpc-client';
 import { encodeConnectParams } from './tools/infrastructure/connect-params';
 import type { ToolsRpcPort } from './tools/infrastructure/messages';
 import type { ToolDefinitionInfo } from './tools/infrastructure/tools-host';
 import type { ToolsConnectParams } from './tools-connection-manager';
-import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import {
   debugConnection,
   debugConnectionDescription,

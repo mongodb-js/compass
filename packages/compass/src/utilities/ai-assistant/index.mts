@@ -2,9 +2,9 @@ import process from 'node:process';
 
 import type { ParentPort } from 'electron';
 import { listen } from '@mongodb-js/compass-utils';
+import { ToolsHost } from '@mongodb-js/compass-generative-ai/utility';
 import { createUtilityLogger } from '../logging.mts';
 import { onPort } from '../ipc.mts';
-import { ToolsHost } from '@mongodb-js/compass-generative-ai/utility';
 
 export const name = 'ai-assistant';
 

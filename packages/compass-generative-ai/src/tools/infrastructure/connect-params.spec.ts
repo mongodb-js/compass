@@ -1,9 +1,9 @@
+import { MessageChannel } from 'node:worker_threads';
 import { expect } from 'chai';
 import { Binary, UUID } from 'bson';
-import { MessageChannel } from 'node:worker_threads';
+import type { ToolsConnectParams } from '../../tools-connection-manager';
 import { decodeConnectParams, encodeConnectParams } from './connect-params';
 import type { ConnectParamsWire } from './connect-params';
-import type { ToolsConnectParams } from '../../tools-connection-manager';
 
 describe('connect params over the port', function () {
   let channel: MessageChannel;

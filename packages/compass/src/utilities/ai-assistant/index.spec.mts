@@ -1,6 +1,6 @@
-import { expect } from 'chai';
 import process from 'node:process';
 import { EventEmitter } from 'node:events';
+import { expect } from 'chai';
 import type { MessagePortMain, ParentPort } from 'electron';
 import { main } from './index.mts';
 
@@ -76,24 +76,16 @@ describe('ai-assistant utility', function () {
     expect(response.result.map((tool) => tool.name)).to.include('find');
   });
 
-  it('stops serving requests when the port closes', async function () {
-    this.timeout(10_000);
+  it('stops serving requests when the port closes', function () {
     const port = createFakePort();
     parentPort.emit('message', { ports: [port] });
-    // let the host attach its listeners
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(port.listenerCount('message')).to.be.greaterThan(0);
 
     port.emit('close');
-    port.emit('message', {
-      data: {
-        kind: 'request',
-        id: 1,
-        method: 'listDatabaseTools',
-        params: null,
-      },
-    });
-    await new Promise((resolve) => setTimeout(resolve, 10));
 
+    // The host releases its listener as the port closes, so nothing can
+    // answer requests for this renderer any more
+    expect(port.listenerCount('message')).to.equal(0);
     expect(port.sent).to.have.lengthOf(0);
   });
 });

@@ -1,6 +1,6 @@
+import { MessageChannel } from 'node:worker_threads';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MessageChannel } from 'node:worker_threads';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { createToolsRpcClient } from './rpc-client';

@@ -1,18 +1,18 @@
+import { MessageChannel } from 'node:worker_threads';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { MessageChannel } from 'node:worker_threads';
-import { ToolsController } from './tools-controller';
-import type { ToolGroup } from './tools-controller';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
-import type { ToolsConnectParams } from './tools-connection-manager';
-import { ToolsHost } from './tools/infrastructure/tools-host';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import type { ToolsConnectParams } from './tools-connection-manager';
+import { ToolsHost } from './tools/infrastructure/tools-host';
+import type { ToolGroup } from './tools-controller';
+import { ToolsController } from './tools-controller';
 
 describe('ToolsController', function () {
   // The MCP server starts in the utility host on the other end of the port;
@@ -32,6 +32,20 @@ describe('ToolsController', function () {
   // end, so the tests exercise the whole rpc boundary.
   const openChannels: MessageChannel[] = [];
   const openHosts: ToolsHost[] = [];
+
+  /**
+   * setContext delivers the utility's config without awaiting the rpc call, so
+   * tests wait for the effect instead of guessing how long a message takes.
+   */
+  async function waitFor(
+    condition: () => boolean,
+    timeoutMs = 2000
+  ): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    while (!condition() && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+  }
 
   function createController(
     overrides: Partial<ConstructorParameters<typeof ToolsController>[0]> = {}
@@ -436,8 +450,8 @@ describe('ToolsController', function () {
 
       await toolsController.startServer();
       const runner = (openHosts[0] as any).runner;
-      await new Promise((resolve) => setTimeout(resolve, 0));
 
+      await waitFor(() => runner.userConfig.maxTimeMS === 1234);
       expect(runner.userConfig.telemetry).to.equal('enabled');
       expect(runner.userConfig.maxTimeMS).to.equal(1234);
     });
@@ -450,15 +464,14 @@ describe('ToolsController', function () {
         enableMCPTelemetry: true,
         connections: [],
       });
-      // give the rpc call a moment to land
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await waitFor(() => runner.userConfig.telemetry === 'enabled');
       expect(runner.userConfig.telemetry).to.equal('enabled');
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         connections: [],
       });
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await waitFor(() => runner.userConfig.telemetry === 'disabled');
       expect(runner.userConfig.telemetry).to.equal('disabled');
     });
 
@@ -471,7 +484,7 @@ describe('ToolsController', function () {
         maxTimeMS: 5000,
         connections: [],
       });
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await waitFor(() => runner.userConfig.maxTimeMS === 5000);
       expect(runner.userConfig.maxTimeMS).to.equal(5000);
 
       toolsController.setContext({
@@ -479,7 +492,7 @@ describe('ToolsController', function () {
         maxTimeMS: undefined,
         connections: [],
       });
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await waitFor(() => runner.userConfig.maxTimeMS === undefined);
       expect(runner.userConfig.maxTimeMS).to.equal(undefined);
     });
   });

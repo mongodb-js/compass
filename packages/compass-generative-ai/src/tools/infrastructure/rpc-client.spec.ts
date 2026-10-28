@@ -1,6 +1,6 @@
+import { MessageChannel } from 'node:worker_threads';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MessageChannel } from 'node:worker_threads';
 import { createToolsRpcClient } from './rpc-client';
 import { serveToolsRequests } from './server';
 
@@ -107,16 +107,20 @@ describe('tools rpc', function () {
 
   it('ignores messages that are not part of the protocol', async function () {
     let called = 0;
-    serveToolsRequests(channel.port2, async () => {
+    const client = createToolsRpcClient(channel.port1);
+    serveToolsRequests(channel.port2, () => {
       called += 1;
       return Promise.resolve(null);
     });
     channel.port1.postMessage({ hello: 'stray' });
     channel.port1.postMessage(null);
     channel.port1.postMessage({ kind: 'nonsense' });
-    // let stray messages arrive
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(called).to.equal(0);
+
+    // Messages arrive in order, so a request that gets answered proves the
+    // strays were seen and ignored rather than queued behind it
+    await client.call('listDatabaseTools');
+
+    expect(called).to.equal(1);
   });
 
   it('closes the port when the client is closed', function () {
@@ -138,8 +142,9 @@ describe('tools rpc', function () {
     await client.call('performToolCall', undefined, controller.signal);
     postMessage.resetHistory();
 
+    // Abort listeners run synchronously, so no waiting is needed to know
+    // whether the client still had one attached
     controller.abort(new Error('too late'));
-    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(postMessage).to.not.have.been.called;
     postMessage.restore();
@@ -148,10 +153,17 @@ describe('tools rpc', function () {
   it('aborts in-flight requests when the server is disposed', async function () {
     const client = createToolsRpcClient(channel.port1);
     let serverSignal: AbortSignal | undefined;
+    // Resolved by the handler, so the test never has to guess how long a
+    // message takes to arrive
+    let requestArrived: () => void;
+    const arrived = new Promise<void>((resolve) => {
+      requestArrived = resolve;
+    });
     const server = serveToolsRequests(
       channel.port2,
       (_method, _params, signal) => {
         serverSignal = signal;
+        requestArrived();
         return new Promise((_resolve, reject) => {
           signal.addEventListener('abort', () => reject(signal.reason));
         });
@@ -161,7 +173,7 @@ describe('tools rpc', function () {
     void client.call('performToolCall').catch(() => {
       // the request is aborted below; the rejection is expected
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await arrived;
 
     server[Symbol.dispose]();
 
