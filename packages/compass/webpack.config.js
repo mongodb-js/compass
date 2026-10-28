@@ -219,13 +219,27 @@ module.exports = (_env, args) => {
           '@mongodb-js/atlas-local': false,
         },
       },
-      plugins: [
-        new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // Main forks one file per utility
-        new webpack.optimize.LimitChunkCountPlugin({
-          maxChunks: Object.keys(utilityEntries).length,
-        }),
-      ],
+      // Utilities share the heavy Node-side dependencies (the driver, the MCP
+      // server, their transitive graph) instead of every utility bundling its
+      // own copy.
+      optimization: {
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            // Only the sharing rule: everything else stays in the utility that
+            // uses it, so this does not fragment the output
+            default: false,
+            defaultVendors: false,
+            utilitiesVendor: {
+              name: 'utilities-vendor',
+              chunks: 'all',
+              minChunks: 2,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      },
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
     merge(preloadConfig, {
       name: 'preload',
