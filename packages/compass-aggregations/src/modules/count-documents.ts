@@ -1,14 +1,14 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
-import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
+import { isAction } from '../utils/is-action';
 import type { WorkspaceChangedAction } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
-import { isAction } from '../utils/is-action';
+import type { PipelineBuilderThunkAction } from '.';
 
 export const ActionTypes = {
   CountStarted: 'compass-aggregations/countStarted',

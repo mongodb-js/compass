@@ -25,11 +25,16 @@ import {
   createQueryWithHistoryAutocompleter,
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
-import { connect } from '../stores/context';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import type {
+  FavoriteQuery,
+  RecentQuery,
+} from '@mongodb-js/my-queries-storage';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { connect } from '../stores/context';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
-import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import {
   applyFilterChange,
   applyFromHistory,
@@ -44,12 +49,7 @@ import type {
 import { QUERY_PROPERTIES } from '../constants/query-properties';
 import { mapQueryToFormFields } from '../utils/query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import type {
-  FavoriteQuery,
-  RecentQuery,
-} from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> & {
   _lastExecuted: Date;

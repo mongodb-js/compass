@@ -1,9 +1,9 @@
+import { EventEmitter } from 'node:events';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { CompassAuthService } from './main';
 import type { CompassAuthServiceOptions } from './main';
 import { throwIfNotOk } from './util';
-import { EventEmitter } from 'node:events';
 import * as util from './util';
 
 function getListenerCount(emitter: EventEmitter) {

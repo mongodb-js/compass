@@ -10,12 +10,12 @@ import {
   SelectList,
   ToastBody,
 } from '@mongodb-js/compass-components';
-import { FileInput } from './file-input';
-import { Passphrase } from './passphrase';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export-connections';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { FileInput } from './file-input';
+import { Passphrase } from './passphrase';
 
 const tableStyles = css({
   maxHeight: '24vh',

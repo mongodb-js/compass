@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs';
 
-import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
+import type { InstalledAppInfo, InstallablePackage } from './types';
 
 export function installWindowsZIP({
   kind,

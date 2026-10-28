@@ -1,10 +1,10 @@
 import type { AnyAction } from 'redux';
 import { DEFAULT_LARGE_LIMIT } from '../constants';
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import type { ApplySettingsAction } from './settings';
 import { APPLY_SETTINGS } from './settings';
-import { isAction } from '../utils/is-action';
 
 export type LargeLimitState = number;
 export const INITIAL_STATE = DEFAULT_LARGE_LIMIT;

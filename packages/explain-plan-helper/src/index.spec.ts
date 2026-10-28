@@ -1,7 +1,7 @@
-import { ExplainPlan } from './';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { expect } from 'chai';
+import { ExplainPlan } from './';
 
 async function loadExplainFixture(name: string): Promise<ExplainPlan> {
   const filepath = path.join(__dirname, '..', 'test', 'fixtures', name);

@@ -1,18 +1,18 @@
 import type { AggregateOptions, Document } from 'mongodb';
-import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '@mongodb-js/compass-utils';
-import {
-  getStageOperator,
-  getLastStageOperator,
-  isLastStageOutputStage,
-} from '../../utils/stage';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE,
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
-import type { DataService } from '../data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { DataService } from '../data-service';
+import {
+  getStageOperator,
+  getLastStageOperator,
+  isLastStageOutputStage,
+} from '../../utils/stage';
+import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 
 // Used in the `comment` on the aggregate command to help identify
 // the operation in server logs and currentOp.

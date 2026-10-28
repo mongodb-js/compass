@@ -11,8 +11,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ChangeQueryFn } from '@mongodb-js/compass-query-bar';
 
-import constants from '../constants/schema';
 import { getBsonType, type BSONTypeTag } from 'hadron-type-checker';
+import constants from '../constants/schema';
 
 const { DECIMAL_128, DOUBLE, LONG, INT_32 } = constants;
 

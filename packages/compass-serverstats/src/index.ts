@@ -1,12 +1,12 @@
 import React from 'react';
-import { PerformanceComponent } from './components';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
+import { PerformanceComponent } from './components';
 import CurrentOpStore from './stores/current-op-store';
 import ServerStatsStore from './stores/server-stats-graphs-store';
 import TopStore from './stores/top-store';
-import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import {
   WorkspaceName,
   ServerStatsPluginTitleComponent,

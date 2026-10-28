@@ -1,13 +1,5 @@
-import type { SchemaValidationThunkAction } from '.';
-import { zeroStateChanged } from './zero-state';
-import { enableEditRules } from './edit-mode';
 import type { MongoError } from 'mongodb';
 import type { Action, Reducer } from 'redux';
-import {
-  ValidationActions,
-  validationLevelChanged,
-  validatorChanged,
-} from './validation';
 import {
   type analyzeSchema as analyzeSchemaType,
   calculateSchemaMetadata,
@@ -15,6 +7,14 @@ import {
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { isAction } from '../util';
+import {
+  ValidationActions,
+  validationLevelChanged,
+  validatorChanged,
+} from './validation';
+import { enableEditRules } from './edit-mode';
+import { zeroStateChanged } from './zero-state';
+import type { SchemaValidationThunkAction } from '.';
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 

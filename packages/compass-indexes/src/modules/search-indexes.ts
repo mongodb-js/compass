@@ -8,6 +8,10 @@ import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
 import type { SearchIndex } from 'mongodb-data-service';
 
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 import { isAction } from '../utils/is-action';
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
 import type { FetchStatus } from '../utils/fetch-status';
@@ -15,16 +19,12 @@ import type { FetchStatus } from '../utils/fetch-status';
 import { FetchReasons } from '../utils/fetch-reason';
 import type { FetchReason } from '../utils/fetch-reason';
 
-import type { IndexesThunkAction } from '.';
-import { switchToSearchIndexes } from './index-view';
-import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
 import { isAutoEmbedIndex } from '../utils/is-auto-embed-index';
 import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
-import {
-  ExperimentTestGroups,
-  ExperimentTestNames,
-} from '@mongodb-js/compass-telemetry/provider';
+import type { IndexViewChangedAction } from './index-view';
+import { switchToSearchIndexes } from './index-view';
+import type { IndexesThunkAction } from '.';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',

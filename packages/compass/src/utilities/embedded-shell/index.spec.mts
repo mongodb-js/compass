@@ -1,6 +1,6 @@
-import { expect } from 'chai';
 import process from 'node:process';
 import { EventEmitter } from 'node:events';
+import { expect } from 'chai';
 import type { ParentPort } from 'electron';
 import { main } from './index.mts';
 

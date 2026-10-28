@@ -1,6 +1,5 @@
 import { ATLAS_SEARCH_TEMPLATES } from '@mongodb-js/mongodb-constants';
 import { expect } from 'chai';
-import { SearchIndexTemplateDropdown } from './';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import {
@@ -11,6 +10,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
+import { SearchIndexTemplateDropdown } from './';
 
 const knnVectorText = 'KNN Vector field mapping';
 

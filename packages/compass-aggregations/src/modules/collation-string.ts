@@ -1,12 +1,12 @@
 import type { CollationOptions } from 'mongodb';
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
+import type { AnyAction } from 'redux';
+import { isObject } from 'lodash';
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
-import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
-import { isObject } from 'lodash';
 
 /**
  * Collation string changed action.

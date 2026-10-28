@@ -1,7 +1,7 @@
-import Sinon from 'sinon';
-import { expect } from 'chai';
 import { promisify } from 'node:util';
 import { EventEmitter } from 'node:events';
+import Sinon from 'sinon';
+import { expect } from 'chai';
 import { ipcHandle, ControllerMap, respondTo } from './main';
 import { ipcInvoke, call } from './renderer';
 

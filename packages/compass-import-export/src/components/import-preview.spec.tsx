@@ -3,8 +3,8 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import { ImportPreview } from './import-preview';
 import type { CSVParsableFieldType } from '../csv/csv-types';
+import { ImportPreview } from './import-preview';
 
 const testText = '_id';
 

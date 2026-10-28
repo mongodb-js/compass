@@ -1,6 +1,5 @@
 import React from 'react';
 import Sinon from 'sinon';
-import { DropNamespacePlugin } from '../index';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import toNS from '@mongodb-js/mongodb-ns';
 import { expect } from 'chai';
@@ -13,6 +12,7 @@ import {
   createDefaultConnectionInfo,
 } from '@mongodb-js/testing-library-compass';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
+import { DropNamespacePlugin } from '../index';
 
 const mockConnectionInfo = createDefaultConnectionInfo();
 

@@ -1,15 +1,15 @@
 import throttle from 'lodash/throttle';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { collectionsReducer } from '../modules';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import { collectionsChanged, instanceChanged } from '../modules/collections';
 import type {
   MongoDBInstance,
   Database,
 } from '@mongodb-js/compass-app-stores/provider';
+import { collectionsChanged, instanceChanged } from '../modules/collections';
+import { collectionsReducer } from '../modules';
 
 export type CollectionsServices = {
   globalAppRegistry: AppRegistry;

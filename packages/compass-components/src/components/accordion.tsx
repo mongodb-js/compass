@@ -5,8 +5,8 @@ import { palette } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
 import { useDarkMode } from '../hooks/use-theme';
 
-import { Description, Icon } from './leafygreen';
 import { useCurrentValueRef } from '../hooks/use-current-value-ref';
+import { Description, Icon } from './leafygreen';
 
 const buttonStyles = css({
   fontWeight: 'bold',

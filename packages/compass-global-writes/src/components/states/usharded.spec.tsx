@@ -1,8 +1,8 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mongodb-js/testing-library-compass';
-import { UnshardedState } from './unsharded';
 import { renderWithStore } from '../../../tests/create-store';
+import { UnshardedState } from './unsharded';
 
 function renderWithProps(
   props?: Partial<React.ComponentProps<typeof UnshardedState>>

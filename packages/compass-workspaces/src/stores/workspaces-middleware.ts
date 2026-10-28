@@ -1,8 +1,8 @@
 import type { Middleware, AnyAction } from 'redux';
-import type { WorkspacesState } from './workspaces';
 import type { WorkspacesStateData } from '@mongodb-js/workspace-info';
-import type { WorkspacesServices } from '..';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type { WorkspacesServices } from '..';
+import type { WorkspacesState } from './workspaces';
 
 /**
  * Debounced handler to save the workspaces state.

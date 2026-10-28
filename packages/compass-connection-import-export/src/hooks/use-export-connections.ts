@@ -1,24 +1,24 @@
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { promises as fs } from 'node:fs';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  COMMON_INITIAL_STATE,
-  useImportExportConnectionsCommon,
-} from './common';
 import {
   type ConnectionInfo,
   useConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
 // This plugin is an exception from the rule
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { promises as fs } from 'node:fs';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import type {
   ImportExportResult,
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
-import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
+import {
+  COMMON_INITIAL_STATE,
+  useImportExportConnectionsCommon,
+} from './common';
 
 type ExportConnectionsState = CommonImportExportState<ConnectionShortInfo> & {
   removeSecrets: boolean;

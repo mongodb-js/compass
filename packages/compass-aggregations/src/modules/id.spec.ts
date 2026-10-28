@@ -1,5 +1,5 @@
-import reducer, { createId, CREATE_ID } from './id';
 import { expect } from 'chai';
+import reducer, { createId, CREATE_ID } from './id';
 
 describe('id module', function () {
   describe('#createId', function () {

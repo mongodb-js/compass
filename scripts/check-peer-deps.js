@@ -1,10 +1,10 @@
 'use strict';
 const path = require('node:path');
 const { promises: fs } = require('node:fs');
-const { traverse, parseAsync } = require('@babel/core');
 const { Module } = require('node:module');
 const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
+const { traverse, parseAsync } = require('@babel/core');
 const { minVersion } = require('semver');
 
 const execFileAsync = promisify(execFile);

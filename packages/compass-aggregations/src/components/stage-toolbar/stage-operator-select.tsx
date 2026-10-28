@@ -16,6 +16,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
+import semver from 'semver';
 import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
@@ -28,7 +29,6 @@ import {
 } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 import type { CollectionStats } from '../../modules/collection-stats';
-import semver from 'semver';
 
 const inputWidth = spacing[1400] * 3;
 // width of options popover

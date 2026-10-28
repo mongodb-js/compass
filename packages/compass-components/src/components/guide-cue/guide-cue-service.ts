@@ -1,3 +1,4 @@
+import { uniq } from 'lodash';
 import {
   DuplicateCueStepError,
   GroupStepsCompleteError,
@@ -9,7 +10,6 @@ import {
   CompassGuideCueStorage,
   type GuideCueStorage,
 } from './guide-cue-storage';
-import { uniq } from 'lodash';
 
 export type ShowCueEventDetail = CustomEvent<{
   cueId: string;

@@ -21,10 +21,10 @@ import {
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { CrudActions } from '../stores/crud-store';
 import { useDocumentAutocompleter } from '../hooks/use-document-autocompleter';
 import { getSafeIntegerViolationMessage } from '../utils';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],

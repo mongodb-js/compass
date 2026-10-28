@@ -1,17 +1,17 @@
 import { expect } from 'chai';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
-import { PipelineBuilder } from './pipeline-builder';
+import Sinon from 'sinon';
+import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
+import type { PipelineBuilderThunkDispatch } from '..';
+import reducer from '..';
+import { toggleAutoPreview } from '../auto-preview';
+import { mockDataService } from '../../../test/mocks/data-service';
 import {
   changeEditorValue,
   loadPreviewForPipeline,
 } from './text-editor-pipeline';
-import type { PipelineBuilderThunkDispatch } from '..';
-import reducer from '..';
-import Sinon from 'sinon';
-import { toggleAutoPreview } from '../auto-preview';
-import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
-import { mockDataService } from '../../../test/mocks/data-service';
+import { PipelineBuilder } from './pipeline-builder';
 
 function createStore(
   pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`,

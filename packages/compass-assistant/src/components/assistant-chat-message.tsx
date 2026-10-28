@@ -1,13 +1,13 @@
 import React from 'react';
-import type { AssistantMessage } from '../compass-assistant-provider';
 import { LgChatMessage, css } from '@mongodb-js/compass-components';
+import type { ToolUIPart } from 'ai';
+import { isAtlasTool } from '@mongodb-js/compass-generative-ai/provider';
+import type { AssistantMessage } from '../compass-assistant-provider';
+import { partIsToolUI, getToolDisplayName } from '../utils';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
-import type { ToolUIPart } from 'ai';
-import { partIsToolUI, getToolDisplayName } from '../utils';
-import { isAtlasTool } from '@mongodb-js/compass-generative-ai/provider';
 
 const { Message } = LgChatMessage;
 

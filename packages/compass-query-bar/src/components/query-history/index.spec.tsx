@@ -1,5 +1,7 @@
-import React from 'react';
-import { expect } from 'chai';
+import { promises as fs } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import Sinon from 'sinon';
 import {
   render,
   screen,
@@ -7,12 +9,8 @@ import {
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { Provider } from '../../stores/context';
-import Sinon from 'sinon';
-import { promises as fs } from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
-import QueryHistory from '.';
+import { expect } from 'chai';
+import React from 'react';
 import {
   FavoriteQueryStorageProvider,
   RecentQueryStorageProvider,
@@ -21,8 +19,6 @@ import {
   createElectronFavoriteQueryStorage,
   createElectronRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/electron';
-import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
-import { configureStore } from '../../stores/query-bar-store';
 import { UUID } from 'bson';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
@@ -30,6 +26,10 @@ import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-prefere
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import { Provider } from '../../stores/context';
+import { configureStore } from '../../stores/query-bar-store';
+import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
+import QueryHistory from '.';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },

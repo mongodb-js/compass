@@ -7,8 +7,8 @@ import {
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../../test/configure-store';
-import PipelineCollation from './pipeline-collation';
 import type { AggregationsStore } from '../../../stores/store';
+import PipelineCollation from './pipeline-collation';
 
 describe('PipelineCollation', function () {
   let store: AggregationsStore;

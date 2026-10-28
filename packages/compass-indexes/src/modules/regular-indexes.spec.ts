@@ -1,5 +1,19 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { waitFor } from '@mongodb-js/testing-library-compass';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import {
+  indexesList,
+  defaultSortedIndexes,
+  inProgressIndexes,
+} from '../../test/fixtures/regular-indexes';
+import {
+  setupStore,
+  setupStoreAndWait,
+  createMockCollection,
+} from '../../test/setup-store';
+import type { FetchStatus } from '../utils/fetch-status';
 import {
   refreshRegularIndexes,
   pollRegularIndexes,
@@ -10,24 +24,10 @@ import {
   startPollingRegularIndexes,
   stopPollingRegularIndexes,
 } from './regular-indexes';
-import {
-  indexesList,
-  defaultSortedIndexes,
-  inProgressIndexes,
-} from '../../test/fixtures/regular-indexes';
 import { readonlyViewChanged } from './is-readonly-view';
-import {
-  setupStore,
-  setupStoreAndWait,
-  createMockCollection,
-} from '../../test/setup-store';
 
 // Importing this to stub showConfirmation
 import * as regularIndexesSlice from './regular-indexes';
-import type { FetchStatus } from '../utils/fetch-status';
-import { waitFor } from '@mongodb-js/testing-library-compass';
-import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 describe('regular-indexes module', function () {
   before(() => {

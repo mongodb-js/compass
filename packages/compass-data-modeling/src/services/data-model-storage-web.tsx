@@ -1,18 +1,18 @@
 import { AtlasUserData } from '@mongodb-js/compass-user-data';
-import type {
-  DataModelStorage,
-  MongoDBDataModelDescription,
-} from './data-model-storage';
-import { MongoDBDataModelDescriptionSchema } from './data-model-storage';
-import dataModelStorageInMemory from './data-model-storage-in-memory';
 import {
   atlasServiceLocator,
   type AtlasService,
 } from '@mongodb-js/atlas-service/provider';
 import { createServiceProvider } from '@mongodb-js/compass-app-registry';
-import { DataModelStorageServiceProvider } from '../provider';
 import React, { useRef } from 'react';
 import { mongoLogId, useLogger } from '@mongodb-js/compass-logging/provider';
+import { DataModelStorageServiceProvider } from '../provider';
+import dataModelStorageInMemory from './data-model-storage-in-memory';
+import { MongoDBDataModelDescriptionSchema } from './data-model-storage';
+import type {
+  DataModelStorage,
+  MongoDBDataModelDescription,
+} from './data-model-storage';
 
 class DataModelStorageAtlas implements DataModelStorage {
   private readonly userData: AtlasUserData<

@@ -1,10 +1,10 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { AtlasAiService } from '../atlas-ai-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import type { RootState } from './atlas-ai-store';
+import type { AtlasAiService } from '../atlas-ai-service';
 import { isAction } from '../utils/util';
+import type { RootState } from './atlas-ai-store';
 
 type AttemptState = {
   id: number;

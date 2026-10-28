@@ -8,9 +8,9 @@ import TypeChecker, {
 } from 'hadron-type-checker';
 import type { Binary } from 'bson';
 import { ElementEvents } from '../element-events';
-import StandardEditor from './standard';
 import type { Element } from '../element';
 import type { BSONValue } from '../utils';
+import StandardEditor from './standard';
 
 /**
  * Converts a Binary UUID (subtype 4) to a UUID string with hyphens.

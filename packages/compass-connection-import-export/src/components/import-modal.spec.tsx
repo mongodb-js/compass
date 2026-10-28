@@ -1,7 +1,7 @@
-import React from 'react';
 import os from 'node:os';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
+import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';

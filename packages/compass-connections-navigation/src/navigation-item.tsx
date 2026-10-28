@@ -9,13 +9,13 @@ import {
   type ItemAction,
   type ContextMenuItemGroup,
 } from '@mongodb-js/compass-components';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
 import { NavigationBaseItem } from './base-navigation-item';
 import type { NavigationItemActions } from './item-actions';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import type { Actions } from './constants';
 import { NavigationItemIcon } from './navigation-item-icon';
 

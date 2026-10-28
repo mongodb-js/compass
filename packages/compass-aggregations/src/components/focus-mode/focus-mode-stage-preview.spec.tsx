@@ -4,25 +4,25 @@ import type { Document } from 'mongodb';
 import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
+import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../test/configure-store';
+import {
+  MERGE_STAGE_PREVIEW_TEXT,
+  OUT_STAGE_PREVIEW_TEXT,
+} from '../../constants';
+import type { ConfigureStoreOptions } from '../../stores/store';
 import {
   FocusModePreview,
   InputPreview,
   OutputPreview,
 } from './focus-mode-stage-preview';
-import {
-  MERGE_STAGE_PREVIEW_TEXT,
-  OUT_STAGE_PREVIEW_TEXT,
-} from '../../constants';
-import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
-
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../test/configure-store';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 

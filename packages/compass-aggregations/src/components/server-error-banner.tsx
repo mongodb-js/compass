@@ -25,6 +25,7 @@ import {
   type SearchExtensionType,
 } from '../utils/search-stage-errors';
 import RateLimitExceededBanner from './rate-limit-exceeded-banner';
+
 const bannerButtonStyles = css({
   flexShrink: 0,
   whiteSpace: 'nowrap',

@@ -4,8 +4,8 @@ import {
   createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
-import type { ImportStore } from './import-store';
 import { ImportPlugin } from '..';
+import type { ImportStore } from './import-store';
 
 const { activatePluginWithConnections } = createPluginTestHelpers(ImportPlugin);
 

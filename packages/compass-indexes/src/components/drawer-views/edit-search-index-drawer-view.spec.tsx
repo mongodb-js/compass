@@ -10,9 +10,9 @@ import sinon from 'sinon';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Provider } from 'react-redux';
 
-import { EditSearchIndexDrawerView } from './edit-search-index-drawer-view';
 import { mockSearchIndex } from '../../../test/helpers';
 import { setupStore } from '../../../test/setup-store';
+import { EditSearchIndexDrawerView } from './edit-search-index-drawer-view';
 
 const defaultSearchIndex = mockSearchIndex({
   name: 'testIndex',

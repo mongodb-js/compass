@@ -8,6 +8,7 @@
  * Run with: npm run eval:tool-calls
  */
 
+import { strict as assert } from 'node:assert';
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import type { ToolSet, ToolCallPart } from 'ai';
@@ -23,12 +24,6 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { startTestServer } from '@mongodb-js/compass-test-server';
-import {
-  toolCallEvalCases,
-  type CompassAssistantCustomInput,
-} from './eval-cases/tool-call-cases';
-import type { ConnectionConfig, EvalTaskConfig } from './tool-call-eval-types';
-import { buildContextPrompt } from '../src/prompts';
 import { runConversationEval } from 'mongodb-assistant-eval/eval';
 import type {
   ConversationEvalCaseInputWithCustom,
@@ -37,9 +32,14 @@ import type {
   MessageBase,
 } from 'mongodb-assistant-eval/eval';
 import { ToolCallScorers } from 'mongodb-assistant-eval/scorers';
+import { buildContextPrompt } from '../src/prompts';
+import type { ConnectionConfig, EvalTaskConfig } from './tool-call-eval-types';
+import {
+  toolCallEvalCases,
+  type CompassAssistantCustomInput,
+} from './eval-cases/tool-call-cases';
 import { seedServer } from './fixtures/databases/seed-server';
 import { seedDatabases } from './fixtures/databases';
-import { strict as assert } from 'node:assert';
 
 import { EVAL_CLUSTER_UID, EVAL_MODEL, instructions } from './eval-config';
 

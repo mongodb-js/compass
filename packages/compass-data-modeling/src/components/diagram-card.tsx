@@ -10,8 +10,8 @@ import {
   useDarkMode,
   useFormattedDate,
 } from '@mongodb-js/compass-components';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 import React from 'react';
+import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 
 // Same as saved-queries-aggregations
 export const CARD_WIDTH = spacing[1600] * 4;

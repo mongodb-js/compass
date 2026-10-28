@@ -19,6 +19,9 @@ import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/pr
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
 import { isInternalFieldPath } from 'hadron-document';
 import toNS from '@mongodb-js/mongodb-ns';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import type { Document, MongoError } from 'mongodb';
+import { getDefaultFakerMethod } from '@mongodb-js/mock-data-generator';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
   SCHEMA_ANALYSIS_STATE_COMPLETE,
@@ -33,8 +36,6 @@ import {
   processSchema,
   ProcessSchemaUnsupportedStateError,
 } from '../transform-schema-to-field-info';
-import type { Collection } from '@mongodb-js/compass-app-stores/provider';
-import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import type {
   LlmFakerMapping,
@@ -48,7 +49,6 @@ import {
   isValidFakerMethod,
   MAX_COLLECTION_NESTING_DEPTH,
 } from '../components/mock-data-generator-modal/utils';
-import { getDefaultFakerMethod } from '@mongodb-js/mock-data-generator';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 

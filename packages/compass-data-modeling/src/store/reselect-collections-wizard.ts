@@ -1,10 +1,10 @@
 import type { Reducer } from 'redux';
-import { isAction } from './util';
-import type { DataModelingThunkAction } from './reducer';
 import toNS from '@mongodb-js/mongodb-ns';
-import { selectCurrentModelFromState } from './diagram';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import { isAction } from './util';
+import type { DataModelingThunkAction } from './reducer';
+import { selectCurrentModelFromState } from './diagram';
 import { redoAnalysis } from './analysis-process';
 import {
   DEFAULT_SAMPLING_OPTIONS,

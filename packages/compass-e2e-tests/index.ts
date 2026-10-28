@@ -4,6 +4,8 @@ import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
 import Mocha from 'mocha';
 import Debug from 'debug';
+// @ts-expect-error no types for this package
+import logRunning from 'why-is-node-running';
 import { context } from './helpers/test-runner-context.ts';
 import {
   abortRunner,
@@ -11,8 +13,6 @@ import {
   mochaGlobalTeardown,
 } from './helpers/test-runner-global-fixtures.ts';
 import { mochaRootHooks } from './helpers/mongo-clients.ts';
-// @ts-expect-error no types for this package
-import logRunning from 'why-is-node-running';
 import {
   E2E_WORKSPACE_PATH,
   MOCHA_REPORTER_PATH,

@@ -1,5 +1,5 @@
-import crossSpawn from 'cross-spawn';
 import type { ChildProcess } from 'node:child_process';
+import crossSpawn from 'cross-spawn';
 import Debug from 'debug';
 import treeKill from 'tree-kill';
 

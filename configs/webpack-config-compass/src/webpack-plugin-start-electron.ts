@@ -1,12 +1,12 @@
-import type { Compiler } from 'webpack';
 import { pathToFileURL } from 'node:url';
-import { EnvironmentPlugin } from 'webpack';
 import path from 'node:path';
 import type { ChildProcess } from 'node:child_process';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import electronBinaryPath from 'electron';
 import readline from 'node:readline';
+import electronBinaryPath from 'electron';
+import { EnvironmentPlugin } from 'webpack';
+import type { Compiler } from 'webpack';
 
 export class WebpackPluginStartElectron {
   private opts!: {

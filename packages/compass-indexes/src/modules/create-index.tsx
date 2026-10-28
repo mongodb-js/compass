@@ -5,9 +5,9 @@ import React from 'react';
 import type { Action, Dispatch, Reducer } from 'redux';
 import { Badge, Link } from '@mongodb-js/compass-components';
 import { isAction } from '../utils/is-action';
-import type { IndexesThunkAction, RootState } from '.';
-import { createRegularIndex } from './regular-indexes';
 import { parseShellBSON } from '../utils/parse-shell-bson';
+import { createRegularIndex } from './regular-indexes';
+import type { IndexesThunkAction, RootState } from '.';
 
 export const ActionTypes = {
   FieldAdded: 'compass-indexes/create-index/fields/field-added',

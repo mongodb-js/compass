@@ -16,11 +16,11 @@ import {
   Timestamp,
   UUID,
 } from 'bson';
+import { parseShellBSON } from '../stores/crud-store';
 import {
   convertEJSONToShellSyntax,
   getAccidentalEJSONKey,
 } from './ejson-conversion';
-import { parseShellBSON } from '../stores/crud-store';
 
 const convert = (text: string) =>
   convertEJSONToShellSyntax(parseShellBSON(text)).replace(/\s+/g, ' ');

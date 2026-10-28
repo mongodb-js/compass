@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import os from 'node:os';
 import assert from 'node:assert';
-import { BSONError, EJSON } from 'bson';
-import { MongoBulkWriteError } from 'mongodb';
 import fs from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
+import { BSONError, EJSON } from 'bson';
+import { MongoBulkWriteError } from 'mongodb';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -13,19 +13,19 @@ import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
 import { omit } from 'lodash';
 
-temp.track();
-
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { getBsonType } from 'hadron-type-checker';
 import { fixtures } from '../../test/fixtures';
 
 import type { ErrorJSON } from './import-types';
 
 import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { getBsonType } from 'hadron-type-checker';
+
+temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);

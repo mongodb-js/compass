@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { Button, css, Icon } from '@mongodb-js/compass-components';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type {
   KMSField,
@@ -7,7 +8,6 @@ import type {
   KMSProviderName,
 } from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
-import type { ConnectionOptions } from 'mongodb-data-service';
 import KMSProviderCard from './kms-provider-card';
 
 const flexContainerStyles = css({

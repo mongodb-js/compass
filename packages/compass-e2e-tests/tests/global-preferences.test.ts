@@ -1,3 +1,6 @@
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
 import { expect } from 'chai';
 import {
   init,
@@ -6,9 +9,6 @@ import {
   positionalArgs,
   skipForWeb,
 } from '../helpers/compass.ts';
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
 import * as Selectors from '../helpers/selectors.ts';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 

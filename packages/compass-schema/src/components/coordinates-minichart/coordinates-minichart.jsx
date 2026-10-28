@@ -13,16 +13,16 @@ import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import 'leaflet-defaulticon-compatibility';
 import './coordinates-minichart.css';
 
-import GeoscatterMapItem from './marker';
-
-import { LIGHTMODE_TILE_URL, DARKMODE_TILE_URL } from './constants';
-import { getHereAttributionMessage } from './utils';
 import { debounce } from 'lodash';
 import {
   geoLayerAdded,
   geoLayersDeleted,
   geoLayersEdited,
 } from '../../stores/schema-analysis-reducer';
+import GeoscatterMapItem from './marker';
+
+import { LIGHTMODE_TILE_URL, DARKMODE_TILE_URL } from './constants';
+import { getHereAttributionMessage } from './utils';
 
 // TODO: Disable boxZoom handler for circle lasso.
 //

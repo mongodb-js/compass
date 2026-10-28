@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import { useSelector, Provider } from 'react-redux';
 import { renderHook } from '@mongodb-js/testing-library-compass';
 import React from 'react';
-import { selectReadWriteAccess } from './indexes-read-write-access';
 import { setupStore } from '../../test/setup-store';
 import type { IndexesPluginOptions } from '../stores/store';
+import { selectReadWriteAccess } from './indexes-read-write-access';
 
 describe('indexes-read-write-access', function () {
   describe('selectReadWriteAccess', function () {

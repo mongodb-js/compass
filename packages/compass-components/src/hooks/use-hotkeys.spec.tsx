@@ -1,8 +1,8 @@
 import { fireEvent, renderHook } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import { useHotkeys, formatHotkey } from './use-hotkeys';
 import sinon from 'sinon';
+import { useHotkeys, formatHotkey } from './use-hotkeys';
 
 const initialUserAgent = navigator.userAgent;
 

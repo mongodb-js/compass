@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { createNewDiagram } from '../store/generate-diagram-wizard';
 import {
   Button,
   css,
@@ -14,6 +13,7 @@ import {
   Body,
   usePersistedState,
 } from '@mongodb-js/compass-components';
+import { createNewDiagram } from '../store/generate-diagram-wizard';
 import { useDataModelSavedItems } from '../provider';
 import {
   deleteDiagram,

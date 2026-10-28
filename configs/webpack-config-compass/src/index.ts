@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { builtinModules } from 'node:module';
 import {
   type ResolveOptions,
   type WebpackPluginInstance,
@@ -9,9 +11,8 @@ import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error no types exist for this library
 import DuplicatePackageCheckerPlugin from '@cerner/duplicate-package-checker-webpack-plugin';
-import path from 'node:path';
-import { builtinModules } from 'node:module';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { WebpackPluginStartElectron } from './webpack-plugin-start-electron';
 import type { ConfigArgs, WebpackConfig } from './args';
 import {
@@ -40,7 +41,6 @@ import {
 } from './util';
 import { sharedExternals, pluginExternals } from './externals';
 import { WebpackPluginMulticompilerProgress } from './webpack-plugin-multicompiler-progress';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
   // Usually caused by published d.ts files pointing to non-existent ts files in

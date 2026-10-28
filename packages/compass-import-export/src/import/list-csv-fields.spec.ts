@@ -1,14 +1,13 @@
 /* eslint-disable no-console */
 import assert from 'node:assert';
 import path from 'node:path';
-import { expect } from 'chai';
 import fs from 'node:fs';
 import { Readable } from 'node:stream';
-
-import { guessFileType } from './guess-filetype';
-import { listCSVFields } from './list-csv-fields';
+import { expect } from 'chai';
 
 import { fixtures } from '../../test/fixtures';
+import { guessFileType } from './guess-filetype';
+import { listCSVFields } from './list-csv-fields';
 
 describe('listCSVFields', function () {
   for (const filepath of Object.values(fixtures.csv)) {

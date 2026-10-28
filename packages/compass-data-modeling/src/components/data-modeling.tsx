@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
+import { Button, css, DiagramProvider } from '@mongodb-js/compass-components';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import type { DataModelingState } from '../store/reducer';
+import { useDataModelSavedItems } from '../provider';
 import DiagramEditor from './diagram-editor';
 import SavedDiagramsList from './saved-diagrams-list';
 import NewDiagramFormModal from './new-diagram/new-diagram-modal';
-import type { DataModelingState } from '../store/reducer';
-import { Button, css, DiagramProvider } from '@mongodb-js/compass-components';
 import DiagramEditorSidePanel from './drawer/diagram-editor-side-panel';
 import ReselectCollectionsModal from './reselect-collections-modal';
-import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { useDataModelSavedItems } from '../provider';
 
 type DataModelingProps = {
   showList: boolean;

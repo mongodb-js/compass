@@ -10,21 +10,21 @@ import {
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
-import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
+import {
+  createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
+} from '@mongodb-js/compass-preferences-model';
+import {
+  ExperimentTestGroups,
+  type ExperimentTestGroup,
+} from '@mongodb-js/compass-telemetry';
 import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../../test/configure-store';
 import { mockDataService } from '../../../../test/mocks/data-service';
-import {
-  createSandboxFromDefaultPreferences,
-  type PreferencesAccess,
-} from '@mongodb-js/compass-preferences-model';
 import { AIPipelineActionTypes } from '../../../modules/pipeline-builder/pipeline-ai';
-import {
-  ExperimentTestGroups,
-  type ExperimentTestGroup,
-} from '@mongodb-js/compass-telemetry';
+import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 
 function renderPipelineActions(
   props: React.ComponentProps<typeof PipelineActions>,

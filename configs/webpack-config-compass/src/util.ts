@@ -1,6 +1,6 @@
 import fs from 'node:fs';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'node:path';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 export function toCommonJsExternal(deps: string[]): Record<string, string> {
   return Object.fromEntries(

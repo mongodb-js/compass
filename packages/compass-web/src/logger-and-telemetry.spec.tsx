@@ -4,12 +4,6 @@ import {
   LoggerProvider,
   useLogger,
 } from '@mongodb-js/compass-logging/provider';
-import type {
-  DebugFunction,
-  LogFunction,
-  TrackFunction,
-} from './logger-and-telemetry';
-import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { renderHook, waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { expect } from 'chai';
@@ -17,6 +11,12 @@ import {
   TelemetryProvider,
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
+import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
+import type {
+  DebugFunction,
+  LogFunction,
+  TrackFunction,
+} from './logger-and-telemetry';
 
 describe('useCompassWebLoggerAndTelemetry', function () {
   function renderLoggerHook({

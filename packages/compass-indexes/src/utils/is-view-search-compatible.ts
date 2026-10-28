@@ -1,6 +1,6 @@
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
-import type { RootState } from '../modules';
 import type { Document } from 'mongodb';
+import type { RootState } from '../modules';
 
 /**
  * Selector that returns view search compatibility information.

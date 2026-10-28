@@ -7,8 +7,8 @@ import {
 import { buildUpgradeClusterUrl } from '@mongodb-js/atlas-service/provider';
 import React from 'react';
 import { connect } from 'react-redux';
-import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import type { RootState } from '../../modules';
 
 const viewContentStyles = css({
   display: 'flex',

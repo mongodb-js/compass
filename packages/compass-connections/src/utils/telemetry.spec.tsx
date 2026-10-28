@@ -1,13 +1,13 @@
 import { once } from 'node:events';
+import { expect } from 'chai';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import {
   trackConnectionDisconnectedEvent,
   trackConnectionCreatedEvent,
   trackConnectionRemovedEvent,
   getErrorCodeCauseChain,
 } from './telemetry';
-import { expect } from 'chai';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 describe('Connections telemetry', function () {
   const connectionInfo: ConnectionInfo = {

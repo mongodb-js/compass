@@ -8,6 +8,7 @@
 const { execSync } = require('node:child_process');
 const path = require('node:path');
 const fs = require('node:fs');
+
 const packageRootPath = path.resolve(__dirname, '..');
 function getAuthorsGitLog(packagePath) {
   return execSync(

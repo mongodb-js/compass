@@ -1,8 +1,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { Preferences } from './preferences';
 import { expect } from 'chai';
+import { createLogger } from '@mongodb-js/compass-logging';
+import { Preferences } from './preferences';
 import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { allPreferencesProps } from './preferences-schema';
@@ -10,7 +11,6 @@ import type {
   UserConfigurablePreferences,
   CompassRunningEnvironment,
 } from './preferences-schema';
-import { createLogger } from '@mongodb-js/compass-logging';
 
 const releasedFeatureFlags = FEATURE_FLAG_DEFINITIONS.filter(
   (v) => v.stage === 'released'

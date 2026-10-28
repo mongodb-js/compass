@@ -15,15 +15,15 @@ import type { Document } from 'mongodb';
 import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
-import { SearchIndexesTable } from './search-indexes-table';
 import { FetchStatuses } from '../../utils/fetch-status';
+import { mockSearchIndex } from '../../../test/helpers';
+import { setupStore } from '../../../test/setup-store';
+import type { RootState } from '../../modules';
 import {
   searchIndexes as indexes,
   vectorSearchIndexes,
 } from './../../../test/fixtures/search-indexes';
-import { mockSearchIndex } from '../../../test/helpers';
-import { setupStore } from '../../../test/setup-store';
-import type { RootState } from '../../modules';
+import { SearchIndexesTable } from './search-indexes-table';
 
 function createTestWorkspacesService(
   openCollectionWorkspace: SinonSpy

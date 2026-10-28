@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { activatePlugin } from './stores/query-bar-store';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
@@ -9,6 +8,16 @@ import {
   mongoDBInstanceLocator,
   collectionModelLocator,
 } from '@mongodb-js/compass-app-stores/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  favoriteQueryStorageAccessLocator,
+  recentQueryStorageAccessLocator,
+} from '@mongodb-js/my-queries-storage/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import QueryBarComponent from './components/query-bar';
+import type { QueryBarService } from './components/hooks';
 import {
   QueryBarComponentProvider,
   useQueryBarComponent,
@@ -18,16 +27,7 @@ import {
   useIsLastAppliedQueryOutdated,
   queryBarServiceLocator,
 } from './components/hooks';
-import type { QueryBarService } from './components/hooks';
-import QueryBarComponent from './components/query-bar';
-import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
-import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
-import {
-  favoriteQueryStorageAccessLocator,
-  recentQueryStorageAccessLocator,
-} from '@mongodb-js/my-queries-storage/provider';
-import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { activatePlugin } from './stores/query-bar-store';
 
 const QueryBarPlugin = registerCompassPlugin(
   {

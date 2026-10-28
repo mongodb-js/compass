@@ -13,8 +13,8 @@ import type {
   AtlasUserInfo,
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
-import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import { TOOL_DENIAL_REASONS } from '../prompts';
+import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import { containsText } from './test-helpers';
 
 class FakeAtlasAuthService {

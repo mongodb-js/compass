@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
-import type { PipelineBuilderThunkAction } from '.';
-import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import { isAction } from '../utils/is-action';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import type { PipelineBuilderThunkAction } from '.';
 
 export type ExplainMode = 'visual-tree' | 'raw-output' | 'interpret';
 

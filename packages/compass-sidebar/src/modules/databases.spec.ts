@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
-import databasesReducer, { INITIAL_STATE, changeDatabases } from './databases';
-
 import { createInstance } from '../../test/helpers';
+import databasesReducer, { INITIAL_STATE, changeDatabases } from './databases';
 
 const CONNECTION_ID = 'webscale';
 

@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable mocha/max-top-level-suites */
-import _ from 'lodash';
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
+import _ from 'lodash';
 import type { Document } from 'bson';
 import chai from 'chai';
 import sinon from 'sinon';
@@ -12,6 +12,7 @@ import chaiAsPromised from 'chai-as-promised';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
 
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { CSVParsableFieldType } from '../csv/csv-types';
 import { guessFileType } from '../import/guess-filetype';
 import { importCSV } from '../import/import-csv';
@@ -20,13 +21,12 @@ import { analyzeCSVFields } from '../import/analyze-csv-fields';
 import { fixtures } from '../../test/fixtures';
 
 import { importJSON } from '../import/import-json';
+
+import allTypesDoc from '../../test/docs/all-bson-types';
 import {
   gatherFieldsFromQuery,
   createProjectionFromSchemaFields,
 } from './gather-fields';
-
-import allTypesDoc from '../../test/docs/all-bson-types';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);

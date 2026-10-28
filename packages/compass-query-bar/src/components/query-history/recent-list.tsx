@@ -1,13 +1,18 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { connect } from '../../stores/context';
 import { useFormattedDate } from '@mongodb-js/compass-components';
+import type { RecentQuery } from '@mongodb-js/my-queries-storage';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { connect } from '../../stores/context';
 import {
   deleteRecentQuery,
   saveRecentAsFavorite,
   applyFromHistory,
 } from '../../stores/query-bar-reducer';
 import type { RootState } from '../../stores/query-bar-store';
-import type { RecentQuery } from '@mongodb-js/my-queries-storage';
+import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
+import type { BaseQuery } from '../../constants/query-properties';
 import { ZeroGraphic } from './zero-graphic';
 import {
   QueryItemCard,
@@ -18,12 +23,7 @@ import {
   FavoriteActionButton,
 } from './query-item';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { SaveQueryForm } from './save-query-form';
-import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import type { BaseQuery } from '../../constants/query-properties';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type RecentActions = {
   onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;

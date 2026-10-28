@@ -1,9 +1,9 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
 import * as compassComponents from '@mongodb-js/compass-components';
-import { showSearchIndexStatusChangeToasts } from './search-index-status-toasts';
-import { mockSearchIndex } from '../../test/helpers';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
+import { mockSearchIndex } from '../../test/helpers';
+import { showSearchIndexStatusChangeToasts } from './search-index-status-toasts';
 
 const NAMESPACE = 'db.coll';
 const ATLAS_METADATA = {

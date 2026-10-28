@@ -7,7 +7,6 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { CollectionsList } from './index';
 import Sinon from 'sinon';
 import {
   type PreferencesAccess,
@@ -21,6 +20,8 @@ import {
   createCollection,
   createTimeSeries,
 } from '../test/utils';
+import { CollectionsList } from './index';
+
 const colls: CollectionProps[] = [
   createCollection({
     name: 'foo',

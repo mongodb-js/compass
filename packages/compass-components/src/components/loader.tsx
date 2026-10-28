@@ -2,9 +2,9 @@ import React from 'react';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
+import type { ProgressBarProps } from '@leafygreen-ui/progress-bar';
 import { useDarkMode } from '../hooks/use-theme';
 import { Subtitle, Button, ProgressBar } from './leafygreen';
-import type { ProgressBarProps } from '@leafygreen-ui/progress-bar';
 
 const loaderContainerStyles = css({
   display: 'flex',

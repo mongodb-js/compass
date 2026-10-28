@@ -36,10 +36,10 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
+import updateTitle from '../utils/update-title';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 
 export default function Workspace({

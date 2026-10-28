@@ -14,21 +14,6 @@ import {
   Link,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../modules';
-import ToggleStage from './toggle-stage';
-import StageCollapser from './stage-collapser';
-import StageOperatorSelect from './stage-operator-select';
-import {
-  getSearchIndexNameFromSearchStage,
-  hasSyntaxError,
-  isSearchStage,
-} from '../../utils/stage';
-import { enableFocusMode } from '../../modules/focus-mode';
-import OptionMenu from './option-menu';
-import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
-import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
-import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
-import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import {
   useSearchActivationProgramP1,
@@ -36,6 +21,17 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
+import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
+import { getInsightForStage } from '../../utils/insights';
+import { enableFocusMode } from '../../modules/focus-mode';
+import {
+  getSearchIndexNameFromSearchStage,
+  hasSyntaxError,
+  isSearchStage,
+} from '../../utils/stage';
+import type { RootState } from '../../modules';
 import type { ServerEnvironment } from '../../modules/env';
 import {
   createSearchIndex,
@@ -43,6 +39,10 @@ import {
   refreshSearchIndexes,
 } from '../../modules/search-indexes';
 import { useRerankInsight } from '../rerank-first-stage-banner';
+import OptionMenu from './option-menu';
+import StageOperatorSelect from './stage-operator-select';
+import StageCollapser from './stage-collapser';
+import ToggleStage from './toggle-stage';
 
 const toolbarStyles = css({
   width: '100%',

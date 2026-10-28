@@ -5,10 +5,10 @@ import yaml from 'js-yaml';
 import type { Options as YargsOptions } from 'yargs-parser';
 import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
-import type { AllPreferences } from './preferences-schema';
-import { allPreferencesProps } from './preferences-schema';
 import type { z } from '@mongodb-js/compass-user-data';
 import { createLogger } from '@mongodb-js/compass-logging';
+import type { AllPreferences } from './preferences-schema';
+import { allPreferencesProps } from './preferences-schema';
 
 const { log, mongoLogId } = createLogger('COMPASS-PREFERENCES');
 

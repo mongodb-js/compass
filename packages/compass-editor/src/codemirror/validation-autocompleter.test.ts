@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { createValidationAutocompleter } from './validation-autocompleter';
 import { setupCodemirrorCompleter } from '../../test/completer';
+import { createValidationAutocompleter } from './validation-autocompleter';
 
 describe('validation autocompleter', function () {
   const { getCompletions, cleanup } = setupCodemirrorCompleter(

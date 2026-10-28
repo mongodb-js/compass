@@ -1,10 +1,6 @@
 import React from 'react';
 import Sinon from 'sinon';
 import {
-  CompassIndexesPlugin as CompassIndexesSubtab,
-  CompassIndexesPluginProvider,
-} from './index';
-import {
   createDefaultConnectionInfo,
   createPluginTestHelpers,
   screen,
@@ -18,6 +14,10 @@ import {
   prepareInProgressIndex,
   rollingIndexTimeoutCheck,
 } from './modules/regular-indexes';
+import {
+  CompassIndexesPlugin as CompassIndexesSubtab,
+  CompassIndexesPluginProvider,
+} from './index';
 
 describe('CompassIndexesPlugin', function () {
   const sandbox = Sinon.createSandbox();

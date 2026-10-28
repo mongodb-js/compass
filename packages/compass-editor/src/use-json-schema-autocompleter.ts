@@ -18,13 +18,13 @@ import {
 import type { HoverTooltipSource, TooltipView } from '@codemirror/view';
 import { hoverTooltip, EditorView } from '@codemirror/view';
 import { css, spacing } from '@mongodb-js/compass-components';
-import type { Annotation } from './editor';
 import type { Element, ElementContent, Root } from 'hast';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
+import type { Annotation } from './editor';
 
 // The URI we use for the schema
 const SCHEMA_URI = 'inmemory://json-schema.json';

@@ -1,4 +1,3 @@
-import { validateField } from './validate-query';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
 import type { UserPreferences } from '@mongodb-js/compass-preferences-model';
 import { isEqual } from 'lodash';
@@ -15,6 +14,7 @@ import type {
   QueryProperty,
 } from '../constants/query-properties';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
+import { validateField } from './validate-query';
 
 export function mapFormFieldsToQuery(fields: QueryFormFields): BaseQuery {
   // We always want filter field to be in the query, even if the field

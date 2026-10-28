@@ -1,5 +1,6 @@
-import { Preferences } from './preferences';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
+import { createLogger } from '@mongodb-js/compass-logging';
+import { Preferences } from './preferences';
 import type {
   AllPreferences,
   PreferenceStateInformation,
@@ -10,11 +11,10 @@ import type {
 import type { PreferenceSandboxProperties } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
-import { getActiveUser, type PreferencesAccess } from '.';
 import type { PreferencesSafeStorage } from './preferences-persistent-storage';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { InMemoryStorage } from './preferences-in-memory-storage';
-import { createLogger } from '@mongodb-js/compass-logging';
+import { getActiveUser, type PreferencesAccess } from '.';
 
 const compassPreferencesLogger = createLogger('COMPASS-PREFERENCES');
 let preferencesSingleton: Preferences | undefined;

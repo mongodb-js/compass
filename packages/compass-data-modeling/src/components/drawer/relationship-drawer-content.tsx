@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../../store/reducer';
 import {
   Combobox,
   ComboboxOption,
@@ -15,6 +14,9 @@ import {
   Icon,
   Link,
 } from '@mongodb-js/compass-components';
+import toNS from '@mongodb-js/mongodb-ns';
+import { cloneDeep } from 'lodash';
+import type { DataModelingState } from '../../store/reducer';
 import {
   deleteRelationship,
   getCurrentDiagramFromState,
@@ -22,14 +24,13 @@ import {
   selectFieldsForCurrentModel,
   updateRelationship,
 } from '../../store/diagram';
-import toNS from '@mongodb-js/mongodb-ns';
 import type { Relationship } from '../../services/data-model-storage';
-import { cloneDeep } from 'lodash';
 import {
   DMDrawerSection,
   DMFormFieldContainer,
 } from './drawer-section-components';
 import { useChangeOnBlur } from './use-change-on-blur';
+
 const nbsp = '\u00a0';
 
 type RelationshipDrawerContentProps = {

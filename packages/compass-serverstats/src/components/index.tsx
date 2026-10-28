@@ -12,21 +12,21 @@ import {
   useInitialValue,
 } from '@mongodb-js/compass-components';
 
-import GraphsComponent from './server-stats-graphs-component';
-import { realTimeDispatcher } from '../d3';
-import ListsComponent from './server-stats-lists-component';
-import { DBErrorComponent } from './dberror-component';
-import DBErrorStore from '../stores/dberror-store';
-import ServerStatsStore from '../stores/server-stats-graphs-store';
-import TopStore from '../stores/top-store';
-import { ServerStatsToolbar } from './server-stats-toolbar';
-import Actions from '../actions';
-import type { TimeScrubEventDispatcher } from './server-stats-toolbar';
 import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { realTimeDispatcher } from '../d3';
+import DBErrorStore from '../stores/dberror-store';
+import ServerStatsStore from '../stores/server-stats-graphs-store';
+import TopStore from '../stores/top-store';
+import Actions from '../actions';
+import GraphsComponent from './server-stats-graphs-component';
+import ListsComponent from './server-stats-lists-component';
+import { DBErrorComponent } from './dberror-component';
+import { ServerStatsToolbar } from './server-stats-toolbar';
+import type { TimeScrubEventDispatcher } from './server-stats-toolbar';
 
 const REFRESH_STATS_INTERVAL_MS = 1000;
 

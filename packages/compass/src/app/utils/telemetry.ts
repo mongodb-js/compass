@@ -10,6 +10,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { KMSProviders, MongoClientOptions } from 'mongodb';
 import { createLogger } from '@mongodb-js/compass-logging';
+
 const { debug, log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
 type HostInformation = {

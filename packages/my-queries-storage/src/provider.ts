@@ -1,8 +1,8 @@
 import { createContext, useContext } from 'react';
-import type { PipelineStorage } from './pipeline-storage';
-import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
+import type { PipelineStorage } from './pipeline-storage';
+import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 
 // Define the options types locally since we deleted the original files
 export type QueryStorageOptions = {

@@ -8,23 +8,23 @@ import HadronDocument from 'hadron-document';
 import { ObjectId } from 'bson';
 import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../test/configure-store';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from '@mongodb-js/compass-preferences-model';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../test/configure-store';
 
-import { StagePreview } from './';
 import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
 import type { ConfigureStoreOptions } from '../../stores/store';
+import { StagePreview } from './';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 

@@ -1,8 +1,8 @@
 import { assert, expect } from 'chai';
 
-import configureStore, { type GridStore } from './grid-store';
-import configureActions from '../actions';
 import type { TypeCastMap } from 'hadron-type-checker';
+import configureActions from '../actions';
+import configureStore, { type GridStore } from './grid-store';
 
 describe('store', function () {
   let store: GridStore;

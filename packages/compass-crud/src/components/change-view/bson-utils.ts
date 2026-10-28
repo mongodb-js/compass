@@ -1,7 +1,7 @@
 import { EJSON } from 'bson';
 
-import { getValueShape } from './shape-utils';
 import { getBsonType } from 'hadron-type-checker';
+import { getValueShape } from './shape-utils';
 
 export function stringifyBSON(value: any) {
   if (value?.inspect) {

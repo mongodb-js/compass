@@ -4,10 +4,10 @@ import { isEqual, range, minBy, maxBy, sortBy, groupBy, map } from 'lodash';
 import { inValueRange } from 'mongodb-query-util';
 import { palette, spacing } from '@mongodb-js/compass-components';
 
+import { getBsonType } from 'hadron-type-checker';
 import shared from './shared';
 import many from './many';
 import { createD3Tip } from './create-d3-tip';
-import { getBsonType } from 'hadron-type-checker';
 
 function generateDefaults(n) {
   const doc = {};

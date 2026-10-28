@@ -1,11 +1,23 @@
 import os from 'node:os';
-import { expect } from 'chai';
 import fs from 'node:fs';
 import path from 'node:path';
+import { expect } from 'chai';
 import Sinon from 'sinon';
 import React from 'react';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import {
+  createPluginTestHelpers,
+  cleanup,
+  render,
+  screen,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
+import { ToastBody } from '@mongodb-js/compass-components';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { ExportPlugin } from '../index';
+import type { ExportStore } from '../stores/export-store';
 import {
   openExport,
   addFieldToExport,
@@ -17,18 +29,6 @@ import {
   closeExport,
   runExport,
 } from './export';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import {
-  createPluginTestHelpers,
-  cleanup,
-  render,
-  screen,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
-import { ToastBody } from '@mongodb-js/compass-components';
-import { ExportPlugin } from '../index';
-import type { ExportStore } from '../stores/export-store';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const { activatePluginWithConnections } = createPluginTestHelpers(ExportPlugin);
 

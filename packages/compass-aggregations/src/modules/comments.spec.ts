@@ -1,5 +1,5 @@
-import reducer from './comments';
 import { expect } from 'chai';
+import reducer from './comments';
 
 describe('comments module', function () {
   describe('#reducer', function () {

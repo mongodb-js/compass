@@ -4,9 +4,9 @@ import type {
   FavoriteQuery,
   SavedPipeline,
 } from '@mongodb-js/my-queries-storage';
-import type { SavedQueryAggregationThunkAction } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
+import type { SavedQueryAggregationThunkAction } from '.';
 
 export const ActionTypes = {
   ITEMS_FETCHED: 'compass-saved-aggregations-queries/itemsFetched',

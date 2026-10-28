@@ -1,8 +1,8 @@
 import React, { forwardRef, useRef, useState } from 'react';
 import type { TypeCastTypes } from 'hadron-type-checker';
-import { Menu, MenuItem, Icon } from '../leafygreen';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
+import { Menu, MenuItem, Icon } from '../leafygreen';
 import { documentTypography } from './typography';
 
 const buttonReset = css({

@@ -10,10 +10,6 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import {
-  RegularIndexesDrawerTable,
-  renderNameOverride,
-} from './regular-indexes-drawer-table';
 import { InlineDefinition } from '@mongodb-js/compass-components';
 import { setupStore } from '../../../test/setup-store';
 import { mockRegularIndex } from '../../../test/helpers';
@@ -23,6 +19,10 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 import type { RootState } from '../../modules';
+import {
+  RegularIndexesDrawerTable,
+  renderNameOverride,
+} from './regular-indexes-drawer-table';
 
 const NBSP = '\u00A0';
 

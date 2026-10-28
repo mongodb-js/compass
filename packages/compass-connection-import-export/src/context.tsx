@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useState } from 'react';
+import { useInitialValue } from '@mongodb-js/compass-components';
 import { ImportConnectionsModal } from './components/import-modal';
 import { ExportConnectionsModal } from './components/export-modal';
-import { useInitialValue } from '@mongodb-js/compass-components';
 
 type ConnectionImportExportService = {
   getHandlers(): {
