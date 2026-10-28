@@ -4,8 +4,8 @@ import {
   renderWithConnections,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import WebWelcomeTab from './web-welcome-tab';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import WebWelcomeTab from './web-welcome-tab';
 
 const CONNECTION_ITEM = {
   id: '1',

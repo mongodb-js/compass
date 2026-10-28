@@ -1,5 +1,6 @@
 import process from 'process/browser';
 import hrtime from 'browser-process-hrtime';
+
 (process as any).hrtime ??= hrtime;
 // eslint-disable-next-line no-console
 (process as any).emitWarning ??= console.warn;

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { ObjectId } from 'bson';
+import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
 import {
   buildFindQueryPrompt,
   buildAggregateQueryPrompt,
   escapeUserInput,
   type PromptContextOptions,
 } from './gen-ai-prompt';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
-import { ObjectId } from 'bson';
-import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
 
 const OPTIONS: PromptContextOptions = {
   userInput: 'Find all users older than 30',

@@ -1,6 +1,6 @@
+import type { Writable } from 'node:stream';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { MongoLogWriter } from 'mongodb-log-writer/mongo-log-writer';
-import type { Writable } from 'stream';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import {
   useCurrentValueRef,

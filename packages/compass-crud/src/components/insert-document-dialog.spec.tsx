@@ -6,13 +6,13 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import InsertDocumentDialog from './insert-document-dialog';
 import HadronDocument from 'hadron-document';
 import {
   getCodemirrorEditorValue,
   setCodemirrorEditorValue,
 } from '@mongodb-js/compass-editor';
 import sinon from 'sinon';
+import InsertDocumentDialog from './insert-document-dialog';
 
 const noop = () => {};
 

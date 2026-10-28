@@ -10,9 +10,9 @@ import { spy } from 'sinon';
 import { expect } from 'chai';
 
 import { Provider } from 'react-redux';
-import { ThemeSettings } from './theme';
 import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
+import { ThemeSettings } from './theme';
 
 describe('ThemeSettings', function () {
   let container: HTMLElement;

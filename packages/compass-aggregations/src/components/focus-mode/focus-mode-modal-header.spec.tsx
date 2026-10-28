@@ -6,8 +6,8 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { FocusModeModalHeader } from './focus-mode-modal-header';
 import Sinon from 'sinon';
+import { FocusModeModalHeader } from './focus-mode-modal-header';
 
 function noop() {}
 

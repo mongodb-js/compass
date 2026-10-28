@@ -6,8 +6,10 @@ import {
   Option,
   SelectSize,
   FormFieldContainer,
+  css,
 } from '@mongodb-js/compass-components';
-import { css } from '@mongodb-js/compass-components';
+
+import COLLATION_OPTIONS from '../../constants/collation';
 
 const optionsSelectDropdownStyles = css({
   zIndex: 1,
@@ -15,8 +17,6 @@ const optionsSelectDropdownStyles = css({
     zIndex: 20,
   },
 });
-
-import COLLATION_OPTIONS from '../../constants/collation';
 
 function CollationOptions(values) {
   const unifiedValues = values.map((elem) => ({

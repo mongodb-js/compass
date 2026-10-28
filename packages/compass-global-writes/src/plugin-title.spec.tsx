@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
-import { PluginTitle } from './plugin-title';
 import { render, screen } from '@mongodb-js/testing-library-compass';
+import { PluginTitle } from './plugin-title';
 
 describe('PluginTitle', function () {
   it('Renders a warning when showError', function () {

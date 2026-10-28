@@ -1,3 +1,5 @@
+import clipboard from 'clipboardy';
+import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -6,8 +8,6 @@ import {
   skipForWeb,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
-import clipboard from 'clipboardy';
-import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors.ts';
 import type { ConnectFormState } from '../helpers/connect-form-state.ts';
 import { context } from '../helpers/test-runner-context.ts';

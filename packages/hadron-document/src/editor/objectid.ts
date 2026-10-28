@@ -1,7 +1,7 @@
 import TypeChecker from 'hadron-type-checker';
 import { ElementEvents } from '../element-events';
-import StandardEditor from './standard';
 import type { BSONValue } from '../utils';
+import StandardEditor from './standard';
 
 /**
  * CRUD editor for object id values.

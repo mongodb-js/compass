@@ -5,19 +5,19 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { SuggestedPrompts } from './suggested-prompts';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import type {
+  WorkspaceTab,
+  CollectionSubtab,
+} from '@mongodb-js/workspace-info';
 import { createMockChat } from '../../test/utils';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import {
   AssistantGlobalStateProvider,
   useSyncAssistantGlobalState,
 } from '../assistant-global-state';
-import type {
-  WorkspaceTab,
-  CollectionSubtab,
-} from '@mongodb-js/workspace-info';
+import { SuggestedPrompts } from './suggested-prompts';
 
 describe('SuggestedPrompts', function () {
   let currentChat: ReturnType<typeof createMockChat>;

@@ -1,4 +1,4 @@
-import type { Readable } from 'stream';
+import type { Readable } from 'node:stream';
 import Papa from 'papaparse';
 import stripBomStream from 'strip-bom-stream';
 

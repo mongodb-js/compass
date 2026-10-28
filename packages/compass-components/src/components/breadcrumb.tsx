@@ -3,8 +3,8 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
-import { Link, Icon, Body } from './leafygreen';
 import { nbsp } from '../utils/nbsp';
+import { Link, Icon, Body } from './leafygreen';
 
 export type BreadcrumbItem = {
   name: string;

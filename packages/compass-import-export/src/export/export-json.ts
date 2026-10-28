@@ -1,19 +1,19 @@
-import { Transform } from 'stream';
-import { pipeline } from 'stream/promises';
+import { Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import type { Writable } from 'node:stream';
 import { EJSON } from 'bson';
-import type { Writable } from 'stream';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { AggregationCursor, FindCursor } from 'mongodb';
 import { objectToIdiomaticEJSON } from 'hadron-document';
 
+import { createDebug } from '../utils/logger';
 import type {
   ExportAggregation,
   ExportQuery,
   ExportResult,
 } from './export-types';
-import { createDebug } from '../utils/logger';
 import { createAggregationCursor, createFindCursor } from './export-cursor';
 
 const debug = createDebug('export-json');

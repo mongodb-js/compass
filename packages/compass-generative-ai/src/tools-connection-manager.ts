@@ -9,7 +9,7 @@ import {
   type DevtoolsConnectOptions,
 } from '@mongosh/service-provider-node-driver';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
-import { isAtlas, isAtlasStream } from 'mongodb-build-info';
+import { isAtlas, isAtlasStream } from '@mongodb-js/mongodb-build-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 

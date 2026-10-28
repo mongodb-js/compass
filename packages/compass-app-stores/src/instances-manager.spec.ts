@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  MongoDBInstancesManager,
-  MongoDBInstancesManagerEvents,
-} from './instances-manager';
 import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
 import {
   type PreferencesAccess,
   createSandboxFromDefaultPreferences,
 } from '@mongodb-js/compass-preferences-model';
+import {
+  MongoDBInstancesManager,
+  MongoDBInstancesManagerEvents,
+} from './instances-manager';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, Body } from './leafygreen';
 import { css } from '@leafygreen-ui/emotion';
+import { Link, Body } from './leafygreen';
 
 const toastBodyFlexStyles = css({
   display: 'flex',

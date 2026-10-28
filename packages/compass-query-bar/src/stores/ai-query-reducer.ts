@@ -1,22 +1,22 @@
 import type { Action, Reducer } from 'redux';
 import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { UUID } from 'bson';
 
-import type { QueryBarThunkAction } from './query-bar-store';
-import { isAction } from '../utils';
-import {
-  mapQueryToFormFields,
-  parseQueryAttributesToFormFields,
-} from '../utils/query';
-import type { QueryFormFields } from '../constants/query-properties';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import type { QueryFormFields } from '../constants/query-properties';
+import {
+  mapQueryToFormFields,
+  parseQueryAttributesToFormFields,
+} from '../utils/query';
+import { isAction } from '../utils';
+import type { QueryBarThunkAction } from './query-bar-store';
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 

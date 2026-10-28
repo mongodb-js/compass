@@ -5,16 +5,16 @@ import { MongoServerError } from 'mongodb';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../../test/configure-store';
 import type { AggregationsPluginServices } from '../../../stores/store';
-import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
-import { PipelineEditor } from './pipeline-editor';
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
+import { PipelineEditor } from './pipeline-editor';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelineEditor>> = {},

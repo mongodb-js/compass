@@ -1,11 +1,11 @@
 import React from 'react';
-import { renderWithStore } from '../../tests/create-store';
 import { expect } from 'chai';
 import { screen } from '@mongodb-js/testing-library-compass';
+import { renderWithStore } from '../../tests/create-store';
+import { type ShardKey } from '../store/reducer';
 import ExampleCommandsMarkup, {
   type ExampleCommandsMarkupProps,
 } from './example-commands-markup';
-import { type ShardKey } from '../store/reducer';
 
 describe('ExampleCommandsMarkup', function () {
   const db = 'db1';

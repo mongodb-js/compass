@@ -1,9 +1,9 @@
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilderThunkAction } from '.';
-import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
 
 export const SAVING_PIPELINE_NAME_CHANGED =
   'aggregations/saving-pipeline/NAME_CHANGED' as const;

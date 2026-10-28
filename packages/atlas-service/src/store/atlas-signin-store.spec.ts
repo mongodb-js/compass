@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import type { AtlasAuthPluginServices } from './atlas-signin-store';
-import { activatePlugin } from './atlas-signin-store';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import type { AtlasAuthPluginServices } from './atlas-signin-store';
+import { activatePlugin } from './atlas-signin-store';
 
 const activateHelpers = {
   on: () => {},

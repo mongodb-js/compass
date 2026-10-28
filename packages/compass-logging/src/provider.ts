@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import type { Logger } from './logger';
 import type {
   MongoLogId,
   MongoLogWriter,
 } from 'mongodb-log-writer/mongo-log-writer';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
+import type { Logger } from './logger';
 
 export type { Logger } from './logger';
 

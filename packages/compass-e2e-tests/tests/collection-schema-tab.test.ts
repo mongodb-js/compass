@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
@@ -17,7 +18,6 @@ import {
   cleanUpDownloadedFile,
   waitForFileDownload,
 } from '../helpers/downloads.ts';
-import { readFileSync } from 'fs';
 
 const { expect } = chai;
 

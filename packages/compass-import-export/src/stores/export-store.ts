@@ -3,17 +3,17 @@ import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import {
   closeExport,
   exportReducer,
   openExport,
   connectionDisconnected,
 } from '../modules/export';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export function configureStore(services: ExportPluginServices) {
   return createStore(

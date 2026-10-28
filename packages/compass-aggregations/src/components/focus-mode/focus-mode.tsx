@@ -10,18 +10,18 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
+import { Resizable } from 're-resizable';
 import type { RootState } from '../../modules';
 import { disableFocusMode } from '../../modules/focus-mode';
+import ResizeHandle from '../resize-handle';
+import { RerankFirstStageBanner } from '../rerank-first-stage-banner';
+import { getIsRerankFirstStageBannerVisible } from '../../modules/pipeline-builder/builder-helpers';
 import FocusModeStageEditor from './focus-mode-stage-editor';
 import {
   FocusModeStageInput,
   FocusModeStageOutput,
 } from './focus-mode-stage-preview';
 import FocusModeModalHeader from './focus-mode-modal-header';
-import ResizeHandle from '../resize-handle';
-import { Resizable } from 're-resizable';
-import { RerankFirstStageBanner } from '../rerank-first-stage-banner';
-import { getIsRerankFirstStageBannerVisible } from '../../modules/pipeline-builder/builder-helpers';
 
 const containerStyles = css({
   display: 'grid',

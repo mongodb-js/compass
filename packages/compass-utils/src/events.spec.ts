@@ -1,5 +1,5 @@
+import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
-import { EventEmitter } from 'events';
 import { errorFromEvent, listen, once, waitUntil } from './events';
 
 describe('events', function () {

@@ -1,20 +1,20 @@
 import type { Reducer } from 'redux';
 import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import { UUID } from 'bson';
 
-import type { PipelineBuilderThunkAction } from '../';
-import { isAction } from '../../utils/is-action';
-import type { PipelineParserError } from './pipeline-parser/utils';
-import type Stage from './stage';
-import { updatePipelinePreview } from './builder-helpers';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import type { PipelineBuilderThunkAction } from '../';
+import { isAction } from '../../utils/is-action';
+import type { PipelineParserError } from './pipeline-parser/utils';
+import type Stage from './stage';
+import { updatePipelinePreview } from './builder-helpers';
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';

@@ -1,16 +1,16 @@
+import { EventEmitter } from 'node:events';
 import React, { StrictMode, createContext, useContext } from 'react';
 import { render, waitFor } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { createStore } from 'redux';
+import { connect } from 'react-redux';
 import {
   AppRegistryProvider,
   registerCompassPlugin,
   createActivateHelpers,
   createServiceLocator,
 } from './';
-import { createStore } from 'redux';
-import { connect } from 'react-redux';
-import { EventEmitter } from 'events';
 
 describe('registerCompassPlugin', function () {
   it('allows registering plugins with a reflux-ish store', function () {

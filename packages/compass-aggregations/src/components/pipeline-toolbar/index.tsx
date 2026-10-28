@@ -10,13 +10,13 @@ import {
 import { connect } from 'react-redux';
 import { useIsAIFeatureEnabled } from '@mongodb-js/compass-preferences-model/provider';
 
+import type { RootState } from '../../modules';
+import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';
 import PipelineSettings from './pipeline-settings';
 import PipelineAI from './pipeline-ai';
 
-import type { RootState } from '../../modules';
-import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
 import { PipelineToolbarContainer } from './pipeline-toolbar-container';
 
 const headerAndOptionsRowStyles = css({

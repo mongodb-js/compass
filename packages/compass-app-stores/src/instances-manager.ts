@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   MongoDBInstance,

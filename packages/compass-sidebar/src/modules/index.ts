@@ -1,5 +1,10 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
+import type { AppRegistry } from '@mongodb-js/compass-app-registry';
+import type { ThunkAction } from 'redux-thunk';
+import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AllDatabasesState, DatabasesAction } from './databases';
 import databases from './databases';
 import type { InstanceAction, InstanceState } from './instance';
@@ -9,16 +14,11 @@ import type {
   ConnectionOptionsState,
 } from './connection-options';
 import connectionOptions from './connection-options';
-import type { AppRegistry } from '@mongodb-js/compass-app-registry';
 import type {
   IsPerformanceTabSupportedState,
   SetIsPerformanceTabSupportedAction,
 } from './is-performance-tab-supported';
 import isPerformanceTabSupported from './is-performance-tab-supported';
-import type { ThunkAction } from 'redux-thunk';
-import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
-import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 export interface RootState {
   connectionOptions: ConnectionOptionsState;

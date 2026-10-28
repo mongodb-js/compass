@@ -1,5 +1,5 @@
+import assert from 'node:assert';
 import _ from 'lodash';
-import assert from 'assert';
 import type { Document } from 'bson';
 import {
   Double,
@@ -16,6 +16,7 @@ import {
   MaxKey,
 } from 'bson';
 
+import { getBsonType } from 'hadron-type-checker';
 import type {
   Delimiter,
   Linebreak,
@@ -26,7 +27,6 @@ import type {
   CSVValue,
   CSVFieldTypeInfo,
 } from './csv-types';
-import { getBsonType } from 'hadron-type-checker';
 
 export function formatCSVValue(
   value: string,

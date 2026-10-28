@@ -9,12 +9,12 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { DatabasesWorkspaceTab } from './';
 import Sinon from 'sinon';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from '@mongodb-js/compass-preferences-model';
+import { DatabasesWorkspaceTab } from './';
 
 describe('Databasees [Plugin]', function () {
   let dataService: any;

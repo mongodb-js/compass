@@ -8,6 +8,14 @@ import {
   useSortControls,
   useSortedItems,
 } from '@mongodb-js/compass-components';
+import {
+  type ConnectionInfo,
+  useActiveConnections,
+} from '@mongodb-js/compass-connections/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
 import {
@@ -15,25 +23,17 @@ import {
   openSelectConnectionAndNamespaceModal,
 } from '../stores/open-item';
 import type { RootState } from '../stores';
-import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
-import type { Action } from './saved-item-card';
-import { NoSavedItems, NoSearchResults } from './empty-list-items';
-import EditItemModal from './edit-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 import { editItem } from '../stores/edit-item';
 import { confirmDeleteItem } from '../stores/delete-item';
 import { copyToClipboard } from '../stores/copy-to-clipboard';
-import {
-  type ConnectionInfo,
-  useActiveConnections,
-} from '@mongodb-js/compass-connections/provider';
+import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
+import type { Action } from './saved-item-card';
+import { NoSavedItems, NoSearchResults } from './empty-list-items';
+import EditItemModal from './edit-item-modal';
 import SelectConnectionModal from './select-connection-modal';
 import SelectConnectionAndNamespaceModal from './select-connection-and-namespace-modal';
 import NoActiveConnectionsModal from './no-active-connections-modal';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {

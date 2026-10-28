@@ -4,18 +4,6 @@ import thunk from 'redux-thunk';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
-import reducer, {
-  runAggregation,
-  fetchNextPage,
-  fetchPrevPage,
-  cancelAggregation,
-  changeViewType,
-} from './aggregation';
-import type { State as AggregateState } from './aggregation';
-import type { RootState } from '.';
-import rootReducer from '../modules';
-import configureStore from '../../test/configure-store';
-import type { DataService } from './data-service';
 import { createCancelError } from '@mongodb-js/compass-utils';
 import HadronDocument from 'hadron-document';
 import { omit } from 'lodash';
@@ -23,8 +11,20 @@ import { EJSON } from 'bson';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import configureStore from '../../test/configure-store';
+import rootReducer from '../modules';
 import type { AggregationsStore } from '../stores/store';
+import type { DataService } from './data-service';
+import type { State as AggregateState } from './aggregation';
+import reducer, {
+  runAggregation,
+  fetchNextPage,
+  fetchPrevPage,
+  cancelAggregation,
+  changeViewType,
+} from './aggregation';
 import { PipelineBuilder } from './pipeline-builder/pipeline-builder';
+import type { RootState } from '.';
 
 const getMockedStore = (
   aggregation: AggregateState,

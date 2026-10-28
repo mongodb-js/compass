@@ -8,8 +8,6 @@ import {
   getDefaultValueForType,
   getDisplayType,
 } from 'hadron-document';
-import TypesDropdown from './types-dropdown';
-import AddFieldButton from './add-field-button';
 import {
   Button,
   css,
@@ -27,6 +25,8 @@ import type {
 } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
+import AddFieldButton from './add-field-button';
+import TypesDropdown from './types-dropdown';
 import type { GridContext } from './document-table-view';
 
 /**

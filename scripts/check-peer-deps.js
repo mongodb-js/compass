@@ -1,12 +1,11 @@
 'use strict';
-const path = require('path');
-const { promises: fs } = require('fs');
+const path = require('node:path');
+const { promises: fs } = require('node:fs');
+const { Module } = require('node:module');
+const { execFile } = require('node:child_process');
+const { promisify } = require('node:util');
 const { traverse, parseAsync } = require('@babel/core');
-const { Module } = require('module');
-const { execFile } = require('child_process');
-const { promisify } = require('util');
 const { minVersion } = require('semver');
-const { load } = require('js-yaml');
 
 const execFileAsync = promisify(execFile);
 
@@ -168,14 +167,6 @@ async function main() {
   const prodDependencies = new Set(Object.keys(pkgJson.dependencies ?? {}));
   const peerDependencies = new Set(Object.keys(pkgJson.peerDependencies ?? {}));
   const devDependencies = new Set(Object.keys(pkgJson.devDependencies ?? {}));
-  // Deps that depcheck is told to ignore are required without being imported
-  // directly, e.g. by a dependency that doesn't declare them itself
-  const depcheckIgnores = await fs
-    .readFile(path.resolve(process.cwd(), '.depcheckrc'), 'utf-8')
-    .then(
-      (rc) => load(rc)?.ignores ?? [],
-      () => []
-    );
   const allDependenciesWithVersions = new Map(
     Object.entries({
       ...(pkgJson.dependencies ?? {}),
@@ -203,11 +194,7 @@ async function main() {
       shouldBeInProd.add(depName);
     }
 
-    if (
-      !expectedPropDeps.has(depName) &&
-      !devDependencies.has(depName) &&
-      !depcheckIgnores.includes(depName)
-    ) {
+    if (!expectedPropDeps.has(depName) && !devDependencies.has(depName)) {
       shouldBeInDev.add(depName);
     }
   }

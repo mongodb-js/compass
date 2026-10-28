@@ -1,9 +1,19 @@
 import { expect } from 'chai';
+import Sinon from 'sinon';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import { waitFor } from '@mongodb-js/testing-library-compass';
+import { mapQueryToFormFields } from '../utils/query';
+import type { QueryProperty } from '../constants/query-properties';
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
 } from '../constants/query-bar-store';
-import type { QueryProperty } from '../constants/query-properties';
+import type { QueryBarExtraArgs, RootState } from './query-bar-store';
+import { configureStore } from './query-bar-store';
 import {
   QueryBarActions,
   applyFromHistory,
@@ -14,16 +24,6 @@ import {
   saveRecentAsFavorite,
   setQuery,
 } from './query-bar-reducer';
-import { configureStore } from './query-bar-store';
-import type { QueryBarExtraArgs, RootState } from './query-bar-store';
-import Sinon from 'sinon';
-import type AppRegistry from '@mongodb-js/compass-app-registry';
-import { mapQueryToFormFields } from '../utils/query';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { waitFor } from '@mongodb-js/testing-library-compass';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},

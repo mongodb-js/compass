@@ -1,9 +1,9 @@
-import download from 'download';
-import path from 'path';
-import { promises as fs } from 'fs';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
+import { promisify, inspect } from 'node:util';
+import childProcess from 'node:child_process';
 import createDebug from 'debug';
-import { promisify, inspect } from 'util';
-import childProcess from 'child_process';
+import download from 'download';
 
 const debug = createDebug('hadron-build:macos-notarization');
 const execFile = promisify(childProcess.execFile);

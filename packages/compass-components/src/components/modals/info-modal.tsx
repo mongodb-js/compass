@@ -3,8 +3,8 @@ import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
-import { Modal } from './modal';
 import { Button, ModalFooter } from '../leafygreen';
+import { Modal } from './modal';
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
 

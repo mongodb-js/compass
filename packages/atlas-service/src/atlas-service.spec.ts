@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { AtlasService, type AtlasServiceOptions } from './atlas-service';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { AtlasService, type AtlasServiceOptions } from './atlas-service';
 import type { AtlasServiceConfig } from './util';
 
 const ATLAS_CONFIG: AtlasServiceConfig = {

@@ -1,4 +1,6 @@
 import { expect } from 'chai';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { mockDataService } from '../../../test/mocks/data-service';
 import {
   createPreviewAggregation,
@@ -6,8 +8,6 @@ import {
   DEFAULT_SAMPLE_SIZE,
   PipelinePreviewManager,
 } from './pipeline-preview-manager';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 
 describe('PipelinePreviewManager', function () {
   let preferences: PreferencesAccess;

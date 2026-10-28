@@ -8,8 +8,8 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 
-import type { StageWizardUseCase } from '.';
 import { useDraggable } from '@dnd-kit/core';
+import type { StageWizardUseCase } from '.';
 
 export type DraggedUseCase = Pick<
   StageWizardUseCase,

@@ -5,8 +5,8 @@
 // Replaces signtool.exe in electron-winstaller with the emulated version
 // that uses the notary service.
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 if (process.platform !== 'win32') {
   console.info('Skip installing signtool.exe, not running on windows');

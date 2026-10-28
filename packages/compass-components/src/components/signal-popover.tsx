@@ -6,20 +6,20 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useHoverState } from '../hooks/use-focus-hover';
-import { Body, Button, Icon, IconButton, Link } from './leafygreen';
-import { InteractivePopover } from './interactive-popover';
-import { mergeProps } from '../utils/merge-props';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
-import { useDarkMode } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { AssistantAvatar as AssistantSparkleIcon } from '@leafygreen-ui/avatar';
-import { GuideCue } from './guide-cue/guide-cue';
+import { useDarkMode } from '../hooks/use-theme';
+import { mergeProps } from '../utils/merge-props';
+import { useHoverState } from '../hooks/use-focus-hover';
 import { useEffectOnChange } from '../hooks/use-effect-on-change';
 import { rafraf } from '../utils/rafraf';
 import { useCurrentValueRef } from '../hooks/use-current-value-ref';
 import { useInitialValue } from '../hooks/use-initial-value';
+import { GuideCue } from './guide-cue/guide-cue';
+import { InteractivePopover } from './interactive-popover';
+import { Body, Button, Icon, IconButton, Link } from './leafygreen';
 
 type SignalTrackingHooks = {
   onSignalMount(id: string): void;

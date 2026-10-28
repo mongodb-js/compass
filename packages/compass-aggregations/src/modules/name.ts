@@ -1,5 +1,6 @@
 import type { Action, Reducer } from 'redux';
 
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import type {
@@ -11,7 +12,6 @@ import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import type { SavingPipelineApplyAction } from './saving-pipeline';
 import { SAVING_PIPELINE_APPLY } from './saving-pipeline';
-import { isAction } from '../utils/is-action';
 
 export type NameState = string;
 

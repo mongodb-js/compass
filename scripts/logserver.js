@@ -2,7 +2,7 @@
 // Simple HTTP server that logs out all requests it receives and just
 // replies with 200 Ok. This is very useful when debugging telemetry:
 // env HADRON_METRICS_SEGMENT_API_KEY='ignore' HADRON_METRICS_SEGMENT_HOST='http://localhost:8000' npm start
-const http = require('http');
+const http = require('node:http');
 
 function write(payload) {
   if (process.stdout.isTTY) {

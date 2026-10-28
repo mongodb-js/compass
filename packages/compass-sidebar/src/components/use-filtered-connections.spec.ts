@@ -2,11 +2,11 @@ import type {
   SidebarConnectedConnection,
   SidebarConnection,
 } from '@mongodb-js/compass-connections-navigation';
-import { useFilteredConnections } from './use-filtered-connections';
 import _ from 'lodash';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { renderHook, waitFor } from '@mongodb-js/testing-library-compass';
+import { useFilteredConnections } from './use-filtered-connections';
 
 const connectedConnection1 = {
   id: 'connected_connection_1',

@@ -1,7 +1,7 @@
+import { isEqual } from 'lodash';
 import type { Element } from './element';
 import type { Document } from './document';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
-import { isEqual } from 'lodash';
 
 const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
 

@@ -1,19 +1,19 @@
 import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import {
-  GroupWithSubset,
-  mapGroupFormStateToStageValue,
-  getValidationError,
-} from './group-with-subset';
 import sinon from 'sinon';
 import {
   setMultiSelectComboboxValues,
   setSelectValue,
   setInputElementValueByTestId,
 } from '../../../../../test/form-helper';
-import type { GroupWithSubsetFormData } from './group-with-subset';
 import type { StageWizardFields } from '..';
+import type { GroupWithSubsetFormData } from './group-with-subset';
+import {
+  GroupWithSubset,
+  mapGroupFormStateToStageValue,
+  getValidationError,
+} from './group-with-subset';
 
 const SAMPLE_FIELDS: StageWizardFields = [
   {

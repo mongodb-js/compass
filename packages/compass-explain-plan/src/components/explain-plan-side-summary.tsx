@@ -15,11 +15,11 @@ import {
   SignalPopover,
   PerformanceSignals,
 } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
 import {
   openCreateIndexModal,
   type SerializedExplainPlan,
 } from '../stores/explain-plan-modal-store';
-import { connect } from 'react-redux';
 
 const defaultFormatter = (_: unknown) => String(_);
 

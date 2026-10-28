@@ -1,9 +1,9 @@
+import path from 'node:path';
 import { expect } from 'chai';
-import path from 'path';
-import { onStarted, openImport, selectImportFileName } from './import';
+import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 import type { ImportStore } from '../stores/import-store';
 import { ImportPlugin } from '../index';
-import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
+import { onStarted, openImport, selectImportFileName } from './import';
 
 const { activatePluginWithConnections } = createPluginTestHelpers(ImportPlugin);
 

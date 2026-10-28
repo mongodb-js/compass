@@ -2,8 +2,6 @@ import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { ToolsIntroCard } from './tools-intro-card';
-import { CompassAssistantProvider } from '../compass-assistant-provider';
 import type {
   AtlasAuthService,
   AtlasService,
@@ -12,6 +10,8 @@ import type {
   AtlasAiService,
   ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
+import { CompassAssistantProvider } from '../compass-assistant-provider';
+import { ToolsIntroCard } from './tools-intro-card';
 
 describe('ToolsIntroCard', function () {
   const defaultProps = {

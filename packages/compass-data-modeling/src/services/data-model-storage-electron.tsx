@@ -1,11 +1,11 @@
 import React from 'react';
 import { FileUserData } from '@mongodb-js/compass-user-data';
+import { DataModelStorageServiceProvider } from '../provider';
 import type {
   DataModelStorage,
   MongoDBDataModelDescription,
 } from './data-model-storage';
 import { MongoDBDataModelDescriptionSchema } from './data-model-storage';
-import { DataModelStorageServiceProvider } from '../provider';
 
 class DataModelStorageElectron implements DataModelStorage {
   private readonly userData: FileUserData<

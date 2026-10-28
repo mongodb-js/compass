@@ -1,3 +1,5 @@
+import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
+import { expect } from 'chai';
 import {
   applyFeatureFlagChangesToFilteredOperators,
   filterStageOperators,
@@ -7,8 +9,6 @@ import {
   getSearchStageInfoFromPipeline,
   type FilteredStageOperators,
 } from './stage';
-import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
-import { expect } from 'chai';
 
 describe('utils', function () {
   describe('#filterStageOperators', function () {

@@ -4,10 +4,10 @@ import {
   LeafyGreenProvider,
 } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
-import type { CellEditorProps } from './cell-editor';
-import type { GridActions } from '../../stores/grid-store';
 import { DocumentEvents, type Element } from 'hadron-document';
+import type { GridActions } from '../../stores/grid-store';
 import type { BSONObject, CrudActions } from '../../stores/crud-store';
+import type { CellEditorProps } from './cell-editor';
 
 export type FullWidthCellRendererProps = Pick<
   CellEditorProps,

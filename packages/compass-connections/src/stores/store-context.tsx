@@ -10,12 +10,15 @@ import {
   createDispatchHook,
   createSelectorHook,
 } from 'react-redux';
-import type {
-  configureStore,
-  ConnectionId,
-  ConnectionState,
-  State,
-} from './connections-store-redux';
+import type { Store } from 'redux';
+import {
+  getConnectionTitle,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-info';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
+import { isEqual, memoize } from 'lodash';
+import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
+import { useInitialValue } from '@mongodb-js/compass-components';
 import {
   cancelEditConnection,
   connect as connectionsConnect,
@@ -35,15 +38,12 @@ import {
   importConnections,
   refreshConnections,
 } from './connections-store-redux';
-import type { Store } from 'redux';
-import {
-  getConnectionTitle,
-  type ConnectionInfo,
-} from '@mongodb-js/connection-info';
-import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import { isEqual, memoize } from 'lodash';
-import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
-import { useInitialValue } from '@mongodb-js/compass-components';
+import type {
+  configureStore,
+  ConnectionId,
+  ConnectionState,
+  State,
+} from './connections-store-redux';
 
 type ConnectionsStore =
   ReturnType<typeof configureStore> extends Store<infer S, infer A> & {

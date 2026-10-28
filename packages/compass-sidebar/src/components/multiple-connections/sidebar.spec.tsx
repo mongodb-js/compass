@@ -9,19 +9,19 @@ import {
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import MultipleConnectionSidebar from './sidebar';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
 import {
   AtlasClusterConnectionsOnlyProvider,
   CompassSidebarPlugin,
 } from '../../index';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import type AppRegistry from '@mongodb-js/compass-app-registry';
+import MultipleConnectionSidebar from './sidebar';
 
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',

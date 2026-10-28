@@ -1,7 +1,7 @@
 import React from 'react';
-import { connect as reduxConnect } from '../stores/store-context';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { connect as reduxConnect } from '../stores/store-context';
 import {
   connect,
   disconnect,

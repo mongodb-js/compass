@@ -1,13 +1,13 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 
-import GlobalWrites from './components';
-import { GlobalWritesTabTitle } from './plugin-title';
-import { activateGlobalWritesPlugin } from './store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
+import { activateGlobalWritesPlugin } from './store';
+import { GlobalWritesTabTitle } from './plugin-title';
+import GlobalWrites from './components';
 
 const CompassGlobalWritesPluginProvider = registerCompassPlugin(
   {

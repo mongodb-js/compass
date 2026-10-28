@@ -17,9 +17,9 @@ import {
   usePreference,
   usePreferencesContext,
 } from '@mongodb-js/compass-preferences-model/provider';
-import { useAssistantProjectId } from '../compass-assistant-provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import { useAssistantProjectId } from '../compass-assistant-provider';
 
 const popoverContentStyles = css({
   padding: spacing[400],

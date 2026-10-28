@@ -8,11 +8,11 @@ import {
   useRef,
   useCallback,
 } from 'react';
-import { type AllPreferences } from './';
-import type { PreferencesAccess } from './preferences';
-import { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { pick } from 'lodash';
+import type { PreferencesAccess } from './preferences';
+import { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
+import { type AllPreferences } from './';
 
 const PreferencesContext = createContext<PreferencesAccess | null>(null);
 // Lazily initialized to avoid a cyclic dependency.

@@ -1,14 +1,14 @@
-import path from 'path';
-import { promises as fs } from 'fs';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import { EJSON } from 'bson';
 import yaml from 'js-yaml';
 import type { Options as YargsOptions } from 'yargs-parser';
 import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
-import type { AllPreferences } from './preferences-schema';
-import { allPreferencesProps } from './preferences-schema';
 import type { z } from '@mongodb-js/compass-user-data';
 import { createLogger } from '@mongodb-js/compass-logging';
+import type { AllPreferences } from './preferences-schema';
+import { allPreferencesProps } from './preferences-schema';
 
 const { log, mongoLogId } = createLogger('COMPASS-PREFERENCES');
 

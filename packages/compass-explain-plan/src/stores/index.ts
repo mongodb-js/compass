@@ -1,12 +1,6 @@
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import {
-  reducer,
-  INITIAL_STATE,
-  openExplainPlanModal,
-  openExplainPlanForInterpret,
-} from './explain-plan-modal-store';
 import type { AggregateOptions, Document, FindOptions } from 'mongodb';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -18,6 +12,12 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import {
+  reducer,
+  INITIAL_STATE,
+  openExplainPlanModal,
+  openExplainPlanForInterpret,
+} from './explain-plan-modal-store';
 
 type ExplainPlanInput =
   | {

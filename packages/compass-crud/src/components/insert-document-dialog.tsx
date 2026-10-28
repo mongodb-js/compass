@@ -23,26 +23,26 @@ import {
   Tooltip,
 } from '@mongodb-js/compass-components';
 
-import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
-import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
-import InsertDocumentEditor, {
-  INSERT_EDITOR_MIN_HEIGHT,
-} from './insert-document-editor';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { useSafeIntegerLinter } from '@mongodb-js/compass-editor';
+import type { Extension, EditorRef } from '@mongodb-js/compass-editor';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { InsertDocumentView, WriteError } from '../stores/crud-store';
 import {
   parseInsertDocumentText,
   toInsertHadronDocument,
 } from '../stores/crud-store';
-import { useSafeIntegerLinter } from '@mongodb-js/compass-editor';
-import type { Extension, EditorRef } from '@mongodb-js/compass-editor';
+import { convertEJSONToShellSyntax } from '../utils/ejson-conversion';
+import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
 import InsertEJSONConversionBanner from './insert-ejson-conversion-banner';
-import { convertEJSONToShellSyntax } from '../utils/ejson-conversion';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
+import InsertDocumentEditor, {
+  INSERT_EDITOR_MIN_HEIGHT,
+} from './insert-document-editor';
+import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
+import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 
 /**
  * The insert invalid message.

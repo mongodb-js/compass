@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 import type { MongoCluster } from '@mongodb-js/compass-test-server';
-import { seedServer } from './seed-server';
 import type { SeedDatabase } from '../../types/seed-data';
+import { seedServer } from './seed-server';
 
 describe('seedServer', function () {
   this.timeout(180_000);

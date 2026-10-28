@@ -9,11 +9,11 @@ import {
   openToast,
   SelectList,
 } from '@mongodb-js/compass-components';
-import { FileInput } from './file-input';
-import { Passphrase } from './passphrase';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import-connections';
+import { Passphrase } from './passphrase';
+import { FileInput } from './file-input';
 
 const TOAST_TIMEOUT_MS = 5000;
 

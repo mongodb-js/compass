@@ -3,9 +3,6 @@ import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { AnyAction, Action } from 'redux';
 import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
-import itemsReducer from './aggregations-queries-items';
-import openItemReducer from './open-item';
-import editItemReducer from './edit-item';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
@@ -18,6 +15,9 @@ import type {
 } from '@mongodb-js/my-queries-storage/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import editItemReducer from './edit-item';
+import openItemReducer from './open-item';
+import itemsReducer from './aggregations-queries-items';
 
 type MyQueriesServices = {
   connections: ConnectionsService;

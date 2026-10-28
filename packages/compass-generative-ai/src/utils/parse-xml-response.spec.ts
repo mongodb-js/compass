@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { parseXmlToJsonResponse } from './parse-xml-response';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { parseXmlToJsonResponse } from './parse-xml-response';
 
 describe('parseXmlToJsonResponse', function () {
   context('handles find', function () {

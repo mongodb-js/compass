@@ -5,11 +5,11 @@ import type {
   UIMessagePart,
   UITools,
 } from 'ai';
-import type { AssistantMessage } from './compass-assistant-provider';
-import type { Chat } from './@ai-sdk/react/chat-react';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
+import type { Chat } from './@ai-sdk/react/chat-react';
+import type { AssistantMessage } from './compass-assistant-provider';
 
 export const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';

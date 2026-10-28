@@ -2,8 +2,8 @@ import React from 'react';
 import { expect } from 'chai';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import HadronDocument from 'hadron-document';
-import DocumentEditActionsFooter from './document-edit-actions-footer';
 import Sinon from 'sinon';
+import DocumentEditActionsFooter from './document-edit-actions-footer';
 
 const DEFAULT_PROPS = {
   doc: new HadronDocument({}),

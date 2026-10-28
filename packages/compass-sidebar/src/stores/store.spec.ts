@@ -1,8 +1,6 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
 import { stub, type SinonStub, spy, type SinonSpy } from 'sinon';
-import { createSidebarStore } from '.';
-import { createInstance } from '../../test/helpers';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import {
@@ -11,6 +9,8 @@ import {
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { createInstance } from '../../test/helpers';
+import { createSidebarStore } from '.';
 
 const CONNECTION_ID = 'webscale';
 const ALL_EVENTS = [

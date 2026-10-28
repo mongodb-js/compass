@@ -1,10 +1,10 @@
-import fs from 'fs';
-import { spawnSync } from 'child_process';
-import type { SpawnSyncOptions } from 'child_process';
-import path from 'path';
-import os from 'os';
-import { Readable, promises } from 'stream';
-import type { ReadableStream as ReadableStreamWeb } from 'stream/web';
+import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import type { SpawnSyncOptions } from 'node:child_process';
+import path from 'node:path';
+import os from 'node:os';
+import { Readable, promises } from 'node:stream';
+import type { ReadableStream as ReadableStreamWeb } from 'node:stream/web';
 
 const {
   EVG_USER,

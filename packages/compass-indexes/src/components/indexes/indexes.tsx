@@ -14,6 +14,8 @@ import {
   useTelemetry,
   useSearchActivationProgramP1,
 } from '@mongodb-js/compass-telemetry/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
@@ -29,8 +31,6 @@ import {
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
-import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';
 import ViewSearchIncompatibleBanner from '../view-incompatible-components/view-pipeline-incompatible-banner';

@@ -1,9 +1,9 @@
 import React from 'react';
-import type { SidebarTreeItem } from './tree-data';
 import { css, Icon, ServerIcon, Tooltip } from '@mongodb-js/compass-components';
 import type { GlyphName } from '@mongodb-js/compass-components';
+import { isLocalhost } from '@mongodb-js/mongodb-build-info';
 import { WithStatusMarker } from './with-status-marker';
-import { isLocalhost } from 'mongodb-build-info';
+import type { SidebarTreeItem } from './tree-data';
 
 const INFERRED_FROM_PRIVILEGES_TEXT =
   'Your privileges grant you access to this namespace, but it might not currently exist';

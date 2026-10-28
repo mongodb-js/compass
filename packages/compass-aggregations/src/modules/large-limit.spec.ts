@@ -1,5 +1,5 @@
-import reducer from './large-limit';
 import { expect } from 'chai';
+import reducer from './large-limit';
 
 describe('large-limit module', function () {
   describe('#reducer', function () {

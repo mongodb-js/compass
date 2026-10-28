@@ -3,22 +3,22 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 
-import Condition, {
-  LABELS,
-  TEST_IDS,
-  makeCreateCondition,
-} from './match-condition-form';
 import {
   setComboboxValue,
   setInputElementValueByTestId,
   setSelectValue,
 } from '../../../../../test/form-helper';
 import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
 import type {
   MatchConditionFormProps,
   CreateConditionFn,
 } from './match-condition-form';
-import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import Condition, {
+  LABELS,
+  TEST_IDS,
+  makeCreateCondition,
+} from './match-condition-form';
 
 const renderCondition = (props: Partial<MatchConditionFormProps>) => {
   const condition = props.condition ?? makeCreateCondition()();

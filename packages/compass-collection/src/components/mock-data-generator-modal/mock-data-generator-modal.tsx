@@ -14,24 +14,6 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import { type MockDataGeneratorStep, MockDataGeneratorSteps } from './types';
-import type { SchemaAnalysisState } from '../../schema-analysis-types';
-import {
-  MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
-  StepButtonLabelMap,
-} from './constants';
-import { validateDocumentCount } from './utils';
-import type { CollectionState } from '../../modules/collection-tab';
-import {
-  mockDataGeneratorModalClosed,
-  mockDataGeneratorNextButtonClicked,
-  generateFakerMappings,
-  mockDataGeneratorPreviousButtonClicked,
-} from '../../modules/collection-tab';
-
-import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
-import PreviewAndDocCountScreen from './preview-and-doc-count-screen';
-import ScriptScreen from './script-screen';
 import {
   useTelemetry,
   useTrackOnChange,
@@ -40,6 +22,24 @@ import {
   useIsAIFeatureEnabled,
   usePreference,
 } from '@mongodb-js/compass-preferences-model/provider';
+import type { SchemaAnalysisState } from '../../schema-analysis-types';
+import type { CollectionState } from '../../modules/collection-tab';
+import {
+  mockDataGeneratorModalClosed,
+  mockDataGeneratorNextButtonClicked,
+  generateFakerMappings,
+  mockDataGeneratorPreviousButtonClicked,
+} from '../../modules/collection-tab';
+import { type MockDataGeneratorStep, MockDataGeneratorSteps } from './types';
+import {
+  MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
+  StepButtonLabelMap,
+} from './constants';
+import { validateDocumentCount } from './utils';
+
+import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
+import PreviewAndDocCountScreen from './preview-and-doc-count-screen';
+import ScriptScreen from './script-screen';
 
 const footerStyles = css`
   flex-direction: row;

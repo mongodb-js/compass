@@ -1,7 +1,31 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import type { OpenWorkspaceOptions } from './stores/workspaces';
+import { applyMiddleware, createStore } from 'redux';
+import thunk from 'redux-thunk';
+import {
+  type MongoDBInstance,
+  type MongoDBInstancesManager,
+  MongoDBInstancesManagerEvents,
+} from '@mongodb-js/compass-app-stores/provider';
+import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
+import type Collection from '@mongodb-js/mongodb-collection-model';
+import type Database from '@mongodb-js/mongodb-database-model';
+import {
+  connectionsLocator,
+  type ConnectionInfo,
+  type ConnectionsService,
+} from '@mongodb-js/compass-connections/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
+import type { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
+import { type IUserData } from '@mongodb-js/compass-user-data';
+import { workspacesStorageServiceLocator } from './services/workspaces-storage';
+import { WorkspacesStoreContext } from './stores/context';
+import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
+import Workspaces from './components';
 import workspacesReducer, {
   collectionRemoved,
   collectionRenamed,
@@ -14,31 +38,7 @@ import workspacesReducer, {
   loadSavedWorkspaces,
   beforeUnloading,
 } from './stores/workspaces';
-import Workspaces from './components';
-import { applyMiddleware, createStore } from 'redux';
-import thunk from 'redux-thunk';
-import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
-import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
-import type Collection from '@mongodb-js/mongodb-collection-model';
-import type Database from '@mongodb-js/mongodb-database-model';
-import {
-  connectionsLocator,
-  type ConnectionInfo,
-  type ConnectionsService,
-} from '@mongodb-js/compass-connections/provider';
-import { WorkspacesStoreContext } from './stores/context';
-import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import {
-  type MongoDBInstancesManager,
-  MongoDBInstancesManagerEvents,
-} from '@mongodb-js/compass-app-stores/provider';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
-import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
-import { workspacesStorageServiceLocator } from './services/workspaces-storage';
-import type { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
-import { type IUserData } from '@mongodb-js/compass-user-data';
+import type { OpenWorkspaceOptions } from './stores/workspaces';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;

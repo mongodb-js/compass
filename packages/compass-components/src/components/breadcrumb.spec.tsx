@@ -6,8 +6,8 @@ import {
   screen,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
-import { Breadcrumbs } from './breadcrumb';
 import sinon from 'sinon';
+import { Breadcrumbs } from './breadcrumb';
 
 describe('Breadcrumbs Component', function () {
   afterEach(cleanup);

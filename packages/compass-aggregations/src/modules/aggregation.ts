@@ -1,9 +1,23 @@
 import HadronDocument from 'hadron-document';
 import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
-import type { PipelineBuilderThunkAction } from '.';
+import {
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
+import toNS from '@mongodb-js/mongodb-ns';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
+import {
+  getDestinationNamespaceFromStage,
+  getStageOperator,
+  isOutputStage,
+} from '../utils/stage';
+import { isAction } from '../utils/is-action';
+import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
+import type { DataService } from '../modules/data-service';
 import type { WorkspaceChangedAction } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
@@ -12,22 +26,8 @@ import {
   getPipelineFromBuilderState,
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
-import {
-  getDestinationNamespaceFromStage,
-  getStageOperator,
-  isOutputStage,
-} from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
-import { isAction } from '../utils/is-action';
-import {
-  showConfirmation,
-  ConfirmationModalVariant,
-} from '@mongodb-js/compass-components';
-import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
-import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
-import type { DataService } from '../modules/data-service';
-import toNS from 'mongodb-ns';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { PipelineBuilderThunkAction } from '.';
 
 // Used in the `comment` on the aggregate command to help identify
 // the operation in server logs and currentOp.

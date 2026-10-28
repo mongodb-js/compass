@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import { languages } from '../editor';
 import { EditorView } from '@codemirror/view';
+import { CompletionContext } from '@codemirror/autocomplete';
+import { languages } from '../editor';
 import {
   getAncestryOfToken,
   mapMongoDBCompletionToCodemirrorCompletion,
   resolveTokenAtCursor,
 } from './utils';
-import { CompletionContext } from '@codemirror/autocomplete';
 
 const parseDocument = (_doc = '') => {
   const pos = _doc.indexOf('${}');

@@ -6,9 +6,8 @@ import {
   userEvent,
   renderHook,
 } from '@mongodb-js/testing-library-compass';
-import { useGridFilters, useFilteredItems } from './use-grid-filters';
-
 import { queries, pipelines } from '../../test/fixtures';
+import { useGridFilters, useFilteredItems } from './use-grid-filters';
 
 const items = [...queries, ...pipelines];
 

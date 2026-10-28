@@ -5,9 +5,9 @@ import type {
   ConnectionSecrets,
 } from '@mongodb-js/connection-info';
 import { extractSecrets, mergeSecrets } from '@mongodb-js/connection-info';
-import { Decrypter, Encrypter } from './encrypt';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import { Decrypter, Encrypter } from './encrypt';
 
 type ConfigurableOptionsSpec = {
   [key: string]: true | ConfigurableOptionsSpec;

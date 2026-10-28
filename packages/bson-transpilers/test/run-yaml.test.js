@@ -1,11 +1,10 @@
 'use strict';
 /* eslint no-sync: 0 */
-const path = require('path');
-const fs = require('fs');
-const chai = require('chai');
-const expect = chai.expect;
+const path = require('node:path');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const { expect } = require('chai');
 const yaml = require('js-yaml');
-const vm = require('vm');
 const bson = require('bson');
 const { getBsonType } = require('hadron-type-checker');
 

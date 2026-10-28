@@ -1,7 +1,7 @@
-import { isAction } from '../utils/is-action';
-import { type PipelineBuilderThunkAction } from '.';
-import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { type PipelineBuilderThunkAction } from '.';
 
 const ActionTypes = {
   SidePanelToggled: 'compass-aggregations/sidePanelToggled',

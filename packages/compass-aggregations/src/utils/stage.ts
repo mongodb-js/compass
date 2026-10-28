@@ -1,4 +1,4 @@
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import {
   ADL,
   ATLAS,
@@ -12,11 +12,11 @@ import {
   getFilteredCompletions,
 } from '@mongodb-js/mongodb-constants';
 import type { Completion } from '@mongodb-js/mongodb-constants';
+import type { Document, MongoServerError } from 'mongodb';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
 import { STAGE_HELP_BASE_URL } from '../constants';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
 import type { ServerEnvironment } from '../modules/env';
-import type { Document, MongoServerError } from 'mongodb';
 
 export function isAtlasOnly(operatorEnv: readonly ServerEnvironment[]) {
   return operatorEnv?.every((env) => env === ATLAS);

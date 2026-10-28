@@ -8,10 +8,10 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
-import { HadronElement, getNestedKeyPathForElement } from './element';
-import { getDraggedDocumentField } from './field-drag';
 import type { Element } from 'hadron-document';
 import { BSON } from 'bson';
+import { HadronElement, getNestedKeyPathForElement } from './element';
+import { getDraggedDocumentField } from './field-drag';
 
 describe('HadronElement', function () {
   describe('context menu', function () {

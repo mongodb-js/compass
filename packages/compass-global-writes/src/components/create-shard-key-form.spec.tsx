@@ -1,12 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen, userEvent } from '@mongodb-js/testing-library-compass';
+import sinon from 'sinon';
+import { renderWithStore } from '../../tests/create-store';
 import {
   CreateShardKeyForm,
   type CreateShardKeyFormProps,
 } from './create-shard-key-form';
-import { renderWithStore } from '../../tests/create-store';
-import sinon from 'sinon';
 
 function renderWithProps(props?: Partial<CreateShardKeyFormProps>) {
   return renderWithStore(

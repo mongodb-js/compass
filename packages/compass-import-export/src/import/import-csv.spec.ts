@@ -1,33 +1,32 @@
 /* eslint-disable no-console */
-import os from 'os';
-import _ from 'lodash';
-import assert from 'assert';
+import os from 'node:os';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Readable } from 'node:stream';
+import _, { omit } from 'lodash';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
 import { MongoBulkWriteError } from 'mongodb';
-import fs from 'fs';
-import path from 'path';
-import { Readable } from 'stream';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
-import { omit } from 'lodash';
 
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { getBsonType } from 'hadron-type-checker';
 import { fixtures } from '../../test/fixtures';
 
-import { guessFileType } from './guess-filetype';
-import { analyzeCSVFields } from './analyze-csv-fields';
-import { importCSV } from './import-csv';
 import { formatCSVHeaderName } from '../csv/csv-utils';
 import type { CSVParsableFieldType, PathPart } from '../csv/csv-types';
 import type { ErrorJSON } from '../import/import-types';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { getBsonType } from 'hadron-type-checker';
+import { guessFileType } from './guess-filetype';
+import { analyzeCSVFields } from './analyze-csv-fields';
+import { importCSV } from './import-csv';
 
 temp.track();
 

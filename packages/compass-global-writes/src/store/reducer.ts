@@ -1,10 +1,10 @@
 import type { Action, Reducer } from 'redux';
-import type { GlobalWritesThunkAction } from '.';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
+import type { GlobalWritesThunkAction } from '.';
 
 export const POLLING_INTERVAL = 5000;
 

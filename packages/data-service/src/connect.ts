@@ -1,8 +1,8 @@
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import type { ConnectionOptions } from './connection-options';
 import type { DataService } from './data-service';
 import type { DataServiceImplLogger } from './logger';
 import { DataServiceImpl } from './data-service';
-import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 export default async function connect({
   connectionOptions,

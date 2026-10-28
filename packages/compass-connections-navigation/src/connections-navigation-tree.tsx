@@ -1,16 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { getConnectionId, getVirtualTreeItems } from './tree-data';
-import { ROW_HEIGHT } from './constants';
-import type { Actions } from './constants';
-import { VirtualTree } from './virtual-list/virtual-list';
-import type { OnDefaultAction } from './virtual-list/virtual-list';
-import { NavigationItem } from './navigation-item';
-import type {
-  SidebarTreeItem,
-  SidebarActionableItem,
-  Connection,
-} from './tree-data';
 import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
 import type { ContextMenuItemGroup } from '@mongodb-js/compass-context-menu';
 import {
@@ -22,6 +11,17 @@ import {
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { getConnectionId, getVirtualTreeItems } from './tree-data';
+import { ROW_HEIGHT } from './constants';
+import type { Actions } from './constants';
+import { VirtualTree } from './virtual-list/virtual-list';
+import type { OnDefaultAction } from './virtual-list/virtual-list';
+import { NavigationItem } from './navigation-item';
+import type {
+  SidebarTreeItem,
+  SidebarActionableItem,
+  Connection,
+} from './tree-data';
 import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,
