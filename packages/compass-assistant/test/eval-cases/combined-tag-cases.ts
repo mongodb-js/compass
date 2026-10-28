@@ -4,11 +4,11 @@
  * harness reports them.
  */
 
+import { EVAL_CLUSTER_UID } from '../eval-config';
 import type {
   CompassAssistantCustomInput,
   ToolCallEvalCase,
 } from './tool-call-cases';
-import { EVAL_CLUSTER_UID } from '../eval-config';
 
 const mflixCustomInput: CompassAssistantCustomInput = {
   clusterUid: EVAL_CLUSTER_UID,
