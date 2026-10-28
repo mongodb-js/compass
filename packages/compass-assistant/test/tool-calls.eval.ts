@@ -10,7 +10,7 @@
 
 import { strict as assert } from 'node:assert';
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { isStepCount, streamText, wrapLanguageModel } from 'ai';
 import type { ToolSet, ToolCallPart } from 'ai';
 import { MongoClient } from 'mongodb';
 import {
@@ -22,6 +22,13 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { startTestServer } from '@mongodb-js/compass-test-server';
+import {
+  toolCallEvalCases,
+  type CompassAssistantCustomInput,
+} from './eval-cases/tool-call-cases';
+import type { ConnectionConfig, EvalTaskConfig } from './tool-call-eval-types';
+import { buildContextPrompt } from '../src/prompts';
+import { createSkillsMiddleware } from '../src/docs-provider-transport';
 import { runConversationEval } from 'mongodb-assistant-eval/eval';
 import type {
   ConversationEvalCaseInputWithCustom,
@@ -153,26 +160,56 @@ function buildContextPromptText({
 }
 
 /**
- * Converts AI SDK ToolCallParts to the OpenAI ChatCompletionMessageToolCall
- * format that the AEL's ToolCallScorers expect on ConversationTaskOutput.messages.
+ * Converts the calls of one step to the OpenAI message format that the AEL's
+ * ToolCallScorers expect on ConversationTaskOutput.messages: an assistant
+ * message with the calls, followed by a tool message per call. The tool messages
+ * keep the calls of different steps apart, otherwise the scorers treat all of
+ * them as made in parallel. Skills run on the server, so they come first.
  */
-function toolCallPartsToAssistantMessages(
-  toolCalls: ToolCallPart[]
+function stepToMessages(
+  step: number,
+  skillNames: string[],
+  toolCalls: ToolCallPart[],
+  toolResults: { toolCallId: string; output?: unknown }[]
 ): ConversationTaskOutput['messages'] {
-  return toolCalls.map((tc) => ({
-    role: 'assistant' as const,
-    content: '',
-    toolCalls: [
-      {
-        id: tc.toolCallId,
+  const calls = [
+    ...skillNames.map((skillName, index) => ({
+      id: `skill-${step}-${index}`,
+      name: 'skill',
+      input: { skillName },
+      output: null,
+    })),
+    ...toolCalls.map((tc) => ({
+      id: tc.toolCallId,
+      name: tc.toolName,
+      input: tc.input ?? {},
+      output:
+        toolResults.find((r) => r.toolCallId === tc.toolCallId)?.output ?? null,
+    })),
+  ];
+  if (calls.length === 0) {
+    return [];
+  }
+  return [
+    {
+      role: 'assistant' as const,
+      content: '',
+      toolCalls: calls.map((call) => ({
+        id: call.id,
         type: 'function' as const,
         function: {
-          name: tc.toolName,
-          arguments: JSON.stringify(tc.input ?? {}),
+          name: call.name,
+          arguments: JSON.stringify(call.input),
         },
-      },
-    ],
-  }));
+      })),
+    },
+    ...calls.map((call) => ({
+      role: 'tool' as const,
+      toolCallId: call.id,
+      name: call.name,
+      content: JSON.stringify(call.output),
+    })),
+  ];
 }
 
 function makeToolCallEvalCases(): BraintrustConversationEvalCaseWithCustom<CompassAssistantCustomInput>[] {
@@ -223,8 +260,40 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
       connectionString: connectionConfig.connectionString,
     });
 
-    const result = streamText({
+    const prompt = input.messages
+      .map(
+        (m) => `${m.role === 'assistant' ? 'Assistant' : 'User'}: ${m.content}`
+      )
+      .join('\n\n');
+
+    // With a `<tool>` tag the model repeats the tagged tool at every step, so
+    // those prompts stay at one step.
+    const maxSteps = /<tool>/.test(prompt) ? 1 : EVAL_MAX_STEPS;
+    const tools =
+      maxSteps > 1
+        ? withAutoApproval(caseTools, custom, connectionConfig.connectionId)
+        : caseTools;
+
+    // Like the app, take the server-side `skill` calls out of the stream. The AI
+    // SDK would treat them as unresolved tool calls and start another step,
+    // which makes the model load the same skill again and again.
+    let stepSkills: string[] = [];
+    const skillsByStep: string[][] = [];
+    const model = wrapLanguageModel({
       model: openai.responses(EVAL_MODEL),
+      middleware: createSkillsMiddleware((skillName) =>
+        stepSkills.push(skillName)
+      ),
+    });
+
+    // The endpoint fails often enough that retrying a whole case would rarely
+    // get through several steps, so retries rerun only the failed step.
+    const result = streamText({
+      model,
+      onStepEnd: () => {
+        skillsByStep.push(stepSkills);
+        stepSkills = [];
+      },
       system: contextPrompt,
       prompt: input.messages
         .map(
@@ -240,9 +309,20 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
         },
       },
     });
-
-    const text = await result.text;
-    const toolCalls = await result.toolCalls;
+    const [text, steps] = await Promise.all([result.text, result.steps]);
+    // An error event from the endpoint (e.g. "Response timeout") ends the step
+    // with empty text and no tool calls, which would score as a real answer.
+    if (steps.at(-1)?.finishReason === 'error') {
+      throw new Error('Eval request ended with an error event');
+    }
+    const outputMessages = steps.flatMap((step, index) =>
+      stepToMessages(
+        index,
+        skillsByStep[index] ?? [],
+        step.toolCalls,
+        step.toolResults
+      )
+    );
 
     return {
       messages: toolCallPartsToAssistantMessages(toolCalls),

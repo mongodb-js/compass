@@ -11,6 +11,8 @@ import type {
   ExpectedToolCallMessage as ExpectedOutputMessage,
 } from 'mongodb-assistant-eval/schema';
 import { EVAL_CLUSTER_UID } from '../eval-config';
+import { skillCases } from './skill-cases';
+import { combinedTagCases } from './combined-tag-cases';
 
 export type { ExpectedOutputMessage };
 
@@ -27,6 +29,7 @@ export interface CompassAssistantCustomInput {
     limit?: number;
   };
   currentPipeline?: Record<string, unknown>[];
+  toolsDisabled?: boolean;
 }
 
 /**
@@ -333,7 +336,7 @@ const listCollectionsCases: ToolCallEvalCase[] = [
       messages: [
         {
           role: 'user',
-          content: 'Show me collections in the airbnb database.',
+          content: 'Show me collections in the sample_airbnb database.',
         },
       ],
       custom: mflixCustomInput,
@@ -2308,7 +2311,7 @@ const explainCases: ToolCallEvalCase[] = [
           role: 'assistant-tool',
           toolCalls: [
             {
-              name: 'explain',
+              name: 'collection-indexes',
               arguments: [
                 { name: 'database', type: 'string', value: 'sample_mflix' },
                 { name: 'collection', type: 'string', value: 'movies' },
@@ -2318,7 +2321,7 @@ const explainCases: ToolCallEvalCase[] = [
         },
       ],
     },
-    tags: ['explain', 'single-tool'],
+    tags: ['collection-indexes', 'single-tool'],
     metadata: { difficulty: 'medium' },
   },
   {
@@ -2369,7 +2372,7 @@ const explainCases: ToolCallEvalCase[] = [
           role: 'assistant-tool',
           toolCalls: [
             {
-              name: 'explain',
+              name: 'collection-indexes',
               arguments: [
                 {
                   name: 'database',
@@ -2387,7 +2390,7 @@ const explainCases: ToolCallEvalCase[] = [
         },
       ],
     },
-    tags: ['explain', 'single-tool'],
+    tags: ['collection-indexes', 'single-tool'],
     metadata: { difficulty: 'medium' },
   },
 ];
@@ -3257,6 +3260,18 @@ const multiToolCases: ToolCallEvalCase[] = [
           role: 'assistant-tool',
           toolCalls: [
             {
+              name: 'collection-indexes',
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
+              ],
+            },
+          ],
+        },
+        {
+          role: 'assistant-tool',
+          toolCalls: [
+            {
               name: 'explain',
               arguments: [
                 { name: 'database', type: 'string', value: 'sample_mflix' },
@@ -3427,6 +3442,51 @@ const multiToolCases: ToolCallEvalCase[] = [
     },
     tags: ['hard', 'multi-tool', 'collection-overview'],
     metadata: { difficulty: 'hard' },
+  },
+  {
+    name: 'explicit-tool: two tags, schema and indexes',
+    description:
+      'Known gap in the model: it only calls the first tagged tool. Expected to score low until it is fixed.',
+    input: {
+      messages: [
+        {
+          role: 'user',
+          content:
+            '<tool>collection-schema</tool> <tool>collection-indexes</tool> Show the schema and the indexes of sample_mflix.movies.',
+        },
+      ],
+      custom: mflixCustomInput,
+    },
+    expected: {
+      outputMessages: [
+        {
+          role: 'assistant-tool',
+          toolCalls: [
+            {
+              name: 'collection-schema',
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
+              ],
+            },
+          ],
+        },
+        {
+          role: 'assistant-tool',
+          toolCalls: [
+            {
+              name: 'collection-indexes',
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    tags: ['explicit-tool', 'multi-tool', 'known-gap'],
+    metadata: { difficulty: 'medium' },
   },
 ];
 
@@ -3638,7 +3698,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
           role: 'assistant-tool',
           toolCalls: [
             {
-              name: 'explain',
+              name: 'collection-indexes',
               arguments: [
                 { name: 'database', type: 'string', value: 'sample_mflix' },
                 { name: 'collection', type: 'string', value: 'movies' },
@@ -3648,7 +3708,7 @@ const multiTurnCases: ToolCallEvalCase[] = [
         },
       ],
     },
-    tags: ['multi-turn', 'explain', 'performance'],
+    tags: ['multi-turn', 'collection-indexes', 'performance'],
     metadata: { difficulty: 'medium' },
   },
   {
@@ -3676,6 +3736,10 @@ const multiTurnCases: ToolCallEvalCase[] = [
     },
     expected: {
       outputMessages: [
+        {
+          role: 'assistant-tool',
+          toolCalls: [{ name: 'get-current-pipeline' }],
+        },
         {
           role: 'assistant-tool',
           toolCalls: [
@@ -3770,9 +3834,14 @@ const multiTurnCases: ToolCallEvalCase[] = [
       },
     },
     expected: {
-      outputMessages: noToolExpectedOutputMessages,
+      outputMessages: [
+        {
+          role: 'assistant-tool',
+          toolCalls: [{ name: 'get-current-query' }],
+        },
+      ],
     },
-    tags: ['multi-turn', 'get-current-query', 'advice', 'no-tool'],
+    tags: ['multi-turn', 'get-current-query', 'advice'],
     metadata: { difficulty: 'hard' },
   },
 ];
@@ -3842,9 +3911,14 @@ const noToolCases: ToolCallEvalCase[] = [
       },
     },
     expected: {
-      outputMessages: noToolExpectedOutputMessages,
+      outputMessages: [
+        {
+          role: 'assistant-tool',
+          toolCalls: [{ name: 'get-current-query' }],
+        },
+      ],
     },
-    tags: ['hard', 'no-tool', 'refusal', 'write-request'],
+    tags: ['hard', 'get-current-query', 'refusal', 'write-request'],
     metadata: { difficulty: 'hard' },
   },
   {
@@ -3863,10 +3937,197 @@ const noToolCases: ToolCallEvalCase[] = [
       },
     },
     expected: {
+      outputMessages: [
+        {
+          role: 'assistant-tool',
+          toolCalls: [{ name: 'get-current-query' }],
+        },
+      ],
+    },
+    tags: ['hard', 'get-current-query', 'unsupported'],
+    metadata: { difficulty: 'hard' },
+  },
+];
+
+const explicitToolCases: ToolCallEvalCase[] = [
+  {
+    name: 'explicit-tool: list-databases',
+    input: {
+      messages: [
+        {
+          role: 'user',
+          content: '<tool>list-databases</tool> What do I have?',
+        },
+      ],
+      custom: mflixCustomInput,
+    },
+    expected: {
+      outputMessages: [
+        {
+          role: 'assistant-tool',
+          toolCalls: [{ name: 'list-databases' }],
+        },
+      ],
+    },
+    tags: ['explicit-tool', 'list-databases', 'single-tool'],
+    metadata: { difficulty: 'easy' },
+  },
+  {
+    name: 'explicit-tool: collection-indexes',
+    input: {
+      messages: [
+        {
+          role: 'user',
+          content:
+            '<tool>collection-indexes</tool> Check the movies collection.',
+        },
+      ],
+      custom: mflixCustomInput,
+    },
+    expected: {
+      outputMessages: [
+        {
+          role: 'assistant-tool',
+          toolCalls: [
+            {
+              name: 'collection-indexes',
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    tags: ['explicit-tool', 'collection-indexes', 'single-tool'],
+    metadata: { difficulty: 'easy' },
+  },
+  {
+    name: 'explicit-tool: tag and the tool the prompt implies',
+    description:
+      'The tag forces collection-schema and the question also needs count. Known gap in the model: it only calls the first tagged tool. Expected to score low until it is fixed.',
+    input: {
+      messages: [
+        {
+          role: 'user',
+          content:
+            '<tool>collection-schema</tool> How many movies are in this collection?',
+        },
+      ],
+      custom: mflixCustomInput,
+    },
+    expected: {
+      outputMessages: [
+        {
+          role: 'assistant-tool',
+          toolCalls: [
+            {
+              name: 'collection-schema',
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
+              ],
+            },
+          ],
+        },
+        {
+          role: 'assistant-tool',
+          toolCalls: [
+            {
+              name: 'count',
+              arguments: [
+                { name: 'database', type: 'string', value: 'sample_mflix' },
+                { name: 'collection', type: 'string', value: 'movies' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    tags: [
+      'explicit-tool',
+      'collection-schema',
+      'count',
+      'multi-tool',
+      'known-gap',
+    ],
+    metadata: { difficulty: 'medium' },
+  },
+  {
+    // `get-current-query` belongs to the querybar group, which is only active
+    // when the case has a currentQuery.
+    name: 'explicit-tool: tool that is not active for the case',
+    input: {
+      messages: [
+        {
+          role: 'user',
+          content: '<tool>get-current-query</tool> What is in my query bar?',
+        },
+      ],
+      custom: mflixCustomInput,
+    },
+    expected: {
       outputMessages: noToolExpectedOutputMessages,
     },
-    tags: ['hard', 'no-tool', 'unsupported'],
+    tags: ['explicit-tool', 'no-tool', 'hard'],
     metadata: { difficulty: 'hard' },
+  },
+  {
+    name: 'explicit-tool: unknown tool name',
+    input: {
+      messages: [
+        {
+          role: 'user',
+          content: '<tool>drop-collection</tool> Remove the movies collection.',
+        },
+      ],
+      custom: mflixCustomInput,
+    },
+    expected: {
+      outputMessages: noToolExpectedOutputMessages,
+    },
+    tags: ['explicit-tool', 'no-tool', 'unsupported', 'hard'],
+    metadata: { difficulty: 'hard' },
+  },
+];
+
+// No tools are sent to the model. It should not call any and should point the
+// user to enabling them.
+const toolsDisabledInput: CompassAssistantCustomInput = {
+  ...mflixCustomInput,
+  toolsDisabled: true,
+};
+
+const toolsDisabledCases: ToolCallEvalCase[] = [
+  {
+    name: 'tools-disabled: explicit tool tag',
+    input: {
+      messages: [
+        {
+          role: 'user',
+          content: '<tool>list-databases</tool> What do I have?',
+        },
+      ],
+      custom: toolsDisabledInput,
+    },
+    expected: {
+      outputMessages: noToolExpectedOutputMessages,
+    },
+    tags: ['tools-disabled', 'explicit-tool', 'no-tool'],
+    metadata: { difficulty: 'medium' },
+  },
+  {
+    name: 'tools-disabled: question that needs a tool',
+    input: {
+      messages: [{ role: 'user', content: 'What databases are available?' }],
+      custom: toolsDisabledInput,
+    },
+    expected: {
+      outputMessages: noToolExpectedOutputMessages,
+    },
+    tags: ['tools-disabled', 'no-tool'],
+    metadata: { difficulty: 'medium' },
   },
 ];
 
@@ -3887,4 +4148,8 @@ export const toolCallEvalCases: ToolCallEvalCase[] = [
   ...multiToolCases,
   ...multiTurnCases,
   ...noToolCases,
+  ...explicitToolCases,
+  ...toolsDisabledCases,
+  ...skillCases,
+  ...combinedTagCases,
 ];
