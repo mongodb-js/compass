@@ -278,7 +278,7 @@ describe('SearchIndexesTable Component', function () {
       const workspaceOpts = openCollectionWorkspace.firstCall.args[2] as {
         initialPipelineText?: string;
       };
-      expect(workspaceOpts?.initialPipelineText).to.include('exact: false');
+      expect(workspaceOpts?.initialPipelineText).to.include('limit: 10');
       expect(workspaceOpts?.initialPipelineText).to.include(
         'index: "autoEmbedding123"'
       );

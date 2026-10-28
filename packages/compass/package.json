@@ -98,6 +98,7 @@
       "asar": {
         "unpack": [
           "**/@mongosh/node-runtime-worker-thread/**",
+          "**/web-worker/**",
           "**/interruptor/**",
           "**/kerberos/**",
           "**/snappy/**",
@@ -184,12 +185,13 @@
     "@mongodb-js/connection-string-policy": "^0.2.0",
     "@mongodb-js/device-id": "^0.4.20",
     "@mongodb-js/native-machine-id": "^1.0.4",
-    "@mongosh/node-runtime-worker-thread": "^5.2.13",
+    "@mongosh/node-runtime-worker-thread": "^5.5.0",
     "clipboard": "^2.0.6",
     "kerberos": "^7.0.0",
     "mongodb-client-encryption": "^7.2.1",
     "os-dns-native": "^2.0.1",
-    "system-ca": "^3.0.0"
+    "system-ca": "^3.0.0",
+    "web-worker": "^1.5.0"
   },
   "devDependencies": {
     "@electron/rebuild": "^4.2.1",
