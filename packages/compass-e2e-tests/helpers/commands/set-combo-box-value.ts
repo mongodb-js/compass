@@ -7,35 +7,31 @@ export async function setComboBoxValue(
 ): Promise<void> {
   // Focus combobox
   await browser.clickVisible(comboboxInputSelector);
-  const inputElement = browser.$(comboboxInputSelector);
   await browser.waitUntil(async () => {
-    const isFocused = await inputElement.isFocused();
+    const isFocused = await browser.$(comboboxInputSelector).isFocused();
     if (isFocused === true) {
       return true;
     } else {
       // try to click again
-      await inputElement.click();
+      await browser.clickVisible(comboboxInputSelector);
       return false;
     }
   });
-  const controlledMenuId = await inputElement.getAttribute('aria-controls');
+  const controlledMenuId = await browser
+    .$(comboboxInputSelector)
+    .getAttribute('aria-controls');
   if (!controlledMenuId) {
     throw new Error(
       'Expected input element of the combobox to have an aria-controls attribute'
     );
   }
-  const comboboxListSelectorElement = browser.$(
-    `[id="${controlledMenuId}"][role="listbox"]`
-  );
-  await comboboxListSelectorElement.waitForDisplayed();
+  const comboboxListSelector = `[id="${controlledMenuId}"][role="listbox"]`;
+  await browser.$(comboboxListSelector).waitForDisplayed();
   await browser.setValueVisible(comboboxInputSelector, comboboxValue, {
     skipFocus: true,
   });
   await browser.clickVisible(
-    comboboxListSelectorElement.$(
-      // Handle existing as well as new values
-      `[aria-label="${comboboxValue}"],[aria-label='Field: "${comboboxValue}"']`
-    )
+    `li[aria-label="${comboboxValue}"],li[aria-label='Field: "${comboboxValue}"']`
   );
-  await comboboxListSelectorElement.waitForDisplayed({ reverse: true });
+  await browser.$(comboboxListSelector).waitForDisplayed({ reverse: true });
 }

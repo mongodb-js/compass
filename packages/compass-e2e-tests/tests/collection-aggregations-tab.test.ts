@@ -709,8 +709,6 @@ describe('Collection aggregations tab', function () {
     });
 
     it('Shows error info when inserting', async function () {
-      // TODO: Is there a way for us to tell that the stages options are stabilized and ready?
-      await browser.pause(1000);
       await browser.selectStageOperator(0, '$out');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),
