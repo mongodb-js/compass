@@ -30,7 +30,7 @@ export function main(parentPort: ParentPort): Disposable {
       listen(port, 'close', () => {
         void host.stop().catch((error) => {
           logger.log.error(
-            logger.mongoLogId(1_001_000_447),
+            logger.mongoLogId(1_001_000_454),
             'ai-assistant',
             'Error when stopping the tools host',
             { error: error instanceof Error ? error.message : String(error) }

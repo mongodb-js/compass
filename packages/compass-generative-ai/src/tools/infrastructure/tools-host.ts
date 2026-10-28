@@ -149,7 +149,7 @@ export class ToolsHost {
           );
         } catch (error: any) {
           this.logger.log.error(
-            this.logger.mongoLogId(1_001_000_410),
+            this.logger.mongoLogId(1_001_000_453),
             'ToolsHost',
             'Error when attempting to connect to Compass connection before executing tool',
             { error: error.message }
