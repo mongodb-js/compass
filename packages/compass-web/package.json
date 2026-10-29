@@ -106,6 +106,7 @@
     "@mongodb-js/compass-sidebar": "^6.7.0",
     "@mongodb-js/compass-telemetry": "^1.36.0",
     "@mongodb-js/compass-user-data": "^0.24.2",
+    "@mongodb-js/compass-utils": "^0.10.7",
     "@mongodb-js/compass-welcome": "^1.7.0",
     "@mongodb-js/compass-workspaces": "^1.7.0",
     "@mongodb-js/connection-info": "^0.29.4",
