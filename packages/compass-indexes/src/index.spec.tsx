@@ -87,17 +87,12 @@ describe('CompassIndexesPlugin', function () {
         );
       });
 
-      sandbox.stub(atlasService, 'automationAgentAwait').resolves({
-        response: [
-          {
-            status: 'rolling build',
-            indexName: 'field_a_1',
-            indexProperties: {},
-            indexType: { label: 'regular' },
-            keys: [{ name: 'field_a', value: '1' }],
-          },
-        ],
-      });
+      let resolveAgentAwait: (value: unknown) => void = () => {};
+      sandbox.stub(atlasService, 'automationAgentAwait').returns(
+        new Promise((resolve) => {
+          resolveAgentAwait = resolve;
+        }) as any
+      );
 
       /** Create rolling index */
 
@@ -123,20 +118,35 @@ describe('CompassIndexesPlugin', function () {
         })
       );
 
+      await waitFor(() => {
+        expect(
+          result.plugin.store.getState().regularIndexes.inProgressIndexes[0]
+        ).to.exist;
+      });
       const inProgressIndex =
         result.plugin.store.getState().regularIndexes.inProgressIndexes[0];
-
-      expect(inProgressIndex).to.exist;
 
       /** Wait for the row to appear with creating badge first */
 
       expect(
-        within(screen.getByTestId('indexes-row-field_a_1')).getByText(
+        within(await screen.findByTestId('indexes-row-field_a_1')).getByText(
           'Creating'
         )
       ).to.exist;
 
       /** Now wait for the rolling index to show up */
+
+      resolveAgentAwait({
+        response: [
+          {
+            status: 'rolling build',
+            indexName: 'field_a_1',
+            indexProperties: {},
+            indexType: { label: 'regular' },
+            keys: [{ name: 'field_a', value: '1' }],
+          },
+        ],
+      });
 
       await waitFor(() => {
         expect(

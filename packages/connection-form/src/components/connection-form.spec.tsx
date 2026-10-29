@@ -60,7 +60,7 @@ describe('ConnectionForm Component', function () {
     expect(screen.queryByRole('button', { name: 'Save & Connect' })).to.be.null;
   });
 
-  it('should show the save button if onSaveClicked is specified', function () {
+  it('should show the save button if onSaveClicked is specified', async function () {
     const onSaveClicked = Sinon.spy();
     renderForm({
       onSaveClicked: onSaveClicked,
@@ -71,10 +71,10 @@ describe('ConnectionForm Component', function () {
     expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
 
     button?.click();
-    expect(onSaveClicked.callCount).to.equal(1);
+    await waitFor(() => expect(onSaveClicked.callCount).to.equal(1));
   });
 
-  it('should show the connect button if onConnectClicked is specified', function () {
+  it('should show the connect button if onConnectClicked is specified', async function () {
     const onConnectClicked = Sinon.spy();
 
     renderForm({
@@ -86,10 +86,10 @@ describe('ConnectionForm Component', function () {
     expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
 
     button?.click();
-    expect(onConnectClicked.callCount).to.equal(1);
+    await waitFor(() => expect(onConnectClicked.callCount).to.equal(1));
   });
 
-  it('should show the save & connect button if onSaveAndConnectClicked is specified', function () {
+  it('should show the save & connect button if onSaveAndConnectClicked is specified', async function () {
     const onSaveAndConnectClicked = Sinon.spy();
 
     renderForm({
@@ -101,7 +101,7 @@ describe('ConnectionForm Component', function () {
     expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
 
     button?.click();
-    expect(onSaveAndConnectClicked.callCount).to.equal(1);
+    await waitFor(() => expect(onSaveAndConnectClicked.callCount).to.equal(1));
   });
 
   it('should render the connection string textbox', function () {
@@ -122,7 +122,7 @@ describe('ConnectionForm Component', function () {
     });
 
     context('when disableEditingConnectedConnection==true', function () {
-      it('renders a banner, disables the connection string and removes advanced connection options + connect button', function () {
+      it('renders a banner, disables the connection string and removes advanced connection options + connect button', async function () {
         const onDisconnectClicked = Sinon.spy();
         const onSaveClicked = Sinon.spy();
         const onConnectClicked = undefined;
@@ -154,7 +154,7 @@ describe('ConnectionForm Component', function () {
 
         // pressing enter calls onSubmit which saves
         fireEvent.submit(screen.getByRole('form'));
-        expect(onSaveClicked.callCount).to.equal(1);
+        await waitFor(() => expect(onSaveClicked.callCount).to.equal(1));
 
         fireEvent.click(screen.getByRole('button', { name: 'Disconnect' }));
         expect(onDisconnectClicked.callCount).to.equal(1);
@@ -162,7 +162,7 @@ describe('ConnectionForm Component', function () {
     });
 
     context('when disableEditingConnectedConnection==false', function () {
-      it('leaves the connection string, advanced connection options and connect button intact, does not render a banner', function () {
+      it('leaves the connection string, advanced connection options and connect button intact, does not render a banner', async function () {
         const onDisconnectClicked = Sinon.spy();
         const onSaveClicked = Sinon.spy();
         const onConnectClicked = Sinon.spy();
@@ -189,8 +189,10 @@ describe('ConnectionForm Component', function () {
 
         // pressing enter calls onSubmit which saves and connects (the default)
         fireEvent.submit(screen.getByRole('form'));
+        await waitFor(() =>
+          expect(onSaveAndConnectClicked.callCount).to.equal(1)
+        );
         expect(onSaveClicked.callCount).to.equal(0);
-        expect(onSaveAndConnectClicked.callCount).to.equal(1);
       });
     });
 
@@ -412,7 +414,7 @@ describe('ConnectionForm Component', function () {
     expect(screen.getByText('Save connection to favorites')).to.be.visible;
   });
 
-  it('should render a connection error', function () {
+  it('should render a connection error', async function () {
     render(
       <ConnectionForm
         connectionErrorMessage="connection error"
@@ -426,6 +428,10 @@ describe('ConnectionForm Component', function () {
       />
     );
 
+    expect(screen.getByText('connection error')).to.be.visible;
+    // The form state is rebuilt asynchronously after mount, the error has to
+    // survive that
+    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(screen.getByText('connection error')).to.be.visible;
   });
 

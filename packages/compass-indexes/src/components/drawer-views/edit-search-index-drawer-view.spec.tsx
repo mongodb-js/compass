@@ -202,7 +202,9 @@ describe('EditSearchIndexDrawerView', function () {
       const submitButton = screen.getByTestId(
         'edit-search-index-drawer-view-submit-button'
       );
-      expect(submitButton).to.have.attribute('aria-disabled', 'false');
+      await waitFor(() => {
+        expect(submitButton).to.have.attribute('aria-disabled', 'false');
+      });
     });
 
     it('disables submit button for malformed JSON syntax', async function () {
