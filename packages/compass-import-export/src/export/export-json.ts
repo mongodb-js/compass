@@ -1,4 +1,5 @@
 import { Transform, promises as streamPromises } from 'node:stream';
+import type { Writable } from 'node:stream';
 import { EJSON } from 'bson';
 import toNS from '@mongodb-js/mongodb-ns';
 import type { DataService } from 'mongodb-data-service';

@@ -1,4 +1,3 @@
-import type { Writable } from 'node:stream';
 import type { Document } from 'bson';
 
 import type { DataService } from 'mongodb-data-service';

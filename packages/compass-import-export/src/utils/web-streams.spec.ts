@@ -1,7 +1,7 @@
+import { Readable, promises as streamPromises } from 'node:stream';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
-import { Readable, promises as streamPromises } from 'stream';
 import { readableFromWeb, writableFromWeb } from './web-streams';
 
 chai.use(chaiAsPromised);

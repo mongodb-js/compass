@@ -16,6 +16,17 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { ExportPlugin } from '../index';
 import type { ExportStore } from '../stores/export-store';
 import { createFakeFileHandle } from '../../test/files';
+import {
+  openExport,
+  addFieldToExport,
+  toggleExportAllSelectedFields,
+  toggleFieldToExport,
+  selectFieldsToExport,
+  ExportActionTypes,
+  cancelExport,
+  closeExport,
+  runExport,
+} from './export';
 
 const { activatePluginWithConnections } = createPluginTestHelpers(ExportPlugin);
 

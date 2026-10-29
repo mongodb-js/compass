@@ -1,4 +1,5 @@
-import { promises as fs } from 'node:fs';
+import type { ChainablePromiseElement } from 'webdriverio';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {

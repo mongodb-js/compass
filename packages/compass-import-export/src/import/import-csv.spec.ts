@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
 import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Readable } from 'node:stream';
 import _, { omit } from 'lodash';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';

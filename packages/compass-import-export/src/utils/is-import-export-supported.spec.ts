@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { isImportExportSupported } from './is-import-export-supported';
 import { overrideProperty } from '../../test/override-property';
+import { isImportExportSupported } from './is-import-export-supported';
 
 describe('isImportExportSupported', function () {
   const showSaveFilePicker = () => Promise.resolve();

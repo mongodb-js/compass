@@ -1,11 +1,12 @@
 import type { Readable, Duplex } from 'node:stream';
 import { addAbortSignal } from 'node:stream';
 import type { Document } from 'bson';
+import stripBomStream from 'strip-bom-stream';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
-import { ImportWriter } from './import-writer';
 import type { ImportResult, ErrorJSON, ImportOptions } from './import-types';
+import { ImportWriter } from './import-writer';
 
 const debug = createDebug('import');
 

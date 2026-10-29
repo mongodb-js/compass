@@ -1,5 +1,8 @@
 /* eslint-disable no-console */
 import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Readable } from 'node:stream';
 import { BSONError, EJSON } from 'bson';
 import { MongoBulkWriteError } from 'mongodb';
 import chai from 'chai';
@@ -19,8 +22,6 @@ import type { ErrorJSON } from './import-types';
 
 import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';
-
-temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);

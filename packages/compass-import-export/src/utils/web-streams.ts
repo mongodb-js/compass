@@ -1,4 +1,4 @@
-import { Readable, Writable } from 'stream';
+import { Readable, Writable } from 'node:stream';
 
 // Readable.fromWeb / Writable.fromWeb can't be used here: readable-stream
 // (what `stream` resolves to in compass-web) only ships stubs that throw, and

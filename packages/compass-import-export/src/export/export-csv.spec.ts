@@ -15,6 +15,8 @@ import type { FindCursor } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { fixtures } from '../../test/fixtures';
 import { createFakeDirectory } from '../../test/files';
 
