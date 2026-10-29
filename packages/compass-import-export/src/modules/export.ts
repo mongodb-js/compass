@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import type { Writable } from 'node:stream';
 import type { Action, AnyAction, Reducer } from 'redux';
 import _ from 'lodash';

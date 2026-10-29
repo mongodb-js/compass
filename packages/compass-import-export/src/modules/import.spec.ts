@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { expect } from 'chai';
 import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 import type { ImportStore } from '../stores/import-store';
