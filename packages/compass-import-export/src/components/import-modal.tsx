@@ -169,22 +169,6 @@ function ImportModal({
     undefined
   );
 
-  if (isOpen && !fileName && errors.length === 0) {
-    // Show the file input when we don't have a file to import yet.
-    return (
-      // Don't actually show it on the screen, just render it to trigger
-      // autoOpen
-      <div style={{ display: 'none' }}>
-        <ImportFileInput
-          autoOpen
-          onCancel={handleClose}
-          fileName={fileName}
-          selectImportFile={selectImportFile}
-        />
-      </div>
-    );
-  }
-
   return (
     <Modal
       open={isOpen}
