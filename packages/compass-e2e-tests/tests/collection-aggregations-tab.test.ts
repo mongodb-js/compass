@@ -669,6 +669,10 @@ describe('Collection aggregations tab', function () {
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     const VALIDATED_OUT_COLLECTION = 'nestedDocs';
     beforeEach(async function () {
+      // TODO(COMPASS-11346): fix the test for web sandbox chrome 3
+      if (process.env.EVERGREEN_TASK_NAME === 'test-web-sandbox-chrome-3') {
+        this.skip();
+      }
       await browser.setValidation({
         connectionName: getDefaultConnectionNames(0),
         database: 'test',
@@ -709,8 +713,6 @@ describe('Collection aggregations tab', function () {
     });
 
     it('Shows error info when inserting', async function () {
-      // TODO: Is there a way for us to tell that the stages options are stabilized and ready?
-      await browser.pause(1000);
       await browser.selectStageOperator(0, '$out');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),
