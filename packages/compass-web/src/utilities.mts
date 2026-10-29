@@ -3,10 +3,19 @@ import {
   listen,
   utilityPortChannel,
 } from '@mongodb-js/compass-utils';
-import type Worker from 'web-worker';
+import { CrossOriginWorker } from './cross-origin-worker.mts';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
 
-const UTILITIES = new Map<string, () => Worker>();
+const UTILITIES = new Map<string, () => Worker>([
+  [
+    'hello-world',
+    () =>
+      new CrossOriginWorker(
+        new URL('@mongodb-js/compass-utilities/hello-world', import.meta.url),
+        { type: 'module', name: 'hello-world' }
+      ),
+  ],
+]);
 
 export function startUtilities(
   target: Window,
