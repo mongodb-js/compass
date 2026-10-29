@@ -11,6 +11,10 @@ import {
 import type { AllPreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import {
+  InMemoryFolderStorage,
+  InMemoryFolderAssignmentStorage,
+} from '@mongodb-js/connection-storage/provider';
 
 const createDataService = () =>
   ({
@@ -45,6 +49,10 @@ const HOME_PROPS = {
   showCollectionSubMenu: () => {},
   getAutoConnectInfo: () => Promise.resolve(undefined),
   connectionStorage: new InMemoryConnectionStorage(),
+  folderStorage: {
+    folders: new InMemoryFolderStorage(),
+    assignments: new InMemoryFolderAssignmentStorage(),
+  },
 } as const;
 
 describe('Home [Component]', function () {

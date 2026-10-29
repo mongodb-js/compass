@@ -30,6 +30,10 @@ import {
 
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  CompassRendererFolderStorage,
+  CompassRendererFolderAssignmentStorage,
+} from '@mongodb-js/connection-storage/renderer';
 import type { AutoConnectPreferences } from '../main/auto-connect';
 
 const { log, mongoLogId } = createLogger('COMPASS-APP');
@@ -146,6 +150,10 @@ class Application {
       await this.getWindowAutoConnectPreferences();
     const isSecretStorageAvailable = await this.checkSecretStorageIsAvailable();
     const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
+    const folderStorage = {
+      folders: new CompassRendererFolderStorage(ipcRenderer),
+      assignments: new CompassRendererFolderAssignmentStorage(ipcRenderer),
+    };
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -186,6 +194,7 @@ class Application {
               webUtils
             )}
             connectionStorage={connectionStorage}
+            folderStorage={folderStorage}
             onAutoconnectInfoRequest={
               initialAutoConnectPreferences.shouldAutoConnect
                 ? () => {

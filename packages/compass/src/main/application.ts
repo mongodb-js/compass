@@ -23,7 +23,10 @@ import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
-import { initCompassMainConnectionStorage } from '@mongodb-js/connection-storage/main';
+import {
+  initCompassMainConnectionStorage,
+  initCompassMainFolderStorage,
+} from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type {
   AgentWithInitialize,
@@ -156,6 +159,7 @@ class CompassApplication {
     );
 
     initCompassMainConnectionStorage();
+    initCompassMainFolderStorage();
 
     if (mode === 'CLI') {
       return;
