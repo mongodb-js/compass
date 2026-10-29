@@ -1,5 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
+import { raceWithAbort } from '@mongodb-js/compass-utils';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { isAction } from '../utils/is-action';
@@ -8,6 +9,7 @@ import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getCollationForExecution } from './collation-string';
 import type { PipelineBuilderThunkAction } from '.';
 
 export const ActionTypes = {
@@ -95,22 +97,31 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
       namespace,
       maxTimeMS,
       dataService: { dataService },
-      collationString: { value: collation },
+      collationString,
     } = getState();
 
     if (!dataService) {
       return;
     }
 
-    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    dispatch({
+      type: ActionTypes.CountStarted,
+      abortController,
+    });
+
+    const isCurrentRequest = () =>
+      getState().countDocuments.abortController === abortController;
 
     try {
-      const abortController = new AbortController();
-      const signal = abortController.signal;
-      dispatch({
-        type: ActionTypes.CountStarted,
-        abortController,
-      });
+      const [pipeline, collation] = await raceWithAbort(
+        Promise.all([
+          getPipelineFromBuilderState(getState(), pipelineBuilder),
+          getCollationForExecution(collationString),
+        ]),
+        signal
+      );
 
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
@@ -126,11 +137,17 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
         options,
       });
 
+      if (!isCurrentRequest()) {
+        return;
+      }
       dispatch({
         type: ActionTypes.CountFinished,
         count: Number(count),
       });
     } catch {
+      if (!isCurrentRequest()) {
+        return;
+      }
       dispatch({
         type: ActionTypes.CountFailed,
       });

@@ -358,105 +358,111 @@ describe('utils', function () {
   });
 
   context('getSearchIndexNameFromSearchStage', function () {
-    it('returns null when stageOperator is null', function () {
+    it('returns null when stageOperator is null', async function () {
       expect(
-        getSearchIndexNameFromSearchStage(null, '{ index: "myIndex" }')
+        await getSearchIndexNameFromSearchStage(null, '{ index: "myIndex" }')
       ).to.equal(null);
     });
 
-    it('returns null when stageValue is null', function () {
-      expect(getSearchIndexNameFromSearchStage('$search', null)).to.equal(null);
+    it('returns null when stageValue is null', async function () {
+      expect(await getSearchIndexNameFromSearchStage('$search', null)).to.equal(
+        null
+      );
     });
 
-    it('returns null when stageOperator is not a search stage', function () {
+    it('returns null when stageOperator is not a search stage', async function () {
       expect(
-        getSearchIndexNameFromSearchStage('$match', '{ field: "value" }')
+        await getSearchIndexNameFromSearchStage('$match', '{ field: "value" }')
       ).to.equal(null);
     });
 
-    it('returns index name from $search stage', function () {
+    it('returns index name from $search stage', async function () {
       expect(
-        getSearchIndexNameFromSearchStage(
+        await getSearchIndexNameFromSearchStage(
           '$search',
           '{ index: "mySearchIndex", text: { query: "test", path: "field" } }'
         )
       ).to.equal('mySearchIndex');
     });
 
-    it('returns index name from $searchMeta stage', function () {
+    it('returns index name from $searchMeta stage', async function () {
       expect(
-        getSearchIndexNameFromSearchStage(
+        await getSearchIndexNameFromSearchStage(
           '$searchMeta',
           '{ index: "metaIndex", facet: { operator: { text: { query: "test", path: "field" } } } }'
         )
       ).to.equal('metaIndex');
     });
 
-    it('returns index name from $vectorSearch stage', function () {
+    it('returns index name from $vectorSearch stage', async function () {
       expect(
-        getSearchIndexNameFromSearchStage(
+        await getSearchIndexNameFromSearchStage(
           '$vectorSearch',
           '{ index: "vectorIndex", path: "embedding", queryVector: [0.1, 0.2], numCandidates: 100, limit: 10 }'
         )
       ).to.equal('vectorIndex');
     });
 
-    it('returns null when index field is missing', function () {
+    it('returns null when index field is missing', async function () {
       expect(
-        getSearchIndexNameFromSearchStage(
+        await getSearchIndexNameFromSearchStage(
           '$search',
           '{ text: { query: "test", path: "field" } }'
         )
       ).to.equal(null);
     });
 
-    it('returns null when index field is not a string', function () {
+    it('returns null when index field is not a string', async function () {
       expect(
-        getSearchIndexNameFromSearchStage('$search', '{ index: 123 }')
+        await getSearchIndexNameFromSearchStage('$search', '{ index: 123 }')
       ).to.equal(null);
     });
 
-    it('returns null when stageValue is invalid BSON', function () {
+    it('returns null when stageValue is invalid BSON', async function () {
       expect(
-        getSearchIndexNameFromSearchStage('$search', '{ invalid bson }')
+        await getSearchIndexNameFromSearchStage('$search', '{ invalid bson }')
       ).to.equal(null);
     });
   });
 
   context('getSearchStageInfoFromPipeline', function () {
-    it('returns null values for empty pipeline', function () {
-      expect(getSearchStageInfoFromPipeline('[]')).to.deep.equal({
+    it('returns null values for empty pipeline', async function () {
+      expect(await getSearchStageInfoFromPipeline('[]')).to.deep.equal({
         searchIndexName: null,
         searchStageOperator: null,
       });
     });
 
-    it('returns null values for invalid pipeline text', function () {
-      expect(getSearchStageInfoFromPipeline('not a pipeline')).to.deep.equal({
-        searchIndexName: null,
-        searchStageOperator: null,
-      });
-    });
-
-    it('returns null values when pipeline is not an array', function () {
-      expect(getSearchStageInfoFromPipeline('{ $match: {} }')).to.deep.equal({
-        searchIndexName: null,
-        searchStageOperator: null,
-      });
-    });
-
-    it('returns null values when first stage is not a search stage', function () {
+    it('returns null values for invalid pipeline text', async function () {
       expect(
-        getSearchStageInfoFromPipeline('[{ $match: { field: "value" } }]')
+        await getSearchStageInfoFromPipeline('not a pipeline')
       ).to.deep.equal({
         searchIndexName: null,
         searchStageOperator: null,
       });
     });
 
-    it('returns index name and operator from $search stage', function () {
+    it('returns null values when pipeline is not an array', async function () {
       expect(
-        getSearchStageInfoFromPipeline(
+        await getSearchStageInfoFromPipeline('{ $match: {} }')
+      ).to.deep.equal({
+        searchIndexName: null,
+        searchStageOperator: null,
+      });
+    });
+
+    it('returns null values when first stage is not a search stage', async function () {
+      expect(
+        await getSearchStageInfoFromPipeline('[{ $match: { field: "value" } }]')
+      ).to.deep.equal({
+        searchIndexName: null,
+        searchStageOperator: null,
+      });
+    });
+
+    it('returns index name and operator from $search stage', async function () {
+      expect(
+        await getSearchStageInfoFromPipeline(
           '[{ $search: { index: "mySearchIndex", text: { query: "test", path: "field" } } }]'
         )
       ).to.deep.equal({
@@ -465,9 +471,9 @@ describe('utils', function () {
       });
     });
 
-    it('returns index name and operator from $searchMeta stage', function () {
+    it('returns index name and operator from $searchMeta stage', async function () {
       expect(
-        getSearchStageInfoFromPipeline(
+        await getSearchStageInfoFromPipeline(
           '[{ $searchMeta: { index: "metaIndex", facet: { operator: { text: { query: "test", path: "field" } } } } }]'
         )
       ).to.deep.equal({
@@ -476,9 +482,9 @@ describe('utils', function () {
       });
     });
 
-    it('returns index name and operator from $vectorSearch stage', function () {
+    it('returns index name and operator from $vectorSearch stage', async function () {
       expect(
-        getSearchStageInfoFromPipeline(
+        await getSearchStageInfoFromPipeline(
           '[{ $vectorSearch: { index: "vectorIndex", path: "embedding", queryVector: [0.1, 0.2], numCandidates: 100, limit: 10 } }]'
         )
       ).to.deep.equal({
@@ -487,9 +493,9 @@ describe('utils', function () {
       });
     });
 
-    it('returns index name and operator when search stage is followed by other stages', function () {
+    it('returns index name and operator when search stage is followed by other stages', async function () {
       expect(
-        getSearchStageInfoFromPipeline(
+        await getSearchStageInfoFromPipeline(
           '[{ $search: { index: "myIndex", text: { query: "test", path: "field" } } }, { $limit: 10 }]'
         )
       ).to.deep.equal({
@@ -498,9 +504,9 @@ describe('utils', function () {
       });
     });
 
-    it('returns null values when search stage is not the first stage', function () {
+    it('returns null values when search stage is not the first stage', async function () {
       expect(
-        getSearchStageInfoFromPipeline(
+        await getSearchStageInfoFromPipeline(
           '[{ $match: { active: true } }, { $search: { index: "myIndex", text: { query: "test", path: "field" } } }]'
         )
       ).to.deep.equal({
@@ -509,9 +515,9 @@ describe('utils', function () {
       });
     });
 
-    it('returns null searchIndexName when index field is missing', function () {
+    it('returns null searchIndexName when index field is missing', async function () {
       expect(
-        getSearchStageInfoFromPipeline(
+        await getSearchStageInfoFromPipeline(
           '[{ $search: { text: { query: "test", path: "field" } } }]'
         )
       ).to.deep.equal({
@@ -520,9 +526,9 @@ describe('utils', function () {
       });
     });
 
-    it('returns null searchIndexName when index field is not a string', function () {
+    it('returns null searchIndexName when index field is not a string', async function () {
       expect(
-        getSearchStageInfoFromPipeline('[{ $search: { index: 123 } }]')
+        await getSearchStageInfoFromPipeline('[{ $search: { index: 123 } }]')
       ).to.deep.equal({
         searchIndexName: null,
         searchStageOperator: '$search',
