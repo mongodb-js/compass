@@ -12,6 +12,7 @@ import {
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import type HadronDocument from 'hadron-document';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
+import type { SearchIndex } from 'mongodb-data-service';
 import type { RootState } from '../../../modules';
 import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
@@ -20,8 +21,11 @@ import { AtlasStagePreview } from '../../stage-preview/atlas-stage-preview';
 import {
   isMissingAtlasStageSupport,
   findAtlasOperator,
-  getSearchStageInfoFromPipeline,
 } from '../../../utils/stage';
+import {
+  isSearchIndexStale,
+  useSearchStageInfoFromPipeline,
+} from '../../../utils/use-search-index-name';
 import {
   expandPreviewDocs,
   collapsePreviewDocs,
@@ -79,8 +83,8 @@ type PipelinePreviewProps = {
   atlasOperator: string;
   previewDocs: HadronDocument[] | null;
   isPreviewStale: boolean;
-  showSearchIndexStaleResultsBanner: boolean;
-  searchIndexName: string | null;
+  pipelineText: string;
+  searchIndexes: SearchIndex[];
   onExpand: () => void;
   onCollapse: () => void;
 };
@@ -175,11 +179,16 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   previewDocs,
   atlasOperator,
   isPreviewStale,
-  showSearchIndexStaleResultsBanner,
-  searchIndexName,
+  pipelineText,
+  searchIndexes,
   onExpand,
   onCollapse,
 }) => {
+  const { searchIndexName } = useSearchStageInfoFromPipeline(pipelineText);
+  const showSearchIndexStaleResultsBanner = isSearchIndexStale(
+    searchIndexName,
+    searchIndexes
+  );
   const docCount = previewDocs?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
@@ -241,13 +250,6 @@ const mapState = (state: RootState) => {
     serverError
   );
 
-  const { searchIndexName } = getSearchStageInfoFromPipeline(pipelineText);
-  const showSearchIndexStaleResultsBanner =
-    !!searchIndexName &&
-    state.searchIndexes.indexes.some(
-      (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
-    );
-
   return {
     isLoading,
     previewDocs,
@@ -256,8 +258,8 @@ const mapState = (state: RootState) => {
     isMissingAtlasSupport,
     atlasOperator,
     isPreviewStale,
-    showSearchIndexStaleResultsBanner,
-    searchIndexName,
+    pipelineText,
+    searchIndexes: state.searchIndexes.indexes,
   };
 };
 

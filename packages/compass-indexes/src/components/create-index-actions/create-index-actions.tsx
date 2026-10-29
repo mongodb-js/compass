@@ -33,16 +33,19 @@ function CreateIndexActions({
   onCreateIndexClick,
   onCancelCreateIndexClick,
   fields,
+  isSubmitting,
 }: {
   error: string | null;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
   fields: Field[];
+  isSubmitting: boolean;
 }) {
   const track = useTelemetry();
 
-  const isCreateIndexButtonDisabled = !areAllFieldsFilledIn(fields);
+  const isCreateIndexButtonDisabled =
+    isSubmitting || !areAllFieldsFilledIn(fields);
 
   return (
     <div className={containerStyles}>
@@ -86,9 +89,10 @@ function CreateIndexActions({
 }
 
 const mapState = ({ createIndex }: RootState) => {
-  const { fields } = createIndex;
+  const { fields, submissionId } = createIndex;
   return {
     fields,
+    isSubmitting: submissionId !== null,
   };
 };
 
