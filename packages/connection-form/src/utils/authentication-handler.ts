@@ -2,13 +2,13 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type { AuthMechanism, MongoClientOptions } from 'mongodb';
 
+import { cloneDeep } from 'lodash';
 import type { ConnectionFormError } from './validation';
 import {
   setConnectionStringPassword,
   setConnectionStringUsername,
   tryToParseConnectionString,
 } from './connection-string-helpers';
-import { cloneDeep } from 'lodash';
 
 export type UpdateAuthMechanismAction = {
   type: 'update-auth-mechanism';

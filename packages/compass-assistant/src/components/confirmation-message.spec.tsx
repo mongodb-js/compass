@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
-import { ConfirmationMessage } from './confirmation-message';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { ConfirmationMessage } from './confirmation-message';
 
 describe('ConfirmationMessage', function () {
   const defaultProps = {

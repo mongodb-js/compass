@@ -1,6 +1,5 @@
 import { streamText, tool } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
-import type { MockDataInputFieldSchema } from './types';
 import {
   mockDataSchemaToolSchema,
   MOCK_DATA_SCHEMA_PROMPT,
@@ -10,8 +9,9 @@ import {
   needsBatching,
   type MockDataSchemaToolOutput,
   type RawSchema,
-} from '../../src/mock-data-generator';
+} from '@mongodb-js/mock-data-generator';
 import { AI_MODEL_SLIM_VERSION } from '../../src/model-version';
+import type { MockDataInputFieldSchema } from './types';
 
 const openai = createOpenAI({
   baseURL:

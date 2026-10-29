@@ -1,6 +1,6 @@
 import type { Action, Reducer } from 'redux';
-import type { SavedQueryAggregationThunkAction } from '.';
 import { fetchItems } from './aggregations-queries-items';
+import type { SavedQueryAggregationThunkAction } from '.';
 
 function isAction<A extends Action>(
   action: Action,

@@ -6,22 +6,9 @@ import {
   waitFor,
   within,
 } from '@mongodb-js/testing-library-compass';
-import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
-import {
-  createBrokenChat,
-  createChat,
-  createMockChat,
-  createSlowTool,
-  createMockToolsTransport,
-} from '../../test/utils';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
-import {
-  AssistantActionsContext,
-  type AssistantMessage,
-  type ThreadedChat,
-} from '../compass-assistant-provider';
 import sinon from 'sinon';
 import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
@@ -34,8 +21,21 @@ import {
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
-import { containsText } from './test-helpers';
+import {
+  AssistantActionsContext,
+  type AssistantMessage,
+  type ThreadedChat,
+} from '../compass-assistant-provider';
+import {
+  createBrokenChat,
+  createChat,
+  createMockChat,
+  createSlowTool,
+  createMockToolsTransport,
+} from '../../test/utils';
 import { TOOL_DENIAL_REASONS } from '../prompts';
+import { containsText } from './test-helpers';
+import { AssistantChat } from './assistant-chat';
 
 const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 

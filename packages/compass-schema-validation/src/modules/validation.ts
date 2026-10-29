@@ -1,16 +1,16 @@
-import type { RootAction, SchemaValidationThunkAction } from '.';
 import type { Document } from 'bson';
 import { toJSString, parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import { openToast } from '@mongodb-js/compass-components';
 import { VALIDATION_TEMPLATE } from '@mongodb-js/mongodb-constants';
 import { isEqual, pick } from 'lodash';
-import { disableEditRules } from './edit-mode';
+import semver from 'semver';
 import { isAction } from '../util';
+import { disableEditRules } from './edit-mode';
 import {
   IS_ZERO_STATE_CHANGED,
   type IsZeroStateChangedAction,
 } from './zero-state';
-import semver from 'semver';
+import type { RootAction, SchemaValidationThunkAction } from '.';
 
 export type ValidationServerAction = 'error' | 'warn' | 'errorAndLog';
 export type ValidationLevel = 'off' | 'moderate' | 'strict' | 'constraint';

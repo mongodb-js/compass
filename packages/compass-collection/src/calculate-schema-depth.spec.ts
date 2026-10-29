@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import { calculateSchemaDepth } from './calculate-schema-depth';
 import type {
   Schema,
   SchemaField,
   DocumentSchemaType,
   ArraySchemaType,
 } from '@mongodb-js/mongodb-schema';
+import { calculateSchemaDepth } from './calculate-schema-depth';
 
 describe('calculateSchemaDepth', function () {
   it('returns 1 for flat schema', async function () {

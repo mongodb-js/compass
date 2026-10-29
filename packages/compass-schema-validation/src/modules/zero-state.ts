@@ -1,4 +1,3 @@
-import type { RootAction, SchemaValidationThunkAction } from '.';
 import { isAction } from '../util';
 import { enableEditRules } from './edit-mode';
 import { ValidationActions } from './validation';
@@ -7,6 +6,7 @@ import type {
   ValidationFetchedAction,
   ValidationFetchErroredAction,
 } from './validation';
+import type { RootAction, SchemaValidationThunkAction } from '.';
 
 /**
  * Zero state changed action.

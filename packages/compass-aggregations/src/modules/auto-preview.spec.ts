@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { toggleAutoPreview } from './auto-preview';
 import configureStore from '../../test/configure-store';
 import type { AggregationsStore } from '../stores/store';
+import { toggleAutoPreview } from './auto-preview';
 
 describe('auto preview module', function () {
   let store: AggregationsStore;

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
+  createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
@@ -70,20 +71,8 @@ import {
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
-import { AtlasCloudConnectionStorageProvider } from './connection-storage';
-import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
-import type {
-  TrackFunction,
-  DebugFunction,
-  LogFunction,
-} from './logger-and-telemetry';
-import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
-import {
-  useCompassWebPreferences,
-  getAtlasServiceBackendPreset,
-} from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderWeb } from '@mongodb-js/compass-data-modeling/web';
 import {
@@ -99,10 +88,23 @@ import {
   type RecentQueryStorageAccess,
   type PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
-import { createServiceProvider } from '@mongodb-js/compass-app-registry';
-import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
+import {
+  CompassAssistantProvider,
+  APP_NAMES_FOR_PROMPT,
+} from '@mongodb-js/compass-assistant';
+import {
+  useCompassWebPreferences,
+  getAtlasServiceBackendPreset,
+} from './preferences';
+import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
+import type {
+  TrackFunction,
+  DebugFunction,
+  LogFunction,
+} from './logger-and-telemetry';
+import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
+import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
-import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { Link, setMultiplexLink } from './multiplex-link';
 import { useSyncHistory } from './use-sync-history';
 import type { History } from './use-sync-history';

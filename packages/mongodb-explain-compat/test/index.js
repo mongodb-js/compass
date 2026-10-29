@@ -1,8 +1,8 @@
 'use strict';
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
 const convertExplainCompat = require('..');
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
 
 function fixture(name) {
   return JSON.parse(

@@ -1,15 +1,15 @@
-import fs from 'fs/promises';
-import os from 'os';
-import path from 'path';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { expect } from 'chai';
+import { z, type ZodError } from 'zod';
+import sinon from 'sinon';
 import {
   FileUserData,
   AtlasUserData,
   type FileUserDataOptions,
   type UserDataType,
 } from './user-data';
-import { z, type ZodError } from 'zod';
-import sinon from 'sinon';
 
 type ValidatorOptions = {
   allowUnknownProps?: boolean;

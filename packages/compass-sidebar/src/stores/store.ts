@@ -1,7 +1,5 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from '../modules';
-import { closeInstance, setupInstance } from '../modules/instance';
 import type {
   ActivateHelpers,
   AppRegistry,
@@ -12,6 +10,8 @@ import {
   MongoDBInstancesManagerEvents,
 } from '@mongodb-js/compass-app-stores/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import { closeInstance, setupInstance } from '../modules/instance';
+import reducer from '../modules';
 
 export function createSidebarStore(
   {

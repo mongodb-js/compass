@@ -1,9 +1,7 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ThemedHome from './home';
 import type { DataService } from 'mongodb-data-service';
-import { WithAtlasProviders } from './entrypoint';
 import {
   renderWithConnections,
   screen,
@@ -15,6 +13,8 @@ import {
   InMemoryFolderStorage,
   InMemoryFolderAssignmentStorage,
 } from '@mongodb-js/connection-storage/provider';
+import { WithAtlasProviders } from './entrypoint';
+import ThemedHome from './home';
 
 const createDataService = () =>
   ({

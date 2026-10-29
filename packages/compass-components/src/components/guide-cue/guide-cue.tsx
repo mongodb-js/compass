@@ -6,13 +6,13 @@ import React, {
   useState,
   useContext,
 } from 'react';
-import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
-import { GROUP_STEPS_MAP } from './guide-cue-groups';
-import type { GroupName } from './guide-cue-groups';
 import { css, cx, useCurrentValueRef } from '../..';
 import { rafraf } from '../../utils/rafraf';
 import { useEffectOnChange } from '../../hooks/use-effect-on-change';
+import type { GroupName } from './guide-cue-groups';
+import { GROUP_STEPS_MAP } from './guide-cue-groups';
+import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
 
 const hiddenPopoverStyles = css({
   display: 'none !important',

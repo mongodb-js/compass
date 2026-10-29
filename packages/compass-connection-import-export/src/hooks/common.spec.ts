@@ -1,13 +1,13 @@
+import EventEmitter from 'node:events';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { renderHook, act, waitFor } from '@mongodb-js/testing-library-compass';
+import { useState } from 'react';
 import {
   useImportExportConnectionsCommon,
   COMMON_INITIAL_STATE,
   useOpenModalThroughIpc,
 } from './common';
-import { renderHook, act, waitFor } from '@mongodb-js/testing-library-compass';
-import { useState } from 'react';
-import EventEmitter from 'events';
 
 describe('common utilities', function () {
   describe('useImportExportConnectionsCommon', function () {

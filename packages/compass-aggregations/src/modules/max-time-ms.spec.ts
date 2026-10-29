@@ -1,7 +1,7 @@
-import { maxTimeMSChanged } from './max-time-ms';
 import { expect } from 'chai';
 import configureStore from '../../test/configure-store';
 import type { AggregationsStore } from '../stores/store';
+import { maxTimeMSChanged } from './max-time-ms';
 
 describe('max-time-ms module', function () {
   let store: AggregationsStore;

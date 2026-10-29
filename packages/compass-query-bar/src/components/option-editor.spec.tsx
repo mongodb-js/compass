@@ -8,13 +8,13 @@ import {
   userEvent,
   fireEvent,
 } from '@mongodb-js/testing-library-compass';
-import { OptionEditor, getOptionBasedQueries } from './option-editor';
 import type { SinonSpy } from 'sinon';
-import { applyFromHistory } from '../stores/query-bar-reducer';
 import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { DocumentList } from '@mongodb-js/compass-components';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import { applyFromHistory } from '../stores/query-bar-reducer';
+import { OptionEditor, getOptionBasedQueries } from './option-editor';
 
 class MockPasteEvent extends window.Event {
   private text: string;

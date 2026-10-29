@@ -5,6 +5,8 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import Settings from '../settings';
 import SavingPipelineModal from '../saving-pipeline-modal';
 import type { PipelineToolbarProps } from '../pipeline-toolbar';
@@ -16,9 +18,6 @@ import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 import type { SavingPipelineModalProps } from '../saving-pipeline-modal/saving-pipeline-modal';
 import type { SettingsProps } from '../settings/settings';
 import type { Workspace } from '../../modules/workspace';
-
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 
 const pipelineStyles = css({
   display: 'flex',

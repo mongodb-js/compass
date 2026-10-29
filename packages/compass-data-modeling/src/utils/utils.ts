@@ -1,10 +1,10 @@
 import type { MongoDBJSONSchema } from '@mongodb-js/mongodb-schema';
+import { cloneDeepWith } from 'lodash';
 import type {
   FieldData,
   FieldPath,
   Relationship,
 } from '../services/data-model-storage';
-import { cloneDeepWith } from 'lodash';
 
 export const isIdField = (fieldPath: FieldPath): boolean =>
   fieldPath.length === 1 && fieldPath[0] === '_id';

@@ -4,10 +4,10 @@ import {
   useConnectionInfoRef,
   type ConnectionInfoRef,
 } from '@mongodb-js/compass-connections/provider';
-import { useDispatch, useStore } from './context';
 import { documentsUpdated, schemaUpdated } from '../modules';
 import type { ConnectionNamespacesState } from '../modules';
 import type { SchemaFieldSubset } from '../modules/fields';
+import { useDispatch, useStore } from './context';
 
 export type SchemaFields = Readonly<Record<string, SchemaFieldSubset>>;
 

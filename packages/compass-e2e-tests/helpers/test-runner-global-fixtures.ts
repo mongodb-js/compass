@@ -1,19 +1,5 @@
-import gunzip from './gunzip.ts';
-import delay from './delay.ts';
-import fs from 'fs';
-import {
-  assertTestingWebAtlasCloud,
-  context,
-  DEFAULT_CONNECTIONS,
-  DEFAULT_CONNECTIONS_SERVER_INFO,
-  getCloudUrlsFromContext,
-  getAtlasCloudEnvironmentFromContext,
-  isTestingWebAtlasCloud,
-  isTestingDesktop,
-  isTestingWeb,
-  RUN_ID,
-} from './test-runner-context.ts';
-import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths.ts';
+import fs from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import Debug from 'debug';
 import {
   startTestServer,
@@ -27,7 +13,9 @@ import type { MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 // @ts-expect-error no types for this package
 import logRunning from 'why-is-node-running';
-import { isEnterprise } from 'mongodb-build-info';
+import { isEnterprise } from '@mongodb-js/mongodb-build-info';
+import { ConnectionString } from 'mongodb-connection-string-url';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   buildCompass,
   closeWebdriverTrace,
@@ -38,15 +26,27 @@ import {
   serverSatisfies,
   startBrowser,
 } from './compass.ts';
-import { ConnectionString } from 'mongodb-connection-string-url';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
+import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths.ts';
+import {
+  assertTestingWebAtlasCloud,
+  context,
+  DEFAULT_CONNECTIONS,
+  DEFAULT_CONNECTIONS_SERVER_INFO,
+  getCloudUrlsFromContext,
+  getAtlasCloudEnvironmentFromContext,
+  isTestingWebAtlasCloud,
+  isTestingDesktop,
+  isTestingWeb,
+  RUN_ID,
+} from './test-runner-context.ts';
+import delay from './delay.ts';
+import gunzip from './gunzip.ts';
 import {
   spawnCompassWebSandbox,
   spawnCompassWebStaticServer,
   waitForCompassWebSandboxToBeReady,
   waitForCompassWebStaticAssetsToBeReady,
 } from './compass-web-sandbox.ts';
-import { randomBytes } from 'crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils.ts';
 import type { ClusterTypes } from './commands/index.ts';
 

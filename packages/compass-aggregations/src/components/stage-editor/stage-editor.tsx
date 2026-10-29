@@ -18,6 +18,13 @@ import {
   useRequiredURLSearchParams,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import {
+  useTelemetry,
+  useSearchActivationProgramP1,
+} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import {
   changeStageValue,
   getIndexOfFirstStageWithServerError,
@@ -27,13 +34,6 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
-import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import {
-  useTelemetry,
-  useSearchActivationProgramP1,
-} from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,

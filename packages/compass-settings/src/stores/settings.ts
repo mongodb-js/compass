@@ -1,10 +1,10 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import { openToast } from '@mongodb-js/compass-components';
-import type { SettingsThunkAction } from '.';
 import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from '@mongodb-js/compass-preferences-model';
+import type { SettingsThunkAction } from '.';
 
 export type SettingsTabId =
   'general' | 'theme' | 'privacy' | 'oidc' | 'ai' | 'proxy' | 'preview';

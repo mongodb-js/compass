@@ -1,8 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../store/reducer';
-import { redoEdit, undoEdit } from '../store/diagram';
-import { showExportModal } from '../store/export-diagram';
 import {
   Button,
   css,
@@ -20,11 +17,14 @@ import {
   Menu,
   MenuItem,
 } from '@mongodb-js/compass-components';
-import AddCollection from './icons/add-collection';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
+import { showExportModal } from '../store/export-diagram';
+import { redoEdit, undoEdit } from '../store/diagram';
+import type { DataModelingState } from '../store/reducer';
 import { dualSourceHandlerDebounce } from '../utils/utils';
 import { reselectCollections } from '../store/reselect-collections-wizard';
+import AddCollection from './icons/add-collection';
 
 const breadcrumbsStyles = css({
   padding: `${spacing[300]}px ${spacing[400]}px`,

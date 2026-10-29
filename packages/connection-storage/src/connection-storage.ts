@@ -2,11 +2,11 @@ import type {
   ConnectionInfo,
   AtlasClusterMetadata,
 } from '@mongodb-js/connection-info';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import {
   type ExportConnectionOptions,
   type ImportConnectionOptions,
 } from './import-export-connection';
-import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 
 export type { ConnectionInfo, AtlasClusterMetadata };
 

@@ -12,11 +12,11 @@ import {
   Icon,
   Tooltip,
 } from '@mongodb-js/compass-components';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import { closeExplainPlanModal } from '../stores/explain-plan-modal-store';
 import { ExplainPlanView } from './explain-plan-view';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
 export type ExplainPlanModalProps = Partial<
   Pick<

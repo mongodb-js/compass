@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { applyForceConnectionOptions } from './force-connection-options';
 import sinon from 'sinon';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import { applyForceConnectionOptions } from './force-connection-options';
 
 describe('applyForceConnectionOptions', function () {
   let sandbox: sinon.SinonSandbox;

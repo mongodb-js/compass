@@ -1,6 +1,12 @@
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import sinon from 'sinon';
+import type { SearchIndex } from 'mongodb-data-service';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { searchIndexes } from '../../test/fixtures/search-indexes';
+import { setupStoreAndWait } from '../../test/setup-store';
 import { FetchStatuses } from '../utils/fetch-status';
+import type { IndexesDataService, IndexesStore } from '../stores/store';
 import {
   createSearchIndexClosed,
   createSearchIndexOpened,
@@ -15,12 +21,6 @@ import {
   createSearchIndexErrorCleared,
   updateSearchIndexErrorCleared,
 } from './search-indexes';
-import { setupStoreAndWait } from '../../test/setup-store';
-import { searchIndexes } from '../../test/fixtures/search-indexes';
-import sinon from 'sinon';
-import type { SearchIndex } from 'mongodb-data-service';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
-import type { IndexesDataService, IndexesStore } from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
 // Importing this to stub showConfirmation
@@ -504,11 +504,11 @@ describe('#getInitialAutoEmbedSearchIndexPipelineText', function () {
     expect(text).not.to.match(/\$\{\d+:/);
   });
 
-  it('replaces template tab-stops with literals (${5:string} → path, ${6:numCandidates} → 50, ${10:boolean} → false)', function () {
+  it('replaces template tab-stops with literals (${5:string} → path, ${6:string} → index, ${7:limit} → 10)', function () {
     const text =
       searchIndexesSlice.getInitialAutoEmbedSearchIndexPipelineText('idx');
     expect(text).to.include('path: "<field-to-search>"');
-    expect(text).to.include('numCandidates: 50');
-    expect(text).to.include('exact: false');
+    expect(text).to.include('index: "idx"');
+    expect(text).to.include('limit: 10');
   });
 });

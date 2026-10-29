@@ -7,16 +7,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import {
-  cleanToolCallOutput,
-  getExpandableContentText,
-  getToolDisplayName,
-  getToolDescription,
-  getToolState,
-  toolHasOutput,
-} from '../utils';
-import { ActionCardMessage } from './action-card-message';
-import { TOOL_DENIAL_REASONS } from '../prompts';
-import {
   doesToolUseConnection,
   isReadOnlyTool,
 } from '@mongodb-js/compass-generative-ai/provider';
@@ -25,10 +15,20 @@ import {
   useAtlasLoginActions,
   useAtlasSignInStatus,
 } from '@mongodb-js/atlas-service/provider';
-import { CustomToolResult } from './custom-tool-result';
-import { getToolCallTitle } from './tool-call-title';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { TOOL_DENIAL_REASONS } from '../prompts';
+import {
+  cleanToolCallOutput,
+  getExpandableContentText,
+  getToolDisplayName,
+  getToolDescription,
+  getToolState,
+  toolHasOutput,
+} from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
+import { getToolCallTitle } from './tool-call-title';
+import { CustomToolResult } from './custom-tool-result';
+import { ActionCardMessage } from './action-card-message';
 
 /**
  * Every sign in this card drives is attributed to the assistant tool call that

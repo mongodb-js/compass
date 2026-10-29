@@ -1,17 +1,17 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { ToolsController } from './tools-controller';
-import type { ToolGroup } from './tools-controller';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
-import type { ToolsConnectParams } from './tools-connection-manager';
-import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import type { ToolsConnectParams } from './tools-connection-manager';
+import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
+import type { ToolGroup } from './tools-controller';
+import { ToolsController } from './tools-controller';
 
 describe('ToolsController', function () {
   let sandbox: sinon.SinonSandbox;

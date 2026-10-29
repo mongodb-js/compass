@@ -1,6 +1,6 @@
 import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
@@ -9,8 +9,10 @@ import HadronDocument, {
   Document,
   objectToIdiomaticEJSON,
 } from 'hadron-document';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
-import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
+import _parseShellBSON, {
+  toJSString,
+  ParseMode,
+} from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
@@ -23,45 +25,15 @@ import type {
   RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 
-import {
-  countDocuments,
-  fetchShardingKeys,
-  objectContainsRegularExpression,
-  validateSort,
-} from '../utils';
-
-import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
-import {
-  DOCUMENTS_STATUS_ERROR,
-  DOCUMENTS_STATUS_FETCHED_CUSTOM,
-  DOCUMENTS_STATUS_FETCHED_INITIAL,
-  DOCUMENTS_STATUS_FETCHED_PAGINATION,
-  DOCUMENTS_STATUS_FETCHING,
-  DOCUMENTS_STATUS_INITIAL,
-} from '../constants/documents-statuses';
-
 import type { UpdatePreview } from 'mongodb-data-service';
-import type { GridStore, TableHeaderType } from './grid-store';
-import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import { BaseRefluxStore } from './base-reflux-store';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
-import {
-  openBulkDeleteFailureToast,
-  openBulkDeleteProgressToast,
-  openBulkDeleteSuccessToast,
-  openBulkUpdateFailureToast,
-  openBulkUpdateProgressToast,
-  openBulkUpdateSuccessToast,
-} from '../components/bulk-actions-toasts';
-import type { DataService } from '../utils/data-service';
 import type {
   Collection,
   MongoDBInstance,
 } from '@mongodb-js/compass-app-stores/provider';
-import configureActions from '../actions';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
@@ -73,6 +45,34 @@ import type {
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { CollationOptions, MongoServerError } from 'mongodb';
+import configureActions from '../actions';
+import type { DataService } from '../utils/data-service';
+import {
+  openBulkDeleteFailureToast,
+  openBulkDeleteProgressToast,
+  openBulkDeleteSuccessToast,
+  openBulkUpdateFailureToast,
+  openBulkUpdateProgressToast,
+  openBulkUpdateSuccessToast,
+} from '../components/bulk-actions-toasts';
+import {
+  DOCUMENTS_STATUS_ERROR,
+  DOCUMENTS_STATUS_FETCHED_CUSTOM,
+  DOCUMENTS_STATUS_FETCHED_INITIAL,
+  DOCUMENTS_STATUS_FETCHED_PAGINATION,
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_INITIAL,
+} from '../constants/documents-statuses';
+import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
+import {
+  countDocuments,
+  fetchShardingKeys,
+  objectContainsRegularExpression,
+  validateSort,
+} from '../utils';
+import { BaseRefluxStore } from './base-reflux-store';
+import configureGridStore from './grid-store';
+import type { GridStore, TableHeaderType } from './grid-store';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];

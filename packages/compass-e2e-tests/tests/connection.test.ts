@@ -1,7 +1,7 @@
-import { spawnSync } from 'child_process';
-import { promises as fs } from 'fs';
-import os from 'os';
-import path from 'path';
+import { spawnSync } from 'node:child_process';
+import { promises as fs } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { expect } from 'chai';
 import { ConnectionString } from 'mongodb-connection-string-url';
 // @ts-expect-error broken esm types

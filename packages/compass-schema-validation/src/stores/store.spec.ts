@@ -4,6 +4,21 @@ import AppRegistry, {
 } from '@mongodb-js/compass-app-registry';
 import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 
+import { toJSString } from '@mongodb-js/shell-bson-parser';
+import type { Store } from 'redux';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import Sinon from 'sinon';
+import { waitFor } from '@mongodb-js/testing-library-compass';
+import {
+  generateValidationRules,
+  stopRulesGeneration,
+} from '../modules/rules-generation';
+import type { RootAction, RootState } from '../modules';
+import { fetchSampleDocuments } from '../modules/sample-documents';
 import {
   validatorChanged,
   validationFetched,
@@ -14,22 +29,7 @@ import {
   type ValidationServerAction,
   type ValidationLevel,
 } from '../modules/validation';
-import { fetchSampleDocuments } from '../modules/sample-documents';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
-import type { Store } from 'redux';
-import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import Sinon from 'sinon';
-import {
-  generateValidationRules,
-  stopRulesGeneration,
-} from '../modules/rules-generation';
-import { waitFor } from '@mongodb-js/testing-library-compass';
 
 const topologyDescription = {
   type: 'Unknown',

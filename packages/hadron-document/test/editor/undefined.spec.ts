@@ -1,6 +1,6 @@
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { UndefinedEditor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('UndefinedEditor', function () {
   describe('#size', function () {

@@ -1,11 +1,11 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
-import { changeViewName, createView } from '../modules/create-view';
 import Sinon from 'sinon';
 import {
   createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
+import { changeViewName, createView } from '../modules/create-view';
 import { CreateViewPlugin } from '../index';
 
 const TEST_CONNECTION = {

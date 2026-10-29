@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { OptionMenu } from './option-menu';
 import sinon from 'sinon';
+import { OptionMenu } from './option-menu';
 
 describe('OptionMenu', function () {
   it('renders option menu', function () {

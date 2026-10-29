@@ -1,6 +1,6 @@
-import { createLogger } from './';
-import { once } from 'events';
+import { once } from 'node:events';
 import { expect } from 'chai';
+import { createLogger } from './';
 
 describe('createLogger', function () {
   it('creates a logger that forwards log lines as events', async function () {

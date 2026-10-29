@@ -1,6 +1,6 @@
 import { type HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
-import { type TelemetryPreferences, createTrack } from './generic-track';
 import { createLogger, type Logger } from '@mongodb-js/compass-logging';
+import { type TelemetryPreferences, createTrack } from './generic-track';
 import type { TrackFunction } from './types';
 
 function emit(

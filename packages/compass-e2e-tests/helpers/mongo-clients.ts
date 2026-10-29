@@ -16,8 +16,8 @@ import {
   Timestamp,
   UUID,
 } from 'bson';
-import { getDefaultConnectionStrings } from './test-runner-context.ts';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+import { getDefaultConnectionStrings } from './test-runner-context.ts';
 import { noServerWarningsCheckpoint } from './test-runner-global-fixtures.ts';
 
 // This is a list of all the known database names that get created by tests so

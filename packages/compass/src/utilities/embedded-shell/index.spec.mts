@@ -1,7 +1,12 @@
-import { expect } from 'chai';
 import process from 'node:process';
-import { EventEmitter } from 'events';
-import type { ParentPort } from 'electron';
+import { EventEmitter } from 'node:events';
+import { expect } from 'chai';
+import {
+  type ParentPort,
+  type MessagePortMain,
+  MessageChannelMain,
+} from 'electron';
+import { once } from '@mongodb-js/compass-utils';
 import { main } from './index.mts';
 
 describe('embedded-shell utility', function () {
@@ -35,5 +40,34 @@ describe('embedded-shell utility', function () {
     });
     expect(entry.attr).to.include({ pid: process.pid, ppid: process.ppid });
     expect(entry.attr.startupMs).to.be.a('number');
+  });
+
+  describe('a shell session on a port', function () {
+    let port: MessagePortMain;
+
+    beforeEach(function () {
+      const channel = new MessageChannelMain();
+      port = channel.port1;
+      parentPort.emit('message', { data: undefined, ports: [channel.port2] });
+      port.start();
+    });
+
+    afterEach(function () {
+      port.postMessage({ meta: 'terminate' });
+      port.close();
+    });
+
+    it('replies that nothing was interrupted when nothing is running', async function () {
+      port.postMessage({ meta: 'interrupt' });
+      const [{ data }] = await once<[MessageEvent]>(port, 'message');
+      expect(data).to.deep.equal({ meta: 'interrupted', interrupted: false });
+    });
+
+    it('starts the worker runtime in a worker thread', async function () {
+      this.timeout(20_000);
+      port.postMessage({ meta: 'spawn', workerOptions: { name: 'test' } });
+      const [{ data }] = await once<[MessageEvent]>(port, 'message');
+      expect(data).to.equal('ready');
+    });
   });
 });

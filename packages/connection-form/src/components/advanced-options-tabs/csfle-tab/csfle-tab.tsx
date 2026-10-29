@@ -18,11 +18,6 @@ import type { Document, AutoEncryptionOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-import KMSProviderStatusIndicator from './kms-provider-status-indicator';
-import KMSProviderContent, {
-  getNextKmsProviderName,
-} from './kms-provider-content';
-import EncryptedFieldConfigInput from './encrypted-field-config-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorsByFieldTab,
@@ -36,6 +31,11 @@ import type {
 } from '../../../utils/csfle-kms-fields';
 import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
 import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
+import EncryptedFieldConfigInput from './encrypted-field-config-input';
+import KMSProviderContent, {
+  getNextKmsProviderName,
+} from './kms-provider-content';
+import KMSProviderStatusIndicator from './kms-provider-status-indicator';
 
 const kmsProviderComponentWrapperStyles = css({
   paddingLeft: spacing[400],

@@ -12,11 +12,11 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
-import type { BSONObject } from '../stores/crud-store';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
+import type { Document } from 'bson';
+import type { BSONObject } from '../stores/crud-store';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
-import type { Document } from 'bson';
 
 const footerStyles = css({
   display: 'flex',

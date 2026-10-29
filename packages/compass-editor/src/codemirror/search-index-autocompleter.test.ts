@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { createSearchIndexAutocompleter } from './search-index-autocompleter';
 import { setupCodemirrorCompleter } from '../../test/completer';
+import { createSearchIndexAutocompleter } from './search-index-autocompleter';
 
 describe('search-index autocompleter', function () {
   const { getCompletions, cleanup } = setupCodemirrorCompleter(

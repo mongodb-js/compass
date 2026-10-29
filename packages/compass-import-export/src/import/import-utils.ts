@@ -1,13 +1,13 @@
-import os from 'os';
+import os from 'node:os';
+import type { Readable, Writable, Duplex } from 'node:stream';
+import { addAbortSignal } from 'node:stream';
 import type { Document } from 'bson';
-import type { Readable, Writable, Duplex } from 'stream';
-import { addAbortSignal } from 'stream';
-import type { ImportResult, ErrorJSON, ImportOptions } from './import-types';
-import { ImportWriter } from './import-writer';
+import stripBomStream from 'strip-bom-stream';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
-import stripBomStream from 'strip-bom-stream';
+import type { ImportResult, ErrorJSON, ImportOptions } from './import-types';
+import { ImportWriter } from './import-writer';
 
 const debug = createDebug('import');
 

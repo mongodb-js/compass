@@ -449,7 +449,7 @@ describe('Script Generation', () => {
         // Verify malicious code is safely contained in DB_NAME and COLL_NAME constants
         // Note: prettier may split long lines and uses single quotes when string contains double quotes
         expect(result.script).to.contain(
-          '\'test`; require("fs").rmSync("/"); //\''
+          '\'test`; require("fs").rmSync("\\u002f"); \\u002f\\u002f\''
         );
         expect(result.script).to.contain(
           'const COLL_NAME = \'my "collection"\''
@@ -460,6 +460,21 @@ describe('Script Generation', () => {
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
       }
+    });
+
+    it('should reject code injected via json faker args', () => {
+      const result = generateScript(
+        {
+          field: {
+            mongoType: 'Number' as const,
+            fakerMethod: 'number.int',
+            fakerArgs: [{ json: '1), require("fs").rmSync("/"), (1' }],
+          },
+        },
+        { databaseName: 'db', collectionName: 'coll', documentCount: 1 }
+      );
+
+      expect(result.success).to.equal(false);
     });
 
     it('should sanitize newlines in database and collection names in constants', () => {

@@ -1,13 +1,6 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import Sinon from 'sinon';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type {
-  IndexesDataService,
-  IndexesPluginOptions,
-  IndexesPluginServices,
-  IndexesStore,
-} from '../src/stores/store';
-import { activateIndexesPlugin } from '../src/stores/store';
 import { createActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
@@ -16,6 +9,13 @@ import { waitFor } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { activateIndexesPlugin } from '../src/stores/store';
+import type {
+  IndexesDataService,
+  IndexesPluginOptions,
+  IndexesPluginServices,
+  IndexesStore,
+} from '../src/stores/store';
 
 const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

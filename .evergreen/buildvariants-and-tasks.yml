@@ -313,7 +313,7 @@ buildvariants:
   - name: test-web-sandbox
     tags:
       - run-on-pr
-    display_name: Test Web Sandbox
+    display_name: Test Compass Web in sandbox
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-chrome-1
@@ -330,14 +330,14 @@ buildvariants:
     tasks:
       - name: test-can-bundle-compass-web
   - name: test-web-sandbox-atlas-cloud
-    display_name: Test Web Sandbox (w/ Atlas Cloud login)
+    display_name: Test Compass Web (w/ Atlas Cloud login and Free Tier cluster)
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-1
       - name: test-web-sandbox-atlas-cloud-2
       - name: test-web-sandbox-atlas-cloud-3
   - name: test-web-sandbox-atlas-cloud-geo-sharded
-    display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
+    display_name: Test Compass Web (w/ Atlas Cloud login and Geo Sharded cluster)
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-geo-sharded
@@ -1160,7 +1160,7 @@ tasks:
           e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
           atlas_cloud_test_args: >-
-            --atlas-cloud-default-cluster-type=Dedicated
+            --atlas-cloud-default-cluster-type=Free
             --test-filter="!atlas-cloud/dedicated-cluster/**/*"
   - name: test-web-sandbox-atlas-cloud-2
     tags:
@@ -1178,7 +1178,7 @@ tasks:
           e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
           atlas_cloud_test_args: >-
-            --atlas-cloud-default-cluster-type=Dedicated
+            --atlas-cloud-default-cluster-type=Free
             --test-filter="!atlas-cloud/dedicated-cluster/**/*"
   - name: test-web-sandbox-atlas-cloud-3
     tags:
@@ -1196,7 +1196,7 @@ tasks:
           e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
           atlas_cloud_test_args: >-
-            --atlas-cloud-default-cluster-type=Dedicated
+            --atlas-cloud-default-cluster-type=Free
             --test-filter="!atlas-cloud/dedicated-cluster/**/*"
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     tags:

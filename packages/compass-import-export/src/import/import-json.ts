@@ -1,13 +1,13 @@
+import type { Readable } from 'node:stream';
 import { EJSON } from 'bson';
-import type { Readable } from 'stream';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import Parser from 'stream-json/Parser';
 import StreamArray from 'stream-json/streamers/StreamArray';
 import StreamValues from 'stream-json/streamers/StreamValues';
 
+import { createDebug } from '../utils/logger';
 import { doImport } from './import-utils';
 import type { ImportOptions, ImportResult } from './import-types';
-import { createDebug } from '../utils/logger';
 
 const debug = createDebug('import-json');
 

@@ -1,10 +1,4 @@
-import { Chat } from '../src/@ai-sdk/react/chat-react';
 import sinon from 'sinon';
-import {
-  CompassAssistantProvider,
-  type AssistantMessage,
-  type ThreadedChat,
-} from '../src/compass-assistant-provider';
 import {
   type AtlasAuthService,
   type AtlasService,
@@ -17,6 +11,12 @@ import { render } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 import { UUID } from 'bson';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import {
+  CompassAssistantProvider,
+  type AssistantMessage,
+  type ThreadedChat,
+} from '../src/compass-assistant-provider';
+import { Chat } from '../src/@ai-sdk/react/chat-react';
 
 export function createChat(
   init: ConstructorParameters<typeof Chat<AssistantMessage>>[0]

@@ -3,12 +3,12 @@ import { css, KeylineCard, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
-import PipelineEditor from './pipeline-editor';
-import PipelinePreview from './pipeline-preview';
 import ResizeHandle from '../../resize-handle';
 import type { RootState } from '../../../modules';
 import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
 import { getIsRerankFirstStageBannerVisible } from '../../../modules/pipeline-builder/builder-helpers';
+import PipelinePreview from './pipeline-preview';
+import PipelineEditor from './pipeline-editor';
 
 const outerContainerStyles = css({
   display: 'flex',

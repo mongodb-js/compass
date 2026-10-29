@@ -1,4 +1,5 @@
 import { AppRegistry, globalAppRegistry } from './app-registry';
+
 export { AppRegistry, globalAppRegistry };
 export {
   AppRegistryProvider,

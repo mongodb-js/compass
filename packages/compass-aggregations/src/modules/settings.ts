@@ -1,11 +1,11 @@
 import type { Action, Reducer } from 'redux';
-import type { PipelineBuilderThunkAction } from '.';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../constants';
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
-import { isAction } from '../utils/is-action';
+import type { PipelineBuilderThunkAction } from '.';
 
 const PREFIX = 'aggregations/settings' as const;
 

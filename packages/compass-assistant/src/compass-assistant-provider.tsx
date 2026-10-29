@@ -1,6 +1,4 @@
 import React, { type PropsWithChildren, useRef } from 'react';
-import { type UIMessage } from './@ai-sdk/react/use-chat';
-import { Chat } from './@ai-sdk/react/chat-react';
 import { createContext, useContext } from 'react';
 import {
   createServiceLocator,
@@ -12,27 +10,11 @@ import {
   type AtlasService,
   atlasServiceLocator,
 } from '@mongodb-js/atlas-service/provider';
-import { DocsProviderTransport } from './docs-provider-transport';
 import {
   useCurrentValueRef,
   useDrawerActions,
   useInitialValue,
 } from '@mongodb-js/compass-components';
-import {
-  buildConnectionErrorPrompt,
-  buildContextPrompt,
-  buildDiagnoseSearchStagePrompt,
-  buildExplainPlanPrompt,
-  buildProactiveInsightsPrompt,
-  buildAnalyzeOutputPrompt,
-  buildDebugSearchErrorPrompt,
-  type DiagnoseSearchStageContext,
-  type EntryPointMessage,
-  type ProactiveInsightsContext,
-  type AnalyzeOutputContext,
-  type DebugSearchErrorContext,
-  TOOL_DENIAL_REASONS,
-} from './prompts';
 import {
   type PreferencesAccess,
   preferencesLocator,
@@ -59,19 +41,12 @@ import type {
 import {
   atlasAiServiceLocator,
   toolsControllerLocator,
+  AI_MODEL_AGENT_VERSION,
+  AI_MODEL_CHAT_VERSION,
 } from '@mongodb-js/compass-generative-ai/provider';
-import { buildConversationInstructionsPrompt } from './prompts';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { createOpenAI } from '@ai-sdk/openai';
-import type {
-  ActiveConnectionInfo,
-  GlobalState,
-} from './assistant-global-state';
-import {
-  AssistantGlobalStateProvider,
-  useAssistantGlobalState,
-} from './assistant-global-state';
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
 import type { ToolSet } from 'ai';
 import type {
@@ -79,20 +54,43 @@ import type {
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
 import { UUID } from 'bson';
-import {
-  getHashedActiveUserId,
-  partIsApprovalRequest,
-  stopChat,
-} from './utils';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
 import {
-  AI_MODEL_AGENT_VERSION,
-  AI_MODEL_CHAT_VERSION,
-} from '@mongodb-js/compass-generative-ai/provider';
+  getHashedActiveUserId,
+  partIsApprovalRequest,
+  stopChat,
+} from './utils';
+import {
+  AssistantGlobalStateProvider,
+  useAssistantGlobalState,
+} from './assistant-global-state';
+import type {
+  ActiveConnectionInfo,
+  GlobalState,
+} from './assistant-global-state';
+import { buildConversationInstructionsPrompt } from './prompts';
+import {
+  buildConnectionErrorPrompt,
+  buildContextPrompt,
+  buildDiagnoseSearchStagePrompt,
+  buildExplainPlanPrompt,
+  buildProactiveInsightsPrompt,
+  buildAnalyzeOutputPrompt,
+  buildDebugSearchErrorPrompt,
+  type DiagnoseSearchStageContext,
+  type EntryPointMessage,
+  type ProactiveInsightsContext,
+  type AnalyzeOutputContext,
+  type DebugSearchErrorContext,
+  TOOL_DENIAL_REASONS,
+} from './prompts';
+import { DocsProviderTransport } from './docs-provider-transport';
+import { Chat } from './@ai-sdk/react/chat-react';
+import { type UIMessage } from './@ai-sdk/react/use-chat';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 

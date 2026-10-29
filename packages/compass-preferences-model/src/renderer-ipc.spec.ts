@@ -1,6 +1,6 @@
-import { makePreferencesIpc } from './renderer-ipc';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
+import { makePreferencesIpc } from './renderer-ipc';
 import type { UserPreferences } from './preferences-schema';
 
 describe('Renderer IPC', function () {

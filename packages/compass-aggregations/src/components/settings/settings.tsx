@@ -13,8 +13,8 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
-import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 
 const aggregationCommentModeId = 'aggregation-comment-mode';
 const aggregationCommentModeDescriptionId =

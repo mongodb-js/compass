@@ -36,7 +36,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   useOpenWorkspace,

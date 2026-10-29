@@ -1,5 +1,21 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
+import type {
+  ConnectionInfoRef,
+  ConnectionScopedAppRegistry,
+} from '@mongodb-js/compass-connections/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
+import type Collection from '@mongodb-js/mongodb-collection-model';
+import type { DataService } from '../modules/data-service';
 import dataService from './data-service';
 import editViewName from './edit-view-name';
 import sourceName from './source-name';
@@ -30,28 +46,12 @@ import explain from './explain';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import collectionStats from './collection-stats';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
-import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 import focusMode from './focus-mode';
 import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';
 import insights from './insights';
 import searchIndexes from './search-indexes';
-import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
-import type { DataService } from '../modules/data-service';
-import type {
-  ConnectionInfoRef,
-  ConnectionScopedAppRegistry,
-} from '@mongodb-js/compass-connections/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
-import type Collection from '@mongodb-js/mongodb-collection-model';
 /**
  * The main application reducer.
  *

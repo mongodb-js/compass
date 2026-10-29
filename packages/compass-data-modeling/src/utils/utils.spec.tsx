@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { Relationship } from '../services/data-model-storage';
 import {
   isRelationshipInvolvingField,
   isRelationshipOfAField,
@@ -6,7 +7,6 @@ import {
   dualSourceHandlerDebounce,
   isRelationshipValid,
 } from './utils';
-import type { Relationship } from '../services/data-model-storage';
 
 describe('isSameFieldOrAncestor', function () {
   it('should return true for the same field', function () {

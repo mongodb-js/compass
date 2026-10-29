@@ -1,15 +1,15 @@
 import React, { useCallback, useRef, useState, useMemo } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { Icon } from '../../leafygreen';
-import type { EditorProps } from './shared';
-import { InputEditor } from './input-editor';
 import { useDarkMode } from '../../../hooks/use-theme';
 import {
   convertFromPickerDateTime,
   convertToPickerDateTime,
 } from '../../../utils/format-date';
-import { EditorWithLabel } from './editor-with-label';
 import { DateWithTimezoneHint } from '../date-with-timezone-hint';
+import type { EditorProps } from './shared';
+import { InputEditor } from './input-editor';
+import { EditorWithLabel } from './editor-with-label';
 
 // Inline so the timezone info is on the same line unless it overflows.
 const dateContainerStyles = css({

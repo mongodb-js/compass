@@ -3,8 +3,6 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { Eval } from 'braintrust';
 import type { EvalCase } from 'braintrust';
-import { evalCases } from './eval-cases';
-import { makeEntrypointCases } from './entrypoints';
 import type {
   ConversationEvalCaseInput,
   ConversationEvalCaseExpected,
@@ -15,6 +13,8 @@ import {
   makeFactuality,
   makeBinaryNdcgAtK,
 } from 'mongodb-assistant-eval/scorers';
+import { evalCases } from './eval-cases';
+import { makeEntrypointCases } from './entrypoints';
 
 import { EVAL_MODEL, instructions, judgeConfig } from './eval-config';
 

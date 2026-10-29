@@ -1,6 +1,5 @@
 import type { RefObject } from 'react';
-import { useMemo } from 'react';
-import { useRef, useEffect } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 
 const kValueChanged = Symbol('Value changed');
 

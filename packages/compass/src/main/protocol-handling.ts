@@ -1,10 +1,11 @@
-import { promisify } from 'util';
+import { promisify } from 'node:util';
+import path from 'node:path';
 import { app as electronApp } from 'electron';
-import path from 'path';
 import { createLogger } from '@mongodb-js/compass-logging';
 import type { RegistryItem } from 'winreg-ts';
 import { Registry } from 'winreg-ts';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+
 const { log, mongoLogId } = createLogger('COMPASS-MAIN');
 
 type ProtocolsList = { name: string; schemes: string[] }[];

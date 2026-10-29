@@ -1,5 +1,5 @@
+import path from 'node:path';
 import tar from 'tar';
-import path from 'path';
 
 export default async function tarGz(
   srcDirectory: string,

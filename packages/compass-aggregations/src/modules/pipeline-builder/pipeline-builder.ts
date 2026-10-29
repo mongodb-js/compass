@@ -1,14 +1,17 @@
 import * as t from '@babel/types';
 import type { Document } from 'bson';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { isLastStageOutputStage } from '../../utils/stage';
+import type { DataService } from '../data-service';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
-import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
-import { prettify } from './pipeline-parser/utils';
-import { isLastStageOutputStage } from '../../utils/stage';
-import type { DataService } from '../data-service';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import {
+  parseShellBSON,
+  PipelineParserError,
+  prettify,
+} from './pipeline-parser/utils';
 
 export const DEFAULT_PIPELINE = `[]`;
 

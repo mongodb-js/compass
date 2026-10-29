@@ -6,9 +6,9 @@ import {
   waitFor,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
+import ExportToLanguagePlugin from './';
 
 const allTypesStr = `{
   0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,

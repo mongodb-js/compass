@@ -1,8 +1,8 @@
-import { showConfirmation } from './use-confirmation';
-import { Code, ConfirmationModalVariant } from '../components/leafygreen';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
+import { Code, ConfirmationModalVariant } from '../components/leafygreen';
+import { showConfirmation } from './use-confirmation';
 
 const errorDetailsContentStyles = css({
   paddingTop: spacing[400], // small gap above JSON

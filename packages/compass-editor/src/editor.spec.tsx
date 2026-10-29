@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, userEvent } from '@mongodb-js/testing-library-compass';
+import { expect } from 'chai';
 import { CodemirrorInlineEditor, CodemirrorMultilineEditor } from './editor';
 import type { EditorRef } from './types';
-import { expect } from 'chai';
 
 function renderCodemirrorInlineEditor(text: string) {
   const editorRef = React.createRef<EditorRef>();

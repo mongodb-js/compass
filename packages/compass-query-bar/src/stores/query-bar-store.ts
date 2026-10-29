@@ -11,21 +11,10 @@ import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { mapQueryToFormFields } from '../utils/query';
-import {
-  queryBarReducer,
-  INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
-  QueryBarActions,
-  fetchSavedQueries,
-} from './query-bar-reducer';
-import { aiQueryReducer } from './ai-query-reducer';
-import { getQueryAttributes } from '../utils';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
-import { QueryBarStoreContext } from './context';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type {
@@ -36,6 +25,17 @@ import type {
 } from '@mongodb-js/my-queries-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type Collection from '@mongodb-js/mongodb-collection-model';
+import { getQueryAttributes } from '../utils';
+import { mapQueryToFormFields } from '../utils/query';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { QueryBarStoreContext } from './context';
+import { aiQueryReducer } from './ai-query-reducer';
+import {
+  queryBarReducer,
+  INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
+  QueryBarActions,
+  fetchSavedQueries,
+} from './query-bar-reducer';
 
 // Partial of DataService that mms shares with Compass.
 type FetchCollectionMetadataDataServiceMethods =

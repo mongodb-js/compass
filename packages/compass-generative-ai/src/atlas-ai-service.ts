@@ -17,15 +17,15 @@ import {
   mergeChunkResponses,
   validateSchemaSize,
   needsBatching,
-} from './mock-data-generator';
+} from '@mongodb-js/mock-data-generator';
+import { createOpenAI } from '@ai-sdk/openai';
+import { streamText, tool, type LanguageModel } from 'ai';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 import {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
-import { createOpenAI } from '@ai-sdk/openai';
-import { streamText, tool, type LanguageModel } from 'ai';
 import type { AiQueryPrompt } from './utils/gen-ai-prompt';
 import {
   buildAggregateQueryPrompt,

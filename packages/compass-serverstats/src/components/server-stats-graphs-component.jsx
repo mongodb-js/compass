@@ -1,13 +1,13 @@
 const timer = require('d3-timer');
 const React = require('react');
 const PropTypes = require('prop-types');
-const ChartComponent = require('./chart-component');
 const OpCountersStore = require('../stores/opcounters-store');
 const NetworkStore = require('../stores/network-store');
 const GlobalLockStore = require('../stores/globallock-store');
 const MemStore = require('../stores/mem-store');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
+const ChartComponent = require('./chart-component');
 
 // const debug = require('debug')('mongodb-compass:server-stats:graphs-component');
 

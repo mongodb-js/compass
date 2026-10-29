@@ -5,7 +5,7 @@
  *
  * Prints to standard out, with the intention of copy pasting into the readme file.
  */
-const path = require('path');
+const path = require('node:path');
 
 const { runInDir } = require('@mongodb-js/monorepo-tools');
 

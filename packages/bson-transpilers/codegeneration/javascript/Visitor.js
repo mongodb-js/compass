@@ -1,6 +1,6 @@
 'use strict';
 /* eslint complexity: 0 */
-const vm = require('vm');
+const vm = require('node:vm');
 const bson = require('bson');
 const {
   BsonTranspilersArgumentError,

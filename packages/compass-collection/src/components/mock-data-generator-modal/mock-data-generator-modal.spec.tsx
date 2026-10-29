@@ -13,6 +13,12 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import AppRegistry from '@mongodb-js/compass-app-registry';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { type MockDataSchemaToolOutput } from '@mongodb-js/mock-data-generator';
+import * as scriptGenerationUtils from '@mongodb-js/mock-data-generator';
+import type { CollectionState } from '../../modules/collection-tab';
+import { default as collectionTabReducer } from '../../modules/collection-tab';
+import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import MockDataGeneratorModal from './mock-data-generator-modal';
 import type { FakerSchema, MockDataGeneratorStep } from './types';
 import { DataGenerationSteps, MockDataGeneratorSteps } from './types';
@@ -21,12 +27,6 @@ import {
   DEFAULT_DOCUMENT_COUNT,
   MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
 } from './constants';
-import type { CollectionState } from '../../modules/collection-tab';
-import { default as collectionTabReducer } from '../../modules/collection-tab';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { type MockDataSchemaToolOutput } from '@mongodb-js/compass-generative-ai';
-import type { SchemaAnalysisState } from '../../schema-analysis-types';
-import * as scriptGenerationUtils from '@mongodb-js/mock-data-generator';
 
 // Helper to create fakerSchemaGeneration in completed state
 const createCompletedFakerSchema = (schema: FakerSchema) => ({

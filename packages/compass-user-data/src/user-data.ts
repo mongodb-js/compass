@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
 import type { z } from 'zod';
@@ -506,7 +506,7 @@ export class AtlasUserData<
       for (const item of docs) {
         try {
           const parsedData = this.deserialize(item.data as string);
-          result.data.push(this.validator.parse(parsedData) as z.output<T>);
+          result.data.push(this.validator.parse(parsedData));
         } catch (error) {
           result.errors.push(error as Error);
         }

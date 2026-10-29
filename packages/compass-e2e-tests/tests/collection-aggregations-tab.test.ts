@@ -1,5 +1,7 @@
+import { promises as fs } from 'node:fs';
 import chai from 'chai';
-import { promises as fs } from 'fs';
+import type { ChainablePromiseElement } from 'webdriverio';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -17,14 +19,12 @@ import {
   createNumbersCollection,
 } from '../helpers/mongo-clients.ts';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline.ts';
-import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode.ts';
 import {
   isTestingWeb,
   isTestingWebAtlasCloud,
 } from '../helpers/test-runner-context.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
-import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 
@@ -709,6 +709,8 @@ describe('Collection aggregations tab', function () {
     });
 
     it('Shows error info when inserting', async function () {
+      // TODO: Is there a way for us to tell that the stages options are stabilized and ready?
+      await browser.pause(1000);
       await browser.selectStageOperator(0, '$out');
       await browser.setCodemirrorEditorValue(
         Selectors.stageEditor(0),

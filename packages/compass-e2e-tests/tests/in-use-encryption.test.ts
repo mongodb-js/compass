@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { MongoClient } from 'mongodb';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -9,7 +10,6 @@ import {
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay.ts';
 import type { ConnectFormState } from '../helpers/connect-form-state.ts';

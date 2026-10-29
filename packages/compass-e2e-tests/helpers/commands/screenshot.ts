@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import type { CompassBrowser } from '../compass-browser.ts';
 import { LOG_SCREENSHOTS_PATH } from '../test-runner-paths.ts';
 

@@ -1,6 +1,6 @@
+import type { MongoDBFieldType } from '../../schema-analysis-types';
 import type { MockDataGeneratorStep } from './types';
 import { MockDataGeneratorSteps } from './types';
-import type { MongoDBFieldType } from '../../schema-analysis-types';
 
 export const StepButtonLabelMap = {
   [MockDataGeneratorSteps.SCHEMA_CONFIRMATION]: 'Confirm',

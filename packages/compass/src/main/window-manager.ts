@@ -2,11 +2,11 @@
  * A high-level wrapper around electron's builtin [BrowserWindow][0] class.
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
-import { pathToFileURL } from 'url';
-import path from 'path';
+import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+import { once } from 'node:events';
 import type { HadronIpcMainEvent } from '@mongodb-js/hadron-ipc';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
-import { once } from 'events';
 import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,
@@ -215,12 +215,8 @@ function showConnectWindow(
   const webPreferences: WebPreferences = {
     nodeIntegration: true,
     contextIsolation: false,
-    nodeIntegrationInWorker: true,
+    nodeIntegrationInWorker: false,
     preload: path.join(__dirname, 'preload.js'),
-    // For local dev, electron can not load @mongosh/node-runtime-worker-thread
-    // worker (file:///) from the filesystem due to same-origin policy. For this
-    // reason we disable the webSecurity.
-    webSecurity: process.env.DISABLE_ELECTRON_WEB_SECURITY !== '1',
     ...opts.webPreferences,
   };
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { queries, pipelines } from '../test/fixtures';
-import { WorkspaceTab } from '.';
 import type {
   PipelineStorage,
   FavoriteQueryStorage,
@@ -24,6 +22,8 @@ import {
   userEvent,
   fireEvent,
 } from '@mongodb-js/testing-library-compass';
+import { queries, pipelines } from '../test/fixtures';
+import { WorkspaceTab } from '.';
 
 const ASYNC_TIMEOUT = 5000;
 

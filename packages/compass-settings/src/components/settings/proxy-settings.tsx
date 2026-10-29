@@ -1,7 +1,5 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback, useMemo } from 'react';
-import { changeFieldValue } from '../../stores/settings';
-import type { RootState } from '../../stores';
 import type {
   PreferenceStateInformation,
   DevtoolsProxyOptions,
@@ -19,6 +17,8 @@ import {
   RadioBoxGroup,
   TextInput,
 } from '@mongodb-js/compass-components';
+import type { RootState } from '../../stores';
+import { changeFieldValue } from '../../stores/settings';
 import { settingStateLabels } from './state-labels';
 import { ProxySettingsCustom } from './proxy-settings-custom';
 

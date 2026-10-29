@@ -1,14 +1,14 @@
-import type { Readable } from 'stream';
-import { Transform } from 'stream';
-import { pipeline } from 'stream/promises';
+import type { Readable } from 'node:stream';
+import { Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import type { DataService } from 'mongodb-data-service';
 import { SchemaAnalyzer } from '@mongodb-js/mongodb-schema';
 import type { Document, FindOptions } from 'mongodb';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { isInternalFieldPath } from 'hadron-document';
 
-import type { ExportQuery } from './export-types';
 import { createDebug } from '../utils/logger';
+import type { ExportQuery } from './export-types';
 
 const debug = createDebug('export-json');
 

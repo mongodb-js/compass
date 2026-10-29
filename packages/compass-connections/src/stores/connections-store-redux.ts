@@ -1,3 +1,4 @@
+import EventEmitter from 'node:events';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Reducer, AnyAction, Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -8,7 +9,10 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionStorage,
+  ImportConnectionOptions,
+} from '@mongodb-js/connection-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type {
@@ -25,23 +29,21 @@ import {
   proxyPreferenceToProxyOptions,
   type PreferencesAccess,
 } from '@mongodb-js/compass-preferences-model/provider';
-import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import { isAtlasStream } from 'mongodb-build-info';
-import EventEmitter from 'events';
-import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
-import { showEndOfLifeMongoDBWarningModal as _showEndOfLifeMongoDBWarningModal } from '../components/end-of-life-connection-modal';
+import { isAtlasStream } from '@mongodb-js/mongodb-build-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
+import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
+import { getNotificationTriggers } from '../components/connection-status-notifications';
+import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
+import { showEndOfLifeMongoDBWarningModal as _showEndOfLifeMongoDBWarningModal } from '../components/end-of-life-connection-modal';
 import { connectable } from '../utils/connection-supports';
 import {
   getLatestEndOfLifeServerVersion,
   isEndOfLifeVersion,
 } from '../utils/end-of-life-server';
-import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
 import { getErrorCodeCauseChain } from '../utils/telemetry';
-import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
 
 export type ConnectionsEventMap = {
   connected: (

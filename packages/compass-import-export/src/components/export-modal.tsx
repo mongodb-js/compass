@@ -22,6 +22,10 @@ import {
 } from '@mongodb-js/compass-components';
 
 import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
+import {
   closeExport,
   selectFieldsToExport,
   backToSelectFieldOptions,
@@ -31,18 +35,14 @@ import {
 } from '../modules/export';
 import type { ExportStatus, FieldsToExportOption } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
+import type { ExportAggregation, ExportQuery } from '../export/export-types';
+import { queryHasProjection } from '../utils/query-has-projection';
+import type { ExportJSONFormat } from '../export/export-json';
 import { SelectFileType } from './select-file-type';
 import { ExportSelectFields } from './export-select-fields';
 import { ExportCodeView } from './export-code-view';
-import type { ExportAggregation, ExportQuery } from '../export/export-types';
-import { queryHasProjection } from '../utils/query-has-projection';
 import { FieldsToExportOptions } from './export-field-options';
-import type { ExportJSONFormat } from '../export/export-json';
 import { JSONFileTypeOptions } from './export-json-format-options';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
 
 type ExportFileTypes = 'json' | 'csv';
 

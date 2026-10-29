@@ -1,13 +1,13 @@
-import schemaFixture from '../../test/fixtures/array_of_docs.fixture.json';
-import type { activatePlugin } from './store';
 import { expect } from 'chai';
-import { schemaFieldsToAutocompleteItems } from '../modules/fields';
 import {
   createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
+import { schemaFieldsToAutocompleteItems } from '../modules/fields';
+import schemaFixture from '../../test/fixtures/array_of_docs.fixture.json';
 import FieldStorePlugin from '..';
 import { documentsUpdated, schemaUpdated } from '../modules';
+import type { activatePlugin } from './store';
 
 describe('FieldStore', function () {
   let store: ReturnType<typeof activatePlugin>['store'];

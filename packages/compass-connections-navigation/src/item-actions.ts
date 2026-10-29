@@ -1,6 +1,5 @@
-import type { ItemAction } from '@mongodb-js/compass-components';
+import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
-import { type ItemSeparator } from '@mongodb-js/compass-components';
 import { type NotConnectedConnectionStatus } from './tree-data';
 import { ConnectButton } from './connect-button';
 import type { Actions } from './constants';
