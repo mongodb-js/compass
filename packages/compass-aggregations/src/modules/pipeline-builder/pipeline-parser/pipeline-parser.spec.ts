@@ -477,21 +477,21 @@ describe('PipelineParser', function () {
   });
   describe('generates pipeline string', function () {
     pipelines.forEach(({ input, output, pipeline, usecase }) => {
-      it(usecase, function () {
+      it(usecase, async function () {
         const { root, stages: nodes } = PipelineParser.parse(input);
         const stages = nodes.map((node) => new Stage(node));
         expect(stages).to.have.lengthOf(pipeline.length);
-        stages.forEach((stage, index) => {
+        for (const [index, stage] of stages.entries()) {
           expect(
             stage.disabled,
             `expected ${stage.operator} stage to be ${
               pipeline[index].disabled ? 'disabled' : 'enabled'
             }`
           ).to.eq(pipeline[index].disabled);
-          expect(stage.toBSON()).to.deep.eq(
+          expect(await stage.toBSON()).to.deep.eq(
             stage.disabled ? null : pipeline[index].stage
           );
-        });
+        }
         const generatedPipelineString = PipelineParser.generate(root, stages);
         expect(generatedPipelineString).to.equal(output);
       });
