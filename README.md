@@ -96,3 +96,5 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 ## License
 
 [SSPL](LICENSE)
+
+Code Writer smoke test
