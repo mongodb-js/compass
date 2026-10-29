@@ -66,7 +66,7 @@
     "@mongodb-js/mock-data-generator": "^1.0.0",
     "@mongodb-js/mongodb-collection-model": "^5.42.3",
     "@mongodb-js/mongodb-ns": "^3.2.9",
-    "@mongodb-js/mongodb-schema": "^12.7.2",
+    "@mongodb-js/mongodb-schema": "^12.8.11",
     "@mongodb-js/workspace-info": "^1.13.1",
     "bson": "^7.3.2",
     "hadron-document": "^8.12.3",
