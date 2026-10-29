@@ -1,4 +1,3 @@
-import path from 'node:path';
 import React from 'react';
 import { openToast, ToastBody } from '@mongodb-js/compass-components';
 import type { CSVExportPhase } from '../export/export-csv';

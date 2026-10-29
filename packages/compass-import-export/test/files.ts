@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import { File as NodeFile } from 'buffer';
+import fs from 'node:fs';
+import path from 'node:path';
+import { File as NodeFile } from 'node:buffer';
 
 // The test environment's global File comes from jsdom, which has no
 // .stream(), so build files with Node.js' implementation instead.

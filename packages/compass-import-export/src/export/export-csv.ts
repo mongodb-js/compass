@@ -1,3 +1,5 @@
+import { Transform, promises as streamPromises } from 'node:stream';
+import type { Readable, Writable } from 'node:stream';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
 import toNS from '@mongodb-js/mongodb-ns';
@@ -13,16 +15,16 @@ import {
   formatCSVValue,
   formatCSVHeaderName,
 } from '../csv/csv-utils';
+
 import type { Delimiter, Linebreak, PathPart } from '../csv/csv-types';
 import { createDebug } from '../utils/logger';
 import { readableFromWeb, writableFromWeb } from '../utils/web-streams';
-import { lookupValueForPath, ColumnRecorder } from './export-utils';
 import type {
   ExportAggregation,
   ExportQuery,
   ExportResult,
 } from './export-types';
-
+import { lookupValueForPath, ColumnRecorder } from './export-utils';
 import { createAggregationCursor, createFindCursor } from './export-cursor';
 
 const debug = createDebug('export-csv');

@@ -39,7 +39,6 @@ import {
 import type { RootImportState } from '../stores/import-store';
 import type { FieldFromCSV } from '../modules/import';
 import type { Delimiter, CSVParsableFieldType } from '../csv/csv-types';
-import { ImportFileInput } from './import-file-input';
 import { ImportOptions } from './import-options';
 import ImportPreviewLoader from './import-preview-loader';
 import { ImportPreview } from './import-preview';
