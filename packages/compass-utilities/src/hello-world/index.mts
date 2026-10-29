@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { readFileSync } from 'node:fs';
 import { listen } from '@mongodb-js/compass-utils';
 import type { UtilityParentPort } from '../ipc.mts';

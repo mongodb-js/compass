@@ -13,7 +13,8 @@ export function rmSync() {
   // noop
 }
 export function readFileSync() {
-  console.log('this is the web you cannot read files.');
+  const c = console;
+  c.log('this is the web you cannot read files.');
   // noop
 }
 
