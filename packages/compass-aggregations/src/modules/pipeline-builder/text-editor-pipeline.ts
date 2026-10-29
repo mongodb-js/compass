@@ -1,5 +1,5 @@
 import type { Action, Reducer } from 'redux';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import type { Document, MongoServerError } from 'mongodb';
 import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import type { PipelineBuilderThunkAction } from '..';

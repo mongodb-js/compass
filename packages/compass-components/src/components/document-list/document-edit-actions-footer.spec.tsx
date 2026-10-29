@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import Sinon from 'sinon';
 import DocumentEditActionsFooter from './document-edit-actions-footer';
 

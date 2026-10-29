@@ -6,8 +6,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type Document from 'hadron-document';
-import { Element } from 'hadron-document';
+import type Document from '@mongodb-js/hadron-document';
+import { Element } from '@mongodb-js/hadron-document';
 import {
   Banner,
   css,

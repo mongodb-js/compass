@@ -7,7 +7,7 @@ import {
   cx,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type SearchIndexActionContext = 'Search Indexes Drawer Table' | 'Indexes Tab';

@@ -1,6 +1,9 @@
 import React, { useMemo } from 'react';
 import type { Document } from 'mongodb';
-import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
+import type {
+  SearchIndex,
+  SearchIndexStatus,
+} from '@mongodb-js/mongodb-data-service';
 import {
   Badge,
   BadgeVariant,

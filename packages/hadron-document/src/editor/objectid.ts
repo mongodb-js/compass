@@ -1,4 +1,4 @@
-import TypeChecker from 'hadron-type-checker';
+import TypeChecker from '@mongodb-js/hadron-type-checker';
 import { ElementEvents } from '../element-events';
 import type { BSONValue } from '../utils';
 import StandardEditor from './standard';

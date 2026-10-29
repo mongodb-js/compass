@@ -1,4 +1,4 @@
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import { useContextMenuGroups } from '@mongodb-js/compass-components';
 
 import type { DocumentProps } from './document';

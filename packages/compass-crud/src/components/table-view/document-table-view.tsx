@@ -2,8 +2,8 @@ import React from 'react';
 import type { AgGridReactProps } from 'ag-grid-react';
 import { AgGridReact } from 'ag-grid-react';
 import { map } from 'lodash';
-import type { Document, Element } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import type { Document, Element } from '@mongodb-js/hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import mongodbns from '@mongodb-js/mongodb-ns';
 import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
 import type {

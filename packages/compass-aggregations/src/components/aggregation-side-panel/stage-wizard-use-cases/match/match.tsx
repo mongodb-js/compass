@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import TypeChecker from 'hadron-type-checker';
+import TypeChecker from '@mongodb-js/hadron-type-checker';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { css, spacing } from '@mongodb-js/compass-components';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastTypes } from '@mongodb-js/hadron-type-checker';
 import type { WizardComponentProps } from '..';
 import MatchGroupForm, { createGroup } from './match-group-form';
 

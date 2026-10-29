@@ -1,5 +1,5 @@
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import { useConnectionInfo } from './connection-info-provider';
 import { getDataServiceForConnection } from './stores/connections-store-redux';
 

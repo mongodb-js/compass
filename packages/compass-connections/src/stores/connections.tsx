@@ -2,7 +2,7 @@ import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
-import type { connect as devtoolsConnect } from 'mongodb-data-service';
+import type { connect as devtoolsConnect } from '@mongodb-js/mongodb-data-service';
 import React, { useMemo } from 'react';
 import ConnectedConnectionModal from '../components/connection-modal';
 import type { ConnectionState, State } from './connections-store-redux';

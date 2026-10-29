@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import type { UpdatePreview } from 'mongodb-data-service';
+import type { UpdatePreview } from '@mongodb-js/mongodb-data-service';
 import type { MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
 import { toJSString } from '@mongodb-js/shell-bson-parser';

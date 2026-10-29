@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { DocumentJsonViewItem } from './document-json-view-item';
 
 describe('DocumentJsonViewItem', function () {

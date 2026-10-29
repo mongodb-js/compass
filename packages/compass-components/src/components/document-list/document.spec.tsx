@@ -9,7 +9,7 @@ import {
   userEvent,
   fireEvent,
 } from '@mongodb-js/testing-library-compass';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import Document from './document';
 
 const EditableDoc = ({ doc }: { doc: HadronDocument }) => {

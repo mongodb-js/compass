@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 
 import {
   css,

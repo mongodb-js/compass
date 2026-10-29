@@ -30,9 +30,9 @@
   "dependencies": {
     "@mongodb-js/compass-preferences-model": "^3.6.0",
     "@mongodb-js/mongodb-collection-model": "^5.42.3",
+    "@mongodb-js/mongodb-data-service": "^22.41.3",
     "@mongodb-js/mongodb-database-model": "^2.42.3",
-    "ampersand-model": "^8.0.1",
-    "mongodb-data-service": "^22.41.3"
+    "ampersand-model": "^8.0.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.29",

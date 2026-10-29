@@ -23,7 +23,7 @@ import {
   ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import {
   useConnectionInfo,
   useConnectionInfoRef,

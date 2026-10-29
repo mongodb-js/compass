@@ -1,6 +1,6 @@
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import type { connect as devtoolsConnect } from 'mongodb-data-service';
+import type { connect as devtoolsConnect } from '@mongodb-js/mongodb-data-service';
 import React, { useContext } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';

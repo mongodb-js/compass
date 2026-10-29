@@ -21,8 +21,8 @@ import type {
   ConnectionOptions,
   DataService,
   InstanceDetails,
-} from 'mongodb-data-service';
-import { createConnectionAttempt } from 'mongodb-data-service';
+} from '@mongodb-js/mongodb-data-service';
+import { createConnectionAttempt } from '@mongodb-js/mongodb-data-service';
 import { UUID } from 'bson';
 import { assign, cloneDeep, isEqual, merge } from 'lodash';
 import {

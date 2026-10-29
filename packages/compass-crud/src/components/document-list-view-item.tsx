@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import { KeylineCard, useMergeRefs } from '@mongodb-js/compass-components';
 import {
   useChangeQueryBarQuery,

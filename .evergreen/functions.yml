@@ -944,7 +944,7 @@ functions:
             curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version continuous) | \
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
-          npm run test-csfle --workspace mongodb-data-service
+          npm run test-csfle --workspace @mongodb-js/mongodb-data-service
 
   verify-artifacts:
     - command: shell.exec

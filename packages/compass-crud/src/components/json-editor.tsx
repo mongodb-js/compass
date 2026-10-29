@@ -14,8 +14,8 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import type { Document } from '@mongodb-js/hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import {
   CodemirrorMultilineEditor,
   useSafeIntegerLinter,

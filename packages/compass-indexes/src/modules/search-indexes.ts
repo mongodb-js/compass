@@ -6,7 +6,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
 import {
   ExperimentTestGroups,

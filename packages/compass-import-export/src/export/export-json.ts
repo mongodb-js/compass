@@ -3,10 +3,10 @@ import { pipeline } from 'node:stream/promises';
 import type { Writable } from 'node:stream';
 import { EJSON } from 'bson';
 import toNS from '@mongodb-js/mongodb-ns';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { AggregationCursor, FindCursor } from 'mongodb';
-import { objectToIdiomaticEJSON } from 'hadron-document';
+import { objectToIdiomaticEJSON } from '@mongodb-js/hadron-document';
 
 import { createDebug } from '../utils/logger';
 import type {

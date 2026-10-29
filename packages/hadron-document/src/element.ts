@@ -6,10 +6,10 @@ import TypeChecker, {
   convertBinaryUUID,
   getBsonType,
   isUUIDType,
-} from 'hadron-type-checker';
+} from '@mongodb-js/hadron-type-checker';
 import { Binary, UUID } from 'bson';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastTypes } from '@mongodb-js/hadron-type-checker';
 import type { ObjectId } from 'bson';
 import type { ObjectGeneratorOptions } from './object-generator';
 import ObjectGenerator from './object-generator';

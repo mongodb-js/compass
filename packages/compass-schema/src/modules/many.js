@@ -1,7 +1,7 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
 import { map, minBy, maxBy, sortBy } from 'lodash';
-import { hasDistinctValue, inValueRange } from 'mongodb-query-util';
+import { hasDistinctValue, inValueRange } from '@mongodb-js/mongodb-query-util';
 import shared from './shared';
 import { createD3Tip } from './create-d3-tip';
 

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { Binary } from 'mongodb';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 
 import {
   handleUpdateCsfleStoreCredentials,

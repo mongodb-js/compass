@@ -1,13 +1,13 @@
 import React from 'react';
-import { type TypeCastTypes } from 'hadron-type-checker';
-import type { Editor, Element } from 'hadron-document';
-import type Document from 'hadron-document';
+import { type TypeCastTypes } from '@mongodb-js/hadron-type-checker';
+import type { Editor, Element } from '@mongodb-js/hadron-document';
+import type Document from '@mongodb-js/hadron-document';
 import {
   ElementEditor as initEditors,
   getEditorNameByType,
   getDefaultValueForType,
   getDisplayType,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import {
   Button,
   css,

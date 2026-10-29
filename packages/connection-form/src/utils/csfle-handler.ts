@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import type {
   AutoEncryptionOptions,
   ClientEncryptionTlsOptions,

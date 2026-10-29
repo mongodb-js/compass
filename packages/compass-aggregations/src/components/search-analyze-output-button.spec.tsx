@@ -6,7 +6,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { ObjectId } from 'bson';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { StagePreviewMetadata } from '../utils/search-score-injection';

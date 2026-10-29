@@ -1,7 +1,7 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import {
   renderWithConnections,
   screen,
