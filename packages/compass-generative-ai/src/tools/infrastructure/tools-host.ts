@@ -60,6 +60,7 @@ export class ToolsHost {
     this.connectionManager = new ToolsConnectionManager({
       logger: this.runner.logger,
       getTelemetryAnonymousId: () => this.telemetryAnonymousId,
+      mongoLogId: this.logger.mongoLogId.bind(this.logger),
     });
 
     this.disposable = serveToolsRequests(port, (method, params, signal) =>

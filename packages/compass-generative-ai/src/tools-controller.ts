@@ -139,6 +139,7 @@ export class ToolsController {
     this.connectionManager = new ToolsConnectionManager({
       logger: this.runner.logger,
       getTelemetryAnonymousId,
+      mongoLogId: this.logger.mongoLogId.bind(this.logger),
     });
 
     // Set up listener on close event to perform a cleanup when the Client
