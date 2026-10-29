@@ -1,6 +1,6 @@
 import babelGenerate from '@babel/generator';
 import type { Node } from '@babel/types';
-import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { FormatOptions } from '@mongodb-js/compass-editor';
 import type { StageAssertionErrorCode } from './stage-parser';
@@ -33,8 +33,8 @@ export function generate(ast: Node, formatOptions?: FormatOptions) {
  * @param source expression source (object or array expression with optional
  *               leading / trailing comments)
  */
-export function parseShellBSON<T = unknown>(source: string): T {
-  const parsed = _parseShellBSON(source, {
+export async function parseShellBSON<T = unknown>(source: string): Promise<T> {
+  const parsed = await parse(source, {
     mode: ParseMode.Strict,
     allowComments: true,
     allowMethods: true,
