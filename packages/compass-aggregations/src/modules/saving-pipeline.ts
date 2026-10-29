@@ -162,15 +162,15 @@ export const savingPipelineOpen = ({
  * @emits open-create-view {meta: {source, pipeline}}
  * @see create-view src/stores/create-view.js
  */
-export const openCreateView = (): PipelineBuilderThunkAction<void> => {
-  return (
+export const openCreateView = (): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (
     _dispatch,
     getState,
     { pipelineBuilder, globalAppRegistry, connectionInfoRef }
   ) => {
     const state = getState();
     const sourceNs = state.namespace;
-    const sourcePipeline = getPipelineFromBuilderState(
+    const sourcePipeline = await getPipelineFromBuilderState(
       getState(),
       pipelineBuilder
     );

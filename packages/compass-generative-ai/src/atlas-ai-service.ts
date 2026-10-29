@@ -489,7 +489,7 @@ export class AtlasAiService {
       message,
       options.signal
     );
-    const parsedResponse = parseXmlToJsonResponse(response, {
+    const parsedResponse = await parseXmlToJsonResponse(response, {
       logger: this.logger,
       type: options.type,
     });
