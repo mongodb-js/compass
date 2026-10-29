@@ -1,3 +1,4 @@
+import Worker from 'web-worker';
 /**
  * Compass Web is served from the CDN while the page lives on
  * cloud.mongodb.com, and browsers only start a Worker from a same-origin
