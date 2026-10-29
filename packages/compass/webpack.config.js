@@ -49,10 +49,13 @@ module.exports = (_env, args) => {
     ),
   });
 
-  // Every directory in src/utilities is a utility process: its entry is
-  // `<name>/index.mts` and it is built to `<name>.mjs`, which main forks.
-  // Adding a utility means adding a directory, nothing here.
-  const utilitiesDir = path.resolve(__dirname, 'src', 'utilities');
+  // Every directory in @mongodb-js/compass-utilities is a utility process: its
+  // entry is `<name>/index.mts` and it is built to `<name>.mjs`, which main
+  // forks. Adding a utility means adding a directory there, nothing here.
+  const utilitiesDir = path.join(
+    path.dirname(require.resolve('@mongodb-js/compass-utilities/package.json')),
+    'src'
+  );
   const utilityEntries = Object.fromEntries(
     fs
       .readdirSync(utilitiesDir, { withFileTypes: true })

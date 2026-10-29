@@ -75,6 +75,9 @@ module.exports = (env, args) => {
           ? 'compass-web.mjs'
           : '[name].[contenthash].mjs';
       },
+      // Utility workers (src/utilities.mts) are emitted as chunks, which would
+      // otherwise get a bare `[id].mjs` and could be served stale from cache
+      chunkFilename: '[name].[contenthash].mjs',
       library: {
         type: 'module',
       },

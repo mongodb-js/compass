@@ -1,10 +1,10 @@
 import process from 'node:process';
 import { createRequire } from 'node:module';
 
-import type { ParentPort } from 'electron';
 import { listen } from '@mongodb-js/compass-utils';
 import { ShellSession } from '@mongodb-js/compass-shell/utility';
-import { onPort } from '../ipc.mts';
+import type { UtilityParentPort } from '../ipc.mts';
+import { currentParentPort, onPort } from '../ipc.mts';
 import { createUtilityLogger } from '../logging.mts';
 
 export const name = 'embedded-shell';
@@ -17,7 +17,7 @@ function resolveWorkerRuntimePath(): string {
     .replace(/\.asar(?!\.unpacked)/, '.asar.unpacked');
 }
 
-export function main(parentPort: ParentPort): Disposable {
+export function main(parentPort: UtilityParentPort): Disposable {
   using ds = new DisposableStack();
   const workerRuntimePath = resolveWorkerRuntimePath();
   const logger = createUtilityLogger(parentPort, name);
@@ -45,6 +45,7 @@ export function main(parentPort: ParentPort): Disposable {
   return ds.move();
 }
 
-if (import.meta.main) {
-  main(process.parentPort);
+const parentPort = currentParentPort();
+if (parentPort) {
+  main(parentPort);
 }

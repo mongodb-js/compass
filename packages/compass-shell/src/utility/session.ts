@@ -1,10 +1,9 @@
 import { pathToFileURL } from 'node:url';
 import { EventEmitter } from 'node:events';
-import { errorFromEvent } from '@mongodb-js/compass-utils';
+import { errorFromEvent, listen } from '@mongodb-js/compass-utils';
 import Worker from 'web-worker';
 import { interrupt as nativeInterrupt } from 'interruptor';
 import type { InterruptHandle } from 'interruptor';
-import type { MessagePortMain } from 'electron';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { ShellMetaEvent, ShellMetaRequest } from './protocol';
 import { isShellMeta } from './protocol';
@@ -38,14 +37,15 @@ export class ShellSession
   extends EventEmitter<{ close: [] }>
   implements Disposable
 {
-  private readonly port: MessagePortMain;
+  private readonly port: MessagePort;
+  private readonly portListeners = new DisposableStack();
   private readonly logger: Logger;
   private readonly workerRuntimePath: string;
   private worker: Worker | null = null;
   private interruptHandle: InterruptHandle | null = null;
   private disposed = false;
 
-  constructor(port: MessagePortMain, options: ShellSessionOptions) {
+  constructor(port: MessagePort, options: ShellSessionOptions) {
     super();
     this.port = port;
     this.workerRuntimePath = options.workerRuntimePath;
@@ -55,8 +55,8 @@ export class ShellSession
       'ShellSession',
       'Session started'
     );
-    port.on('message', this.onPortMessage);
-    port.on('close', this.onPortClose);
+    this.portListeners.use(listen(port, 'message', this.onPortMessage));
+    this.portListeners.use(listen(port, 'close', this.onPortClose));
   }
 
   private send(event: ShellMetaEvent) {
@@ -158,8 +158,7 @@ export class ShellSession
       'ShellSession',
       'Session disposed'
     );
-    this.port.off('message', this.onPortMessage);
-    this.port.off('close', this.onPortClose);
+    this.portListeners.dispose();
     this.worker?.terminate();
     this.port.close();
     this.emit('close');

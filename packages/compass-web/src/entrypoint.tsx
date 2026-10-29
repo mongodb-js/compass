@@ -102,6 +102,7 @@ import type {
   DebugFunction,
   LogFunction,
 } from './logger-and-telemetry';
+import { startUtilities } from './utilities.mts';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
@@ -561,6 +562,11 @@ const CompassWebWithPreferences = ({
       onTrack,
       preferences,
     });
+
+  useEffect(() => {
+    const utilities = startUtilities(window, logger);
+    return () => utilities[Symbol.dispose]();
+  }, [logger]);
 
   const {
     initialWorkspaceTabs,
