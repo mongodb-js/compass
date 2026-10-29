@@ -183,7 +183,6 @@ This document was automatically generated on Thu Oct 29 2026.
 | **[@vscode/l10n](#435710ffc6551ec7bb19d73e562bde009c42386216297ec28d3ad42820bff7e5)**                                       | 0.0.18       | MIT                                 |
 | **[@workflow/serde](#f9424ad8b5171bb9aca2d72f59b994e2eb94341b5805bfc2b168ada73e84d438)**                                    | 4.1.0        | Apache-2.0                          |
 | **[accepts](#f95b7a83c78ce214a33c8f8ef681fb76acf619e685469f394034d5d5ea1cfb23)**                                            | 2.0.0        | MIT                                 |
-| **[acorn](#c7901d4af178944446ba78e3ec42e4009291516798f065b915a97e73cd86eb7f)**                                              | 8.18.0       | MIT                                 |
 | **[ag-grid-community](#90ee280130881cf319cbd3153223f564bcde29fea4d9347cbc6eacd4f65ae104)**                                  | 36.2.0       | MIT                                 |
 | **[ag-grid-react](#ad3025cc8dd8cddc6aec81016c727a2c527ed140cb21448cf4763b6e11551948)**                                      | 36.2.0       | MIT                                 |
 | **[ag-stack](#9d6f066bf132282c652b15c21449b59c6a0673de5f31874a21b3ca1bae0f9e3d)**                                           | 36.2.0       | MIT                                 |
@@ -20542,38 +20541,6 @@ License files:
       CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="c7901d4af178944446ba78e3ec42e4009291516798f065b915a97e73cd86eb7f"></a>
-
-### [acorn](https://www.npmjs.com/package/acorn) (version 8.18.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      MIT License
-
-      Copyright (C) 2012-2022 by various contributors (see AUTHORS)
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
 
 <a id="90ee280130881cf319cbd3153223f564bcde29fea4d9347cbc6eacd4f65ae104"></a>
 
