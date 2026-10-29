@@ -34,6 +34,12 @@ const buttonTextStyles = css({
   whiteSpace: 'nowrap',
 });
 
+// Chromium fires `cancel` instead of `change` when the same file is picked
+// again, so clear the selection first to let users re-pick a file they fixed.
+const clearSelection = (event: React.MouseEvent<HTMLInputElement>) => {
+  event.currentTarget.value = '';
+};
+
 type ImportFileInputProps = {
   selectImportFile: (file: File) => void;
   fileName: string;
@@ -72,6 +78,7 @@ function ImportFileInput({ selectImportFile, fileName }: ImportFileInputProps) {
         id={inputId}
         data-testid="import-file-input"
         multiple={false}
+        onClick={clearSelection}
         onSelect={handleSelect}
         trigger={renderTrigger}
       />
