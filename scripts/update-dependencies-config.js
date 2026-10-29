@@ -50,6 +50,7 @@ module.exports = {
     '@mongodb-js/mongodb-constants',
     '@mongodb-js/mongodb-build-info',
     '@mongodb-js/mongodb-ns',
+    '@mongodb-js/connection-string-policy',
     '@mongodb-js/device-id',
     '@mongodb-js/shell-bson-parser',
     '@mongodb-js/native-machine-id',

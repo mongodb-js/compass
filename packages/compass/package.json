@@ -182,7 +182,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongodb-js/connection-string-policy": "^0.2.0",
+    "@mongodb-js/connection-string-policy": "^0.2.9",
     "@mongodb-js/device-id": "^0.4.20",
     "@mongodb-js/native-machine-id": "^1.0.4",
     "@mongosh/node-runtime-worker-thread": "^5.5.0",
