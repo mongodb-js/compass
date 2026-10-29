@@ -46,7 +46,8 @@ async function removeStaleTempFiles(directory: FileSystemDirectoryHandle) {
 
 async function createTempFile() {
   const directory = await navigator.storage.getDirectory();
-  await removeStaleTempFiles(directory);
+  // Housekeeping only: another tab can remove its own temp file mid-sweep
+  await removeStaleTempFiles(directory).catch(() => undefined);
   const randomString = Math.random().toString(36).substring(2, 15);
   const fileHandle = await directory.getFileHandle(
     `${TEMP_FILE_PREFIX}${randomString}.jsonl`,
