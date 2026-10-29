@@ -1,8 +1,9 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
-import { ConnectionStateConnected } from 'mongodb-mcp-server';
-import type { LoggerBase } from 'mongodb-mcp-server';
+import { ConnectionStateConnected } from '@mongodb-js/mcp-tools-mongodb';
+import type { LoggerBase } from '@mongodb-js/mcp-core';
+import { MongoServerError } from 'mongodb';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { ToolsConnectionManager } from './tools-connection-manager';
@@ -233,11 +234,19 @@ describe('ToolsConnectionManager', function () {
     });
 
     describe('isSearchSupported on ConnectionStateConnected', function () {
+      const createSearchProbeProvider = (
+        getSearchIndexes: sinon.SinonStub
+      ) => ({
+        close: sandbox.stub().resolves(),
+        initialDb: 'test',
+        listDatabases: sandbox.stub().resolves({ databases: [] }),
+        getSearchIndexes,
+      });
+
       it('returns true when getSearchIndexes resolves', async function () {
-        const mockProvider = {
-          close: sandbox.stub().resolves(),
-          getSearchIndexes: sandbox.stub().resolves([]),
-        };
+        const mockProvider = createSearchProbeProvider(
+          sandbox.stub().resolves([])
+        );
         connectStub.resolves(mockProvider as any);
 
         await connectionManager.connectToCompassConnection(
@@ -248,17 +257,19 @@ describe('ToolsConnectionManager', function () {
         expect(state).to.be.instanceOf(ConnectionStateConnected);
         const result = await (
           state as ConnectionStateConnected
-        ).isSearchSupported();
+        ).isSearchSupported(logger);
         expect(result).to.be.true;
       });
 
-      it('returns false when getSearchIndexes rejects', async function () {
-        const mockProvider = {
-          close: sandbox.stub().resolves(),
-          getSearchIndexes: sandbox
-            .stub()
-            .rejects(new Error('search not available')),
-        };
+      it('returns false when the cluster reports search as not enabled', async function () {
+        const mockProvider = createSearchProbeProvider(
+          sandbox.stub().rejects(
+            new MongoServerError({
+              message: 'search not enabled',
+              code: 31082,
+            })
+          )
+        );
         connectStub.resolves(mockProvider as any);
 
         await connectionManager.connectToCompassConnection(
@@ -269,15 +280,32 @@ describe('ToolsConnectionManager', function () {
         expect(state).to.be.instanceOf(ConnectionStateConnected);
         const result = await (
           state as ConnectionStateConnected
-        ).isSearchSupported();
+        ).isSearchSupported(logger);
         expect(result).to.be.false;
       });
 
+      it('returns true when the probe fails inconclusively', async function () {
+        const mockProvider = createSearchProbeProvider(
+          sandbox.stub().rejects(new Error('search not available'))
+        );
+        connectStub.resolves(mockProvider as any);
+
+        await connectionManager.connectToCompassConnection(
+          mockConnectionParams
+        );
+
+        const state = connectionManager.currentConnectionState;
+        expect(state).to.be.instanceOf(ConnectionStateConnected);
+        const result = await (
+          state as ConnectionStateConnected
+        ).isSearchSupported(logger);
+        expect(result).to.be.true;
+      });
+
       it('caches the result and only calls getSearchIndexes once', async function () {
-        const mockProvider = {
-          close: sandbox.stub().resolves(),
-          getSearchIndexes: sandbox.stub().resolves([]),
-        };
+        const mockProvider = createSearchProbeProvider(
+          sandbox.stub().resolves([])
+        );
         connectStub.resolves(mockProvider as any);
 
         await connectionManager.connectToCompassConnection(
@@ -286,8 +314,8 @@ describe('ToolsConnectionManager', function () {
 
         const state =
           connectionManager.currentConnectionState as ConnectionStateConnected;
-        await state.isSearchSupported();
-        await state.isSearchSupported();
+        await state.isSearchSupported(logger);
+        await state.isSearchSupported(logger);
 
         expect(mockProvider.getSearchIndexes.callCount).to.equal(1);
       });

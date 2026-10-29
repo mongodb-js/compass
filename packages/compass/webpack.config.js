@@ -221,11 +221,6 @@ module.exports = (_env, args) => {
       // Chunk splitting makes sense only for renderer processes where the
       // amount of dependencies is massive and can benefit from them more
       optimization,
-      resolve: {
-        alias: {
-          '@mongodb-js/atlas-local': false,
-        },
-      },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         ...compileOnlyPlugins,

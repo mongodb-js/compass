@@ -1,9 +1,14 @@
 import {
   ConnectionManager,
+  ConnectionEntry,
   ConnectionStateConnected,
+  ErrorCodes,
+  MongoDBError,
+  type ConnectionRegistry,
+  type ConnectionSettings,
   type ConnectionStateDisconnected,
-  type LoggerBase,
-} from 'mongodb-mcp-server';
+} from '@mongodb-js/mcp-tools-mongodb';
+import type { Keychain, LoggerBase } from '@mongodb-js/mcp-core';
 import {
   NodeDriverServiceProvider,
   type DevtoolsConnectOptions,
@@ -21,6 +26,13 @@ export interface ToolsConnectParams {
 
 export const DATABASE_TOOLS_TELEMETRY_APP_NAME = 'Database Tools';
 const DEFAULT_TELEMETRY_APP_NAME = 'MongoDB Compass';
+
+/**
+ * The single connection handle Compass Database Tools expose to the MCP tools.
+ * Compass drives the connection itself (see {@link ToolsConnectionManager}), so
+ * the tools only ever need one opaque id to address it by.
+ */
+export const COMPASS_CONNECTION_ID = 'compass';
 
 type ToolsConnectionManagerConfig = {
   logger: LoggerBase;
@@ -44,7 +56,7 @@ export class ToolsConnectionManager extends ConnectionManager {
     this.getTelemetryAnonymousId = getTelemetryAnonymousId;
   }
 
-  override connect(): Promise<never> {
+  override connect(_settings?: ConnectionSettings): Promise<never> {
     // It shouldn't be possible for a user to get here because the connect tool
     // is not included. We also only include the database tools when there is a
     // relevant connection.
@@ -125,7 +137,7 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       };
       return void this.changeState(
         'connection-success',
-        new ConnectionStateConnected(serviceProvider)
+        new ConnectionStateConnected({ serviceProvider })
       );
     } catch (error) {
       this.logger.error({
@@ -177,5 +189,90 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       connectionString: connectionURL.toString(),
       connectOptions,
     };
+  }
+}
+
+/**
+ * A {@link ConnectionRegistry} view over the single Compass connection.
+ *
+ * mongodb-mcp-server v3 resolves every MongoDB tool call through a connection
+ * registry keyed by an opaque `connectionId`, but Compass owns its connection
+ * lifecycle (the user's sidebar connection) and only ever has one live at a
+ * time. This adapter exposes that connection under
+ * {@link COMPASS_CONNECTION_ID} so the tools can resolve it without Compass
+ * having to run the library's connection store.
+ */
+export class ToolsConnectionRegistry implements ConnectionRegistry {
+  private readonly entry: ConnectionEntry;
+
+  constructor(connectionManager: ToolsConnectionManager, keychain: Keychain) {
+    this.entry = new ConnectionEntry({
+      connectionId: COMPASS_CONNECTION_ID,
+      name: COMPASS_CONNECTION_ID,
+      source: 'explicit',
+      manager: connectionManager,
+      keychain,
+    });
+  }
+
+  createEntry(): Promise<ConnectionEntry> {
+    return Promise.reject(
+      new Error(
+        'Database Tools in MongoDB Compass manage connections through the Compass connection sidebar'
+      )
+    );
+  }
+
+  connect(): Promise<ConnectionEntry> {
+    return Promise.reject(
+      new Error(
+        'Database Tools in MongoDB Compass manage connections through the Compass connection sidebar'
+      )
+    );
+  }
+
+  get(connectionId: string): Promise<ConnectionEntry | undefined> {
+    return Promise.resolve(
+      connectionId === COMPASS_CONNECTION_ID ? this.entry : undefined
+    );
+  }
+
+  peek(connectionId: string): Promise<ConnectionEntry | undefined> {
+    return this.get(connectionId);
+  }
+
+  find(
+    predicate?: (entry: ConnectionEntry) => boolean
+  ): Promise<ConnectionEntry[]> {
+    return Promise.resolve(
+      predicate === undefined || predicate(this.entry) ? [this.entry] : []
+    );
+  }
+
+  async resolve(connectionId: string): Promise<NodeDriverServiceProvider> {
+    const entry = await this.get(connectionId);
+    if (!entry) {
+      throw new MongoDBError(
+        ErrorCodes.UnknownConnectionId,
+        `Connection "${connectionId}" does not exist or has expired.`
+      );
+    }
+    return entry.getServiceProvider();
+  }
+
+  async disconnect(connectionId: string): Promise<void> {
+    const entry = await this.get(connectionId);
+    if (!entry) {
+      throw new MongoDBError(
+        ErrorCodes.UnknownConnectionId,
+        `Connection "${connectionId}" does not exist or has expired.`
+      );
+    }
+    await entry.close();
+  }
+
+  close(): Promise<void> {
+    // The connection is owned by Compass, not by this registry.
+    return Promise.resolve();
   }
 }
