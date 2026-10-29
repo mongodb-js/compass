@@ -3,10 +3,13 @@ import {
   listen,
   utilityPortChannel,
 } from '@mongodb-js/compass-utils';
-import type Worker from 'web-worker';
+import { CrossOriginWorker } from './cross-origin-worker.mts';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
 
-const UTILITIES = new Map<string, () => Worker>();
+const UTILITIES = new Map<string, () => CrossOriginWorker>();
+
+// Keeps the import until the first utility is registered above
+void CrossOriginWorker;
 
 export function startUtilities(
   target: Window,

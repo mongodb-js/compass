@@ -32,8 +32,10 @@ wires it up.
 4. Register it:
    - Compass: add the name to `UTILITIES` in
      `packages/compass/src/main/application.ts`.
-   - Compass Web: add a literal `new Worker(new URL(...), { type: 'module' })`
-     entry to `UTILITIES` in `packages/compass-web/src/utilities.mts`. Leave it
+   - Compass Web: add a literal
+     `new CrossOriginWorker(new URL(...), { type: 'module' })` entry to
+     `UTILITIES` in `packages/compass-web/src/utilities.mts` (a plain `Worker`
+     can't start from the CDN in Atlas). Leave it
      out if the utility needs Node.js-only features (e.g. embedded-shell's native
      addon).
 

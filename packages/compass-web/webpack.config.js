@@ -206,6 +206,14 @@ module.exports = (env, args) => {
         'node-fetch': false,
       },
     },
+    module: {
+      parser: {
+        javascript: {
+          // Must match the import in src/utilities.mts character for character
+          worker: ['CrossOriginWorker from ./cross-origin-worker.mts', '...'],
+        },
+      },
+    },
     externalsType: 'window',
     // MMS implementation defines these global variables in https://github.com/10gen/mms/blob/e188be1f58a46c7c4a0ab485f8c09096aaa6f3a8/client/packages/project/dataExplorerCompassWeb/hooks/useCompassWebModule.tsx#L6-L11
     // if you're changing these values, make sure to update the mms part
