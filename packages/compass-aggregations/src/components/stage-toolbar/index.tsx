@@ -27,9 +27,9 @@ import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-he
 import { getInsightForStage } from '../../utils/insights';
 import { enableFocusMode } from '../../modules/focus-mode';
 import {
-  getSearchIndexNameFromSearchStage,
   hasSyntaxError,
   isSearchStage,
+  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import type { ServerEnvironment } from '../../modules/env';
@@ -249,12 +249,10 @@ export function StageToolbar({
                   context: 'Stage Toolbar',
                 });
                 openDrawer('compass-indexes-drawer');
-                onClickViewSearchIndexes(
-                  getSearchIndexNameFromSearchStage(
-                    stage.stageOperator,
-                    stage.value
-                  ) ?? undefined
-                );
+                void getSearchIndexNameFromSearchStage(
+                  stage.stageOperator,
+                  stage.value
+                ).then((name) => onClickViewSearchIndexes(name ?? undefined));
               }}
               title="View Indexes"
             >

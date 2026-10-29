@@ -197,8 +197,8 @@ export const ValidationEditor: React.FunctionComponent<
   const validationRef = useCurrentValueRef(validation);
 
   const trackValidator = useCallback(
-    (validator: string) => {
-      const checkedValidator = checkValidator(validator);
+    async (validator: string) => {
+      const checkedValidator = await checkValidator(validator);
       const trackEvent = {
         json_schema:
           typeof checkedValidator.validator === 'object' &&
@@ -215,7 +215,7 @@ export const ValidationEditor: React.FunctionComponent<
     // eslint-disable-next-line react-hooks/refs
     return debounce((validator: string) => {
       clearSampleDocumentsRef.current();
-      trackValidator(validator);
+      void trackValidator(validator);
     }, 750);
   }, [clearSampleDocumentsRef, trackValidator]);
 

@@ -1,7 +1,9 @@
-import parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
-export function countAggregationStagesInString(source: string): number {
-  const parsed = parseShellBSON(source, {
+export async function countAggregationStagesInString(
+  source: string
+): Promise<number> {
+  const parsed = await parse(source, {
     mode: ParseMode.Strict,
     allowComments: true,
     allowMethods: true,

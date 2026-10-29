@@ -95,14 +95,16 @@ const checkboxStyles = css({
   width: 'auto', // don't overflow and cause extra scrollbars
 });
 
-function stageCountForTelemetry(inputExpression: InputExpression) {
+async function stageCountForTelemetry(inputExpression: InputExpression) {
   if (!('aggregation' in inputExpression)) {
     return {};
   }
 
   try {
     return {
-      num_stages: countAggregationStagesInString(inputExpression.aggregation),
+      num_stages: await countAggregationStagesInString(
+        inputExpression.aggregation
+      ),
     };
   } catch {
     // Things like [{ $match: { x: NumberInt(10) } }] do not evaluate in any kind of context
@@ -159,7 +161,10 @@ const ExportToLanguageModal: React.FunctionComponent<
   const input = isQuery ? inputExpression.filter : inputExpression.aggregation;
 
   useSyncStateOnPropChange(() => {
-    if (modalOpen) {
+    if (!modalOpen) {
+      return;
+    }
+    void (async () => {
       // Used for tracking, not for rendering
       // eslint-disable-next-line react-hooks/refs
       const connectionInfo = connectionInfoRef.current;
@@ -175,15 +180,15 @@ const ExportToLanguageModal: React.FunctionComponent<
       } else if (mode === 'Pipeline') {
         track(
           'Aggregation Export Opened',
-          stageCountForTelemetry(inputExpression),
+          await stageCountForTelemetry(inputExpression),
           connectionInfo
         );
       }
       track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
-    }
+    })();
   }, [modalOpen]);
 
-  const trackCopiedOutput = useCallback(() => {
+  const trackCopiedOutput = useCallback(async () => {
     const commonProps = {
       language: outputLanguage,
       with_import_statements: includeImports,
@@ -202,7 +207,7 @@ const ExportToLanguageModal: React.FunctionComponent<
         'Aggregation Exported',
         {
           ...commonProps,
-          ...stageCountForTelemetry(inputExpression),
+          ...(await stageCountForTelemetry(inputExpression)),
         },
         connectionInfoRef.current
       );
