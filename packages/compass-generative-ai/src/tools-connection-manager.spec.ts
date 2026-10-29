@@ -35,6 +35,7 @@ describe('ToolsConnectionManager', function () {
     connectionManager = new ToolsConnectionManager({
       logger,
       getTelemetryAnonymousId,
+      mongoLogId: (id) => ({ __value: id }),
     });
   });
 
