@@ -101,6 +101,32 @@ describe('exportCSV', function () {
     ]);
   });
 
+  it('export even when removing old temporary files fails', async function () {
+    await dataService.insertOne('db.col', { _id: 1, a: 1 });
+    tempDirectory.addFile('export-csv-removed-by-another-tab.jsonl', 0);
+    const getFileHandle = tempDirectory.directory.getFileHandle.bind(
+      tempDirectory.directory
+    );
+    sinon
+      .stub(tempDirectory.directory, 'getFileHandle')
+      .callsFake((name, options) =>
+        name === 'export-csv-removed-by-another-tab.jsonl'
+          ? Promise.reject(new DOMException('gone', 'NotFoundError'))
+          : getFileHandle(name, options)
+      );
+
+    const output = temp.createWriteStream();
+    const result = await exportCSVFromQuery({
+      ns: 'db.col',
+      dataService,
+      output,
+    });
+
+    expect(result).to.deep.equal({ docsWritten: 1, aborted: false });
+    const text = await fs.promises.readFile(output.path, 'utf8');
+    expect(text).to.equal('_id,a\n1,1\n');
+  });
+
   it('exports an empty collection', async function () {
     const progressCallback = sinon.spy();
 
