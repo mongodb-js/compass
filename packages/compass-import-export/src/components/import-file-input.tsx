@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback } from 'react';
 import {
   Button,
   FileSelector,
@@ -6,7 +6,6 @@ import {
   Label,
   css,
   spacing,
-  useInitialValue,
 } from '@mongodb-js/compass-components';
 
 const inputId = 'import-file_file_input';
@@ -36,22 +35,11 @@ const buttonTextStyles = css({
 });
 
 type ImportFileInputProps = {
-  autoOpen?: boolean;
-  onCancel?: () => void;
   selectImportFile: (file: File) => void;
   fileName: string;
 };
 
-function ImportFileInput({
-  autoOpen,
-  onCancel,
-  selectImportFile,
-  fileName,
-}: ImportFileInputProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const initialAutoOpen = useInitialValue(autoOpen);
-
+function ImportFileInput({ selectImportFile, fileName }: ImportFileInputProps) {
   const handleSelect = useCallback(
     (files: File[]) => {
       if (files.length > 0) {
@@ -61,40 +49,24 @@ function ImportFileInput({
     [selectImportFile]
   );
 
-  // React doesn't support onCancel on <input>, but the event bubbles up from
-  // the hidden file input when the user dismisses the file dialog.
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !onCancel) {
-      return;
-    }
-    container.addEventListener('cancel', onCancel);
-    return () => container.removeEventListener('cancel', onCancel);
-  }, [onCancel]);
-
-  useEffect(() => {
-    if (initialAutoOpen) {
-      buttonRef.current?.click();
-    }
-  }, [initialAutoOpen]);
-
   const renderTrigger = useCallback(
     ({ onClick }: { onClick: () => void }) => (
       <Button
-        ref={buttonRef}
         size="small"
         className={buttonStyles}
         onClick={onClick}
         rightGlyph={<Icon glyph="Edit" title={null} fill="currentColor" />}
       >
-        <span className={buttonTextStyles}>{fileName || 'Select a file…'}</span>
+        <span className={buttonTextStyles}>
+          {fileName || 'Select a file\u2026'}
+        </span>
       </Button>
     ),
     [fileName]
   );
 
   return (
-    <div ref={containerRef} className={containerStyles}>
+    <div className={containerStyles}>
       <Label htmlFor={inputId}>Import file:</Label>
       <FileSelector
         id={inputId}
