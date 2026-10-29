@@ -19,7 +19,11 @@ import { createRoot } from 'react-dom/client';
 import { setupIntercom } from '@mongodb-js/compass-intercom';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
-import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  CompassRendererConnectionStorage,
+  CompassRendererFolderStorage,
+  CompassRendererFolderAssignmentStorage,
+} from '@mongodb-js/connection-storage/renderer';
 
 import {
   ApplicationMenuContextProvider,
@@ -36,13 +40,6 @@ import {
   onAutoupdateSuccess,
 } from './components/update-toasts';
 
-import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
-import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
-import {
-  CompassRendererFolderStorage,
-  CompassRendererFolderAssignmentStorage,
-} from '@mongodb-js/connection-storage/renderer';
-import type { AutoConnectPreferences } from '../main/auto-connect';
 import 'source-code-pro/source-code-pro.css';
 import './index.less';
 

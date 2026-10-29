@@ -1,5 +1,5 @@
+import { randomUUID } from 'node:crypto';
 import { expect } from 'chai';
-import { randomUUID } from 'crypto';
 
 import {
   InMemoryFolderStorage,

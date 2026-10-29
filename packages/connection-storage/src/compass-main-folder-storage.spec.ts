@@ -1,10 +1,9 @@
-import { expect } from 'chai';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 import Sinon from 'sinon';
-
-import fs from 'fs/promises';
-import os from 'os';
-import path from 'path';
-import { randomUUID } from 'crypto';
+import { expect } from 'chai';
 
 import {
   initCompassMainFolderStorage,

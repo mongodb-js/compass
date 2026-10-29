@@ -65,7 +65,7 @@ class CompassMainFolderStorage implements FolderStorage {
       return (await this.userData.readAll()).data;
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_445),
+        mongoLogId(1_001_000_453),
         'Folder Storage',
         'Failed to load folders',
         { message: (err as Error).message }
@@ -86,7 +86,7 @@ class CompassMainFolderStorage implements FolderStorage {
       await this.userData.write(folder.id, folder);
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_446),
+        mongoLogId(1_001_000_454),
         'Folder Storage',
         'Failed to save folder',
         { message: (err as Error).message }
@@ -110,7 +110,7 @@ class CompassMainFolderStorage implements FolderStorage {
       await this.userData.delete(id);
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_447),
+        mongoLogId(1_001_000_455),
         'Folder Storage',
         'Failed to delete folder',
         { message: (err as Error).message }
@@ -148,7 +148,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
       return (await this.userData.readAll()).data;
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_448),
+        mongoLogId(1_001_000_456),
         'Folder Storage',
         'Failed to load folder assignments',
         { message: (err as Error).message }
@@ -172,7 +172,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
       );
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_449),
+        mongoLogId(1_001_000_457),
         'Folder Storage',
         'Failed to save folder assignment',
         { message: (err as Error).message }
@@ -200,7 +200,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
       );
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_450),
+        mongoLogId(1_001_000_458),
         'Folder Storage',
         'Failed to delete folder assignment',
         { message: (err as Error).message }

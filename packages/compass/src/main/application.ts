@@ -14,13 +14,10 @@ import {
 } from '@mongodb-js/compass-preferences-model';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { setupTheme } from './theme';
-import { setupProtocolHandlers } from './protocol-handling';
 import {
   initCompassMainConnectionStorage,
   initCompassMainFolderStorage,
 } from '@mongodb-js/connection-storage/main';
-import { initCompassMainConnectionStorage } from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type {
   AgentWithInitialize,
@@ -34,6 +31,8 @@ import {
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
 import { utilityPortChannel } from '@mongodb-js/compass-utils';
+import { setupProtocolHandlers } from './protocol-handling';
+import { setupTheme } from './theme';
 import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -41,8 +40,6 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
-import { setupTheme } from './theme';
-import { setupProtocolHandlers } from './protocol-handling';
 import { handleSquirrelWindowsStartup } from './squirrel-startup';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');

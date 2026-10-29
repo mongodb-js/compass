@@ -13,7 +13,11 @@ import CompassConnections from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
-import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import {
+  type ConnectionStorage,
+  FolderStorageProvider,
+  type FolderStorageService,
+} from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import React from 'react';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
@@ -22,10 +26,6 @@ import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provider';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import {
-  FolderStorageProvider,
-  type FolderStorageService,
-} from '@mongodb-js/connection-storage/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
