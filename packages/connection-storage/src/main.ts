@@ -13,3 +13,5 @@ export {
   getCompassMainFolderStorage,
   getCompassMainFolderAssignmentStorage,
 } from './compass-main-folder-storage';
+export { reconcileFolderAssignments } from './folder-recovery';
+export type { ReconcileFolderAssignmentsResult } from './folder-recovery';

@@ -62,6 +62,15 @@ export type FileUserDataOptions<Input> = {
   basePath?: string;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
+  /**
+   * Which entries of the data directory are records. The directory can also
+   * hold files this store did not write: write-file-atomic creates a temporary
+   * file next to a record before renaming it into place, and a crash can leave
+   * one behind. Reading such a file as a record yields a duplicate of the
+   * record it was copied from, so callers that own their directory can use this
+   * to read only the files they wrote. Defaults to accepting every entry.
+   */
+  fileNameFilter?: (fileName: string) => boolean;
 };
 
 export type AtlasUserDataOptions<Type extends UserDataType, Input> = {
@@ -74,6 +83,12 @@ export type AtlasUserDataOptions<Type extends UserDataType, Input> = {
 
 type ReadOptions = {
   ignoreErrors: boolean;
+  /**
+   * Treat a record that is not there as a miss rather than a failure. Looking
+   * up a record that was never written is how a caller checks whether there is
+   * anything to update, and is not worth reporting as a read error.
+   */
+  ignoreMissing?: boolean;
 };
 
 export interface ReadAllResult<T extends z.ZodType> {
@@ -125,15 +140,22 @@ export abstract class IUserData<
 
 export class FileUserData<T extends z.ZodType> extends IUserData<T> {
   private readonly basePath?: string;
+  private readonly fileNameFilter: (fileName: string) => boolean;
   protected readonly semaphore = new Semaphore(100);
 
   constructor(
     validator: T,
     dataType: UserDataType,
-    { basePath, serialize, deserialize }: FileUserDataOptions<z.input<T>>
+    {
+      basePath,
+      serialize,
+      deserialize,
+      fileNameFilter = () => true,
+    }: FileUserDataOptions<z.input<T>>
   ) {
     super(validator, dataType, { serialize, deserialize });
     this.basePath = basePath;
+    this.fileNameFilter = fileNameFilter;
   }
 
   private getFileName(id: string) {
@@ -239,6 +261,12 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
       release = await this.semaphore.waitForRelease();
       data = await fs.readFile(absolutePath, 'utf-8');
     } catch (error) {
+      if (
+        options.ignoreMissing &&
+        (error as NodeJS.ErrnoException).code === 'ENOENT'
+      ) {
+        return undefined;
+      }
       log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
         path: absolutePath,
         error: (error as Error).message,
@@ -320,7 +348,9 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
     };
     try {
       const absolutePath = await this.getFileAbsolutePath();
-      const filePathList = await fs.readdir(absolutePath);
+      const filePathList = (await fs.readdir(absolutePath)).filter(
+        this.fileNameFilter
+      );
       for (const settled of await Promise.allSettled(
         filePathList.map((x) => {
           return this.readAndParseFile(path.join(absolutePath, x), options);
@@ -344,11 +374,11 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
 
   async readOne(
     id: string,
-    options?: { ignoreErrors: false }
+    options?: { ignoreErrors: false; ignoreMissing?: boolean }
   ): Promise<z.output<T>>;
   async readOne(
     id: string,
-    options?: { ignoreErrors: true }
+    options?: { ignoreErrors: true; ignoreMissing?: boolean }
   ): Promise<z.output<T> | undefined>;
   async readOne(
     id: string,
