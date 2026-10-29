@@ -42,7 +42,7 @@ import { handleSquirrelWindowsStartup } from './squirrel-startup';
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
 
-const UTILITIES = ['embedded-shell', 'hello-world'];
+const UTILITIES = ['embedded-shell'];
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';

@@ -3,18 +3,10 @@ import {
   listen,
   utilityPortChannel,
 } from '@mongodb-js/compass-utils';
+import type Worker from 'web-worker';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
 
-const UTILITIES = new Map<string, () => Worker>([
-  [
-    'hello-world',
-    () =>
-      new Worker(
-        new URL('@mongodb-js/compass-utilities/hello-world', import.meta.url),
-        { type: 'module', name: 'hello-world' }
-      ),
-  ],
-]);
+const UTILITIES = new Map<string, () => Worker>();
 
 export function startUtilities(
   target: Window,

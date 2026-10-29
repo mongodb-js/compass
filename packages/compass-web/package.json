@@ -153,6 +153,7 @@
     "timers-browserify": "^2.0.12",
     "util": "^0.12.5",
     "vm-browserify": "^1.1.2",
+    "web-worker": "^1.5.0",
     "whatwg-url": "14.0.0",
     "ws": "^8.16.0"
   }
