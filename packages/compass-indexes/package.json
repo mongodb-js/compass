@@ -78,7 +78,7 @@
     "@mongodb-js/compass-workspaces": "^1.6.0",
     "@mongodb-js/connection-info": "^0.29.3",
     "@mongodb-js/mongodb-collection-model": "^5.42.3",
-    "@mongodb-js/mongodb-constants": "^0.34.12",
+    "@mongodb-js/mongodb-constants": "^0.34.14",
     "@mongodb-js/mongodb-ns": "^3.2.9",
     "@mongodb-js/search-index-schema": "^2.2.0",
     "@mongodb-js/shell-bson-parser": "^1.6.3",

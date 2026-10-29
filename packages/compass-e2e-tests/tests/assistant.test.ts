@@ -165,43 +165,62 @@ describe('MongoDB Assistant (with real backend)', function () {
   }
 
   it('sends a message that results in a tool call request, approves it and renders the response', async function () {
-    const chatMessages = await sendAndWaitForToolCall(
-      'Use the list-databases tool to list all databases'
-    );
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const chatMessages = await sendAndWaitForToolCall(
+        'Use the list-databases tool to list all databases'
+      );
 
-    // Approve the tool call
-    await browser.clickVisible(chatMessages.$('button=Run'));
+      // Approve the tool call
+      await browser.clickVisible(chatMessages.$('button=Run'));
 
-    // Wait for the tool to finish running: the "Ran" text indicates completion
-    await browser.waitUntil(
-      async () => {
-        const text = await chatMessages.getText();
-        expect(text).to.include('Ran list-databases');
-        return true;
-      },
-      { timeout: 30_000 }
-    );
+      // The tool only executes after the approval round-trips through the
+      // real assistant backend, which can transiently hang or error, so the
+      // whole flow is retried when that happens.
+      try {
+        // Wait for the tool to finish running: the "Ran" text indicates
+        // completion
+        await browser.waitUntil(
+          async () => {
+            const text = await chatMessages.getText();
+            expect(text).to.include('Ran list-databases');
+            return true;
+          },
+          { timeout: 20_000 }
+        );
 
-    // Expand the tool call card to see the response
-    const expandButton = chatMessages.$(
-      'button[aria-label="Expand additional content"]'
-    );
-    await expandButton.waitForDisplayed();
-    await browser.clickVisible(expandButton);
+        // Expand the tool call card to see the response
+        const expandButton = chatMessages.$(
+          'button[aria-label="Expand additional content"]'
+        );
+        await expandButton.waitForDisplayed();
+        await browser.clickVisible(expandButton);
 
-    // Wait for the expanded content to include the response with structuredContent.databases
-    await browser.waitUntil(
-      async () => {
-        // TODO: pick out just the pre tabparse this as JSON rather and then check the object
-        const text = await chatMessages.getText();
-        expect(text).to.include('structuredContent');
-        expect(text).to.include('databases');
-        return true;
-      },
-      {
-        timeout: 30_000,
+        // Wait for the expanded content to include the response with structuredContent.databases
+        await browser.waitUntil(
+          async () => {
+            // TODO: pick out just the pre tabparse this as JSON rather and then check the object
+            const text = await chatMessages.getText();
+            expect(text).to.include('structuredContent');
+            expect(text).to.include('databases');
+            return true;
+          },
+          {
+            timeout: 30_000,
+          }
+        );
+        return;
+      } catch (err) {
+        await browser.screenshot(
+          screenshotPathName(
+            `assistant-approve-attempt-${attempt}-${Date.now()}`
+          )
+        );
+        if (attempt === 3) {
+          throw err;
+        }
+        await browser.clearChat();
       }
-    );
+    }
   });
 
   it('sends a message that results in a tool call request, denies it and renders the response', async function () {
