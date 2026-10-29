@@ -1,6 +1,6 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
 import { BSON_TYPE_LABEL, useBsonThemeStyles } from '../bson-utils';
 
 const containerStyles = css({

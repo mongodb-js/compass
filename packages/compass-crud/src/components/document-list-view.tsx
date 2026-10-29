@@ -1,7 +1,7 @@
 import React from 'react';
 import { KeylineCard, css, cx, spacing } from '@mongodb-js/compass-components';
 
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import type { BSONObject } from '../stores/crud-store';
 import type { DocumentProps } from './document';
 import Document from './document';

@@ -3,17 +3,17 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import {
   ElementEvents,
   DEFAULT_VISIBLE_ELEMENTS,
   getEditorByType,
   getDisplayType,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
-import { hasDistinctValue } from 'mongodb-query-util';
+import { hasDistinctValue } from '@mongodb-js/mongodb-query-util';
 import BSONValue from '../bson-value';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';

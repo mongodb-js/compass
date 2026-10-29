@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
 import { setupStoreAndWait } from '../../test/setup-store';

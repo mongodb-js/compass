@@ -1,4 +1,4 @@
-import { getBsonType } from 'hadron-type-checker';
+import { getBsonType } from '@mongodb-js/hadron-type-checker';
 
 export function isSimpleObject(value: any) {
   return (

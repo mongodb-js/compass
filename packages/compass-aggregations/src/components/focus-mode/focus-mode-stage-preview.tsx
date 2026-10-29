@@ -6,7 +6,7 @@ import {
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import { connect } from 'react-redux';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';

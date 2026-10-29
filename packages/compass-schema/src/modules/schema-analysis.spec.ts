@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import mongoDBSchemaAnalyzeSchema from '@mongodb-js/mongodb-schema';
 import type { Schema } from '@mongodb-js/mongodb-schema';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { isInternalFieldPath } from 'hadron-document';
+import { isInternalFieldPath } from '@mongodb-js/hadron-document';
 
 import { analyzeSchema, calculateSchemaMetadata } from './schema-analysis';
 

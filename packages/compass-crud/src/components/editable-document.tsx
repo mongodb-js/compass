@@ -1,6 +1,6 @@
 import React from 'react';
-import type { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import type { Document } from '@mongodb-js/hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { DocumentList, css } from '@mongodb-js/compass-components';
 
 import { getInsightsForDocument } from '../utils';

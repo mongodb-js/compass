@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
 import {
   uuidHexToString,
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
   isBsonValue,
-} from 'hadron-type-checker';
+} from '@mongodb-js/hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
 import { spacing } from '@leafygreen-ui/tokens';

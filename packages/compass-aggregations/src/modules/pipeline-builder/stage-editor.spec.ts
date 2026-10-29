@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import type { Document } from 'mongodb';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import Sinon from 'sinon';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';

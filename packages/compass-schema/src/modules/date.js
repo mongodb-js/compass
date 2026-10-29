@@ -1,10 +1,10 @@
 /* eslint-disable no-use-before-define */
 import d3 from 'd3';
 import { isEqual, range, minBy, maxBy, sortBy, groupBy, map } from 'lodash';
-import { inValueRange } from 'mongodb-query-util';
+import { inValueRange } from '@mongodb-js/mongodb-query-util';
 import { palette, spacing } from '@mongodb-js/compass-components';
 
-import { getBsonType } from 'hadron-type-checker';
+import { getBsonType } from '@mongodb-js/hadron-type-checker';
 import shared from './shared';
 import many from './many';
 import { createD3Tip } from './create-d3-tip';

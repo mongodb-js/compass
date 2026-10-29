@@ -1,11 +1,11 @@
-import type { TypeCastTypes, UUIDType } from 'hadron-type-checker';
+import type { TypeCastTypes, UUIDType } from '@mongodb-js/hadron-type-checker';
 import TypeChecker, {
   uuidHexToString,
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
   getBsonType,
   isUUIDType,
-} from 'hadron-type-checker';
+} from '@mongodb-js/hadron-type-checker';
 import type { Binary } from 'bson';
 import { ElementEvents } from '../element-events';
 import type { Element } from '../element';

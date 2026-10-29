@@ -10,7 +10,7 @@ import { expect } from 'chai';
 
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import {
   renderWithStore,
   wrapWithExperimentProvider,

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { SAVING_PIPELINE_APPLY } from '../saving-pipeline';
 import configureStore from '../../../test/configure-store';
 import type { AggregationsStore } from '../../stores/store';

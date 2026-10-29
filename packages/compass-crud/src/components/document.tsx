@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import type { BSONObject } from '../stores/crud-store';
 import type { EditableDocumentProps } from './editable-document';
 import EditableDocument from './editable-document';

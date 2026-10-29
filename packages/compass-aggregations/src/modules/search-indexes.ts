@@ -1,5 +1,5 @@
 import type { Action, Reducer } from 'redux';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import { isAction } from '../utils/is-action';
 import type { PipelineBuilderThunkAction } from '.';
 

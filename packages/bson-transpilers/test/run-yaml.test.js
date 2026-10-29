@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const { expect } = require('chai');
 const yaml = require('js-yaml');
 const bson = require('bson');
-const { getBsonType } = require('hadron-type-checker');
+const { getBsonType } = require('@mongodb-js/hadron-type-checker');
 
 const transpiler = require('../index');
 

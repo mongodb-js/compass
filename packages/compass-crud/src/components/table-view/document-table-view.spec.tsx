@@ -1,5 +1,5 @@
 import React from 'react';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {

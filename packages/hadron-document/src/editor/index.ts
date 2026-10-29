@@ -1,4 +1,4 @@
-import { type TypeCastTypes } from 'hadron-type-checker';
+import { type TypeCastTypes } from '@mongodb-js/hadron-type-checker';
 import type { Element } from '../element';
 import StandardEditor from './standard';
 import StringEditor from './string';

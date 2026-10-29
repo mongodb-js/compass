@@ -1,5 +1,5 @@
 import type { Document } from 'mongodb';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
 function definitionHasAutoEmbedField(
   definition: Document | undefined

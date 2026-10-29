@@ -1,5 +1,5 @@
 import type Collection from '@mongodb-js/mongodb-collection-model';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type { Collection as DatabaseCollection } from '@mongodb-js/mongodb-database-model';
 import Database from '@mongodb-js/mongodb-database-model';
 import { CollectionCollection } from '@mongodb-js/mongodb-collection-model';

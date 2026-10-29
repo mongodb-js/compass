@@ -10,7 +10,7 @@ import {
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import { DocumentListView } from '@mongodb-js/compass-crud';
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../../modules';
 import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';

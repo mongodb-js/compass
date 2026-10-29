@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
 import { isAutoEmbedIndex } from './is-auto-embed-index';
 

@@ -4,8 +4,8 @@ import path from 'node:path';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import React from 'react';
-import type { DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
+import { connect } from '@mongodb-js/mongodb-data-service';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
   createPluginTestHelpers,
