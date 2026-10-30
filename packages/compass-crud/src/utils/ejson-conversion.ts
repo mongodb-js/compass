@@ -7,8 +7,7 @@ const EJSON_SHELL_EQUIVALENTS = new Map([
   // Shell would show the regular number. Here we go strict,
   // although shell in a stricter mode would likely be Int32()
   ['$numberInt', 'NumberInt()'],
-  // TODO(COMPASS-10968): Long() instead of NumberLong()
-  ['$numberLong', 'NumberLong()'],
+  ['$numberLong', 'Long()'],
   // Shell would show just the number itself.
   ['$numberDouble', 'Double()'],
   // Shell would show this as `Decimal128()`

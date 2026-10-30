@@ -22,5 +22,7 @@ ignores:
 # compass-web is on the same version as other package in the monorepo
  - 'mongodb'
  - 'bson'
+# Bundled as Web Workers through `new URL(...)` in src/utilities.mts
+ - '@mongodb-js/compass-utilities'
 ignore-patterns:
  - 'dist'
