@@ -7,8 +7,8 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 
-import { useAsyncValue } from './use-async-value';
-import type { AsyncValueResult } from './use-async-value';
+import { useParsedShellValue } from './use-parsed-shell-value';
+import type { AsyncValueResult } from './use-parsed-shell-value';
 
 async function settle(fn: () => void) {
   await act(async () => {
@@ -26,7 +26,7 @@ function TestComponent<T>({
   deps: React.DependencyList;
   onRender: (result: AsyncValueResult<T>) => void;
 }) {
-  const result = useAsyncValue(task, deps);
+  const result = useParsedShellValue(task, deps);
   onRender(result);
   return (
     <div>
@@ -41,7 +41,7 @@ function TestComponent<T>({
   );
 }
 
-describe('useAsyncValue', function () {
+describe('useParsedShellValue', function () {
   it('resolves the task and stops being pending', async function () {
     const renders: AsyncValueResult<string>[] = [];
     render(

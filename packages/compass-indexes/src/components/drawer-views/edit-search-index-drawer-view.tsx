@@ -13,7 +13,7 @@ import {
   Body,
   Tooltip,
   useDarkMode,
-  useAsyncValue,
+  useParsedShellValue,
   cx,
 } from '@mongodb-js/compass-components';
 import {
@@ -142,7 +142,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   // An invalid definition rejects, which leaves the value undefined and keeps
   // save disabled.
   const { value: isDefinitionChanged, pending: isDefinitionChangedPending } =
-    useAsyncValue(async () => {
+    useParsedShellValue(async () => {
       const currentParsed = await parseShellBSON(indexDefinition);
       return (
         JSON.stringify(currentParsed) !==

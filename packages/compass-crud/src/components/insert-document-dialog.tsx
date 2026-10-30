@@ -18,7 +18,7 @@ import {
   SegmentedControlOption,
   spacing,
   useSyncStateOnPropChange,
-  useAsyncValue,
+  useParsedShellValue,
   InfoSprinkle,
   Code,
   Tooltip,
@@ -230,7 +230,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     value: parsedValue,
     error: parseError,
     pending: isParsePending,
-  } = useAsyncValue(async () => {
+  } = useParsedShellValue(async () => {
     if (insertView === 'list') {
       return null;
     }

@@ -393,28 +393,24 @@ export function getStageInfo(
  * Where an output stage ($out / $merge) writes its documents, or null for
  * other stages and values that can't be parsed.
  */
-export async function getStageDestination(
+export function getStageDestination(
   namespace: string,
-  stageOperator: string | null,
-  stageValue: string | undefined | null
-): Promise<string | null> {
-  if (!stageOperator || !isOutputStage(stageOperator)) {
+  stage: Document
+): string | null {
+  const stageOperator = getStageOperator(stage);
+  if (!stageOperator) {
     return null;
   }
-  try {
-    const stage = await parseShellBSON<Document>(
-      `{${stageOperator}: ${stageValue}}`
-    );
-    if (stage[stageOperator].s3) {
-      return 'S3 bucket';
-    }
-    if (stage[stageOperator].atlas || stage[stageOperator].into?.atlas) {
-      return 'Atlas cluster';
-    }
-    return getDestinationNamespaceFromStage(namespace, stage);
-  } catch {
+  if (!isOutputStage(stageOperator)) {
     return null;
   }
+  if (stage[stageOperator].s3) {
+    return 'S3 bucket';
+  }
+  if (stage[stageOperator].atlas || stage[stageOperator].into?.atlas) {
+    return 'Atlas cluster';
+  }
+  return getDestinationNamespaceFromStage(namespace, stage);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { useAsyncValue } from '@mongodb-js/compass-components';
+import { useParsedShellValue } from '@mongodb-js/compass-components';
 import type { SearchIndex } from 'mongodb-data-service';
 import type { SearchStageOperator } from './stage';
 import {
@@ -14,7 +14,7 @@ export function useSearchIndexNameFromStage(
   stageOperator: string | null | undefined,
   stageValue: string | null | undefined
 ): string | null {
-  const { value, pending } = useAsyncValue(
+  const { value, pending } = useParsedShellValue(
     () =>
       getSearchIndexNameFromSearchStage(
         stageOperator ?? null,
@@ -38,7 +38,7 @@ export function useSearchStageInfoFromPipeline(pipelineText: string): {
   searchIndexName: string | null;
   searchStageOperator: SearchStageOperator | null;
 } {
-  const { value, pending } = useAsyncValue(
+  const { value, pending } = useParsedShellValue(
     () => getSearchStageInfoFromPipeline(pipelineText),
     [pipelineText]
   );

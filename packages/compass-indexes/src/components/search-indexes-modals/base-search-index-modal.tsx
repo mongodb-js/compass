@@ -22,7 +22,7 @@ import {
   SpinLoader,
   Tooltip,
   useSyncStateOnPropChange,
-  useAsyncValue,
+  useParsedShellValue,
 } from '@mongodb-js/compass-components';
 import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 import {
@@ -245,7 +245,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     };
   });
 
-  const { error: parsingError } = useAsyncValue(
+  const { error: parsingError } = useParsedShellValue(
     () => parseShellBSON(indexDefinition),
     [indexDefinition]
   );
@@ -415,7 +415,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const isAutoEmbedPreviewMessagingActive =
     enableAutoEmbeddingPublicPreview && !enableAutoEmbeddingGaRelease;
 
-  const { value: isInitialDefinitionAutoEmbed = false } = useAsyncValue(
+  const { value: isInitialDefinitionAutoEmbed = false } = useParsedShellValue(
     () => isAutoEmbedDefinition(initialIndexDefinition),
     [initialIndexDefinition]
   );
@@ -441,7 +441,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const {
     value: isDefinitionEqualToSnapshot,
     pending: isDefinitionComparisonPending,
-  } = useAsyncValue(
+  } = useParsedShellValue(
     () =>
       areIndexDefinitionsEqual(indexDefinition, initialIndexDefinitionSnapshot),
     [indexDefinition, initialIndexDefinitionSnapshot]
