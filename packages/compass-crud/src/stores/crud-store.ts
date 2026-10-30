@@ -2383,11 +2383,15 @@ export async function findAndModifyWithFLEFallback(
 export async function parseShellBSON(
   source: string
 ): Promise<BSONObject | BSONObject[]> {
-  return await parse(source, {
+  const parsed = await parse(source, {
     mode: ParseMode.Strict,
     allowComments: true,
     allowMethods: true,
   });
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('The provided definition is invalid.');
+  }
+  return parsed as BSONObject | BSONObject[];
 }
 
 /**
