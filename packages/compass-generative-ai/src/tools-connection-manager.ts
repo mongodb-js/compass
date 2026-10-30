@@ -11,7 +11,6 @@ import {
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { isAtlas, isAtlasStream } from '@mongodb-js/mongodb-build-info';
 import ConnectionString from 'mongodb-connection-string-url';
-import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 export interface ToolsConnectParams {
   connectionId: string;
@@ -25,11 +24,13 @@ const DEFAULT_TELEMETRY_APP_NAME = 'MongoDB Compass';
 type ToolsConnectionManagerConfig = {
   logger: LoggerBase;
   getTelemetryAnonymousId: () => string;
+  mongoLogId: (id: number) => { __value: number };
 };
 
 export class ToolsConnectionManager extends ConnectionManager {
   private logger: LoggerBase;
   private getTelemetryAnonymousId: () => string;
+  private mongoLogId: ToolsConnectionManagerConfig['mongoLogId'];
   private activeConnection: {
     id: string;
     provider: ServiceProvider;
@@ -38,10 +39,12 @@ export class ToolsConnectionManager extends ConnectionManager {
   constructor({
     logger,
     getTelemetryAnonymousId,
+    mongoLogId,
   }: ToolsConnectionManagerConfig) {
     super();
     this.logger = logger;
     this.getTelemetryAnonymousId = getTelemetryAnonymousId;
+    this.mongoLogId = mongoLogId;
   }
 
   override connect(): Promise<never> {
@@ -62,7 +65,7 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       await this.activeConnection?.provider?.close();
     } catch (error) {
       this.logger.error({
-        id: mongoLogId(1_001_000_411),
+        id: this.mongoLogId(1_001_000_411),
         context: 'compass-tools-connection-manager',
         message: `Error disconnecting from Compass connection - ${
           error instanceof Error ? error.message : String(error)
@@ -93,7 +96,7 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
 
     if (isAtlasStream(connectParams.connectionString)) {
       this.logger.warning({
-        id: mongoLogId(1_001_000_413),
+        id: this.mongoLogId(1_001_000_413),
         context: 'compass-tools-connection-manager',
         message: 'Attempting a connection to an Atlas Stream.',
       });
@@ -129,7 +132,7 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       );
     } catch (error) {
       this.logger.error({
-        id: mongoLogId(1_001_000_412),
+        id: this.mongoLogId(1_001_000_412),
         context: 'compass-tools-connection-manager',
         message: `Error connecting to Compass connection - ${
           error instanceof Error ? error.message : String(error)
