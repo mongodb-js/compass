@@ -134,6 +134,8 @@ module.exports = (env, args) => {
 
         'stream/promises': localPolyfill('stream/promises'),
         stream: require.resolve('readable-stream'),
+        // The "browser" build drops Papa.NODE_STREAM_INPUT, which import uses
+        papaparse: require.resolve('papaparse/papaparse.js'),
 
         path: require.resolve('path-browserify'),
         // The `/` so that we are resolving the installed polyfill version with

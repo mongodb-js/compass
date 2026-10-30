@@ -1,15 +1,14 @@
-import { promises as fs } from 'node:fs';
-import chai from 'chai';
 import type { ChainablePromiseElement } from 'webdriverio';
 import type { LogEntry } from '@mongodb-js/compass-test-server';
+import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
-  outputFilename,
   serverSatisfies,
   skipForWeb,
+  skipIfImportExportUnsupported,
   getDefaultConnectionNames,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
@@ -1177,7 +1176,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports exporting aggregation results', async function () {
-    skipForWeb(this, 'export is not yet available in compass-web');
+    await skipIfImportExportUnsupported(this, browser);
 
     // Set first stage to $match.
     await browser.selectStageOperator(0, '$match');
@@ -1213,7 +1212,7 @@ describe('Collection aggregations tab', function () {
 );`);
 
     // Set the filename.
-    const filename = outputFilename('aggregated-numbers.json');
+    const filename = 'aggregated-numbers.json';
     await browser.setExportFilename(filename);
 
     // Wait for the modal to go away.
@@ -1222,7 +1221,7 @@ describe('Collection aggregations tab', function () {
     await browser.waitForExportToFinishAndCloseToast();
 
     // Confirm that we exported what we expected to export
-    const text = await fs.readFile(filename, 'utf-8');
+    const text = await browser.readExportedFile(filename);
     const docs = JSON.parse(text);
 
     expect(docs).to.have.lengthOf(1);

@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import os from 'node:os';
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,7 +11,6 @@ import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import temp from 'temp';
 
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
@@ -27,8 +25,6 @@ import type { ErrorJSON } from '../import/import-types';
 import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
 import { importCSV } from './import-csv';
-
-temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -97,14 +93,11 @@ describe('importCSV', function () {
           (field) => field.detected
         );
 
-        const output = temp.createWriteStream();
-
         const result = await importCSV({
           dataService,
           ns,
           fields,
           input: await makeInput(filepath, lineEnding),
-          output,
           delimiter: csvDelimiter,
           newline,
           abortSignal: abortController.signal,
@@ -237,14 +230,11 @@ describe('importCSV', function () {
           return field.detected;
         });
 
-        const output = temp.createWriteStream();
-
         const result = await importCSV({
           dataService,
           ns,
           fields,
           input: await makeInput(filepath, lineEnding),
-          output,
           delimiter: csvDelimiter,
           newline,
           abortSignal: abortController.signal,
@@ -317,14 +307,14 @@ describe('importCSV', function () {
     const totalRows = analyzeResult.totalRows;
     const fields = _.mapValues(analyzeResult.fields, (field) => field.detected);
 
-    const output = temp.createWriteStream();
+    const errorCallback = sinon.spy();
 
     const result = await importCSV({
       dataService,
       ns,
       fields,
       input: fs.createReadStream(fixtures.csvByType.null),
-      output,
+      errorCallback,
       delimiter: csvDelimiter,
       newline,
       abortSignal: abortController.signal,
@@ -332,8 +322,7 @@ describe('importCSV', function () {
       ignoreEmptyStrings: false,
     });
 
-    const errorLog = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorLog).to.equal('');
+    expect(errorCallback).to.not.have.been.called;
 
     expect(omit(result, 'biggestDocSize')).to.deep.equal({
       docsErrored: 0,
@@ -383,7 +372,7 @@ describe('importCSV', function () {
       b: 'int',
     } as const;
 
-    const output = temp.createWriteStream();
+    const errorCallback = sinon.spy();
 
     const result = await importCSV({
       dataService,
@@ -391,12 +380,11 @@ describe('importCSV', function () {
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
+      errorCallback,
       progressCallback,
     });
 
-    const errorLog = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorLog).to.equal('');
+    expect(errorCallback).to.not.have.been.called;
 
     expect(omit(result, 'biggestDocSize')).to.deep.equal({
       docsErrored: 0,
@@ -430,7 +418,7 @@ describe('importCSV', function () {
       'foo..bar': 'int',
     } as const;
 
-    const output = temp.createWriteStream();
+    const errorCallback = sinon.spy();
 
     await importCSV({
       dataService,
@@ -438,11 +426,10 @@ describe('importCSV', function () {
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
+      errorCallback,
     });
 
-    const errorLog = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorLog).to.equal('');
+    expect(errorCallback).to.not.have.been.called;
 
     const docs: any[] = await dataService.find(ns, {});
 
@@ -474,7 +461,7 @@ describe('importCSV', function () {
       'b.c': 'int',
     } as const;
 
-    const output = temp.createWriteStream();
+    const errorCallback = sinon.spy();
 
     await importCSV({
       dataService,
@@ -482,11 +469,10 @@ describe('importCSV', function () {
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
+      errorCallback,
     });
 
-    const errorLog = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorLog).to.equal('');
+    expect(errorCallback).to.not.have.been.called;
 
     const docs: any[] = await dataService.find(ns, {});
 
@@ -510,7 +496,7 @@ describe('importCSV', function () {
       '[]': 'int',
     } as const;
 
-    const output = temp.createWriteStream();
+    const errorCallback = sinon.spy();
 
     await importCSV({
       dataService,
@@ -518,11 +504,10 @@ describe('importCSV', function () {
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
+      errorCallback,
     });
 
-    const errorLog = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorLog).to.equal('');
+    expect(errorCallback).to.not.have.been.called;
 
     const docs: any[] = await dataService.find(ns, {});
 
@@ -544,7 +529,7 @@ describe('importCSV', function () {
       '.b': 'int',
     } as const;
 
-    const output = temp.createWriteStream();
+    const errorCallback = sinon.spy();
 
     await importCSV({
       dataService,
@@ -552,11 +537,10 @@ describe('importCSV', function () {
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
+      errorCallback,
     });
 
-    const errorLog = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorLog).to.equal('');
+    expect(errorCallback).to.not.have.been.called;
 
     const docs: any[] = await dataService.find(ns, {});
 
@@ -581,15 +565,12 @@ describe('importCSV', function () {
       'a.b': 'int',
     } as const;
 
-    const output = temp.createWriteStream();
-
     const promise = importCSV({
       dataService,
       ns,
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
       stopOnErrors: true,
     });
 
@@ -599,7 +580,7 @@ describe('importCSV', function () {
     );
   });
 
-  it('reports and writes parse errors (stopOnErrors=false)', async function () {
+  it('report parse errors (stopOnErrors=false)', async function () {
     const lines = [
       'a,b',
       '1,2',
@@ -614,7 +595,6 @@ describe('importCSV', function () {
       b: 'int',
     } as const;
 
-    const output = temp.createWriteStream();
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
@@ -624,7 +604,6 @@ describe('importCSV', function () {
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
       stopOnErrors: false,
       progressCallback,
       errorCallback,
@@ -651,11 +630,6 @@ describe('importCSV', function () {
       },
     ];
 
-    const errorLog = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorLog).to.equal(
-      expectedErrors.map((e) => JSON.stringify(e)).join(os.EOL) + os.EOL
-    );
-
     const errors = errorCallback.args.map((args) => args[0]);
 
     try {
@@ -664,9 +638,6 @@ describe('importCSV', function () {
       console.log(JSON.stringify({ errors, expectedErrors }, null, 2));
       throw err;
     }
-
-    const errorsText = await fs.promises.readFile(output.path, 'utf8');
-    expect(errorsText).to.equal(formatErrorLines(expectedErrors));
   });
 
   it('errors when there are database errors (stopOnErrors=true)', async function () {
@@ -679,7 +650,6 @@ describe('importCSV', function () {
       b: 'int',
     } as const;
 
-    const output = temp.createWriteStream();
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
@@ -697,7 +667,6 @@ describe('importCSV', function () {
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
       stopOnErrors: true,
       progressCallback,
       errorCallback,
@@ -709,7 +678,7 @@ describe('importCSV', function () {
     );
   });
 
-  it('reports and writes database errors (stopOnErrors=false)', async function () {
+  it('report database errors (stopOnErrors=false)', async function () {
     const lines = ['a,b', '1,2', '3,4', '5,6'];
 
     const ns = 'db.col';
@@ -719,7 +688,6 @@ describe('importCSV', function () {
       b: 'int',
     } as const;
 
-    const output = temp.createWriteStream();
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
@@ -737,7 +705,6 @@ describe('importCSV', function () {
       fields,
       newline: '\n',
       input: Readable.from(lines.join('\n')),
-      output,
       stopOnErrors: false,
       progressCallback,
       errorCallback,
@@ -780,16 +747,6 @@ describe('importCSV', function () {
       expect(error).to.deep.contain(expectedErrors[index]);
       expect(error).to.have.nested.property('errInfo.details');
     }
-
-    const outputErrors = await fs.promises.readFile(output.path, 'utf8');
-    const parsedOutputErrors = outputErrors
-      .trim()
-      .split('\n')
-      .map((err) => JSON.parse(err));
-    for (const [index, error] of parsedOutputErrors.entries()) {
-      expect(error).to.deep.contain(expectedErrors[index]);
-      expect(error).to.have.nested.property('errInfo.details');
-    }
   });
 
   it('responds to abortSignal.aborted', async function () {
@@ -800,15 +757,12 @@ describe('importCSV', function () {
     const ns = 'db.col';
     const fields = {};
 
-    const output = temp.createWriteStream();
-
     const result = await importCSV({
       dataService,
       ns,
       fields,
       newline: '\n',
       input: fs.createReadStream(fixtures.csv.complex),
-      output,
       abortSignal: abortController.signal,
     });
 
@@ -827,8 +781,6 @@ describe('importCSV', function () {
     const replaced = text.replace(/\n/g, '\r\n');
     const input = Readable.from(replaced);
 
-    const output = temp.createWriteStream();
-
     const ns = 'db.col';
     const fields = {
       _id: 'string',
@@ -840,7 +792,6 @@ describe('importCSV', function () {
       ns,
       fields,
       input,
-      output,
       delimiter: ',',
       newline: '\r\n',
     });
@@ -858,11 +809,36 @@ describe('importCSV', function () {
     }
   });
 
+  it('keep multi-byte characters that are split across chunks', async function () {
+    const bytes = Buffer.from('name\ncaf\u00e9\n', 'utf8');
+    const splitAt = bytes.indexOf(0xa9); // second byte of the two-byte \u00e9
+    const input = Readable.from([
+      bytes.subarray(0, splitAt),
+      bytes.subarray(splitAt),
+    ]);
+
+    const ns = 'db.col';
+    const fields = {
+      name: 'string',
+    } as const;
+
+    await importCSV({
+      dataService,
+      ns,
+      fields,
+      input,
+      delimiter: ',',
+      newline: '\n',
+    });
+
+    const docs = await dataService.find(ns, {}, { projection: { _id: 0 } });
+
+    expect(docs).to.deep.equal([{ name: 'caf\u00e9' }]);
+  });
+
   it('errors if a file is not valid utf8', async function () {
     const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
     const input = Readable.from(latin1Buffer);
-
-    const output = temp.createWriteStream();
 
     const ns = 'db.col';
     const fields = {
@@ -875,14 +851,10 @@ describe('importCSV', function () {
         ns,
         fields,
         input,
-        output,
         delimiter: ',',
         newline: '\n',
       })
-    ).to.be.rejectedWith(
-      TypeError,
-      'The encoded data was not valid for encoding utf-8'
-    );
+    ).to.be.rejectedWith(TypeError, /The encoded data was not valid/);
   });
 
   it('errors if a file is truncated utf8', async function () {
@@ -892,8 +864,6 @@ describe('importCSV', function () {
     );
     const input = Readable.from(truncatedUtf8Buffer);
 
-    const output = temp.createWriteStream();
-
     const ns = 'db.col';
     const fields = {
       // irrelevant what we put here
@@ -905,21 +875,15 @@ describe('importCSV', function () {
         ns,
         fields,
         input,
-        output,
         delimiter: ',',
         newline: '\n',
       })
-    ).to.be.rejectedWith(
-      TypeError,
-      'The encoded data was not valid for encoding utf-8'
-    );
+    ).to.be.rejectedWith(TypeError, /The encoded data was not valid/);
   });
 
   it('strips the BOM character', async function () {
     const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
     const input = Readable.from('\uFEFF' + text);
-
-    const output = temp.createWriteStream();
 
     const ns = 'db.col';
     const fields = {
@@ -932,7 +896,6 @@ describe('importCSV', function () {
       ns,
       fields,
       input,
-      output,
       delimiter: ',',
       newline: '\n',
     });
@@ -1081,10 +1044,6 @@ function checkType(path: PathPart[], value: any, type: string) {
       );
       throw new Error(`No check for ${type} at ${joinedPath}.`);
   }
-}
-
-function formatErrorLines(errors: ErrorJSON[]) {
-  return errors.map((err) => JSON.stringify(err)).join(os.EOL) + os.EOL;
 }
 
 async function makeInput(filepath: string, lineEnding: string) {

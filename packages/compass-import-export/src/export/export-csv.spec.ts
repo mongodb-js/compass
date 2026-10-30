@@ -17,6 +17,9 @@ import { connect } from 'mongodb-data-service';
 
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { fixtures } from '../../test/fixtures';
+import { createFakeDirectory } from '../../test/files';
+
 import type { CSVParsableFieldType } from '../csv/csv-types';
 import type { CSVExportPhase } from '../export/export-csv';
 import { guessFileType } from '../import/guess-filetype';
@@ -25,7 +28,6 @@ import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
-import { fixtures } from '../../test/fixtures';
 import { exportCSVFromAggregation, exportCSVFromQuery } from './export-csv';
 
 temp.track();
@@ -37,8 +39,15 @@ chai.use(chaiAsPromised);
 describe('exportCSV', function () {
   const cluster = mochaTestServer();
   let dataService: DataService;
+  let tempDirectory: ReturnType<typeof createFakeDirectory>;
 
   beforeEach(async function () {
+    tempDirectory = createFakeDirectory();
+    Object.defineProperty(navigator, 'storage', {
+      configurable: true,
+      value: { getDirectory: () => Promise.resolve(tempDirectory.directory) },
+    });
+
     dataService = await connect({
       connectionOptions: {
         connectionString: cluster().connectionString,
@@ -54,11 +63,70 @@ describe('exportCSV', function () {
   });
 
   afterEach(async function () {
+    delete (navigator as any).storage;
     try {
       await dataService.disconnect();
     } catch {
       // ignore
     }
+  });
+
+  it('remove its temporary file when done', async function () {
+    await dataService.insertOne('db.col', { a: 1 });
+
+    await exportCSVFromQuery({
+      ns: 'db.col',
+      dataService,
+      output: temp.createWriteStream(),
+    });
+
+    expect(tempDirectory.created).to.have.length(1);
+    expect(tempDirectory.created[0]).to.match(/^export-csv-.*\.jsonl$/);
+    expect(tempDirectory.names()).to.deep.equal([]);
+  });
+
+  it('remove temporary files that earlier exports left behind', async function () {
+    const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
+    tempDirectory.addFile('export-csv-stale.jsonl', twoDaysAgo);
+    tempDirectory.addFile('export-csv-in-use.jsonl', Date.now());
+    tempDirectory.addFile('unrelated.jsonl', twoDaysAgo);
+
+    await exportCSVFromQuery({
+      ns: 'db.col',
+      dataService,
+      output: temp.createWriteStream(),
+    });
+
+    expect(tempDirectory.names().sort()).to.deep.equal([
+      'export-csv-in-use.jsonl',
+      'unrelated.jsonl',
+    ]);
+  });
+
+  it('export even when removing old temporary files fails', async function () {
+    await dataService.insertOne('db.col', { _id: 1, a: 1 });
+    tempDirectory.addFile('export-csv-removed-by-another-tab.jsonl', 0);
+    const getFileHandle = tempDirectory.directory.getFileHandle.bind(
+      tempDirectory.directory
+    );
+    sinon
+      .stub(tempDirectory.directory, 'getFileHandle')
+      .callsFake((name, options) =>
+        name === 'export-csv-removed-by-another-tab.jsonl'
+          ? Promise.reject(new DOMException('gone', 'NotFoundError'))
+          : getFileHandle(name, options)
+      );
+
+    const output = temp.createWriteStream();
+    const result = await exportCSVFromQuery({
+      ns: 'db.col',
+      dataService,
+      output,
+    });
+
+    expect(result).to.deep.equal({ docsWritten: 1, aborted: false });
+    const text = await fs.promises.readFile(output.path, 'utf8');
+    expect(text).to.equal('_id,a\n1,1\n');
   });
 
   it('exports an empty collection', async function () {

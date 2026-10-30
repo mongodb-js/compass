@@ -1,6 +1,4 @@
-import type { Readable } from 'node:stream';
-import { Transform } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
+import stream, { type Readable, Transform } from 'node:stream';
 import type { DataService } from 'mongodb-data-service';
 import { SchemaAnalyzer } from '@mongodb-js/mongodb-schema';
 import type { Document, FindOptions } from 'mongodb';
@@ -99,7 +97,7 @@ async function _gatherFields({
   });
 
   try {
-    await pipeline(
+    await stream.promises.pipeline(
       [input, analyzeStream],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );

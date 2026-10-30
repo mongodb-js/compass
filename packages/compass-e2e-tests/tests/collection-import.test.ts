@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { promises as fs } from 'node:fs';
 import chai from 'chai';
 
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
@@ -7,9 +6,8 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
-  TEST_COMPASS_WEB,
   getDefaultConnectionNames,
+  skipIfImportExportUnsupported,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
@@ -105,11 +103,10 @@ describe('Collection import', function () {
   let telemetry: Telemetry;
 
   before(async function () {
-    skipForWeb(this, 'import not yet available in compass-web');
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await skipIfImportExportUnsupported(this, browser);
     await browser.setupDefaultConnections();
   });
 
@@ -121,10 +118,6 @@ describe('Collection import', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -651,23 +644,8 @@ describe('Collection import', function () {
 
       await browser.waitUntil(async () => {
         const text = await toastElement.getText();
-        return (
-          text.includes('Document failed validation') &&
-          text.includes('VIEW LOG')
-        );
+        return text.includes('Document failed validation');
       });
-
-      // Find the log file
-      const logFilePath = path.resolve(
-        compass.userDataPath || '',
-        'ImportErrorLogs',
-        `import-${filename}.log`
-      );
-      await expect(fs.stat(logFilePath)).to.not.be.rejected;
-
-      // Check the log file contents for 3 errors.
-      const logFileContent = await fs.readFile(logFilePath, 'utf-8');
-      expect(logFileContent.includes('schemaRulesNotSatisfied:'));
 
       // Close the toast
       await browser
@@ -1285,28 +1263,14 @@ describe('Collection import', function () {
       .$(Selectors.closeToastButton(Selectors.ImportToast))
       .waitForDisplayed();
 
-    // Displays first two errors in the toast and view log.
+    // Displays first two errors in the toast.
     // (It tries to display two, but it also limits the text)
     const toastText = await toastElement.getText();
     expect(toastText).to.include('Import completed 0/3 with errors:');
     expect(
       (toastText.match(/E11000 duplicate key error collection/g) || []).length
     ).to.equal(2);
-    expect(toastText).to.include('VIEW LOG');
-
-    const logFilePath = path.resolve(
-      compass.userDataPath || '',
-      'ImportErrorLogs',
-      `import-${fileName}.log`
-    );
-    await expect(fs.stat(logFilePath)).to.not.be.rejected;
-
-    // Check the log file contents for 3 errors.
-    const logFileContent = await fs.readFile(logFilePath, 'utf-8');
-    const errorCount = (
-      logFileContent.match(/E11000 duplicate key error collection/g) || []
-    ).length;
-    expect(errorCount).to.equal(3);
+    expect(toastText).to.include('More errors occurred.');
 
     // Close toast.
     await browser.clickVisible(

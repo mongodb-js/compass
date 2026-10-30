@@ -1,5 +1,4 @@
-import os from 'node:os';
-import type { Readable, Writable, Duplex } from 'node:stream';
+import type { Readable, Duplex } from 'node:stream';
 import { addAbortSignal } from 'node:stream';
 import type { Document } from 'bson';
 import stripBomStream from 'strip-bom-stream';
@@ -47,18 +46,6 @@ export function errorToJSON(error: any): ErrorJSON {
   }
 
   return obj;
-}
-
-export function writeErrorToLog(output: Writable, error: any): Promise<void> {
-  return new Promise(function (resolve) {
-    output.write(JSON.stringify(error) + os.EOL, 'utf8', (err: unknown) => {
-      if (err) {
-        debug('error while writing error', err);
-      }
-      // we always resolve because we ignore the error
-      resolve();
-    });
-  });
 }
 
 function hasArrayOfLength(
@@ -119,7 +106,6 @@ export async function doImport(
   {
     dataService,
     ns,
-    output,
     abortSignal,
     progressCallback,
     errorCallback,
@@ -197,9 +183,6 @@ export async function doImport(
           const transformedError = errorToJSON(err);
           debug('transform error', transformedError);
           errorCallback?.(transformedError);
-          if (output) {
-            await writeErrorToLog(output, transformedError);
-          }
         }
         continue;
       }
@@ -223,15 +206,8 @@ export async function doImport(
           throw err;
         }
 
-        if (!output) {
-          continue;
-        }
-
-        const errors = err.writeErrors;
-        for (const error of errors) {
-          const transformedError = errorToJSON(error);
-          errorCallback?.(transformedError);
-          await writeErrorToLog(output, transformedError);
+        for (const error of err.writeErrors) {
+          errorCallback?.(errorToJSON(error));
         }
       }
     }
@@ -258,13 +234,8 @@ export async function doImport(
         throw err;
       }
 
-      if (output) {
-        const errors = err.writeErrors;
-        for (const error of errors) {
-          const transformedError = errorToJSON(error);
-          errorCallback?.(transformedError);
-          await writeErrorToLog(output, transformedError);
-        }
+      for (const error of err.writeErrors) {
+        errorCallback?.(errorToJSON(error));
       }
     }
   } catch (err: any) {

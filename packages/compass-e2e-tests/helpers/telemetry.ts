@@ -40,9 +40,13 @@ function startFakeTelemetry(): Promise<Telemetry> {
         const kSandboxLoggingAndTelemetryAccess = Symbol.for(
           '@compass-web-sandbox-logging-and-telemetry-access'
         );
-        return (
-          kSandboxLoggingAndTelemetryAccess in globalThis &&
-          (globalThis as any)[kSandboxLoggingAndTelemetryAccess].tracking
+        // Desktop events reach the tests as JSON, which drops undefined
+        // properties. Match that so assertions work the same in both.
+        return JSON.parse(
+          JSON.stringify(
+            kSandboxLoggingAndTelemetryAccess in globalThis &&
+              (globalThis as any)[kSandboxLoggingAndTelemetryAccess].tracking
+          )
         );
       });
 

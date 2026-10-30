@@ -1,6 +1,3 @@
-import os from 'node:os';
-import fs from 'node:fs';
-import path from 'node:path';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import React from 'react';
@@ -18,6 +15,7 @@ import { ToastBody } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { ExportPlugin } from '../index';
 import type { ExportStore } from '../stores/export-store';
+import { createFakeFileHandle } from '../../test/files';
 import {
   openExport,
   addFieldToExport,
@@ -313,19 +311,11 @@ describe('export [module]', function () {
     const cluster = mochaTestServer();
     let connectionInfo: ConnectionInfo;
     let dataService: DataService;
-    let tmpdir: string;
 
     const testDB = 'export-runExport-test';
     const testNS = `${testDB}.test-col`;
 
     beforeEach(async function () {
-      tmpdir = path.join(
-        os.tmpdir(),
-        'compass-export-runExport-test',
-        `test-${Date.now()}`
-      );
-      await fs.promises.mkdir(tmpdir, { recursive: true });
-
       connectionInfo = {
         id: 'TEST',
         connectionOptions: {
@@ -352,12 +342,11 @@ describe('export [module]', function () {
     });
 
     afterEach(async function () {
-      await fs.promises.rm(tmpdir, { recursive: true });
       await dataService.disconnect();
     });
 
     describe('#runExport', function () {
-      it('runs an export', async function () {
+      it('run an export', async function () {
         testStore.dispatch(
           openExport({
             connectionId: connectionInfo.id,
@@ -370,33 +359,138 @@ describe('export [module]', function () {
           })
         );
 
-        const textExportFilePath = path.join(tmpdir, 'run-export-test.json');
+        const file = createFakeFileHandle('run-export-test.json');
         await testStore.dispatch(
           runExport({
-            filePath: textExportFilePath,
+            fileHandle: file.handle,
             jsonFormatVariant: 'default',
             fileType: 'json',
           }) as any
         );
-
-        let resultText;
-        try {
-          resultText = await fs.promises.readFile(textExportFilePath, 'utf8');
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.log(textExportFilePath);
-          throw err;
-        }
 
         const expectedText = `[{
   "_id": 2,
   "testDoc": true
 }]`;
 
-        expect(resultText).to.equal(expectedText);
+        expect(file.text()).to.equal(expectedText);
+        expect(file.state.closed).to.equal(true);
       });
 
-      it('runs an aggregation export', async function () {
+      it('export the collection that was open when the file was picked', async function () {
+        testStore.dispatch(
+          openExport({
+            connectionId: connectionInfo.id,
+            namespace: testNS,
+            query: {
+              filter: {},
+            },
+            origin: 'menu',
+            exportFullCollection: true,
+          })
+        );
+        const file = createFakeFileHandle('picked-file.json');
+        let openWritable: () => void = () => undefined;
+        const writableOpened = new Promise<void>((resolve) => {
+          openWritable = resolve;
+        });
+        const createWritable = file.handle.createWritable.bind(file.handle);
+        Sinon.stub(file.handle, 'createWritable').callsFake(async () => {
+          await writableOpened;
+          return createWritable();
+        });
+
+        const exported = testStore.dispatch(
+          runExport({
+            fileHandle: file.handle,
+            jsonFormatVariant: 'default',
+            fileType: 'json',
+          }) as any
+        );
+        testStore.dispatch(closeExport());
+        testStore.dispatch(
+          openExport({
+            connectionId: connectionInfo.id,
+            namespace: `${testDB}.other-col`,
+            query: {
+              filter: {},
+            },
+            origin: 'menu',
+            exportFullCollection: true,
+          })
+        );
+        openWritable();
+        await exported;
+
+        expect(file.text()).to.equal(`[{
+  "_id": 2,
+  "testDoc": true
+}]`);
+      });
+
+      it('discard the file when the export fails', async function () {
+        Sinon.stub(dataService, 'findCursor').throws(
+          new Error('cannot read documents')
+        );
+        testStore.dispatch(
+          openExport({
+            connectionId: connectionInfo.id,
+            namespace: testNS,
+            query: {
+              filter: {},
+            },
+            origin: 'menu',
+            exportFullCollection: true,
+          })
+        );
+
+        const file = createFakeFileHandle('failed-export-test.json');
+        await testStore.dispatch(
+          runExport({
+            fileHandle: file.handle,
+            jsonFormatVariant: 'default',
+            fileType: 'json',
+          }) as any
+        );
+
+        expect(file.state.aborted).to.equal(true);
+        expect(file.state.closed).to.equal(false);
+      });
+
+      it('report an error when the file cannot be opened for writing', async function () {
+        testStore.dispatch(
+          openExport({
+            connectionId: connectionInfo.id,
+            namespace: testNS,
+            query: {
+              filter: {},
+            },
+            origin: 'menu',
+            exportFullCollection: true,
+          })
+        );
+        const handle = {
+          name: 'read-only.json',
+          createWritable: () =>
+            Promise.reject(
+              new DOMException('Permission denied', 'NotAllowedError')
+            ),
+        } as unknown as FileSystemFileHandle;
+
+        await testStore.dispatch(
+          runExport({
+            fileHandle: handle,
+            jsonFormatVariant: 'default',
+            fileType: 'json',
+          }) as any
+        );
+
+        expect(testStore.getState().export.exportFileError).to.equal(
+          'Permission denied'
+        );
+      });
+
+      it('run an aggregation export', async function () {
         testStore.dispatch(
           openExport({
             connectionId: connectionInfo.id,
@@ -418,29 +512,20 @@ describe('export [module]', function () {
           })
         );
 
-        const textExportFilePath = path.join(tmpdir, 'run-export-test-2.json');
+        const file = createFakeFileHandle('run-export-test-2.json');
         await testStore.dispatch(
           runExport({
-            filePath: textExportFilePath,
+            fileHandle: file.handle,
             jsonFormatVariant: 'default',
             fileType: 'json',
           }) as any
         );
 
-        let resultText;
-        try {
-          resultText = await fs.promises.readFile(textExportFilePath, 'utf8');
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.log(textExportFilePath);
-          throw err;
-        }
-
         const expectedText = `[{
   "testDoc": true
 }]`;
 
-        expect(resultText).to.equal(expectedText);
+        expect(file.text()).to.equal(expectedText);
       });
     });
   });

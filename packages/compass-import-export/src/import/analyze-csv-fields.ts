@@ -1,6 +1,4 @@
-import type { Readable } from 'node:stream';
-import { Transform } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
+import stream, { type Readable, Transform } from 'node:stream';
 import Papa from 'papaparse';
 import stripBomStream from 'strip-bom-stream';
 
@@ -187,7 +185,7 @@ export async function analyzeCSVFields({
   });
 
   try {
-    await pipeline(
+    await stream.promises.pipeline(
       [
         input,
         new Utf8Validator(),

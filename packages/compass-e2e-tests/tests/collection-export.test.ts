@@ -1,4 +1,3 @@
-import { promises as fs } from 'node:fs';
 import { expect } from 'chai';
 import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
@@ -11,10 +10,8 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  outputFilename,
-  skipForWeb,
-  TEST_COMPASS_WEB,
   getDefaultConnectionNames,
+  skipIfImportExportUnsupported,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
@@ -49,19 +46,14 @@ describe('Collection export', function () {
   let telemetry: Telemetry;
 
   before(async function () {
-    skipForWeb(this, 'export not yet available in compass-web');
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await skipIfImportExportUnsupported(this, browser);
     await browser.setupDefaultConnections();
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -121,7 +113,7 @@ describe('Collection export', function () {
       // Select CSV.
       await selectExportFileTypeCSV(browser);
 
-      const filename = outputFilename('filtered-numbers-subset.csv');
+      const filename = 'filtered-numbers-subset.csv';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -136,7 +128,7 @@ describe('Collection export', function () {
       // check that the file exists.
 
       // Confirm that we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       // 'i,j\n5,0'
       const lines = text.split(/\r?\n/);
       expect(lines[0]).to.equal('i,j');
@@ -191,7 +183,7 @@ describe('Collection export', function () {
       // Select export CSV.
       await selectExportFileTypeCSV(browser);
 
-      const filename = outputFilename('all-fields-filtered.csv');
+      const filename = 'all-fields-filtered.csv';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -202,7 +194,7 @@ describe('Collection export', function () {
       await browser.waitForExportToFinishAndCloseToast();
 
       // Confirm that we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       //  example:'_id,i\n6154788cc5f1fd4544fcedb1,5'
       const lines = text.split(/\r?\n/);
       expect(lines[0]).to.equal('_id,i,j');
@@ -251,7 +243,7 @@ describe('Collection export', function () {
       // Select CSV.
       await selectExportFileTypeCSV(browser);
 
-      const filename = outputFilename('filtered-numbers-projection.csv');
+      const filename = 'filtered-numbers-projection.csv';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -266,7 +258,7 @@ describe('Collection export', function () {
       // check that the file exists.
 
       // Confirm that we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       // 'i,j\n5,0'
       const lines = text.split(/\r?\n/);
       expect(lines.length).to.equal(996);
@@ -304,7 +296,7 @@ describe('Collection export', function () {
       // Export the entire collection.
       await selectExportFileTypeCSV(browser);
 
-      const filename = outputFilename('full-collection.csv');
+      const filename = 'full-collection.csv';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -315,7 +307,7 @@ describe('Collection export', function () {
       await browser.waitForExportToFinishAndCloseToast();
 
       // Make sure we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       // Example:'i\n6154788cc5f1fd4544fcedb1,5,0'.
       const lines = text.split(/\r?\n/);
       expect(lines[0]).to.equal('_id,i,j');
@@ -373,7 +365,7 @@ describe('Collection export', function () {
 );`);
 
       // Leave the file type on the default (JSON).
-      const filename = outputFilename('filtered-numbers-subset.json');
+      const filename = 'filtered-numbers-subset.json';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -388,7 +380,7 @@ describe('Collection export', function () {
       // check that the file exists.
 
       // Confirm that we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       const data = JSON.parse(text);
       expect(data).to.have.lengthOf(1);
       expect(Object.keys(data[0])).to.deep.equal(['i', 'j']);
@@ -441,7 +433,7 @@ describe('Collection export', function () {
       );
 
       // Go with the default file type (JSON).
-      const filename = outputFilename('all-fields-filtered.json');
+      const filename = 'all-fields-filtered.json';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -452,7 +444,7 @@ describe('Collection export', function () {
       await browser.waitForExportToFinishAndCloseToast();
 
       // Confirm that we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       const data = JSON.parse(text);
       expect(data).to.have.lengthOf(1);
       expect(data[0]).to.have.all.keys('i', 'j', '_id');
@@ -488,7 +480,7 @@ describe('Collection export', function () {
       await browser.waitForOpenModal(Selectors.ExportModal);
 
       // Go with the default file type (JSON).
-      const filename = outputFilename('full-collection.json');
+      const filename = 'full-collection.json';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -499,7 +491,7 @@ describe('Collection export', function () {
       await browser.waitForExportToFinishAndCloseToast();
 
       // Make sure we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       const data = JSON.parse(text);
       expect(data).to.have.lengthOf(1000);
       for (let i = 0; i < 1000; ++i) {
@@ -539,7 +531,7 @@ describe('Collection export', function () {
       await browser.clickParent(Selectors.ExportJSONFormatCanonical);
 
       // Go with the default file type (JSON).
-      const filename = outputFilename('full-collection-canonical.json');
+      const filename = 'full-collection-canonical.json';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -550,7 +542,7 @@ describe('Collection export', function () {
       await browser.waitForExportToFinishAndCloseToast();
 
       // Make sure we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       const data = JSON.parse(text);
       expect(data).to.have.lengthOf(1000);
       for (let i = 0; i < 1000; ++i) {
@@ -621,7 +613,7 @@ describe('Collection export', function () {
         // Select CSV.
         await selectExportFileTypeCSV(browser);
 
-        const filename = outputFilename('aborted-export-test.csv');
+        const filename = 'aborted-export-test.csv';
         await browser.setExportFilename(filename);
 
         // Wait for the modal to go away.
@@ -668,7 +660,7 @@ describe('Collection export', function () {
         await toastElement.waitForDisplayed({ reverse: true });
 
         // Confirm that we exported what we expected to export.
-        const text = await fs.readFile(filename, 'utf-8');
+        const text = await browser.readExportedFile(filename);
         const lines = text.split(/\r?\n/);
         expect(lines.length).to.equal(1);
         // We abort before we add the columns to the file.
@@ -719,7 +711,7 @@ describe('Collection export', function () {
         await browser.clickVisible(Selectors.ExportNextStepButton);
 
         // File type defaults to JSON export.
-        const filename = outputFilename('aborted-export-test.json');
+        const filename = 'aborted-export-test.json';
         await browser.setExportFilename(filename);
 
         // Wait for the modal to go away.
@@ -811,7 +803,7 @@ describe('Collection export', function () {
         // Select CSV.
         await selectExportFileTypeCSV(browser);
 
-        const filename = outputFilename('disconnected-export-test.csv');
+        const filename = 'disconnected-export-test.csv';
         await browser.setExportFilename(filename);
 
         // Wait for the modal to go away.
@@ -848,7 +840,7 @@ describe('Collection export', function () {
         await toastElement.waitForDisplayed({ reverse: true });
 
         // Confirm that we exported what we expected to export.
-        const text = await fs.readFile(filename, 'utf-8');
+        const text = await browser.readExportedFile(filename);
         const lines = text.split(/\r?\n/);
         expect(lines.length).to.equal(1);
         // We abort before we add the columns to the file.
@@ -943,7 +935,7 @@ describe('Collection export', function () {
       // Select CSV.
       await selectExportFileTypeCSV(browser);
 
-      const filename = outputFilename('complex-query-numbers.csv');
+      const filename = 'complex-query-numbers.csv';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -958,7 +950,7 @@ describe('Collection export', function () {
       // check that the file exists.
 
       // Confirm that we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       const lines = text.split(/\r?\n/);
       expect(lines.length).to.equal(4);
       expect(lines[0]).to.equal('iString,j');
@@ -1038,7 +1030,7 @@ describe('Collection export', function () {
       // Select JSON.
       await selectExportFileTypeJSON(browser);
 
-      const filename = outputFilename('complex-query-numbers.json');
+      const filename = 'complex-query-numbers.json';
       await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
@@ -1053,7 +1045,7 @@ describe('Collection export', function () {
       // check that the file exists.
 
       // Confirm that we exported what we expected to export.
-      const text = await fs.readFile(filename, 'utf-8');
+      const text = await browser.readExportedFile(filename);
       expect(text).to.equal(`[{
   "iString": "140",
   "j": 0
