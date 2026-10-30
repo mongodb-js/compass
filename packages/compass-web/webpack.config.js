@@ -75,6 +75,7 @@ module.exports = (env, args) => {
           ? 'compass-web.mjs'
           : '[name].[contenthash].mjs';
       },
+      chunkFilename: '[name].[contenthash].mjs',
       library: {
         type: 'module',
       },
@@ -203,6 +204,14 @@ module.exports = (env, args) => {
         '@mongodb-js/atlas-local': localPolyfill('throwError'),
         // Only used by Atlas tools which we do not currently use.
         'node-fetch': false,
+      },
+    },
+    module: {
+      parser: {
+        javascript: {
+          // Must match the import in src/utilities.mts character for character
+          worker: ['CrossOriginWorker from ./cross-origin-worker.mts', '...'],
+        },
       },
     },
     externalsType: 'window',
