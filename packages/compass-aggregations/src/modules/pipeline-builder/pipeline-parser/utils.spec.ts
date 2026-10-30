@@ -69,18 +69,18 @@ describe('PipelineParser Utils', function () {
           expect(source).to.include(`Code(${JSON.stringify(payload)}`);
         });
 
-        it('round-trips through parseShellBSON without evaluating the payload', function () {
+        it('round-trips through parseShellBSON without evaluating the payload', async function () {
           const source = toJSString([
             { $match: { $where: new Code(payload) } },
           ]) as string;
 
-          const parsed = parseShellBSON<ParsedPipeline>(source);
+          const parsed = await parseShellBSON<ParsedPipeline>(source);
 
           expect(parsed[0].$match.$where.code).to.equal(payload);
           expect(marker()).to.equal(undefined);
         });
 
-        it('round-trips a Code with a scope as well', function () {
+        it('round-trips a Code with a scope as well', async function () {
           const source = toJSString([
             {
               $match: {
@@ -89,14 +89,14 @@ describe('PipelineParser Utils', function () {
             },
           ]) as string;
 
-          const parsed = parseShellBSON<ParsedPipeline>(source);
+          const parsed = await parseShellBSON<ParsedPipeline>(source);
 
           expect(parsed[0].$match.$where.code).to.equal(payload);
           expect(parsed[0].$match.$where.scope?.[MARKER]).to.equal(payload);
           expect(marker()).to.equal(undefined);
         });
 
-        it('round-trips a Code with the payload as a scope key', function () {
+        it('round-trips a Code with the payload as a scope key', async function () {
           const source = toJSString([
             {
               $match: {
@@ -105,7 +105,7 @@ describe('PipelineParser Utils', function () {
             },
           ]) as string;
 
-          const parsed = parseShellBSON<ParsedPipeline>(source);
+          const parsed = await parseShellBSON<ParsedPipeline>(source);
 
           expect(parsed[0].$match.$where.code).to.equal('return true;');
           expect(parsed[0].$match.$where.scope?.[payload]).to.equal(1);
@@ -118,7 +118,7 @@ describe('PipelineParser Utils', function () {
       ['U+2028', '\u2028'],
       ['U+2029', '\u2029'],
     ] as const) {
-      it(`does not evaluate a payload containing ${name}`, function () {
+      it(`does not evaluate a payload containing ${name}`, async function () {
         const payload = `${separator}'; globalThis['${MARKER}'] = true; '`;
         const source = toJSString([
           { $match: { $where: new Code(payload) } },
@@ -127,7 +127,7 @@ describe('PipelineParser Utils', function () {
         expect(source).to.not.include(`Code('${payload}`);
 
         try {
-          const parsed = parseShellBSON<ParsedPipeline>(source);
+          const parsed = await parseShellBSON<ParsedPipeline>(source);
           expect(parsed[0].$match.$where.code).to.equal(payload);
         } catch (err) {
           expect(err).to.be.instanceOf(Error);
@@ -136,7 +136,7 @@ describe('PipelineParser Utils', function () {
       });
     }
 
-    it('does not evaluate a payload nested inside a sub-pipeline', function () {
+    it('does not evaluate a payload nested inside a sub-pipeline', async function () {
       const pipeline = [
         {
           $lookup: {
@@ -154,7 +154,7 @@ describe('PipelineParser Utils', function () {
       ];
 
       const source = toJSString(pipeline) as string;
-      const parsed = parseShellBSON(source);
+      const parsed = await parseShellBSON(source);
 
       expect(parsed).to.be.an('array');
       expect(marker()).to.equal(undefined);

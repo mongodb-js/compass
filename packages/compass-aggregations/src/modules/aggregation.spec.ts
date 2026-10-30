@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
+import type { Document } from 'mongodb';
 import { createCancelError } from '@mongodb-js/compass-utils';
 import HadronDocument from 'hadron-document';
 import { omit } from 'lodash';
@@ -14,6 +15,8 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import configureStore from '../../test/configure-store';
 import rootReducer from '../modules';
 import type { AggregationsStore } from '../stores/store';
+import { editPipeline } from './workspace';
+import { countDocuments } from './count-documents';
 import type { DataService } from './data-service';
 import type { State as AggregateState } from './aggregation';
 import reducer, {
@@ -271,6 +274,34 @@ describe('aggregation module', function () {
       expect(aggregateSpy.callCount).to.equal(0);
     });
   });
+  describe('countDocuments', function () {
+    it('does not run or record the count if the user returns to the builder while parsing', async function () {
+      const aggregateSpy = spy((_ns: string, _pipeline: Document[]) =>
+        Promise.resolve([{ count: 5 }])
+      );
+      const store: AggregationsStore = (
+        await configureStore(
+          { pipeline: [] },
+          { aggregate: aggregateSpy, isCancelError: (() => true) as any }
+        )
+      ).plugin.store;
+
+      const countPromise = store.dispatch(countDocuments());
+      store.dispatch(editPipeline());
+      await countPromise;
+
+      const countCalls = aggregateSpy
+        .getCalls()
+        .filter(({ args: [, pipeline] }) =>
+          pipeline.some((stage) => '$count' in stage)
+        );
+      expect(countCalls).to.be.empty;
+      expect(store.getState().countDocuments).to.deep.equal({
+        loading: false,
+      });
+    });
+  });
+
   it('should switch results view type', function () {
     const store = getMockedStore(
       {

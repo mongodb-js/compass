@@ -128,7 +128,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
         state={collationHasError ? 'error' : 'none'}
         value={`${collationValue}`}
         onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-          collationStringChanged(evt.target.value)
+          void collationStringChanged(evt.target.value)
         }
         placeholder="{ locale: 'simple' }"
       />

@@ -108,7 +108,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
 
     const connectionInfo = connectionInfoRef.current;
 
-    const viewPipeline = getPipelineFromBuilderState(
+    const viewPipeline = await getPipelineFromBuilderState(
       getState(),
       pipelineBuilder
     );

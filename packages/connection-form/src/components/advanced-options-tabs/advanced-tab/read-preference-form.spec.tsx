@@ -184,14 +184,14 @@ describe('ReadPreferenceForm', function () {
       expect(onConnectClicked).to.not.have.been.called;
     });
 
-    it('connects with valid tag sets, an empty fallback set, and max staleness', function () {
+    it('connects with valid tag sets, an empty fallback set, and max staleness', async function () {
       const onConnectClicked = sinon.spy();
       renderForm(
         'mongodb://localhost:27017/?readPreference=secondary&readPreferenceTags=a:b,c:d&readPreferenceTags=&maxStalenessSeconds=90',
         onConnectClicked
       );
       userEvent.click(screen.getByRole('button', { name: 'Connect' }));
-      expect(onConnectClicked).to.have.been.calledOnce;
+      await waitFor(() => expect(onConnectClicked).to.have.been.calledOnce);
     });
 
     it('does not connect when tags are pasted with the primary mode', async function () {
