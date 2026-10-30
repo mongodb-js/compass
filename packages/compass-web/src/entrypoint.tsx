@@ -102,6 +102,7 @@ import type {
   DebugFunction,
   LogFunction,
 } from './logger-and-telemetry';
+import { startUtilities } from './utilities.mts';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
 import { useToolsLoopback } from './tools-loopback';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
@@ -563,6 +564,11 @@ const CompassWebWithPreferences = ({
       preferences,
     });
   const openToolsPort = useToolsLoopback();
+
+  useEffect(() => {
+    const utilities = startUtilities(window, logger);
+    return () => utilities[Symbol.dispose]();
+  }, [logger]);
 
   const {
     initialWorkspaceTabs,

@@ -1,8 +1,10 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 import rootReducer from '../modules';
 import configureStore from '../../test/configure-store';
 import type { AggregationsStore } from '../stores/store';
+import { mockDataService } from '../../test/mocks/data-service';
 
 const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
@@ -35,6 +37,29 @@ describe('Aggregation Store', function () {
 
       it('sets the env in the state', function () {
         expect(store.getState().env).to.equal('atlas');
+      });
+    });
+
+    context('when providing a stored pipeline', function () {
+      it('loads the initial preview for the restored stages', async function () {
+        const result = await configureStore(
+          {
+            aggregation: {
+              id: 'stored',
+              name: 'stored',
+              namespace: 'test.test',
+              pipelineText: '[{$match: {_id: 1}}]',
+              autoPreview: true,
+            },
+          },
+          mockDataService({ data: [{ _id: 1 }] })
+        );
+        const store = result.plugin.store;
+
+        await waitFor(() => {
+          const [stage] = store.getState().pipelineBuilder.stageEditor.stages;
+          expect(stage).to.have.nested.property('previewDocs.length', 1);
+        });
       });
     });
 

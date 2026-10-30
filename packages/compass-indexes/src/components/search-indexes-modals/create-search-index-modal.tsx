@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { Document } from 'mongodb';
 import {
   createSearchIndexClosed,
   createIndex,
@@ -22,7 +21,7 @@ type CreateSearchIndexModalProps = {
   onCreateIndexClick: (index: {
     name: string;
     type?: string;
-    definition: Document;
+    definition: string;
   }) => void;
   onCloseModalClick: () => void;
   onClearError: () => void;

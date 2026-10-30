@@ -20,7 +20,7 @@ const FETCH_EXPLAIN_PLAN_SUCCESS =
   'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS' as const;
 interface FetchExplainPlanSuccessAction {
   type: typeof FETCH_EXPLAIN_PLAN_SUCCESS;
-  explainPlan: ExplainPlan;
+  isCollectionScan: boolean;
 }
 export type InsightsAction = FetchExplainPlanSuccessAction;
 
@@ -35,7 +35,7 @@ const reducer: Reducer<{ isCollectionScan: boolean }, Action> = (
   ) {
     return {
       ...state,
-      isCollectionScan: action.explainPlan.isCollectionScan,
+      isCollectionScan: action.isCollectionScan,
     };
   }
   if (
@@ -76,9 +76,8 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
     try {
       // Debounce action to allow for user typing to stop
       await cancellableWait(300, abortSignal);
-      const pipeline = getPipelineFromBuilderState(
-        getState(),
-        pipelineBuilder
+      const pipeline = (
+        await getPipelineFromBuilderState(getState(), pipelineBuilder)
       ).filter((stage) => {
         // Getting explain plan for a pipeline with an out / merge stage can
         // cause data corruption issues in non-genuine MongoDB servers, for
@@ -99,7 +98,10 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
         }
       );
       const explainPlan = new ExplainPlan(rawExplainPlan as Stage);
-      dispatch({ type: FETCH_EXPLAIN_PLAN_SUCCESS, explainPlan });
+      dispatch({
+        type: FETCH_EXPLAIN_PLAN_SUCCESS,
+        isCollectionScan: explainPlan.isCollectionScan,
+      });
       ExplainFetchAbortControllerMap.delete(id);
     } catch {
       // We are only fetching this to get information about index usage for

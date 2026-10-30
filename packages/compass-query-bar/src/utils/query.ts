@@ -34,6 +34,12 @@ export function mapFormFieldsToQuery(fields: QueryFormFields): BaseQuery {
   };
 }
 
+export function formatQueryValueForEditor(value: unknown): string {
+  const valueAsString =
+    typeof value === 'undefined' ? '' : toJSString(value, 0) || '';
+  return prettify(valueAsString, 'javascript-expression');
+}
+
 // Returns true if any fields that aren't filter have non-default values.
 export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
   if (!fields) {
@@ -55,62 +61,71 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
   return false;
 }
 
-export function parseQueryAttributesToFormFields(
+export async function parseQueryAttributesToFormFields(
   query: Record<string, unknown>,
   preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
-): QueryFormFields {
+): Promise<QueryFormFields> {
+  const entries = await Promise.all(
+    Object.entries(query).map(async ([key, valueString]) => {
+      if (!isQueryProperty(key) || typeof valueString !== 'string') {
+        return null;
+      }
+      const value = await validateField(key, valueString, preferences);
+      const valid = value !== false;
+      return [key, { string: valueString, value: valid ? value : null, valid }];
+    })
+  );
   return Object.fromEntries(
-    Object.entries(query)
-      .map(([key, valueString]) => {
-        if (!isQueryProperty(key) || typeof valueString !== 'string') {
-          return null;
-        }
-        const value = validateField(key, valueString, preferences);
-        const valid = value !== false;
-        return [
-          key,
-          { string: valueString, value: valid ? value : null, valid },
-        ];
-      })
-      .filter((entry): entry is QueryFormFieldEntries[number] => {
-        return entry !== null;
-      })
+    entries.filter((entry): entry is QueryFormFieldEntries[number] => {
+      return entry !== null;
+    })
   );
 }
 
 /**
  * Map query document to the query fields state only preserving valid values
  */
-export function mapQueryToFormFields(
+export async function mapQueryToFormFields(
   preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>,
   query?: BaseQuery,
   onlyValid = true
-): QueryFormFields {
-  return Object.fromEntries(
-    Object.entries(query ?? {})
-      .map(([key, _value]) => {
-        if (!isQueryProperty(key)) {
-          return null;
-        }
-        let valueAsString =
-          typeof _value === 'undefined' ? '' : toJSString(_value, 0) || '';
+): Promise<QueryFormFields> {
+  const entries = await Promise.all(
+    Object.entries(query ?? {}).map(async ([key, _value]) => {
+      if (!isQueryProperty(key)) {
+        return null;
+      }
+      const valueAsString = formatQueryValueForEditor(_value);
 
-        valueAsString = prettify(valueAsString, 'javascript-expression');
-
-        const value = validateField(key, valueAsString, preferences);
-        const valid: boolean = value !== false;
-        if (onlyValid && !valid) {
-          return null;
-        }
-        return [
-          key,
-          { string: valueAsString, value: valid ? value : null, valid },
-        ] as const;
-      })
-      .filter((entry): entry is QueryFormFieldEntries[number] => {
-        return entry !== null;
-      })
+      const value = await validateField(key, valueAsString, preferences);
+      const valid: boolean = value !== false;
+      if (onlyValid && !valid) {
+        return null;
+      }
+      return [
+        key,
+        { string: valueAsString, value: valid ? value : null, valid },
+      ] as const;
+    })
   );
+  return Object.fromEntries(
+    entries.filter((entry): entry is QueryFormFieldEntries[number] => {
+      return entry !== null;
+    })
+  );
+}
+
+/**
+ * Form fields for an empty query. Empty fields validate to their defaults
+ * without parsing, so unlike mapQueryToFormFields this can stay synchronous.
+ */
+export function getDefaultFormFields(): QueryFormFields {
+  return Object.fromEntries(
+    QUERY_PROPERTIES.map((property) => [
+      property,
+      { string: '', value: DEFAULT_QUERY_VALUES[property], valid: true },
+    ])
+  ) as QueryFormFields;
 }
 
 export function isQueryValid(fields: QueryFormFields) {
