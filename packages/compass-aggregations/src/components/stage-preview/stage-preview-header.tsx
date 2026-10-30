@@ -48,6 +48,7 @@ export type StagePreviewHeaderProps = {
 };
 
 function StagePreviewHeaderInner({
+  index,
   namespace,
   stageOperator,
   stageValue,
@@ -55,7 +56,7 @@ function StagePreviewHeaderInner({
   description,
   link,
 }: StagePreviewHeaderProps) {
-  const { value, pending } = useParsedShellValue(async () => {
+  const { value } = useParsedShellValue(async () => {
     if (!stageOperator) {
       return null;
     }
@@ -63,13 +64,20 @@ function StagePreviewHeaderInner({
       const stage = await parseShellBSON<Document>(
         `{${stageOperator}: ${stageValue}}`
       );
-      return getStageDestination(namespace, stage);
+      return {
+        index,
+        stageOperator,
+        destination: getStageDestination(namespace, stage),
+      };
     } catch {
       return null;
     }
-  }, [namespace, stageOperator, stageValue]);
-  // Ignore the retained value so we never show the previous stage's target
-  const destination = pending ? null : value;
+  }, [index, namespace, stageOperator, stageValue]);
+
+  const destination =
+    value?.index === index && value.stageOperator === stageOperator
+      ? value.destination
+      : null;
 
   if (!stageOperator) {
     return null;
