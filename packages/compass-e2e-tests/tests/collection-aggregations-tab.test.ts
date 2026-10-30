@@ -670,10 +670,6 @@ describe('Collection aggregations tab', function () {
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     const VALIDATED_OUT_COLLECTION = 'nestedDocs';
     beforeEach(async function () {
-      // TODO(COMPASS-11346): fix the test for web sandbox in Chrome
-      if (isTestingWeb() && runnerContext.browserName === 'chrome') {
-        this.skip();
-      }
       await browser.setValidation({
         connectionName: getDefaultConnectionNames(0),
         database: 'test',
@@ -698,9 +694,15 @@ describe('Collection aggregations tab', function () {
       });
     });
 
-    let unsubscribeAllowWarnings: () => void;
+    let unsubscribeAllowWarnings: (() => void) | undefined;
 
     before(function () {
+      // TODO(COMPASS-11346): fix the test for web sandbox in Chrome. Skipping
+      // in `before` (not `beforeEach`) so the afterEach validator reset, which
+      // also times out there, doesn't run either.
+      if (isTestingWeb() && runnerContext.browserName === 'chrome') {
+        this.skip();
+      }
       unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
         return (
           l.id === 23799 &&
@@ -710,7 +712,7 @@ describe('Collection aggregations tab', function () {
     });
 
     after(function () {
-      unsubscribeAllowWarnings();
+      unsubscribeAllowWarnings?.();
     });
 
     it('Shows error info when inserting', async function () {
