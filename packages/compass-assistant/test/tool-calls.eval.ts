@@ -10,8 +10,8 @@
 
 import { strict as assert } from 'node:assert';
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
-import type { ToolSet, ToolCallPart } from 'ai';
+import { isStepCount, streamText, wrapLanguageModel } from 'ai';
+import type { StepResult, ToolSet } from 'ai';
 import { MongoClient } from 'mongodb';
 import {
   ToolsController,
@@ -27,15 +27,15 @@ import type {
   ConversationEvalCaseInputWithCustom,
   ConversationTaskOutput,
   BraintrustConversationEvalCaseWithCustom,
-  MessageBase,
 } from 'mongodb-assistant-eval/eval';
-import { ToolCallScorers } from 'mongodb-assistant-eval/scorers';
 import { buildContextPrompt } from '../src/prompts';
-import type { ConnectionConfig, EvalTaskConfig } from './tool-call-eval-types';
+import { createSkillsMiddleware } from '../src/docs-provider-transport';
 import {
   toolCallEvalCases,
   type CompassAssistantCustomInput,
 } from './eval-cases/tool-call-cases';
+import type { ConnectionConfig, EvalTaskConfig } from './tool-call-eval-types';
+import { CompassToolCallScorers } from './tool-call-scorers';
 import { seedServer } from './fixtures/databases/seed-server';
 import { seedDatabases } from './fixtures/databases';
 
@@ -44,7 +44,10 @@ import { EVAL_CLUSTER_UID, EVAL_MODEL, instructions } from './eval-config';
 const EVAL_WORKSPACE_TYPE = 'Collections' as const;
 const EVAL_WORKSPACE_TAB_ID = 'eval-workspace-tab';
 const EVAL_PROJECT_NAME = 'Compass Tool Calls';
-const EVAL_EXPERIMENT_NAME = `tool-calls-${Date.now()}`;
+const EVAL_REQUEST_TIMEOUT_MS = 90_000;
+const EVAL_REQUEST_RETRIES = 1;
+const EVAL_MAX_STEPS = 4;
+const EVAL_EXPERIMENT_NAME = `tool-calls-${EVAL_MODEL}-${Date.now()}`;
 
 const DEFAULT_EVAL_TASK_CONFIG: EvalTaskConfig = {
   apiConfig: {
@@ -89,10 +92,7 @@ async function ensureToolsInitialized(): Promise<void> {
   toolsInitialized = true;
 }
 
-/**
- * Configures the ToolsController for an eval case and returns the active tools.
- * Stateless from the caller's perspective: config in, tools out.
- */
+/** Configures the ToolsController for an eval case and returns its tools. */
 function getToolsForCase({
   input,
   connectionConfig,
@@ -100,6 +100,10 @@ function getToolsForCase({
   input: CompassAssistantCustomInput;
   connectionConfig: ConnectionConfig;
 }): ToolSet {
+  if (input.toolsDisabled) {
+    return {};
+  }
+
   const toolGroups = new Set<ToolGroup>(['db-read']);
 
   if (input.currentQuery) {
@@ -145,7 +149,7 @@ function buildContextPromptText({
       : custom.currentPipeline
         ? 'Aggregations'
         : null,
-    enableGenAIToolCalling: true,
+    enableGenAIToolCalling: !custom.toolsDisabled,
   });
 
   const firstPart = contextMessage.parts[0];
@@ -153,26 +157,55 @@ function buildContextPromptText({
 }
 
 /**
- * Converts AI SDK ToolCallParts to the OpenAI ChatCompletionMessageToolCall
- * format that the AEL's ToolCallScorers expect on ConversationTaskOutput.messages.
+ * Converts the calls of one step to the OpenAI message format that the AEL's
+ * ToolCallScorers expect on ConversationTaskOutput.messages: an assistant
+ * message with the calls, followed by a tool message per call. The tool messages
+ * keep the calls of different steps apart, otherwise the scorers treat all of
+ * them as made in parallel. Skills run on the server, so they come first.
  */
-function toolCallPartsToAssistantMessages(
-  toolCalls: ToolCallPart[]
+function stepToMessages(
+  step: number,
+  skillNames: string[],
+  { toolCalls, toolResults }: StepResult<ToolSet>
 ): ConversationTaskOutput['messages'] {
-  return toolCalls.map((tc) => ({
-    role: 'assistant' as const,
-    content: '',
-    toolCalls: [
-      {
-        id: tc.toolCallId,
+  const calls = [
+    ...skillNames.map((skillName, index) => ({
+      id: `skill-${step}-${index}`,
+      name: 'skill',
+      input: { skillName },
+      output: null,
+    })),
+    ...toolCalls.map((tc) => ({
+      id: tc.toolCallId,
+      name: tc.toolName,
+      input: tc.input ?? {},
+      output:
+        toolResults.find((r) => r.toolCallId === tc.toolCallId)?.output ?? null,
+    })),
+  ];
+  if (calls.length === 0) {
+    return [];
+  }
+  return [
+    {
+      role: 'assistant' as const,
+      content: '',
+      toolCalls: calls.map((call) => ({
+        id: call.id,
         type: 'function' as const,
         function: {
-          name: tc.toolName,
-          arguments: JSON.stringify(tc.input ?? {}),
+          name: call.name,
+          arguments: JSON.stringify(call.input),
         },
-      },
-    ],
-  }));
+      })),
+    },
+    ...calls.map((call) => ({
+      role: 'tool' as const,
+      toolCallId: call.id,
+      name: call.name,
+      content: JSON.stringify(call.output),
+    })),
+  ];
 }
 
 function makeToolCallEvalCases(): BraintrustConversationEvalCaseWithCustom<CompassAssistantCustomInput>[] {
@@ -190,6 +223,64 @@ function makeToolCallEvalCases(): BraintrustConversationEvalCaseWithCustom<Compa
       tags: c.tags,
       metadata: c.metadata ?? {},
     }));
+}
+
+function toJsonValue(result: unknown): unknown {
+  return JSON.parse(JSON.stringify(result ?? null));
+}
+
+let toolExecutions: Promise<unknown> = Promise.resolve();
+
+/**
+ * In the app, tool calls wait for the user's approval and the chat UI tells the
+ * tools controller which connection each call belongs to. Do both here so that
+ * tool calls run and their results go back to the model.
+ */
+function withAutoApproval(
+  tools: ToolSet,
+  custom: CompassAssistantCustomInput,
+  connectionId: string
+): ToolSet {
+  return Object.fromEntries(
+    Object.entries(tools).map(([name, tool]) => {
+      const { execute } = tool;
+      if (!execute) {
+        return [name, tool];
+      }
+      return [
+        name,
+        {
+          ...tool,
+          needsApproval: false,
+          execute: (args, options) => {
+            // The controller holds one current query and pipeline, shared by
+            // cases that run at the same time, so answer from this case's own.
+            if (name === 'get-current-query') {
+              return toJsonValue({
+                query: custom.currentQuery
+                  ? JSON.stringify(custom.currentQuery)
+                  : undefined,
+              });
+            }
+            if (name === 'get-current-pipeline') {
+              return toJsonValue({
+                pipeline: custom.currentPipeline
+                  ? JSON.stringify(custom.currentPipeline)
+                  : undefined,
+              });
+            }
+            toolsController.setConnectionIdForToolCall({
+              toolCallId: options.toolCallId,
+              connectionId,
+            });
+            const run = toolExecutions.then(() => execute(args, options));
+            toolExecutions = run.catch(() => undefined);
+            return run.then(toJsonValue);
+          },
+        },
+      ];
+    })
+  );
 }
 
 function createToolCallAssistantTask(config: EvalTaskConfig) {
@@ -213,7 +304,7 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
       },
     });
 
-    const tools = getToolsForCase({
+    const caseTools = getToolsForCase({
       input: custom,
       connectionConfig,
     });
@@ -223,16 +314,44 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
       connectionString: connectionConfig.connectionString,
     });
 
-    const result = streamText({
+    const prompt = input.messages
+      .map(
+        (m) => `${m.role === 'assistant' ? 'Assistant' : 'User'}: ${m.content}`
+      )
+      .join('\n\n');
+
+    // With a `<tool>` tag the model repeats the tagged tool at every step, so
+    // those prompts stay at one step.
+    const maxSteps = /<tool>/.test(prompt) ? 1 : EVAL_MAX_STEPS;
+    const tools =
+      maxSteps > 1
+        ? withAutoApproval(caseTools, custom, connectionConfig.connectionId)
+        : caseTools;
+
+    // Like the app, take the server-side `skill` calls out of the stream. The AI
+    // SDK would treat them as unresolved tool calls and start another step,
+    // which makes the model load the same skill again and again.
+    const stepSkills: string[] = [];
+    const skillsByStep: string[][] = [];
+    const model = wrapLanguageModel({
       model: openai.responses(EVAL_MODEL),
+      middleware: createSkillsMiddleware((skillName) =>
+        stepSkills.push(skillName)
+      ),
+    });
+
+    const result = streamText({
+      model,
+      onStepEnd: () => {
+        skillsByStep.push(stepSkills.splice(0));
+      },
       system: contextPrompt,
-      prompt: input.messages
-        .map(
-          (m: MessageBase) =>
-            `${m.role === 'assistant' ? 'Assistant' : 'User'}: ${m.content}`
-        )
-        .join('\n\n'),
+      prompt,
       tools,
+      stopWhen: isStepCount(maxSteps),
+      maxRetries: EVAL_REQUEST_RETRIES,
+      streamRetries: EVAL_REQUEST_RETRIES,
+      timeout: { stepMs: EVAL_REQUEST_TIMEOUT_MS },
       providerOptions: {
         openai: {
           instructions,
@@ -240,12 +359,18 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
         },
       },
     });
-
-    const text = await result.text;
-    const toolCalls = await result.toolCalls;
+    const [text, steps] = await Promise.all([result.text, result.steps]);
+    // An error event from the endpoint (e.g. "Response timeout") ends the step
+    // with empty text and no tool calls, which would score as a real answer.
+    if (steps.at(-1)?.finishReason === 'error') {
+      throw new Error('Eval request ended with an error event');
+    }
+    const outputMessages = steps.flatMap((step, index) =>
+      stepToMessages(index, skillsByStep[index] ?? [], step)
+    );
 
     return {
-      messages: toolCallPartsToAssistantMessages(toolCalls),
+      messages: outputMessages,
       assistantMessageContent: text,
       allowedQuery: true,
     };
@@ -273,7 +398,7 @@ async function main() {
       experimentName: EVAL_EXPERIMENT_NAME,
       evalCases: makeToolCallEvalCases(),
       task: createToolCallAssistantTask(config),
-      scorers: [ToolCallScorers],
+      scorers: [CompassToolCallScorers],
     });
   } finally {
     await toolsController.stopServer();

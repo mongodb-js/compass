@@ -31,7 +31,7 @@ function parseSkillName(input: string): string | undefined {
  * them back in the history). This removes them from the model stream before
  * the SDK sees them and reports the skill names instead.
  */
-function createSkillsMiddleware(
+export function createSkillsMiddleware(
   onSkillUsed: (skillName: string) => void
 ): LanguageModelMiddleware {
   return {
