@@ -1,5 +1,5 @@
 import { listen } from '@mongodb-js/compass-utils';
-import type { MultiplexLink, MultiplexSocketCallbacks } from './multiplex-link';
+import type { Link, MultiplexSocketCallbacks } from './multiplex-link';
 
 type Destination = { da: string; dp: number };
 
@@ -35,7 +35,7 @@ function ownBuffer(data: Uint8Array): Uint8Array {
  * Ports are numbered per worker; the page maps them to ports on the real
  * Link, so `allocatePort` stays synchronous.
  */
-export class RemoteLink implements MultiplexLink {
+export class RemoteLink implements Link {
   private nextPort = 1;
   private readonly sockets = new Map<number, MultiplexSocketCallbacks>();
   private readonly pending = new Map<number, PromiseWithResolvers<void>>();
@@ -130,7 +130,7 @@ export class RemoteLink implements MultiplexLink {
 }
 
 /** A worker socket on the page's Link; `dest` is known once it sent a frame */
-type Stream = { link: MultiplexLink; sp: number; dest?: Destination };
+type Stream = { link: Link; sp: number; dest?: Destination };
 
 /**
  * Serves the page's Link to one worker's `RemoteLink`. `getLink` is read when
@@ -139,7 +139,7 @@ type Stream = { link: MultiplexLink; sp: number; dest?: Destination };
  */
 export function serveLink(
   port: MessagePort,
-  getLink: () => MultiplexLink | null
+  getLink: () => Link | null
 ): Disposable {
   using ds = new DisposableStack();
   const streams = new Map<number, Stream>();

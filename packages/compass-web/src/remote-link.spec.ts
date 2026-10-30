@@ -1,6 +1,6 @@
 import { EventEmitter, once } from 'node:events';
 import { expect } from 'chai';
-import type { MultiplexLink, MultiplexSocketCallbacks } from './multiplex-link';
+import type { Link, MultiplexSocketCallbacks } from './multiplex-link';
 import { RemoteLink, serveLink } from './remote-link';
 
 type Sent = {
@@ -12,7 +12,7 @@ type Sent = {
 };
 
 /** Emits `sent` for every frame and `unregister` for every unregistration */
-class FakeLink extends EventEmitter implements MultiplexLink {
+class FakeLink extends EventEmitter implements Link {
   private nextPort = 100;
   readonly sockets = new Map<number, MultiplexSocketCallbacks>();
   readonly unregistered: number[] = [];

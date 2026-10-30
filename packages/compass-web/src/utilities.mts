@@ -5,7 +5,7 @@ import {
 } from '@mongodb-js/compass-utils';
 import { CrossOriginWorker } from './cross-origin-worker.mts';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
-import { getMultiplexLink } from './multiplex-link.ts';
+import { getLink } from './multiplex-link.ts';
 import { serveLink } from './remote-link.ts';
 
 const UTILITIES = new Map<string, () => CrossOriginWorker>();
@@ -30,7 +30,7 @@ export function startUtilities(
       listen(worker, 'message', ({ data, ports }: MessageEvent) => {
         if (data?.channel === 'compass:log') logger.writeLine(data.data.line);
         if (data?.channel === 'compass:link') {
-          links.use(serveLink(ports[0], getMultiplexLink));
+          links.use(serveLink(ports[0], getLink));
         }
       })
     );

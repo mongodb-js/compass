@@ -155,7 +155,7 @@ export function addEventListener(
  * Manages a single shared WebSocket connection for a browser tab and multiplexes
  * all MongoDB driver TCP connections over it using BSON 5-tuple framing.
  */
-export class Link implements Disposable {
+export class MultiplexLink implements Disposable {
   private ws: WebSocket | null = null;
   private readonly baseUrls: string[];
   private connectedUrl: string | null = null;
@@ -475,8 +475,8 @@ export class Link implements Disposable {
 }
 
 /** What sockets need from a Link: the page's Link, or a worker's RemoteLink. */
-export type MultiplexLink = Pick<
-  Link,
+export type Link = Pick<
+  MultiplexLink,
   | 'allocatePort'
   | 'registerSocket'
   | 'unregisterSocket'
@@ -484,11 +484,26 @@ export type MultiplexLink = Pick<
   | 'sendError'
 >;
 
-let activeLink: MultiplexLink | null = null;
-export function setMultiplexLink(link: Link | null): void {
+/**
+ * (get|set)Link provide a way for the current global execution
+ * environment to manage the one singleton instance of a `Link`
+ * that should be shared by any code running in the current context.
+ *
+ * If the current context is NOT a worker (`!('WorkerGlobalScope' in globalThis)`)
+ * then CompassWeb will make a MultiplexLink instance that wraps our CCS websocket
+ *
+ * If the current context IS a worker (`'WorkerGlobalScope' in globalThis`) then
+ * a RemoteLink is created and sends messages back and forth to the MultiplexLink
+ * expected to exist on the main page.
+ *
+ * `activeLink` serves as the "global" holding area in either context without actually
+ * being a global variable.
+ */
+let activeLink: Link | null = null;
+export function setLink(link: Link | null): void {
   activeLink = link;
 }
-export function getMultiplexLink(): MultiplexLink | null {
+export function getLink(): Link | null {
   if (!activeLink && 'WorkerGlobalScope' in globalThis) {
     const { port1, port2 } = new MessageChannel();
     (postMessage as Worker['postMessage'])({ channel: 'compass:link' }, [
