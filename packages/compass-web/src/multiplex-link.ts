@@ -28,6 +28,7 @@ import {
   deserialize as bsonDeserialize,
 } from 'bson';
 import { type Logger } from '@mongodb-js/compass-logging/provider';
+import { RemoteLink } from './remote-link';
 
 /**
  * Minimum valid BSON document size: 4 bytes for length + 1 byte for terminator.
@@ -171,8 +172,8 @@ export class Link implements Disposable {
   private connectReject: ((err: Error) => void) | null = null;
 
   constructor({ baseUrls, logger }: LinkOptions) {
-    this.baseUrls = _wsUrlOverride
-      ? [_wsUrlOverride]
+    this.baseUrls = wsUrlOverride
+      ? [wsUrlOverride]
       : (baseUrls ?? ['ws://localhost:1337']);
     if (!this.baseUrls.length) throw new Error('baseUrls must not be empty');
     this.logger = logger;
@@ -473,15 +474,32 @@ export class Link implements Disposable {
   }
 }
 
-let _activeLink: Link | null = null;
+/** What sockets need from a Link: the page's Link, or a worker's RemoteLink. */
+export type MultiplexLink = Pick<
+  Link,
+  | 'allocatePort'
+  | 'registerSocket'
+  | 'unregisterSocket'
+  | 'sendData'
+  | 'sendError'
+>;
+
+let activeLink: MultiplexLink | null = null;
 export function setMultiplexLink(link: Link | null): void {
-  _activeLink = link;
+  activeLink = link;
 }
-export function getMultiplexLink(): Link | null {
-  return _activeLink;
+export function getMultiplexLink(): MultiplexLink | null {
+  if (!activeLink && 'WorkerGlobalScope' in globalThis) {
+    const { port1, port2 } = new MessageChannel();
+    (postMessage as Worker['postMessage'])({ channel: 'compass:link' }, [
+      port2,
+    ]);
+    activeLink = new RemoteLink(port1);
+  }
+  return activeLink;
 }
 
-let _wsUrlOverride: string | null = null;
+let wsUrlOverride: string | null = null;
 export function setWebSocketUrlOverride(url: string | null): void {
-  _wsUrlOverride = url;
+  wsUrlOverride = url;
 }
