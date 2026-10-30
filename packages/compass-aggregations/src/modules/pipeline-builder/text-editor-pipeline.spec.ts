@@ -94,6 +94,24 @@ describe('textEditorPipeline', function () {
       expect(pipeline.syntaxErrors).to.deep.equal([]);
       expect(pipeline.isPreviewStale).to.equal(false);
     });
+
+    it('keeps a shell parser error visible while parsing the next value', async function () {
+      await store.dispatch(
+        changeEditorValue(`[{$match: {_id: ObjectId('invalid')}}]`)
+      );
+      const previousSyntaxErrors = store.getState().pipeline.syntaxErrors;
+      expect(previousSyntaxErrors).to.have.lengthOf(1);
+
+      const changePromise = store.dispatch(
+        changeEditorValue('[{$match: {_id: 1}}]')
+      );
+      expect(store.getState().pipeline.syntaxErrors).to.equal(
+        previousSyntaxErrors
+      );
+
+      await changePromise;
+      expect(store.getState().pipeline.syntaxErrors).to.deep.equal([]);
+    });
   });
 
   describe('loadPreviewForPipeline', function () {
