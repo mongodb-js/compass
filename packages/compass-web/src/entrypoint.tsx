@@ -103,6 +103,7 @@ import type {
   LogFunction,
 } from './logger-and-telemetry';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
+import { useToolsLoopback } from './tools-loopback';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { Link, setMultiplexLink } from './multiplex-link';
@@ -561,6 +562,7 @@ const CompassWebWithPreferences = ({
       onTrack,
       preferences,
     });
+  const openToolsPort = useToolsLoopback();
 
   const {
     initialWorkspaceTabs,
@@ -586,7 +588,7 @@ const CompassWebWithPreferences = ({
                         orgId={orgId}
                         projectId={projectId}
                       >
-                        <ToolsControllerProvider>
+                        <ToolsControllerProvider openPort={openToolsPort}>
                           <CompassAssistantProvider
                             originForPrompt="atlas-data-explorer"
                             appNameForPrompt={APP_NAMES_FOR_PROMPT.DataExplorer}
