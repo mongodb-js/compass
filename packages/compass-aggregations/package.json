@@ -75,7 +75,7 @@
     "@mongodb-js/compass-workspaces": "^1.7.0",
     "@mongodb-js/explain-plan-helper": "^1.5.18",
     "@mongodb-js/mongodb-collection-model": "^5.43.0",
-    "@mongodb-js/mongodb-constants": "^0.34.14",
+    "@mongodb-js/mongodb-constants": "^0.34.15",
     "@mongodb-js/mongodb-database-model": "^2.43.0",
     "@mongodb-js/mongodb-instance-model": "^13.7.0",
     "@mongodb-js/mongodb-ns": "^3.2.9",

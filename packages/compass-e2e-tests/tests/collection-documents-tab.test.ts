@@ -1355,8 +1355,8 @@ FindIterable<Document> result = collection.find(filter)
       `{
         i: 10142,
         _id: ObjectId(),
-        long: NumberLong('9223372036854775807'),
-        decimal: NumberDecimal('123.45'),
+        long: Long('9223372036854775807'),
+        decimal: Decimal128('123.45'),
         date: ISODate('2023-01-01T00:00:00.000Z'),
         regex: /foo.*bar/i,
         ts: Timestamp(1234, 5),
@@ -1424,7 +1424,7 @@ FindIterable<Document> result = collection.find(filter)
     expect(converted).to.include(
       `objectId: ObjectId('642d766c7300158b1f22e975')`
     );
-    expect(converted).to.include(`'long': NumberLong('123456789123456789')`);
+    expect(converted).to.include(`'long': Long('123456789123456789')`);
     expect(converted).to.not.include('$numberLong');
 
     const insertConfirm = browser.$(Selectors.InsertConfirm);

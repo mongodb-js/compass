@@ -11,13 +11,13 @@ import { prettify } from '@mongodb-js/compass-editor';
 import ExportToLanguagePlugin from './';
 
 const allTypesStr = `{
-  0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
+  0: true, 1: 1, 2: Long(100), 3: 0.001, 4: 0x1243, 5: 0o123,
   7: "str", 8: RegExp('10'), '8a': /abc/, '8b': RegExp('abc', 'i'),
   9: [1,2], 10: {x: 1}, 11: null, 12: undefined,
   100: Code("1", {x: 1}), '100a': Code("!"), 101: ObjectId(),
-  103: DBRef("c", ObjectId()), 104: 1, 105: NumberInt(1), 106: NumberLong(1),
+  103: DBRef("c", ObjectId()), 104: 1, 105: NumberInt(1), 106: Long(1),
   107: MinKey(), 108: MaxKey(), 110: Timestamp(1, 100),
-  111: Symbol('1'), 112: NumberDecimal(1), 200: Date(), '201a': new Date(),
+  111: Symbol('1'), 112: Decimal128(1), 200: Date(), '201a': new Date(),
   '201b': ISODate(), '201c': new ISODate()
 }`;
 
