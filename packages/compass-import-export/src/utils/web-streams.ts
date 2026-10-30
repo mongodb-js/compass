@@ -41,6 +41,7 @@ function concatChunks(chunks: { chunk: Uint8Array }[]): Uint8Array {
 export function writableFromWeb(stream: WritableStream<Uint8Array>): Writable {
   const writer = stream.getWriter();
   return new Writable({
+    highWaterMark: 1024 * 1024,
     write(chunk: Uint8Array, _encoding, callback) {
       writer.write(chunk).then(() => callback(), callback);
     },
