@@ -21,7 +21,6 @@ import {
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline.ts';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode.ts';
 import {
-  context as runnerContext,
   isTestingWeb,
   isTestingWebAtlasCloud,
 } from '../helpers/test-runner-context.ts';
@@ -697,10 +696,10 @@ describe('Collection aggregations tab', function () {
     let unsubscribeAllowWarnings: (() => void) | undefined;
 
     before(function () {
-      // TODO(COMPASS-11346): fix the test for web sandbox in Chrome. Skipping
+      // TODO(COMPASS-11346): fix the test for web sandbox chrome 3. Skipping
       // in `before` (not `beforeEach`) so the afterEach validator reset, which
       // also times out there, doesn't run either.
-      if (isTestingWeb() && runnerContext.browserName === 'chrome') {
+      if (process.env.EVERGREEN_TASK_NAME === 'test-web-sandbox-chrome-3') {
         this.skip();
       }
       unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
