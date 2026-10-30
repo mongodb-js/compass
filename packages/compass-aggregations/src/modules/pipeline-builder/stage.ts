@@ -13,7 +13,7 @@ import {
 import {
   generate,
   parseShellBSON,
-  PipelineParserError,
+  type PipelineParserError,
 } from './pipeline-parser/utils';
 import { getId } from './stage-ids';
 
@@ -113,11 +113,7 @@ export default class Stage {
         this.value === value &&
         !this.syntaxError
       ) {
-        this.syntaxError = new PipelineParserError(
-          (e as Error).message,
-          undefined,
-          StageAssertionErrorCodes.InvalidStageValue
-        );
+        this.syntaxError = e as PipelineParserError;
       }
     }
   }

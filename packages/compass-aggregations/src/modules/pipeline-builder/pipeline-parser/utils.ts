@@ -3,7 +3,10 @@ import type { Node } from '@babel/types';
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { FormatOptions } from '@mongodb-js/compass-editor';
-import type { StageAssertionErrorCode } from './stage-parser';
+import {
+  StageAssertionErrorCodes,
+  type StageAssertionErrorCode,
+} from './stage-parser';
 
 type ErrorLoc = {
   line: number;
@@ -34,17 +37,20 @@ export function generate(ast: Node, formatOptions?: FormatOptions) {
  *               leading / trailing comments)
  */
 export async function parseShellBSON<T = unknown>(source: string): Promise<T> {
-  const parsed = await parse(source, {
-    mode: ParseMode.Strict,
-    allowComments: true,
-    allowMethods: true,
-  });
-  if (!parsed || typeof parsed !== 'object') {
-    // XXX(COMPASS-5689): We've hit the condition in
-    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
-    throw new Error('Source expression is invalid');
+  try {
+    return await parse(source, {
+      mode: ParseMode.Strict,
+      allowComments: true,
+      allowMethods: true,
+    });
+  } catch (error) {
+    const { loc, pos } = error as { loc?: ErrorLoc; pos?: number };
+    throw new PipelineParserError(
+      (error as Error).message,
+      loc && { line: loc.line, column: loc.column, index: pos },
+      StageAssertionErrorCodes.InvalidStageValue
+    );
   }
-  return parsed;
 }
 
 export { prettify } from '@mongodb-js/compass-editor';
