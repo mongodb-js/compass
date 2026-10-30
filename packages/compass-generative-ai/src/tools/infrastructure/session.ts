@@ -1,18 +1,14 @@
 import { listen } from '@mongodb-js/compass-utils';
-import { isToolsRpcMessage } from './messages';
-import type {
-  ToolsRpcMethod,
-  ToolsRpcPort,
-  ToolsRpcResponse,
-} from './messages';
+import { isToolsRpcMessage } from './protocol';
+import type { ToolsRpcMethod, ToolsRpcResponse } from './protocol';
 
 /**
- * Utility-side server. `port` is a `MessagePortMain` received through
+ * Utility-side server. `port` is a `MessagePort` received through
  * `onPort` (already started). Each request gets its own AbortController;
  * abort messages for that id abort it.
  */
 export function serveToolsRequests(
-  port: ToolsRpcPort,
+  port: MessagePort,
   handler: (
     method: ToolsRpcMethod,
     params: unknown,

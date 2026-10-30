@@ -47,11 +47,14 @@ describe('ToolsController', function () {
     }
   }
 
+  const asRendererPort = (port: MessageChannel['port1']): MessagePort =>
+    port as unknown as MessagePort;
+
   function createController(
     overrides: Partial<ConstructorParameters<typeof ToolsController>[0]> = {}
   ): ToolsController {
     const channel = new MessageChannel();
-    const host = new ToolsHost(channel.port2, { logger });
+    const host = new ToolsHost(asRendererPort(channel.port2), { logger });
     openChannels.push(channel);
     openHosts.push(host);
     return new ToolsController({
@@ -61,7 +64,7 @@ describe('ToolsController', function () {
       track: createNoopTrack(),
       preferences,
       atlasAdminApi,
-      openPort: () => channel.port1,
+      openPort: () => asRendererPort(channel.port1),
       ...overrides,
     });
   }
@@ -563,7 +566,7 @@ describe('ToolsController', function () {
         const silentChannel = new MessageChannel();
         openChannels.push(silentChannel);
         const controller = createController({
-          openPort: () => silentChannel.port1,
+          openPort: () => asRendererPort(silentChannel.port1),
         });
         controller.setActiveTools(new Set(['db-read']));
 

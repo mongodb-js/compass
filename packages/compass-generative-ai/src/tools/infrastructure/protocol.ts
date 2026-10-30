@@ -1,10 +1,3 @@
-import type { EventSource } from '@mongodb-js/compass-utils';
-
-export type ToolsRpcPort = {
-  postMessage(message: unknown): void;
-  close(): void;
-} & EventSource;
-
 export type ToolsRpcMethod =
   /**
    * Keeps the MCP server's runtime config in sync with Compass preferences.

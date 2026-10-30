@@ -7,9 +7,8 @@ import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider'
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { createToolsRpcClient } from './tools/infrastructure/rpc-client';
+import { createRuntimeClient } from './tools/infrastructure/runtime-client';
 import { encodeConnectParams } from './tools/infrastructure/connect-params';
-import type { ToolsRpcPort } from './tools/infrastructure/messages';
 import type { ToolDefinitionInfo } from './tools/infrastructure/tools-host';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import {
@@ -41,7 +40,7 @@ type ToolsControllerConfig = {
   maxTimeMS?: number;
   atlasAdminApi: AtlasAdminApiService;
   // Injected for tests
-  openPort?: () => ToolsRpcPort;
+  openPort?: () => MessagePort;
 };
 
 export class ToolsController {
@@ -54,13 +53,13 @@ export class ToolsController {
   private readonly atlasAdminApi: AtlasAdminApiService;
   private readonly track: TrackFunction;
   private readonly getTelemetryAnonymousId: () => string;
-  private readonly openPort: () => ToolsRpcPort;
+  private readonly openPort: () => MessagePort;
   /** Latest config known to the renderer, sent when the utility starts */
   private currentConfig: {
     enableMCPTelemetry: boolean;
     maxTimeMS?: number;
   };
-  private portClient: ReturnType<typeof createToolsRpcClient> | null = null;
+  private portClient: ReturnType<typeof createRuntimeClient> | null = null;
   private startPromise: Promise<void> | null = null;
   private dbToolDefinitions: ToolDefinitionInfo[] = [];
 
@@ -237,7 +236,7 @@ export class ToolsController {
         'Starting assistant tools utility process client'
       );
 
-      this.portClient = createToolsRpcClient(this.openPort());
+      this.portClient = createRuntimeClient(this.openPort());
       await this.withStartupTimeout(async () => {
         await this.portClient!.call('setUserConfig', {
           ...this.currentConfig,
@@ -255,8 +254,6 @@ export class ToolsController {
         'Assistant tools utility process client started successfully'
       );
     } catch (error: any) {
-      // In case of errors we don't want Compass to crash so we
-      // silence MCP start errors and instead log them for debugging.
       this.logger.log.error(
         this.logger.mongoLogId(1_001_000_404),
         'ToolsController',

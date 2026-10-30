@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
-import { createToolsRpcClient } from './rpc-client';
+import { createRuntimeClient } from './runtime-client';
 import { encodeConnectParams } from './connect-params';
 import { ToolsHost } from './tools-host';
 import type { ToolDefinitionInfo } from './tools-host';
@@ -17,10 +17,15 @@ describe('ToolsHost', function () {
   let host: ToolsHost;
   let logger: Logger;
 
+  // worker_threads ports are structurally identical to DOM MessagePorts but
+  // not nominally, so tests bridge them with this cast.
+  const asRendererPort = (port: MessageChannel['port1']): MessagePort =>
+    port as unknown as MessagePort;
+
   beforeEach(function () {
     channel = new MessageChannel();
     logger = createNoopLogger();
-    host = new ToolsHost(channel.port2, {
+    host = new ToolsHost(asRendererPort(channel.port2), {
       logger,
     });
   });
@@ -32,7 +37,7 @@ describe('ToolsHost', function () {
   });
 
   it('lists read-only database tools as JSON Schema', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(asRendererPort(channel.port1));
     const tools = (await client.call(
       'listDatabaseTools'
     )) as ToolDefinitionInfo[];
@@ -48,7 +53,7 @@ describe('ToolsHost', function () {
   });
 
   it('returns an error result when the connection fails', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(asRendererPort(channel.port1));
     // nothing is listening on this port, so connecting fails and the MCP
     // server surfaces that as an error result, not a rejection
     const result = (await client.call('performToolCall', {
@@ -72,7 +77,7 @@ describe('ToolsHost', function () {
   });
 
   it('applies setUserConfig to the runner config', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(asRendererPort(channel.port1));
     await client.call('setUserConfig', {
       enableMCPTelemetry: true,
       maxTimeMS: 1000,
@@ -82,7 +87,7 @@ describe('ToolsHost', function () {
   });
 
   it('releases the server and the connection when stopped', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(asRendererPort(channel.port1));
     await client.call('listDatabaseTools');
     const connectionManager = (host as any).connectionManager;
     const disconnect = sinon.spy(connectionManager, 'disconnect');

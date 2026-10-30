@@ -1,14 +1,22 @@
 import { MessageChannel } from 'node:worker_threads';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { createToolsRpcClient } from './rpc-client';
-import { serveToolsRequests } from './server';
+import { createRuntimeClient } from './runtime-client';
+import { serveToolsRequests } from './session';
 
 describe('tools rpc', function () {
   let channel: MessageChannel;
+  // worker_threads ports are structurally identical to DOM MessagePorts but
+  // not nominally, so tests bridge them with this cast.
+  const asRendererPort = (port: MessageChannel['port1']): MessagePort =>
+    port as unknown as MessagePort;
+  let port1: MessagePort;
+  let port2: MessagePort;
 
   beforeEach(function () {
     channel = new MessageChannel();
+    port1 = asRendererPort(channel.port1);
+    port2 = asRendererPort(channel.port2);
   });
 
   afterEach(function () {
@@ -17,9 +25,9 @@ describe('tools rpc', function () {
   });
 
   it('round-trips a request to a response', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(port1);
     const params = { enableMCPTelemetry: true, maxTimeMS: 5 };
-    serveToolsRequests(channel.port2, async (method, sentParams, _signal) => {
+    serveToolsRequests(port2, async (method, sentParams, _signal) => {
       expect(method).to.equal('setUserConfig');
       return Promise.resolve(sentParams);
     });
@@ -28,8 +36,8 @@ describe('tools rpc', function () {
   });
 
   it('rejects with the error message from the other side', async function () {
-    const client = createToolsRpcClient(channel.port1);
-    serveToolsRequests(channel.port2, () => {
+    const client = createRuntimeClient(port1);
+    serveToolsRequests(port2, () => {
       throw new Error('boom');
     });
 
@@ -40,13 +48,13 @@ describe('tools rpc', function () {
   });
 
   it('propagates abort to the server-side signal', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(port1);
     const controller = new AbortController();
     let serverSignal: AbortSignal | undefined;
 
     // resolves only once the server side processed the abort message
     const serverAborted = new Promise<void>((resolve) => {
-      serveToolsRequests(channel.port2, (_method, _params, signal) => {
+      serveToolsRequests(port2, (_method, _params, signal) => {
         serverSignal = signal;
         return new Promise((_resolve, reject) => {
           signal.addEventListener('abort', () => {
@@ -71,8 +79,8 @@ describe('tools rpc', function () {
   });
 
   it('rejects immediately for an already-aborted signal', async function () {
-    const client = createToolsRpcClient(channel.port1);
-    serveToolsRequests(channel.port2, async () => Promise.resolve('unused'));
+    const client = createRuntimeClient(port1);
+    serveToolsRequests(port2, async () => Promise.resolve('unused'));
 
     const error = await client
       .call('performToolCall', undefined, AbortSignal.abort(new Error('nope')))
@@ -81,8 +89,8 @@ describe('tools rpc', function () {
   });
 
   it('resolves in request order regardless of completion order', async function () {
-    const client = createToolsRpcClient(channel.port1);
-    serveToolsRequests(channel.port2, async (_method, params, _signal) => {
+    const client = createRuntimeClient(port1);
+    serveToolsRequests(port2, async (_method, params, _signal) => {
       const { delay, name } = params as { delay: number; name: string };
       await new Promise((resolve) => setTimeout(resolve, delay));
       return name;
@@ -94,7 +102,7 @@ describe('tools rpc', function () {
   });
 
   it('rejects pending calls when the client is closed', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(port1);
     // no server on the other end: the call stays pending until close()
     const pending = client.call('listDatabaseTools');
     client.close();
@@ -107,8 +115,8 @@ describe('tools rpc', function () {
 
   it('ignores messages that are not part of the protocol', async function () {
     let called = 0;
-    const client = createToolsRpcClient(channel.port1);
-    serveToolsRequests(channel.port2, () => {
+    const client = createRuntimeClient(port1);
+    serveToolsRequests(port2, () => {
       called += 1;
       return Promise.resolve(null);
     });
@@ -125,7 +133,7 @@ describe('tools rpc', function () {
 
   it('closes the port when the client is closed', function () {
     const close = sinon.spy(channel.port1, 'close');
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(port1);
 
     client.close();
 
@@ -134,10 +142,10 @@ describe('tools rpc', function () {
   });
 
   it('does not send an abort message for a request that already settled', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(port1);
     const controller = new AbortController();
     const postMessage = sinon.spy(channel.port1, 'postMessage');
-    serveToolsRequests(channel.port2, () => Promise.resolve('ok'));
+    serveToolsRequests(port2, () => Promise.resolve('ok'));
 
     await client.call('performToolCall', undefined, controller.signal);
     postMessage.resetHistory();
@@ -151,7 +159,7 @@ describe('tools rpc', function () {
   });
 
   it('aborts in-flight requests when the server is disposed', async function () {
-    const client = createToolsRpcClient(channel.port1);
+    const client = createRuntimeClient(port1);
     let serverSignal: AbortSignal | undefined;
     // Resolved by the handler, so the test never has to guess how long a
     // message takes to arrive
@@ -159,16 +167,13 @@ describe('tools rpc', function () {
     const arrived = new Promise<void>((resolve) => {
       requestArrived = resolve;
     });
-    const server = serveToolsRequests(
-      channel.port2,
-      (_method, _params, signal) => {
-        serverSignal = signal;
-        requestArrived();
-        return new Promise((_resolve, reject) => {
-          signal.addEventListener('abort', () => reject(signal.reason));
-        });
-      }
-    );
+    const server = serveToolsRequests(port2, (_method, _params, signal) => {
+      serverSignal = signal;
+      requestArrived();
+      return new Promise((_resolve, reject) => {
+        signal.addEventListener('abort', () => reject(signal.reason));
+      });
+    });
 
     void client.call('performToolCall').catch(() => {
       // the request is aborted below; the rejection is expected

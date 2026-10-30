@@ -12,7 +12,6 @@ import {
 import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { ToolsController } from './tools-controller';
-import type { ToolsRpcPort } from './tools/infrastructure/messages';
 import { AtlasAiService } from './atlas-ai-service';
 
 const AtlasAiServiceContext = createContext<AtlasAiService | null>(null);
@@ -61,17 +60,8 @@ export { AtlasAiService } from './atlas-ai-service';
 const ToolsControllerContext = createContext<ToolsController | null>(null);
 
 export const ToolsControllerProvider: React.FC<{
-  /**
-   * How the controller reaches its tools host. Defaults to the desktop
-   * utility process; the browser has none, so compass-web provides a loopback
-   * that runs the same host in the page.
-   */
-  openPort?: () => ToolsRpcPort;
   children?: React.ReactNode;
-}> = createServiceProvider(function ToolsControllerProvider({
-  openPort,
-  children,
-}) {
+}> = createServiceProvider(function ToolsControllerProvider({ children }) {
   const logger = useLogger('TOOLS-CONTROLLER');
   const preferences = preferencesLocator();
   const atlasAdminApi = atlasAdminApiServiceLocator();
@@ -88,16 +78,8 @@ export const ToolsControllerProvider: React.FC<{
       enableMCPTelemetry: false,
       preferences,
       atlasAdminApi,
-      openPort,
     });
-  }, [
-    logger,
-    telemetryAnonymousId,
-    track,
-    preferences,
-    atlasAdminApi,
-    openPort,
-  ]);
+  }, [logger, telemetryAnonymousId, track, preferences, atlasAdminApi]);
 
   useEffect(() => {
     return () => {

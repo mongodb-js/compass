@@ -7,10 +7,10 @@ import { ToolsLogger } from '../../tools-logger';
 import { ToolsConnectionManager } from '../../tools-connection-manager';
 import { removeZodTransforms } from '../../remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from '../../available-tools';
-import type { ToolsRpcMethod, ToolsRpcPort } from './messages';
+import type { ToolsRpcMethod } from './protocol';
 import type { ConnectParamsWire } from './connect-params';
 import { decodeConnectParams } from './connect-params';
-import { serveToolsRequests } from './server';
+import { serveToolsRequests } from './session';
 import { InMemoryRunner } from './in-memory-runner';
 import { NoopMetrics } from './noop-metrics';
 
@@ -37,7 +37,7 @@ export class ToolsHost {
   private readonly disposable: Disposable;
   private telemetryAnonymousId = '';
 
-  constructor(port: ToolsRpcPort, { logger }: ToolsHostConfig) {
+  constructor(port: MessagePort, { logger }: ToolsHostConfig) {
     this.logger = logger;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],

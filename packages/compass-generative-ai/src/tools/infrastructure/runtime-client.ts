@@ -1,17 +1,16 @@
 import { listen } from '@mongodb-js/compass-utils';
-import { isResponse } from './messages';
+import { isResponse } from './protocol';
 import type {
   ToolsRpcAbort,
   ToolsRpcMethod,
-  ToolsRpcPort,
   ToolsRpcRequest,
-} from './messages';
+} from './protocol';
 
 /**
  * Renderer-side client. `port` is the end of the channel returned by
  * `openUtilityPort`.
  */
-export function createToolsRpcClient(port: ToolsRpcPort): {
+export function createRuntimeClient(port: MessagePort): {
   call(
     method: ToolsRpcMethod,
     params?: unknown,

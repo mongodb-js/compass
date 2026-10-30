@@ -1,14 +1,14 @@
 import process from 'node:process';
 
-import type { ParentPort } from 'electron';
 import { listen } from '@mongodb-js/compass-utils';
 import { ToolsHost } from '@mongodb-js/compass-generative-ai/utility';
 import { createUtilityLogger } from '../logging.mts';
-import { onPort } from '../ipc.mts';
+import type { UtilityParentPort } from '../ipc.mts';
+import { currentParentPort, onPort } from '../ipc.mts';
 
 export const name = 'ai-assistant';
 
-export function main(parentPort: ParentPort): Disposable {
+export function main(parentPort: UtilityParentPort): Disposable {
   using ds = new DisposableStack();
 
   ds.use(
@@ -54,6 +54,7 @@ export function main(parentPort: ParentPort): Disposable {
   return ds.move();
 }
 
-if (import.meta.main) {
-  main(process.parentPort);
+const parentPort = currentParentPort();
+if (parentPort) {
+  main(parentPort);
 }

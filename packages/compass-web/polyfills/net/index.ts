@@ -1,6 +1,23 @@
 import { Duplex } from 'node:stream';
 import { ipVersion } from 'is-ip';
-import { getMultiplexLink } from '../../src/multiplex-link';
+import {
+  getMultiplexLink,
+  setMultiplexLink,
+  Link,
+} from '../../src/multiplex-link';
+
+// Utilities run as Web Workers with their own module realm, so the page's
+// multiplex link is invisible here and nothing in the worker registers one.
+// The host enriches every port handoff with the WebSocket candidates the page
+// link uses; create our own link from them before the first driver connect.
+if ('WorkerGlobalScope' in globalThis) {
+  globalThis.addEventListener('message', (event) => {
+    const { baseUrls } = (event as MessageEvent).data ?? {};
+    if (Array.isArray(baseUrls) && baseUrls.length > 0 && !getMultiplexLink()) {
+      setMultiplexLink(new Link({ baseUrls }));
+    }
+  });
+}
 
 type ConnectOptions = {
   host: string;
