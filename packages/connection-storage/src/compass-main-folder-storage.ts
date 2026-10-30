@@ -31,14 +31,6 @@ const FolderSchema: z.Schema<Folder> = z
   })
   .loose();
 
-// Records are the only .json files in these directories. write-file-atomic
-// writes a record to a temporary file in the same directory before renaming it
-// into place, so a crash can leave a complete copy of a record behind under a
-// name like '<id>.json.<hash>'; reading it would load that record twice.
-function isRecordFile(fileName: string): boolean {
-  return fileName.endsWith('.json');
-}
-
 // An assignment can name an item kind this version does not know, written by a
 // later version that added one. Such a record is not corrupt, so it has to
 // parse: reporting it as data we dropped would raise an error on every launch
@@ -80,10 +72,7 @@ class CompassMainFolderStorage implements FolderStorage {
 
   constructor(ipcMain: FolderStorageIPCMain, basePath?: string) {
     this.ipcMain = ipcMain;
-    this.userData = new FileUserData(FolderSchema, 'Folders', {
-      basePath,
-      fileNameFilter: isRecordFile,
-    });
+    this.userData = new FileUserData(FolderSchema, 'Folders', { basePath });
     this.ipcMain.createHandle<FolderStorage>('FolderStorage', this, [
       'loadAll',
       'save',
@@ -190,10 +179,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
     this.userData = new FileUserData(
       FolderAssignmentSchema,
       'FolderAssignments',
-      {
-        basePath,
-        fileNameFilter: isRecordFile,
-      }
+      { basePath }
     );
     this.ipcMain.createHandle<FolderAssignmentStorage>(
       'FolderAssignmentStorage',

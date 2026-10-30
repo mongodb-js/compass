@@ -62,15 +62,6 @@ export type FileUserDataOptions<Input> = {
   basePath?: string;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
-  /**
-   * Which entries of the data directory are records. The directory can also
-   * hold files this store did not write: write-file-atomic creates a temporary
-   * file next to a record before renaming it into place, and a crash can leave
-   * one behind. Reading such a file as a record yields a duplicate of the
-   * record it was copied from, so callers that own their directory can use this
-   * to read only the files they wrote. Defaults to accepting every entry.
-   */
-  fileNameFilter?: (fileName: string) => boolean;
 };
 
 export type AtlasUserDataOptions<Type extends UserDataType, Input> = {
@@ -140,26 +131,28 @@ export abstract class IUserData<
 
 export class FileUserData<T extends z.ZodType> extends IUserData<T> {
   private readonly basePath?: string;
-  private readonly fileNameFilter: (fileName: string) => boolean;
   protected readonly semaphore = new Semaphore(100);
 
   constructor(
     validator: T,
     dataType: UserDataType,
-    {
-      basePath,
-      serialize,
-      deserialize,
-      fileNameFilter = () => true,
-    }: FileUserDataOptions<z.input<T>>
+    { basePath, serialize, deserialize }: FileUserDataOptions<z.input<T>>
   ) {
     super(validator, dataType, { serialize, deserialize });
     this.basePath = basePath;
-    this.fileNameFilter = fileNameFilter;
   }
 
   private getFileName(id: string) {
     return `${id}.json`;
+  }
+
+  // A record is only ever written under getFileName's '<id>.json' pattern.
+  // The directory can also hold files this store did not write: write-file-atomic
+  // creates a temporary file next to a record before renaming it into place,
+  // and a crash can leave one behind. Reading such a file as a record would
+  // load that record a second time, under its temporary name.
+  private isRecordFileName(fileName: string): boolean {
+    return fileName.endsWith('.json');
   }
 
   private async getEnsuredBasePath(): Promise<string> {
@@ -348,8 +341,8 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
     };
     try {
       const absolutePath = await this.getFileAbsolutePath();
-      const filePathList = (await fs.readdir(absolutePath)).filter(
-        this.fileNameFilter
+      const filePathList = (await fs.readdir(absolutePath)).filter((x) =>
+        this.isRecordFileName(x)
       );
       for (const settled of await Promise.allSettled(
         filePathList.map((x) => {

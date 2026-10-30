@@ -134,7 +134,7 @@ describe('user-data', function () {
       expect(result.errors).to.have.lengthOf(2);
     });
 
-    it('reads only the entries matching the file name filter', async function () {
+    it('ignores entries that are not a record file', async function () {
       await Promise.all(
         [
           ['data1.json', JSON.stringify({ name: 'VSCode' })],
@@ -145,9 +145,7 @@ describe('user-data', function () {
         ].map(([filepath, data]) => writeFileToStorage(filepath, data))
       );
 
-      const result = await getUserData({
-        fileNameFilter: (fileName) => fileName.endsWith('.json'),
-      }).readAll();
+      const result = await getUserData().readAll();
 
       expect(result.data).to.deep.equal([
         { ...defaultValues(), name: 'VSCode' },
