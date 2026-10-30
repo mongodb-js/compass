@@ -1,5 +1,4 @@
-import { Transform, promises as streamPromises } from 'node:stream';
-import type { Readable, Writable } from 'node:stream';
+import stream, { type Readable, type Writable, Transform } from 'node:stream';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
 import toNS from '@mongodb-js/mongodb-ns';
@@ -177,7 +176,7 @@ async function _exportCSV({
   });
 
   try {
-    await streamPromises.pipeline(
+    await stream.promises.pipeline(
       [input, rowStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
@@ -270,7 +269,7 @@ async function loadEJSONFileAndColumns({
   const columnStream = new ColumnStream(progressCallback);
 
   try {
-    await streamPromises.pipeline(
+    await stream.promises.pipeline(
       [inputStream, columnStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );

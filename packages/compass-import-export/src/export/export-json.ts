@@ -1,5 +1,4 @@
-import { Transform, promises as streamPromises } from 'node:stream';
-import type { Writable } from 'node:stream';
+import stream, { type Writable, Transform } from 'node:stream';
 import { EJSON } from 'bson';
 import toNS from '@mongodb-js/mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
@@ -88,7 +87,7 @@ export async function exportJSON({
 
   try {
     const inputStream = input.stream();
-    await streamPromises.pipeline(
+    await stream.promises.pipeline(
       [inputStream, docStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );

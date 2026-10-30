@@ -1,4 +1,4 @@
-import { Readable, promises as streamPromises } from 'node:stream';
+import stream, { Readable } from 'node:stream';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
@@ -43,7 +43,7 @@ describe('web-streams', function () {
       const readable = readableFromWeb(webStream);
 
       readable.destroy();
-      await streamPromises.finished(readable).catch(() => undefined);
+      await stream.promises.finished(readable).catch(() => undefined);
 
       expect(cancel).to.have.been.calledOnce;
     });
@@ -85,7 +85,7 @@ describe('web-streams', function () {
     });
 
     it('write chunks to the web stream and close it on end', async function () {
-      await streamPromises.pipeline(
+      await stream.promises.pipeline(
         Readable.from(['a', 'b', 'c']),
         writableFromWeb(webStream)
       );
@@ -102,7 +102,7 @@ describe('web-streams', function () {
       writable.write('b');
       writable.write('c');
       writable.end();
-      await streamPromises.finished(writable);
+      await stream.promises.finished(writable);
 
       expect(written).to.deep.equal(['a', 'bc']);
     });
@@ -112,7 +112,9 @@ describe('web-streams', function () {
       const error = new Error('export failed');
 
       writable.destroy(error);
-      await expect(streamPromises.finished(writable)).to.be.rejectedWith(error);
+      await expect(stream.promises.finished(writable)).to.be.rejectedWith(
+        error
+      );
 
       expect(abort).to.have.been.calledOnceWith(error);
       expect(close).to.not.have.been.called;
@@ -123,7 +125,7 @@ describe('web-streams', function () {
       writable.write('a');
 
       writable.destroy();
-      await streamPromises.finished(writable).catch(() => undefined);
+      await stream.promises.finished(writable).catch(() => undefined);
 
       expect(abort).to.have.been.calledOnce;
       expect(close).to.not.have.been.called;
