@@ -384,17 +384,8 @@ export const runExport = ({
     getState,
     { connections, preferences, track, logger: { log, mongoLogId } }
   ) => {
-    const fileName = fileHandle.name;
-    let output: Writable;
-    try {
-      output = writableFromWeb(await fileHandle.createWritable());
-    } catch (err: any) {
-      dispatch(exportFileFailed(err?.message || 'Error creating output file.'));
-      return;
-    }
-
-    const startTime = Date.now();
-
+    // Read the export state before awaiting anything: the user can close the
+    // modal and open another export while the file is being opened.
     const {
       export: {
         connectionId,
@@ -407,6 +398,17 @@ export const runExport = ({
         fieldsAddedCount,
       },
     } = getState();
+
+    const fileName = fileHandle.name;
+    let output: Writable;
+    try {
+      output = writableFromWeb(await fileHandle.createWritable());
+    } catch (err: any) {
+      dispatch(exportFileFailed(err?.message || 'Error creating output file.'));
+      return;
+    }
+
+    const startTime = Date.now();
 
     let fieldsIncludedCount = 0;
     let fieldsExcludedCount = 0;
