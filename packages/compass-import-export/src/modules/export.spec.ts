@@ -377,6 +377,57 @@ describe('export [module]', function () {
         expect(file.state.closed).to.equal(true);
       });
 
+      it('export the collection that was open when the file was picked', async function () {
+        testStore.dispatch(
+          openExport({
+            connectionId: connectionInfo.id,
+            namespace: testNS,
+            query: {
+              filter: {},
+            },
+            origin: 'menu',
+            exportFullCollection: true,
+          })
+        );
+        const file = createFakeFileHandle('picked-file.json');
+        let openWritable: () => void = () => undefined;
+        const writableOpened = new Promise<void>((resolve) => {
+          openWritable = resolve;
+        });
+        const createWritable = file.handle.createWritable.bind(file.handle);
+        Sinon.stub(file.handle, 'createWritable').callsFake(async () => {
+          await writableOpened;
+          return createWritable();
+        });
+
+        const exported = testStore.dispatch(
+          runExport({
+            fileHandle: file.handle,
+            jsonFormatVariant: 'default',
+            fileType: 'json',
+          }) as any
+        );
+        testStore.dispatch(closeExport());
+        testStore.dispatch(
+          openExport({
+            connectionId: connectionInfo.id,
+            namespace: `${testDB}.other-col`,
+            query: {
+              filter: {},
+            },
+            origin: 'menu',
+            exportFullCollection: true,
+          })
+        );
+        openWritable();
+        await exported;
+
+        expect(file.text()).to.equal(`[{
+  "_id": 2,
+  "testDoc": true
+}]`);
+      });
+
       it('discard the file when the export fails', async function () {
         Sinon.stub(dataService, 'findCursor').throws(
           new Error('cannot read documents')
