@@ -92,7 +92,7 @@
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "plist": "^3.0.1",
-    "sinon": "^9.0.0",
+    "sinon": "^22.1.0",
     "typescript": "^6.0.3"
   },
   "optionalDependencies": {

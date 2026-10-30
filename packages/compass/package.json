@@ -278,7 +278,7 @@
     "react-dom": "^18.3.1",
     "resolve-mongodb-srv": "^1.1.5",
     "semver": "^7.6.3",
-    "sinon": "^8.1.1",
+    "sinon": "^22.1.0",
     "source-code-pro": "^2.38.0",
     "ts-node": "^10.9.2",
     "web-vitals": "^2.1.2",
