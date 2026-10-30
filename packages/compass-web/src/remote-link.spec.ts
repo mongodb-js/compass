@@ -1,3 +1,4 @@
+import { EventEmitter, once } from 'node:events';
 import { expect } from 'chai';
 import type { MultiplexLink, MultiplexSocketCallbacks } from './multiplex-link';
 import { RemoteLink, serveLink } from './remote-link';
@@ -10,34 +11,34 @@ type Sent = {
   er?: string;
 };
 
-class FakeLink implements MultiplexLink {
+/** Emits `sent` for every frame and `unregister` for every unregistration */
+class FakeLink extends EventEmitter implements MultiplexLink {
   private nextPort = 100;
   readonly sockets = new Map<number, MultiplexSocketCallbacks>();
   readonly unregistered: number[] = [];
-  private sent = Promise.withResolvers<Sent>();
+  readonly sent: Sent[] = [];
+  /** Registrations wait for this, as a Link waits for its WebSocket */
+  connected: Promise<void> = Promise.resolve();
 
   allocatePort(): number {
     return this.nextPort++;
   }
-  registerSocket(sp: number, callbacks: MultiplexSocketCallbacks) {
+  async registerSocket(sp: number, callbacks: MultiplexSocketCallbacks) {
+    await this.connected;
     this.sockets.set(sp, callbacks);
-    return Promise.resolve();
   }
   unregisterSocket(sp: number): void {
     this.unregistered.push(sp);
     this.sockets.delete(sp);
+    this.emit('unregister', sp);
   }
   sendData(sp: number, da: string, dp: number, data: Uint8Array): void {
-    this.sent.resolve({ sp, da, dp, data });
+    this.sent.push({ sp, da, dp, data });
+    this.emit('sent', this.sent.at(-1));
   }
   sendError(sp: number, da: string, dp: number, er: string): void {
-    this.sent.resolve({ sp, da, dp, er });
-  }
-  /** Resolves with the next frame a worker's socket sends through the link */
-  nextSent(): Promise<Sent> {
-    const { promise } = this.sent;
-    void promise.then(() => (this.sent = Promise.withResolvers<Sent>()));
-    return promise;
+    this.sent.push({ sp, da, dp, er });
+    this.emit('sent', this.sent.at(-1));
   }
 }
 
@@ -82,9 +83,9 @@ describe('RemoteLink', function () {
     const sp = remote.allocatePort();
     await remote.registerSocket(sp, socket.callbacks);
 
-    const sent = link!.nextSent();
+    const sent = once(link!, 'sent');
     remote.sendData(sp, 'cluster0.example.net', 27017, Buffer.from('ping'));
-    expect(await sent).to.deep.include({
+    expect((await sent)[0]).to.deep.include({
       sp: 100,
       da: 'cluster0.example.net',
       dp: 27017,
@@ -140,10 +141,10 @@ describe('RemoteLink', function () {
     const remote = connectWorker();
     await remote.registerSocket(1, socketCallbacks().callbacks);
 
-    const sent = link!.nextSent();
+    const sent = once(link!, 'sent');
     remote.sendError(1, 'cluster0.example.net', 27017, 'socket closed');
 
-    expect(await sent).to.deep.equal({
+    expect((await sent)[0]).to.deep.equal({
       sp: 100,
       da: 'cluster0.example.net',
       dp: 27017,
@@ -151,13 +152,51 @@ describe('RemoteLink', function () {
     });
   });
 
-  it("unregisters a worker's open sockets when its server is disposed", async function () {
+  it("keeps the caller's bytes when a chunk covers its whole buffer", async function () {
+    const remote = connectWorker();
+    await remote.registerSocket(1, socketCallbacks().callbacks);
+    const chunk = new Uint8Array([1, 2, 3]);
+
+    const sent = once(link!, 'sent');
+    remote.sendData(1, 'cluster0.example.net', 27017, chunk);
+
+    expect(chunk).to.deep.equal(new Uint8Array([1, 2, 3]));
+    expect((await sent)[0].data).to.deep.equal(new Uint8Array([1, 2, 3]));
+  });
+
+  it('drops a socket the worker unregisters while the link is connecting', async function () {
+    const connected = Promise.withResolvers<void>();
+    link!.connected = connected.promise;
+    const remote = connectWorker();
+    void remote.registerSocket(1, socketCallbacks().callbacks);
+
+    const cancelled = once(link!, 'unregister');
+    remote.unregisterSocket(1);
+    await cancelled;
+    const lateRegistration = once(link!, 'unregister');
+    connected.resolve();
+
+    expect(await lateRegistration).to.deep.equal([100]);
+    expect(link!.sockets.has(100)).to.equal(false);
+  });
+
+  it("closes a worker's upstream connections when its server is disposed", async function () {
     const remote = connectWorker();
     await remote.registerSocket(1, socketCallbacks().callbacks);
     await remote.registerSocket(2, socketCallbacks().callbacks);
+    const sent = once(link!, 'sent');
+    remote.sendData(1, 'cluster0.example.net', 27017, new Uint8Array([1]));
+    await sent;
 
     served.dispose();
 
+    expect(link!.sent.at(-1)).to.deep.equal({
+      sp: 100,
+      da: 'cluster0.example.net',
+      dp: 27017,
+      er: 'Utility worker closed',
+    });
+    expect(link!.sent).to.have.lengthOf(2);
     expect(link!.unregistered).to.deep.equal([100, 101]);
   });
 });

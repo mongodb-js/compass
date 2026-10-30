@@ -96,6 +96,7 @@ export class RemoteLink implements MultiplexLink {
 
   unregisterSocket(sourcePort: number): void {
     this.sockets.delete(sourcePort);
+    this.pending.delete(sourcePort);
     this.send({ t: 'unregister', sp: sourcePort });
   }
 
@@ -105,10 +106,10 @@ export class RemoteLink implements MultiplexLink {
     destPort: number,
     data: Uint8Array
   ): void {
-    const own = ownBuffer(data);
+    const copy = new Uint8Array(data);
     this.send(
-      { t: 'data', sp: sourcePort, da: destAddr, dp: destPort, data: own },
-      [own.buffer]
+      { t: 'data', sp: sourcePort, da: destAddr, dp: destPort, data: copy },
+      [copy.buffer]
     );
   }
 
@@ -128,17 +129,20 @@ export class RemoteLink implements MultiplexLink {
   }
 }
 
+/** A worker socket on the page's Link; `dest` is known once it sent a frame */
+type Stream = { link: MultiplexLink; sp: number; dest?: Destination };
+
 /**
  * Serves the page's Link to one worker's `RemoteLink`. `getLink` is read when
  * a socket registers, because the page replaces the Link when it reconnects.
- * Disposing unregisters every socket the worker still has open.
+ * Disposing closes every connection the worker still has open.
  */
 export function serveLink(
   port: MessagePort,
   getLink: () => MultiplexLink | null
 ): Disposable {
   using ds = new DisposableStack();
-  const streams = new Map<number, { link: MultiplexLink; sp: number }>();
+  const streams = new Map<number, Stream>();
   const send = (message: PageToWorker, transfer: Transferable[] = []) =>
     port.postMessage(message, transfer);
 
@@ -147,7 +151,7 @@ export function serveLink(
       const link = getLink();
       if (!link) throw new Error('Link is not available');
 
-      const stream = { link, sp: link.allocatePort() };
+      const stream: Stream = { link, sp: link.allocatePort() };
       streams.set(sp, stream);
 
       await link.registerSocket(stream.sp, {
@@ -165,6 +169,10 @@ export function serveLink(
         },
       });
 
+      if (streams.get(sp) !== stream) {
+        link.unregisterSocket(stream.sp);
+        return;
+      }
       send({ t: 'registered', sp });
     } catch (err) {
       streams.delete(sp);
@@ -180,6 +188,9 @@ export function serveLink(
       }
       const stream = streams.get(message.sp);
       if (!stream) return;
+      if (message.t !== 'unregister') {
+        stream.dest ??= { da: message.da, dp: message.dp };
+      }
       if (message.t === 'data') {
         stream.link.sendData(stream.sp, message.da, message.dp, message.data);
       } else if (message.t === 'error') {
@@ -191,7 +202,10 @@ export function serveLink(
     })
   );
   ds.defer(() => {
-    for (const { link, sp } of streams.values()) link.unregisterSocket(sp);
+    for (const { link, sp, dest } of streams.values()) {
+      if (dest) link.sendError(sp, dest.da, dest.dp, 'Utility worker closed');
+      link.unregisterSocket(sp);
+    }
     streams.clear();
     port.close();
   });
