@@ -69,14 +69,14 @@
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
     "@types/react": "^18.3.31",
-    "@types/sinon-chai": "^3.2.5",
+    "@types/sinon-chai": "^4.0.1",
     "bson": "^7.3.2",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "sinon": "^9.2.3",
+    "sinon": "^22.1.0",
     "xvfb-maybe": "^0.2.1"
   }
 }

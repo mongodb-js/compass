@@ -82,7 +82,7 @@
     "@types/mocha": "^9.0.0",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
-    "@types/sinon-chai": "^3.2.5",
+    "@types/sinon-chai": "^4.0.1",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
@@ -90,7 +90,7 @@
     "mongodb-data-service": "^22.41.5",
     "nyc": "^15.1.0",
     "react-dom": "^18.3.1",
-    "sinon": "^9.2.3",
+    "sinon": "^22.1.0",
     "typescript": "^6.0.3",
     "xvfb-maybe": "^0.2.1"
   },
