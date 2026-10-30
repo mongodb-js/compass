@@ -105,6 +105,26 @@ export function skipForWeb(
   }
 }
 
+/**
+ * Compass Web hides import/export in browsers that lack the File System Access
+ * API and OPFS. Detect the APIs instead of the browser name so that the tests
+ * start running once a browser ships them.
+ */
+export async function skipIfImportExportUnsupported(
+  test: Mocha.Runnable | Mocha.Context,
+  browser: CompassBrowser
+) {
+  const supported = await browser.execute(function () {
+    return (
+      'showSaveFilePicker' in globalThis &&
+      typeof navigator.storage?.getDirectory === 'function'
+    );
+  });
+  if (!supported) {
+    test.skip();
+  }
+}
+
 export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
