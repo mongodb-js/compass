@@ -292,6 +292,10 @@ export async function textToEncryptedFieldConfig(
     parsed = await parse(text, {
       mode: ParseMode.Strict,
     });
+    if (!parsed || typeof parsed !== 'object') {
+      parsed = {};
+      throw new Error('Field contained invalid input');
+    }
     parsed['$compass.error'] = null;
   } catch (err: unknown) {
     parsed['$compass.error'] = (err as Error).message;
