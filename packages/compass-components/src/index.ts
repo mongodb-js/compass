@@ -254,5 +254,5 @@ export type {
 export { useInitialValue } from './hooks/use-initial-value';
 export { useCurrentValueRef } from './hooks/use-current-value-ref';
 export { useSyncStateOnPropChange } from './hooks/use-sync-state-on-prop-change';
-export { useAsyncValue } from './hooks/use-async-value';
-export type { AsyncValueResult } from './hooks/use-async-value';
+export { useParsedShellValue } from './hooks/use-parsed-shell-value';
+export type { AsyncValueResult } from './hooks/use-parsed-shell-value';

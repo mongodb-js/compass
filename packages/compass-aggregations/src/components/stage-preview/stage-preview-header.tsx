@@ -4,12 +4,13 @@ import {
   Body,
   Link,
   Tooltip,
-  useAsyncValue,
+  useParsedShellValue,
 } from '@mongodb-js/compass-components';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { RootState } from '../../modules';
 import { getStageDestination, getStageInfo } from '../../utils/stage';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
 const OperatorLink: React.FunctionComponent<{
   stageOperator: string;
@@ -54,10 +55,19 @@ function StagePreviewHeaderInner({
   description,
   link,
 }: StagePreviewHeaderProps) {
-  const { value, pending } = useAsyncValue(
-    () => getStageDestination(namespace, stageOperator ?? null, stageValue),
-    [namespace, stageOperator, stageValue]
-  );
+  const { value, pending } = useParsedShellValue(async () => {
+    if (!stageOperator) {
+      return null;
+    }
+    try {
+      const stage = await parseShellBSON<Document>(
+        `{${stageOperator}: ${stageValue}}`
+      );
+      return getStageDestination(namespace, stage);
+    } catch {
+      return null;
+    }
+  }, [namespace, stageOperator, stageValue]);
   // Ignore the retained value so we never show the previous stage's target
   const destination = pending ? null : value;
 

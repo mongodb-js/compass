@@ -16,12 +16,12 @@ function areDepsEqual(a: DependencyList, b: DependencyList): boolean {
 }
 
 /**
- * Only for async values derived from local component state (e.g. parsing user
- * input). Use redux when/where ever its possible and avoid depending of this
- * hook for managing async values within a component.
- *
+ * Only for async values derived from local component state when parsing user
+ * input.
+ * 
+ * @deprecated Use redux for managing async values within a component instead.
  */
-export function useAsyncValue<T>(
+export function useParsedShellValue<T>(
   task: () => Promise<T>,
   deps: DependencyList
 ): AsyncValueResult<T> {
