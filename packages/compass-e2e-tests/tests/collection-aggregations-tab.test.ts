@@ -21,6 +21,7 @@ import {
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline.ts';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode.ts';
 import {
+  context as runnerContext,
   isTestingWeb,
   isTestingWebAtlasCloud,
 } from '../helpers/test-runner-context.ts';
@@ -669,8 +670,8 @@ describe('Collection aggregations tab', function () {
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     const VALIDATED_OUT_COLLECTION = 'nestedDocs';
     beforeEach(async function () {
-      // TODO(COMPASS-11346): fix the test for web sandbox chrome 3
-      if (process.env.EVERGREEN_TASK_NAME === 'test-web-sandbox-chrome-3') {
+      // TODO(COMPASS-11346): fix the test for web sandbox in Chrome
+      if (isTestingWeb() && runnerContext.browserName === 'chrome') {
         this.skip();
       }
       await browser.setValidation({
