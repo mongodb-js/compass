@@ -1,16 +1,9 @@
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
-// Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 export async function parseShellBSON(source: string): Promise<unknown> {
-  const parsed = await parse(source, {
+  return await parse(source, {
     mode: ParseMode.Strict,
     allowComments: true,
     allowMethods: true,
   });
-  if (!parsed || typeof parsed !== 'object') {
-    // XXX(COMPASS-5689): We've hit the condition in
-    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
-    throw new Error('The provided index definition is invalid.');
-  }
-  return parsed;
 }
