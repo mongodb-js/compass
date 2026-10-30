@@ -1,5 +1,4 @@
-import { PassThrough, Transform } from 'node:stream';
-import type { Readable } from 'node:stream';
+import { PassThrough, Transform, type Readable } from 'node:stream';
 import Papa from 'papaparse';
 import StreamJSON from 'stream-json';
 
