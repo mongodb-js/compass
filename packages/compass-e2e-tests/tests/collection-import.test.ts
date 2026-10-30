@@ -7,6 +7,7 @@ import {
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
+  skipIfImportExportUnsupported,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
@@ -105,6 +106,7 @@ describe('Collection import', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await skipIfImportExportUnsupported(this, browser);
     await browser.setupDefaultConnections();
   });
 

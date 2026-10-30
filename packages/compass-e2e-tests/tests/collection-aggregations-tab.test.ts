@@ -8,6 +8,7 @@ import {
   screenshotIfFailed,
   serverSatisfies,
   skipForWeb,
+  skipIfImportExportUnsupported,
   getDefaultConnectionNames,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
@@ -1175,6 +1176,8 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports exporting aggregation results', async function () {
+    await skipIfImportExportUnsupported(this, browser);
+
     // Set first stage to $match.
     await browser.selectStageOperator(0, '$match');
     await browser.setCodemirrorEditorValue(
