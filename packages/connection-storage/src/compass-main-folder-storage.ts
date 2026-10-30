@@ -90,7 +90,7 @@ class CompassMainFolderStorage implements FolderStorage {
       });
       if (errors.length > 0) {
         log.error(
-          mongoLogId(1_001_000_459),
+          mongoLogId(1_001_000_467),
           'Folder Storage',
           'Skipped folders that could not be read',
           { count: errors.length }
@@ -99,7 +99,7 @@ class CompassMainFolderStorage implements FolderStorage {
       return data;
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_453),
+        mongoLogId(1_001_000_461),
         'Folder Storage',
         'Failed to load folders',
         { message: (err as Error).message }
@@ -132,7 +132,7 @@ class CompassMainFolderStorage implements FolderStorage {
       });
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_454),
+        mongoLogId(1_001_000_462),
         'Folder Storage',
         'Failed to save folder',
         { message: (err as Error).message }
@@ -159,7 +159,7 @@ class CompassMainFolderStorage implements FolderStorage {
       await this.saveQueue.run(id, () => this.userData.delete(id));
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_455),
+        mongoLogId(1_001_000_463),
         'Folder Storage',
         'Failed to delete folder',
         { message: (err as Error).message }
@@ -198,7 +198,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
       });
       if (errors.length > 0) {
         log.error(
-          mongoLogId(1_001_000_460),
+          mongoLogId(1_001_000_468),
           'Folder Storage',
           'Skipped folder assignments that could not be read',
           { count: errors.length }
@@ -210,7 +210,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
       return data.filter(isAssignmentForKnownItemType);
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_456),
+        mongoLogId(1_001_000_464),
         'Folder Storage',
         'Failed to load folder assignments',
         { message: (err as Error).message }
@@ -240,7 +240,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
       });
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_457),
+        mongoLogId(1_001_000_465),
         'Folder Storage',
         'Failed to save folder assignment',
         { message: (err as Error).message }
@@ -268,7 +268,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
       await this.saveQueue.run(fileId, () => this.userData.delete(fileId));
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_458),
+        mongoLogId(1_001_000_466),
         'Folder Storage',
         'Failed to delete folder assignment',
         { message: (err as Error).message }
