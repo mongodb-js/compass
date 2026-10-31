@@ -4,10 +4,16 @@ import React from 'react';
 import { Code, ConfirmationModalVariant } from '../components/leafygreen';
 import { showConfirmation } from './use-confirmation';
 
+// Cap the modal height so it always fits in the viewport and the footer (Back
+// button) stays visible. This is the only max-height in the modal; the code
+// area below scrolls internally rather than adding a nested scrollbar.
+const errorDetailsModalStyles: React.CSSProperties = {
+  maxHeight: '90vh',
+};
+
 const errorDetailsContentStyles = css({
-  paddingTop: spacing[400], // small gap above JSON
-  maxHeight: '60vh', // cap JSON area height so footer can stay visible
-  overflow: 'auto', // scroll JSON when long
+  paddingTop: spacing[400], // fixed gap between the header and the code editor
+  overflow: 'auto', // scroll the JSON internally when it's long
 });
 
 export const showErrorDetails = function showErrorDetails({
@@ -19,8 +25,12 @@ export const showErrorDetails = function showErrorDetails({
 }) {
   void showConfirmation({
     title: 'Error details',
+    style: errorDetailsModalStyles,
     description: (
-      <div className={errorDetailsContentStyles}>
+      <div
+        className={errorDetailsContentStyles}
+        data-testid="error-details-content"
+      >
         <Code
           language="json"
           data-testid="error-details-json"
