@@ -49,6 +49,6 @@
     "@mongodb-js/compass-logging": "^1.19.0",
     "@mongodb-js/compass-shell": "^4.8.0",
     "@mongodb-js/compass-utils": "^0.10.8",
-    "@mongosh/node-runtime-worker-thread": "^5.5.0"
+    "@mongosh/node-runtime-worker-thread": "^5.5.2"
   }
 }

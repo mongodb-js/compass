@@ -61,7 +61,7 @@
     "@mongodb-js/connection-form": "^1.89.0",
     "@mongodb-js/connection-info": "^0.29.5",
     "@mongodb-js/my-queries-storage": "^1.7.0",
-    "bson": "^7.3.2",
+    "bson": "^7.3.3",
     "fuse.js": "^6.5.3",
     "react": "^18.3.1",
     "react-redux": "^8.1.3",
