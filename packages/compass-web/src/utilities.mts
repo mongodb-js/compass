@@ -5,6 +5,8 @@ import {
 } from '@mongodb-js/compass-utils';
 import { CrossOriginWorker } from './cross-origin-worker.mts';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
+import { getLink } from './multiplex-link.ts';
+import { serveLink } from './remote-link.ts';
 
 const UTILITIES = new Map<string, () => CrossOriginWorker>();
 
@@ -17,6 +19,7 @@ export function startUtilities(
 ): Disposable {
   using ds = new DisposableStack();
   const workers = new Map<string, Worker>();
+  const links = ds.use(new DisposableStack());
 
   for (const [name, startWorker] of UTILITIES) {
     const worker = startWorker();
@@ -24,8 +27,11 @@ export function startUtilities(
     workers.set(utilityPortChannel(name), worker);
 
     ds.use(
-      listen(worker, 'message', ({ data }: MessageEvent) => {
+      listen(worker, 'message', ({ data, ports }: MessageEvent) => {
         if (data?.channel === 'compass:log') logger.writeLine(data.data.line);
+        if (data?.channel === 'compass:link') {
+          links.use(serveLink(ports[0], getLink));
+        }
       })
     );
     ds.use(

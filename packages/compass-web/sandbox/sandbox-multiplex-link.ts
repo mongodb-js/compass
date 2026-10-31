@@ -1,7 +1,4 @@
-import {
-  getMultiplexLink,
-  setWebSocketUrlOverride,
-} from '../src/multiplex-link';
+import { getLink, setWebSocketUrlOverride } from '../src/multiplex-link';
 
 const kSandboxMultiplexLink = Symbol.for('@compass-web-sandbox-multiplex-link');
 
@@ -12,7 +9,7 @@ console.info(
 
 Object.defineProperty(globalThis, kSandboxMultiplexLink, {
   get() {
-    return getMultiplexLink;
+    return getLink;
   },
 });
 
