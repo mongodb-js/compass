@@ -10,6 +10,7 @@ import {
 } from '@mongosh/service-provider-node-driver';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { isAtlas, isAtlasStream } from '@mongodb-js/mongodb-build-info';
+import type { Logger } from '@mongodb-js/compass-logging';
 import ConnectionString from 'mongodb-connection-string-url';
 
 export interface ToolsConnectParams {
@@ -24,7 +25,7 @@ const DEFAULT_TELEMETRY_APP_NAME = 'MongoDB Compass';
 type ToolsConnectionManagerConfig = {
   logger: LoggerBase;
   getTelemetryAnonymousId: () => string;
-  mongoLogId: (id: number) => { __value: number };
+  mongoLogId: Logger['mongoLogId'];
 };
 
 export class ToolsConnectionManager extends ConnectionManager {

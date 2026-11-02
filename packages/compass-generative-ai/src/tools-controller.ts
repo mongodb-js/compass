@@ -237,16 +237,21 @@ export class ToolsController {
       );
 
       this.portClient = createRuntimeClient(this.openPort());
-      await this.withStartupTimeout(async () => {
-        await this.portClient!.call('setUserConfig', {
+      const signal = AbortSignal.timeout(ASSISTANT_TOOLS_STARTUP_TIMEOUT_MS);
+      await this.portClient.call(
+        'setUserConfig',
+        {
           ...this.currentConfig,
           telemetryAnonymousId: this.getTelemetryAnonymousId(),
-        });
+        },
+        signal
+      );
 
-        this.dbToolDefinitions = (await this.portClient!.call(
-          'listDatabaseTools'
-        )) as ToolDefinitionInfo[];
-      });
+      this.dbToolDefinitions = (await this.portClient.call(
+        'listDatabaseTools',
+        undefined,
+        signal
+      )) as ToolDefinitionInfo[];
 
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_403),
@@ -265,16 +270,6 @@ export class ToolsController {
       this.dbToolDefinitions = [];
       this.startPromise = null;
     }
-  }
-
-  private async withStartupTimeout<T>(start: () => Promise<T>): Promise<T> {
-    const timeout = new Promise<never>((_resolve, reject) => {
-      const timer = setTimeout(() => {
-        reject(new Error('Timed out waiting for the assistant tools utility'));
-      }, ASSISTANT_TOOLS_STARTUP_TIMEOUT_MS);
-      timer.unref?.();
-    });
-    return await Promise.race([start(), timeout]);
   }
 
   public async stopServer(): Promise<void> {

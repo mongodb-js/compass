@@ -32,11 +32,7 @@ export function serveToolsRequests(
 
     controllers.set(message.id, controller);
 
-    // The handler may throw synchronously; route it through a promise chain
-    // so a throw becomes a rejection instead of an uncaught error that would
-    // take the utility process down.
-    Promise.resolve()
-      .then(() => handler(message.method, message.params, controller.signal))
+    handler(message.method, message.params, controller.signal)
       .then((result) => {
         port.postMessage({
           kind: 'response',
