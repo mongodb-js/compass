@@ -10,10 +10,7 @@ export type {
   UserDataResponse,
 } from '@mongodb-js/compass-utils';
 export {
-  IUserData,
   UserData,
-  FileUserData,
-  AtlasUserData,
   UserDataRequestError,
   LOCAL_USER_DATA_BASE_URL,
   createUserDataFetch,

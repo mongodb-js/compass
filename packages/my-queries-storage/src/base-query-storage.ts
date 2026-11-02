@@ -1,5 +1,5 @@
 import { UUID } from 'bson';
-import { type z, type IUserData } from '@mongodb-js/compass-user-data';
+import { type z, type UserData } from '@mongodb-js/compass-user-data';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
 import type {
   RecentQueryStorageInterface,
@@ -14,16 +14,15 @@ export type BaseStorageOptions = {
 
 type QueryMetadata = { _id: string; _ns: string; _lastExecuted: Date };
 
-// Generic base class that works with any IUserData implementation
 export abstract class BaseCompassQueryStorage<
   TSchema extends z.ZodType<QueryMetadata, unknown>,
 > {
-  protected readonly userData: IUserData<TSchema>;
+  protected readonly userData: UserData<TSchema>;
   protected readonly dataType: string;
   constructor(
     schemaValidator: TSchema,
     dataType: string,
-    userData: IUserData<TSchema>
+    userData: UserData<TSchema>
   ) {
     this.dataType = dataType;
     this.userData = userData;
@@ -67,7 +66,7 @@ export class BaseCompassRecentQueryStorage
 {
   private readonly maxAllowedQueries = 30;
 
-  constructor(userData: IUserData<typeof RecentQuerySchema>) {
+  constructor(userData: UserData<typeof RecentQuerySchema>) {
     super(RecentQuerySchema, 'RecentQueries', userData);
   }
 
@@ -93,7 +92,7 @@ export class BaseCompassFavoriteQueryStorage
   extends BaseCompassQueryStorage<typeof FavoriteQuerySchema>
   implements FavoriteQueryStorageInterface
 {
-  constructor(userData: IUserData<typeof FavoriteQuerySchema>) {
+  constructor(userData: UserData<typeof FavoriteQuerySchema>) {
     super(FavoriteQuerySchema, 'FavoriteQueries', userData);
   }
 

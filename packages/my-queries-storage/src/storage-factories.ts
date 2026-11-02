@@ -1,6 +1,5 @@
 import { EJSON } from 'bson';
 import {
-  AtlasUserData,
   UserData,
   createBridgeUserDataFetch,
   type AuthenticatedFetch,
@@ -22,35 +21,56 @@ export type WebStorageOptions = {
 };
 
 export function createWebRecentQueryStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(RecentQuerySchema, 'RecentQueries', {
-    orgId: options.orgId,
-    projectId: options.projectId,
-    atlasService: options.atlasService,
-    serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
-  });
+  const userData = new UserData(
+    RecentQuerySchema,
+    'RecentQueries',
+    {
+      kind: 'atlas',
+      orgId: options.orgId,
+      projectId: options.projectId,
+      atlasService: options.atlasService,
+    },
+    {
+      serialize: (content) => EJSON.stringify(content),
+      deserialize: (content: string) => EJSON.parse(content),
+    }
+  );
   return new BaseCompassRecentQueryStorage(userData);
 }
 
 export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(FavoriteQuerySchema, 'FavoriteQueries', {
-    orgId: options.orgId,
-    projectId: options.projectId,
-    atlasService: options.atlasService,
-    serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
-  });
+  const userData = new UserData(
+    FavoriteQuerySchema,
+    'FavoriteQueries',
+    {
+      kind: 'atlas',
+      orgId: options.orgId,
+      projectId: options.projectId,
+      atlasService: options.atlasService,
+    },
+    {
+      serialize: (content) => EJSON.stringify(content),
+      deserialize: (content: string) => EJSON.parse(content),
+    }
+  );
   return new BaseCompassFavoriteQueryStorage(userData);
 }
 
 export function createWebPipelineStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(PipelineSchema, 'SavedPipelines', {
-    orgId: options.orgId,
-    projectId: options.projectId,
-    atlasService: options.atlasService,
-    serialize: (content) => EJSON.stringify(content),
-    deserialize: (content: string) => EJSON.parse(content),
-  });
+  const userData = new UserData(
+    PipelineSchema,
+    'SavedPipelines',
+    {
+      kind: 'atlas',
+      orgId: options.orgId,
+      projectId: options.projectId,
+      atlasService: options.atlasService,
+    },
+    {
+      serialize: (content) => EJSON.stringify(content),
+      deserialize: (content: string) => EJSON.parse(content),
+    }
+  );
   return new BaseCompassPipelineStorage<typeof PipelineSchema>(userData);
 }
 

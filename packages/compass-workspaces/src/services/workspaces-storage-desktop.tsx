@@ -2,7 +2,6 @@ import React from 'react';
 import {
   UserData,
   createBridgeUserDataFetch,
-  type IUserData,
 } from '@mongodb-js/compass-user-data';
 import { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
 import { EJSON } from 'bson';
@@ -12,7 +11,7 @@ import { WorkspacesStorageServiceContext } from './workspaces-storage';
 export const WorkspacesStorageServiceProviderDesktop: React.FunctionComponent<{
   children?: React.ReactNode;
 }> = ({ children }) => {
-  const storageRef = useInitialValue<IUserData<typeof WorkspacesStateSchema>>(
+  const storageRef = useInitialValue<UserData<typeof WorkspacesStateSchema>>(
     new UserData(
       WorkspacesStateSchema,
       'WorkspacesState',

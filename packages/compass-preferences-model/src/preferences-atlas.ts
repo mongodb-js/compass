@@ -1,7 +1,7 @@
 import {
   type AtlasServiceLike,
   type z,
-  AtlasUserData,
+  UserData,
 } from '@mongodb-js/compass-user-data';
 import {
   getDefaultsForStoredPreferences,
@@ -21,7 +21,7 @@ export type AtlasPreferencesStorageOptions = {
 
 export class AtlasPreferencesStorage implements PreferencesStorage {
   private readonly defaultPreferences = getDefaultsForStoredPreferences();
-  private readonly userData: AtlasUserData<
+  private readonly userData: UserData<
     StoredPreferencesValidator,
     'AppPreferences'
   >;
@@ -32,13 +32,10 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
     atlasService: AtlasServiceLike,
     { overrides = {} }: AtlasPreferencesStorageOptions = {}
   ) {
-    this.userData = new AtlasUserData(
-      getPreferencesValidator(),
-      'AppPreferences',
-      {
-        atlasService,
-      }
-    );
+    this.userData = new UserData(getPreferencesValidator(), 'AppPreferences', {
+      kind: 'atlas',
+      atlasService,
+    });
     this.overrides = overrides;
   }
 

@@ -1,4 +1,4 @@
-import { AtlasUserData } from '@mongodb-js/compass-user-data';
+import { UserData } from '@mongodb-js/compass-user-data';
 import {
   atlasServiceLocator,
   type AtlasService,
@@ -15,19 +15,15 @@ import type {
 } from './data-model-storage';
 
 class DataModelStorageAtlas implements DataModelStorage {
-  private readonly userData: AtlasUserData<
+  private readonly userData: UserData<
     typeof MongoDBDataModelDescriptionSchema,
     'DataModelDescriptions'
   >;
   constructor(orgId: string, projectId: string, atlasService: AtlasService) {
-    this.userData = new AtlasUserData(
+    this.userData = new UserData(
       MongoDBDataModelDescriptionSchema,
       'DataModelDescriptions',
-      {
-        orgId,
-        projectId,
-        atlasService,
-      }
+      { kind: 'atlas', orgId, projectId, atlasService }
     );
   }
   save(description: MongoDBDataModelDescription) {

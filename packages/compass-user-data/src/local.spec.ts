@@ -5,7 +5,6 @@ import { expect } from 'chai';
 import { z, ZodError } from 'zod';
 import { createLocalUserDataFetch, createLocalUserDataHandler } from './local';
 import {
-  FileUserData,
   LOCAL_USER_DATA_BASE_URL,
   UserData,
   UserDataRequestError,
@@ -236,10 +235,12 @@ describe('createLocalUserDataHandler', function () {
     expect(responses.map(({ status }) => status)).to.deep.equal([405, 404]);
   });
 
-  it('reads documents FileUserData wrote', async function () {
-    await new FileUserData(schema, 'FavoriteQueries', { basePath }).write(id, {
-      name: 'saved before',
-    });
+  it('reads documents in the layout Compass has always written', async function () {
+    await fs.mkdir(path.join(basePath, 'FavoriteQueries'));
+    await fs.writeFile(
+      path.join(basePath, 'FavoriteQueries', `${id}.json`),
+      JSON.stringify({ name: 'saved before' }, null, 2)
+    );
 
     const response = await handle({
       method: 'GET',

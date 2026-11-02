@@ -21,7 +21,7 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import type { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
-import { type IUserData } from '@mongodb-js/compass-user-data';
+import { type UserData } from '@mongodb-js/compass-user-data';
 import { workspacesStorageServiceLocator } from './services/workspaces-storage';
 import { WorkspacesStoreContext } from './stores/context';
 import { workspacesStateChangeMiddleware } from './stores/workspaces-middleware';
@@ -46,7 +46,7 @@ export type WorkspacesServices = {
   connections: ConnectionsService;
   logger: Logger;
   preferences: PreferencesAccess;
-  userData: IUserData<typeof WorkspacesStateSchema>;
+  userData: UserData<typeof WorkspacesStateSchema>;
 };
 
 export function configureStore(

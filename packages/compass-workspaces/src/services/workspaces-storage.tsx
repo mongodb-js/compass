@@ -1,7 +1,7 @@
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import {
   type z,
-  IUserData,
+  UserData,
   type ReadAllResult,
 } from '@mongodb-js/compass-user-data';
 import React, { useContext } from 'react';
@@ -13,7 +13,7 @@ const throwIfNotTestEnv = () => {
   }
 };
 
-export class noopUserData<T extends z.ZodType> extends IUserData<T> {
+export class noopUserData<T extends z.ZodType> extends UserData<T> {
   write(): Promise<boolean> {
     throwIfNotTestEnv();
     return Promise.resolve(true);
@@ -36,12 +36,15 @@ export class noopUserData<T extends z.ZodType> extends IUserData<T> {
   }
 }
 
-export const noopWorkspacesStorageService: IUserData<
+export const noopWorkspacesStorageService: UserData<
   typeof WorkspacesStateSchema
-> = new noopUserData(WorkspacesStateSchema, 'WorkspacesState');
+> = new noopUserData(WorkspacesStateSchema, 'WorkspacesState', {
+  kind: 'local',
+  fetch: () => Promise.reject(new Error('No user data storage')),
+});
 
 export const WorkspacesStorageServiceContext = React.createContext<
-  IUserData<typeof WorkspacesStateSchema>
+  UserData<typeof WorkspacesStateSchema>
 >(noopWorkspacesStorageService);
 
 export const workspacesStorageServiceLocator = createServiceLocator(() => {
