@@ -863,6 +863,40 @@ describe('AtlasUserData', function () {
     });
   });
 
+  context('AtlasUserData.readOne', function () {
+    const statusError = (statusCode: number) =>
+      Object.assign(new Error(`${statusCode}`), { statusCode });
+
+    it('reads a missing document as undefined even when errors are not ignored', async function () {
+      atlasServiceStub.authenticatedFetch.rejects(statusError(404));
+
+      const userData = getAtlasUserData();
+
+      expect(await userData.readOne('id', { ignoreErrors: false })).to.equal(
+        undefined
+      );
+    });
+
+    it('throws a failed request when errors are not ignored', async function () {
+      atlasServiceStub.authenticatedFetch.rejects(statusError(500));
+
+      const userData = getAtlasUserData();
+      const error = await userData
+        .readOne('id', { ignoreErrors: false })
+        .catch((err: unknown) => err);
+
+      expect(error).to.have.property('statusCode', 500);
+    });
+
+    it('reads a failed request as undefined by default', async function () {
+      atlasServiceStub.authenticatedFetch.rejects(statusError(500));
+
+      const userData = getAtlasUserData();
+
+      expect(await userData.readOne('id')).to.equal(undefined);
+    });
+  });
+
   context('AtlasUserData.updateAttributes', function () {
     it('updates data successfully', async function () {
       const getResponse = {

@@ -8,7 +8,7 @@ import { Semaphore } from './semaphore';
 
 const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 
-const validUserDataTypes = [
+export const validUserDataTypes = [
   'RecentQueries',
   'FavoriteQueries',
   'SavedPipelines',
@@ -391,39 +391,129 @@ export type AtlasServiceLike = {
   authenticatedFetch: AuthenticatedFetch;
 };
 
-// TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
-export class AtlasUserData<
+/** Where local user data is addressed; `handleLocalUserDataRequest` serves it */
+export const LOCAL_USER_DATA_BASE_URL = 'compass-user-data://local';
+
+/**
+ * Where a `UserData` reads and writes. Atlas is the user-data service; local
+ * is Compass's own storage, reached through a fetch that speaks the same
+ * routes (see `handleLocalUserDataRequest`).
+ */
+export type UserDataEnvironment<Type extends UserDataType = UserDataType> =
+  | ({
+      kind: 'atlas';
+      atlasService: AtlasServiceLike;
+    } & (Type extends UserScopedUserDataType
+      ? unknown
+      : { orgId: string; projectId: string }))
+  | { kind: 'local'; fetch: AuthenticatedFetch };
+
+/** A user-data request as plain data, so it can cross IPC or a contextBridge */
+export type UserDataRequest = {
+  method: string;
+  url: string;
+  body?: string;
+};
+
+export type UserDataResponse = {
+  status: number;
+  body: string;
+};
+
+/** Thrown for error statuses; `statusCode` matches AtlasServiceError's */
+export class UserDataRequestError extends Error {
+  statusCode: number;
+  constructor(statusCode: number, body: string) {
+    super(`${statusCode}: ${body}`);
+    this.name = 'UserDataRequestError';
+    this.statusCode = statusCode;
+  }
+}
+
+/**
+ * Turns a function that answers plain `UserDataRequest`s into the fetch a
+ * `UserData` uses. It throws on error statuses, as AtlasService's fetch does.
+ */
+export function createUserDataFetch(
+  send: (request: UserDataRequest) => Promise<UserDataResponse>
+): AuthenticatedFetch {
+  return async (url, init) => {
+    const { status, body } = await send({
+      method: init?.method ?? 'GET',
+      url: url instanceof Request ? url.url : url.toString(),
+      body: typeof init?.body === 'string' ? init.body : undefined,
+    });
+    if (status >= 400) {
+      throw new UserDataRequestError(status, body);
+    }
+    return new Response(status === 204 ? null : body, { status });
+  };
+}
+
+function isNotFound(error: unknown): boolean {
+  return (error as { statusCode?: unknown } | null)?.statusCode === 404;
+}
+
+export class UserData<
   T extends z.ZodType,
   Type extends UserDataType = UserDataType,
 > extends IUserData<T, Type> {
-  private readonly atlasService: AtlasServiceLike;
-  private orgId?: string;
-  private projectId?: string;
+  private readonly env: UserDataEnvironment<Type>;
   constructor(
     validator: T,
     dataType: Type,
-    options: AtlasUserDataOptions<Type, z.input<T>>
+    env: UserDataEnvironment<Type>,
+    {
+      serialize,
+      deserialize,
+    }: {
+      serialize?: SerializeContent<z.input<T>>;
+      deserialize?: DeserializeContent;
+    } = {}
   ) {
-    const { atlasService, serialize, deserialize } = options;
-    const { orgId, projectId } = options as Partial<{
-      orgId: string;
-      projectId: string;
-    }>;
     super(validator, dataType, { serialize, deserialize });
-    this.atlasService = atlasService;
-    this.orgId = orgId;
-    this.projectId = projectId;
+    this.env = env;
+  }
+
+  private get fetch(): AuthenticatedFetch {
+    return this.env.kind === 'atlas'
+      ? this.env.atlasService.authenticatedFetch
+      : this.env.fetch;
   }
 
   private endpointFor(id?: string): string {
-    return isUserScopedUserDataType(this.dataType)
-      ? this.atlasService.userScopedUserDataEndpoint(this.dataType)
-      : this.atlasService.userDataEndpoint(
-          this.orgId ?? '',
-          this.projectId ?? '',
-          this.dataType,
-          id
-        );
+    if (this.env.kind === 'local') {
+      const path = [this.dataType, id].filter((part) => part !== undefined);
+      return [LOCAL_USER_DATA_BASE_URL, ...path.map(encodeURIComponent)].join(
+        '/'
+      );
+    }
+    if (isUserScopedUserDataType(this.dataType)) {
+      return this.env.atlasService.userScopedUserDataEndpoint(this.dataType);
+    }
+    const { orgId, projectId } = this.env as Partial<{
+      orgId: string;
+      projectId: string;
+    }>;
+    return this.env.atlasService.userDataEndpoint(
+      orgId ?? '',
+      projectId ?? '',
+      this.dataType,
+      id
+    );
+  }
+
+  private async put(id: string | undefined, content: z.input<T>) {
+    await this.fetch(this.endpointFor(id), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: this.serialize(content),
+        createdAt: new Date(),
+      }),
+    });
   }
 
   async write(
@@ -432,31 +522,15 @@ export class AtlasUserData<
     const [id, content] = isUserScopedUserDataType(this.dataType)
       ? ([undefined, args[0]] as [undefined, z.input<T>])
       : (args as [string, z.input<T>]);
-    const url = this.endpointFor(id);
     try {
       this.validator.parse(content);
-      await this.atlasService.authenticatedFetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: this.serialize(content),
-          createdAt: new Date(),
-        }),
-      });
-
+      await this.put(id, content);
       return true;
     } catch (error) {
-      log.error(
-        mongoLogId(1_001_000_373),
-        'Atlas Backend',
-        'Error writing data',
-        {
-          url,
-          error: (error as Error).message,
-        }
-      );
+      log.error(mongoLogId(1_001_000_373), 'User Data', 'Error writing data', {
+        url: this.endpointFor(id),
+        error: (error as Error).message,
+      });
       return false;
     }
   }
@@ -467,53 +541,59 @@ export class AtlasUserData<
       : (args as [string]);
     const url = this.endpointFor(id);
     try {
-      await this.atlasService.authenticatedFetch(url, {
+      await this.fetch(url, {
         method: 'DELETE',
       });
       return true;
     } catch (error) {
-      log.error(
-        mongoLogId(1_001_000_374),
-        'Atlas Backend',
-        'Error deleting data',
-        {
-          url,
-          error: (error as Error).message,
-        }
-      );
+      log.error(mongoLogId(1_001_000_374), 'User Data', 'Error deleting data', {
+        url,
+        error: (error as Error).message,
+      });
       return false;
     }
   }
 
-  async readAll(): Promise<ReadAllResult<T>> {
+  async readAll(
+    options: ReadOptions = { ignoreErrors: true }
+  ): Promise<ReadAllResult<T>> {
     const result: ReadAllResult<T> = {
       data: [],
       errors: [],
     };
+    let docs: { data: string }[];
     try {
-      const response = await this.atlasService.authenticatedFetch(
-        this.endpointFor(undefined),
-        {
-          method: 'GET',
-        }
-      );
+      const response = await this.fetch(this.endpointFor(undefined), {
+        method: 'GET',
+      });
       const json = await response.json();
       // The user-scoped route returns a single document; wrap it so the
       // parsing loop below stays list-shaped for both scopes.
-      const docs = isUserScopedUserDataType(this.dataType) ? [json] : json;
+      docs = isUserScopedUserDataType(this.dataType) ? [json] : json;
+    } catch (error) {
+      if (isUserScopedUserDataType(this.dataType) && isNotFound(error)) {
+        return result;
+      }
+      if (!options.ignoreErrors) {
+        throw error;
+      }
+      result.errors.push(error as Error);
+      return result;
+    }
+    try {
       for (const item of docs) {
         try {
-          const parsedData = this.deserialize(item.data as string);
+          const parsedData = this.deserialize(item.data);
           result.data.push(this.validator.parse(parsedData));
         } catch (error) {
           result.errors.push(error as Error);
         }
       }
-      return result;
     } catch (error) {
+      // Not a list
       result.errors.push(error as Error);
-      return result;
     }
+    return result;
   }
 
   async updateAttributes(
@@ -522,69 +602,76 @@ export class AtlasUserData<
     const [id, data] = isUserScopedUserDataType(this.dataType)
       ? ([undefined, args[0]] as [undefined, Partial<z.input<T>>])
       : (args as [string, Partial<z.input<T>>]);
-    const url = this.endpointFor(id);
     try {
-      const prevData = (await this.readOneById(id)) as
+      const prevData = (await this.readOneById(id, { ignoreErrors: true })) as
         Record<string, unknown> | undefined;
-      const newData = {
-        ...prevData,
-        ...data,
-      } as z.input<T>;
-
-      await this.atlasService.authenticatedFetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: this.serialize(newData),
-          createdAt: new Date(),
-        }),
-      });
+      await this.put(id, { ...prevData, ...data } as z.input<T>);
       return true;
     } catch (error) {
-      log.error(
-        mongoLogId(1_001_000_375),
-        'Atlas Backend',
-        'Error updating data',
-        {
-          url,
-          error: (error as Error).message,
-        }
-      );
+      log.error(mongoLogId(1_001_000_375), 'User Data', 'Error updating data', {
+        url: this.endpointFor(id),
+        error: (error as Error).message,
+      });
       return false;
     }
   }
 
-  // TODO: change this depending on whether or not updateAttributes can provide all current data
-  private async readOneById(id?: string): Promise<z.output<T> | undefined> {
+  // A missing document is not an error: it reads as undefined even when
+  // errors are not ignored, so callers can tell "never written" from "broken"
+  private async readOneById(
+    id: string | undefined,
+    options: ReadOptions
+  ): Promise<z.output<T> | undefined> {
     const url = this.endpointFor(id);
     try {
-      const getResponse = await this.atlasService.authenticatedFetch(url, {
+      const getResponse = await this.fetch(url, {
         method: 'GET',
       });
       const json = await getResponse.json();
-      const data = this.validator.parse(this.deserialize(json.data as string));
-      return data;
+      return this.validator.parse(this.deserialize(json.data as string));
     } catch (error) {
-      log.error(
-        mongoLogId(1_001_000_376),
-        'Atlas Backend',
-        'Error reading data',
-        {
-          url,
-          error: (error as Error).message,
-        }
-      );
+      if (isNotFound(error)) {
+        return undefined;
+      }
+      log.error(mongoLogId(1_001_000_376), 'User Data', 'Error reading data', {
+        url,
+        error: (error as Error).message,
+      });
+      if (!options.ignoreErrors) {
+        throw error;
+      }
+      return undefined;
     }
   }
 
   async readOne(
     ...args: ScopedArgs<Type, [options?: ReadOptions]>
   ): Promise<z.output<T> | undefined> {
-    const [id] = isUserScopedUserDataType(this.dataType)
-      ? [undefined]
+    const [id, options = { ignoreErrors: true }] = isUserScopedUserDataType(
+      this.dataType
+    )
+      ? [undefined, args[0] as ReadOptions | undefined]
       : (args as [string, ReadOptions?]);
-    return this.readOneById(id);
+    return this.readOneById(id, options);
+  }
+}
+
+// TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
+export class AtlasUserData<
+  T extends z.ZodType,
+  Type extends UserDataType = UserDataType,
+> extends UserData<T, Type> {
+  constructor(
+    validator: T,
+    dataType: Type,
+    options: AtlasUserDataOptions<Type, z.input<T>>
+  ) {
+    const { atlasService, serialize, deserialize, ...scope } = options;
+    super(
+      validator,
+      dataType,
+      { kind: 'atlas', atlasService, ...scope },
+      { serialize, deserialize }
+    );
   }
 }
