@@ -44,10 +44,6 @@ export function startUtilities(
     );
     ds.use(
       listen(worker, 'error', (event: ErrorEvent) => {
-        // The hosted logger is invisible in the browser console, and this is
-        // the only place a worker boot failure surfaces, so mirror it.
-        // eslint-disable-next-line no-console
-        console.error(`Utility worker ${name} failed:`, errorFromEvent(event));
         logger.log.error(
           logger.mongoLogId(1_001_000_453),
           'Utilities',
@@ -62,11 +58,7 @@ export function startUtilities(
     listen(target, 'message', (event: MessageEvent) => {
       if (event.source !== target) return;
       const worker = workers.get(event.data?.type);
-      // Workers run in their own module realm and can't see the page's
-      // multiplex link, so every port handoff also carries the WebSocket
-      // candidates the link uses; the worker's net polyfill builds its own
-      // link from them.
-      worker?.postMessage({ ...event.data }, [...event.ports]);
+      worker?.postMessage(event.data, [...event.ports]);
     })
   );
 
