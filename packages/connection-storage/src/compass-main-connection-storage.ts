@@ -10,7 +10,8 @@ import type {
 import { createLogger } from '@mongodb-js/compass-logging';
 import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-import { FileUserData, z } from '@mongodb-js/compass-user-data';
+import { UserData, z } from '@mongodb-js/compass-user-data';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 import { deleteCompassAppNameParam } from './utils';
 import {
   serializeConnections,
@@ -79,15 +80,16 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
   .loose();
 
 class CompassMainConnectionStorage implements ConnectionStorage {
-  private readonly userData: FileUserData<typeof ConnectionSchema>;
+  private readonly userData: UserData<typeof ConnectionSchema, 'Connections'>;
 
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
   private readonly ipcMain: ConnectionStorageIPCMain;
   constructor(ipcMain: ConnectionStorageIPCMain, basePath?: string) {
     this.ipcMain = ipcMain;
-    this.userData = new FileUserData(ConnectionSchema, 'Connections', {
-      basePath,
+    this.userData = new UserData(ConnectionSchema, 'Connections', {
+      kind: 'local',
+      fetch: createLocalUserDataFetch({ basePath }),
     });
     this.ipcMain.createHandle<ConnectionStorageIPCInterface>(
       'ConnectionStorage',

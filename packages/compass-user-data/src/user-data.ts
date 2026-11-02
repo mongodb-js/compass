@@ -522,8 +522,10 @@ export class UserData<
     const [id, content] = isUserScopedUserDataType(this.dataType)
       ? ([undefined, args[0]] as [undefined, z.input<T>])
       : (args as [string, z.input<T>]);
+    // Invalid content is a caller bug, so it throws rather than reading as a
+    // failed write
+    this.validator.parse(content);
     try {
-      this.validator.parse(content);
       await this.put(id, content);
       return true;
     } catch (error) {

@@ -1,4 +1,5 @@
-import { type z, FileUserData } from '@mongodb-js/compass-user-data';
+import { type z, UserData } from '@mongodb-js/compass-user-data';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 import {
   getDefaultsForStoredPreferences,
   getPreferencesValidator,
@@ -18,37 +19,36 @@ export type PreferencesSafeStorage = {
 };
 
 export class PersistentStorage implements PreferencesStorage {
-  private readonly file = 'General';
   private readonly defaultPreferences = getDefaultsForStoredPreferences();
-  private readonly userData: FileUserData<StoredPreferencesValidator>;
+  private readonly userData: UserData<
+    StoredPreferencesValidator,
+    'AppPreferences'
+  >;
   private preferences: StoredPreferences = getDefaultsForStoredPreferences();
   private safeStorage?: PreferencesSafeStorage;
 
   constructor(basePath?: string, safeStorage?: PreferencesSafeStorage) {
-    this.userData = new FileUserData(
-      getPreferencesValidator(),
-      'AppPreferences',
-      {
-        basePath,
-      }
-    );
+    this.userData = new UserData(getPreferencesValidator(), 'AppPreferences', {
+      kind: 'local',
+      fetch: createLocalUserDataFetch({ basePath }),
+    });
     this.safeStorage = safeStorage;
   }
 
   async setup() {
     try {
-      this.preferences = await this.readPreferences();
-    } catch (e) {
-      if (
-        (e as any).code === 'ENOENT' || // First time user
-        e instanceof SyntaxError // Invalid json
-      ) {
-        // Create the file for the first time
-        await this.writePreferences(this.defaultPreferences);
+      const preferences = await this.readPreferences();
+      if (preferences) {
+        this.preferences = preferences;
         return;
       }
-      throw e;
+    } catch (e) {
+      if (!(e instanceof SyntaxError)) {
+        throw e;
+      }
     }
+    // First time user, or the stored preferences are not valid JSON
+    await this.writePreferences(this.defaultPreferences);
   }
 
   private async writePreferences(
@@ -67,13 +67,14 @@ export class PersistentStorage implements PreferencesStorage {
         });
       }
     }
-    await this.userData.write(this.file, copy);
+    await this.userData.write(copy);
   }
 
-  private async readPreferences(): Promise<StoredPreferences> {
-    const copy = await this.userData.readOne(this.file, {
-      ignoreErrors: false,
-    });
+  private async readPreferences(): Promise<StoredPreferences | undefined> {
+    const copy = await this.userData.readOne({ ignoreErrors: false });
+    if (!copy) {
+      return undefined;
+    }
     for (const [key, { merge }] of listEncryptedStoredPreferences()) {
       if (copy[key]) {
         const { remainder, secrets } = JSON.parse(copy[key] as string);
@@ -108,10 +109,10 @@ export class PersistentStorage implements PreferencesStorage {
     attributes: Partial<z.input<StoredPreferencesValidator>>
   ) {
     await this.writePreferences({
-      ...(await this.readPreferences()),
+      ...((await this.readPreferences()) ?? this.defaultPreferences),
       ...attributes,
     });
 
-    this.preferences = await this.readPreferences();
+    this.preferences = (await this.readPreferences()) ?? this.preferences;
   }
 }

@@ -1,4 +1,5 @@
-import { z, FileUserData } from '@mongodb-js/compass-user-data';
+import { z, UserData } from '@mongodb-js/compass-user-data';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 import { UUID } from 'bson';
 
 const UserSchema = z.object({
@@ -23,10 +24,11 @@ export interface UserStorage {
 }
 
 export class UserStorageImpl implements UserStorage {
-  private readonly userData: FileUserData<typeof UserSchema>;
+  private readonly userData: UserData<typeof UserSchema, 'Users'>;
   constructor(basePath?: string) {
-    this.userData = new FileUserData(UserSchema, 'Users', {
-      basePath,
+    this.userData = new UserData(UserSchema, 'Users', {
+      kind: 'local',
+      fetch: createLocalUserDataFetch({ basePath }),
     });
   }
 
@@ -35,20 +37,21 @@ export class UserStorageImpl implements UserStorage {
       return this.createUser();
     }
 
-    try {
-      return await this.getUser(id);
-    } catch (e) {
-      if ((e as any).code !== 'ENOENT') {
-        throw e;
-      }
-      return await this.createUser();
-    }
+    return (await this.readUser(id)) ?? (await this.createUser());
   }
 
-  async getUser(id: string): Promise<User> {
+  private async readUser(id: string): Promise<User | undefined> {
     return await this.userData.readOne(id, {
       ignoreErrors: false,
     });
+  }
+
+  async getUser(id: string): Promise<User> {
+    const user = await this.readUser(id);
+    if (!user) {
+      throw new Error(`User ${id} does not exist`);
+    }
+    return user;
   }
 
   private async createUser(): Promise<User> {
