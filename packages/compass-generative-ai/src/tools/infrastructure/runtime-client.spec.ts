@@ -37,8 +37,8 @@ describe('tools rpc', function () {
 
   it('rejects with the error message from the other side', async function () {
     const client = createRuntimeClient(port1);
-    serveToolsRequests(port2, () => {
-      throw new Error('boom');
+    serveToolsRequests(port2, async () => {
+      return Promise.reject(new Error('boom'));
     });
 
     const error = await client
