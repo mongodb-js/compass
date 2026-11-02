@@ -71,7 +71,13 @@ const logger = createNoopLogger('EVAL-TOOLS-CONTROLLER');
 // other end of a plain MessageChannel. Held in a variable so the run can
 // release its server and driver connection when it finishes.
 const evalChannel = new MessageChannel();
-const evalHost = new ToolsHost(evalChannel.port2, { logger });
+
+// worker_threads ports are structurally identical to DOM MessagePorts but not
+// nominally, so tests bridge them with this cast.
+const asRendererPort = (port: MessageChannel['port1']): MessagePort =>
+  port as unknown as MessagePort;
+
+const evalHost = new ToolsHost(asRendererPort(evalChannel.port2), { logger });
 
 const toolsController = new ToolsController({
   logger,
@@ -80,7 +86,7 @@ const toolsController = new ToolsController({
   enableMCPTelemetry: false,
   preferences: defaultPreferencesInstance,
   atlasAdminApi: {} as AtlasAdminApiService,
-  openPort: () => evalChannel.port1,
+  openPort: () => asRendererPort(evalChannel.port1),
 });
 
 let toolsInitialized = false;
