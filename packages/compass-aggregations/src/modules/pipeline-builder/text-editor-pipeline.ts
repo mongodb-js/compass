@@ -5,6 +5,7 @@ import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-m
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
+import { getCollationForExecution } from '../collation-string';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import type { RestorePipelineAction } from '../saved-pipeline';
@@ -17,7 +18,6 @@ import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
-import type { PreviewOptions } from './pipeline-preview-manager';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type {
   LoadGeneratedPipelineAction,
@@ -35,10 +35,19 @@ export const EditorActionTypes = {
     'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchError',
   EditorValueChange:
     'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorValueChange',
+  EditorPipelineParsed:
+    'compass-aggregations/pipeline-builder/text-editor-pipeline/EditorPipelineParsed',
 } as const;
 
 export type EditorValueChangeAction = {
   type: typeof EditorActionTypes.EditorValueChange;
+  pipelineText: string;
+  pipeline: Document[] | null;
+  syntaxErrors: PipelineParserError[];
+};
+
+export type EditorPipelineParsedAction = {
+  type: typeof EditorActionTypes.EditorPipelineParsed;
   pipelineText: string;
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
@@ -67,6 +76,7 @@ export type TextEditorAction =
   | EditorPreviewFetchErrorAction
   | EditorPreviewFetchSuccessAction
   | EditorPreviewFetchSkippedAction
+  | EditorPipelineParsedAction
   | EditorValueChangeAction;
 
 export type TextEditorState = {
@@ -132,6 +142,10 @@ const reducer: Reducer<TextEditorState, Action> = (
     isAction<EditorValueChangeAction>(
       action,
       EditorActionTypes.EditorValueChange
+    ) ||
+    isAction<EditorPipelineParsedAction>(
+      action,
+      EditorActionTypes.EditorPipelineParsed
     )
   ) {
     // On pipeline text change we preserve the previous pipeline in the state
@@ -236,7 +250,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
       },
     } = getState();
 
-    if (pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
+    if (await pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
       return;
     }
 
@@ -256,20 +270,22 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
         type: EditorActionTypes.EditorPreviewFetch,
       });
 
-      const options: PreviewOptions = {
-        maxTimeMS: capMaxTimeMSAtPreferenceLimit(
-          preferences,
-          maxTimeMS ?? DEFAULT_MAX_TIME_MS
-        ),
-        collation: collationString.value ?? undefined,
-        sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
-        previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: collectionStats?.document_count,
+      const getPreviewOptions = async () => {
+        const collation = await getCollationForExecution(collationString);
+        return {
+          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            preferences,
+            maxTimeMS ?? DEFAULT_MAX_TIME_MS
+          ),
+          collation: collation ?? undefined,
+          sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
+          previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
+          totalDocumentCount: collectionStats?.document_count,
+        };
       };
-
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
         namespace,
-        options,
+        getPreviewOptions,
         true // Filter output stage
       );
 
@@ -291,8 +307,8 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
 
 export const changeEditorValue = (
   newValue: string
-): PipelineBuilderThunkAction<void, EditorValueChangeAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+): PipelineBuilderThunkAction<Promise<void>, EditorValueChangeAction> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipelineBuilder: {
         textEditor: {
@@ -305,7 +321,23 @@ export const changeEditorValue = (
       return;
     }
 
-    pipelineBuilder.changeSource(newValue);
+    const parsed = pipelineBuilder.changeSource(newValue);
+
+    // Text and syntax errors are known right away so the editor never lags
+    // behind typing; a null pipeline keeps the previous one until parsed.
+    dispatch({
+      type: EditorActionTypes.EditorValueChange,
+      pipelineText: newValue,
+      pipeline: null,
+      syntaxErrors: pipelineBuilder.syntaxError,
+    });
+
+    await parsed;
+
+    // A newer edit already took over
+    if (pipelineBuilder.source !== newValue) {
+      return;
+    }
 
     dispatch({
       type: EditorActionTypes.EditorValueChange,

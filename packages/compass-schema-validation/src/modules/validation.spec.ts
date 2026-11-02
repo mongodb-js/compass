@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { Binary, UUID } from 'bson';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { configureStore } from '../stores/store';
 
 import reducer, {
   checkValidator,
@@ -11,15 +12,23 @@ import reducer, {
   validationSaveFailed,
 } from './validation';
 
+const services = {} as Parameters<typeof configureStore>[1];
+const createStore = () => configureStore({}, services);
+
 describe('validation module', function () {
   describe('#checkValidator', function () {
-    it('returns parsed JS validation query and error information', function () {
+    it('returns parsed JS validation query and error information', async function () {
       expect(
-        checkValidator("{ $jsonSchema: { bsonType: 'object' } }")
+        await checkValidator("{ $jsonSchema: { bsonType: 'object' } }")
       ).to.deep.equal({
         syntaxError: null,
         validator: { $jsonSchema: { bsonType: 'object' } },
       });
+    });
+
+    it('returns a syntax error for invalid input', async function () {
+      const { syntaxError } = await checkValidator('{ $jsonSchema: ');
+      expect(syntaxError).to.not.equal(null);
     });
   });
 
@@ -63,22 +72,22 @@ describe('validation module', function () {
     });
 
     context('when the action is validatorChanged', function () {
-      it('returns the new state for the simple object', function () {
-        const validation = reducer(
-          undefined,
+      it('returns the new state for the simple object', async function () {
+        const store = createStore();
+        await store.dispatch(
           validatorChanged(`{
           $jsonSchema: { bsonType: 'object', required: [ 'name' ] }
         }`)
         );
 
-        expect(validation.validator).to.equal(`{
+        expect(store.getState().validation.validator).to.equal(`{
           $jsonSchema: { bsonType: 'object', required: [ 'name' ] }
         }`);
       });
 
-      it('returns the new state for the object with regex', function () {
-        const validation = reducer(
-          undefined,
+      it('returns the new state for the object with regex', async function () {
+        const store = createStore();
+        await store.dispatch(
           validatorChanged(`{
           'name': 'test',
           'options': {
@@ -96,7 +105,7 @@ describe('validation module', function () {
         }`)
         );
 
-        expect(validation.validator).to.equal(`{
+        expect(store.getState().validation.validator).to.equal(`{
           'name': 'test',
           'options': {
             'validator': {
@@ -142,7 +151,7 @@ describe('validation module', function () {
         });
       });
 
-      it('preserves BSON types so that the validator stays queryable (COMPASS-4989)', function () {
+      it('preserves BSON types so that the validator stays queryable (COMPASS-4989)', async function () {
         const keyId = new UUID(
           '48b481f0-31c7-4b2d-81d4-987ac69262a9'
         ).toBinary();
@@ -180,7 +189,9 @@ describe('validation module', function () {
         );
         expect(validation.validator).to.not.include('$binary');
 
-        const { syntaxError, validator } = checkValidator(validation.validator);
+        const { syntaxError, validator } = await checkValidator(
+          validation.validator
+        );
         expect(syntaxError).to.equal(null);
 
         const properties = (validator as any).$jsonSchema.properties;

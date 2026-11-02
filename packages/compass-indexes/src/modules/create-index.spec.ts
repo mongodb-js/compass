@@ -52,7 +52,7 @@ describe('create-index module', function () {
       store.dispatch(fieldTypeUpdated(0, 'text (full text search)'));
     });
 
-    it('validates collation', function () {
+    it('validates collation', async function () {
       Object.assign(store.getState(), {
         createIndex: {
           ...store.getState().createIndex,
@@ -66,14 +66,14 @@ describe('create-index module', function () {
           },
         },
       });
-      store.dispatch(createIndexFormSubmitted());
+      await store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.equal(
         'You must provide a valid collation object'
       );
     });
 
-    it('validates TTL', function () {
+    it('validates TTL', async function () {
       Object.assign(store.getState(), {
         createIndex: {
           ...store.getState().createIndex,
@@ -87,34 +87,34 @@ describe('create-index module', function () {
           },
         },
       });
-      store.dispatch(createIndexFormSubmitted());
+      await store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.equal(
         'Bad TTL: "not a ttl"'
       );
     });
 
-    it('validates wildcard projection', function () {
+    it('validates wildcard projection', async function () {
       setOption('wildcardProjection', 'not a wildcard projection');
-      store.dispatch(createIndexFormSubmitted());
+      await store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.match(
         /^Bad WildcardProjection: SyntaxError/
       );
     });
 
-    it('validates columnstore projection', function () {
+    it('validates columnstore projection', async function () {
       setOption('columnstoreProjection', 'not a columnstore projection');
-      store.dispatch(createIndexFormSubmitted());
+      await store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.match(
         /^Bad ColumnstoreProjection: SyntaxError/
       );
     });
 
-    it('validates partial filter expression', function () {
+    it('validates partial filter expression', async function () {
       setOption('partialFilterExpression', ''); // no partial filter expression
-      store.dispatch(createIndexFormSubmitted());
+      await store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.match(
         /^Bad PartialFilterExpression: SyntaxError/
@@ -124,7 +124,7 @@ describe('create-index module', function () {
     describe('shell syntax options', function () {
       it('parses wildcard projection written in shell syntax', async function () {
         setOption('wildcardProjection', '{ fieldA: 1, fieldB: 1, }');
-        store.dispatch(createIndexFormSubmitted());
+        await store.dispatch(createIndexFormSubmitted());
         await waitFor(() => {
           expect(createIndexSpy).to.have.been.calledOnce;
         });
@@ -140,7 +140,7 @@ describe('create-index module', function () {
 
       it('parses columnstore projection written in shell syntax', async function () {
         setOption('columnstoreProjection', "{ 'address.city': 1 }");
-        store.dispatch(createIndexFormSubmitted());
+        await store.dispatch(createIndexFormSubmitted());
         await waitFor(() => {
           expect(createIndexSpy).to.have.been.calledOnce;
         });
@@ -156,7 +156,7 @@ describe('create-index module', function () {
           'partialFilterExpression',
           "{ _id: ObjectId('642d766b7300158b1f22e972'), age: { $gt: 5 } }"
         );
-        store.dispatch(createIndexFormSubmitted());
+        await store.dispatch(createIndexFormSubmitted());
         await waitFor(() => {
           expect(createIndexSpy).to.have.been.calledOnce;
         });
@@ -175,7 +175,7 @@ describe('create-index module', function () {
           'partialFilterExpression',
           '{ "_id": { "$oid": "642d766b7300158b1f22e972" } }'
         );
-        store.dispatch(createIndexFormSubmitted());
+        await store.dispatch(createIndexFormSubmitted());
         await waitFor(() => {
           expect(createIndexSpy).to.have.been.calledOnce;
         });
@@ -186,6 +186,86 @@ describe('create-index module', function () {
         expect(partialFilterExpression._id).to.deep.equal({
           $oid: '642d766b7300158b1f22e972',
         });
+      });
+    });
+
+    describe('concurrent submissions', function () {
+      const flush = () => new Promise((resolve) => setTimeout(resolve, 50));
+
+      beforeEach(function () {
+        setOption('partialFilterExpression', '{ age: { $gt: 5 } }');
+      });
+
+      it('ignores repeated submits while validation is in flight', async function () {
+        await Promise.all([
+          store.dispatch(createIndexFormSubmitted()),
+          store.dispatch(createIndexFormSubmitted()),
+        ]);
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+        await flush();
+
+        expect(createIndexSpy).to.have.been.calledOnce;
+      });
+
+      it('allows submitting again after a validation error', async function () {
+        setOption('wildcardProjection', 'not a wildcard projection');
+        await store.dispatch(createIndexFormSubmitted());
+        expect(store.getState().createIndex.error).to.match(
+          /^Bad WildcardProjection/
+        );
+
+        setOption('wildcardProjection', '{ fieldA: 1 }');
+        await store.dispatch(createIndexFormSubmitted());
+
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+      });
+
+      it('does not submit an abandoned validation after a retry in the same modal', async function () {
+        store.dispatch(fieldAdded());
+        store.dispatch(updateFieldName(1, 'bar'));
+        store.dispatch(fieldTypeUpdated(1, '1 (asc)'));
+
+        const firstSubmit = store.dispatch(createIndexFormSubmitted());
+        store.dispatch(updateFieldName(1, 'foo'));
+        expect(store.getState().createIndex.error).to.equal(
+          'Index keys must be unique'
+        );
+
+        setOption('partialFilterExpression', '{ age: { $gt: 10 } }');
+        const retry = store.dispatch(createIndexFormSubmitted());
+        await Promise.all([firstSubmit, retry]);
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+        await flush();
+
+        expect(createIndexSpy).to.have.been.calledOnce;
+        expect(
+          createIndexSpy.firstCall.args[2].partialFilterExpression
+        ).to.deep.equal({ age: { $gt: 10 } });
+      });
+
+      it('does not create the index when the modal is closed during validation', async function () {
+        const submitted = store.dispatch(createIndexFormSubmitted());
+        store.dispatch(createIndexClosed());
+        await submitted;
+        await flush();
+
+        expect(createIndexSpy).to.not.have.been.called;
+      });
+
+      it('does not show a stale validation error after the modal is reopened', async function () {
+        setOption('wildcardProjection', 'not a wildcard projection');
+        const submitted = store.dispatch(createIndexFormSubmitted());
+        store.dispatch(createIndexClosed());
+        store.dispatch(createIndexOpened());
+        await submitted;
+
+        expect(store.getState().createIndex.error).to.equal(null);
       });
     });
   });
