@@ -44,25 +44,29 @@ describe('utils', function () {
   });
 
   describe('validateSort', function () {
-    it('should return the parsed value for valid sort input', function () {
-      expect(validateSort('{ "a": 1 }')).to.deep.equal({ a: 1 });
-      expect(validateSort('{ "a": -1 }')).to.deep.equal({ a: -1 });
-      expect(validateSort('{ "a": "asc" }')).to.deep.equal({ a: 'asc' });
-      expect(validateSort('{ "a": "desc" }')).to.deep.equal({ a: 'desc' });
-      expect(validateSort('[["a", 1], ["b", -1]]')).to.deep.equal([
+    it('should return the parsed value for valid sort input', async function () {
+      expect(await validateSort('{ "a": 1 }')).to.deep.equal({ a: 1 });
+      expect(await validateSort('{ "a": -1 }')).to.deep.equal({ a: -1 });
+      expect(await validateSort('{ "a": "asc" }')).to.deep.equal({ a: 'asc' });
+      expect(await validateSort('{ "a": "desc" }')).to.deep.equal({
+        a: 'desc',
+      });
+      expect(await validateSort('[["a", 1], ["b", -1]]')).to.deep.equal([
         ['a', 1],
         ['b', -1],
       ]);
-      expect(validateSort('{ "a": { $meta: "textScore" } }')).to.deep.equal({
+      expect(
+        await validateSort('{ "a": { $meta: "textScore" } }')
+      ).to.deep.equal({
         a: { $meta: 'textScore' },
       });
     });
 
-    it('should return null for invalid sort input', function () {
-      expect(validateSort('{ "a": 0 }')).to.equal(null);
-      expect(validateSort('{ "a": "invalid" }')).to.equal(null);
-      expect(validateSort('[["a", 0]]')).to.equal(null);
-      expect(validateSort('not a json')).to.equal(null);
+    it('should return null for invalid sort input', async function () {
+      expect(await validateSort('{ "a": 0 }')).to.equal(null);
+      expect(await validateSort('{ "a": "invalid" }')).to.equal(null);
+      expect(await validateSort('[["a", 0]]')).to.equal(null);
+      expect(await validateSort('not a json')).to.equal(null);
     });
   });
 });

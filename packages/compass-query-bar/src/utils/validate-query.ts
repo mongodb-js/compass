@@ -28,12 +28,12 @@ function isNumberValid(input: string | number) {
   return /^\d+$/.test(String(input)) ? parseInt(String(input), 10) : false;
 }
 
-function isFilterValid(input: string) {
+async function isFilterValid(input: string) {
   if (isEmpty(input)) {
     return DEFAULT_QUERY_VALUES.filter;
   }
   try {
-    return parse(input, {
+    return await parse(input, {
       mode: ParseMode.Loose,
     });
   } catch {
@@ -41,24 +41,24 @@ function isFilterValid(input: string) {
   }
 }
 
-function isProjectValid(input: string) {
+async function isProjectValid(input: string) {
   if (isEmpty(input)) {
     return DEFAULT_QUERY_VALUES.project;
   }
   try {
-    const parsed = parse(input, { mode: ParseMode.Loose });
+    const parsed = await parse(input, { mode: ParseMode.Loose });
     return isObject(parsed) && !Array.isArray(parsed) ? parsed : false;
   } catch {
     return false;
   }
 }
 
-function isSortValid(input: string) {
+async function isSortValid(input: string) {
   if (isEmpty(input)) {
     return DEFAULT_QUERY_VALUES.sort;
   }
   try {
-    const value = parse(input, {
+    const value = await parse(input, {
       mode: ParseMode.Loose,
     });
     if (value === '') {
@@ -95,24 +95,24 @@ function isValidSortDirection(direction: any) {
   );
 }
 
-function isCollationValid(input: string) {
+async function isCollationValid(input: string) {
   if (isEmpty(input)) {
     return DEFAULT_QUERY_VALUES.collation;
   }
   try {
-    const parsed = parse(input, { mode: ParseMode.Loose });
+    const parsed = await parse(input, { mode: ParseMode.Loose });
     return isObject(parsed) && !Array.isArray(parsed) ? parsed : false;
   } catch {
     return false;
   }
 }
 
-function isHintValid(input: string) {
+async function isHintValid(input: string) {
   if (isEmpty(input)) {
     return DEFAULT_QUERY_VALUES.hint;
   }
   try {
-    const parsed = parse(input, { mode: ParseMode.Loose });
+    const parsed = await parse(input, { mode: ParseMode.Loose });
     if (typeof parsed === 'string') {
       return parsed;
     }
@@ -146,18 +146,18 @@ function isMaxTimeMSValid(input: string | number): number | false {
   return isNumberValid(input);
 }
 
-function validate(what: string, input: string) {
+async function validate(what: string, input: string): Promise<any> {
   switch (what) {
     case 'filter':
-      return isFilterValid(input);
+      return await isFilterValid(input);
     case 'project':
-      return isProjectValid(input);
+      return await isProjectValid(input);
     case 'sort':
-      return isSortValid(input);
+      return await isSortValid(input);
     case 'collation':
-      return isCollationValid(input);
+      return await isCollationValid(input);
     case 'hint':
-      return isHintValid(input);
+      return await isHintValid(input);
     case 'skip':
       return isSkipValid(input);
     case 'limit':
@@ -169,7 +169,7 @@ function validate(what: string, input: string) {
   }
 }
 
-export function validateField(
+export async function validateField(
   field: string,
   value: string,
   {
@@ -177,7 +177,7 @@ export function validateField(
     maxTimeMSEnvLimit,
   }: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ) {
-  const validated = validate(field, value);
+  const validated = await validate(field, value);
   if ((field === 'filter' || field === 'hint') && validated === '') {
     return false;
   }
@@ -209,11 +209,14 @@ export function isQueryValid(fields: QueryFormFields) {
   return QUERY_PROPERTIES.every((property) => fields[property].valid);
 }
 
-export function isQueryFieldsValid(
+export async function isQueryFieldsValid(
   fields: QueryFormFields,
   preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ) {
-  return Object.entries(fields).every(
-    ([key, field]) => validateField(key, field.string, preferences) !== false
-  );
+  return await Promise.all(
+    Object.entries(fields).map(
+      async ([key, field]) =>
+        (await validateField(key, field.string, preferences)) !== false
+    )
+  ).then((results) => results.every((result) => result));
 }

@@ -28,6 +28,7 @@ import {
   deserialize as bsonDeserialize,
 } from 'bson';
 import { type Logger } from '@mongodb-js/compass-logging/provider';
+import { RemoteLink } from './remote-link';
 
 /**
  * Minimum valid BSON document size: 4 bytes for length + 1 byte for terminator.
@@ -154,7 +155,7 @@ export function addEventListener(
  * Manages a single shared WebSocket connection for a browser tab and multiplexes
  * all MongoDB driver TCP connections over it using BSON 5-tuple framing.
  */
-export class Link implements Disposable {
+export class MultiplexLink implements Disposable {
   private ws: WebSocket | null = null;
   private readonly baseUrls: string[];
   private connectedUrl: string | null = null;
@@ -171,8 +172,8 @@ export class Link implements Disposable {
   private connectReject: ((err: Error) => void) | null = null;
 
   constructor({ baseUrls, logger }: LinkOptions) {
-    this.baseUrls = _wsUrlOverride
-      ? [_wsUrlOverride]
+    this.baseUrls = wsUrlOverride
+      ? [wsUrlOverride]
       : (baseUrls ?? ['ws://localhost:1337']);
     if (!this.baseUrls.length) throw new Error('baseUrls must not be empty');
     this.logger = logger;
@@ -473,15 +474,47 @@ export class Link implements Disposable {
   }
 }
 
-let _activeLink: Link | null = null;
-export function setMultiplexLink(link: Link | null): void {
-  _activeLink = link;
+/** What sockets need from a Link: the page's Link, or a worker's RemoteLink. */
+export type Link = Pick<
+  MultiplexLink,
+  | 'allocatePort'
+  | 'registerSocket'
+  | 'unregisterSocket'
+  | 'sendData'
+  | 'sendError'
+>;
+
+/**
+ * (get|set)Link provide a way for the current global execution
+ * environment to manage the one singleton instance of a `Link`
+ * that should be shared by any code running in the current context.
+ *
+ * If the current context is NOT a worker (`!('WorkerGlobalScope' in globalThis)`)
+ * then CompassWeb will make a MultiplexLink instance that wraps our CCS websocket
+ *
+ * If the current context IS a worker (`'WorkerGlobalScope' in globalThis`) then
+ * a RemoteLink is created and sends messages back and forth to the MultiplexLink
+ * expected to exist on the main page.
+ *
+ * `activeLink` serves as the "global" holding area in either context without actually
+ * being a global variable.
+ */
+let activeLink: Link | null = null;
+export function setLink(link: Link | null): void {
+  activeLink = link;
 }
-export function getMultiplexLink(): Link | null {
-  return _activeLink;
+export function getLink(): Link | null {
+  if (!activeLink && 'WorkerGlobalScope' in globalThis) {
+    const { port1, port2 } = new MessageChannel();
+    (postMessage as Worker['postMessage'])({ channel: 'compass:link' }, [
+      port2,
+    ]);
+    activeLink = new RemoteLink(port1);
+  }
+  return activeLink;
 }
 
-let _wsUrlOverride: string | null = null;
+let wsUrlOverride: string | null = null;
 export function setWebSocketUrlOverride(url: string | null): void {
-  _wsUrlOverride = url;
+  wsUrlOverride = url;
 }

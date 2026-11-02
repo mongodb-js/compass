@@ -238,17 +238,17 @@ const getSampleDocuments = async ({
 };
 
 export const fetchSampleDocuments = (): SchemaValidationThunkAction<
-  void,
+  Promise<void>,
   FetchingSampleDocumentsAction
 > => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     dispatch(fetchingSampleDocuments());
 
     const state = getState();
     const namespace = state.namespace.ns;
     const validator = state.validation.validator;
 
-    const query = checkValidator(validator).validator;
+    const query = (await checkValidator(validator)).validator;
 
     void dispatch(fetchValidDocument({ namespace, query }));
     void dispatch(fetchInvalidDocument({ namespace, query }));

@@ -44,8 +44,8 @@ describe('explain-plan-plan', function () {
         expect(plan.isCollectionScan).to.equal(true);
       });
 
-      it('should have empty `usedIndexes`', function () {
-        expect(plan.usedIndexes).to.deep.equal([]);
+      it('should have empty `usedIndexes`', async function () {
+        expect(await plan.getUsedIndexes()).to.deep.equal([]);
       });
 
       it('should have `inMemorySort` disabled', function () {
@@ -78,8 +78,8 @@ describe('explain-plan-plan', function () {
         expect(plan.isCollectionScan).to.equal(false);
       });
 
-      it('should have the correct `usedIndexes` value', function () {
-        expect(plan.usedIndexes).to.deep.equal([
+      it('should have the correct `usedIndexes` value', async function () {
+        expect(await plan.getUsedIndexes()).to.deep.equal([
           { fields: { age: 1 }, index: 'age_1', shard: null },
         ]);
       });
@@ -116,8 +116,8 @@ describe('explain-plan-plan', function () {
         expect(plan.isCollectionScan).to.equal(false);
       });
 
-      it('should return the used index', function () {
-        expect(plan.usedIndexes).to.deep.equal([
+      it('should return the used index', async function () {
+        expect(await plan.getUsedIndexes()).to.deep.equal([
           { fields: { age: 1 }, index: 'age_1', shard: null },
         ]);
       });
@@ -130,7 +130,7 @@ describe('explain-plan-plan', function () {
     describe('Express plans', function () {
       it('should have the correct `usedIndexes` value in EXPRESS_IXSCAN', async function () {
         plan = await loadExplainFixture('express_index_scan.json');
-        expect(plan.usedIndexes).to.deep.equal([
+        expect(await plan.getUsedIndexes()).to.deep.equal([
           { fields: { a: 1, b: 1 }, index: 'a_1_b_1', shard: null },
         ]);
       });
@@ -145,14 +145,14 @@ describe('explain-plan-plan', function () {
         plan = await loadExplainFixture('express_clustered_scan.json');
         expect(plan.isClusteredScan).to.be.true;
         expect(plan.indexType).to.equal('CLUSTERED');
-        expect(plan.usedIndexes).to.deep.equal([]);
+        expect(await plan.getUsedIndexes()).to.deep.equal([]);
       });
 
       it('returns CLUSTERED indexType for CLUSTERED_IXSCAN', async function () {
         plan = await loadExplainFixture('clustered_scan.json');
         expect(plan.isClusteredScan).to.be.true;
         expect(plan.indexType).to.equal('CLUSTERED');
-        expect(plan.usedIndexes).to.deep.equal([]);
+        expect(await plan.getUsedIndexes()).to.deep.equal([]);
       });
     });
 
@@ -160,8 +160,8 @@ describe('explain-plan-plan', function () {
       beforeEach(async function () {
         plan = await loadExplainFixture('count_scan.json');
       });
-      it('should have the correct `usedIndexes` value from COUNT_SCAN stage', function () {
-        expect(plan.usedIndexes).to.deep.equal([
+      it('should have the correct `usedIndexes` value from COUNT_SCAN stage', async function () {
+        expect(await plan.getUsedIndexes()).to.deep.equal([
           { fields: { a: 1 }, index: 'a_1', shard: null },
         ]);
       });
@@ -176,8 +176,8 @@ describe('explain-plan-plan', function () {
         plan = await loadExplainFixture('idhack_stage_3.2.json');
       });
 
-      it('should recognize an IDHACK stage and return the correct index name', function () {
-        expect(plan.usedIndexes).to.deep.equal([
+      it('should recognize an IDHACK stage and return the correct index name', async function () {
+        expect(await plan.getUsedIndexes()).to.deep.equal([
           { fields: { _id: 1 }, index: '_id_', shard: null },
         ]);
         expect(plan.isCollectionScan).to.equal(false);
@@ -187,7 +187,7 @@ describe('explain-plan-plan', function () {
     describe('Multiple Indexes', function () {
       it('should detect multiple different indexes', async function () {
         plan = await loadExplainFixture('sharded_mixed_index_3.2.json');
-        expect(plan.usedIndexes).to.deep.equal([
+        expect(await plan.getUsedIndexes()).to.deep.equal([
           { index: 'age_1', shard: 'shard02', fields: { age: 1 } },
           { index: 'age_1', shard: 'shard03', fields: { age: 1 } },
           { index: null, shard: 'shard01', fields: {} },
@@ -198,7 +198,7 @@ describe('explain-plan-plan', function () {
     describe('Single Sharded Indexes', function () {
       it('should detect IDHACK stage', async function () {
         plan = await loadExplainFixture('sharded_single_index_3.2.json');
-        expect(plan.usedIndexes).to.deep.equal([
+        expect(await plan.getUsedIndexes()).to.deep.equal([
           { fields: { _id: 1 }, index: '_id_', shard: 'rsmyset' },
         ]);
       });
@@ -279,8 +279,8 @@ describe('explain-plan-plan', function () {
         expect(plan.isCollectionScan).to.equal(false);
       });
 
-      it('should have `usedIndexes`', function () {
-        expect(plan.usedIndexes).to.deep.equal([
+      it('should have `usedIndexes`', async function () {
+        expect(await plan.getUsedIndexes()).to.deep.equal([
           { fields: { abbreviation: 1 }, index: 'abbr_index', shard: null },
         ]);
       });
@@ -308,8 +308,8 @@ describe('explain-plan-plan', function () {
           expect(plan.isCollectionScan).to.equal(false);
         });
 
-        it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([
+        it('should have `usedIndexes`', async function () {
+          expect(await plan.getUsedIndexes()).to.deep.equal([
             {
               fields: { location: '2dsphere' },
               index: 'location_2dsphere',
@@ -340,8 +340,8 @@ describe('explain-plan-plan', function () {
           expect(plan.isCollectionScan).to.equal(true);
         });
 
-        it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([]);
+        it('should have `usedIndexes`', async function () {
+          expect(await plan.getUsedIndexes()).to.deep.equal([]);
         });
       });
 
@@ -352,12 +352,12 @@ describe('explain-plan-plan', function () {
           );
         });
 
-        it('should have usedIndexes in executionStats object', function () {
+        it('should have usedIndexes in executionStats object', async function () {
           const expectedIndexes = [{ fields: {}, index: '_id_', shard: null }];
           expect(plan.executionStats?.stageIndexes).to.deep.equal(
             expectedIndexes
           );
-          expect(plan.usedIndexes).to.deep.equal(expectedIndexes);
+          expect(await plan.getUsedIndexes()).to.deep.equal(expectedIndexes);
         });
       });
 
@@ -403,8 +403,8 @@ describe('explain-plan-plan', function () {
         it('should detect collection scan', function () {
           expect(plan.isCollectionScan).to.equal(false);
         });
-        it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([
+        it('should have `usedIndexes`', async function () {
+          expect(await plan.getUsedIndexes()).to.deep.equal([
             {
               fields: { 'address.location': '2dsphere' },
               index: 'address_location',
@@ -459,8 +459,8 @@ describe('explain-plan-plan', function () {
         it('should detect collection scan', function () {
           expect(plan.isCollectionScan).to.equal(true);
         });
-        it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([
+        it('should have `usedIndexes`', async function () {
+          expect(await plan.getUsedIndexes()).to.deep.equal([
             { fields: {}, index: null, shard: 'shard1' },
           ]);
         });
@@ -513,8 +513,8 @@ describe('explain-plan-plan', function () {
         it('should detect collection scan', function () {
           expect(plan.isCollectionScan).to.equal(false);
         });
-        it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([
+        it('should have `usedIndexes`', async function () {
+          expect(await plan.getUsedIndexes()).to.deep.equal([
             {
               fields: { 'address.location': '2dsphere' },
               index: 'address_location',
@@ -568,8 +568,8 @@ describe('explain-plan-plan', function () {
         it('should detect collection scan', function () {
           expect(plan.isCollectionScan).to.equal(true);
         });
-        it('should have `usedIndexes`', function () {
-          expect(plan.usedIndexes).to.deep.equal([
+        it('should have `usedIndexes`', async function () {
+          expect(await plan.getUsedIndexes()).to.deep.equal([
             { fields: {}, index: null, shard: 'shard2' },
             { fields: {}, index: null, shard: 'shard1' },
           ]);

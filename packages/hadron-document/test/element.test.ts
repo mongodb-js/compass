@@ -3164,13 +3164,14 @@ describe('Element', function () {
         a: 1,
         b: 1.5,
         c: Long.fromNumber(2),
+        d: Decimal128.fromString('1.5'),
       });
       element.get('a')?.edit(new Int32(2));
       expect(element.toShellSyntax('current', { indent: 0 })).to.equal(
-        "{a:NumberInt('2'),b:Double('1.5'),c:NumberLong('2')}"
+        "{a:NumberInt('2'),b:Double('1.5'),c:Long('2'),d:Decimal128('1.5')}"
       );
       expect(element.toShellSyntax('original', { indent: 0 })).to.equal(
-        "{a:NumberInt('1'),b:Double('1.5'),c:NumberLong('2')}"
+        "{a:NumberInt('1'),b:Double('1.5'),c:Long('2'),d:Decimal128('1.5')}"
       );
     });
 

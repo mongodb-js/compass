@@ -724,7 +724,7 @@ tasks:
       - func: prepare
       - func: install
       - func: bootstrap
-      - func: compile-compass-web
+      - func: test-can-bundle-compass-web
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
 

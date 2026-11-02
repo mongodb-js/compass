@@ -75,6 +75,17 @@ module.exports = (env, args) => {
           ? 'compass-web.mjs'
           : '[name].[contenthash].mjs';
       },
+      chunkFilename: '[name].[contenthash].mjs',
+      assetModuleFilename: (pathData) => {
+        // TODO(): Working around shell-bson-parser esm modules not having .mjs
+        // extname. The worker is loaded as a string of text and so doesn't get
+        // passed through the other filename templates
+        let ext = path.extname(pathData.filename ?? '');
+        if (ext === '.js') {
+          ext = '.mjs';
+        }
+        return `[name].[contenthash]${ext}`;
+      },
       library: {
         type: 'module',
       },
@@ -203,6 +214,14 @@ module.exports = (env, args) => {
         '@mongodb-js/atlas-local': localPolyfill('throwError'),
         // Only used by Atlas tools which we do not currently use.
         'node-fetch': false,
+      },
+    },
+    module: {
+      parser: {
+        javascript: {
+          // Must match the import in src/utilities.mts character for character
+          worker: ['CrossOriginWorker from ./cross-origin-worker.mts', '...'],
+        },
       },
     },
     externalsType: 'window',

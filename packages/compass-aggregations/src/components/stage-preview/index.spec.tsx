@@ -1,7 +1,12 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import { screen, userEvent } from '@mongodb-js/testing-library-compass';
+import type { SearchIndex } from 'mongodb-data-service';
+import {
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import HadronDocument from 'hadron-document';
@@ -77,8 +82,7 @@ const renderStagePreview = async (
           stageOperator=""
           stageMetadata={null}
           shouldRenderStage={false}
-          showSearchIndexStaleResultsBanner={false}
-          searchIndexName={null}
+          searchIndexes={[]}
           serverErrorStageIdx={null}
           pipeline={null}
           {...props}
@@ -200,7 +204,6 @@ describe('StagePreview', function () {
         stageOperator: '$search',
         documents: [],
         stageValue: '{ "index": "movies" }',
-        searchIndexName: 'movies',
       },
       DEFAULT_PIPELINE,
       {},
@@ -210,11 +213,18 @@ describe('StagePreview', function () {
         diagnoseSearchStage: diagnoseSearchStageSpy,
       }
     );
-    userEvent.click(screen.getByTestId('stage-preview-diagnose-search-button'));
-    expect(diagnoseSearchStageSpy).to.have.been.calledOnceWith({
-      stageOperator: '$search',
-      indexName: 'movies',
-      stageValue: '{ "index": "movies" }',
+    // Index name is parsed async, so retry the click until it resolves and
+    // reset the spy each attempt to assert on a single click
+    await waitFor(() => {
+      diagnoseSearchStageSpy.resetHistory();
+      userEvent.click(
+        screen.getByTestId('stage-preview-diagnose-search-button')
+      );
+      expect(diagnoseSearchStageSpy).to.have.been.calledOnceWith({
+        stageOperator: '$search',
+        indexName: 'movies',
+        stageValue: '{ "index": "movies" }',
+      });
     });
   });
   it('does not render diagnose button when not in search activation p2', async function () {
@@ -292,15 +302,22 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'test-index',
+          stageValue: '{ index: "test-index" }',
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'PENDING',
+              queryable: true,
+            } as SearchIndex,
+          ],
         },
         [{ $search: { index: 'test-index' } }],
         {},
         { enableSearchActivationP1Experiment: true }
       );
 
-      expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
+      expect(await screen.findByTestId('search-index-stale-results-banner')).to
+        .exist;
     });
 
     it('should show stale results banner for $vectorSearch', async function () {
@@ -309,15 +326,22 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$vectorSearch',
           documents: [{ _id: 1 }],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'vector-index',
+          stageValue: '{ index: "vector-index" }',
+          searchIndexes: [
+            {
+              name: 'vector-index',
+              status: 'PENDING',
+              queryable: true,
+            } as SearchIndex,
+          ],
         },
         [{ $vectorSearch: { index: 'vector-index' } }],
         {},
         { enableSearchActivationP1Experiment: true }
       );
 
-      expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
+      expect(await screen.findByTestId('search-index-stale-results-banner')).to
+        .exist;
     });
 
     it('should NOT show stale results banner when index is ready', async function () {
@@ -326,8 +350,14 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
-          showSearchIndexStaleResultsBanner: false,
-          searchIndexName: 'test-index',
+          stageValue: '{ index: "test-index" }',
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'READY',
+              queryable: true,
+            } as SearchIndex,
+          ],
         },
         [{ $search: { index: 'test-index' } }]
       );
@@ -342,8 +372,14 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
-          showSearchIndexStaleResultsBanner: false,
-          searchIndexName: 'test-index',
+          stageValue: '{ index: "test-index" }',
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'READY',
+              queryable: true,
+            } as SearchIndex,
+          ],
         },
         [{ $search: { index: 'test-index' } }]
       );
@@ -358,8 +394,7 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
-          showSearchIndexStaleResultsBanner: false,
-          searchIndexName: null,
+          searchIndexes: [],
         },
         [{ $search: {} }]
       );
@@ -389,8 +424,14 @@ describe('StagePreview', function () {
         shouldRenderStage: true,
         stageOperator: '$search',
         documents: [{ _id: 1 }],
-        showSearchIndexStaleResultsBanner: true,
-        searchIndexName: 'test-index',
+        stageValue: '{ index: "test-index" }',
+        searchIndexes: [
+          {
+            name: 'test-index',
+            status: 'PENDING',
+            queryable: true,
+          } as SearchIndex,
+        ],
       });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
