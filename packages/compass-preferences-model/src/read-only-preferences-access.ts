@@ -51,4 +51,8 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
   getPreferencesUser() {
     return getActiveUser(this);
   }
+
+  getStorageLoadError() {
+    return Promise.resolve(undefined);
+  }
 }

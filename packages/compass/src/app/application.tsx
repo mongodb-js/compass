@@ -144,6 +144,8 @@ class Application {
     const initialAutoConnectPreferences =
       await this.getWindowAutoConnectPreferences();
     const isSecretStorageAvailable = await this.checkSecretStorageIsAvailable();
+    const preferencesLoadError =
+      await defaultPreferencesInstance.getStorageLoadError();
     const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
     log.info(
       mongoLogId(1_001_000_092),
@@ -206,6 +208,14 @@ class Application {
           'Compass cannot access credential storage. You can still connect, but please note that passwords will not be saved.',
       });
       track('Secret Storage Not Available', {});
+    }
+
+    if (preferencesLoadError) {
+      openToast('preferences-load-failed', {
+        variant: 'warning',
+        title: 'Your settings could not be loaded',
+        description: `Compass is using the default settings. Changing a setting saves over the stored ones. (${preferencesLoadError})`,
+      });
     }
 
     document.querySelector('#loading-placeholder')?.remove();

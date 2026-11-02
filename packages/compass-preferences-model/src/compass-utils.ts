@@ -4,7 +4,7 @@ import type { UserStorage } from './user-storage';
 import { UserStorageImpl } from './user-storage';
 import { getActiveUserId } from './utils';
 import { setupPreferences } from './setup-preferences';
-import type { PreferencesSafeStorage } from './preferences-persistent-storage';
+import type { PreferencesSafeStorage } from './setup-preferences';
 
 export async function setupPreferencesAndUser(
   globalPreferences: ParsedGlobalPreferencesResult,

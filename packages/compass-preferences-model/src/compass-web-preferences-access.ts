@@ -8,7 +8,7 @@ import type {
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
-import type { AtlasPreferencesStorage } from './preferences-atlas';
+import type { UserDataPreferencesStorage } from './preferences-user-data-storage';
 
 // Preferences forced by the user's Atlas role (see getPermissionsFromUserRoles
 // in compass-web) must stay non-editable in the settings sandbox. readOnly is
@@ -30,7 +30,7 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
     preferencesOverrides?: Partial<AllPreferences>,
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
     runningEnvironment: CompassRunningEnvironment = 'atlas',
-    persistentStorage?: AtlasPreferencesStorage
+    persistentStorage?: UserDataPreferencesStorage
   ) {
     this._runningEnvironment = runningEnvironment;
     this._globalPreferences = globalPreferences ?? {};
@@ -94,5 +94,9 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
 
   getPreferencesUser() {
     return getActiveUser(this);
+  }
+
+  getStorageLoadError() {
+    return Promise.resolve(this._preferences.getStorageLoadError());
   }
 }

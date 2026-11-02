@@ -3,9 +3,10 @@ import path from 'node:path';
 import os from 'node:os';
 import { expect } from 'chai';
 import { createLogger } from '@mongodb-js/compass-logging';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 import { Preferences } from './preferences';
 import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
-import { PersistentStorage } from './preferences-persistent-storage';
+import { UserDataPreferencesStorage } from './preferences-user-data-storage';
 import { allPreferencesProps } from './preferences-schema';
 import type {
   UserConfigurablePreferences,
@@ -29,7 +30,10 @@ const setupPreferences = async (
   >[0]['globalPreferences'],
   runningEnvironment: string = 'desktop'
 ) => {
-  const preferencesStorage = new PersistentStorage(basePath);
+  const preferencesStorage = new UserDataPreferencesStorage({
+    kind: 'local',
+    fetch: createLocalUserDataFetch({ basePath }),
+  });
   const preferences = new Preferences({
     preferencesStorage,
     globalPreferences,

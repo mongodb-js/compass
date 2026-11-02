@@ -31,6 +31,8 @@ export interface PreferencesAccess {
   ): () => void;
   createSandbox(): Promise<PreferencesAccess>;
   getPreferencesUser(): ReturnType<typeof getActiveUser>;
+  /** Set when stored preferences could not be loaded and defaults are used */
+  getStorageLoadError(): Promise<string | undefined>;
 }
 
 type OnPreferencesChangedCallback = (
@@ -196,6 +198,10 @@ export class Preferences {
    */
   getPreferences(): AllPreferences {
     return this._computePreferenceValuesAndStates().values;
+  }
+
+  getStorageLoadError(): string | undefined {
+    return this._preferencesStorage.loadError?.message;
   }
 
   private _getUserPreferenceValues() {
