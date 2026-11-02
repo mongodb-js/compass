@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { expect } from 'chai';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 import { pipelines as PipelineFixtures } from '../test/fixtures/index';
 import { createElectronPipelineStorage } from './storage-factories';
 
@@ -24,7 +25,9 @@ describe('CompassPipelineStorage', function () {
 
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'saved-pipelines-tests'));
-    pipelineStorage = createElectronPipelineStorage({ basepath: tmpDir });
+    pipelineStorage = createElectronPipelineStorage({
+      fetch: createLocalUserDataFetch({ basePath: tmpDir }),
+    });
   });
 
   afterEach(async function () {

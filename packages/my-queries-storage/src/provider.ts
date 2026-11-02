@@ -6,14 +6,12 @@ import type { FavoriteQueryStorage, RecentQueryStorage } from './query-storage';
 
 // Define the options types locally since we deleted the original files
 export type QueryStorageOptions = {
-  basepath?: string;
   orgId?: string;
   projectId?: string;
   atlasService?: AtlasService;
 };
 
 export type PipelineStorageOptions = {
-  basePath?: string;
   orgId?: string;
   projectId?: string;
   atlasService?: AtlasService;

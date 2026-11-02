@@ -2,6 +2,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import Sinon from 'sinon';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 import {
   render,
   screen,
@@ -55,8 +56,12 @@ const FAVORITE_QUERY = {
 };
 
 async function createStore(basepath: string) {
-  const favoriteQueryStorage = createElectronFavoriteQueryStorage({ basepath });
-  const recentQueryStorage = createElectronRecentQueryStorage({ basepath });
+  const favoriteQueryStorage = createElectronFavoriteQueryStorage({
+    fetch: createLocalUserDataFetch({ basePath: basepath }),
+  });
+  const recentQueryStorage = createElectronRecentQueryStorage({
+    fetch: createLocalUserDataFetch({ basePath: basepath }),
+  });
   const preferences = await createSandboxFromDefaultPreferences();
 
   // Create mock objects for required services

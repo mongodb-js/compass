@@ -9,6 +9,7 @@ import {
   LOCAL_USER_DATA_BASE_URL,
   UserData,
   UserDataRequestError,
+  createBridgeUserDataFetch,
   createUserDataFetch,
 } from './user-data';
 
@@ -376,5 +377,48 @@ describe('createUserDataFetch', function () {
     expect(requests).to.deep.equal([
       { method: 'PUT', url: url('RecentQueries', id), body: '{}' },
     ]);
+  });
+});
+
+describe('createBridgeUserDataFetch', function () {
+  const bridgeKey = 'compassUserData';
+  let basePath: string;
+
+  beforeEach(async function () {
+    basePath = await fs.mkdtemp(path.join(os.tmpdir(), 'local-user-data'));
+    Object.assign(globalThis, {
+      [bridgeKey]: { request: createLocalUserDataHandler({ basePath }) },
+    });
+  });
+
+  afterEach(async function () {
+    delete (globalThis as Record<string, unknown>)[bridgeKey];
+    await fs.rm(basePath, { recursive: true });
+  });
+
+  it('sends requests through the preload bridge', async function () {
+    const userData = new UserData(schema, 'FavoriteQueries', {
+      kind: 'local',
+      fetch: createBridgeUserDataFetch(),
+    });
+
+    await userData.write(id, { name: 'over the bridge' });
+
+    expect(await userData.readOne(id)).to.deep.equal({
+      name: 'over the bridge',
+      count: 0,
+    });
+  });
+
+  it('fails requests while there is no bridge', async function () {
+    delete (globalThis as Record<string, unknown>)[bridgeKey];
+
+    const error = await createBridgeUserDataFetch()(url('Users')).catch(
+      (err: unknown) => err
+    );
+
+    expect(error)
+      .to.be.instanceOf(Error)
+      .with.property('message', 'User data bridge is not available');
   });
 });

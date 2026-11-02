@@ -53,12 +53,8 @@ import type {
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
 // Create mock storage access objects for testing
-const mockFavoriteQueryStorage = createElectronFavoriteQueryStorage({
-  basepath: '/tmp/test',
-});
-const mockRecentQueryStorage = createElectronRecentQueryStorage({
-  basepath: '/tmp/test',
-});
+const mockFavoriteQueryStorage = createElectronFavoriteQueryStorage();
+const mockRecentQueryStorage = createElectronRecentQueryStorage();
 
 const compassFavoriteQueryStorageAccess = {
   getStorage: () => mockFavoriteQueryStorage,

@@ -2,6 +2,10 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
+import type {
+  UserDataRequest,
+  UserDataResponse,
+} from '@mongodb-js/compass-utils';
 import writeFile from 'write-file-atomic';
 import { Semaphore } from './semaphore';
 import {
@@ -10,11 +14,7 @@ import {
   isUserScopedUserDataType,
   validUserDataTypes,
 } from './user-data';
-import type {
-  UserDataRequest,
-  UserDataResponse,
-  UserDataType,
-} from './user-data';
+import type { UserDataType } from './user-data';
 
 const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 

@@ -1,31 +1,20 @@
-import { FileUserData, z } from '@mongodb-js/compass-user-data';
-import { getAppName } from '@mongodb-js/compass-utils';
+import {
+  UserData,
+  createBridgeUserDataFetch,
+  z,
+  type AuthenticatedFetch,
+} from '@mongodb-js/compass-user-data';
 
 export class HistoryStorage {
   fileName = 'shell-history';
   userData;
-  private migrationChecked = false;
 
-  constructor(basePath?: string) {
-    this.userData = new FileUserData(z.string().array(), 'ShellHistory', {
-      basePath,
+  /** `fetch` defaults to the preload script's bridge to main */
+  constructor(fetch: AuthenticatedFetch = createBridgeUserDataFetch()) {
+    this.userData = new UserData(z.string().array(), 'ShellHistory', {
+      kind: 'local',
+      fetch,
     });
-  }
-
-  /**
-   * Migrates history from old app-name-based folder to new ShellHistory folder.
-   * Only runs once per instance and only if old folder exists.
-   */
-  private async migrateIfNeeded(): Promise<void> {
-    if (this.migrationChecked) {
-      return;
-    }
-    this.migrationChecked = true;
-
-    const oldAppName = getAppName();
-    if (oldAppName) {
-      await this.userData.migrateFromOldFolder(oldAppName);
-    }
   }
 
   /**
@@ -36,7 +25,6 @@ export class HistoryStorage {
    * newest to oldest.
    */
   async save(history: string[]) {
-    await this.migrateIfNeeded();
     await this.userData.write(this.fileName, history);
   }
 
@@ -48,11 +36,6 @@ export class HistoryStorage {
    * newest to oldest.
    */
   async load(): Promise<string[]> {
-    await this.migrateIfNeeded();
-    try {
-      return (await this.userData.readOne(this.fileName)) ?? [];
-    } catch {
-      return [];
-    }
+    return (await this.userData.readOne(this.fileName)) ?? [];
   }
 }

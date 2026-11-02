@@ -1,5 +1,10 @@
 import { EJSON } from 'bson';
-import { AtlasUserData, FileUserData } from '@mongodb-js/compass-user-data';
+import {
+  AtlasUserData,
+  UserData,
+  createBridgeUserDataFetch,
+  type AuthenticatedFetch,
+} from '@mongodb-js/compass-user-data';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
 import { PipelineSchema } from './pipeline-storage-schema';
@@ -51,36 +56,52 @@ export function createWebPipelineStorage(options: WebStorageOptions) {
 
 // Electron-specific factory functions
 export type ElectronStorageOptions = {
-  basepath?: string;
+  /** Defaults to the preload script's bridge to main */
+  fetch?: AuthenticatedFetch;
 };
+
+const localEnvironment = ({ fetch }: ElectronStorageOptions) => ({
+  kind: 'local' as const,
+  fetch: fetch ?? createBridgeUserDataFetch(),
+});
 
 export function createElectronRecentQueryStorage(
   options: ElectronStorageOptions = {}
 ) {
-  const userData = new FileUserData(RecentQuerySchema, 'RecentQueries', {
-    basePath: options.basepath,
-    serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
-  });
+  const userData = new UserData(
+    RecentQuerySchema,
+    'RecentQueries',
+    localEnvironment(options),
+    {
+      serialize: (content) => EJSON.stringify(content, undefined, 2),
+      deserialize: (content: string) => EJSON.parse(content),
+    }
+  );
   return new BaseCompassRecentQueryStorage(userData);
 }
 
 export function createElectronFavoriteQueryStorage(
   options: ElectronStorageOptions = {}
 ) {
-  const userData = new FileUserData(FavoriteQuerySchema, 'FavoriteQueries', {
-    basePath: options.basepath,
-    serialize: (content) => EJSON.stringify(content, undefined, 2),
-    deserialize: (content: string) => EJSON.parse(content),
-  });
+  const userData = new UserData(
+    FavoriteQuerySchema,
+    'FavoriteQueries',
+    localEnvironment(options),
+    {
+      serialize: (content) => EJSON.stringify(content, undefined, 2),
+      deserialize: (content: string) => EJSON.parse(content),
+    }
+  );
   return new BaseCompassFavoriteQueryStorage(userData);
 }
 
 export function createElectronPipelineStorage(
   options: ElectronStorageOptions = {}
 ) {
-  const userData = new FileUserData(PipelineSchema, 'SavedPipelines', {
-    basePath: options.basepath,
-  });
+  const userData = new UserData(
+    PipelineSchema,
+    'SavedPipelines',
+    localEnvironment(options)
+  );
   return new BaseCompassPipelineStorage<typeof PipelineSchema>(userData);
 }

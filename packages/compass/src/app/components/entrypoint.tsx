@@ -92,20 +92,18 @@ export const WithStorageProviders: React.FC<{
   children?: React.ReactNode;
 }> = ({ children }) => {
   const pipelineStorage = useInitialValue<PipelineStorageAccess>({
-    getStorage(options) {
-      return createElectronPipelineStorage({ basepath: options?.basePath });
+    getStorage() {
+      return createElectronPipelineStorage();
     },
   });
   const favoriteQueryStorage = useInitialValue<FavoriteQueryStorageAccess>({
-    getStorage(options) {
-      return createElectronFavoriteQueryStorage({
-        basepath: options?.basepath,
-      });
+    getStorage() {
+      return createElectronFavoriteQueryStorage();
     },
   });
   const recentQueryStorage = useInitialValue<RecentQueryStorageAccess>({
-    getStorage(options) {
-      return createElectronRecentQueryStorage({ basepath: options?.basepath });
+    getStorage() {
+      return createElectronRecentQueryStorage();
     },
   });
 

@@ -27,7 +27,12 @@ import {
   extractProxySecrets,
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
-import { utilityPortChannel } from '@mongodb-js/compass-utils';
+import {
+  USER_DATA_CHANNEL,
+  isUserDataRequest,
+  utilityPortChannel,
+} from '@mongodb-js/compass-utils';
+import { createLocalUserDataHandler } from '@mongodb-js/compass-user-data/local';
 import type { AutoUpdateManagerState } from './auto-update-manager';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
@@ -332,6 +337,13 @@ class CompassApplication {
         return safeStorage.isEncryptionAvailable();
       },
     });
+
+    const handleUserDataRequest = createLocalUserDataHandler();
+    ipcMain?.handle(USER_DATA_CHANNEL, (_evt, request: unknown) =>
+      isUserDataRequest(request)
+        ? handleUserDataRequest(request)
+        : { status: 400, body: JSON.stringify({ error: 'Bad Request' }) }
+    );
 
     ipcMain?.handle('coverage', () => {
       return (global as any).__coverage__;

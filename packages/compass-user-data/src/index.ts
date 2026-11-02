@@ -3,9 +3,12 @@ export type {
   UserDataType,
   AtlasServiceLike,
   UserDataEnvironment,
+  AuthenticatedFetch,
+} from './user-data';
+export type {
   UserDataRequest,
   UserDataResponse,
-} from './user-data';
+} from '@mongodb-js/compass-utils';
 export {
   IUserData,
   UserData,
@@ -14,6 +17,7 @@ export {
   UserDataRequestError,
   LOCAL_USER_DATA_BASE_URL,
   createUserDataFetch,
+  createBridgeUserDataFetch,
   assertsUserDataType,
   isUserScopedUserDataType,
 } from './user-data';

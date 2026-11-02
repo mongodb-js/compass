@@ -1,7 +1,12 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { getStoragePath } from '@mongodb-js/compass-utils';
+import { USER_DATA_BRIDGE, getStoragePath } from '@mongodb-js/compass-utils';
+import type {
+  UserDataBridge,
+  UserDataRequest,
+  UserDataResponse,
+} from '@mongodb-js/compass-utils';
 import type { z } from 'zod';
 import writeFile from 'write-file-atomic';
 import { Semaphore } from './semaphore';
@@ -51,7 +56,7 @@ export function assertsUserDataType(
 
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
-type AuthenticatedFetch = (
+export type AuthenticatedFetch = (
   url: RequestInfo | URL,
   options?: RequestInit
 ) => Promise<Response>;
@@ -391,13 +396,13 @@ export type AtlasServiceLike = {
   authenticatedFetch: AuthenticatedFetch;
 };
 
-/** Where local user data is addressed; `handleLocalUserDataRequest` serves it */
+/** Where local user data is addressed; `createLocalUserDataHandler` serves it */
 export const LOCAL_USER_DATA_BASE_URL = 'compass-user-data://local';
 
 /**
  * Where a `UserData` reads and writes. Atlas is the user-data service; local
  * is Compass's own storage, reached through a fetch that speaks the same
- * routes (see `handleLocalUserDataRequest`).
+ * routes (see `createLocalUserDataHandler`).
  */
 export type UserDataEnvironment<Type extends UserDataType = UserDataType> =
   | ({
@@ -407,18 +412,6 @@ export type UserDataEnvironment<Type extends UserDataType = UserDataType> =
       ? unknown
       : { orgId: string; projectId: string }))
   | { kind: 'local'; fetch: AuthenticatedFetch };
-
-/** A user-data request as plain data, so it can cross IPC or a contextBridge */
-export type UserDataRequest = {
-  method: string;
-  url: string;
-  body?: string;
-};
-
-export type UserDataResponse = {
-  status: number;
-  body: string;
-};
 
 /** Thrown for error statuses; `statusCode` matches AtlasServiceError's */
 export class UserDataRequestError extends Error {
@@ -448,6 +441,22 @@ export function createUserDataFetch(
     }
     return new Response(status === 204 ? null : body, { status });
   };
+}
+
+/**
+ * The fetch for local user data in the desktop renderer, which reaches it
+ * through the bridge the preload script exposes. The bridge is looked up per
+ * request, so creating this before the bridge exists is fine.
+ */
+export function createBridgeUserDataFetch(): AuthenticatedFetch {
+  return createUserDataFetch((request) => {
+    const bridge = (globalThis as Record<string, unknown>)[USER_DATA_BRIDGE] as
+      UserDataBridge | undefined;
+    if (!bridge) {
+      return Promise.reject(new Error('User data bridge is not available'));
+    }
+    return bridge.request(request);
+  });
 }
 
 function isNotFound(error: unknown): boolean {

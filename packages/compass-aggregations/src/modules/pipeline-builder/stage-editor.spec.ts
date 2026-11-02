@@ -217,9 +217,7 @@ function createStore({
         localAppRegistry: new AppRegistry(),
         atlasAiService: {} as any,
         pipelineBuilder,
-        pipelineStorage: createElectronPipelineStorage({
-          basepath: '/tmp/test',
-        }),
+        pipelineStorage: createElectronPipelineStorage(),
         instance: {} as any,
         workspaces: {} as any,
         preferences,

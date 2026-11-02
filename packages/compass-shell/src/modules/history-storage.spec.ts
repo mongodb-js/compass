@@ -2,6 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import { expect } from 'chai';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 
 import { HistoryStorage } from './history-storage';
 
@@ -15,7 +16,9 @@ describe('HistoryStorage', function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'compass-shell-test'));
     historyFilePath = path.join(tmpDir, 'ShellHistory', 'shell-history.json');
 
-    historyStorage = new HistoryStorage(tmpDir);
+    historyStorage = new HistoryStorage(
+      createLocalUserDataFetch({ basePath: tmpDir })
+    );
   });
 
   afterEach(async function () {
