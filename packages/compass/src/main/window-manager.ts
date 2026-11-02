@@ -215,12 +215,8 @@ function showConnectWindow(
   const webPreferences: WebPreferences = {
     nodeIntegration: true,
     contextIsolation: false,
-    nodeIntegrationInWorker: true,
+    nodeIntegrationInWorker: false,
     preload: path.join(__dirname, 'preload.js'),
-    // For local dev, electron can not load @mongosh/node-runtime-worker-thread
-    // worker (file:///) from the filesystem due to same-origin policy. For this
-    // reason we disable the webSecurity.
-    webSecurity: process.env.DISABLE_ELECTRON_WEB_SECURITY !== '1',
     ...opts.webPreferences,
   };
 

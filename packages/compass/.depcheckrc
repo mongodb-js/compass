@@ -11,6 +11,9 @@ ignores: [
     'macos-export-certificate-and-key',
     'mongodb-client-encryption',
     'interruptor',
+    # externalized from the embedded-shell utility bundle, which compass-shell
+    # needs at runtime
+    'web-worker',
     # webpack always externalizes 'clipboard' for legacy reasons
     'clipboard',
     # include signing-utils so that signtool.go can get to it

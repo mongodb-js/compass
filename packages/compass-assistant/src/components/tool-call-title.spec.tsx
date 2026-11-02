@@ -57,6 +57,23 @@ describe('getToolCallTitle', function () {
     expect(screen.getByText('list-databases')).to.exist;
   });
 
+  it('renders "Cancelled" immediately while the denial is still being sent', function () {
+    const toolCall: ToolUIPart = {
+      ...baseToolCall,
+      state: 'approval-responded',
+      approval: {
+        id: 'approval-1',
+        approved: false,
+        reason: TOOL_DENIAL_REASONS.userDenied,
+      },
+    };
+
+    render(<>{getToolCallTitle(toolCall, toolName)}</>);
+
+    expect(screen.getByText(/Cancelled/)).to.exist;
+    expect(screen.getByText('list-databases')).to.exist;
+  });
+
   it('renders "Cancelled" for output-denied state', function () {
     const toolCall: ToolUIPart = {
       ...baseToolCall,

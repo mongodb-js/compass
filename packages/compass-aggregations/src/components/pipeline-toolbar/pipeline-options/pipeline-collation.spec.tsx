@@ -37,6 +37,20 @@ describe('PipelineCollation', function () {
     });
   });
 
+  it('keeps every typed character of the collation', async function () {
+    // `{{` is user-event's escape for a literal `{`
+    userEvent.type(screen.getByTestId('collation-string'), "{{locale: 'fr'}");
+    await waitFor(() => {
+      expect(screen.getByTestId('collation-string')).to.have.value(
+        "{locale: 'fr'}"
+      );
+      expect(screen.getByTestId('collation-string')).to.have.attribute(
+        'aria-invalid',
+        'false'
+      );
+    });
+  });
+
   it('updates the store when a new max time ms value is typed', function () {
     userEvent.tab();
     userEvent.tab();

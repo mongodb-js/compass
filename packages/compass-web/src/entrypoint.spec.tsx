@@ -103,13 +103,13 @@ describe('CompassWeb', function () {
     await renderCompassWebAndConnect();
 
     await waitFor(() => {
-      screen.getByText('Connecting to localhost:27017');
+      expect(
+        mockConnectFn.getCall(0).args[0].connectionOptions
+      ).to.have.property(
+        'connectionString',
+        'mongodb://localhost:27017/?appName=Compass+Web'
+      );
     });
-
-    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.have.property(
-      'connectionString',
-      'mongodb://localhost:27017/?appName=Compass+Web'
-    );
 
     await waitFor(() => {
       screen.getByText('Connected to localhost:27017');

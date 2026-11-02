@@ -158,6 +158,8 @@ describe('AtlasAiService', function () {
                 type: 'response.created',
                 response: {
                   id: responseId,
+                  created_at: 0,
+                  model: 'gpt-test',
                   object: 'realtime.response',
                   status: 'in_progress',
                   output: [],
@@ -502,6 +504,8 @@ describe('AtlasAiService', function () {
                 type: 'response.created',
                 response: {
                   id: responseId,
+                  created_at: 0,
+                  model: 'gpt-test',
                   object: 'realtime.response',
                   status: 'in_progress',
                   output: [],
@@ -612,6 +616,8 @@ describe('AtlasAiService', function () {
             type: 'response.created',
             response: {
               id: responseId,
+              created_at: 0,
+              model: 'gpt-test',
               object: 'realtime.response',
               status: 'in_progress',
               output: [],

@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
-  Link,
-  getMultiplexLink,
-  setMultiplexLink,
+  MultiplexLink,
+  getLink,
+  setLink,
   parseFrame,
   buildFrame,
 } from './multiplex-link';
@@ -138,7 +138,7 @@ function makeCallbacks(): {
 }
 
 /** Open a fake socket and await the link's connect promise together. */
-async function connectLink(link: Link): Promise<FakeWebSocket> {
+async function connectLink(link: MultiplexLink): Promise<FakeWebSocket> {
   const connecting = link.connect();
   const ws = FakeWebSocket.latest();
   ws.open();
@@ -162,12 +162,12 @@ describe('MultiplexLink', function () {
   afterEach(function () {
     clock.restore();
     globalThis.WebSocket = OriginalWebSocket;
-    setMultiplexLink(null);
+    setLink(null);
   });
 
   describe('#connect()', function () {
     it('opens a WebSocket and resolves when the connection is accepted', async function () {
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ['wss://test.example.com/ccs'],
       });
       const connecting = link.connect();
@@ -178,7 +178,7 @@ describe('MultiplexLink', function () {
     });
 
     it('rejects if the link was already closed', async function () {
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ['wss://test.example.com/ccs'],
       });
       link.close('Test close');
@@ -194,11 +194,11 @@ describe('MultiplexLink', function () {
   });
 
   describe('incoming message routing', function () {
-    let link: Link;
+    let link: MultiplexLink;
     let ws: FakeWebSocket;
 
     beforeEach(async function () {
-      link = new Link({
+      link = new MultiplexLink({
         baseUrls: ['wss://test.example.com/ccs'],
       });
       ws = await connectLink(link);
@@ -267,7 +267,7 @@ describe('MultiplexLink', function () {
 
   describe('#sendData()', function () {
     it('sends a frame whose payload matches the provided data', async function () {
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ['wss://test.example.com/ccs'],
       });
       const ws = await connectLink(link);
@@ -284,7 +284,7 @@ describe('MultiplexLink', function () {
 
   describe('#sendError()', function () {
     it('sends a frame with v=-1', async function () {
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ['wss://test.example.com/ccs'],
       });
       const ws = await connectLink(link);
@@ -300,7 +300,7 @@ describe('MultiplexLink', function () {
 
   describe('#close()', function () {
     it('calls onClose on every registered socket', async function () {
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ['wss://test.example.com/ccs'],
       });
       await connectLink(link);
@@ -318,24 +318,24 @@ describe('MultiplexLink', function () {
   });
 
   describe('module-level singleton link instance', function () {
-    it('getMultiplexLink returns null by default', function () {
-      expect(getMultiplexLink()).to.be.null;
+    it('returns null from getLink by default', function () {
+      expect(getLink()).to.be.null;
     });
 
-    it('setMultiplexLink / getMultiplexLink', function () {
-      const link = new Link({
+    it('returns the link given to setLink from getLink', function () {
+      const link = new MultiplexLink({
         baseUrls: ['wss://test.example.com/ccs'],
       });
-      setMultiplexLink(link);
-      expect(getMultiplexLink()).to.equal(link);
-      setMultiplexLink(null);
-      expect(getMultiplexLink()).to.be.null;
+      setLink(link);
+      expect(getLink()).to.equal(link);
+      setLink(null);
+      expect(getLink()).to.be.null;
     });
   });
 
   describe('multi-URL racing', function () {
     it('uses the first URL to open and closes the losers', async function () {
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ['wss://a.example.com', 'wss://b.example.com'],
       });
       const connecting = link.connect();
@@ -351,7 +351,7 @@ describe('MultiplexLink', function () {
     });
 
     it('succeeds if the first URL fails but a later URL opens', async function () {
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ['wss://a.example.com', 'wss://b.example.com'],
       });
       const connecting = link.connect();
@@ -365,7 +365,7 @@ describe('MultiplexLink', function () {
     });
 
     it('rejects when all URLs fail', async function () {
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ['wss://a.example.com', 'wss://b.example.com'],
       });
       const connecting = link.connect();

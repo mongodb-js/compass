@@ -31,6 +31,8 @@ function sendToolCallResponse(
       response: {
         id: responseId,
         object: 'response',
+        created_at: 0,
+        model: 'mock-model',
         status: 'in_progress',
         output: [],
       },
@@ -58,6 +60,8 @@ function sendToolCallResponse(
       response: {
         id: responseId,
         object: 'response',
+        created_at: 0,
+        model: 'mock-model',
         status: 'completed',
         output: [item],
         usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
@@ -90,6 +94,8 @@ function sendStreamingResponse(res: http.ServerResponse, content: string) {
       response: {
         id: responseId,
         object: 'realtime.response',
+        created_at: 0,
+        model: 'mock-model',
         status: 'in_progress',
         output: [],
         usage: {
@@ -170,6 +176,8 @@ function sendStreamingResponse(res: http.ServerResponse, content: string) {
           response: {
             id: responseId,
             object: 'realtime.response',
+            created_at: 0,
+            model: 'mock-model',
             status: 'completed',
             output: [
               {

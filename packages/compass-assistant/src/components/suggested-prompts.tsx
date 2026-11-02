@@ -179,7 +179,7 @@ export const SuggestedPrompts: React.FunctionComponent<{
   const activeWorkspaceType = activeWorkspace?.type;
 
   const hasMessages = chat.messages.length > 0;
-  const chatId = chat.id;
+  const { threadId } = chat;
   // Resolve prompts based on current tab
   const prompts = useMemo(
     () =>
@@ -192,15 +192,15 @@ export const SuggestedPrompts: React.FunctionComponent<{
     [activeWorkspaceType, activeCollectionSubTab, hasMessages, enableSkills]
   );
 
-  // Create a unique key based on workspace type, subtab, and chat ID
+  // Create a unique key based on workspace type, subtab, and thread ID
   // This is used to reset the state of the selected index which is currently
   // not expected from the component's props.
   const promptsKey = useMemo(
     () =>
-      `${chatId}-${activeWorkspaceType ?? 'none'}-${
+      `${threadId}-${activeWorkspaceType ?? 'none'}-${
         activeCollectionSubTab ?? 'none'
       }`,
-    [chatId, activeWorkspaceType, activeCollectionSubTab]
+    [threadId, activeWorkspaceType, activeCollectionSubTab]
   );
 
   if (prompts.length === 0) {

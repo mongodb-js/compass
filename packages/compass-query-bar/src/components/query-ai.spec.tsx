@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import {
-  cleanup,
   render,
   screen,
   waitFor,
@@ -48,8 +47,6 @@ describe('QueryAI Component', function () {
     });
   };
 
-  afterEach(cleanup);
-
   const renderQueryAI = ({
     ...props
   }: Partial<ComponentProps<typeof QueryAI>> = {}) => {
@@ -88,7 +85,6 @@ describe('QueryAI Component', function () {
 
   afterEach(function () {
     trackingEvents = [];
-    cleanup();
     sinon.restore();
   });
 
@@ -142,7 +138,7 @@ describe('QueryAI Component', function () {
 
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
-          fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+          fields: await mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
           requestId: 'pineapple',
         });
 
@@ -187,12 +183,12 @@ describe('QueryAI Component', function () {
         store = renderQueryAI();
       });
 
-      it('should not show the feedback items', function () {
+      it('should not show the feedback items', async function () {
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
 
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
-          fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+          fields: await mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
         });
 
         // No feedback popover is shown.

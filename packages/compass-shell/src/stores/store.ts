@@ -1,14 +1,14 @@
 import type { Action, Reducer, AnyAction } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { ObjectId } from 'bson';
+import type { ShellRuntime } from '../modules/shell-runtime';
 import { createWorkerRuntime } from '../modules/worker-runtime';
 import type { ShellPluginExtraArgs } from '../plugin';
 
 /**
  * @internal exported for testing purposes
  */
-export const RuntimeMap = new Map<string, WorkerRuntime>();
+export const RuntimeMap = new Map<string, ShellRuntime>();
 
 type State = {
   // Reference to the shell runtime stored by id

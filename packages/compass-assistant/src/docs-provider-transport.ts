@@ -5,11 +5,13 @@ import {
   type UIMessageChunk,
   convertToModelMessages,
   streamText,
+  toUIMessageStream,
   wrapLanguageModel,
 } from 'ai';
-import type {
-  LanguageModelV3,
-  LanguageModelV3StreamPart,
+import {
+  getErrorMessage,
+  type LanguageModelV4,
+  type LanguageModelV4StreamPart,
 } from '@ai-sdk/provider';
 import type { AssistantMessage } from './compass-assistant-provider';
 
@@ -33,13 +35,13 @@ function createSkillsMiddleware(
   onSkillUsed: (skillName: string) => void
 ): LanguageModelMiddleware {
   return {
-    specificationVersion: 'v3',
+    specificationVersion: 'v4',
     async wrapStream({ doStream }) {
       const { stream, ...rest } = await doStream();
       const skillToolCallIds = new Set<string>();
       const transform = new TransformStream<
-        LanguageModelV3StreamPart,
-        LanguageModelV3StreamPart
+        LanguageModelV4StreamPart,
+        LanguageModelV4StreamPart
       >({
         transform(part, controller) {
           switch (part.type) {
@@ -97,7 +99,7 @@ export function shouldExcludeMessage({ metadata }: AssistantMessage) {
 }
 
 export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
-  private model: LanguageModelV3;
+  private model: LanguageModelV4;
   private origin: string;
   private getTools: () => ToolSet;
   private instructions: string;
@@ -110,7 +112,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     getThreadId,
     instructions,
   }: {
-    model: LanguageModelV3;
+    model: LanguageModelV4;
     origin: string;
     getTools?: () => ToolSet;
     getThreadId: () => string;
@@ -170,12 +172,10 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     // convert the content to an item reference and will keep the full message content.
     const finalMessages = modelMessages.map((msg) => {
       if (msg.role === 'assistant' && Array.isArray(msg.content)) {
-        // Reasoning parts without an itemId are the synthetic ones we emit for
-        // skills; the OpenAI converter would skip them with a console warning.
-        const content = msg.content.filter(
-          (part) =>
-            part.type !== 'reasoning' || part.providerOptions?.openai?.itemId
-        );
+        // The assistant API rejects `reasoning` input items ("Unsupported
+        // input type"), and the OpenAI provider drops them anyway when store is
+        // false and there is no encrypted content, with a console warning.
+        const content = msg.content.filter((part) => part.type !== 'reasoning');
         return {
           ...msg,
           content: content.map((part) => {
@@ -207,6 +207,8 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
         : []
     );
 
+    const tools = this.getTools();
+
     const result = streamText({
       model: wrapLanguageModel({
         model: this.model,
@@ -215,13 +217,14 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
         ),
       }),
       messages: finalMessages,
+      allowSystemInMessages: true,
       abortSignal: abortSignal,
       headers: {
         'X-Request-Origin': this.origin,
         'X-Client-Request-Id': lastMessage.metadata?.requestId ?? '',
         'X-Client-Thread-Id': this.getThreadId(),
       },
-      tools: this.getTools(),
+      tools,
       providerOptions: {
         openai: {
           store: false,
@@ -236,8 +239,11 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     });
 
     return Promise.resolve(
-      result.toUIMessageStream({
+      toUIMessageStream({
+        stream: result.stream,
+        tools,
         sendSources: true,
+        onError: getErrorMessage,
         messageMetadata() {
           const skillsMetadata =
             usedSkills.size > 0 ? { skillsUsed: [...usedSkills] } : undefined;
