@@ -3,7 +3,6 @@ import {
   listen,
   utilityPortChannel,
 } from '@mongodb-js/compass-utils';
-import { getMultiplexLink } from './multiplex-link.ts';
 import { CrossOriginWorker } from './cross-origin-worker.mts';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
 import { getLink } from './multiplex-link.ts';
@@ -67,10 +66,7 @@ export function startUtilities(
       // multiplex link, so every port handoff also carries the WebSocket
       // candidates the link uses; the worker's net polyfill builds its own
       // link from them.
-      worker?.postMessage(
-        { ...event.data, baseUrls: getMultiplexLink()?.urls },
-        [...event.ports]
-      );
+      worker?.postMessage({ ...event.data }, [...event.ports]);
     })
   );
 
