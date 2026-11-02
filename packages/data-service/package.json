@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-data-service",
+  "name": "@mongodb-js/mongodb-data-service",
   "description": "MongoDB Data Service",
   "author": "Durran Jordan <durran@gmail.com>",
   "bugs": {

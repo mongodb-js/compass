@@ -272,7 +272,7 @@
     "mongodb": "^7.5.0",
     "mongodb-cloud-info": "^2.3.22",
     "mongodb-connection-string-url": "^7.0.2",
-    "mongodb-data-service": "^22.41.5",
+    "@mongodb-js/mongodb-data-service": "^22.41.5",
     "mongodb-log-writer": "^2.4.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

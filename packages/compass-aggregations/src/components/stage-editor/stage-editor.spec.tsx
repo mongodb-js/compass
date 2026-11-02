@@ -4,7 +4,7 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { MongoServerError } from 'mongodb';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';

@@ -19,7 +19,7 @@ import {
   useSearchActivationProgramP1,
   useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { RootState } from '../../modules';
 import {
   isSearchStage,

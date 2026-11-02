@@ -1,5 +1,5 @@
 import type { Action, Reducer } from 'redux';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
 import { cancellableWait } from '@mongodb-js/compass-utils';

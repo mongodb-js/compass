@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { render, cleanup } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { Double } from 'bson';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastTypes } from '@mongodb-js/hadron-type-checker';
 
 import { setComboboxValue } from '../../../../../test/form-helper';
 import { SINGLE_SELECT_LABEL } from '../field-combobox';

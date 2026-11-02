@@ -1,5 +1,5 @@
 import { useAsyncValue } from '@mongodb-js/compass-components';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { SearchStageOperator } from './stage';
 import {
   getSearchIndexNameFromSearchStage,

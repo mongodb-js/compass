@@ -4,11 +4,11 @@ import toNS from '@mongodb-js/mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
-import type { Element } from 'hadron-document';
+import type { Element } from '@mongodb-js/hadron-document';
 import HadronDocument, {
   Document,
   objectToIdiomaticEJSON,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import { ParseMode, toJSString, parse } from '@mongodb-js/shell-bson-parser';
@@ -22,8 +22,8 @@ import type {
   RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 
-import type { UpdatePreview } from 'mongodb-data-service';
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { UpdatePreview } from '@mongodb-js/mongodb-data-service';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';

@@ -6,12 +6,12 @@ import {
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import { connect } from 'react-redux';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import type { RootState } from '../../modules';

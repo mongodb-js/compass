@@ -1,4 +1,4 @@
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
 import { useMemo } from 'react';
 import { variantColors } from '@leafygreen-ui/code';
 

@@ -87,7 +87,7 @@
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
-    "mongodb-data-service": "^22.41.5",
+    "@mongodb-js/mongodb-data-service": "^22.41.5",
     "nyc": "^15.1.0",
     "react-dom": "^18.3.1",
     "sinon": "^9.2.3",

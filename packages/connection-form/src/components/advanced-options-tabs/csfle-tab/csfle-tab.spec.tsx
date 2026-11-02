@@ -12,7 +12,7 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Binary } from 'bson';
 
