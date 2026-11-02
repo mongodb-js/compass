@@ -106,7 +106,7 @@ import { startUtilities } from './utilities.mts';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
-import { Link, setMultiplexLink } from './multiplex-link';
+import { MultiplexLink, setLink } from './multiplex-link';
 import { useSyncHistory } from './use-sync-history';
 import type { History } from './use-sync-history';
 import { defaultHeaders } from './url-builder';
@@ -154,12 +154,12 @@ const WithMultiplexTransport = createServiceProvider(
     useEffect(() => {
       const abortController = abortControllerRef.current;
 
-      const link = new Link({
+      const link = new MultiplexLink({
         baseUrls: ccsUrls,
         logger,
       });
 
-      setMultiplexLink(link);
+      setLink(link);
       void link.connect(abortController.signal).catch((err: Error) => {
         if (err.name === 'AbortError') {
           return;
@@ -179,7 +179,7 @@ const WithMultiplexTransport = createServiceProvider(
       return () => {
         abortController.abort();
         link.close('Compass Web Entrypoint Unmount');
-        setMultiplexLink(null);
+        setLink(null);
       };
     }, [ccsUrls, logger]);
 

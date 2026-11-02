@@ -285,7 +285,7 @@ describe('InsertDocumentDialog', function () {
     expect(editorText).to.equal(
       `{
   _id: ObjectId('642d766b7300158b1f22e972'),
-  big: NumberLong('9007199254740993')
+  big: Long('9007199254740993')
 }`
     );
   });
