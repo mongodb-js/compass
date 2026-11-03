@@ -13,7 +13,7 @@ export class InMemoryFolderStorage implements FolderStorage {
   }
 
   loadAll(): Promise<Folder[]> {
-    return Promise.resolve(this.folders);
+    return Promise.resolve(Array.from(this.folders));
   }
 
   save({ folder }: { folder: Folder }): Promise<void> {
@@ -47,7 +47,7 @@ export class InMemoryFolderAssignmentStorage implements FolderAssignmentStorage 
   }
 
   loadAll(): Promise<FolderAssignment[]> {
-    return Promise.resolve(this.assignments);
+    return Promise.resolve(Array.from(this.assignments));
   }
 
   private _findIdx({

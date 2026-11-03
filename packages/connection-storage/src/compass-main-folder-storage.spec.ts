@@ -4,25 +4,66 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import Sinon from 'sinon';
 import { expect } from 'chai';
+import {
+  type IUserData,
+  type ReadAllResult,
+} from '@mongodb-js/compass-user-data';
 
 import {
   initCompassMainFolderStorage,
-  type CompassMainFolderStorage,
-  type CompassMainFolderAssignmentStorage,
+  CompassMainFolderStorage,
+  CompassMainFolderAssignmentStorage,
   type FolderStorageIPCMain,
 } from './compass-main-folder-storage';
 import type { Folder, FolderAssignment } from './folder-storage';
+
+// A minimal IUserData double. The injected-userData constructor is only
+// testable in isolation if something other than FileUserData can stand in for
+// it, so this is also a check that the dependency injection works at all.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createFakeUserData(
+  overrides: {
+    write?: () => Promise<boolean>;
+    delete?: () => Promise<boolean>;
+    readAll?: () => Promise<ReadAllResult<any>>;
+  } = {}
+  // The storage classes are generic over the module's own (unexported) zod
+  // schemas, which this fake has no way to name from outside the module --
+  // `any` here stands in for "whatever schema the class under test expects".
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): IUserData<any> {
+  return {
+    write: overrides.write ?? (() => Promise.resolve(true)),
+    delete: overrides.delete ?? (() => Promise.resolve(true)),
+    readAll:
+      overrides.readAll ?? (() => Promise.resolve({ data: [], errors: [] })),
+    readOne: () => Promise.resolve(undefined),
+    updateAttributes: () => Promise.resolve(true),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as unknown as IUserData<any>;
+}
+
+function createFakeIpcMain(): FolderStorageIPCMain {
+  return { createHandle: Sinon.stub() };
+}
 
 function getFolderFilePath(tmpDir: string, id: string): string {
   return path.join(tmpDir, 'Folders', `${id}.json`);
 }
 
-function getFolderAssignmentFilePath(
-  tmpDir: string,
-  itemType: FolderAssignment['itemType'],
-  itemId: string
-): string {
-  return path.join(tmpDir, 'FolderAssignments', `${itemType}-${itemId}.json`);
+// The assignment's storage id is an opaque UUID, not derived from
+// (itemType, itemId), so tests that need to inspect the file on disk find it
+// by listing the directory rather than computing its name.
+async function readAssignmentFiles(
+  tmpDir: string
+): Promise<Record<string, unknown>[]> {
+  const dir = path.join(tmpDir, 'FolderAssignments');
+  const fileNames = await fs.readdir(dir).catch(() => []);
+  return Promise.all(
+    fileNames.map(async (fileName) =>
+      JSON.parse(await fs.readFile(path.join(dir, fileName), 'utf-8'))
+    )
+  );
 }
 
 async function writeFakeFolder(
@@ -212,18 +253,28 @@ describe('FolderStorage', function () {
     });
 
     describe('save', function () {
-      it('should key the file by item type and item id', async function () {
+      it('should give the file a storage id instead of a filename derived from the item', async function () {
+        // A filename derived from (itemType, itemId) isn't a well-formed id on
+        // the web backend, so each record is stored under its own UUID and the
+        // (itemType, itemId) pair is looked up from the file's contents.
         const assignment = getFolderAssignment();
         await folderAssignmentStorage.save({ assignment });
 
-        const filePath = getFolderAssignmentFilePath(
-          tmpDir,
-          assignment.itemType,
-          assignment.itemId
+        const [stored] = await readAssignmentFiles(tmpDir);
+        expect(stored).to.include(assignment);
+        expect(stored.id).to.be.a('string');
+        expect(stored.id).to.not.equal(
+          `${assignment.itemType}-${assignment.itemId}`
         );
-        expect(JSON.parse(await fs.readFile(filePath, 'utf-8'))).to.deep.equal(
-          assignment
-        );
+      });
+
+      it('should not expose the storage id through the public interface', async function () {
+        const assignment = getFolderAssignment();
+        await folderAssignmentStorage.save({ assignment });
+
+        expect(await folderAssignmentStorage.loadAll()).to.deep.equal([
+          assignment,
+        ]);
       });
 
       it('should move an item in a single record', async function () {
@@ -247,6 +298,10 @@ describe('FolderStorage', function () {
             folderId: secondFolderId,
           },
         });
+
+        // Still exactly one file: the move looked up and overwrote the
+        // existing record instead of creating a second one.
+        expect(await readAssignmentFiles(tmpDir)).to.have.lengthOf(1);
 
         const assignments = await folderAssignmentStorage.loadAll();
         expect(assignments).to.deep.equal([
@@ -286,6 +341,113 @@ describe('FolderStorage', function () {
           itemId: '',
         });
       });
+    });
+  });
+});
+
+describe('dependency injection', function () {
+  describe('CompassMainFolderStorage', function () {
+    it('should reject save when the injected userData reports failure', async function () {
+      const userData = createFakeUserData({
+        write: () => Promise.resolve(false),
+      });
+      const storage = new CompassMainFolderStorage(
+        userData,
+        createFakeIpcMain()
+      );
+
+      expect(
+        await storage.save({ folder: getFolder() }).catch((err) => err)
+      ).to.be.an('error');
+    });
+
+    it('should reject delete when the injected userData reports failure', async function () {
+      const userData = createFakeUserData({
+        delete: () => Promise.resolve(false),
+      });
+      const storage = new CompassMainFolderStorage(
+        userData,
+        createFakeIpcMain()
+      );
+
+      expect(
+        await storage.delete({ id: randomUUID() }).catch((err) => err)
+      ).to.be.an('error');
+    });
+
+    it('should still return the readable folders when readAll reports some errors', async function () {
+      // FileUserData's own default options mean a corrupt file never reaches
+      // this branch (it logs and drops the entry before errors is populated).
+      // A backend that always reports errors on readAll, such as a future
+      // Atlas-backed implementation, needs this handled at this layer instead.
+      const folder = getFolder();
+      const userData = createFakeUserData({
+        readAll: () =>
+          Promise.resolve({ data: [folder], errors: [new Error('boom')] }),
+      });
+      const storage = new CompassMainFolderStorage(
+        userData,
+        createFakeIpcMain()
+      );
+
+      expect(await storage.loadAll()).to.deep.equal([folder]);
+    });
+  });
+
+  describe('CompassMainFolderAssignmentStorage', function () {
+    it('should reject save when the injected userData reports failure', async function () {
+      const userData = createFakeUserData({
+        write: () => Promise.resolve(false),
+      });
+      const storage = new CompassMainFolderAssignmentStorage(
+        userData,
+        createFakeIpcMain()
+      );
+
+      expect(
+        await storage
+          .save({ assignment: getFolderAssignment() })
+          .catch((err) => err)
+      ).to.be.an('error');
+    });
+
+    it('should reject delete when the injected userData reports failure', async function () {
+      const assignment = getFolderAssignment();
+      const userData = createFakeUserData({
+        readAll: () =>
+          Promise.resolve({
+            data: [{ ...assignment, id: randomUUID() }],
+            errors: [],
+          }),
+        delete: () => Promise.resolve(false),
+      });
+      const storage = new CompassMainFolderAssignmentStorage(
+        userData,
+        createFakeIpcMain()
+      );
+
+      expect(
+        await storage
+          .delete({ itemType: assignment.itemType, itemId: assignment.itemId })
+          .catch((err) => err)
+      ).to.be.an('error');
+    });
+
+    it('should still return the readable assignments when readAll reports some errors', async function () {
+      const assignment = getFolderAssignment();
+      const userData = createFakeUserData({
+        readAll: () =>
+          Promise.resolve({
+            data: [{ ...assignment, id: randomUUID() }],
+            errors: [new Error('boom')],
+          }),
+      });
+      const storage = new CompassMainFolderAssignmentStorage(
+        userData,
+        createFakeIpcMain()
+      );
+
+      expect(await storage.loadAll()).to.deep.equal([assignment]);
     });
   });
 });
