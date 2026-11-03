@@ -1,4 +1,4 @@
-import { isCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
+import { raceWithAbort } from '@mongodb-js/compass-utils';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { mongoLogId } from './logger';
 
@@ -39,7 +39,7 @@ export class ConnectionAttempt {
       this._connect(connectionOptions),
       this._abortController.signal
     ).catch((err) => {
-      if (!isCancelError(err)) throw err;
+      if ((err as Error)?.name !== 'AbortError') throw err;
     });
   }
 
