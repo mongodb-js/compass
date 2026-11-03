@@ -1,71 +1,60 @@
-import type { DependencyList } from 'react';
 import { useEffect, useState } from 'react';
-import { useCurrentValueRef } from './use-current-value-ref';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
-export type AsyncValueResult<T> = {
-  value: T | undefined;
+export type ParsedShellValue = {
+  value: unknown;
   error: Error | undefined;
   pending: boolean;
 };
 
-function areDepsEqual(a: DependencyList, b: DependencyList): boolean {
-  if (a.length !== b.length) {
-    return false;
+type Settled = { source: string; value?: unknown; error?: Error };
+
+async function parseObject(
+  source: string
+): Promise<{ value: unknown } | { error: Error }> {
+  try {
+    const value = await parse(source, {
+      mode: ParseMode.Strict,
+      allowComments: true,
+      allowMethods: true,
+    });
+    if (!value || typeof value !== 'object') {
+      // XXX(COMPASS-5689): the parser returns primitives for some invalid
+      // sources instead of throwing.
+      throw new Error('Source expression is invalid');
+    }
+    return { value };
+  } catch (error) {
+    return { error: error instanceof Error ? error : new Error(String(error)) };
   }
-  return a.every((dep, index) => Object.is(dep, b[index]));
 }
 
 /**
- * Only for async values derived from local component state when parsing user
- * input.
- *
- * @deprecated Use redux for managing async values within a component instead.
+ * Parses shell syntax source asynchronously. Only for values derived from
+ * local component state when parsing user input; anything derived from the
+ * result should be computed in the consuming component.
  */
-export function useParsedShellValue<T>(
-  task: () => Promise<T>,
-  deps: DependencyList
-): AsyncValueResult<T> {
-  const taskRef = useCurrentValueRef(task);
-  const [activeTask, setActiveTask] = useState({ deps, taskId: 0 });
-  const [settled, setSettled] = useState<{
-    taskId: number;
-    value?: T;
-    error?: Error;
-  } | null>(null);
-
-  // Deps equality alone can't tell runs apart (A -> B -> A), so every change
-  // starts a new taskId. Updating state during render keeps `pending`
-  // accurate on the very render where deps change.
-  let taskId = activeTask.taskId;
-  if (!areDepsEqual(activeTask.deps, deps)) {
-    taskId = activeTask.taskId + 1;
-    setActiveTask({ deps, taskId });
-  }
+export function useParsedShellValue(source: string): ParsedShellValue {
+  const [settled, setSettled] = useState<Settled | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    void taskRef
-      .current()
-      .then(
-        (value) => ({ value }),
-        (error: unknown) => ({
-          error: error instanceof Error ? error : new Error(String(error)),
-        })
-      )
-      .then((result) => {
-        if (cancelled) {
-          return;
-        }
-        setSettled({ taskId, ...result });
-      });
+    void parseObject(source).then((result) => {
+      if (!cancelled) {
+        setSettled({ source, ...result });
+      }
+    });
     return () => {
       cancelled = true;
     };
-  }, [taskRef, taskId]);
+  }, [source]);
 
+  // The previous result is kept while pending to avoid flicker. Comparing
+  // sources keeps `pending` accurate on the render where source changes,
+  // before the effect has run.
   return {
     value: settled?.value,
     error: settled?.error,
-    pending: settled?.taskId !== taskId,
+    pending: settled?.source !== source,
   };
 }

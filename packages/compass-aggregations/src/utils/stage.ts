@@ -266,38 +266,54 @@ export async function getSearchIndexNameFromSearchStage(
   }
 }
 
+export type SearchStageInfo = {
+  searchIndexName: string | null;
+  searchStageOperator: SearchStageOperator | null;
+};
+
+export const NO_SEARCH_STAGE_INFO: SearchStageInfo = {
+  searchIndexName: null,
+  searchStageOperator: null,
+};
+
+/**
+ * Extracts the stage operator and index name from the first stage of an
+ * already parsed pipeline. Search stages must be the first stage in a pipeline.
+ */
+export function getSearchStageInfoFromParsedPipeline(
+  pipeline: unknown
+): SearchStageInfo {
+  if (!Array.isArray(pipeline) || pipeline.length === 0) {
+    return NO_SEARCH_STAGE_INFO;
+  }
+
+  const firstStage = pipeline[0] as Document;
+  const stageOperator = getStageOperator(firstStage);
+
+  if (!isSearchStage(stageOperator)) {
+    return NO_SEARCH_STAGE_INFO;
+  }
+
+  const indexName = firstStage[stageOperator]?.index;
+  return {
+    searchIndexName: typeof indexName === 'string' ? indexName : null,
+    searchStageOperator: stageOperator,
+  };
+}
+
 /**
  * Finds the search stage ($search, $searchMeta, or $vectorSearch) in a pipeline
  * and extracts both the stage operator and index name from it.
- * Search stages must be the first stage in a pipeline.
  */
 export async function getSearchStageInfoFromPipeline(
   pipelineText: string
-): Promise<{
-  searchIndexName: string | null;
-  searchStageOperator: SearchStageOperator | null;
-}> {
-  const invalid = { searchIndexName: null, searchStageOperator: null };
+): Promise<SearchStageInfo> {
   try {
-    const pipeline = await parseShellBSON<Document[]>(pipelineText);
-    if (!Array.isArray(pipeline) || pipeline.length === 0) {
-      return invalid;
-    }
-
-    const firstStage = pipeline[0];
-    const stageOperator = getStageOperator(firstStage);
-
-    if (!isSearchStage(stageOperator)) {
-      return invalid;
-    }
-
-    const indexName = firstStage[stageOperator]?.index;
-    return {
-      searchIndexName: typeof indexName === 'string' ? indexName : null,
-      searchStageOperator: stageOperator,
-    };
+    return getSearchStageInfoFromParsedPipeline(
+      await parseShellBSON<Document[]>(pipelineText)
+    );
   } catch {
-    return invalid;
+    return NO_SEARCH_STAGE_INFO;
   }
 }
 

@@ -142,17 +142,17 @@ describe('InsertDocumentDialog', function () {
         updateInsertDocText={noop}
         insertDocument={insertDocument}
         insertMany={insertMany}
-        insertView="json"
+        insertView="shell"
       />
     );
 
     const insertButton = screen.getByRole('button', { name: 'Insert' });
-    const shellViewButton = () =>
+    const jsonViewButton = () =>
       screen
-        .getByTestId('insert-document-dialog-view-shell')
+        .getByTestId('insert-document-dialog-view-json')
         .querySelector('button');
     expect(insertButton).to.have.attribute('aria-disabled', 'true');
-    expect(shellViewButton()).to.have.property('disabled', true);
+    expect(jsonViewButton()).to.have.property('disabled', true);
 
     userEvent.click(insertButton);
     expect(insertDocument).to.not.have.been.called;
@@ -161,7 +161,7 @@ describe('InsertDocumentDialog', function () {
     await waitFor(() => {
       expect(insertButton).to.not.have.attribute('aria-disabled', 'true');
     });
-    expect(shellViewButton()).to.have.property('disabled', false);
+    expect(jsonViewButton()).to.have.property('disabled', false);
 
     userEvent.click(insertButton);
     await waitFor(() => expect(insertMany).to.have.been.calledOnce);

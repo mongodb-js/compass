@@ -1,40 +1,26 @@
 import React from 'react';
 import { expect } from 'chai';
-import {
-  act,
-  render,
-  screen,
-  waitFor,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, waitFor } from '@mongodb-js/testing-library-compass';
 
 import { useParsedShellValue } from './use-parsed-shell-value';
-import type { AsyncValueResult } from './use-parsed-shell-value';
+import type { ParsedShellValue } from './use-parsed-shell-value';
 
-async function settle(fn: () => void) {
-  await act(async () => {
-    fn();
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  });
-}
-
-function TestComponent<T>({
-  task,
-  deps,
+function TestComponent({
+  source,
   onRender,
 }: {
-  task: () => Promise<T>;
-  deps: React.DependencyList;
-  onRender: (result: AsyncValueResult<T>) => void;
+  source: string;
+  onRender?: (result: ParsedShellValue) => void;
 }) {
-  const result = useParsedShellValue(task, deps);
-  onRender(result);
+  const result = useParsedShellValue(source);
+  onRender?.(result);
   return (
     <div>
       {result.pending && <span data-testid="pending">pending</span>}
       {result.error && (
         <span data-testid="error">error: {result.error.message}</span>
       )}
-      {result.value && (
+      {!!result.value && (
         <span data-testid="value">{JSON.stringify(result.value)}</span>
       )}
     </div>
@@ -42,123 +28,58 @@ function TestComponent<T>({
 }
 
 describe('useParsedShellValue', function () {
-  it('resolves the task and stops being pending', async function () {
-    const renders: AsyncValueResult<string>[] = [];
+  it('parses shell syntax and stops being pending', async function () {
+    const renders: ParsedShellValue[] = [];
     render(
       <TestComponent
-        task={() => Promise.resolve('parsed')}
-        deps={['a']}
+        source="{ a: 1 } // comment"
         onRender={(result) => renders.push(result)}
       />
     );
 
     expect(renders.at(-1)).to.have.property('pending', true);
-
     await waitFor(() => {
-      expect(screen.getByTestId('value')).to.have.text('"parsed"');
+      expect(screen.getByTestId('value')).to.have.text('{"a":1}');
     });
     expect(renders.at(-1)).to.have.property('pending', false);
-    expect(renders.at(-1)).to.have.property('value', 'parsed');
   });
 
-  it('exposes a failed task as an error', async function () {
-    render(
-      <TestComponent
-        task={() => Promise.reject(new Error('invalid'))}
-        deps={['a']}
-        onRender={() => {}}
-      />
-    );
+  it('exposes a parse failure as an error', async function () {
+    render(<TestComponent source="{ invalid bson }" />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('error')).to.have.text('error: invalid');
+      expect(screen.getByTestId('error')).to.exist;
+    });
+    expect(screen.queryByTestId('pending')).to.not.exist;
+  });
+
+  it('treats a primitive result as an error', async function () {
+    render(<TestComponent source="42" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error')).to.have.text(
+        'error: Source expression is invalid'
+      );
     });
   });
 
-  it('wraps a non-Error rejection', async function () {
-    render(
-      <TestComponent
-        task={() => Promise.reject('nope')}
-        deps={['a']}
-        onRender={() => {}}
-      />
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId('error')).to.have.text('error: nope');
-    });
-  });
-
-  it('is pending on the render where the deps change, before the effect runs', async function () {
-    const renders: AsyncValueResult<string>[] = [];
+  it('is pending on the render where the source changes and keeps the last value', async function () {
+    const renders: ParsedShellValue[] = [];
+    const onRender = (result: ParsedShellValue) => renders.push(result);
     const { rerender } = render(
-      <TestComponent
-        task={() => Promise.resolve('first')}
-        deps={['a']}
-        onRender={(result) => renders.push(result)}
-      />
+      <TestComponent source="{ a: 1 }" onRender={onRender} />
     );
     await waitFor(() => {
-      expect(screen.getByTestId('value')).to.have.text('"first"');
+      expect(screen.getByTestId('value')).to.have.text('{"a":1}');
     });
 
     renders.length = 0;
-    rerender(
-      <TestComponent
-        task={() => Promise.resolve('second')}
-        deps={['b']}
-        onRender={(result) => renders.push(result)}
-      />
-    );
+    rerender(<TestComponent source="{ a: 2 }" onRender={onRender} />);
 
-    // First render after the change: the old value is still there, but it is
-    // already marked as not belonging to the current input.
-    expect(renders[0]).to.have.property('pending', true);
-    expect(renders[0]).to.have.property('value', 'first');
-  });
-
-  it('keeps the value of the last finished run and drops superseded results', async function () {
-    const resolvers: Array<(value: string) => void> = [];
-    const task = () =>
-      new Promise<string>((resolve) => {
-        resolvers.push(resolve);
-      });
-    const { rerender } = render(
-      <TestComponent task={task} deps={['a']} onRender={() => {}} />
-    );
-    await waitFor(() => expect(resolvers).to.have.lengthOf(1));
-
-    // Start a second run while the first is still in flight.
-    rerender(<TestComponent task={task} deps={['b']} onRender={() => {}} />);
-    await waitFor(() => expect(resolvers).to.have.lengthOf(2));
-
-    // The first run finishes last: its result must be ignored.
-    resolvers[1]('second');
+    expect(renders[0]).to.deep.include({ pending: true, value: { a: 1 } });
     await waitFor(() => {
-      expect(screen.getByTestId('value')).to.have.text('"second"');
+      expect(screen.getByTestId('value')).to.have.text('{"a":2}');
     });
-    await settle(() => resolvers[0]('first'));
-    expect(screen.getByTestId('value')).to.have.text('"second"');
-  });
-
-  it('ignores a result that arrives after unmount', async function () {
-    let resolveTask: (value: string) => void = () => {};
-    let renderCount = 0;
-    const { unmount } = render(
-      <TestComponent
-        task={() =>
-          new Promise<string>((resolve) => {
-            resolveTask = resolve;
-          })
-        }
-        deps={['a']}
-        onRender={() => renderCount++}
-      />
-    );
-
-    unmount();
-    const renderCountAtUnmount = renderCount;
-    await settle(() => resolveTask('late'));
-    expect(renderCount).to.equal(renderCountAtUnmount);
+    expect(renders.at(-1)).to.have.property('pending', false);
   });
 });

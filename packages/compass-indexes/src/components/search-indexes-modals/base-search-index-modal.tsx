@@ -49,7 +49,6 @@ import {
   type VectorIndexTemplateChoice,
 } from '../search-index-template-dropdown/vector-search-index-template-dropdown';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
 import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
 
@@ -123,34 +122,6 @@ function getParseErrorOffset(error: Error, source: string): number | undefined {
     offset += lines[i].length + 1;
   }
   return Math.min(offset + column, source.length);
-}
-
-// Compares two index definitions by their parsed value rather than their raw
-// text, so that formatting-only edits (whitespace, key ordering) are treated as
-// unchanged. This mirrors the isEqual no-op guard in the updateIndex thunk so
-// that the Save button is disabled exactly when a submit would be a no-op.
-async function areIndexDefinitionsEqual(
-  a: string,
-  b: string
-): Promise<boolean> {
-  try {
-    const [parsedA, parsedB] = await Promise.all([
-      parseShellBSON(a),
-      parseShellBSON(b),
-    ]);
-    return isEqual(parsedA, parsedB);
-  } catch {
-    return false;
-  }
-}
-
-async function isAutoEmbedDefinition(definition: string): Promise<boolean> {
-  try {
-    const latestDefinition = (await parseShellBSON(definition)) as Document;
-    return isAutoEmbedIndex({ latestDefinition });
-  } catch {
-    return false;
-  }
 }
 
 type BaseSearchIndexModalProps = {
@@ -245,10 +216,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     };
   });
 
-  const { error: parsingError } = useParsedShellValue(
-    () => parseShellBSON(indexDefinition),
-    [indexDefinition]
-  );
+  const { error: parsingError } = useParsedShellValue(indexDefinition);
   const annotations = useMemo<Annotation[]>(() => {
     const pos =
       parsingError && getParseErrorOffset(parsingError, indexDefinition);
@@ -415,9 +383,16 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const isAutoEmbedPreviewMessagingActive =
     enableAutoEmbeddingPublicPreview && !enableAutoEmbeddingGaRelease;
 
-  const { value: isInitialDefinitionAutoEmbed = false } = useParsedShellValue(
-    () => isAutoEmbedDefinition(initialIndexDefinition),
-    [initialIndexDefinition]
+  const { value: initialParsedDefinition } = useParsedShellValue(
+    initialIndexDefinition
+  );
+  const isInitialDefinitionAutoEmbed = useMemo(
+    () =>
+      !!initialParsedDefinition &&
+      isAutoEmbedIndex({
+        latestDefinition: initialParsedDefinition as Document,
+      }),
+    [initialParsedDefinition]
   );
 
   const showAutoEmbedEditRestrictedBanner =
@@ -438,19 +413,19 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   // drift from background polling) and by parsed value (so formatting-only edits
   // don't count as a change). This avoids no-op submits that would otherwise be
   // silently dropped by the updateIndex thunk.
-  const {
-    value: isDefinitionEqualToSnapshot,
-    pending: isDefinitionComparisonPending,
-  } = useParsedShellValue(
-    () =>
-      areIndexDefinitionsEqual(indexDefinition, initialIndexDefinitionSnapshot),
-    [indexDefinition, initialIndexDefinitionSnapshot]
-  );
+  const { value: parsedDefinition, pending: isDefinitionPending } =
+    useParsedShellValue(indexDefinition);
+  const { value: parsedSnapshot, pending: isSnapshotPending } =
+    useParsedShellValue(initialIndexDefinitionSnapshot);
+  const isDefinitionComparisonPending =
+    isDefinitionPending || isSnapshotPending;
+  const isDefinitionEqualToSnapshot =
+    parsedDefinition !== undefined && isEqual(parsedDefinition, parsedSnapshot);
   // Treat a pending comparison as unchanged so Save can't be clicked for a
   // definition that hasn't been checked yet.
   const isIndexDefinitionUnchanged =
     mode === 'update' &&
-    (isDefinitionComparisonPending || isDefinitionEqualToSnapshot === true);
+    (isDefinitionComparisonPending || isDefinitionEqualToSnapshot);
 
   return (
     <Modal

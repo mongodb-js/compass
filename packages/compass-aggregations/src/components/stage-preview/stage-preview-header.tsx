@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Body,
@@ -7,10 +7,10 @@ import {
   useParsedShellValue,
 } from '@mongodb-js/compass-components';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import type { Document } from 'mongodb';
 import type { RootState } from '../../modules';
 import { getStageDestination, getStageInfo } from '../../utils/stage';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
-import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
 const OperatorLink: React.FunctionComponent<{
   stageOperator: string;
@@ -48,7 +48,6 @@ export type StagePreviewHeaderProps = {
 };
 
 function StagePreviewHeaderInner({
-  index,
   namespace,
   stageOperator,
   stageValue,
@@ -56,28 +55,16 @@ function StagePreviewHeaderInner({
   description,
   link,
 }: StagePreviewHeaderProps) {
-  const { value } = useParsedShellValue(async () => {
-    if (!stageOperator) {
-      return null;
-    }
-    try {
-      const stage = await parseShellBSON<Document>(
-        `{${stageOperator}: ${stageValue}}`
-      );
-      return {
-        index,
-        stageOperator,
-        destination: getStageDestination(namespace, stage),
-      };
-    } catch {
-      return null;
-    }
-  }, [index, namespace, stageOperator, stageValue]);
-
-  const destination =
-    value?.index === index && value.stageOperator === stageOperator
-      ? value.destination
-      : null;
+  const { value: stage, pending } = useParsedShellValue(
+    stageOperator ? `{${stageOperator}: ${stageValue}}` : ''
+  );
+  const destination = useMemo(
+    () =>
+      stageOperator && stage && !pending
+        ? getStageDestination(namespace, stage as Document)
+        : null,
+    [namespace, stageOperator, stage, pending]
+  );
 
   if (!stageOperator) {
     return null;
