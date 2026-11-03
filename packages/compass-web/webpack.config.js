@@ -76,16 +76,6 @@ module.exports = (env, args) => {
           : '[name].[contenthash].mjs';
       },
       chunkFilename: '[name].[contenthash].mjs',
-      assetModuleFilename: (pathData) => {
-        // TODO(): Working around shell-bson-parser esm modules not having .mjs
-        // extname. The worker is loaded as a string of text and so doesn't get
-        // passed through the other filename templates
-        let ext = path.extname(pathData.filename ?? '');
-        if (ext === '.js') {
-          ext = '.mjs';
-        }
-        return `[name].[contenthash]${ext}`;
-      },
       library: {
         type: 'module',
       },
