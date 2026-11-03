@@ -4,5 +4,6 @@ Helpers that treat DOM `EventTarget`s (including `AbortSignal` and `MessagePort`
 
 - `listen` adds a listener and returns a `Disposable` that removes it.
 - `once` and `waitUntil` resolve with the arguments of the next matching event.
-- `raceWithAbort` rejects a promise as soon as an `AbortSignal` aborts.
+- `addAbortListener` listens once for `abort` and returns a `Disposable`.
+- `abortable` rejects a promise as soon as an `AbortSignal` aborts.
 - `errorFromEvent` gets the `Error` behind an `error` event.

@@ -1,5 +1,5 @@
 import type { AggregateOptions, Document } from 'mongodb';
-import { raceWithAbort } from '@mongodb-js/compass-events';
+import { abortable } from '@mongodb-js/compass-events';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE,
@@ -108,10 +108,9 @@ export class PipelinePreviewManager {
     const [
       pipeline,
       { sampleSize, previewSize, totalDocumentCount, ...options },
-    ] = await raceWithAbort(
-      Promise.all([getPipeline(), getPreviewOptions()]),
-      controller.signal
-    );
+    ] = await abortable(Promise.all([getPipeline(), getPreviewOptions()]), {
+      signal: controller.signal,
+    });
     if (!force) {
       await cancellableWait(
         options.debounceMs ?? DEFAULT_PREVIEW_DEBOUNCE_MS,

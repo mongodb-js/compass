@@ -2,7 +2,8 @@ export {
   errorFromEvent,
   listen,
   once,
-  raceWithAbort,
+  abortable,
+  addAbortListener,
   waitUntil,
 } from './events';
 export type { EventSource } from './events';

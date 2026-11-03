@@ -1,6 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
-import { raceWithAbort } from '@mongodb-js/compass-events';
+import { abortable } from '@mongodb-js/compass-events';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { isAction } from '../utils/is-action';
@@ -115,12 +115,12 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
       getState().countDocuments.abortController === abortController;
 
     try {
-      const [pipeline, collation] = await raceWithAbort(
+      const [pipeline, collation] = await abortable(
         Promise.all([
           getPipelineFromBuilderState(getState(), pipelineBuilder),
           getCollationForExecution(collationString),
         ]),
-        signal
+        { signal }
       );
 
       const options: AggregateOptions = {

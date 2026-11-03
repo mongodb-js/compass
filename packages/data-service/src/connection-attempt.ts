@@ -1,4 +1,4 @@
-import { raceWithAbort } from '@mongodb-js/compass-events';
+import { abortable } from '@mongodb-js/compass-events';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { mongoLogId } from './logger';
 
@@ -35,10 +35,9 @@ export class ConnectionAttempt {
   }
 
   connect(connectionOptions: ConnectionOptions): Promise<DataService | void> {
-    return raceWithAbort(
-      this._connect(connectionOptions),
-      this._abortController.signal
-    ).catch((err) => {
+    return abortable(this._connect(connectionOptions), {
+      signal: this._abortController.signal,
+    }).catch((err) => {
       if ((err as Error)?.name !== 'AbortError') throw err;
     });
   }

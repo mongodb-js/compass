@@ -1,10 +1,12 @@
 import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
+import sinon from 'sinon';
 import {
   errorFromEvent,
   listen,
   once,
-  raceWithAbort,
+  abortable,
+  addAbortListener,
   waitUntil,
 } from './events';
 
@@ -154,30 +156,173 @@ describe('events', function () {
     });
   });
 
-  describe('raceWithAbort', function () {
+  describe('addAbortListener', function () {
+    it('calls the listener with the signal as this', function () {
+      const controller = new AbortController();
+      const reasons: unknown[] = [];
+      addAbortListener(controller.signal, function () {
+        reasons.push(this.reason);
+      });
+      controller.abort('stop');
+      expect(reasons).to.deep.equal(['stop']);
+    });
+
+    it('stops calling the listener once disposed', function () {
+      const controller = new AbortController();
+      let calls = 0;
+      const listening = addAbortListener(controller.signal, () => calls++);
+      listening[Symbol.dispose]();
+      controller.abort();
+      expect(calls).to.equal(0);
+    });
+
+    it('returns a disposable for a missing signal', function () {
+      const listening = addAbortListener(undefined, () => undefined);
+      expect(() => listening[Symbol.dispose]()).to.not.throw();
+    });
+  });
+
+  describe('abortable', function () {
+    const unhandled: unknown[] = [];
+    const onUnhandled = (reason: unknown) => unhandled.push(reason);
+
+    beforeEach(function () {
+      unhandled.length = 0;
+      process.on('unhandledRejection', onUnhandled);
+    });
+
+    afterEach(function () {
+      process.off('unhandledRejection', onUnhandled);
+    });
+
+    it('resolves with the value of the promise without a signal', async function () {
+      expect(await abortable(Promise.resolve(42))).to.equal(42);
+    });
+
     it('resolves with the value of the promise', async function () {
       const controller = new AbortController();
       expect(
-        await raceWithAbort(Promise.resolve(42), controller.signal)
+        await abortable(Promise.resolve(42), { signal: controller.signal })
       ).to.equal(42);
     });
 
     it('rejects with the reason when the signal aborts first', async function () {
       const controller = new AbortController();
-      const pending = raceWithAbort(new Promise(() => {}), controller.signal);
+      const pending = abortable(new Promise(() => {}), {
+        signal: controller.signal,
+      });
       controller.abort(new Error('stop'));
       const error = await pending.catch((err: Error) => err);
       expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
     });
 
     it('rejects with an AbortError DOMException for a default abort', async function () {
-      const error = await raceWithAbort(
-        new Promise(() => {}),
-        AbortSignal.abort()
-      ).catch((err: Error) => err);
+      const error = await abortable(new Promise(() => {}), {
+        signal: AbortSignal.abort(),
+      }).catch((err: Error) => err);
       expect(error)
         .to.be.instanceOf(DOMException)
         .with.property('name', 'AbortError');
+    });
+
+    it('prefers an already settled promise over an already aborted signal', async function () {
+      expect(
+        await abortable(Promise.resolve(42), { signal: AbortSignal.abort() })
+      ).to.equal(42);
+    });
+
+    it('handles a rejection that arrives after an early abort', async function () {
+      const { promise, reject } = Promise.withResolvers<never>();
+      const error = await abortable(promise, {
+        signal: AbortSignal.abort(new Error('stop')),
+      }).catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
+      reject(new Error('late'));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(unhandled).to.deep.equal([]);
+    });
+
+    it('prefers an already rejected promise over an already aborted signal', async function () {
+      const error = await abortable(Promise.reject(new Error('promise')), {
+        signal: AbortSignal.abort(new Error('signal')),
+      }).catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'promise');
+    });
+
+    it('rejects with the rejection of an already rejected promise', async function () {
+      const controller = new AbortController();
+      const error = await abortable(Promise.reject(new Error('promise')), {
+        signal: controller.signal,
+      }).catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'promise');
+    });
+
+    it('resolves with the value of an eventually resolving promise', async function () {
+      const controller = new AbortController();
+      const eventually = new Promise((resolve) => setTimeout(resolve, 1, 42));
+      expect(
+        await abortable(eventually, { signal: controller.signal })
+      ).to.equal(42);
+    });
+
+    it('rejects with the rejection of an eventually rejecting promise', async function () {
+      const controller = new AbortController();
+      const eventually = new Promise((_resolve, reject) =>
+        setTimeout(reject, 1, new Error('promise'))
+      );
+      const error = await abortable(eventually, {
+        signal: controller.signal,
+      }).catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'promise');
+    });
+
+    describe('listener cleanup', function () {
+      let controller: AbortController;
+      let addSpy: sinon.SinonSpy;
+      let removeSpy: sinon.SinonSpy;
+
+      beforeEach(function () {
+        controller = new AbortController();
+        addSpy = sinon.spy(controller.signal, 'addEventListener');
+        removeSpy = sinon.spy(controller.signal, 'removeEventListener');
+      });
+
+      afterEach(function () {
+        sinon.restore();
+      });
+
+      it('removes the abort listener when the promise resolves', async function () {
+        await abortable(Promise.resolve(42), { signal: controller.signal });
+        expect(addSpy).to.have.been.calledOnce;
+        expect(removeSpy).to.have.been.calledOnceWith(
+          'abort',
+          addSpy.firstCall.args[1]
+        );
+      });
+
+      it('removes the abort listener when the promise rejects', async function () {
+        await abortable(Promise.reject(new Error('promise')), {
+          signal: controller.signal,
+        }).catch(() => undefined);
+        expect(addSpy).to.have.been.calledOnce;
+        expect(removeSpy).to.have.been.calledOnceWith(
+          'abort',
+          addSpy.firstCall.args[1]
+        );
+      });
+
+      it('removes the abort listener when the signal aborts', async function () {
+        const pending = abortable(new Promise(() => {}), {
+          signal: controller.signal,
+        });
+        controller.abort(new Error('stop'));
+        await pending.catch(() => undefined);
+        expect(addSpy).to.have.been.calledOnce;
+        expect(removeSpy).to.have.been.calledOnceWith(
+          'abort',
+          addSpy.firstCall.args[1]
+        );
+      });
     });
   });
 
