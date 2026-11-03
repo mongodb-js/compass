@@ -6,7 +6,9 @@
  */
 export function toASCII(domain: string) {
   try {
-    return new window.URL(`http://${domain}`).hostname;
+    // globalThis, not window: utilities run as Web Workers, where `window`
+    // doesn't exist and this would fail every domain parse
+    return new globalThis.URL(`http://${domain}`).hostname;
   } catch {
     return null;
   }
