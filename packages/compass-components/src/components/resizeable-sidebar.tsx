@@ -12,11 +12,13 @@ const containerStyles = css({
   padding: 0,
   height: '100%',
   position: 'relative',
+  borderRight: '1px solid var(--divider-color)',
 });
 
 const containerStylesDark = css({
   '--color': palette.white,
   '--bg-color': palette.gray.dark4,
+  '--divider-color': palette.gray.dark2,
 
   '--title-color': palette.gray.dark3,
   '--title-color-hover': palette.white,
@@ -37,6 +39,7 @@ const containerStylesDark = css({
 const containerStylesLight = css({
   '--color': palette.gray.dark3,
   '--bg-color': palette.gray.light3,
+  '--divider-color': palette.gray.light2,
 
   '--title-color': palette.white,
   '--title-color-hover': palette.gray.dark3,
