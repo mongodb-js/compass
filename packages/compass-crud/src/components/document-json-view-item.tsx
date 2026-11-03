@@ -1,5 +1,5 @@
 import React from 'react';
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import { css, KeylineCard, useMergeRefs } from '@mongodb-js/compass-components';
 import JSONEditor, { type JSONEditorProps } from './json-editor';
 import { useDocumentItemContextMenu } from './use-document-item-context-menu';

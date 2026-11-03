@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 
 import type { Document } from 'mongodb';
 import { createCancelError } from '@mongodb-js/compass-utils';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { omit } from 'lodash';
 import { EJSON } from 'bson';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';

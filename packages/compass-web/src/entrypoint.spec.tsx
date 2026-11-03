@@ -6,7 +6,7 @@ import {
   userEvent,
   MockDataService as TestHelpersMockDataService,
 } from '@mongodb-js/testing-library-compass';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectFnProvider } from '@mongodb-js/compass-connections';

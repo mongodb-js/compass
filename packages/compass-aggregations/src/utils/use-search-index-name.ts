@@ -1,7 +1,7 @@
 import { useParsedShellValue } from '@mongodb-js/compass-components';
-import type { SearchIndex } from 'mongodb-data-service';
 import { useMemo } from 'react';
 import type { Document } from 'mongodb';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { SearchStageInfo } from './stage';
 import {
   getSearchStageInfoFromParsedPipeline,

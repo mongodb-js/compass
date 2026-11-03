@@ -1,6 +1,12 @@
 import { Binary, EJSON } from 'bson';
-import TypeChecker, { getBsonType, isUUIDType } from 'hadron-type-checker';
-import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
+import TypeChecker, {
+  getBsonType,
+  isUUIDType,
+} from '@mongodb-js/hadron-type-checker';
+import type {
+  TypeCastMap,
+  TypeCastTypes,
+} from '@mongodb-js/hadron-type-checker';
 import type { Element } from './element';
 
 const UNCASTED_EMPTY_TYPE_VALUE: {

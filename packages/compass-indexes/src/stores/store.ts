@@ -1,7 +1,7 @@
 import type { Store } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type {

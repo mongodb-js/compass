@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react';
 import { screen, within, cleanup } from '@mongodb-js/testing-library-compass';
 import { MongoServerError } from 'mongodb';
 import { expect } from 'chai';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import sinon from 'sinon';
 
 import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';

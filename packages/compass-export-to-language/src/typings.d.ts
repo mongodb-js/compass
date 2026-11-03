@@ -1,1 +1,1 @@
-declare module 'bson-transpilers';
+declare module '@mongodb-js/bson-transpilers';

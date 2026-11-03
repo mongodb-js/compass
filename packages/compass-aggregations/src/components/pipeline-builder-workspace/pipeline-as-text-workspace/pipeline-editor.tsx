@@ -25,7 +25,7 @@ import {
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import { COLLECTION, VIEW, TIME_SERIES } from '@mongodb-js/mongodb-constants';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
