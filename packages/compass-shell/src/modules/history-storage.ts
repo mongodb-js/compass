@@ -21,8 +21,6 @@ export class HistoryStorage {
     }
     this.migrationChecked = true;
 
-    // Set by Compass's preload script; absent in Compass Web, where there is
-    // nothing to migrate
     const oldAppName = (globalThis as { compassApp?: { name?: string } })
       .compassApp?.name;
     if (oldAppName) {
