@@ -28,7 +28,7 @@ wires it up.
    per peer, and log with `createUtilityLogger(parentPort, name)`.
 3. Never call `.on` or `.addEventListener` on a port. Electron ports are
    EventEmitters and browser ports are EventTargets, so use `listen`, `once` and
-   `waitUntil` from `@mongodb-js/compass-utils`.
+   `waitUntil` from `@mongodb-js/compass-events`.
 4. Register it:
    - Compass: add the name to `UTILITIES` in
      `packages/compass/src/main/application.ts`.
@@ -40,4 +40,4 @@ wires it up.
      addon).
 
 Renderer code reaches a utility with `openUtilityPort(name)` from
-`@mongodb-js/compass-utils` in both environments.
+`@mongodb-js/compass-events` in both environments.

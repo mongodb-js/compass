@@ -1,5 +1,8 @@
-import { errorFromEvent, listen } from '@mongodb-js/compass-events';
-import { utilityPortChannel } from '@mongodb-js/compass-utils';
+import {
+  errorFromEvent,
+  listen,
+  utilityPortChannel,
+} from '@mongodb-js/compass-events';
 import { CrossOriginWorker } from './cross-origin-worker.mts';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
 import { getLink } from './multiplex-link.ts';
