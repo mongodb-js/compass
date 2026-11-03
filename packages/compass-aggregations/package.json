@@ -81,7 +81,7 @@
     "@mongodb-js/mongodb-ns": "^3.2.9",
     "@mongodb-js/mongodb-schema": "^12.8.11",
     "@mongodb-js/my-queries-storage": "^1.7.0",
-    "@mongodb-js/shell-bson-parser": "^2.0.0",
+    "@mongodb-js/shell-bson-parser": "^2.1.1",
     "bson": "^7.3.2",
     "@mongodb-js/hadron-document": "^8.13.0",
     "@mongodb-js/hadron-type-checker": "^7.5.14",
