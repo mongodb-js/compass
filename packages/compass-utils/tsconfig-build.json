@@ -1,5 +1,0 @@
-{
-  "extends": "@mongodb-js/tsconfig-compass/tsconfig.build.json",
-  "include": ["src/**/*"],
-  "exclude": ["./src/**/*.spec.*"]
-}
