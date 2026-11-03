@@ -1,11 +1,12 @@
 import type { AggregateOptions, Document } from 'mongodb';
-import { cancellableWait, raceWithAbort } from '@mongodb-js/compass-utils';
+import { raceWithAbort } from '@mongodb-js/compass-events';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE,
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { cancellableWait } from '../../utils/cancellable-wait';
 import type { DataService } from '../data-service';
 import {
   getStageOperator,

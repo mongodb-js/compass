@@ -58,7 +58,7 @@ import type {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from '@mongodb-js/mongodb-ns';
-import { raceWithAbort, createCancelError } from '@mongodb-js/compass-utils';
+import { raceWithAbort } from '@mongodb-js/compass-events';
 import type {
   DevtoolsConnectionState,
   DevtoolsConnectOptions,
@@ -2716,9 +2716,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       return await start();
     }
 
-    if (abortSignal.aborted) {
-      throw abortSignal.reason ?? createCancelError();
-    }
+    abortSignal.throwIfAborted();
 
     const session = this._startSession('CRUD');
 

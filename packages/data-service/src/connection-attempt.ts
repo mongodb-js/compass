@@ -1,4 +1,4 @@
-import { raceWithAbort } from '@mongodb-js/compass-utils';
+import { raceWithAbort } from '@mongodb-js/compass-events';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { mongoLogId } from './logger';
 

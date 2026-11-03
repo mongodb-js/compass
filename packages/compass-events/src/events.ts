@@ -121,6 +121,20 @@ export async function waitUntil<Args extends unknown[] = unknown[]>(
 }
 
 /**
+ * Settles like `promise`, unless `signal` aborts first, in which case it
+ * rejects with the signal's reason. `promise` itself keeps running.
+ */
+export async function raceWithAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal
+): Promise<T> {
+  signal.throwIfAborted();
+  const { promise: aborted, reject } = Promise.withResolvers<never>();
+  using _abort = rejectOnAbort(signal, reject);
+  return await Promise.race([aborted, promise]);
+}
+
+/**
  * The Error behind an `error` event. A DOM ErrorEvent carries it on `.error`;
  * Node-style emitters and libraries like web-worker dispatch the Error itself.
  * Falls back to an Error built from the event's message.

@@ -1,6 +1,12 @@
 import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
-import { errorFromEvent, listen, once, waitUntil } from './events';
+import {
+  errorFromEvent,
+  listen,
+  once,
+  raceWithAbort,
+  waitUntil,
+} from './events';
 
 describe('events', function () {
   describe('listen', function () {
@@ -145,6 +151,33 @@ describe('events', function () {
       const error = await next.catch((err: Error) => err);
       expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
       expect(seen).to.deep.equal([]);
+    });
+  });
+
+  describe('raceWithAbort', function () {
+    it('resolves with the value of the promise', async function () {
+      const controller = new AbortController();
+      expect(
+        await raceWithAbort(Promise.resolve(42), controller.signal)
+      ).to.equal(42);
+    });
+
+    it('rejects with the reason when the signal aborts first', async function () {
+      const controller = new AbortController();
+      const pending = raceWithAbort(new Promise(() => {}), controller.signal);
+      controller.abort(new Error('stop'));
+      const error = await pending.catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
+    });
+
+    it('rejects with an AbortError DOMException for a default abort', async function () {
+      const error = await raceWithAbort(
+        new Promise(() => {}),
+        AbortSignal.abort()
+      ).catch((err: Error) => err);
+      expect(error)
+        .to.be.instanceOf(DOMException)
+        .with.property('name', 'AbortError');
     });
   });
 

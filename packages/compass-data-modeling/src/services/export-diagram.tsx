@@ -10,7 +10,7 @@ import {
   getNodesBounds,
   getViewportForBounds,
 } from '@mongodb-js/compass-components';
-import { raceWithAbort } from '@mongodb-js/compass-utils';
+import { raceWithAbort } from '@mongodb-js/compass-events';
 import { mapFieldDataToJsonSchema } from '../utils/utils';
 import type { StaticModel } from './data-model-storage';
 

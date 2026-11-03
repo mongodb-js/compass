@@ -1,6 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
-import { raceWithAbort } from '@mongodb-js/compass-utils';
+import { raceWithAbort } from '@mongodb-js/compass-events';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { isAction } from '../utils/is-action';

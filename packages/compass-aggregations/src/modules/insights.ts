@@ -1,7 +1,7 @@
 import type { Action, Reducer } from 'redux';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import { cancellableWait } from '@mongodb-js/compass-utils';
+import { cancellableWait } from '../utils/cancellable-wait';
 import { getStageOperator, isOutputStage } from '../utils/stage';
 import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';

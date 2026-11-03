@@ -6,7 +6,7 @@ import {
   type MessagePortMain,
   MessageChannelMain,
 } from 'electron';
-import { once } from '@mongodb-js/compass-utils';
+import { once } from '@mongodb-js/compass-events';
 import { main } from './index.mts';
 
 describe('embedded-shell utility', function () {
