@@ -1,18 +1,19 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { appInfoArgument, exposeAppInfo } from './app-info';
+import { exposeAppInfo, userDataPathArgument } from './app-info';
 
-const info = {
-  name: 'MongoDB Compass',
-  version: '1.2.3',
-  userDataPath: '/tmp/Compass',
-};
+const info = { userDataPath: '/tmp/MongoDB Compass' };
 
 describe('exposeAppInfo', function () {
   it('exposes the app info through the context bridge when isolated', function () {
     const target = {} as Window;
     const contextBridge = { exposeInMainWorld: sinon.spy() };
-    exposeAppInfo(target, [appInfoArgument(info)], contextBridge, true);
+    exposeAppInfo(
+      target,
+      [userDataPathArgument(info.userDataPath)],
+      contextBridge,
+      true
+    );
     expect(contextBridge.exposeInMainWorld).to.have.been.calledOnceWith(
       'compassApp',
       info
@@ -25,7 +26,7 @@ describe('exposeAppInfo', function () {
     const contextBridge = { exposeInMainWorld: sinon.spy() };
     exposeAppInfo(
       target,
-      ['--other', appInfoArgument(info)],
+      ['--other', userDataPathArgument(info.userDataPath)],
       contextBridge,
       false
     );
@@ -36,6 +37,6 @@ describe('exposeAppInfo', function () {
   it('throws when main did not pass the argument', function () {
     expect(() =>
       exposeAppInfo({} as Window, [], { exposeInMainWorld: sinon.spy() }, false)
-    ).to.throw(Error, 'Missing --compass-app-info= preload argument');
+    ).to.throw(Error, 'Missing --compass-user-data-path= preload argument');
   });
 });

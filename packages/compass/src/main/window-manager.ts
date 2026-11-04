@@ -22,7 +22,7 @@ import { enable } from '@electron/remote/main';
 
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
-import { appInfoArgument } from '../preload/app-info';
+import { userDataPathArgument } from '../preload/app-info';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import {
@@ -219,11 +219,7 @@ function showConnectWindow(
     nodeIntegrationInWorker: false,
     preload: path.join(__dirname, 'preload.js'),
     additionalArguments: [
-      appInfoArgument({
-        name: electronApp.getName(),
-        version: electronApp.getVersion(),
-        userDataPath: electronApp.getPath('userData'),
-      }),
+      userDataPathArgument(electronApp.getPath('userData')),
     ],
     ...opts.webPreferences,
   };

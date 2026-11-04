@@ -21,8 +21,7 @@ export class HistoryStorage {
     }
     this.migrationChecked = true;
 
-    const oldAppName = (globalThis as { compassApp?: { name?: string } })
-      .compassApp?.name;
+    const oldAppName = process.env.HADRON_PRODUCT_NAME;
     if (oldAppName) {
       await this.userData.migrateFromOldFolder(oldAppName);
     }

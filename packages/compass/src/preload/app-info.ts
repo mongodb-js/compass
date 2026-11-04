@@ -1,8 +1,6 @@
 import type { ContextBridge } from 'electron';
 
 export type CompassAppInfo = {
-  name: string;
-  version: string;
   userDataPath: string;
 };
 
@@ -12,12 +10,13 @@ declare global {
   }
 }
 
-const APP_INFO_ARGUMENT = '--compass-app-info=';
+const USER_DATA_PATH_ARGUMENT = '--compass-user-data-path=';
 
-// Passed through webPreferences.additionalArguments rather than IPC so the
-// preload can read it synchronously, which also works once it is sandboxed.
-export function appInfoArgument(info: CompassAppInfo): string {
-  return `${APP_INFO_ARGUMENT}${JSON.stringify(info)}`;
+// The path is only known at runtime, so main passes it through
+// webPreferences.additionalArguments, which the preload can read synchronously
+// and which still works once it is sandboxed.
+export function userDataPathArgument(userDataPath: string): string {
+  return `${USER_DATA_PATH_ARGUMENT}${userDataPath}`;
 }
 
 export function exposeAppInfo(
@@ -26,13 +25,13 @@ export function exposeAppInfo(
   contextBridge: Pick<ContextBridge, 'exposeInMainWorld'>,
   contextIsolated: boolean
 ): void {
-  const argument = argv.find((arg) => arg.startsWith(APP_INFO_ARGUMENT));
+  const argument = argv.find((arg) => arg.startsWith(USER_DATA_PATH_ARGUMENT));
   if (!argument) {
-    throw new Error(`Missing ${APP_INFO_ARGUMENT} preload argument`);
+    throw new Error(`Missing ${USER_DATA_PATH_ARGUMENT} preload argument`);
   }
-  const info = JSON.parse(
-    argument.slice(APP_INFO_ARGUMENT.length)
-  ) as CompassAppInfo;
+  const info: CompassAppInfo = {
+    userDataPath: argument.slice(USER_DATA_PATH_ARGUMENT.length),
+  };
   if (contextIsolated) {
     contextBridge.exposeInMainWorld('compassApp', info);
   } else {

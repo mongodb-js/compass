@@ -69,7 +69,7 @@ export const WithAtlasProviders: React.FC<{
       <AtlasServiceProvider
         options={{
           defaultHeaders: {
-            'User-Agent': `${window.compassApp?.name}/${window.compassApp?.version}`,
+            'User-Agent': `${process.env.HADRON_PRODUCT_NAME}/${process.env.HADRON_APP_VERSION}`,
             'X-Request-Origin': 'mongodb-compass',
           },
           getAtlasServiceBackendPreset: () =>
