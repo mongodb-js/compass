@@ -464,6 +464,34 @@ describe('stageEditor', function () {
         .that.is.instanceOf(Error);
     });
 
+    it('keeps a shell parser error visible while validating the next value', async function () {
+      const store = createStore({ stages: PIPELINE });
+      await store.dispatch(changeStageValue(2, `{_id: ObjectId('invalid')}`));
+      const previousSyntaxError = store.getState().stages[2].syntaxError;
+
+      const changePromise = store.dispatch(changeStageValue(2, '{_id: 2}'));
+      expect(store.getState().stages[2].syntaxError).to.equal(
+        previousSyntaxError
+      );
+
+      await changePromise;
+      expect(store.getState().stages[2].syntaxError).to.be.null;
+    });
+
+    it('shows a new Babel syntax error immediately', async function () {
+      const store = createStore({ stages: PIPELINE });
+      await store.dispatch(changeStageValue(2, `{_id: ObjectId('invalid')}`));
+      const previousSyntaxError = store.getState().stages[2].syntaxError;
+
+      const changePromise = store.dispatch(changeStageValue(2, '{_id: '));
+      const syntaxError = store.getState().stages[2].syntaxError;
+      expect(syntaxError).to.exist;
+      expect(syntaxError).to.not.equal(previousSyntaxError);
+
+      await changePromise;
+      expect(store.getState().stages[2].syntaxError).to.equal(syntaxError);
+    });
+
     it('does not apply the parser error to another stage if the stage was removed while parsing', async function () {
       const store = createStore({ stages: PIPELINE });
       const nextStage = store.getState().stages[1] as StoreStage;
