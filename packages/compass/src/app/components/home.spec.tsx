@@ -11,7 +11,6 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import {
   InMemoryConnectionStorage,
   InMemoryFolderStorage,
-  InMemoryFolderAssignmentStorage,
 } from '@mongodb-js/connection-storage/provider';
 import { WithAtlasProviders } from './entrypoint';
 import ThemedHome from './home';
@@ -49,10 +48,7 @@ const HOME_PROPS = {
   showCollectionSubMenu: () => {},
   getAutoConnectInfo: () => Promise.resolve(undefined),
   connectionStorage: new InMemoryConnectionStorage(),
-  folderStorage: {
-    folders: new InMemoryFolderStorage(),
-    assignments: new InMemoryFolderAssignmentStorage(),
-  },
+  folderStorage: new InMemoryFolderStorage(),
 } as const;
 
 describe('Home [Component]', function () {

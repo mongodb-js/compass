@@ -8,28 +8,15 @@ import {
 import { InMemoryConnectionStorage } from './in-memory-connection-storage';
 import {
   type Folder,
-  type FolderAssignment,
+  type FolderOrganization,
   type FolderStorage,
-  type FolderAssignmentStorage,
 } from './folder-storage';
-import {
-  InMemoryFolderStorage,
-  InMemoryFolderAssignmentStorage,
-} from './in-memory-folder-storage';
+import { InMemoryFolderStorage } from './in-memory-folder-storage';
 
-export {
-  InMemoryConnectionStorage,
-  InMemoryFolderStorage,
-  InMemoryFolderAssignmentStorage,
-};
+export { InMemoryConnectionStorage, InMemoryFolderStorage };
 
 export type { ConnectionStorage, ConnectionInfo, AtlasClusterMetadata };
-export type {
-  Folder,
-  FolderAssignment,
-  FolderStorage,
-  FolderAssignmentStorage,
-};
+export type { Folder, FolderOrganization, FolderStorage };
 
 export const ConnectionStorageContext = createContext<ConnectionStorage | null>(
   null
@@ -55,22 +42,11 @@ export const connectionStorageLocator = createServiceLocator(
   'connectionStorageLocator'
 );
 
-/**
- * The folder store and the assignment store are always consumed together, so
- * they are provided as one value.
- */
-export type FolderStorageService = {
-  folders: FolderStorage;
-  assignments: FolderAssignmentStorage;
-};
-
-export const FolderStorageContext = createContext<FolderStorageService | null>(
-  null
-);
+export const FolderStorageContext = createContext<FolderStorage | null>(null);
 
 export const FolderStorageProvider = FolderStorageContext.Provider;
 
-export function useFolderStorage(): FolderStorageService {
+export function useFolderStorage(): FolderStorage {
   const folderStorage = useContext(FolderStorageContext);
   if (!folderStorage) {
     throw new Error(

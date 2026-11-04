@@ -18,7 +18,6 @@ const validUserDataTypes = [
   'Users',
   'Connections',
   'Folders',
-  'FolderAssignments',
   'AtlasState',
   'ShellHistory',
 ] as const;

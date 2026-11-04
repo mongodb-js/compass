@@ -22,7 +22,6 @@ import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import {
   CompassRendererConnectionStorage,
   CompassRendererFolderStorage,
-  CompassRendererFolderAssignmentStorage,
 } from '@mongodb-js/connection-storage/renderer';
 
 import {
@@ -149,10 +148,7 @@ class Application {
       await this.getWindowAutoConnectPreferences();
     const isSecretStorageAvailable = await this.checkSecretStorageIsAvailable();
     const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
-    const folderStorage = {
-      folders: new CompassRendererFolderStorage(ipcRenderer),
-      assignments: new CompassRendererFolderAssignmentStorage(ipcRenderer),
-    };
+    const folderStorage = new CompassRendererFolderStorage(ipcRenderer);
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
