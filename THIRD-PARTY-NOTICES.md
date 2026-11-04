@@ -81,7 +81,7 @@ This document was automatically generated on Wed Nov 04 2026.
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                      | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
 | **[@dnd-kit/utilities](#5c1b45075a016b1605974d8314078eaff1a193cb964f113c2e3730cbe9603ae0)**                                 | 3.2.1        | MIT                                 |
-| **[@electron/remote](#e1a1a269861d5ba15e33623c8591f7401601d2de8dc3db593381d9638ed0fb51)**                                   | 2.1.3        | MIT                                 |
+| **[@electron/remote](#9643028d31693e5019c764e6b956f70dd61e12abdac29bbfdf8da3412b909ae2)**                                   | 2.1.4        | MIT                                 |
 | **[@emotion/cache](#4948c42794e50ebd04d6ee63d624aaa67236cc0b6aca335d68e5d3a3e8d05f65)**                                     | 11.14.0      | MIT                                 |
 | **[@emotion/css](#1b26feb75c930fbbbb357c5dcc5e0efb7115468ddbd0843df52c2b5204c80cb8)**                                       | 11.13.5      | MIT                                 |
 | **[@emotion/hash](#eaf4af16eea09af2b8c9178dc6dbf7d8740d1dd12d5a917a5171a5418025a4aa)**                                      | 0.9.2        | MIT                                 |
@@ -259,7 +259,7 @@ This document was automatically generated on Wed Nov 04 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#f9bbb51e73aa49af0bcd1ba42c833686d687828e8a7b519a814182e0666fa299)**                                           | 45.1.0       | MIT                                 |
+| **[electron](#e87dd1c3c408776cefacbd4b27a6a23453a67792034e603a8b41d86e93cc7c04)**                                           | 45.2.2       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#d4ec33708205e0aab97e631fb8d69c095cd87da7c10128dcdac6b5ba2cc1395d)**                                      | 1.4.5        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -6993,9 +6993,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="e1a1a269861d5ba15e33623c8591f7401601d2de8dc3db593381d9638ed0fb51"></a>
+<a id="9643028d31693e5019c764e6b956f70dd61e12abdac29bbfdf8da3412b909ae2"></a>
 
-### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.3)
+### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.1.4)
 
 License tags: MIT
 
@@ -22867,9 +22867,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="f9bbb51e73aa49af0bcd1ba42c833686d687828e8a7b519a814182e0666fa299"></a>
+<a id="e87dd1c3c408776cefacbd4b27a6a23453a67792034e603a8b41d86e93cc7c04"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 45.1.0)
+### [electron](https://www.npmjs.com/package/electron) (version 45.2.2)
 
 License tags: MIT
 
