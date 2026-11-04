@@ -104,8 +104,14 @@ export default class Stage {
       return;
     }
     const { operator, value } = this;
+    // If there's no operator, we show that warning, so let's
+    // skip the validation part.
+    if (!value || !this.operator) {
+      return;
+    }
     try {
-      await parseShellBSON(this.toString());
+      // Parse only the value so error positions match the stage editor text
+      await parseShellBSON(value);
     } catch (e) {
       // Stage might have been edited while parsing
       if (
