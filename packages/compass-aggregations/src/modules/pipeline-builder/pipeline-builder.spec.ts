@@ -56,6 +56,11 @@ describe('PipelineBuilder', function () {
     );
     expect(pipelineBuilder.pipeline).to.be.null;
     expect(pipelineBuilder.syntaxError).to.have.lengthOf(1);
+    expect(pipelineBuilder.syntaxError[0].loc).to.deep.equal({
+      line: 1,
+      column: 16,
+      index: 16,
+    });
     try {
       await pipelineBuilder.getPipelineFromSource();
       expect.fail('expected getPipelineFromSource to throw');

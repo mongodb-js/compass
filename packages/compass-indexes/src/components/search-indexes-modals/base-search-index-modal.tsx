@@ -29,7 +29,6 @@ import {
   CodemirrorMultilineEditor,
   createSearchIndexAutocompleter,
 } from '@mongodb-js/compass-editor';
-import type { Document } from 'mongodb';
 import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
@@ -100,29 +99,6 @@ export const DEFAULT_INDEX_DEFINITION = `{
     dynamic: true,
   },
 }`;
-
-// TODO(COMPASS-11295): Return acron's `pos`/`loc` directly instead of parsing the message.
-// Input is wrapped as `(\n${input}\n)`, so input line N is reported as N + 1:
-// https://github.com/mongodb-js/devtools-shared/blob/d54cd0133006a24bd98ce70deb65d7ba791875b7/packages/shell-bson-parser/src/parse.ts#L32
-function getParseErrorOffset(error: Error, source: string): number | undefined {
-  if ('pos' in error && typeof (error as any).pos === 'number') {
-    // Wraps the input in (\n$input\n) so we need to substract 4 chars from the position.
-    return Math.max((error as any).pos - 4, 0);
-  }
-  // Acorn's message ends with "(line:column)", e.g. "Unexpected token (4:2)".
-  const match = /\((\d+):(\d+)\)/.exec(error.message);
-  if (!match) {
-    return undefined;
-  }
-  const lineIndex = Number(match[1]) - 2;
-  const column = Number(match[2]);
-  const lines = source.split('\n');
-  let offset = 0;
-  for (let i = 0; i < lineIndex && i < lines.length; i++) {
-    offset += lines[i].length + 1;
-  }
-  return Math.min(offset + column, source.length);
-}
 
 type BaseSearchIndexModalProps = {
   namespace: string;
@@ -218,8 +194,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   const { error: parsingError } = useParsedShellValue(indexDefinition);
   const annotations = useMemo<Annotation[]>(() => {
-    const pos =
-      parsingError && getParseErrorOffset(parsingError, indexDefinition);
+    const pos = (parsingError as { pos?: number })?.pos;
     if (parsingError && pos !== undefined) {
       return [
         {
@@ -232,7 +207,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     }
 
     return [];
-  }, [parsingError, indexDefinition]);
+  }, [parsingError]);
 
   useTrackOnChange(
     (track: TrackFunction) => {
@@ -390,7 +365,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     () =>
       !!initialParsedDefinition &&
       isAutoEmbedIndex({
-        latestDefinition: initialParsedDefinition as Document,
+        latestDefinition: initialParsedDefinition,
       }),
     [initialParsedDefinition]
   );

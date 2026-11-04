@@ -19,8 +19,6 @@ async function parseObject(
       allowMethods: true,
     });
     if (!value || typeof value !== 'object') {
-      // XXX(COMPASS-5689): the parser returns primitives for some invalid
-      // sources instead of throwing.
       throw new Error('Source expression is invalid');
     }
     return { value };
