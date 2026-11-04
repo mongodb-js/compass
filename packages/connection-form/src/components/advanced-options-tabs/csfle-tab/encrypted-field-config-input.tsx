@@ -11,7 +11,7 @@ import {
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import {
   encryptedFieldConfigToText,
-  textToEncryptedFieldConfig,
+  textToUnparsedEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
 
 const errorContainerStyles = css({
@@ -70,7 +70,9 @@ function EncryptedFieldConfigInput({
           text={encryptedFieldsMapText}
           onChangeText={(newText) => {
             setEncryptedFieldsMapText(newText);
-            onChange(textToEncryptedFieldConfig(newText));
+            // Parsing is async, so the form gets the raw text straight away and
+            // parses it when saving or connecting
+            onChange(textToUnparsedEncryptedFieldConfig(newText));
           }}
         />
       </FormFieldContainer>

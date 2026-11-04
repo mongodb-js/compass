@@ -69,7 +69,7 @@ describe('ConnectionForm with an Atlas connection', function () {
       .to.not.exist;
   });
 
-  it('only offers Cancel and Connect, and connecting applies the edited info', function () {
+  it('only offers Cancel and Connect, and connecting applies the edited info', async function () {
     const onSaveAndConnectClicked = sinon.spy();
     renderForm(atlasConnectionInfo, { onSaveAndConnectClicked });
 
@@ -79,7 +79,9 @@ describe('ConnectionForm with an Atlas connection', function () {
     expect(screen.queryByTestId('save-and-connect-button')).to.not.exist;
 
     userEvent.click(screen.getByRole('button', { name: 'Connect' }));
-    expect(onSaveAndConnectClicked).to.have.been.calledOnce;
+    await waitFor(
+      () => expect(onSaveAndConnectClicked).to.have.been.calledOnce
+    );
   });
 
   it('only shows the read preference options', function () {
@@ -90,7 +92,7 @@ describe('ConnectionForm with an Atlas connection', function () {
     expect(screen.queryByRole('tab')).to.not.exist;
   });
 
-  it('applies the read preference to the connection info', function () {
+  it('applies the read preference to the connection info', async function () {
     const onSaveAndConnectClicked = sinon.spy();
     renderForm(atlasConnectionInfo, { onSaveAndConnectClicked });
 
@@ -101,7 +103,9 @@ describe('ConnectionForm with an Atlas connection', function () {
     );
     userEvent.click(screen.getByRole('button', { name: 'Connect' }));
 
-    expect(onSaveAndConnectClicked).to.have.been.calledOnce;
+    await waitFor(
+      () => expect(onSaveAndConnectClicked).to.have.been.calledOnce
+    );
     expect(
       onSaveAndConnectClicked.firstCall.args[0].connectionOptions
         .connectionString
@@ -128,11 +132,13 @@ describe('ConnectionForm with an Atlas connection', function () {
     expect(screen.queryByTestId('connect-button')).to.not.exist;
   });
 
-  it('connects with X.509 and no client certificate', function () {
+  it('connects with X.509 and no client certificate', async function () {
     const onSaveAndConnectClicked = sinon.spy();
     renderForm(atlasConnectionInfo, { onSaveAndConnectClicked });
     userEvent.click(screen.getByRole('button', { name: 'Connect' }));
-    expect(onSaveAndConnectClicked).to.have.been.calledOnce;
+    await waitFor(
+      () => expect(onSaveAndConnectClicked).to.have.been.calledOnce
+    );
     expect(screen.queryByTestId('connection-error-summary')).to.not.exist;
   });
 });

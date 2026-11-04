@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
-import type { Document as HadronDocument, Element } from 'hadron-document';
-import { DocumentEvents, ElementEvents } from 'hadron-document';
+import type {
+  Document as HadronDocument,
+  Element,
+} from '@mongodb-js/hadron-document';
+import { DocumentEvents, ElementEvents } from '@mongodb-js/hadron-document';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 

@@ -22,6 +22,7 @@ import {
   SpinLoader,
   Tooltip,
   useSyncStateOnPropChange,
+  useParsedShellValue,
 } from '@mongodb-js/compass-components';
 import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 import {
@@ -48,7 +49,6 @@ import {
   type VectorIndexTemplateChoice,
 } from '../search-index-template-dropdown/vector-search-index-template-dropdown';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
 import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
 
@@ -101,21 +101,27 @@ export const DEFAULT_INDEX_DEFINITION = `{
   },
 }`;
 
-type ParsingError = {
-  message: string;
-  pos: number | undefined;
-};
-
-// Compares two index definitions by their parsed value rather than their raw
-// text, so that formatting-only edits (whitespace, key ordering) are treated as
-// unchanged. This mirrors the isEqual no-op guard in the updateIndex thunk so
-// that the Save button is disabled exactly when a submit would be a no-op.
-function areIndexDefinitionsEqual(a: string, b: string): boolean {
-  try {
-    return isEqual(parseShellBSON(a), parseShellBSON(b));
-  } catch {
-    return false;
+// TODO(COMPASS-11295): Return acron's `pos`/`loc` directly instead of parsing the message.
+// Input is wrapped as `(\n${input}\n)`, so input line N is reported as N + 1:
+// https://github.com/mongodb-js/devtools-shared/blob/d54cd0133006a24bd98ce70deb65d7ba791875b7/packages/shell-bson-parser/src/parse.ts#L32
+function getParseErrorOffset(error: Error, source: string): number | undefined {
+  if ('pos' in error && typeof (error as any).pos === 'number') {
+    // Wraps the input in (\n$input\n) so we need to substract 4 chars from the position.
+    return Math.max((error as any).pos - 4, 0);
   }
+  // Acorn's message ends with "(line:column)", e.g. "Unexpected token (4:2)".
+  const match = /\((\d+):(\d+)\)/.exec(error.message);
+  if (!match) {
+    return undefined;
+  }
+  const lineIndex = Number(match[1]) - 2;
+  const column = Number(match[2]);
+  const lines = source.split('\n');
+  let offset = 0;
+  for (let i = 0; i < lineIndex && i < lines.length; i++) {
+    offset += lines[i].length + 1;
+  }
+  return Math.min(offset + column, source.length);
 }
 
 type BaseSearchIndexModalProps = {
@@ -131,7 +137,7 @@ type BaseSearchIndexModalProps = {
   onSubmit: (index: {
     name: string;
     type?: string;
-    definition: Document;
+    definition: string;
   }) => void;
   onClose: () => void;
   onClearError: () => void;
@@ -159,7 +165,6 @@ type SearchIndexEditorState = {
   // prop (which is recomputed from the polled store and can drift while the modal
   // is open), this stays fixed for the lifetime of an open modal.
   initialIndexDefinitionSnapshot: string;
-  parsingError: ParsingError | undefined;
   vectorTemplateChoice: VectorIndexTemplateChoice;
 };
 
@@ -198,7 +203,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       indexName,
       indexDefinition,
       initialIndexDefinitionSnapshot,
-      parsingError,
       vectorTemplateChoice,
     },
     setSearchIndexEditorState,
@@ -208,16 +212,15 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       indexName: initialIndexName,
       indexDefinition: initialIndexDefinition,
       initialIndexDefinitionSnapshot: initialIndexDefinition,
-      parsingError: undefined,
       vectorTemplateChoice: defaultVectorTemplateChoice,
     };
   });
 
-  // https://github.com/mongodb-js/ejson-shell-parser/blob/master/src/index.ts#L30
-  // Wraps the input in (\n$input\n) so we need to substract 4 chars from the position.
+  const { error: parsingError } = useParsedShellValue(indexDefinition);
   const annotations = useMemo<Annotation[]>(() => {
-    if (parsingError && parsingError.pos) {
-      const pos = Math.max(parsingError.pos - 4, 0);
+    const pos =
+      parsingError && getParseErrorOffset(parsingError, indexDefinition);
+    if (parsingError && pos !== undefined) {
       return [
         {
           message: parsingError.message,
@@ -229,7 +232,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     }
 
     return [];
-  }, [parsingError]);
+  }, [parsingError, indexDefinition]);
 
   useTrackOnChange(
     (track: TrackFunction) => {
@@ -267,7 +270,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         indexName: initialIndexName,
         indexDefinition: initialIndexDefinition,
         initialIndexDefinitionSnapshot: initialIndexDefinition,
-        parsingError: undefined,
         vectorTemplateChoice: defaultVectorTemplateChoice,
       });
     }
@@ -275,14 +277,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   const onSearchIndexDefinitionChanged = useCallback(
     (newDefinition: string) => {
-      let parsingError = undefined;
-
-      try {
-        parseShellBSON(newDefinition);
-      } catch (ex) {
-        parsingError = ex as ParsingError;
-      }
-
       // Editing the definition invalidates any error from a previous submit.
       if (error) {
         onClearError();
@@ -292,7 +286,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         return {
           ...prevState,
           indexDefinition: newDefinition,
-          parsingError,
         };
       });
     },
@@ -300,14 +293,9 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   );
 
   const onSubmitIndex = useCallback(() => {
-    if (parsingError) {
-      return;
-    }
-
-    const indexDefinitionDoc = parseShellBSON(indexDefinition);
     onSubmit({
       name: indexName,
-      definition: indexDefinitionDoc,
+      definition: indexDefinition,
       ...(isVectorSearchSupported
         ? {
             type: searchIndexType,
@@ -316,7 +304,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     });
   }, [
     onSubmit,
-    parsingError,
     indexName,
     searchIndexType,
     indexDefinition,
@@ -339,7 +326,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         return {
           ...prevState,
           vectorTemplateChoice: _choice,
-          parsingError: undefined,
         };
       });
       onChangeTemplate(template);
@@ -359,7 +345,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       setSearchIndexEditorState((prevState) => {
         return {
           ...prevState,
-          parsingError: undefined,
           vectorTemplateChoice:
             newType === 'vectorSearch'
               ? defaultVectorTemplateChoice
@@ -398,30 +383,26 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const isAutoEmbedPreviewMessagingActive =
     enableAutoEmbeddingPublicPreview && !enableAutoEmbeddingGaRelease;
 
-  const showAutoEmbedEditRestrictedBanner = useMemo(() => {
-    if (!isAutoEmbedPreviewMessagingActive) {
-      return false;
-    }
-    try {
-      const latestDefinition = parseShellBSON(initialIndexDefinition);
-      return isAutoEmbedIndex({ latestDefinition });
-    } catch {
-      return false;
-    }
-  }, [isAutoEmbedPreviewMessagingActive, initialIndexDefinition]);
+  const { value: initialParsedDefinition } = useParsedShellValue(
+    initialIndexDefinition
+  );
+  const isInitialDefinitionAutoEmbed = useMemo(
+    () =>
+      !!initialParsedDefinition &&
+      isAutoEmbedIndex({
+        latestDefinition: initialParsedDefinition as Document,
+      }),
+    [initialParsedDefinition]
+  );
+
+  const showAutoEmbedEditRestrictedBanner =
+    isAutoEmbedPreviewMessagingActive && isInitialDefinitionAutoEmbed;
 
   // At GA the edit is allowed but re-triggers embedding, so warn about cost instead.
-  const showAutoEmbedEditCostBanner = useMemo(() => {
-    if (!enableAutoEmbeddingGaRelease || mode !== 'update') {
-      return false;
-    }
-    try {
-      const latestDefinition = parseShellBSON(initialIndexDefinition);
-      return isAutoEmbedIndex({ latestDefinition });
-    } catch {
-      return false;
-    }
-  }, [enableAutoEmbeddingGaRelease, mode, initialIndexDefinition]);
+  const showAutoEmbedEditCostBanner =
+    enableAutoEmbeddingGaRelease &&
+    mode === 'update' &&
+    isInitialDefinitionAutoEmbed;
 
   const isEditingVectorSearchIndex =
     mode === 'update' && initialIndexType === 'vectorSearch';
@@ -432,12 +413,19 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   // drift from background polling) and by parsed value (so formatting-only edits
   // don't count as a change). This avoids no-op submits that would otherwise be
   // silently dropped by the updateIndex thunk.
-  const isIndexDefinitionUnchanged = useMemo(() => {
-    return (
-      mode === 'update' &&
-      areIndexDefinitionsEqual(indexDefinition, initialIndexDefinitionSnapshot)
-    );
-  }, [mode, indexDefinition, initialIndexDefinitionSnapshot]);
+  const { value: parsedDefinition, pending: isDefinitionPending } =
+    useParsedShellValue(indexDefinition);
+  const { value: parsedSnapshot, pending: isSnapshotPending } =
+    useParsedShellValue(initialIndexDefinitionSnapshot);
+  const isDefinitionComparisonPending =
+    isDefinitionPending || isSnapshotPending;
+  const isDefinitionEqualToSnapshot =
+    parsedDefinition !== undefined && isEqual(parsedDefinition, parsedSnapshot);
+  // Treat a pending comparison as unchanged so Save can't be clicked for a
+  // definition that hasn't been checked yet.
+  const isIndexDefinitionUnchanged =
+    mode === 'update' &&
+    (isDefinitionComparisonPending || isDefinitionEqualToSnapshot);
 
   return (
     <Modal

@@ -41,12 +41,12 @@ describe('utils', function () {
     ];
 
     for (const useCase of useCases) {
-      it(useCase.testName, function () {
+      it(useCase.testName, async function () {
         const stage = {
           stage: useCase.stage,
           keyPattern: useCase.keyPattern,
         };
-        expect(getStageIndexFields(stage as any)).to.deep.equal(
+        expect(await getStageIndexFields(stage as any)).to.deep.equal(
           useCase.expected
         );
       });

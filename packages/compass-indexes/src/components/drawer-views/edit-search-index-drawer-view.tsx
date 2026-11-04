@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect, shallowEqual, useSelector } from 'react-redux';
 import {
   Badge,
@@ -19,6 +13,7 @@ import {
   Body,
   Tooltip,
   useDarkMode,
+  useParsedShellValue,
   cx,
 } from '@mongodb-js/compass-components';
 import {
@@ -26,15 +21,13 @@ import {
   useJsonSchemaAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import type { Document } from 'mongodb';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import {
   useConnectionInfo,
   useConnectionInfoRef,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
 import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
@@ -81,7 +74,7 @@ type EditSearchIndexViewProps = {
   error?: string;
   onClose: () => void;
   onResetUpdateState: () => void;
-  updateIndex: (index: { name: string; definition: Document }) => void;
+  updateIndex: (index: { name: string; definition: string }) => void;
   onIndexDefinitionEdit: (isDirty: boolean) => void;
 };
 
@@ -145,23 +138,16 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const { completer, extensions, annotations, hasErrors } =
     useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
 
-  const isSaveEnabled = useMemo(() => {
-    if (hasErrors) {
-      return false;
-    }
+  // An invalid definition leaves the value undefined and keeps save disabled.
+  const { value: parsedDefinition, pending: isDefinitionChangedPending } =
+    useParsedShellValue(indexDefinition);
+  const isDefinitionChanged =
+    parsedDefinition !== undefined &&
+    JSON.stringify(parsedDefinition) !==
+      JSON.stringify(searchIndex.latestDefinition);
 
-    try {
-      const currentParsed = parseShellBSON(indexDefinition);
-      const initialParsed = searchIndex.latestDefinition;
-      return (
-        !isBusy &&
-        JSON.stringify(currentParsed) !== JSON.stringify(initialParsed)
-      );
-    } catch {
-      // If current definition is invalid, don't enable save
-      return false;
-    }
-  }, [indexDefinition, searchIndex.latestDefinition, isBusy, hasErrors]);
+  const isSaveEnabled =
+    !hasErrors && !isBusy && !isDefinitionChangedPending && isDefinitionChanged;
 
   // Reset state on unmount
   useEffect(() => {
@@ -185,7 +171,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     });
     updateIndex({
       name: searchIndex.name,
-      definition: parseShellBSON(indexDefinition),
+      definition: indexDefinition,
     });
   }, [searchIndex, indexDefinition, updateIndex, track]);
 

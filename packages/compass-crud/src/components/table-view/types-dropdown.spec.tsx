@@ -7,7 +7,7 @@ import {
   within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { Element } from 'hadron-document';
+import { Element } from '@mongodb-js/hadron-document';
 import TypesDropdown from './types-dropdown';
 
 const selectableTypes = [

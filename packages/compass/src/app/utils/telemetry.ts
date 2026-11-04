@@ -1,4 +1,4 @@
-import { configuredKMSProviders } from 'mongodb-data-service';
+import { configuredKMSProviders } from '@mongodb-js/mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import {
   isLocalhost,
