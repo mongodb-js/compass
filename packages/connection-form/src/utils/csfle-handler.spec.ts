@@ -468,14 +468,14 @@ describe('csfle-handler', function () {
 
       it('records the error for invalid shell BSON text', async function () {
         expect(await textToEncryptedFieldConfig('{')).to.deep.equal({
-          '$compass.error': 'Unexpected token (3:0) in (\n{\n)',
+          '$compass.error': 'Unexpected token (1:1) in {',
           '$compass.rawText': '{',
         });
       });
 
       it('records the error for parseable but invalid shell BSON text', async function () {
         expect(await textToEncryptedFieldConfig('asdf')).to.deep.equal({
-          '$compass.error': 'Field contained invalid input',
+          '$compass.error': 'Source expression is invalid',
           '$compass.rawText': 'asdf',
         });
       });
