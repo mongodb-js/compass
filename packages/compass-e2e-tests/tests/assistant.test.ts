@@ -194,7 +194,7 @@ describe('MongoDB Assistant (with real backend)', function () {
           async () => {
             const text = await chatMessages.getText();
             expect(text).to.include('structuredContent');
-            expect(text).to.include(collectionName);
+            expect(text).to.include('totalCount');
             return true;
           },
           {
