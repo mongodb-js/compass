@@ -420,10 +420,11 @@ export function getStageDestination(
   if (!isOutputStage(stageOperator)) {
     return null;
   }
-  if (stage[stageOperator].s3) {
+  const stageValue = stage[stageOperator];
+  if (stageValue?.s3) {
     return 'S3 bucket';
   }
-  if (stage[stageOperator].atlas || stage[stageOperator].into?.atlas) {
+  if (stageValue?.atlas || stageValue?.into?.atlas) {
     return 'Atlas cluster';
   }
   return getDestinationNamespaceFromStage(namespace, stage);
