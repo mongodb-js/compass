@@ -54,7 +54,7 @@ class CompassMainFolderStorage implements FolderStorage {
       );
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_453),
+        mongoLogId(1_001_000_456),
         'Folder Storage',
         'Failed to load folder organization',
         { message: (err as Error).message }
@@ -78,7 +78,7 @@ class CompassMainFolderStorage implements FolderStorage {
       }
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_454),
+        mongoLogId(1_001_000_457),
         'Folder Storage',
         'Failed to save folder organization',
         { message: (err as Error).message }
