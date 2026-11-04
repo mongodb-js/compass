@@ -128,7 +128,10 @@ export default class Stage {
     this.operator = operator;
     try {
       if (!isStageLike(this.node, true)) {
-        this.node = createStageNode({ key: operator });
+        this.node = createStageNode({
+          key: operator,
+          value: this.value ?? undefined,
+        });
       } else {
         this.node.properties[0].key = { type: 'Identifier', name: operator };
       }
