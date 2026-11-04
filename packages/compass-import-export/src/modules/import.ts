@@ -4,7 +4,7 @@ import path from 'node:path';
 import _ from 'lodash';
 import type { Reducer } from 'redux';
 import { getStoragePath } from '@mongodb-js/compass-utils';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import { showErrorDetails } from '@mongodb-js/compass-components';
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';

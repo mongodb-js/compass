@@ -1,6 +1,6 @@
 import React from 'react';
 import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { Link, openToast } from '@mongodb-js/compass-components';
 

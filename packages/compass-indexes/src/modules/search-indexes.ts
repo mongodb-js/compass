@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
 import {
   ExperimentTestGroups,
@@ -990,11 +990,15 @@ function stripVectorSearchAutoEmbedSnippetPlaceholders(
       case '5':
         return JSON.stringify('<field-to-search>');
       case '6':
-        return JSON.stringify(indexName);
+        return '50';
       case '7':
-        return '10';
+        return JSON.stringify(indexName);
       case '8':
+        return '10';
+      case '9':
         return '';
+      case '10':
+        return 'false';
       default:
         return 'null';
     }

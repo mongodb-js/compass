@@ -18,7 +18,7 @@ import {
 
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import {
   openMockDataGeneratorSettings,
   analyzeCollectionSchema,

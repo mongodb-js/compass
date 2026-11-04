@@ -3,12 +3,12 @@ import { css } from '@leafygreen-ui/emotion';
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import {
   DEFAULT_VISIBLE_DOCUMENT_ELEMENTS,
   DocumentEvents,
   ElementEvents,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';

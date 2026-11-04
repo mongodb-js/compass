@@ -12,8 +12,8 @@ import temp from 'temp';
 import type { Document } from 'bson';
 import type { FindCursor } from 'mongodb';
 
-import type { DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
+import { connect } from '@mongodb-js/mongodb-data-service';
 
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';

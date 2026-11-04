@@ -8,7 +8,7 @@ import {
   Button,
   ButtonVariant,
 } from '@mongodb-js/compass-components';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import { randomLocalKey } from '../../../utils/csfle-handler';
 import type {
   KMSProviderName,

@@ -1,6 +1,6 @@
 import React, { useState, useContext, createContext, useMemo } from 'react';
 import { type Document } from 'bson';
-import TypeChecker, { getBsonType } from 'hadron-type-checker';
+import TypeChecker, { getBsonType } from '@mongodb-js/hadron-type-checker';
 
 import {
   BSONValue,

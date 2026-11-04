@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import {
   Body,
   css,
