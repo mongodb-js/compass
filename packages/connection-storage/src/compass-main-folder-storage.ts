@@ -1,4 +1,4 @@
-import { UUID } from 'bson';
+import { createHash } from 'node:crypto';
 import { type HadronIpcMain, ipcMain } from '@mongodb-js/hadron-ipc';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
@@ -35,22 +35,56 @@ const FolderSchema: z.Schema<Folder> = z
   })
   .loose();
 
-// The persisted shape of an assignment. `id` is a storage-only identifier:
-// callers identify an assignment by (itemType, itemId), never by this id, so
-// it is generated here and never exposed through the FolderAssignmentStorage
-// interface. It exists so the record can be found and overwritten in place
-// instead of being addressed by a filename derived from (itemType, itemId) --
-// that composite key isn't a well-formed id on the web backend, where every
-// stored record is expected to have a UUID id.
-const FolderAssignmentRecordSchema = z
+const FolderAssignmentSchema: z.Schema<FolderAssignment> = z
   .object({
-    id: z.uuid(),
     itemType: z.literal('connection'),
     itemId: z.string(),
     folderId: z.uuid(),
   })
   .loose();
-type FolderAssignmentRecord = z.output<typeof FolderAssignmentRecordSchema>;
+
+/**
+ * A fixed namespace for deriving folder assignment storage ids. The value
+ * itself doesn't matter -- it only has to stay constant across runs, since
+ * changing it would make every existing assignment unrecoverable by id --
+ * so it's just a UUID generated once and hardcoded here.
+ */
+const FOLDER_ASSIGNMENT_ID_NAMESPACE = '6f2c9b61-6e0b-4f0b-8f0a-6ef1d9d9a7ab';
+
+/**
+ * Derives a UUID (v5, RFC 4122 -- namespace + name, SHA-1) from
+ * (itemType, itemId), so the storage id is both a well-formed UUID and fully
+ * determined by the item it belongs to. That means save() and delete() can
+ * address the record directly, with no lookup needed to find it first: two
+ * concurrent saves for the same item compute the same id and race on a single
+ * write to one file, rather than each writing a different file for what
+ * should be one record.
+ */
+function getFolderAssignmentId(
+  itemType: FolderAssignment['itemType'],
+  itemId: string
+): string {
+  const namespaceBytes = Buffer.from(
+    FOLDER_ASSIGNMENT_ID_NAMESPACE.replace(/-/g, ''),
+    'hex'
+  );
+  const nameBytes = Buffer.from(`${itemType}:${itemId}`, 'utf8');
+  const hash = createHash('sha1')
+    .update(namespaceBytes)
+    .update(nameBytes)
+    .digest();
+  const bytes = Buffer.from(hash.subarray(0, 16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x50; // version 5
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // RFC 4122 variant
+  const hex = bytes.toString('hex');
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20, 32),
+  ].join('-');
+}
 
 class CompassMainFolderStorage implements FolderStorage {
   private readonly userData: IUserData<typeof FolderSchema>;
@@ -142,10 +176,10 @@ class CompassMainFolderStorage implements FolderStorage {
 }
 
 class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
-  private readonly userData: IUserData<typeof FolderAssignmentRecordSchema>;
+  private readonly userData: IUserData<typeof FolderAssignmentSchema>;
 
   constructor(
-    userData: IUserData<typeof FolderAssignmentRecordSchema>,
+    userData: IUserData<typeof FolderAssignmentSchema>,
     ipcMain: FolderStorageIPCMain
   ) {
     this.userData = userData;
@@ -156,25 +190,6 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
     );
   }
 
-  /**
-   * An assignment's identity, as far as every caller is concerned, is
-   * (itemType, itemId) -- there's at most one record per item. Since the
-   * storage id is now an opaque UUID instead of being derived from that pair,
-   * finding the record that corresponds to an item means scanning for it.
-   * Assignment counts are bounded by the number of saved connections, so this
-   * is a small, infrequent scan, not a hot path.
-   */
-  private async findRecord(
-    itemType: FolderAssignment['itemType'],
-    itemId: string
-  ): Promise<FolderAssignmentRecord | undefined> {
-    const { data, errors } = await this.userData.readAll();
-    logReadErrors(errors, 'Failed to read some folder assignments');
-    return data.find(
-      (record) => record.itemType === itemType && record.itemId === itemId
-    );
-  }
-
   async loadAll({ signal }: { signal?: AbortSignal } = {}): Promise<
     FolderAssignment[]
   > {
@@ -182,10 +197,7 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
     try {
       const { data, errors } = await this.userData.readAll();
       logReadErrors(errors, 'Failed to read some folder assignments');
-      // The storage id is an implementation detail of this class, not part of
-      // the FolderAssignmentStorage contract -- callers identify an
-      // assignment by (itemType, itemId), so it's stripped before returning.
-      return data.map(toFolderAssignment);
+      return data;
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_456),
@@ -206,12 +218,8 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
   }): Promise<void> {
     throwIfAborted(signal);
     try {
-      const existing = await this.findRecord(
-        assignment.itemType,
-        assignment.itemId
-      );
-      const id = existing?.id ?? new UUID().toString();
-      const ok = await this.userData.write(id, { id, ...assignment });
+      const id = getFolderAssignmentId(assignment.itemType, assignment.itemId);
+      const ok = await this.userData.write(id, assignment);
       if (!ok) {
         throw new Error('Failed to write folder assignment');
       }
@@ -241,11 +249,18 @@ class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
       return;
     }
     try {
-      const existing = await this.findRecord(itemType, itemId);
+      const id = getFolderAssignmentId(itemType, itemId);
+      // The id is derived, not looked up, so a delete for an item that was
+      // never assigned computes a real id pointing at a file that was never
+      // written. Check first so that case stays a no-op instead of being
+      // reported as a failed delete.
+      const existing = await this.userData.readOne(id, {
+        ignoreErrors: true,
+      });
       if (!existing) {
         return;
       }
-      const ok = await this.userData.delete(existing.id);
+      const ok = await this.userData.delete(id);
       if (!ok) {
         throw new Error('Failed to delete folder assignment');
       }
@@ -270,14 +285,6 @@ function logReadErrors(errors: Error[], message: string): void {
     count: errors.length,
     messages: errors.map((err) => err.message),
   });
-}
-
-function toFolderAssignment({
-  itemType,
-  itemId,
-  folderId,
-}: FolderAssignmentRecord): FolderAssignment {
-  return { itemType, itemId, folderId };
 }
 
 // Exported as values, not just types, so the injected-userData constructor can
@@ -317,7 +324,7 @@ export const initCompassMainFolderStorage = (
 
   if (!mainFolderAssignmentStorage || __TEST_IGNORE_SINGLETON) {
     mainFolderAssignmentStorage = new CompassMainFolderAssignmentStorage(
-      new FileUserData(FolderAssignmentRecordSchema, 'FolderAssignments', {
+      new FileUserData(FolderAssignmentSchema, 'FolderAssignments', {
         basePath,
       }),
       ipcMainToBeUsed

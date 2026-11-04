@@ -24,8 +24,9 @@ import type { Folder, FolderAssignment } from './folder-storage';
 function createFakeUserData(
   overrides: {
     write?: () => Promise<boolean>;
-    delete?: () => Promise<boolean>;
+    delete?: Sinon.SinonStub | (() => Promise<boolean>);
     readAll?: () => Promise<ReadAllResult<any>>;
+    readOne?: () => Promise<unknown>;
   } = {}
   // The storage classes are generic over the module's own (unexported) zod
   // schemas, which this fake has no way to name from outside the module --
@@ -37,7 +38,7 @@ function createFakeUserData(
     delete: overrides.delete ?? (() => Promise.resolve(true)),
     readAll:
       overrides.readAll ?? (() => Promise.resolve({ data: [], errors: [] })),
-    readOne: () => Promise.resolve(undefined),
+    readOne: overrides.readOne ?? (() => Promise.resolve(undefined)),
     updateAttributes: () => Promise.resolve(true),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as unknown as IUserData<any>;
@@ -253,28 +254,53 @@ describe('FolderStorage', function () {
     });
 
     describe('save', function () {
-      it('should give the file a storage id instead of a filename derived from the item', async function () {
-        // A filename derived from (itemType, itemId) isn't a well-formed id on
-        // the web backend, so each record is stored under its own UUID and the
-        // (itemType, itemId) pair is looked up from the file's contents.
+      it('should name the file after an id derived from the item, not a plain composite key', async function () {
+        // A filename literally equal to "<itemType>-<itemId>" isn't a
+        // well-formed id on the web backend, so the filename is instead a
+        // deterministic UUID derived from that same pair.
         const assignment = getFolderAssignment();
         await folderAssignmentStorage.save({ assignment });
 
-        const [stored] = await readAssignmentFiles(tmpDir);
-        expect(stored).to.include(assignment);
-        expect(stored.id).to.be.a('string');
-        expect(stored.id).to.not.equal(
-          `${assignment.itemType}-${assignment.itemId}`
+        const fileNames = await fs.readdir(
+          path.join(tmpDir, 'FolderAssignments')
+        );
+        expect(fileNames).to.have.lengthOf(1);
+        expect(fileNames[0]).to.not.equal(
+          `${assignment.itemType}-${assignment.itemId}.json`
         );
       });
 
-      it('should not expose the storage id through the public interface', async function () {
+      it('should save the same item under the same filename every time', async function () {
+        // The id is derived from the item, not looked up, so saving the same
+        // item again finds the existing file by recomputing its name, rather
+        // than needing to search for it first.
         const assignment = getFolderAssignment();
         await folderAssignmentStorage.save({ assignment });
+        const [fileName] = await fs.readdir(
+          path.join(tmpDir, 'FolderAssignments')
+        );
 
-        expect(await folderAssignmentStorage.loadAll()).to.deep.equal([
-          assignment,
+        await folderAssignmentStorage.save({
+          assignment: { ...assignment, folderId: randomUUID() },
+        });
+
+        expect(
+          await fs.readdir(path.join(tmpDir, 'FolderAssignments'))
+        ).to.deep.equal([fileName]);
+      });
+
+      it('should resolve two concurrent saves of the same item to a single file', async function () {
+        // The id is computed synchronously from the item before either save
+        // awaits any I/O, so two saves racing for the same item both resolve
+        // to the same filename instead of each writing a different one.
+        const assignment = getFolderAssignment();
+
+        await Promise.all([
+          folderAssignmentStorage.save({ assignment }),
+          folderAssignmentStorage.save({ assignment }),
         ]);
+
+        expect(await readAssignmentFiles(tmpDir)).to.have.lengthOf(1);
       });
 
       it('should move an item in a single record', async function () {
@@ -299,8 +325,8 @@ describe('FolderStorage', function () {
           },
         });
 
-        // Still exactly one file: the move looked up and overwrote the
-        // existing record instead of creating a second one.
+        // Still exactly one file: the move computed the same id and
+        // overwrote the existing record instead of creating a second one.
         expect(await readAssignmentFiles(tmpDir)).to.have.lengthOf(1);
 
         const assignments = await folderAssignmentStorage.loadAll();
@@ -333,6 +359,17 @@ describe('FolderStorage', function () {
         });
 
         expect(await folderAssignmentStorage.loadAll()).to.deep.equal([kept]);
+      });
+
+      it('should do nothing when the item was never assigned', async function () {
+        // The id is derived, not looked up, so a delete for an item that was
+        // never saved still computes a real id -- pointing at a file that was
+        // never written. That must stay a silent no-op, not a failed delete.
+        await folderAssignmentStorage.delete({
+          itemType: 'connection',
+          itemId: randomUUID(),
+        });
+        expect(await readAssignmentFiles(tmpDir)).to.deep.equal([]);
       });
 
       it('should do nothing if no item id is passed', async function () {
@@ -414,11 +451,9 @@ describe('dependency injection', function () {
     it('should reject delete when the injected userData reports failure', async function () {
       const assignment = getFolderAssignment();
       const userData = createFakeUserData({
-        readAll: () =>
-          Promise.resolve({
-            data: [{ ...assignment, id: randomUUID() }],
-            errors: [],
-          }),
+        // readOne has to resolve to something truthy for delete() to treat
+        // the item as existing and proceed to call delete() at all.
+        readOne: () => Promise.resolve(assignment),
         delete: () => Promise.resolve(false),
       });
       const storage = new CompassMainFolderAssignmentStorage(
@@ -433,12 +468,28 @@ describe('dependency injection', function () {
       ).to.be.an('error');
     });
 
+    it('should not call delete when the item was never assigned', async function () {
+      const deleteSpy = Sinon.stub().resolves(true);
+      const userData = createFakeUserData({
+        readOne: () => Promise.resolve(undefined),
+        delete: deleteSpy,
+      });
+      const storage = new CompassMainFolderAssignmentStorage(
+        userData,
+        createFakeIpcMain()
+      );
+
+      await storage.delete({ itemType: 'connection', itemId: randomUUID() });
+
+      Sinon.assert.notCalled(deleteSpy);
+    });
+
     it('should still return the readable assignments when readAll reports some errors', async function () {
       const assignment = getFolderAssignment();
       const userData = createFakeUserData({
         readAll: () =>
           Promise.resolve({
-            data: [{ ...assignment, id: randomUUID() }],
+            data: [assignment],
             errors: [new Error('boom')],
           }),
       });
