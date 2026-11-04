@@ -70,5 +70,15 @@ describe('#doesQueryHaveExtraOptionsSet', function () {
         },
       })
     ).to.be.true;
+    expect(
+      doesQueryHaveExtraOptionsSet({
+        ...defaultFields,
+        project: {
+          valid: false,
+          string: '{test: ',
+          value: null,
+        },
+      })
+    ).to.be.true;
   });
 });
