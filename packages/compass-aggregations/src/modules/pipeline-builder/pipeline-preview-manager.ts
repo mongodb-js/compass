@@ -1,12 +1,11 @@
 import type { AggregateOptions, Document } from 'mongodb';
-import { abortable } from '@mongodb-js/compass-events';
+import { abortable, sleep } from '@mongodb-js/compass-events';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE,
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import { cancellableWait } from '../../utils/cancellable-wait';
 import type { DataService } from '../data-service';
 import {
   getStageOperator,
@@ -112,9 +111,10 @@ export class PipelinePreviewManager {
       signal: controller.signal,
     });
     if (!force) {
-      await cancellableWait(
+      await sleep(
         options.debounceMs ?? DEFAULT_PREVIEW_DEBOUNCE_MS,
-        controller.signal
+        undefined,
+        controller
       );
     }
     this.lastPipeline.set(idx, pipeline);

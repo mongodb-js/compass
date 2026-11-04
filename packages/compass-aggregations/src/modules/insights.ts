@@ -1,7 +1,6 @@
 import type { Action, Reducer } from 'redux';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import { cancellableWait } from '../utils/cancellable-wait';
 import { getStageOperator, isOutputStage } from '../utils/stage';
 import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
@@ -15,6 +14,7 @@ import type {
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilderThunkAction } from '.';
+import { sleep } from '@mongodb-js/compass-events';
 
 const FETCH_EXPLAIN_PLAN_SUCCESS =
   'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS' as const;
@@ -72,10 +72,10 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const { id, namespace, dataService, maxTimeMS } = getState();
-    const abortSignal = getAbortSignal(id);
+    const signal = getAbortSignal(id);
     try {
       // Debounce action to allow for user typing to stop
-      await cancellableWait(300, abortSignal);
+      await sleep(300, undefined, { signal });
       const pipeline = (
         await getPipelineFromBuilderState(getState(), pipelineBuilder)
       ).filter((stage) => {
@@ -94,7 +94,7 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
         {
           explainVerbosity: 'queryPlanner',
           maxTimeMS: maxTimeMS ?? undefined,
-          abortSignal,
+          abortSignal: signal,
         }
       );
       const explainPlan = new ExplainPlan(rawExplainPlan as Stage);

@@ -7,6 +7,7 @@ import {
   once,
   abortable,
   addAbortListener,
+  sleep,
   waitUntil,
 } from './events';
 
@@ -323,6 +324,57 @@ describe('events', function () {
           addSpy.firstCall.args[1]
         );
       });
+    });
+  });
+
+  describe('sleep', function () {
+    let clock: sinon.SinonFakeTimers;
+
+    beforeEach(function () {
+      clock = sinon.useFakeTimers();
+    });
+
+    afterEach(function () {
+      clock.restore();
+    });
+
+    it('resolves with the value after the delay', async function () {
+      const pending = sleep(100, 'done');
+      await clock.tickAsync(100);
+      expect(await pending).to.equal('done');
+    });
+
+    it('does not resolve before the delay', async function () {
+      let settled = false;
+      void sleep(100).then(() => (settled = true));
+      await clock.tickAsync(99);
+      expect(settled).to.equal(false);
+    });
+
+    it('rejects with the reason when the signal aborts', async function () {
+      const controller = new AbortController();
+      const pending = sleep(100, undefined, { signal: controller.signal });
+      controller.abort(new Error('stop'));
+      const error = await pending.catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
+      expect(clock.countTimers()).to.equal(0);
+    });
+
+    it('rejects straight away for an already aborted signal', async function () {
+      const error = await sleep(100, undefined, {
+        signal: AbortSignal.abort(new Error('already')),
+      }).catch((err: Error) => err);
+      expect(error).to.be.instanceOf(Error).with.property('message', 'already');
+      expect(clock.countTimers()).to.equal(0);
+    });
+
+    it('removes the abort listener after resolving', async function () {
+      const controller = new AbortController();
+      const removeSpy = sinon.spy(controller.signal, 'removeEventListener');
+      const pending = sleep(100, undefined, { signal: controller.signal });
+      await clock.tickAsync(100);
+      await pending;
+      expect(removeSpy).to.have.been.calledOnceWith('abort');
     });
   });
 

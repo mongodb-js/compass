@@ -178,3 +178,23 @@ export function errorFromEvent(event: unknown): Error {
     typeof message === 'string' ? message : `Unknown error: ${String(message)}`
   );
 }
+
+export async function sleep<T = void>(
+  ms: number,
+  value?: T,
+  options?: { signal?: AbortSignal; ref?: boolean }
+): Promise<T> {
+  options?.signal?.throwIfAborted();
+  const { promise, resolve, reject } = Promise.withResolvers<T>();
+  const timeoutId = setTimeout(resolve, ms, value);
+  if (options?.ref === false) {
+    // Timers are ref-ed by default so check for explicit false.
+    // @ts-expect-error: unref is for nodejs, cautiously invoked for browser support.
+    timeoutId?.unref?.();
+  }
+  using _timeout = { [Symbol.dispose]: () => clearTimeout(timeoutId) };
+  using _abort = addAbortListener(options?.signal, function () {
+    reject(this.reason);
+  });
+  return await promise;
+}
