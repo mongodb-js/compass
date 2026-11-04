@@ -140,5 +140,8 @@ function isQueryProperty(field: string): field is QueryProperty {
 }
 
 export function isEqualDefaultQuery(fields: QueryFormFields): boolean {
-  return isEqual(mapFormFieldsToQuery(fields), DEFAULT_QUERY_VALUES);
+  return (
+    isQueryValid(fields) &&
+    isEqual(mapFormFieldsToQuery(fields), DEFAULT_QUERY_VALUES)
+  );
 }
