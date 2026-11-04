@@ -312,7 +312,7 @@ export const changeEditorValue = (
     const {
       pipelineBuilder: {
         textEditor: {
-          pipeline: { pipelineText },
+          pipeline: { pipelineText, syntaxErrors: previousSyntaxErrors },
         },
       },
     } = getState();
@@ -322,6 +322,10 @@ export const changeEditorValue = (
     }
 
     const parsed = pipelineBuilder.changeSource(newValue);
+    const syntaxErrors =
+      pipelineBuilder.syntaxError.length > 0
+        ? pipelineBuilder.syntaxError
+        : previousSyntaxErrors;
 
     // Text and syntax errors are known right away so the editor never lags
     // behind typing; a null pipeline keeps the previous one until parsed.
@@ -329,7 +333,7 @@ export const changeEditorValue = (
       type: EditorActionTypes.EditorValueChange,
       pipelineText: newValue,
       pipeline: null,
-      syntaxErrors: pipelineBuilder.syntaxError,
+      syntaxErrors,
     });
 
     await parsed;

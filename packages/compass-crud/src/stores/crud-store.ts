@@ -2430,9 +2430,11 @@ export async function parseInsertDocumentText(
   view: InsertDocumentView,
   text: string
 ): Promise<unknown> {
-  return view === 'shell'
-    ? await parseShellBSON(text)
-    : EJSON.parse(text, { relaxed: false });
+  return view === 'shell' ? await parseShellBSON(text) : parseInsertEJSON(text);
+}
+
+export function parseInsertEJSON(text: string): unknown {
+  return EJSON.parse(text, { relaxed: false });
 }
 
 /**

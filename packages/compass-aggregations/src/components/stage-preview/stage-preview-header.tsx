@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Body,
   Link,
   Tooltip,
-  useAsyncValue,
+  useParsedShellValue,
 } from '@mongodb-js/compass-components';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import type { Document } from 'mongodb';
 import type { RootState } from '../../modules';
 import { getStageDestination, getStageInfo } from '../../utils/stage';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
@@ -54,12 +55,16 @@ function StagePreviewHeaderInner({
   description,
   link,
 }: StagePreviewHeaderProps) {
-  const { value, pending } = useAsyncValue(
-    () => getStageDestination(namespace, stageOperator ?? null, stageValue),
-    [namespace, stageOperator, stageValue]
+  const { value: stage, pending } = useParsedShellValue(
+    stageOperator ? `{${stageOperator}: ${stageValue}}` : ''
   );
-  // Ignore the retained value so we never show the previous stage's target
-  const destination = pending ? null : value;
+  const destination = useMemo(
+    () =>
+      stageOperator && stage && !pending
+        ? getStageDestination(namespace, stage as Document)
+        : null,
+    [namespace, stageOperator, stage, pending]
+  );
 
   if (!stageOperator) {
     return null;

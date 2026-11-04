@@ -13,7 +13,7 @@ import {
   Body,
   Tooltip,
   useDarkMode,
-  useAsyncValue,
+  useParsedShellValue,
   cx,
 } from '@mongodb-js/compass-components';
 import {
@@ -28,7 +28,6 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
 import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
@@ -139,22 +138,16 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const { completer, extensions, annotations, hasErrors } =
     useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
 
-  // An invalid definition rejects, which leaves the value undefined and keeps
-  // save disabled.
-  const { value: isDefinitionChanged, pending: isDefinitionChangedPending } =
-    useAsyncValue(async () => {
-      const currentParsed = await parseShellBSON(indexDefinition);
-      return (
-        JSON.stringify(currentParsed) !==
-        JSON.stringify(searchIndex.latestDefinition)
-      );
-    }, [indexDefinition, searchIndex.latestDefinition]);
+  // An invalid definition leaves the value undefined and keeps save disabled.
+  const { value: parsedDefinition, pending: isDefinitionChangedPending } =
+    useParsedShellValue(indexDefinition);
+  const isDefinitionChanged =
+    parsedDefinition !== undefined &&
+    JSON.stringify(parsedDefinition) !==
+      JSON.stringify(searchIndex.latestDefinition);
 
   const isSaveEnabled =
-    !hasErrors &&
-    !isBusy &&
-    !isDefinitionChangedPending &&
-    isDefinitionChanged === true;
+    !hasErrors && !isBusy && !isDefinitionChangedPending && isDefinitionChanged;
 
   // Reset state on unmount
   useEffect(() => {
