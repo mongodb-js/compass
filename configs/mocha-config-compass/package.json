@@ -21,7 +21,7 @@
   "homepage": "https://github.com/mongodb-js/compass",
   "private": true,
   "dependencies": {
-    "@electron/remote": "^2.1.3",
+    "@electron/remote": "^2.1.4",
     "@formatjs/intl-durationformat": "^0.10.1",
     "@mongodb-js/mocha-config-devtools": "^2.0.1",
     "chai": "^4.3.4",

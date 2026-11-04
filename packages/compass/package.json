@@ -194,7 +194,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^4.2.1",
-    "@electron/remote": "^2.1.3",
+    "@electron/remote": "^2.1.4",
     "@mongodb-js/atlas-admin-api": "^1.5.0",
     "@mongodb-js/atlas-service": "^1.7.0",
     "@mongodb-js/compass-aggregations": "^10.8.0",
@@ -261,7 +261,7 @@
     "cross-spawn": "^7.0.5",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^45.1.0",
+    "electron": "^45.2.2",
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^12.2.0",
