@@ -371,7 +371,7 @@ This document was automatically generated on Wed Nov 04 2026.
 | **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**                                       | 4.6.2        | MIT                                 |
 | **[lodash](#02c5607a9d3316c6c04fcbf8d5fb61810668de71f499205765e125fd4829cd17)**                                             | 4.18.1       | MIT                                 |
 | **[lottie-web](#1f97ad7c365ecbd3628b72df96e42dada0d2e9a4aa6d79b66e93911bdebb6ccd)**                                         | 5.13.0       | MIT                                 |
-| **[lru-cache](#4e696e5a018201981acda2ad8cd8ed13ab002c630d6de9191e2b3910e727531e)**                                          | 11.3.5       | BlueOak-1.0.0                       |
+| **[lru-cache](#aca9cdd4321dd851dbbfaf788934444ffe451fa027ea25ecda331e53138e9cd6)**                                          | 11.5.3       | BlueOak-1.0.0                       |
 | **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**                                          | 5.1.1        | ISC                                 |
 | **[math-intrinsics](#f585fed67bcee1ccc26f6fd0010ab256b0e752435b26949a15143b03495a11d9)**                                    | 1.1.0        | MIT                                 |
 | **[mdast-util-definitions](#906c46bd62e5d0bb51c7e5e1dbcd2c7385ca236a34a90348bd470966f289b4b4)**                             | 5.1.2        | MIT                                 |
@@ -27276,9 +27276,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="4e696e5a018201981acda2ad8cd8ed13ab002c630d6de9191e2b3910e727531e"></a>
+<a id="aca9cdd4321dd851dbbfaf788934444ffe451fa027ea25ecda331e53138e9cd6"></a>
 
-### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.3.5)
+### [lru-cache](https://www.npmjs.com/package/lru-cache) (version 11.5.3)
 
 License tags: BlueOak-1.0.0
 
