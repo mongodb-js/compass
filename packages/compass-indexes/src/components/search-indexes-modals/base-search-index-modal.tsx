@@ -29,7 +29,6 @@ import {
   CodemirrorMultilineEditor,
   createSearchIndexAutocompleter,
 } from '@mongodb-js/compass-editor';
-import type { Document } from 'mongodb';
 import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
@@ -195,7 +194,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   const { error: parsingError } = useParsedShellValue(indexDefinition);
   const annotations = useMemo<Annotation[]>(() => {
-    const pos = parsingError?.pos;
+    const pos = (parsingError as { pos?: number })?.pos;
     if (parsingError && pos !== undefined) {
       return [
         {
@@ -366,7 +365,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     () =>
       !!initialParsedDefinition &&
       isAutoEmbedIndex({
-        latestDefinition: initialParsedDefinition as Document,
+        latestDefinition: initialParsedDefinition,
       }),
     [initialParsedDefinition]
   );
