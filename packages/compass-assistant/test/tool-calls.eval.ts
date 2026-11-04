@@ -321,7 +321,7 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
       connectionConfig,
     });
 
-    assert(tools['find'], 'ToolsController did not provide database tools');
+    assert(caseTools['find'], 'ToolsController did not provide database tools');
 
     const contextPrompt = buildContextPromptText({
       custom,
