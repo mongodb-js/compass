@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Nov 03 2026.
+This document was automatically generated on Wed Nov 04 2026.
 
 ## List of dependencies
 
@@ -583,7 +583,7 @@ This document was automatically generated on Tue Nov 03 2026.
 | **[web-worker](#b1cfb86d451a22131350d0ca31af5cc850f678c4807e7b53d2a71135da3d1a01)**                                         | 1.5.0        | Apache-2.0                          |
 | **[webidl-conversions](#3604b2bfa479706fe7bd8068257240d32158704a3bffae30b414963343027aa1)**                                 | 3.0.1        | BSD-2-Clause                        |
 | **[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**                                 | 7.0.0        | BSD-2-Clause                        |
-| **[webpack](#f66671b8e46562985e59ddc3aa94074fbb7ff42d11a9be5292d5adff9a8c14e0)**                                            | 5.102.1      | MIT                                 |
+| **[webpack](#1f70e33d58c7f53f51e4608ca2ecf4c2da7e7a03ecb5c909032c50891b9f5285)**                                            | 5.107.0      | MIT                                 |
 | **[whatwg-url](#03a88617e32d47e5fc8e9ecbbecb07d9d2ed26fe297b3b4660df82e02e0f2bbf)**                                         | 14.0.0       | MIT                                 |
 | **[whatwg-url](#17a00d3c2cc51711db5016df22cecd190a597149966f4d3d0539457d982f2c68)**                                         | 14.2.0       | MIT                                 |
 | **[whatwg-url](#cd3f81c4a0fd856ab1d9c9fc99c1d7eaf2c12c4867b218e9901e5020a1ffcd85)**                                         | 5.0.0        | MIT                                 |
@@ -41948,9 +41948,9 @@ License files:
 
       THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-<a id="f66671b8e46562985e59ddc3aa94074fbb7ff42d11a9be5292d5adff9a8c14e0"></a>
+<a id="1f70e33d58c7f53f51e4608ca2ecf4c2da7e7a03ecb5c909032c50891b9f5285"></a>
 
-### [webpack](https://www.npmjs.com/package/webpack) (version 5.102.1)
+### [webpack](https://www.npmjs.com/package/webpack) (version 5.107.0)
 
 License tags: MIT
 
