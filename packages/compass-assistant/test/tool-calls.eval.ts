@@ -9,6 +9,7 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { MessageChannel } from 'node:worker_threads';
 import { createOpenAI } from '@ai-sdk/openai';
 import { isStepCount, streamText, wrapLanguageModel } from 'ai';
 import type { StepResult, ToolSet } from 'ai';
@@ -17,6 +18,7 @@ import {
   ToolsController,
   type ToolGroup,
 } from '@mongodb-js/compass-generative-ai/provider';
+import { ToolsHost } from '@mongodb-js/compass-generative-ai/utility';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
@@ -68,6 +70,18 @@ const DEFAULT_EVAL_TASK_CONFIG: EvalTaskConfig = {
 
 const logger = createNoopLogger('EVAL-TOOLS-CONTROLLER');
 
+// There is no utility process in Node, so the host runs in this one, on the
+// other end of a plain MessageChannel. Held in a variable so the run can
+// release its server and driver connection when it finishes.
+const evalChannel = new MessageChannel();
+
+// worker_threads ports are structurally identical to DOM MessagePorts but not
+// nominally, so tests bridge them with this cast.
+const asRendererPort = (port: MessageChannel['port1']): MessagePort =>
+  port as unknown as MessagePort;
+
+const evalHost = new ToolsHost(asRendererPort(evalChannel.port2), { logger });
+
 const toolsController = new ToolsController({
   logger,
   getTelemetryAnonymousId: () => 'eval-anonymous-id',
@@ -75,6 +89,7 @@ const toolsController = new ToolsController({
   enableMCPTelemetry: false,
   preferences: defaultPreferencesInstance,
   atlasAdminApi: {} as AtlasAdminApiService,
+  openPort: () => asRendererPort(evalChannel.port1),
 });
 
 let toolsInitialized = false;
@@ -86,9 +101,6 @@ let toolsInitialized = false;
 async function ensureToolsInitialized(): Promise<void> {
   if (toolsInitialized) return;
   await toolsController.startServer();
-  if (!toolsController.server) {
-    throw new Error('Failed to start ToolsController server for eval tools');
-  }
   toolsInitialized = true;
 }
 
@@ -309,6 +321,8 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
       connectionConfig,
     });
 
+    assert(tools['find'], 'ToolsController did not provide database tools');
+
     const contextPrompt = buildContextPromptText({
       custom,
       connectionString: connectionConfig.connectionString,
@@ -402,6 +416,7 @@ async function main() {
     });
   } finally {
     await toolsController.stopServer();
+    await evalHost.stop();
     await client.close();
     await cluster.close();
     // FIXME(COMPASS-10486): We need to have this otherwise the process hangs.

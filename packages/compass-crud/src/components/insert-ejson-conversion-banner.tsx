@@ -20,12 +20,14 @@ const errorStyles = css({ marginTop: spacing[200] });
 export type InsertEJSONConversionBannerProps = {
   parsedEditorText: unknown;
   conversionError: string | null;
+  isConvertDisabled?: boolean;
   onConvert: () => void;
 };
 
 function InsertEJSONConversionBanner({
   parsedEditorText,
   conversionError,
+  isConvertDisabled = false,
   onConvert,
 }: InsertEJSONConversionBannerProps) {
   const [dismissedKey, setDismissedKey] = useState<string | null>(null);
@@ -63,6 +65,7 @@ function InsertEJSONConversionBanner({
       <div className={bannerActionContainerStyles}>
         <Button
           size="xsmall"
+          disabled={isConvertDisabled}
           onClick={onConvert}
           data-testid="insert-document-ejson-conversion-button"
         >

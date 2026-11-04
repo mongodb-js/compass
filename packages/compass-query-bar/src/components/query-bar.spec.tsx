@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import {
-  cleanup,
   render,
   screen,
   within,
@@ -111,8 +110,6 @@ describe('QueryBar Component', function () {
     onApplySpy = sinon.spy();
     onResetSpy = sinon.spy();
   });
-
-  afterEach(cleanup);
 
   describe('when rendered', function () {
     beforeEach(function () {
@@ -279,13 +276,13 @@ describe('QueryBar Component', function () {
     });
 
     describe('with filter content supplied', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
         renderQueryBar(
           {
             queryOptionsLayout: ['filter'],
           },
           {
-            fields: mapQueryToFormFields(
+            fields: await mapQueryToFormFields(
               { maxTimeMS: undefined },
               {
                 ...DEFAULT_FIELD_VALUES,

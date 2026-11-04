@@ -1,9 +1,8 @@
-import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
-import type { Document } from 'mongodb';
+import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
-export function parseShellBSON(source: string): Document[] {
-  const parsed = _parseShellBSON(source, {
+export async function parseShellBSON(source: string): Promise<unknown> {
+  const parsed = await parse(source, {
     mode: ParseMode.Strict,
     allowComments: true,
     allowMethods: true,

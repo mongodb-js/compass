@@ -1,7 +1,7 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
 import { render, screen } from '@mongodb-js/testing-library-compass';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import JSONEditor from './json-editor';
 

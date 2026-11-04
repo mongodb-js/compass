@@ -12,7 +12,7 @@ const Actions = require('../actions');
  * 'currentOpComplete' action, fetches the current op data, and
  * triggers with the result of the command.
  *
- * @type {Reflux.Store & {onActivated(ds: import('mongodb-data-service').DataService)}}
+ * @type {Reflux.Store & {onActivated(ds: import('@mongodb-js/mongodb-data-service').DataService)}}
  */
 const CurrentOpStore = Reflux.createStore({
   /**

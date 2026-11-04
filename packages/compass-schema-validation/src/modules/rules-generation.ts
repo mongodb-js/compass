@@ -257,7 +257,7 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
         2
       );
       dispatch(validationLevelChanged('moderate'));
-      dispatch(validatorChanged(validator));
+      await dispatch(validatorChanged(validator));
       dispatch(enableEditRules());
       dispatch({ type: RulesGenerationActions.generationFinished });
       dispatch(zeroStateChanged(false));

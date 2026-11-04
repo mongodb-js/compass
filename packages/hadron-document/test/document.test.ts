@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ObjectId, Long, Int32, Double } from 'bson';
+import { ObjectId, Long, Int32, Double, Decimal128 } from 'bson';
 import Sinon from 'sinon';
 import Document, { DocumentEvents } from '../src/';
 import type { BSONValue } from '../src/';
@@ -2552,13 +2552,14 @@ describe('Document', function () {
         a: 1,
         b: 1.5,
         c: Long.fromNumber(2),
+        d: Decimal128.fromString('1.5'),
       });
       doc.get('a')?.edit(new Int32(2));
       expect(doc.toShellSyntax('current', { indent: 0 })).to.equal(
-        "{a:NumberInt('2'),b:Double('1.5'),c:NumberLong('2')}"
+        "{a:NumberInt('2'),b:Double('1.5'),c:Long('2'),d:Decimal128('1.5')}"
       );
       expect(doc.toShellSyntax('original', { indent: 0 })).to.equal(
-        "{a:NumberInt('1'),b:Double('1.5'),c:NumberLong('2')}"
+        "{a:NumberInt('1'),b:Double('1.5'),c:Long('2'),d:Decimal128('1.5')}"
       );
     });
 

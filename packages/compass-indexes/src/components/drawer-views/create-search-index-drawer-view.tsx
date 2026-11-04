@@ -11,7 +11,6 @@ import {
   Tooltip,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'mongodb';
 import {
   CodemirrorMultilineEditor,
   useJsonSchemaAutocompleter,
@@ -23,7 +22,7 @@ import {
   ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import {
   useConnectionInfo,
   useConnectionInfoRef,
@@ -35,7 +34,6 @@ import {
   VectorSearchIndexTemplateDropdown,
   type VectorIndexTemplateChoice,
 } from '../search-index-template-dropdown/vector-search-index-template-dropdown';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
   openIndexesListDrawerView,
@@ -96,7 +94,7 @@ type CreateSearchIndexViewProps = {
   onResetCreateState: () => void;
   createIndex: (index: {
     name: string;
-    definition: Document;
+    definition: string;
     type?: string;
   }) => void;
   onIndexDefinitionEdit: (isDirty: boolean) => void;
@@ -220,7 +218,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     });
     createIndex({
       name,
-      definition: parseShellBSON(indexDefinition),
+      definition: indexDefinition,
       type: currentIndexType,
     });
   }, [name, indexDefinition, createIndex, currentIndexType, track]);

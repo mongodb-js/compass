@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai';
 
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
 import configureActions from '../actions';
 import configureStore, { type GridStore } from './grid-store';
 

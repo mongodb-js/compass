@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import {
   Binary,
   BSONRegExp,
@@ -22,8 +23,10 @@ import {
   getAccidentalEJSONKey,
 } from './ejson-conversion';
 
-const convert = (text: string) =>
-  convertEJSONToShellSyntax(parseShellBSON(text)).replace(/\s+/g, ' ');
+chai.use(chaiAsPromised);
+
+const convert = async (text: string) =>
+  convertEJSONToShellSyntax(await parseShellBSON(text)).replace(/\s+/g, ' ');
 
 describe('ejson-conversion', function () {
   describe('#getAccidentalEJSONKey', function () {
@@ -44,7 +47,7 @@ describe('ejson-conversion', function () {
     it('finds a key nested in subdocuments and arrays', function () {
       expect(
         getAccidentalEJSONKey({ a: [{ b: { n: { $numberLong: '1' } } }] })
-      ).to.deep.equal({ key: '$numberLong', shellEquivalent: 'NumberLong()' });
+      ).to.deep.equal({ key: '$numberLong', shellEquivalent: 'Long()' });
     });
 
     it('finds a key in an array of documents', function () {
@@ -55,7 +58,7 @@ describe('ejson-conversion', function () {
   });
 
   describe('#convertEJSONToShellSyntax', function () {
-    it('keeps the BSON types of a document written in Extended JSON', function () {
+    it('keeps the BSON types of a document written in Extended JSON', async function () {
       const allTypes = {
         double: new Double(1.2),
         primitiveDouble: 1.2,
@@ -108,7 +111,9 @@ describe('ejson-conversion', function () {
         ),
       };
 
-      const converted = convert(EJSON.stringify(allTypes, { relaxed: false }));
+      const converted = await convert(
+        EJSON.stringify(allTypes, { relaxed: false })
+      );
 
       // At the time of writing, there are discrepancies between the generated
       // shell syntax from @mongodb-js/shell-bson-parser and actual shell
@@ -138,10 +143,10 @@ describe('ejson-conversion', function () {
         `primitiveInt: NumberInt('12345')`,
         `timestamp: Timestamp({ t: 1680701109, i: 1 })`,
         // TODO(COMPASS-10968): NumberLong should be written as Long('...')
-        `'long': NumberLong('123456789123456789')`,
+        `'long': Long('123456789123456789')`,
         // Eventually NumberDecimal should be written as Decimal128('...')
         // to standardize on shell syntax.
-        `decimal: NumberDecimal('5.477284286264328586719275128128001E-4088')`,
+        `decimal: Decimal128('5.477284286264328586719275128128001E-4088')`,
         `minKey: MinKey()`,
         `maxKey: MaxKey()`,
         `generic: BinData(0, 'AQID')`,
@@ -161,9 +166,9 @@ describe('ejson-conversion', function () {
       }
     });
 
-    it('keeps the types of the parts that are already shell syntax', function () {
+    it('keeps the types of the parts that are already shell syntax', async function () {
       expect(
-        convert(`{
+        await convert(`{
           _id: ObjectId('642d766b7300158b1f22e972'),
           created: ISODate('2023-04-05T13:25:08.445Z'),
           data: BinData(0, 'AQID'),
@@ -176,29 +181,31 @@ describe('ejson-conversion', function () {
         `{ _id: ObjectId('642d766b7300158b1f22e972'), ` +
           `created: ISODate('2023-04-05T13:25:08.445Z'), ` +
           `data: BinData(0, 'AQID'), ` +
-          `big: NumberLong('123456789123456789'), ` +
+          `big: Long('123456789123456789'), ` +
           `ts: Timestamp({ t: 1, i: 2 }), ` +
           `re: RegExp("abc", 'i'), ` +
-          `count: NumberLong('9007199254740993') }`
+          `count: Long('9007199254740993') }`
       );
     });
 
-    it('converts every document of an array', function () {
+    it('converts every document of an array', async function () {
       expect(
-        convert('[{ a: { "$numberInt": "1" } }, { b: { "$numberInt": "2" } }]')
+        await convert(
+          '[{ a: { "$numberInt": "1" } }, { b: { "$numberInt": "2" } }]'
+        )
       ).to.equal(`[ { a: NumberInt('1') }, { b: NumberInt('2') } ]`);
     });
 
-    it('leaves dollar-prefixed keys that are not Extended JSON alone', function () {
-      expect(convert('{ a: { "$unknown": 1 } }')).to.equal(
+    it('leaves dollar-prefixed keys that are not Extended JSON alone', async function () {
+      expect(await convert('{ a: { "$unknown": 1 } }')).to.equal(
         `{ a: { $unknown: NumberInt('1') } }`
       );
     });
 
-    it('throws for Extended JSON that cannot be deserialized', function () {
-      expect(() => convert('{ _id: { "$oid": "not-an-object-id" } }')).to.throw(
-        /24 character hex string/
-      );
+    it('throws for Extended JSON that cannot be deserialized', async function () {
+      await expect(
+        convert('{ _id: { "$oid": "not-an-object-id" } }')
+      ).to.be.rejectedWith(/24 character hex string/);
     });
   });
 });

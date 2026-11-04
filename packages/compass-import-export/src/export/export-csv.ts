@@ -7,7 +7,7 @@ import os from 'node:os';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
 import toNS from '@mongodb-js/mongodb-ns';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import Parser from 'stream-json/Parser';
 import StreamValues from 'stream-json/streamers/StreamValues';
