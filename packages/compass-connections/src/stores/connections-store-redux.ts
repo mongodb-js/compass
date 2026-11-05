@@ -200,14 +200,11 @@ export type State = {
   editingConnectionInfoId: ConnectionId | null;
   isEditingConnectionInfoModalOpen: boolean;
 
-  // Folders a connection can be organized into, and which folder (if any)
-  // each connection currently belongs to. Normalized the same way as
-  // `connections` above.
   folders: {
     ids: string[];
     byId: Record<string, Folder>;
   };
-  // connectionId -> folderId. A connection absent here is uncategorized.
+  // Absent means uncategorized.
   folderAssignments: Record<ConnectionId, string>;
 };
 
@@ -2484,18 +2481,16 @@ export const openSettingsModal = (
   };
 };
 
-// Windows forbids these in file names; macOS and Linux only forbid '/', but a
-// single cross-platform rule set is simpler for users moving a setup between
-// machines than making the rule depend on the current OS.
+// Windows-reserved characters, disallowed on all platforms so a name stays
+// portable between machines.
 const WINDOWS_RESERVED_CHARACTERS = ['<', '>', ':', '"', '|', '?', '*'];
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHARACTERS_REGEX = /[\u0000-\u001F\u007F]/;
 const PATH_SEPARATORS_REGEX = /[/\\]/;
 
 /**
- * Shared by create and rename so the rules can never drift between the two.
- * `existingNames` should exclude the folder being renamed, so renaming a
- * folder to the name it already has is not treated as a duplicate.
+ * `existingNames` must exclude the folder being renamed, so renaming a folder
+ * to the name it already has isn't reported as a duplicate.
  */
 export function validateFolderName(
   name: string,
@@ -2650,12 +2645,9 @@ export const deleteFolder = (
 };
 
 /**
- * Every move path (context menu, connection form, drag and drop, multi-select)
- * dispatches this one action, so they share a single write path. The whole
- * folder organization is one document, so a failed save can't leave some
- * connections moved and others not: either all of the requested ids are
- * applied, or none are, and the caller finds out which through `failedIds` so
- * unprocessed connections can stay selected for a retry.
+ * The organization is one document, so a save applies either all of the
+ * requested moves or none. `failedIds` reports the ones not applied so the
+ * caller can keep them selected for a retry.
  */
 export const moveConnectionsToFolder = (
   connectionIds: ConnectionId[],

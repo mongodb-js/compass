@@ -969,7 +969,6 @@ describe('CompassConnections store', function () {
           connectionsStore.getState().folders.byId[folder.id].name
         ).to.equal('Personal');
 
-        // Renaming to the same name it already has is not a duplicate.
         await connectionsStore.actions.renameFolder(folder.id, 'Personal');
         expect(
           connectionsStore.getState().folders.byId[folder.id].name
