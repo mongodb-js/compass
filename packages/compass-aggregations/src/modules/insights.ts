@@ -1,6 +1,7 @@
 import type { Action, Reducer } from 'redux';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import { sleep } from '@mongodb-js/compass-events';
 import { getStageOperator, isOutputStage } from '../utils/stage';
 import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
@@ -14,7 +15,6 @@ import type {
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilderThunkAction } from '.';
-import { sleep } from '@mongodb-js/compass-events';
 
 const FETCH_EXPLAIN_PLAN_SUCCESS =
   'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS' as const;

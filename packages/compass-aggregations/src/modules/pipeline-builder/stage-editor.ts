@@ -6,6 +6,7 @@ import {
   ExperimentTestGroups,
   ExperimentTestNames,
 } from '@mongodb-js/compass-telemetry/provider';
+import { sleep } from '@mongodb-js/compass-events';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
@@ -46,7 +47,6 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
-import { sleep } from '@mongodb-js/compass-events';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
