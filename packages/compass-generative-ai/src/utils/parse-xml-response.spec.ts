@@ -59,12 +59,16 @@ describe('parseXmlToJsonResponse', function () {
       });
     });
     context('it should handle invalid data', function () {
-      it('invalid json', async function () {
+      it('keeps unparseable values as is', async function () {
         const result = await parseXmlToJsonResponse(
-          `<filter>{ age: { $gt: 25 </filter>`,
+          `<filter>{ age: { $gt: 25 </filter><sort>{ age: -1 }</sort>`,
           options
         );
-        expect(result.content.query).to.deep.equal(NULL_QUERY);
+        expect(result.content.query).to.deep.equal({
+          ...NULL_QUERY,
+          filter: '{ age: { $gt: 25',
+          sort: '{age:-1}',
+        });
       });
       it('empty object', async function () {
         const result = await parseXmlToJsonResponse(
@@ -103,6 +107,17 @@ describe('parseXmlToJsonResponse', function () {
         content: {
           aggregation: {
             pipeline: '',
+          },
+        },
+      });
+    });
+    it('keeps an unparseable aggregation pipeline as is', async function () {
+      const xmlString = `<aggregation>[{ $match: { status: "A" }</aggregation>`;
+      const result = await parseXmlToJsonResponse(xmlString, options);
+      expect(result).to.deep.equal({
+        content: {
+          aggregation: {
+            pipeline: '[{ $match: { status: "A" }',
           },
         },
       });
