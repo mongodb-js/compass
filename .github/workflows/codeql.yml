@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - main
-      - "*-releases"
+      - '*-releases'
     tags:
       - v*
   pull_request:
     branches:
       - main
   schedule:
-    - cron: "30 14 * * 4"
+    - cron: '30 14 * * 4'
   workflow_dispatch:
     inputs: {}
 
@@ -40,10 +40,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -59,6 +59,6 @@ jobs:
               - 'scripts/**'
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
         with:
-          category: "/language:${{matrix.language}}"
+          category: '/language:${{matrix.language}}'
