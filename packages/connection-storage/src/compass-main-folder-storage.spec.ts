@@ -35,22 +35,22 @@ function createFakeIpcMain(): FolderStorageIPCMain {
   return { createHandle: Sinon.stub() };
 }
 
-function getOrganizationFilePath(tmpDir: string): string {
-  return path.join(tmpDir, 'Folders', 'organization.json');
+function getFolderOrganizationFilePath(tmpDir: string): string {
+  return path.join(tmpDir, 'Folders', 'folder-organization.json');
 }
 
-async function writeFakeOrganization(
+async function writeFakeFolderOrganization(
   tmpDir: string,
-  organization: Record<string, unknown>
+  folderOrganization: Record<string, unknown>
 ) {
-  const filePath = getOrganizationFilePath(tmpDir);
+  const filePath = getFolderOrganizationFilePath(tmpDir);
   await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(organization));
+  await fs.writeFile(filePath, JSON.stringify(folderOrganization));
 }
 
-async function readOrganizationFile(tmpDir: string) {
+async function readFolderOrganizationFile(tmpDir: string) {
   return JSON.parse(
-    await fs.readFile(getOrganizationFilePath(tmpDir), 'utf-8')
+    await fs.readFile(getFolderOrganizationFilePath(tmpDir), 'utf-8')
   );
 }
 
@@ -82,25 +82,25 @@ describe('FolderStorage', function () {
   });
 
   describe('load', function () {
-    it('should return an empty organization when nothing is saved', async function () {
+    it('should return an empty folder organization when nothing is saved', async function () {
       expect(await folderStorage.load()).to.deep.equal({
         folders: [],
         assignments: {},
       });
     });
 
-    it('should return the saved organization', async function () {
-      const organization: FolderOrganization = {
+    it('should return the saved folder organization', async function () {
+      const folderOrganization: FolderOrganization = {
         folders: [getFolder()],
         assignments: { 'connection-1': 'folder-1' },
       };
-      await folderStorage.save({ organization });
-      expect(await folderStorage.load()).to.deep.equal(organization);
+      await folderStorage.save({ folderOrganization });
+      expect(await folderStorage.load()).to.deep.equal(folderOrganization);
     });
 
     it('should convert a folder lastModifiedAt to a date', async function () {
       const folder = getFolder();
-      await writeFakeOrganization(tmpDir, {
+      await writeFakeFolderOrganization(tmpDir, {
         folders: [{ ...folder, lastModifiedAt: '2026-01-05T13:51:27.585Z' }],
         assignments: {},
       });
@@ -115,25 +115,29 @@ describe('FolderStorage', function () {
       // Older versions must not strip data written by newer ones, otherwise
       // adding a folder parent reference later would lose it on a downgrade.
       const folder = getFolder();
-      await writeFakeOrganization(tmpDir, {
+      await writeFakeFolderOrganization(tmpDir, {
         folders: [{ ...folder, parentId: 'some-parent' }],
         assignments: {},
         futureTopLevelField: 'kept',
       });
-      const organization = await folderStorage.load();
-      expect(organization.folders[0]).to.have.property(
+      const folderOrganization = await folderStorage.load();
+      expect(folderOrganization.folders[0]).to.have.property(
         'parentId',
         'some-parent'
       );
-      expect(organization).to.have.property('futureTopLevelField', 'kept');
+      expect(folderOrganization).to.have.property(
+        'futureTopLevelField',
+        'kept'
+      );
     });
 
-    it('should return an empty organization if the file is corrupt', async function () {
-      // There's one file for the whole organization, so a corrupt file costs
-      // everything in it. That's accepted here rather than special-cased:
-      // partial recovery would only leave a confusing, half-restored state.
+    it('should return an empty folder organization if the file is corrupt', async function () {
+      // There's one file for the whole folder organization, so a corrupt file
+      // costs everything in it. That's accepted here rather than
+      // special-cased: partial recovery would only leave a confusing,
+      // half-restored state.
       await fs.mkdir(path.join(tmpDir, 'Folders'), { recursive: true });
-      await fs.writeFile(getOrganizationFilePath(tmpDir), 'not json');
+      await fs.writeFile(getFolderOrganizationFilePath(tmpDir), 'not json');
 
       expect(await folderStorage.load()).to.deep.equal({
         folders: [],
@@ -144,28 +148,30 @@ describe('FolderStorage', function () {
 
   describe('save', function () {
     it('should write a single file regardless of content', async function () {
-      const organization: FolderOrganization = {
+      const folderOrganization: FolderOrganization = {
         folders: [getFolder(), getFolder()],
         assignments: { 'connection-1': 'folder-1' },
       };
-      await folderStorage.save({ organization });
+      await folderStorage.save({ folderOrganization });
 
       expect(await fs.readdir(path.join(tmpDir, 'Folders'))).to.deep.equal([
-        'organization.json',
+        'folder-organization.json',
       ]);
-      expect(await readOrganizationFile(tmpDir)).to.deep.equal(organization);
+      expect(await readFolderOrganizationFile(tmpDir)).to.deep.equal(
+        folderOrganization
+      );
     });
 
-    it('should replace the whole organization, not merge into it', async function () {
+    it('should replace the whole folder organization, not merge into it', async function () {
       await folderStorage.save({
-        organization: {
+        folderOrganization: {
           folders: [getFolder()],
           assignments: { 'connection-1': 'folder-1' },
         },
       });
 
       const next: FolderOrganization = { folders: [], assignments: {} };
-      await folderStorage.save({ organization: next });
+      await folderStorage.save({ folderOrganization: next });
 
       expect(await folderStorage.load()).to.deep.equal(next);
     });
@@ -174,13 +180,13 @@ describe('FolderStorage', function () {
       // assignments is a plain map, so re-assigning a connection id
       // overwrites its previous folder rather than adding a second entry.
       await folderStorage.save({
-        organization: {
+        folderOrganization: {
           folders: [],
           assignments: { 'connection-1': 'folder-1' },
         },
       });
       await folderStorage.save({
-        organization: {
+        folderOrganization: {
           folders: [],
           assignments: { 'connection-1': 'folder-2' },
         },
@@ -203,12 +209,12 @@ describe('dependency injection', function () {
 
     expect(
       await storage
-        .save({ organization: { folders: [], assignments: {} } })
+        .save({ folderOrganization: { folders: [], assignments: {} } })
         .catch((err) => err)
     ).to.be.an('error');
   });
 
-  it('should return an empty organization when the injected userData rejects', async function () {
+  it('should return an empty folder organization when the injected userData rejects', async function () {
     const userData = createFakeUserData({
       readOne: () => Promise.reject(new Error('boom')),
     });

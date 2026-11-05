@@ -1,29 +1,33 @@
 import type { FolderOrganization, FolderStorage } from './folder-storage';
 
 export class InMemoryFolderStorage implements FolderStorage {
-  private organization: FolderOrganization;
+  private folderOrganization: FolderOrganization;
 
   constructor(
-    organization: FolderOrganization = { folders: [], assignments: {} }
+    folderOrganization: FolderOrganization = { folders: [], assignments: {} }
   ) {
-    this.organization = cloneOrganization(organization);
+    this.folderOrganization = cloneFolderOrganization(folderOrganization);
   }
 
   load(): Promise<FolderOrganization> {
-    return Promise.resolve(cloneOrganization(this.organization));
+    return Promise.resolve(cloneFolderOrganization(this.folderOrganization));
   }
 
-  save({ organization }: { organization: FolderOrganization }): Promise<void> {
-    this.organization = cloneOrganization(organization);
+  save({
+    folderOrganization,
+  }: {
+    folderOrganization: FolderOrganization;
+  }): Promise<void> {
+    this.folderOrganization = cloneFolderOrganization(folderOrganization);
     return Promise.resolve();
   }
 }
 
-function cloneOrganization(
-  organization: FolderOrganization
+function cloneFolderOrganization(
+  folderOrganization: FolderOrganization
 ): FolderOrganization {
   return {
-    folders: [...organization.folders],
-    assignments: { ...organization.assignments },
+    folders: [...folderOrganization.folders],
+    assignments: { ...folderOrganization.assignments },
   };
 }

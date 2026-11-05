@@ -9,46 +9,46 @@ function getFolder(props: Partial<Folder> = {}): Folder {
 }
 
 describe('InMemoryFolderStorage', function () {
-  it('should load an empty organization by default', async function () {
+  it('should load an empty folder organization by default', async function () {
     expect(await new InMemoryFolderStorage().load()).to.deep.equal({
       folders: [],
       assignments: {},
     });
   });
 
-  it('should load the organization it was created with', async function () {
-    const organization: FolderOrganization = {
+  it('should load the folder organization it was created with', async function () {
+    const folderOrganization: FolderOrganization = {
       folders: [getFolder()],
       assignments: { 'connection-1': 'folder-1' },
     };
-    expect(await new InMemoryFolderStorage(organization).load()).to.deep.equal(
-      organization
-    );
+    expect(
+      await new InMemoryFolderStorage(folderOrganization).load()
+    ).to.deep.equal(folderOrganization);
   });
 
-  it('should save and reload the whole organization', async function () {
+  it('should save and reload the whole folder organization', async function () {
     const storage = new InMemoryFolderStorage();
-    const organization: FolderOrganization = {
+    const folderOrganization: FolderOrganization = {
       folders: [getFolder()],
       assignments: { 'connection-1': 'folder-1' },
     };
-    await storage.save({ organization });
-    expect(await storage.load()).to.deep.equal(organization);
+    await storage.save({ folderOrganization });
+    expect(await storage.load()).to.deep.equal(folderOrganization);
   });
 
-  it('should replace the previous organization entirely, not merge into it', async function () {
+  it('should replace the previous folder organization entirely, not merge into it', async function () {
     const storage = new InMemoryFolderStorage({
       folders: [getFolder()],
       assignments: { 'connection-1': 'folder-1' },
     });
     const next: FolderOrganization = { folders: [], assignments: {} };
 
-    await storage.save({ organization: next });
+    await storage.save({ folderOrganization: next });
 
     expect(await storage.load()).to.deep.equal(next);
   });
 
-  it('should not return a reference to the stored organization', async function () {
+  it('should not return a reference to the stored folder organization', async function () {
     const storage = new InMemoryFolderStorage();
     const loaded = await storage.load();
     loaded.folders.push(getFolder());

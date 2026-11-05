@@ -34,14 +34,17 @@ describe('CompassRendererFolderStorage', function () {
     Sinon.assert.calledOnce(invoke.load);
   });
 
-  it('should forward the organization to save', async function () {
+  it('should forward the folder organization to save', async function () {
     const { createInvoke, invoke } = createFakeIpcRenderer();
     const storage = new CompassRendererFolderStorage({ createInvoke } as never);
-    const organization: FolderOrganization = { folders: [], assignments: {} };
+    const folderOrganization: FolderOrganization = {
+      folders: [],
+      assignments: {},
+    };
 
-    await storage.save({ organization });
+    await storage.save({ folderOrganization });
 
-    Sinon.assert.calledWithExactly(invoke.save, { organization });
+    Sinon.assert.calledWithExactly(invoke.save, { folderOrganization });
   });
 
   it('should only create the IPC proxy once', async function () {

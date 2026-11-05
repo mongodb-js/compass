@@ -26,12 +26,16 @@ const FolderOrganizationSchema: z.Schema<FolderOrganization> = z
   })
   .loose();
 
-// The organization document is a singleton: there's one per user, so it's
-// always read and written under this same fixed id rather than one per
-// folder.
-const ORGANIZATION_ID = 'organization';
+// The folder organization document is a singleton: there's one per user, so
+// it's always read and written under this same fixed id rather than one per
+// folder. The id is qualified with "folder" because this value reaches
+// FileUserData, where a bare "organization" would read as an Atlas org id.
+const FOLDER_ORGANIZATION_ID = 'folder-organization';
 
-const EMPTY_ORGANIZATION: FolderOrganization = { folders: [], assignments: {} };
+const EMPTY_FOLDER_ORGANIZATION: FolderOrganization = {
+  folders: [],
+  assignments: {},
+};
 
 class CompassMainFolderStorage implements FolderStorage {
   private readonly userData: IUserData<typeof FolderOrganizationSchema>;
@@ -50,7 +54,8 @@ class CompassMainFolderStorage implements FolderStorage {
   async load(): Promise<FolderOrganization> {
     try {
       return (
-        (await this.userData.readOne(ORGANIZATION_ID)) ?? EMPTY_ORGANIZATION
+        (await this.userData.readOne(FOLDER_ORGANIZATION_ID)) ??
+        EMPTY_FOLDER_ORGANIZATION
       );
     } catch (err) {
       log.error(
@@ -59,17 +64,20 @@ class CompassMainFolderStorage implements FolderStorage {
         'Failed to load folder organization',
         { message: (err as Error).message }
       );
-      return EMPTY_ORGANIZATION;
+      return EMPTY_FOLDER_ORGANIZATION;
     }
   }
 
   async save({
-    organization,
+    folderOrganization,
   }: {
-    organization: FolderOrganization;
+    folderOrganization: FolderOrganization;
   }): Promise<void> {
     try {
-      const ok = await this.userData.write(ORGANIZATION_ID, organization);
+      const ok = await this.userData.write(
+        FOLDER_ORGANIZATION_ID,
+        folderOrganization
+      );
       // write() reports file system / network failures by returning false
       // rather than throwing, so a failed save has to be checked explicitly
       // or it looks identical to a successful one to the caller.

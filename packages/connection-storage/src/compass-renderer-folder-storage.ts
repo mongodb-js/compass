@@ -35,7 +35,9 @@ class CompassRendererFolderStorage implements FolderStorage {
     return this.ipc.load();
   }
 
-  async save(options: { organization: FolderOrganization }): Promise<void> {
+  async save(options: {
+    folderOrganization: FolderOrganization;
+  }): Promise<void> {
     await this.ipc.save(options);
   }
 }
