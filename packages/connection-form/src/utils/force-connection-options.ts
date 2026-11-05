@@ -1,5 +1,5 @@
 import { ConnectionString } from 'mongodb-connection-string-url';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 
 function isSpecialKey(key: string): key is 'username' | 'password' {
   return key === 'username' || key === 'password';

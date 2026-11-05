@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import {
   render,
   screen,

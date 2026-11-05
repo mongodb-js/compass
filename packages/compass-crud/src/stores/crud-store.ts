@@ -4,11 +4,11 @@ import toNS from '@mongodb-js/mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
-import type { Element } from 'hadron-document';
+import type { Element } from '@mongodb-js/hadron-document';
 import HadronDocument, {
   Document,
   objectToIdiomaticEJSON,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import { ParseMode, toJSString, parse } from '@mongodb-js/shell-bson-parser';
@@ -22,8 +22,8 @@ import type {
   RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 
-import type { UpdatePreview } from 'mongodb-data-service';
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { UpdatePreview } from '@mongodb-js/mongodb-data-service';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
@@ -2380,7 +2380,6 @@ export async function findAndModifyWithFLEFallback(
   return [error, undefined] as ErrorOrResult;
 }
 
-// Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 export async function parseShellBSON(
   source: string
 ): Promise<BSONObject | BSONObject[]> {
@@ -2390,8 +2389,6 @@ export async function parseShellBSON(
     allowMethods: true,
   });
   if (!parsed || typeof parsed !== 'object') {
-    // XXX(COMPASS-5689): We've hit the condition in
-    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
     throw new Error('The provided definition is invalid.');
   }
   return parsed as BSONObject | BSONObject[];
@@ -2430,9 +2427,11 @@ export async function parseInsertDocumentText(
   view: InsertDocumentView,
   text: string
 ): Promise<unknown> {
-  return view === 'shell'
-    ? await parseShellBSON(text)
-    : EJSON.parse(text, { relaxed: false });
+  return view === 'shell' ? await parseShellBSON(text) : parseInsertEJSON(text);
+}
+
+export function parseInsertEJSON(text: string): unknown {
+  return EJSON.parse(text, { relaxed: false });
 }
 
 /**

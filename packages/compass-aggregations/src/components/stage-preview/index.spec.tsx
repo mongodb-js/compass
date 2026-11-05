@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import {
   screen,
   userEvent,
@@ -9,7 +9,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { ObjectId } from 'bson';
 import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 

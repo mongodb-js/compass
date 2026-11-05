@@ -17,7 +17,7 @@ import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetr
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
-import { isInternalFieldPath } from 'hadron-document';
+import { isInternalFieldPath } from '@mongodb-js/hadron-document';
 import toNS from '@mongodb-js/mongodb-ns';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { Document, MongoError } from 'mongodb';

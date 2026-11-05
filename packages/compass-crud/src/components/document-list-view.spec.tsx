@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { expect } from 'chai';
 
 import DocumentListView from './document-list-view';

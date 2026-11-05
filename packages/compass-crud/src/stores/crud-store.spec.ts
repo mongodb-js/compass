@@ -8,10 +8,10 @@ import HadronDocument, {
   DocumentEvents,
   Element,
   type DocumentEventsType,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
-import { connect } from 'mongodb-data-service';
-import type { DataService } from 'mongodb-data-service';
+import { connect } from '@mongodb-js/mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -2901,7 +2901,7 @@ describe('store', function () {
           'SyntaxError'
         );
         expect(store.state.bulkUpdate.syntaxError?.message).to.equal(
-          'Unexpected token (2:25) in (\n{ $set: { anotherField:  } }\n)'
+          'Unexpected token (1:25) in { $set: { anotherField:  } }'
         );
 
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');

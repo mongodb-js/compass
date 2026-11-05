@@ -1,7 +1,7 @@
 import React from 'react';
-import type { Element as HadronElementType } from 'hadron-document';
-import type { TypeCastMap } from 'hadron-type-checker';
-import TypeChecker, { isUUIDType } from 'hadron-type-checker';
+import type { Element as HadronElementType } from '@mongodb-js/hadron-document';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
+import TypeChecker, { isUUIDType } from '@mongodb-js/hadron-type-checker';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';

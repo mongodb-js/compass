@@ -7,11 +7,11 @@ import {
   cleanup,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import {
   renderWithStore,
   wrapWithExperimentProvider,

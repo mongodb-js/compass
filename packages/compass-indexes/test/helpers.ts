@@ -1,4 +1,4 @@
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { RegularIndex } from '../src/modules/regular-indexes';
 
 export function mockRegularIndex(info: Partial<RegularIndex>): RegularIndex {

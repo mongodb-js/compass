@@ -1,5 +1,5 @@
 import React, { type ComponentProps } from 'react';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import type { Document } from 'mongodb';
 import {
   screen,

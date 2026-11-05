@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import type { Document } from 'mongodb';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import Sinon from 'sinon';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
@@ -462,6 +462,34 @@ describe('stageEditor', function () {
       expect(store.getState().stages[2])
         .to.have.property('syntaxError')
         .that.is.instanceOf(Error);
+    });
+
+    it('keeps a shell parser error visible while validating the next value', async function () {
+      const store = createStore({ stages: PIPELINE });
+      await store.dispatch(changeStageValue(2, `{_id: ObjectId('invalid')}`));
+      const previousSyntaxError = store.getState().stages[2].syntaxError;
+
+      const changePromise = store.dispatch(changeStageValue(2, '{_id: 2}'));
+      expect(store.getState().stages[2].syntaxError).to.equal(
+        previousSyntaxError
+      );
+
+      await changePromise;
+      expect(store.getState().stages[2].syntaxError).to.be.null;
+    });
+
+    it('shows a new Babel syntax error immediately', async function () {
+      const store = createStore({ stages: PIPELINE });
+      await store.dispatch(changeStageValue(2, `{_id: ObjectId('invalid')}`));
+      const previousSyntaxError = store.getState().stages[2].syntaxError;
+
+      const changePromise = store.dispatch(changeStageValue(2, '{_id: '));
+      const syntaxError = store.getState().stages[2].syntaxError;
+      expect(syntaxError).to.exist;
+      expect(syntaxError).to.not.equal(previousSyntaxError);
+
+      await changePromise;
+      expect(store.getState().stages[2].syntaxError).to.equal(syntaxError);
     });
 
     it('does not apply the parser error to another stage if the stage was removed while parsing', async function () {

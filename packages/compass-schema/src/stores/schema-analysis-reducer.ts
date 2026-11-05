@@ -1,5 +1,5 @@
 import type { Schema } from '@mongodb-js/mongodb-schema';
-import { isInternalFieldPath } from 'hadron-document';
+import { isInternalFieldPath } from '@mongodb-js/hadron-document';
 import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, MongoError } from 'mongodb';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';

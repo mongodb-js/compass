@@ -1,5 +1,5 @@
 {
-  "name": "hadron-type-checker",
+  "name": "@mongodb-js/hadron-type-checker",
   "description": "Hadron Type Checker",
   "author": {
     "name": "MongoDB Inc",

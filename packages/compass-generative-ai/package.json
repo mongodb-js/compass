@@ -25,11 +25,13 @@
   "compass:main": "src/index.ts",
   "exports": {
     ".": "./dist/index.js",
-    "./provider": "./dist/provider.js"
+    "./provider": "./dist/provider.js",
+    "./utility": "./dist/tools/infrastructure/tools-host.js"
   },
   "compass:exports": {
     ".": "./src/index.ts",
-    "./provider": "./src/provider.tsx"
+    "./provider": "./src/provider.tsx",
+    "./utility": "./src/tools/infrastructure/tools-host.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -66,11 +68,12 @@
     "@mongodb-js/compass-utils": "^0.10.8",
     "@mongodb-js/mock-data-generator": "^1.2.0",
     "@mongodb-js/mongodb-build-info": "^1.9.19",
-    "@mongodb-js/mongodb-schema": "^12.7.2",
-    "@mongodb-js/shell-bson-parser": "^2.0.0",
+    "@mongodb-js/mongodb-schema": "^12.8.11",
+    "@mongodb-js/shell-bson-parser": "^2.2.0",
     "@mongosh/service-provider-core": "^5.2.0",
     "@mongosh/service-provider-node-driver": "^5.2.0",
     "ai": "^7.0.0",
+    "bson": "^7.3.2",
     "ipaddr.js": "^2.5.0",
     "mongodb": "^7.5.0",
     "mongodb-connection-string-url": "^7.0.2",
@@ -96,14 +99,13 @@
     "@types/sinon-chai": "^3.2.5",
     "autoevals": "^0.4.0",
     "braintrust": "^3.35.0",
-    "bson": "^7.3.2",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "p-queue": "^7.4.1",
-    "sinon": "^9.2.3",
+    "sinon": "^22.1.0",
     "typescript": "^6.0.3",
     "xvfb-maybe": "^0.2.1"
   },

@@ -99,6 +99,19 @@ describe('Stage', function () {
       }
     );
 
+    it('records parser error location relative to the stage value', async function () {
+      stage.changeOperator('$match');
+      stage.changeValue(`{\n  _id: ObjectId('invalid')\n}`);
+
+      await stage.validateWithParser();
+
+      expect(stage.syntaxError?.loc).to.deep.equal({
+        line: 2,
+        column: 7,
+        index: 9,
+      });
+    });
+
     it('keeps valid stage without errors', async function () {
       stage.changeOperator('$addFields');
       stage.changeValue(

@@ -1,5 +1,5 @@
 {
-  "name": "mongodb-query-util",
+  "name": "@mongodb-js/mongodb-query-util",
   "description": "Utilty Functions for MongoDB Query Functionality",
   "author": {
     "name": "MongoDB Inc",
@@ -62,12 +62,12 @@
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "sinon": "^9.2.3",
+    "sinon": "^22.1.0",
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@mongodb-js/hadron-type-checker": "^7.5.14",
     "bson": "^7.3.2",
-    "hadron-type-checker": "^7.5.14",
     "lodash": "^4.18.1"
   }
 }

@@ -1,4 +1,4 @@
-import type { DataService as OriginalDataService } from 'mongodb-data-service';
+import type { DataService as OriginalDataService } from '@mongodb-js/mongodb-data-service';
 
 type FetchCollectionMetadataDataServiceMethods =
   | 'collectionStats'

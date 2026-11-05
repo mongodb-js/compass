@@ -8,10 +8,18 @@ import type { CompassWebLogger } from './logger-and-telemetry.tsx';
 import { getLink } from './multiplex-link.ts';
 import { serveLink } from './remote-link.ts';
 
-const UTILITIES = new Map<string, () => CrossOriginWorker>();
-
-// Keeps the import until the first utility is registered above
-void CrossOriginWorker;
+const UTILITIES: Map<string, () => CrossOriginWorker> = new Map([
+  [
+    'ai-assistant',
+    () =>
+      new CrossOriginWorker(
+        new URL(
+          '../../compass-utilities/src/ai-assistant/index.mts',
+          import.meta.url
+        )
+      ),
+  ],
+]);
 
 export function startUtilities(
   target: Window,

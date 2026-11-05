@@ -22,14 +22,13 @@ import {
   SpinLoader,
   Tooltip,
   useSyncStateOnPropChange,
-  useAsyncValue,
+  useParsedShellValue,
 } from '@mongodb-js/compass-components';
 import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorMultilineEditor,
   createSearchIndexAutocompleter,
 } from '@mongodb-js/compass-editor';
-import type { Document } from 'mongodb';
 import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
@@ -49,7 +48,6 @@ import {
   type VectorIndexTemplateChoice,
 } from '../search-index-template-dropdown/vector-search-index-template-dropdown';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
 import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
 
@@ -101,57 +99,6 @@ export const DEFAULT_INDEX_DEFINITION = `{
     dynamic: true,
   },
 }`;
-
-// TODO(COMPASS-11295): Return acron's `pos`/`loc` directly instead of parsing the message.
-// Input is wrapped as `(\n${input}\n)`, so input line N is reported as N + 1:
-// https://github.com/mongodb-js/devtools-shared/blob/d54cd0133006a24bd98ce70deb65d7ba791875b7/packages/shell-bson-parser/src/parse.ts#L32
-function getParseErrorOffset(error: Error, source: string): number | undefined {
-  if ('pos' in error && typeof (error as any).pos === 'number') {
-    // Wraps the input in (\n$input\n) so we need to substract 4 chars from the position.
-    return Math.max((error as any).pos - 4, 0);
-  }
-  // Acorn's message ends with "(line:column)", e.g. "Unexpected token (4:2)".
-  const match = /\((\d+):(\d+)\)/.exec(error.message);
-  if (!match) {
-    return undefined;
-  }
-  const lineIndex = Number(match[1]) - 2;
-  const column = Number(match[2]);
-  const lines = source.split('\n');
-  let offset = 0;
-  for (let i = 0; i < lineIndex && i < lines.length; i++) {
-    offset += lines[i].length + 1;
-  }
-  return Math.min(offset + column, source.length);
-}
-
-// Compares two index definitions by their parsed value rather than their raw
-// text, so that formatting-only edits (whitespace, key ordering) are treated as
-// unchanged. This mirrors the isEqual no-op guard in the updateIndex thunk so
-// that the Save button is disabled exactly when a submit would be a no-op.
-async function areIndexDefinitionsEqual(
-  a: string,
-  b: string
-): Promise<boolean> {
-  try {
-    const [parsedA, parsedB] = await Promise.all([
-      parseShellBSON(a),
-      parseShellBSON(b),
-    ]);
-    return isEqual(parsedA, parsedB);
-  } catch {
-    return false;
-  }
-}
-
-async function isAutoEmbedDefinition(definition: string): Promise<boolean> {
-  try {
-    const latestDefinition = (await parseShellBSON(definition)) as Document;
-    return isAutoEmbedIndex({ latestDefinition });
-  } catch {
-    return false;
-  }
-}
 
 type BaseSearchIndexModalProps = {
   namespace: string;
@@ -245,13 +192,9 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     };
   });
 
-  const { error: parsingError } = useAsyncValue(
-    () => parseShellBSON(indexDefinition),
-    [indexDefinition]
-  );
+  const { error: parsingError } = useParsedShellValue(indexDefinition);
   const annotations = useMemo<Annotation[]>(() => {
-    const pos =
-      parsingError && getParseErrorOffset(parsingError, indexDefinition);
+    const pos = (parsingError as { pos?: number })?.pos;
     if (parsingError && pos !== undefined) {
       return [
         {
@@ -264,7 +207,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     }
 
     return [];
-  }, [parsingError, indexDefinition]);
+  }, [parsingError]);
 
   useTrackOnChange(
     (track: TrackFunction) => {
@@ -415,9 +358,16 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const isAutoEmbedPreviewMessagingActive =
     enableAutoEmbeddingPublicPreview && !enableAutoEmbeddingGaRelease;
 
-  const { value: isInitialDefinitionAutoEmbed = false } = useAsyncValue(
-    () => isAutoEmbedDefinition(initialIndexDefinition),
-    [initialIndexDefinition]
+  const { value: initialParsedDefinition } = useParsedShellValue(
+    initialIndexDefinition
+  );
+  const isInitialDefinitionAutoEmbed = useMemo(
+    () =>
+      !!initialParsedDefinition &&
+      isAutoEmbedIndex({
+        latestDefinition: initialParsedDefinition,
+      }),
+    [initialParsedDefinition]
   );
 
   const showAutoEmbedEditRestrictedBanner =
@@ -438,19 +388,19 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   // drift from background polling) and by parsed value (so formatting-only edits
   // don't count as a change). This avoids no-op submits that would otherwise be
   // silently dropped by the updateIndex thunk.
-  const {
-    value: isDefinitionEqualToSnapshot,
-    pending: isDefinitionComparisonPending,
-  } = useAsyncValue(
-    () =>
-      areIndexDefinitionsEqual(indexDefinition, initialIndexDefinitionSnapshot),
-    [indexDefinition, initialIndexDefinitionSnapshot]
-  );
+  const { value: parsedDefinition, pending: isDefinitionPending } =
+    useParsedShellValue(indexDefinition);
+  const { value: parsedSnapshot, pending: isSnapshotPending } =
+    useParsedShellValue(initialIndexDefinitionSnapshot);
+  const isDefinitionComparisonPending =
+    isDefinitionPending || isSnapshotPending;
+  const isDefinitionEqualToSnapshot =
+    parsedDefinition !== undefined && isEqual(parsedDefinition, parsedSnapshot);
   // Treat a pending comparison as unchanged so Save can't be clicked for a
   // definition that hasn't been checked yet.
   const isIndexDefinitionUnchanged =
     mode === 'update' &&
-    (isDefinitionComparisonPending || isDefinitionEqualToSnapshot === true);
+    (isDefinitionComparisonPending || isDefinitionEqualToSnapshot);
 
   return (
     <Modal

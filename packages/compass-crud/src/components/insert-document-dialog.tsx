@@ -6,8 +6,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type Document from 'hadron-document';
-import { Element } from 'hadron-document';
+import type Document from '@mongodb-js/hadron-document';
+import { Element } from '@mongodb-js/hadron-document';
 import {
   Banner,
   css,
@@ -18,7 +18,7 @@ import {
   SegmentedControlOption,
   spacing,
   useSyncStateOnPropChange,
-  useAsyncValue,
+  useParsedShellValue,
   InfoSprinkle,
   Code,
   Tooltip,
@@ -31,10 +31,7 @@ import { useSafeIntegerLinter } from '@mongodb-js/compass-editor';
 import type { Extension, EditorRef } from '@mongodb-js/compass-editor';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { InsertDocumentView, WriteError } from '../stores/crud-store';
-import {
-  parseInsertDocumentText,
-  toInsertHadronDocument,
-} from '../stores/crud-store';
+import { parseInsertEJSON, toInsertHadronDocument } from '../stores/crud-store';
 import { convertEJSONToShellSyntax } from '../utils/ejson-conversion';
 import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
@@ -46,6 +43,21 @@ import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 
 const NOT_PARSED = { value: null, error: null } as const;
+
+function validateInsertValue(result: { value: unknown; error: Error | null }): {
+  value: unknown;
+  error: Error | null;
+} {
+  if (result.error) {
+    return result;
+  }
+  try {
+    toInsertHadronDocument(result.value);
+    return result;
+  } catch (error) {
+    return { value: null, error: error as Error };
+  }
+}
 
 const INSERT_INVALID_MESSAGE =
   'Insert not permitted while document contains errors.';
@@ -226,30 +238,34 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   // either the parsed value or the error, so the text is only parsed once per
   // change here. In the list view the editor text is not the source of truth,
   // so there is nothing to parse.
-  const {
-    value: parsedValue,
-    error: parseError,
-    pending: isParsePending,
-  } = useAsyncValue(async () => {
-    if (insertView === 'list') {
-      return null;
-    }
-    const value = await parseInsertDocumentText(insertView, editorText);
-    // Not everything that parses can be inserted as a document, and that
-    // is part of what makes the text invalid.
-    toInsertHadronDocument(value);
-    return value;
-  }, [editorText, insertView]);
-
-  const parseResult = useMemo(
-    () =>
-      insertView === 'list'
-        ? NOT_PARSED
-        : { value: parsedValue ?? null, error: parseError ?? null },
-    [insertView, parsedValue, parseError]
+  const shellParse = useParsedShellValue(
+    insertView === 'shell' ? editorText : ''
   );
+  const ejsonParse = useMemo(() => {
+    if (insertView !== 'json') {
+      return NOT_PARSED;
+    }
+    try {
+      return { value: parseInsertEJSON(editorText), error: null };
+    } catch (error) {
+      return { value: null, error: error as Error };
+    }
+  }, [insertView, editorText]);
 
-  const isTextParsePending = insertView !== 'list' && isParsePending;
+  const parseResult = useMemo(() => {
+    if (insertView === 'list') {
+      return NOT_PARSED;
+    }
+    if (insertView === 'json') {
+      return validateInsertValue(ejsonParse);
+    }
+    return validateInsertValue({
+      value: shellParse.value ?? null,
+      error: shellParse.error ?? null,
+    });
+  }, [insertView, ejsonParse, shellParse.value, shellParse.error]);
+
+  const isTextParsePending = insertView === 'shell' && shellParse.pending;
 
   // The visual editor can only represent a single document, so disable it when
   // the editor holds an array.

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Button, css, Icon } from '@mongodb-js/compass-components';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type {
   KMSField,

@@ -31,7 +31,7 @@ import type {
   ConnectionOptions,
   DataService,
   InstanceDetails,
-} from 'mongodb-data-service';
+} from '@mongodb-js/mongodb-data-service';
 import { identifyServerName } from '@mongodb-js/mongodb-build-info';
 import Sinon from 'sinon';
 import React from 'react';
