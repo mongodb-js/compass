@@ -19,7 +19,10 @@ import { createRoot } from 'react-dom/client';
 import { setupIntercom } from '@mongodb-js/compass-intercom';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
-import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import {
+  CompassRendererConnectionStorage,
+  CompassRendererFolderStorage,
+} from '@mongodb-js/connection-storage/renderer';
 
 import {
   ApplicationMenuContextProvider,
@@ -145,6 +148,7 @@ class Application {
       await this.getWindowAutoConnectPreferences();
     const isSecretStorageAvailable = await this.checkSecretStorageIsAvailable();
     const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
+    const folderStorage = new CompassRendererFolderStorage(ipcRenderer);
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -185,6 +189,7 @@ class Application {
               webUtils
             )}
             connectionStorage={connectionStorage}
+            folderStorage={folderStorage}
             onAutoconnectInfoRequest={
               initialAutoConnectPreferences.shouldAutoConnect
                 ? () => {
