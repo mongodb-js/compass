@@ -25,13 +25,17 @@ import {
   connectInNewWindow,
   saveAndConnect,
   connectionsEventEmitter,
+  createFolder,
   createNewConnection,
+  deleteFolder,
   disconnect,
   duplicateConnection,
   editConnection,
   getDataServiceForConnection,
+  moveConnectionsToFolder,
   removeAllRecentConnections,
   removeConnection,
+  renameFolder,
   saveEditedConnectionInfo,
   showNonGenuineMongoDBWarningModal,
   toggleConnectionFavoritedStatus,
@@ -142,6 +146,21 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     },
     refreshConnections: () => {
       return dispatch(refreshConnections());
+    },
+    createFolder: (name: string) => {
+      return dispatch(createFolder(name));
+    },
+    renameFolder: (folderId: string, name: string) => {
+      return dispatch(renameFolder(folderId, name));
+    },
+    deleteFolder: (folderId: string) => {
+      return dispatch(deleteFolder(folderId));
+    },
+    moveConnectionsToFolder: (
+      connectionIds: ConnectionId[],
+      folderId: string | null
+    ) => {
+      return dispatch(moveConnectionsToFolder(connectionIds, folderId));
     },
   };
 }
