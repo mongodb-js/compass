@@ -178,6 +178,20 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
+  /*
+   * Feature flag for auto-embedding lexical prefilter support in the
+   * search index schema.
+   */
+  {
+    name: 'enableAutoEmbeddingLexicalPrefilter',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short:
+        'Enable auto-embedding lexical prefilter syntax in search index editor',
+    },
+  },
+
   {
     name: 'enableCompassWebSettings',
     stage: 'development',
