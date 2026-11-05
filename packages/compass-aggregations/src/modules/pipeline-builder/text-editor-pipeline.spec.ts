@@ -57,9 +57,7 @@ function createStore(
       thunk.withExtraArgument({
         atlasAiService: {} as any,
         pipelineBuilder,
-        pipelineStorage: createElectronPipelineStorage({
-          basepath: '/tmp/test',
-        }),
+        pipelineStorage: createElectronPipelineStorage(),
         instance: {} as any,
         workspaces: {} as any,
         preferences,

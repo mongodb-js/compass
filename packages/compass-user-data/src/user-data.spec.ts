@@ -1,15 +1,7 @@
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
 import { expect } from 'chai';
-import { z, type ZodError } from 'zod';
+import { z } from 'zod';
 import sinon from 'sinon';
-import {
-  FileUserData,
-  AtlasUserData,
-  type FileUserDataOptions,
-  type UserDataType,
-} from './user-data';
+import { UserData, type UserDataType } from './user-data';
 
 type ValidatorOptions = {
   allowUnknownProps?: boolean;
@@ -34,452 +26,8 @@ const getTestSchema = (
 };
 
 const defaultValues = () => getTestSchema().parse({});
-const dataType = 'RecentQueries';
 
-describe('user-data', function () {
-  let tmpDir: string;
-
-  beforeEach(async function () {
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'user-data-tests'));
-  });
-
-  afterEach(async function () {
-    await fs.rm(tmpDir, { recursive: true });
-  });
-
-  const getUserData = (
-    userDataOpts: Partial<
-      FileUserDataOptions<z.input<ReturnType<typeof getTestSchema>>>
-    > = {},
-    validatorOpts: ValidatorOptions = {}
-  ) => {
-    return new FileUserData(getTestSchema(validatorOpts), dataType, {
-      basePath: tmpDir,
-      ...userDataOpts,
-    });
-  };
-
-  const writeFileToStorage = async (filepath: string, contents: string) => {
-    const absolutePath = path.join(tmpDir, dataType, filepath);
-    await fs.mkdir(path.dirname(absolutePath), { recursive: true });
-    await fs.writeFile(absolutePath, contents, 'utf-8');
-  };
-
-  context('UserData.readAll', function () {
-    it('reads all files from the folder with defaults', async function () {
-      await Promise.all(
-        [
-          ['data1.json', JSON.stringify({ name: 'VSCode' })],
-          ['data2.json', JSON.stringify({ name: 'Mongosh' })],
-        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
-      );
-
-      const result = await getUserData().readAll();
-      result.data.sort((first, second) =>
-        first.name.localeCompare(second.name)
-      );
-      expect(result.data).to.deep.equal([
-        {
-          ...defaultValues(),
-          name: 'Mongosh',
-        },
-        {
-          ...defaultValues(),
-          name: 'VSCode',
-        },
-      ]);
-    });
-
-    it('ignores parse errors', async function () {
-      await Promise.all(
-        [
-          ['data1.json', '{ a: }'],
-          ['data2.json', '{ a: }'],
-        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
-      );
-
-      const result = await getUserData().readAll({
-        ignoreErrors: true,
-      });
-      expect(result.data).to.have.lengthOf(0);
-      expect(result.errors).to.have.lengthOf(0);
-    });
-
-    it('throws parse errors', async function () {
-      await Promise.all(
-        [
-          ['data1.json', '{ a: }'],
-          ['data2.json', '{ a: }'],
-        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
-      );
-
-      const result = await getUserData().readAll({
-        ignoreErrors: false,
-      });
-      expect(result.data).to.have.lengthOf(0);
-      expect(result.errors).to.have.lengthOf(2);
-    });
-  });
-
-  context('UserData.readOne', function () {
-    it('throws if the file does not exist', async function () {
-      try {
-        await getUserData().readOne('something.json', {
-          ignoreErrors: false,
-        });
-        expect.fail('Failed to read the file');
-      } catch (e) {
-        expect(e).to.be.an.instanceOf(Error);
-        expect((e as any).code).to.equal('ENOENT');
-      }
-    });
-
-    it('reads the file with default values', async function () {
-      await Promise.all(
-        [
-          ['data1.json', JSON.stringify({ name: 'Compass' })],
-          ['data2.json', JSON.stringify({ name: 'Mongosh' })],
-        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
-      );
-
-      const userData = getUserData();
-
-      {
-        const data = await userData.readOne('data1');
-        expect(data).to.deep.equal({ ...defaultValues(), name: 'Compass' });
-      }
-
-      {
-        const data = await userData.readOne('data2');
-        expect(data).to.deep.equal({ ...defaultValues(), name: 'Mongosh' });
-      }
-    });
-
-    it('ignores read error', async function () {
-      const result = await getUserData().readOne('something', {
-        ignoreErrors: true,
-      });
-      expect(result).to.be.undefined;
-    });
-
-    it('throws read error', async function () {
-      const storage = getUserData();
-      try {
-        await storage.readOne('something.json', {
-          ignoreErrors: false,
-        });
-        expect.fail('missed exception');
-      } catch (e) {
-        expect((e as any).code).to.equal('ENOENT');
-      }
-    });
-
-    it('ignores parse error', async function () {
-      await writeFileToStorage('data.json', '{a: b}');
-      const result = await getUserData().readOne('data', {
-        ignoreErrors: true,
-      });
-      expect(result).to.be.undefined;
-    });
-
-    it('throws parse errors', async function () {
-      await writeFileToStorage('data.json', '{a: b}');
-
-      const storage = getUserData();
-      try {
-        await storage.readOne('data', {
-          ignoreErrors: false,
-        });
-        expect.fail('missed exception');
-      } catch (e) {
-        expect((e as Error).message).to.match(
-          /Unexpected token|Expected property name or/
-        ); // Node.js 18 vs 20
-      }
-    });
-
-    it('throws if data is parsable, but invalid', async function () {
-      await writeFileToStorage(
-        'data.json',
-        JSON.stringify({
-          name: 'Compass',
-          hasDarkMode: 'something',
-        })
-      );
-
-      try {
-        await getUserData().readOne('data', {
-          ignoreErrors: false,
-        });
-        expect.fail('missed exception');
-      } catch (e) {
-        const errors = (e as ZodError).issues;
-        expect(errors[0].message).to.contain(
-          'expected boolean, received string'
-        );
-      }
-    });
-
-    it('strips off unknown props that are unknown to validator by default', async function () {
-      await writeFileToStorage(
-        'data.json',
-        JSON.stringify({
-          name: 'Mongosh',
-          company: 'MongoDB',
-        })
-      );
-
-      const data = await getUserData().readOne('data', {
-        ignoreErrors: false,
-      });
-
-      expect(data).to.deep.equal({
-        ...defaultValues(),
-        name: 'Mongosh',
-      });
-    });
-
-    it('does not strip off unknown props that are unknown to validator when specified', async function () {
-      await writeFileToStorage(
-        'data.json',
-        JSON.stringify({
-          name: 'Mongosh',
-          company: 'MongoDB',
-        })
-      );
-
-      const data = await getUserData(
-        {},
-        {
-          allowUnknownProps: true,
-        }
-      ).readOne('data', {
-        ignoreErrors: false,
-      });
-
-      expect(data).to.deep.equal({
-        ...defaultValues(),
-        name: 'Mongosh',
-        company: 'MongoDB',
-      });
-    });
-  });
-
-  context('UserData.write', function () {
-    it('writes file to the storage with content', async function () {
-      const userData = getUserData();
-      await userData.write('data', { name: 'VSCode' });
-
-      const data = await userData.readOne('data');
-      expect(data).to.deep.equal({ ...defaultValues(), name: 'VSCode' });
-    });
-  });
-
-  context('UserData.delete', function () {
-    it('deletes a file', async function () {
-      const userData = getUserData();
-
-      const fileId = 'data';
-      const absolutePath = path.join(tmpDir, dataType, `${fileId}.json`);
-
-      await userData.write(fileId, { name: 'Compass' });
-
-      // verify file exists in fs
-      await fs.access(absolutePath);
-
-      const isDeleted = await userData.delete(fileId);
-      expect(isDeleted).to.be.true;
-
-      try {
-        await fs.access(absolutePath);
-        expect.fail('missed exception');
-      } catch (error) {
-        expect((error as any).code).to.equal('ENOENT');
-      }
-    });
-  });
-
-  context('UserData.serialization', function () {
-    it('supports custom serializer', async function () {
-      const data = {
-        name: 'Serializer',
-      };
-
-      const userData = getUserData({
-        serialize: (x) => {
-          expect(x).to.deep.equal(data);
-          return JSON.stringify(x);
-        },
-      });
-
-      await userData.write('serialized', data);
-
-      const absolutePath = path.join(tmpDir, dataType, 'serialized.json');
-
-      const writtenData = JSON.parse(
-        (await fs.readFile(absolutePath)).toString()
-      );
-      expect(writtenData).to.deep.equal(data);
-    });
-
-    it('supports custom deserializer', async function () {
-      const userData = getUserData({
-        deserialize: (x) => {
-          expect(x).to.equal('{}');
-          return JSON.parse(x);
-        },
-      });
-
-      const fileId = 'deserialized';
-
-      await writeFileToStorage(`${fileId}.json`, '{}');
-
-      const data = await userData.readOne(fileId);
-      expect(data).to.deep.equal({
-        ...defaultValues(),
-        ...data,
-      });
-    });
-  });
-
-  context('FileUserData.migrateFromOldFolder', function () {
-    it('migrates data from old folder to new folder', async function () {
-      // Create FileUserData with old type name and write data
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const oldUserData = new FileUserData(getTestSchema(), 'RecentQueries', {
-        basePath: tmpDir,
-      });
-
-      await oldUserData.write('test-file', { name: 'Old Data' });
-
-      // Verify old data exists
-      const oldData = await oldUserData.readOne('test-file');
-      expect(oldData).to.deep.equal({
-        ...defaultValues(),
-        name: 'Old Data',
-      });
-
-      // Create new FileUserData with new type name
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const newUserData = new FileUserData(getTestSchema(), 'FavoriteQueries', {
-        basePath: tmpDir,
-      });
-
-      // Perform migration
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const migrated = await (newUserData as any).migrateFromOldFolder(
-        'RecentQueries'
-      );
-      expect(migrated).to.be.true;
-
-      // Verify data is now accessible from new folder
-      const newData = await newUserData.readOne('test-file');
-      expect(newData).to.deep.equal({
-        ...defaultValues(),
-        name: 'Old Data',
-      });
-
-      // Verify old folder no longer exists by checking filesystem directly
-      const oldFolderPath = path.join(tmpDir, 'RecentQueries');
-      try {
-        await fs.access(oldFolderPath);
-        expect.fail('Old folder should not exist');
-      } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect((error as any).code).to.equal('ENOENT');
-      }
-    });
-
-    it('returns false when old folder does not exist', async function () {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const userData = new FileUserData(getTestSchema(), 'FavoriteQueries', {
-        basePath: tmpDir,
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const migrated = await (userData as any).migrateFromOldFolder(
-        'nonExistentFolder'
-      );
-      expect(migrated).to.be.false;
-    });
-
-    it('returns false when new folder already exists', async function () {
-      // Create data in both old and new folders
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const oldUserData = new FileUserData(getTestSchema(), 'RecentQueries', {
-        basePath: tmpDir,
-      });
-      await oldUserData.write('old-file', { name: 'Old Data' });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const newUserData = new FileUserData(getTestSchema(), 'FavoriteQueries', {
-        basePath: tmpDir,
-      });
-      await newUserData.write('new-file', { name: 'New Data' });
-
-      // Attempt migration - should return false because new folder exists
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const migrated = await (newUserData as any).migrateFromOldFolder(
-        'RecentQueries'
-      );
-      expect(migrated).to.be.false;
-
-      // Verify both folders still have their data
-      const oldData = await oldUserData.readOne('old-file');
-      expect(oldData?.name).to.equal('Old Data');
-
-      const newData = await newUserData.readOne('new-file');
-      expect(newData?.name).to.equal('New Data');
-    });
-
-    it('returns false when old and new names are the same', async function () {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const userData = new FileUserData(getTestSchema(), 'RecentQueries', {
-        basePath: tmpDir,
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const migrated = await (userData as any).migrateFromOldFolder(
-        'RecentQueries'
-      );
-      expect(migrated).to.be.false;
-    });
-
-    it('handles migration idempotently', async function () {
-      // Create data in old folder
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const oldUserData = new FileUserData(getTestSchema(), 'RecentQueries', {
-        basePath: tmpDir,
-      });
-      await oldUserData.write('test-file', { name: 'Migrated Data' });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const newUserData = new FileUserData(getTestSchema(), 'FavoriteQueries', {
-        basePath: tmpDir,
-      });
-
-      // First migration should succeed
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const firstMigration = await (newUserData as any).migrateFromOldFolder(
-        'RecentQueries'
-      );
-      expect(firstMigration).to.be.true;
-
-      // Second migration attempt should return false (old folder doesn't exist)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const secondMigration = await (newUserData as any).migrateFromOldFolder(
-        'RecentQueries'
-      );
-      expect(secondMigration).to.be.false;
-
-      // Data should still be accessible
-      const data = await newUserData.readOne('test-file');
-      expect(data?.name).to.equal('Migrated Data');
-    });
-  });
-});
-
-describe('AtlasUserData', function () {
+describe('UserData with an Atlas environment', function () {
   let sandbox: sinon.SinonSandbox;
   let atlasServiceStub: {
     userDataEndpoint: sinon.SinonStub;
@@ -500,13 +48,14 @@ describe('AtlasUserData', function () {
     sandbox.restore();
   });
 
-  const getAtlasUserData = <Type extends UserDataType = 'FavoriteQueries'>(
+  const getAtlasUserData = (
     validatorOpts: ValidatorOptions = {},
     orgId = 'test-org',
     projectId = 'test-proj',
-    type: Type = 'FavoriteQueries' as Type
+    type: Exclude<UserDataType, 'AppPreferences'> = 'FavoriteQueries'
   ) => {
-    return new AtlasUserData(getTestSchema(validatorOpts), type, {
+    return new UserData(getTestSchema(validatorOpts), type, {
+      kind: 'atlas',
       orgId,
       projectId,
       atlasService: atlasServiceStub,
@@ -522,7 +71,7 @@ describe('AtlasUserData', function () {
     };
   };
 
-  context('AtlasUserData.write', function () {
+  context('UserData.write', function () {
     it('writes data successfully', async function () {
       atlasServiceStub.authenticatedFetch.resolves(mockResponse({}));
       atlasServiceStub.userDataEndpoint.returns(
@@ -588,12 +137,17 @@ describe('AtlasUserData', function () {
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
-      const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
-        orgId: 'test-org',
-        projectId: 'test-proj',
-        atlasService: atlasServiceStub,
-        serialize: (data) => `custom:${JSON.stringify(data)}`,
-      });
+      const userData = new UserData(
+        getTestSchema(),
+        'FavoriteQueries',
+        {
+          kind: 'atlas',
+          orgId: 'test-org',
+          projectId: 'test-proj',
+          atlasService: atlasServiceStub,
+        },
+        { serialize: (data) => `custom:${JSON.stringify(data)}` }
+      );
 
       await userData.write('test-id', { name: 'Custom' });
 
@@ -604,7 +158,7 @@ describe('AtlasUserData', function () {
     });
   });
 
-  context('AtlasUserData.delete', function () {
+  context('UserData.delete', function () {
     it('deletes data successfully', async function () {
       atlasServiceStub.authenticatedFetch.resolves(mockResponse({}));
       atlasServiceStub.userDataEndpoint.returns(
@@ -639,7 +193,7 @@ describe('AtlasUserData', function () {
     });
   });
 
-  context('AtlasUserData.readAll', function () {
+  context('UserData.readAll', function () {
     it('reads all data successfully with defaults', async function () {
       const responseData = [
         { data: JSON.stringify({ name: 'VSCode' }) },
@@ -747,17 +301,24 @@ describe('AtlasUserData', function () {
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
-      const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
-        orgId: 'test-org',
-        projectId: 'test-proj',
-        atlasService: atlasServiceStub,
-        deserialize: (data) => {
-          if (data.startsWith('custom:')) {
-            return JSON.parse(data.slice(7));
-          }
-          return JSON.parse(data);
+      const userData = new UserData(
+        getTestSchema(),
+        'FavoriteQueries',
+        {
+          kind: 'atlas',
+          orgId: 'test-org',
+          projectId: 'test-proj',
+          atlasService: atlasServiceStub,
         },
-      });
+        {
+          deserialize: (data) => {
+            if (data.startsWith('custom:')) {
+              return JSON.parse(data.slice(7));
+            }
+            return JSON.parse(data);
+          },
+        }
+      );
 
       const result = await userData.readAll();
 
@@ -796,9 +357,10 @@ describe('AtlasUserData', function () {
     });
   });
 
-  context('AtlasUserData user-scoped types', function () {
+  context('UserData user-scoped types', function () {
     const getUserScopedUserData = (type: UserDataType = 'AppPreferences') =>
-      new AtlasUserData(getTestSchema(), type, {
+      new UserData(getTestSchema(), type, {
+        kind: 'atlas',
         atlasService: atlasServiceStub,
       });
 
@@ -863,7 +425,41 @@ describe('AtlasUserData', function () {
     });
   });
 
-  context('AtlasUserData.updateAttributes', function () {
+  context('UserData.readOne', function () {
+    const statusError = (statusCode: number) =>
+      Object.assign(new Error(`${statusCode}`), { statusCode });
+
+    it('reads a missing document as undefined even when errors are not ignored', async function () {
+      atlasServiceStub.authenticatedFetch.rejects(statusError(404));
+
+      const userData = getAtlasUserData();
+
+      expect(await userData.readOne('id', { ignoreErrors: false })).to.equal(
+        undefined
+      );
+    });
+
+    it('throws a failed request when errors are not ignored', async function () {
+      atlasServiceStub.authenticatedFetch.rejects(statusError(500));
+
+      const userData = getAtlasUserData();
+      const error = await userData
+        .readOne('id', { ignoreErrors: false })
+        .catch((err: unknown) => err);
+
+      expect(error).to.have.property('statusCode', 500);
+    });
+
+    it('reads a failed request as undefined by default', async function () {
+      atlasServiceStub.authenticatedFetch.rejects(statusError(500));
+
+      const userData = getAtlasUserData();
+
+      expect(await userData.readOne('id')).to.equal(undefined);
+    });
+  });
+
+  context('UserData.updateAttributes', function () {
     it('updates data successfully', async function () {
       const getResponse = {
         data: JSON.stringify({ name: 'Original Name', hasDarkMode: true }),
@@ -952,12 +548,17 @@ describe('AtlasUserData', function () {
           'cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
         );
 
-      const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
-        orgId: 'test-org',
-        projectId: 'test-proj',
-        atlasService: atlasServiceStub,
-        serialize: (data) => `custom:${JSON.stringify(data)}`,
-      });
+      const userData = new UserData(
+        getTestSchema(),
+        'FavoriteQueries',
+        {
+          kind: 'atlas',
+          orgId: 'test-org',
+          projectId: 'test-proj',
+          atlasService: atlasServiceStub,
+        },
+        { serialize: (data) => `custom:${JSON.stringify(data)}` }
+      );
 
       await userData.updateAttributes('test-id', { name: 'Updated' });
 
@@ -971,7 +572,7 @@ describe('AtlasUserData', function () {
     });
   });
 
-  context('AtlasUserData urls', function () {
+  context('UserData urls', function () {
     it('constructs URL correctly for write operation', async function () {
       atlasServiceStub.authenticatedFetch.resolves(mockResponse({}));
       atlasServiceStub.userDataEndpoint.returns(

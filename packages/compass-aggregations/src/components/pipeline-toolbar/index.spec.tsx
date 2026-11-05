@@ -20,8 +20,7 @@ describe('PipelineToolbar', function () {
         undefined,
         {
           pipelineStorage: {
-            getStorage: () =>
-              createElectronPipelineStorage({ basepath: '/tmp/test' }),
+            getStorage: () => createElectronPipelineStorage(),
           },
         }
       );

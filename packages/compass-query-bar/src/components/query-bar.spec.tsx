@@ -67,12 +67,10 @@ describe('QueryBar Component', function () {
     store.dispatch(toggleQueryOptions(expanded));
 
     const favoriteQueryStorage = {
-      getStorage: () =>
-        createElectronFavoriteQueryStorage({ basepath: '/tmp/test' }),
+      getStorage: () => createElectronFavoriteQueryStorage(),
     };
     const recentQueryStorage = {
-      getStorage: () =>
-        createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
+      getStorage: () => createElectronRecentQueryStorage(),
     };
 
     const component = (

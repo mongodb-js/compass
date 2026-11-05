@@ -513,6 +513,18 @@ const CompassWebPreferencesProvider = createServiceProvider(
       atlasService
     );
 
+    useEffect(() => {
+      void preferencesAccess?.getStorageLoadError().then((loadError) => {
+        if (loadError) {
+          openToast('preferences-load-failed', {
+            variant: 'warning',
+            title: 'Your settings could not be loaded',
+            description: `Data Explorer is using the default settings. Changing a setting saves over the stored ones. (${loadError})`,
+          });
+        }
+      });
+    }, [preferencesAccess]);
+
     if (isLoading) {
       return (
         <div className={preferencesLoadingContainerStyles}>

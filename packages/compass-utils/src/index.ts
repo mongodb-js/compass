@@ -13,5 +13,15 @@ export {
   isUtilityPortChannel,
   openUtilityPort,
 } from './utility-process';
+export {
+  USER_DATA_CHANNEL,
+  USER_DATA_BRIDGE,
+  isUserDataRequest,
+} from './user-data-bridge';
+export type {
+  UserDataBridge,
+  UserDataRequest,
+  UserDataResponse,
+} from './user-data-bridge';
 export { errorFromEvent, listen, once, waitUntil } from './events';
 export type { EventSource } from './events';

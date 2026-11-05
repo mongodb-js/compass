@@ -14,9 +14,7 @@ import { createElectronFavoriteQueryStorage } from '@mongodb-js/my-queries-stora
 import BulkUpdateModal from './bulk-update-modal';
 
 // Create mock storage access object for testing
-const mockFavoriteQueryStorage = createElectronFavoriteQueryStorage({
-  basepath: '/tmp/test',
-});
+const mockFavoriteQueryStorage = createElectronFavoriteQueryStorage();
 const compassFavoriteQueryStorageAccess = {
   getStorage: () => mockFavoriteQueryStorage,
 };

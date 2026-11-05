@@ -1,5 +1,5 @@
 import React from 'react';
-import { AtlasUserData, type IUserData } from '@mongodb-js/compass-user-data';
+import { UserData } from '@mongodb-js/compass-user-data';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
 import { EJSON } from 'bson';
@@ -12,17 +12,19 @@ export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
   atlasService: AtlasService;
   children?: React.ReactNode;
 }> = ({ orgId, projectId, atlasService, children }) => {
-  const storageRef = useInitialValue<IUserData<typeof WorkspacesStateSchema>>(
-    new AtlasUserData(WorkspacesStateSchema, 'WorkspacesState', {
-      orgId,
-      projectId,
-      atlasService,
-      serialize: (content) =>
-        EJSON.stringify(content, {
-          relaxed: false,
-        }),
-      deserialize: (content: string) => EJSON.parse(content),
-    })
+  const storageRef = useInitialValue<UserData<typeof WorkspacesStateSchema>>(
+    new UserData(
+      WorkspacesStateSchema,
+      'WorkspacesState',
+      { kind: 'atlas', orgId, projectId, atlasService },
+      {
+        serialize: (content) =>
+          EJSON.stringify(content, {
+            relaxed: false,
+          }),
+        deserialize: (content: string) => EJSON.parse(content),
+      }
+    )
   );
   return (
     <WorkspacesStorageServiceContext.Provider value={storageRef}>

@@ -5,7 +5,14 @@
  * need (`ipcRenderer`, `window`, ...) as arguments, and only call them here.
  * That keeps them testable without loading a real preload context.
  */
-import { ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
+import { exposeUserDataBridge } from './user-data';
 import { forwardUtilityPorts } from './utility-ports';
 
 forwardUtilityPorts(window, ipcRenderer);
+exposeUserDataBridge(
+  window,
+  ipcRenderer,
+  contextBridge,
+  process.contextIsolated
+);

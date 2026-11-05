@@ -94,6 +94,9 @@ export const makePreferencesIpc = (
     getPreferencesUser() {
       return getActiveUser({ getPreferences });
     },
+    getStorageLoadError(): Promise<string | undefined> {
+      return ipcRenderer.invoke('compass:get-preferences-load-error');
+    },
   };
 };
 

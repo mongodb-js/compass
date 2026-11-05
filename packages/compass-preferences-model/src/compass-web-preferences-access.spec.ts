@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Sinon from 'sinon';
 import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
 import { CompassWebPreferencesAccess } from './compass-web-preferences-access';
-import { AtlasPreferencesStorage } from './preferences-atlas';
+import { UserDataPreferencesStorage } from './preferences-user-data-storage';
 
 describe('CompassWebPreferencesAccess', function () {
   let sandbox: Sinon.SinonSandbox;
@@ -22,7 +22,10 @@ describe('CompassWebPreferencesAccess', function () {
         'https://example.com/ui/userData/AppPreferences',
       authenticatedFetch: sandbox.stub(),
     };
-    const storage = new AtlasPreferencesStorage(atlasService);
+    const storage = new UserDataPreferencesStorage({
+      kind: 'atlas',
+      atlasService,
+    });
     const updatePreferencesStub = sandbox
       .stub(storage, 'updatePreferences')
       .resolves();
@@ -48,7 +51,10 @@ describe('CompassWebPreferencesAccess', function () {
         'https://example.com/ui/userData/AppPreferences',
       authenticatedFetch: sandbox.stub(),
     };
-    const storage = new AtlasPreferencesStorage(atlasService);
+    const storage = new UserDataPreferencesStorage({
+      kind: 'atlas',
+      atlasService,
+    });
     const updatePreferencesStub = sandbox
       .stub(storage, 'updatePreferences')
       .resolves();

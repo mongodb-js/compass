@@ -1,14 +1,19 @@
-import { FileUserData, z } from '@mongodb-js/compass-user-data';
+import { UserData, z } from '@mongodb-js/compass-user-data';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 import { safeStorage } from 'electron';
 
 const AtlasPluginStateSchema = z.string().optional();
 
 export class SecretStore {
-  private readonly userData: FileUserData<typeof AtlasPluginStateSchema>;
+  private readonly userData: UserData<
+    typeof AtlasPluginStateSchema,
+    'AtlasState'
+  >;
   private readonly fileName = 'AtlasPluginState';
   constructor(basePath?: string) {
-    this.userData = new FileUserData(AtlasPluginStateSchema, 'AtlasState', {
-      basePath,
+    this.userData = new UserData(AtlasPluginStateSchema, 'AtlasState', {
+      kind: 'local',
+      fetch: createLocalUserDataFetch({ basePath }),
     });
   }
 

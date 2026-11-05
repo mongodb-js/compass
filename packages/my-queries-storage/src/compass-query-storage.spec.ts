@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import { createLocalUserDataFetch } from '@mongodb-js/compass-user-data/local';
 import { expect } from 'chai';
 import { EJSON, UUID } from 'bson';
 import Sinon from 'sinon';
@@ -35,7 +36,7 @@ describe('CompassRecentQueryStorage', function () {
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
     queryHistoryStorage = createElectronRecentQueryStorage({
-      basepath: tmpDir,
+      fetch: createLocalUserDataFetch({ basePath: tmpDir }),
     });
   });
 
@@ -184,7 +185,7 @@ describe('CompassRecentQueryStorage', function () {
     it(`supports recent query from Compass v${version}`, async function () {
       await writeQuery(query, 'RecentQueries');
       const recentQueryStorage = createElectronRecentQueryStorage({
-        basepath: tmpDir,
+        fetch: createLocalUserDataFetch({ basePath: tmpDir }),
       });
       const [loadedQuery] = await recentQueryStorage.loadAll();
       expect(loadedQuery._id).to.equal(query._id);
@@ -200,7 +201,7 @@ describe('CompassRecentQueryStorage', function () {
     it(`supports favorite query from Compass v${version}`, async function () {
       await writeQuery(query, 'FavoriteQueries');
       const favoriteQueryStorage = createElectronFavoriteQueryStorage({
-        basepath: tmpDir,
+        fetch: createLocalUserDataFetch({ basePath: tmpDir }),
       });
       const [loadedQuery] = await favoriteQueryStorage.loadAll();
       expect(loadedQuery._id).to.equal(query._id);
@@ -230,7 +231,7 @@ describe('CompassFavoriteQueryStorage', function () {
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
     queryFavoriteStorage = createElectronFavoriteQueryStorage({
-      basepath: tmpDir,
+      fetch: createLocalUserDataFetch({ basePath: tmpDir }),
     });
   });
 

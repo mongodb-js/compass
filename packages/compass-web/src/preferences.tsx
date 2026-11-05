@@ -1,5 +1,5 @@
 import {
-  AtlasPreferencesStorage,
+  UserDataPreferencesStorage,
   CompassWebPreferencesAccess,
   featureFlags as FEATURE_FLAG_DEFINITIONS,
   isPreferenceNameValid,
@@ -191,9 +191,10 @@ async function loadCompassWebPreferences(
     throw new Error('Cannot load preferences without an Atlas project id');
   }
   const cloudPreferences = getPreferencesFromCloudApi(projectId, atlasService);
-  const atlasStorage = new AtlasPreferencesStorage(atlasService, {
-    overrides: DEFAULT_COMPASS_WEB_PREFERENCES,
-  });
+  const atlasStorage = new UserDataPreferencesStorage(
+    { kind: 'atlas', atlasService },
+    { overrides: DEFAULT_COMPASS_WEB_PREFERENCES }
+  );
   await atlasStorage.setup();
   const {
     atlasCloudUserPreferences,

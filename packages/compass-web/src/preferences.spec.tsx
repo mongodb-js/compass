@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import {
-  AtlasPreferencesStorage,
+  UserDataPreferencesStorage,
   CompassWebPreferencesAccess,
 } from '@mongodb-js/compass-preferences-model/provider';
 import {
@@ -297,9 +297,10 @@ describe('compass-web preferences', function () {
         atlasCloudOrgPreferences,
       } = await getPreferencesFromCloudApi(PROJECT_ID, atlasService);
 
-      const storage = new AtlasPreferencesStorage(atlasService, {
-        overrides: DEFAULT_COMPASS_WEB_PREFERENCES,
-      });
+      const storage = new UserDataPreferencesStorage(
+        { kind: 'atlas', atlasService },
+        { overrides: DEFAULT_COMPASS_WEB_PREFERENCES }
+      );
       const preferences = new CompassWebPreferencesAccess(
         undefined,
         {

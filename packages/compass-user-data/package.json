@@ -22,11 +22,15 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "import": "./dist/.esm-wrapper.mjs",
-    "require": "./dist/index.js"
+    ".": {
+      "import": "./dist/.esm-wrapper.mjs",
+      "require": "./dist/index.js"
+    },
+    "./local": "./dist/local.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./local": "./src/local.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {

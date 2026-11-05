@@ -31,12 +31,10 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   } as any,
   instance: { on() {}, removeListener() {} } as any,
   favoriteQueryStorageAccess: {
-    getStorage: () =>
-      createElectronFavoriteQueryStorage({ basepath: '/tmp/test' }),
+    getStorage: () => createElectronFavoriteQueryStorage(),
   },
   recentQueryStorageAccess: {
-    getStorage: () =>
-      createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
+    getStorage: () => createElectronRecentQueryStorage(),
   },
   atlasAiService: {} as any,
   collection: {

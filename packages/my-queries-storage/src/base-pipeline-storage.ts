@@ -1,14 +1,13 @@
-import type { IUserData, z } from '@mongodb-js/compass-user-data';
+import type { UserData, z } from '@mongodb-js/compass-user-data';
 import type { SavedPipeline } from './pipeline-storage-schema';
 import type { PipelineStorageInterface } from './storage-interfaces';
 
-// Generic base class for pipeline storage that works with any IUserData implementation
 export class BaseCompassPipelineStorage<
   TSchema extends z.ZodType<SavedPipeline, unknown>,
 > implements PipelineStorageInterface {
-  private readonly userData: IUserData<TSchema>;
+  private readonly userData: UserData<TSchema>;
 
-  constructor(userData: IUserData<TSchema>) {
+  constructor(userData: UserData<TSchema>) {
     this.userData = userData;
   }
 
