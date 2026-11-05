@@ -30,7 +30,7 @@ export async function setComboBoxValue(
   await browser.setValueVisible(comboboxInputSelector, comboboxValue, {
     skipFocus: true,
   });
-  const listElementSelector = `li[aria-label*="${comboboxValue}"]`;
+  const listElementSelector = `li[aria-label="${comboboxValue}"],li[aria-label='Field: "${comboboxValue}"']`;
   await browser.$(listElementSelector).waitForDisplayed();
   // Something about leafygreen Combobox makes the real webdriver driven click
   // to fail very often in chrome, so we fallback to simulating clicks with
