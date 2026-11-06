@@ -81,7 +81,7 @@
     "@mongodb-js/mongodb-constants": "^0.34.15",
     "@mongodb-js/mongodb-data-service": "^22.42.0",
     "@mongodb-js/mongodb-ns": "^3.2.9",
-    "@mongodb-js/search-index-schema": "^2.2.0",
+    "@mongodb-js/search-index-schema": "^3.0.0",
     "@mongodb-js/shell-bson-parser": "^2.2.0",
     "@mongodb-js/workspace-info": "^1.15.0",
     "bson": "^7.3.2",
