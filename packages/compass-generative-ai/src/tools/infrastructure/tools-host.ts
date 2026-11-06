@@ -48,10 +48,11 @@ type ToolsHostConfig = {
 };
 
 // Reported to telemetry as `mcp_server_version` (and in the API client's
-// User-Agent). Compass does not currently surface its own version here.
+// User-Agent). `HADRON_APP_VERSION` is inlined at build time for the desktop
+// utility; compass-web's process shim has an empty env, so keep a fallback.
 const serverMetadata: ServerMetadata = {
   mcpServerName: 'mongodb-compass',
-  version: '0.0.0',
+  version: process.env.HADRON_APP_VERSION ?? '0.0.0',
 };
 
 type CompassToolServer = Omit<MongoDBToolServer, 'tools'> & {
