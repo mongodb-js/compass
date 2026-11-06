@@ -52,7 +52,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@mongodb-js/compass-utils": "^0.11.0",
+    "@mongodb-js/compass-events": "^0.1.0",
     "@mongodb-js/devtools-connect": "^3.17.10",
     "@mongodb-js/devtools-proxy-support": "^0.7.30",
     "@mongodb-js/mongodb-build-info": "^1.9.19",

@@ -2,7 +2,7 @@ import { tool, jsonSchema } from 'ai';
 import type { ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
 import z from 'zod/v4';
-import { openUtilityPort } from '@mongodb-js/compass-utils';
+import { openUtilityPort } from '@mongodb-js/compass-events';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { getAtlasConfigForPreset } from '@mongodb-js/atlas-service/provider';

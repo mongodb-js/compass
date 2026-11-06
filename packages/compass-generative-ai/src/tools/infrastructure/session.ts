@@ -1,4 +1,4 @@
-import { listen } from '@mongodb-js/compass-utils';
+import { listen } from '@mongodb-js/compass-events';
 import { isToolsRpcMessage } from './protocol';
 import type { ToolsRpcMethod, ToolsRpcResponse } from './protocol';
 

@@ -30,7 +30,7 @@ import {
   extractProxySecrets,
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
-import { utilityPortChannel } from '@mongodb-js/compass-utils';
+import { utilityPortChannel } from '@mongodb-js/compass-events';
 import { setupProtocolHandlers } from './protocol-handling';
 import { setupTheme } from './theme';
 import type { AutoUpdateManagerState } from './auto-update-manager';

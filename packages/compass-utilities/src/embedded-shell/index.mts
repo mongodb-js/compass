@@ -1,7 +1,7 @@
 import process from 'node:process';
 import { createRequire } from 'node:module';
 
-import { listen } from '@mongodb-js/compass-utils';
+import { listen } from '@mongodb-js/compass-events';
 import { ShellSession } from '@mongodb-js/compass-shell/utility';
 import type { UtilityParentPort } from '../ipc.mts';
 import { currentParentPort, onPort } from '../ipc.mts';

@@ -2,7 +2,7 @@ import {
   errorFromEvent,
   listen,
   utilityPortChannel,
-} from '@mongodb-js/compass-utils';
+} from '@mongodb-js/compass-events';
 import { CrossOriginWorker } from './cross-origin-worker.mts';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
 import { getLink } from './multiplex-link.ts';
