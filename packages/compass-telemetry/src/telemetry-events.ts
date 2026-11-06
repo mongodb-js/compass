@@ -1542,22 +1542,6 @@ type ImportCompletedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when a user clicks the link to open the error log after
- * receiving import errors.
- *
- * @category Import/Export
- */
-type ImportErrorLogOpenedEvent = ConnectionScopedEvent<{
-  name: 'Import Error Log Opened';
-  payload: {
-    /**
-     * Number of import errors present in the log.
-     */
-    errorCount: number;
-  };
-}>;
-
-/**
  * This event is fired when user opens the import dialog.
  *
  * @category Import/Export
@@ -4444,7 +4428,6 @@ export type TelemetryEvent =
   | GuideCueGroupDismissedEvent
   | IdentifyEvent
   | ImportCompletedEvent
-  | ImportErrorLogOpenedEvent
   | ImportOpenedEvent
   | IndexCreatedEvent
   | IndexCreateFailedEvent
