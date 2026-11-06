@@ -37,12 +37,14 @@ export const COMPASS_CONNECTION_ID = 'compass';
 type ToolsConnectionManagerConfig = {
   logger: LoggerBase;
   getTelemetryAnonymousId: () => string;
+  getMaxTimeMS: () => number | undefined;
   mongoLogId: Logger['mongoLogId'];
 };
 
 export class ToolsConnectionManager extends ConnectionManager {
   private logger: LoggerBase;
   private getTelemetryAnonymousId: () => string;
+  private getMaxTimeMS: () => number | undefined;
   private mongoLogId: ToolsConnectionManagerConfig['mongoLogId'];
   private activeConnection: {
     id: string;
@@ -52,11 +54,13 @@ export class ToolsConnectionManager extends ConnectionManager {
   constructor({
     logger,
     getTelemetryAnonymousId,
+    getMaxTimeMS,
     mongoLogId,
   }: ToolsConnectionManagerConfig) {
     super();
     this.logger = logger;
     this.getTelemetryAnonymousId = getTelemetryAnonymousId;
+    this.getMaxTimeMS = getMaxTimeMS;
     this.mongoLogId = mongoLogId;
   }
 
@@ -127,7 +131,10 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       const serviceProvider = await NodeDriverServiceProvider.connect(
         connectionString,
         {
-          timeoutMS: 30_000,
+          // mongodb-mcp-server v3 replaced the per-operation `maxTimeMS` with a
+          // connection-level `timeoutMS`, so the Compass preference has to be
+          // applied as the driver timeout.
+          timeoutMS: this.getMaxTimeMS() ?? 30_000,
           readPreference: 'secondaryPreferred',
           readConcern: {
             level: 'local',

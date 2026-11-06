@@ -457,7 +457,7 @@ describe('ToolsController', function () {
       await waitFor(() => host.maxTimeMS === 1234);
       expect(host.enableMCPTelemetry).to.equal(true);
       expect(host.maxTimeMS).to.equal(1234);
-      expect(host.server.config.maxTimeMS).to.equal(1234);
+      expect(host.connectionManager.getMaxTimeMS()).to.equal(1234);
     });
 
     it('syncs telemetry setting with the utility host', async function () {
@@ -488,18 +488,18 @@ describe('ToolsController', function () {
         maxTimeMS: 5000,
         connections: [],
       });
-      await waitFor(() => host.server.config.maxTimeMS === 5000);
+      await waitFor(() => host.connectionManager.getMaxTimeMS() === 5000);
       expect(host.maxTimeMS).to.equal(5000);
-      expect(host.server.config.maxTimeMS).to.equal(5000);
+      expect(host.connectionManager.getMaxTimeMS()).to.equal(5000);
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: undefined,
         connections: [],
       });
-      await waitFor(() => host.server.config.maxTimeMS === undefined);
+      await waitFor(() => host.connectionManager.getMaxTimeMS() === undefined);
       expect(host.maxTimeMS).to.equal(undefined);
-      expect(host.server.config.maxTimeMS).to.equal(undefined);
+      expect(host.connectionManager.getMaxTimeMS()).to.equal(undefined);
     });
   });
 

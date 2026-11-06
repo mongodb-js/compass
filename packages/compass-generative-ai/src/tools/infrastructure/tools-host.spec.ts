@@ -104,7 +104,7 @@ describe('ToolsHost', function () {
 
     expect((host as any).enableMCPTelemetry).to.equal(true);
     expect((host as any).maxTimeMS).to.equal(1000);
-    expect((host as any).server.config.maxTimeMS).to.equal(1000);
+    expect((host as any).connectionManager.getMaxTimeMS()).to.equal(1000);
   });
 
   it('releases the server and the connection when stopped', async function () {

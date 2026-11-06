@@ -12,6 +12,7 @@ describe('ToolsConnectionManager', function () {
   let sandbox: Sinon.SinonSandbox;
   let logger: LoggerBase;
   let getTelemetryAnonymousId: Sinon.SinonStub;
+  let getMaxTimeMS: Sinon.SinonStub;
   let connectionManager: ToolsConnectionManager;
 
   const mockConnectionParams: ToolsConnectParams = {
@@ -32,10 +33,12 @@ describe('ToolsConnectionManager', function () {
       debug: sandbox.stub(),
     } as unknown as LoggerBase;
     getTelemetryAnonymousId = sandbox.stub().returns('test-anonymous-id');
+    getMaxTimeMS = sandbox.stub().returns(undefined);
 
     connectionManager = new ToolsConnectionManager({
       logger,
       getTelemetryAnonymousId,
+      getMaxTimeMS,
       mongoLogId: (id) => ({ __value: id }),
     });
   });
@@ -158,6 +161,20 @@ describe('ToolsConnectionManager', function () {
       expect((connectionManager as any).activeConnection.id).to.equal(
         'test-connection-id'
       );
+    });
+
+    it('applies the configured maxTimeMS as the driver timeoutMS', async function () {
+      getMaxTimeMS.returns(5000);
+
+      await connectionManager.connectToCompassConnection(mockConnectionParams);
+
+      expect(connectStub.firstCall.args[1]).to.include({ timeoutMS: 5000 });
+    });
+
+    it('falls back to the default timeoutMS when maxTimeMS is unset', async function () {
+      await connectionManager.connectToCompassConnection(mockConnectionParams);
+
+      expect(connectStub.firstCall.args[1]).to.include({ timeoutMS: 30_000 });
     });
 
     it('throws error if already connected', async function () {

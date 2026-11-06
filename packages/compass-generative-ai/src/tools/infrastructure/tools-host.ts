@@ -11,6 +11,7 @@ import {
 import {
   AGG_COUNT_MAX_TIME_MS_CAP,
   MongoDBTools,
+  NoopExportsManager,
   QUERY_COUNT_MAX_TIME_MS_CAP,
   type MongoDBToolServer,
 } from '@mongodb-js/mcp-tools-mongodb';
@@ -89,6 +90,7 @@ export class ToolsHost {
     this.connectionManager = new ToolsConnectionManager({
       logger: this.serverLogger,
       getTelemetryAnonymousId: () => this.telemetryAnonymousId,
+      getMaxTimeMS: () => this.maxTimeMS,
       mongoLogId: this.logger.mongoLogId.bind(this.logger),
     });
 
@@ -127,12 +129,11 @@ export class ToolsHost {
         connectionString: undefined,
         indexCheck: false,
         disableServerSideJs: true,
-        maxTimeMS: this.maxTimeMS,
         maxDocumentsPerQuery: 100,
         maxBytesPerQuery: 16_777_216,
         httpHost: '127.0.0.1',
-        queryCountMaxTimeMsCap: QUERY_COUNT_MAX_TIME_MS_CAP,
-        aggregationCountMaxTimeMsCap: AGG_COUNT_MAX_TIME_MS_CAP,
+        queryCountTimeoutMs: QUERY_COUNT_MAX_TIME_MS_CAP,
+        aggregationCountTimeoutMs: AGG_COUNT_MAX_TIME_MS_CAP,
       },
       logger: this.serverLogger,
       keychain: this.keychain,
@@ -140,22 +141,8 @@ export class ToolsHost {
         this.connectionManager,
         this.keychain
       ),
-      // `MongoDBToolServices` requires a `result` that is only read when
-      // `errorHandled` is true; Compass never handles connection errors.
-      // TODO(mongodb-mcp-server#1620): drop this cast once released.
-      connectionErrorHandler:
-        createConnectionErrorHandler() as MongoDBToolServer['connectionErrorHandler'],
-      // Only the unregistered `export` tool reads this.
-      // TODO(mongodb-mcp-server#1620): use NoopExportsManager once released.
-      exportsManager: {
-        createJSONExport: () => {
-          return Promise.reject(
-            new Error(
-              'Exporting data is not supported in Compass Database Tools'
-            )
-          );
-        },
-      },
+      connectionErrorHandler: createConnectionErrorHandler(),
+      exportsManager: new NoopExportsManager(),
       telemetry,
       elicitation: new Elicitation({ server: mcpServer.server }),
       metrics: new NoopMetrics(),
@@ -209,9 +196,6 @@ export class ToolsHost {
         // takes effect on the next event without a restart.
         this.enableMCPTelemetry = enableMCPTelemetry;
         this.maxTimeMS = maxTimeMS;
-        if (this.server) {
-          this.server.config.maxTimeMS = maxTimeMS;
-        }
         if (telemetryAnonymousId !== undefined) {
           this.telemetryAnonymousId = telemetryAnonymousId;
         }

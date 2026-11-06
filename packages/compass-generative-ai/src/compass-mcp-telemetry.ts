@@ -10,7 +10,6 @@ import {
 } from '@mongodb-js/mcp-atlas-api-client';
 import type { LoggerBase } from '@mongodb-js/mcp-core';
 import type {
-  IDeviceId,
   IKeychain,
   ServerMetadata,
   TelemetryCommonProperties,
@@ -41,16 +40,10 @@ export type CompassMcpTelemetryConfig = {
  */
 export class CompassMcpTelemetry extends AtlasTelemetry {
   private readonly isEnabled: () => boolean;
-  // Shadow the base class' private fields so `close` can release them.
-  // TODO(mongodb-mcp-server#1620): drop these once the fields are protected.
-  private readonly apiClientRef: ApiClient;
-  private readonly deviceIdRef: IDeviceId;
   private setupStarted = false;
 
   constructor(config: TelemetryConfig, isEnabled: () => boolean) {
     super(config);
-    this.apiClientRef = config.apiClient;
-    this.deviceIdRef = config.deviceId;
     this.isEnabled = isEnabled;
   }
 
@@ -71,10 +64,10 @@ export class CompassMcpTelemetry extends AtlasTelemetry {
   public override async close(): Promise<void> {
     // Abort first: `super.close()` waits for setup, which waits on the machine
     // id, so aborting afterwards would be too late to shorten shutdown.
-    this.deviceIdRef.close();
+    this.deviceId.close();
     // Flush before releasing the client the drain sends through.
     await super.close();
-    await this.apiClientRef.close();
+    await this.apiClient.close();
   }
 
   public override getCommonProperties(): TelemetryCommonProperties {
