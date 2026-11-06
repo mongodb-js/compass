@@ -21,10 +21,17 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-macos',
     display_name: 'Unit Tests MacOS',
-    // We only have gui variants of the macos 15, so both unit tests will be
-    // running on it. We will not be running those on patches to save resources
-    run_on: 'macos-15-arm64-gui',
+    // Even though this host doesn't have a -gui postfix, it seems to be using
+    // the pool of the -gui hosts anyway and so to save some resources, we're
+    // not going to run these tests on PRs
+    run_on: 'macos-15-arm64',
     run_on_prs: false,
+  },
+  {
+    name: 'unit-test-electron',
+    display_name: 'Unit Tests Electron (Ubuntu)',
+    run_on: 'ubuntu2604-latest-large',
+    test_electron: true,
   }
 ];
 
@@ -195,11 +202,11 @@ buildvariants:
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:
-    - name: test
+    <% if (buildVariant.test_electron ?? false) { %>
     - name: test-electron
-      <% if (buildVariant.run_on_gui) { %>
-      run_on: <%= buildVariant.run_on_gui %>
-      <% } %>
+    <% } else { %>
+    - name: test
+    <% } %>
 <% } %>
 
   # package
