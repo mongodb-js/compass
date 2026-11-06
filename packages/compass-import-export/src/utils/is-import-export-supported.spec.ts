@@ -43,4 +43,18 @@ describe('isImportExportSupported', function () {
 
     expect(isImportExportSupported()).to.equal(false);
   });
+
+  describe('in Electron', function () {
+    before(function () {
+      if (!process.versions.electron) {
+        this.skip();
+      }
+    });
+
+    // Desktop always offers import / export, so an Electron upgrade that drops
+    // these APIs has to fail here rather than at runtime
+    it('return true without any overrides', function () {
+      expect(isImportExportSupported()).to.equal(true);
+    });
+  });
 });
