@@ -248,7 +248,7 @@ function ExportModal({
       .then(startExport, (err: Error) => {
         // AbortError means the user closed the dialog without picking a file
         if (err?.name !== 'AbortError') {
-          exportFileFailed(err?.message);
+          exportFileFailed(err?.message || 'Unknown error');
         }
       });
   }, [fileType, ns, startExport, exportFileFailed]);
