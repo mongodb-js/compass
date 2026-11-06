@@ -13,7 +13,8 @@ const UTILITIES: Map<string, () => CrossOriginWorker> = new Map([
     'ai-assistant',
     () =>
       new CrossOriginWorker(
-        new URL('@mongodb-js/compass-utilities/ai-assistant', import.meta.url)
+        new URL('@mongodb-js/compass-utilities/ai-assistant', import.meta.url),
+        { name: 'ai-assistant' }
       ),
   ],
 ]);
