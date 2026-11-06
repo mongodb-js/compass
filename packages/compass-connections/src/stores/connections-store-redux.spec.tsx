@@ -11,7 +11,11 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
-import { getDataServiceForConnection } from './connections-store-redux';
+import { InMemoryFolderStorage } from '@mongodb-js/connection-storage/provider';
+import {
+  getDataServiceForConnection,
+  validateFolderName,
+} from './connections-store-redux';
 
 const mockConnections = [
   {
@@ -865,6 +869,190 @@ describe('CompassConnections store', function () {
       expect(stored?.connectionOptions.oidc?.serializedState).to.equal(
         'token-data'
       );
+    });
+  });
+
+  describe('validateFolderName', function () {
+    it('rejects an empty or whitespace-only name', function () {
+      expect(validateFolderName('', [])).to.equal("Folder name can't be empty");
+      expect(validateFolderName('   ', [])).to.equal(
+        "Folder name can't be empty"
+      );
+    });
+
+    it('rejects a name that already exists, case-insensitively', function () {
+      expect(validateFolderName('Work', ['work'])).to.equal(
+        'A folder with this name already exists'
+      );
+    });
+
+    it('rejects path separators', function () {
+      expect(validateFolderName('a/b', [])).to.equal(
+        "Folder name can't contain / or \\"
+      );
+      expect(validateFolderName('a\\b', [])).to.equal(
+        "Folder name can't contain / or \\"
+      );
+    });
+
+    it('rejects control characters', function () {
+      expect(validateFolderName('a\u0000b', [])).to.equal(
+        "Folder name can't contain control characters"
+      );
+    });
+
+    it('rejects Windows-reserved characters and names the offending one', function () {
+      expect(validateFolderName('a<b', [])).to.equal(
+        "Folder name can't contain <"
+      );
+      expect(validateFolderName('a?b', [])).to.equal(
+        "Folder name can't contain ?"
+      );
+    });
+
+    it('allows unicode and internal spaces', function () {
+      expect(validateFolderName('Проекты 2024', [])).to.be.undefined;
+    });
+  });
+
+  describe('folders', function () {
+    it('loads persisted folders and assignments on startup', async function () {
+      const folderStorage = new InMemoryFolderStorage({
+        folders: [{ id: 'folder-1', name: 'Work' }],
+        assignments: { [mockConnections[0].id]: 'folder-1' },
+      });
+
+      const { connectionsStore } = renderCompassConnections({
+        connections: mockConnections,
+        folderStorage,
+      });
+
+      await waitFor(() => {
+        expect(connectionsStore.getState().folders.byId).to.have.property(
+          'folder-1'
+        );
+      });
+      expect(connectionsStore.getState().folderAssignments).to.deep.equal({
+        [mockConnections[0].id]: 'folder-1',
+      });
+    });
+
+    describe('#createFolder', function () {
+      it('creates a folder, persists it, and rejects invalid names', async function () {
+        const { connectionsStore, folderStorage } = renderCompassConnections();
+
+        const folder = await connectionsStore.actions.createFolder(' Work ');
+        expect(folder.name).to.equal('Work');
+        expect(connectionsStore.getState().folders.byId[folder.id]).to.exist;
+
+        const stored = await folderStorage.load();
+        expect(stored.folders).to.deep.equal([folder]);
+
+        try {
+          await connectionsStore.actions.createFolder('Work');
+          expect.fail('Expected createFolder to reject a duplicate name');
+        } catch (err) {
+          expect((err as Error).message).to.equal(
+            'A folder with this name already exists'
+          );
+        }
+      });
+    });
+
+    describe('#renameFolder', function () {
+      it('renames a folder and allows keeping its own name', async function () {
+        const { connectionsStore } = renderCompassConnections();
+        const folder = await connectionsStore.actions.createFolder('Work');
+
+        await connectionsStore.actions.renameFolder(folder.id, 'Personal');
+        expect(
+          connectionsStore.getState().folders.byId[folder.id].name
+        ).to.equal('Personal');
+
+        await connectionsStore.actions.renameFolder(folder.id, 'Personal');
+        expect(
+          connectionsStore.getState().folders.byId[folder.id].name
+        ).to.equal('Personal');
+      });
+
+      it('rejects renaming to a name already used by another folder', async function () {
+        const { connectionsStore } = renderCompassConnections();
+        await connectionsStore.actions.createFolder('Work');
+        const other = await connectionsStore.actions.createFolder('Personal');
+
+        try {
+          await connectionsStore.actions.renameFolder(other.id, 'Work');
+          expect.fail('Expected renameFolder to reject a duplicate name');
+        } catch (err) {
+          expect((err as Error).message).to.equal(
+            'A folder with this name already exists'
+          );
+        }
+      });
+    });
+
+    describe('#deleteFolder', function () {
+      it('removes the folder and uncategorizes its connections', async function () {
+        const { connectionsStore } = renderCompassConnections({
+          connections: mockConnections,
+        });
+        const folder = await connectionsStore.actions.createFolder('Work');
+        await connectionsStore.actions.moveConnectionsToFolder(
+          [mockConnections[0].id],
+          folder.id
+        );
+
+        await connectionsStore.actions.deleteFolder(folder.id);
+
+        expect(connectionsStore.getState().folders.byId).to.not.have.property(
+          folder.id
+        );
+        expect(
+          connectionsStore.getState().folderAssignments
+        ).to.not.have.property(mockConnections[0].id);
+      });
+    });
+
+    describe('#moveConnectionsToFolder', function () {
+      it('assigns connections to a folder and reports connections that do not exist', async function () {
+        const { connectionsStore } = renderCompassConnections({
+          connections: mockConnections,
+        });
+        const folder = await connectionsStore.actions.createFolder('Work');
+
+        const result = await connectionsStore.actions.moveConnectionsToFolder(
+          [mockConnections[0].id, 'does-not-exist'],
+          folder.id
+        );
+
+        expect(result).to.deep.equal({
+          movedIds: [mockConnections[0].id],
+          failedIds: ['does-not-exist'],
+        });
+        expect(connectionsStore.getState().folderAssignments).to.deep.equal({
+          [mockConnections[0].id]: folder.id,
+        });
+      });
+
+      it('removes a connection from its folder when moved to null', async function () {
+        const { connectionsStore } = renderCompassConnections({
+          connections: mockConnections,
+        });
+        const folder = await connectionsStore.actions.createFolder('Work');
+        await connectionsStore.actions.moveConnectionsToFolder(
+          [mockConnections[0].id],
+          folder.id
+        );
+
+        await connectionsStore.actions.moveConnectionsToFolder(
+          [mockConnections[0].id],
+          null
+        );
+
+        expect(
+          connectionsStore.getState().folderAssignments
+        ).to.not.have.property(mockConnections[0].id);
+      });
     });
   });
 });
