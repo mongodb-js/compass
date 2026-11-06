@@ -107,6 +107,28 @@ describe('ToolsHost', function () {
     expect((host as any).connectionManager.getMaxTimeMS()).to.equal(1000);
   });
 
+  it('uses the Atlas base URL passed by the renderer for telemetry', async function () {
+    const client = createRuntimeClient(asRendererPort(channel.port1));
+    await client.call('setUserConfig', {
+      enableMCPTelemetry: false,
+      atlasBaseUrl: 'https://cloud-dev.mongodb.com',
+    });
+    await client.call('listDatabaseTools');
+
+    expect((host as any).telemetry.apiClient.options.baseUrl).to.equal(
+      'https://cloud-dev.mongodb.com'
+    );
+  });
+
+  it('defaults the telemetry base URL to production', async function () {
+    const client = createRuntimeClient(asRendererPort(channel.port1));
+    await client.call('listDatabaseTools');
+
+    expect((host as any).telemetry.apiClient.options.baseUrl).to.equal(
+      'https://cloud.mongodb.com/'
+    );
+  });
+
   it('releases the server and the connection when stopped', async function () {
     const client = createRuntimeClient(asRendererPort(channel.port1));
     await client.call('listDatabaseTools');

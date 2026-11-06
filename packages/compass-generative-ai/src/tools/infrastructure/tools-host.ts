@@ -79,6 +79,7 @@ export class ToolsHost {
   private telemetryAnonymousId = '';
   private enableMCPTelemetry = false;
   private maxTimeMS: number | undefined;
+  private atlasBaseUrl: string | undefined;
   private stopped = false;
 
   constructor(port: MessagePort, { logger }: ToolsHostConfig) {
@@ -111,6 +112,7 @@ export class ToolsHost {
         logger: this.serverLogger,
         keychain: this.keychain,
         serverMetadata,
+        apiBaseUrl: this.atlasBaseUrl,
       },
       () => this.enableMCPTelemetry
     );
@@ -186,18 +188,26 @@ export class ToolsHost {
   ): Promise<unknown> {
     switch (method) {
       case 'setUserConfig': {
-        const { enableMCPTelemetry, maxTimeMS, telemetryAnonymousId } =
-          params as {
-            enableMCPTelemetry: boolean;
-            maxTimeMS?: number;
-            telemetryAnonymousId?: string;
-          };
+        const {
+          enableMCPTelemetry,
+          maxTimeMS,
+          telemetryAnonymousId,
+          atlasBaseUrl,
+        } = params as {
+          enableMCPTelemetry: boolean;
+          maxTimeMS?: number;
+          telemetryAnonymousId?: string;
+          atlasBaseUrl?: string;
+        };
         // The telemetry pipeline reads the preference live, so flipping this
         // takes effect on the next event without a restart.
         this.enableMCPTelemetry = enableMCPTelemetry;
         this.maxTimeMS = maxTimeMS;
         if (telemetryAnonymousId !== undefined) {
           this.telemetryAnonymousId = telemetryAnonymousId;
+        }
+        if (atlasBaseUrl !== undefined) {
+          this.atlasBaseUrl = atlasBaseUrl;
         }
         return;
       }

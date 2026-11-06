@@ -28,6 +28,11 @@ export type CompassMcpTelemetryConfig = {
   logger: LoggerBase;
   keychain: IKeychain;
   serverMetadata: ServerMetadata;
+  /**
+   * Atlas API base URL, derived from the Atlas service backend preset. Falls
+   * back to production when the renderer does not provide one.
+   */
+  apiBaseUrl?: string;
 };
 
 /**
@@ -90,7 +95,7 @@ export function createCompassMcpTelemetry(
       deviceId: new LazyDeviceId(config.logger),
       apiClient: new ApiClient({
         options: {
-          baseUrl: ATLAS_API_BASE_URL,
+          baseUrl: config.apiBaseUrl ?? ATLAS_API_BASE_URL,
           userAgent: userAgentFromServerMetadata(config.serverMetadata),
           httpClient,
         },

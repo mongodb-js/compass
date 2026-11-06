@@ -460,6 +460,20 @@ describe('ToolsController', function () {
       expect(host.connectionManager.getMaxTimeMS()).to.equal(1234);
     });
 
+    it('sends the Atlas base URL for the configured preset', async function () {
+      await preferences.savePreferences({
+        atlasServiceBackendPreset: 'atlas-dev',
+      });
+
+      await toolsController.startServer();
+      const host = openHosts[0] as any;
+
+      await waitFor(
+        () => host.atlasBaseUrl === 'https://cloud-dev.mongodb.com'
+      );
+      expect(host.atlasBaseUrl).to.equal('https://cloud-dev.mongodb.com');
+    });
+
     it('syncs telemetry setting with the utility host', async function () {
       await toolsController.startServer();
       const host = openHosts[0] as any;
