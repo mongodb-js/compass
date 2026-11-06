@@ -181,10 +181,15 @@ export const FEATURE_FLAG_DEFINITIONS = [
   /*
    * Feature flag for auto-embedding lexical prefilter support in the
    * search index schema.
+   *
+   * Desktop Compass has no project-entitlement sync (that only exists in
+   * Compass Web), so this is exposed under Feature Preview settings and
+   * enabled manually there, matching how enableAutoEmbeddingPublicPreview
+   * works on desktop.
    */
   {
     name: 'enableAutoEmbeddingLexicalPrefilter',
-    stage: 'development',
+    stage: 'preview',
     atlasCloudFeatureScope: 'group',
     description: {
       short:
