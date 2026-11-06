@@ -404,7 +404,7 @@ export const runExport = ({
     try {
       output = writableFromWeb(await fileHandle.createWritable());
     } catch (err: any) {
-      dispatch(exportFileFailed(err?.message || 'Error creating output file.'));
+      dispatch(exportFileFailed(err?.message || 'Unknown error'));
       return;
     }
 

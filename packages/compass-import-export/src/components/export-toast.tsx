@@ -83,7 +83,7 @@ export function showCompletedToast({
 export function showCancelledToast() {
   openToast(exportToastId, {
     title: 'Export aborted.',
-    description: null,
+    description: 'No file was saved.',
     variant: 'warning',
   });
 }

@@ -163,6 +163,16 @@ describe('ExportModal Component', function () {
       ).to.be.visible;
     });
 
+    it('show a fallback error when the file picker fails without a message', async function () {
+      showSaveFilePicker.rejects(new DOMException('', 'SecurityError'));
+
+      userEvent.click(screen.getByTestId('export-button'));
+
+      expect(
+        await screen.findByText('Error creating output file: Unknown error')
+      ).to.be.visible;
+    });
+
     it('not show an error when the user closes the file picker', async function () {
       showSaveFilePicker.rejects(
         new DOMException('The user aborted a request.', 'AbortError')
