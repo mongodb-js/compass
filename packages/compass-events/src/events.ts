@@ -179,7 +179,7 @@ export function errorFromEvent(event: unknown): Error {
   );
 }
 
-export async function sleep<T = void>(
+export async function cancellableWait<T = void>(
   ms: number,
   value?: T,
   options?: { signal?: AbortSignal; ref?: boolean }

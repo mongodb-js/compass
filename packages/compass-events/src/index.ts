@@ -1,10 +1,10 @@
 export {
   abortable,
   addAbortListener,
+  cancellableWait,
   errorFromEvent,
   listen,
   once,
-  sleep,
   waitUntil,
 } from './events';
 export type { EventSource } from './events';

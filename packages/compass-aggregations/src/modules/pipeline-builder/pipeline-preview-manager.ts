@@ -1,5 +1,5 @@
 import type { AggregateOptions, Document } from 'mongodb';
-import { abortable, sleep } from '@mongodb-js/compass-events';
+import { abortable, cancellableWait } from '@mongodb-js/compass-events';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE,
@@ -111,7 +111,7 @@ export class PipelinePreviewManager {
       signal: controller.signal,
     });
     if (!force) {
-      await sleep(
+      await cancellableWait(
         options.debounceMs ?? DEFAULT_PREVIEW_DEBOUNCE_MS,
         undefined,
         controller

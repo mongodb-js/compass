@@ -7,7 +7,7 @@ import {
   once,
   abortable,
   addAbortListener,
-  sleep,
+  cancellableWait,
   waitUntil,
 } from './events';
 
@@ -327,7 +327,7 @@ describe('events', function () {
     });
   });
 
-  describe('sleep', function () {
+  describe('cancellableWait', function () {
     let clock: sinon.SinonFakeTimers;
 
     beforeEach(function () {
@@ -339,21 +339,23 @@ describe('events', function () {
     });
 
     it('resolves with the value after the delay', async function () {
-      const pending = sleep(100, 'done');
+      const pending = cancellableWait(100, 'done');
       await clock.tickAsync(100);
       expect(await pending).to.equal('done');
     });
 
     it('does not resolve before the delay', async function () {
       let settled = false;
-      void sleep(100).then(() => (settled = true));
+      void cancellableWait(100).then(() => (settled = true));
       await clock.tickAsync(99);
       expect(settled).to.equal(false);
     });
 
     it('rejects with the reason when the signal aborts', async function () {
       const controller = new AbortController();
-      const pending = sleep(100, undefined, { signal: controller.signal });
+      const pending = cancellableWait(100, undefined, {
+        signal: controller.signal,
+      });
       controller.abort(new Error('stop'));
       const error = await pending.catch((err: Error) => err);
       expect(error).to.be.instanceOf(Error).with.property('message', 'stop');
@@ -361,7 +363,7 @@ describe('events', function () {
     });
 
     it('rejects straight away for an already aborted signal', async function () {
-      const error = await sleep(100, undefined, {
+      const error = await cancellableWait(100, undefined, {
         signal: AbortSignal.abort(new Error('already')),
       }).catch((err: Error) => err);
       expect(error).to.be.instanceOf(Error).with.property('message', 'already');
@@ -371,7 +373,9 @@ describe('events', function () {
     it('removes the abort listener after resolving', async function () {
       const controller = new AbortController();
       const removeSpy = sinon.spy(controller.signal, 'removeEventListener');
-      const pending = sleep(100, undefined, { signal: controller.signal });
+      const pending = cancellableWait(100, undefined, {
+        signal: controller.signal,
+      });
       await clock.tickAsync(100);
       await pending;
       expect(removeSpy).to.have.been.calledOnceWith('abort');

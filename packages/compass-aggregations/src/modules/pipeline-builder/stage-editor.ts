@@ -6,7 +6,7 @@ import {
   ExperimentTestGroups,
   ExperimentTestNames,
 } from '@mongodb-js/compass-telemetry/provider';
-import { sleep } from '@mongodb-js/compass-events';
+import { cancellableWait } from '@mongodb-js/compass-events';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
@@ -399,7 +399,7 @@ export const loadStagePreview = (
                   return null;
                 }
 
-                await sleep(
+                await cancellableWait(
                   DEFAULT_PREVIEW_DEBOUNCE_MS,
                   undefined,
                   metadataAbortController
