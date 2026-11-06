@@ -28,20 +28,13 @@ export type CompassMcpTelemetryConfig = {
   logger: LoggerBase;
   keychain: IKeychain;
   serverMetadata: ServerMetadata;
-  /**
-   * Atlas API base URL, derived from the Atlas service backend preset. Falls
-   * back to production when the renderer does not provide one.
-   */
+  /** Atlas API base URL. Defaults to production when not provided. */
   apiBaseUrl?: string;
 };
 
 /**
- * MCP telemetry for Compass's in-memory Database Tools server.
- *
- * Adds the `hosting_mode` property the v1 integration set, and reads the usage
- * statistics preference live so toggling it needs no restart. Nothing is set up
- * — no machine id, no container probe, no send timer — until the first event
- * the preference allows through.
+ * MCP telemetry for Compass's in-memory Database Tools server. Nothing is set
+ * up until the first event the usage-statistics preference allows through.
  */
 export class CompassMcpTelemetry extends AtlasTelemetry {
   private readonly isEnabled: () => boolean;
@@ -57,8 +50,8 @@ export class CompassMcpTelemetry extends AtlasTelemetry {
   }
 
   public override emitEvents(events: TelemetryBaseEvent[]): void {
-    // ToolBase checks isTelemetryEnabled() before emitting, so setup only runs
-    // for events the preference actually allows.
+    // ToolBase checks isTelemetryEnabled() first, so setup only runs for
+    // allowed events.
     if (this.isTelemetryEnabled() && !this.setupStarted) {
       this.setupStarted = true;
       void this.setup();
@@ -67,8 +60,7 @@ export class CompassMcpTelemetry extends AtlasTelemetry {
   }
 
   public override async close(): Promise<void> {
-    // Abort first: `super.close()` waits for setup, which waits on the machine
-    // id, so aborting afterwards would be too late to shorten shutdown.
+    // Abort first: `super.close()` waits for setup, which waits on the machine id.
     this.deviceId.close();
     // Flush before releasing the client the drain sends through.
     await super.close();

@@ -162,8 +162,7 @@ describe('ToolsHost', function () {
       ]);
     };
 
-    // Tool telemetry is fire-and-forget, and the pipeline only drains on close
-    // or on its timer, so give the event time to reach the client.
+    // Telemetry is fire-and-forget and only drains on close or the timer, so wait.
     const waitForSend = async () => {
       const deadline = Date.now() + 2000;
       while (!sendEvents.called && Date.now() < deadline) {

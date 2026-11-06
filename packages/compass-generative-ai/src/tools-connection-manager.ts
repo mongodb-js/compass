@@ -28,9 +28,8 @@ export const DATABASE_TOOLS_TELEMETRY_APP_NAME = 'Database Tools';
 const DEFAULT_TELEMETRY_APP_NAME = 'MongoDB Compass';
 
 /**
- * The single connection handle Compass Database Tools expose to the MCP tools.
- * Compass drives the connection itself (see {@link ToolsConnectionManager}), so
- * the tools only ever need one opaque id to address it by.
+ * The handle MCP tools use to address Compass's single connection; Compass
+ * drives that connection itself (see {@link ToolsConnectionManager}).
  */
 export const COMPASS_CONNECTION_ID = 'compass';
 
@@ -131,9 +130,8 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       const serviceProvider = await NodeDriverServiceProvider.connect(
         connectionString,
         {
-          // mongodb-mcp-server v3 replaced the per-operation `maxTimeMS` with a
-          // connection-level `timeoutMS`, so the Compass preference has to be
-          // applied as the driver timeout.
+          // v3 dropped the per-operation `maxTimeMS`; apply the Compass
+          // preference as the connection's driver `timeoutMS`.
           timeoutMS: this.getMaxTimeMS() ?? 30_000,
           readPreference: 'secondaryPreferred',
           readConcern: {
@@ -204,14 +202,9 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
 }
 
 /**
- * A {@link ConnectionRegistry} view over the single Compass connection.
- *
- * mongodb-mcp-server v3 resolves every MongoDB tool call through a connection
- * registry keyed by an opaque `connectionId`, but Compass owns its connection
- * lifecycle (the user's sidebar connection) and only ever has one live at a
- * time. This adapter exposes that connection under
- * {@link COMPASS_CONNECTION_ID} so the tools can resolve it without Compass
- * having to run the library's connection store.
+ * Exposes Compass's single sidebar connection to v3's `connectionId`-keyed
+ * registry as {@link COMPASS_CONNECTION_ID}, without running the library's
+ * connection store.
  */
 export class ToolsConnectionRegistry implements ConnectionRegistry {
   private readonly entry: ConnectionEntry;

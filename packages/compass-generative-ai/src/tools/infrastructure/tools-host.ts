@@ -47,9 +47,8 @@ type ToolsHostConfig = {
   logger: Logger;
 };
 
-// Reported to telemetry as `mcp_server_version` (and in the API client's
-// User-Agent). `HADRON_APP_VERSION` is inlined at build time for the desktop
-// utility; compass-web's process shim has an empty env, so keep a fallback.
+// `HADRON_APP_VERSION` is inlined at build time for the desktop utility;
+// compass-web's process shim has an empty env, so keep the fallback.
 const serverMetadata: ServerMetadata = {
   mcpServerName: 'mongodb-compass',
   version: process.env.HADRON_APP_VERSION ?? '0.0.0',
@@ -120,8 +119,7 @@ export class ToolsHost {
     this.telemetry = telemetry;
 
     const server: CompassToolServer = {
-      // Defaults mirror `UserConfigSchema`; Compass only exposes read-only tools,
-      // so the write- and Atlas-specific options are unused.
+      // Defaults mirror `UserConfigSchema`; Compass only exposes read-only tools.
       config: {
         transport: 'stdio',
         httpResponseType: 'sse',
@@ -200,8 +198,7 @@ export class ToolsHost {
           telemetryAnonymousId?: string;
           atlasBaseUrl?: string;
         };
-        // The telemetry pipeline reads the preference live, so flipping this
-        // takes effect on the next event without a restart.
+        // The telemetry pipeline reads the preference live, so no restart is needed.
         this.enableMCPTelemetry = enableMCPTelemetry;
         this.maxTimeMS = maxTimeMS;
         if (telemetryAnonymousId !== undefined) {
