@@ -123,14 +123,6 @@ describe('StageParser', function () {
           expression: `{match: {}}`,
           errorMessage: "Unrecognized pipeline stage name: 'match'",
         },
-        {
-          expression: `{$match: {query}}`,
-          errorMessage: 'Stage value is invalid',
-        },
-        {
-          expression: `{$match: {_id: Math.random()}}`,
-          errorMessage: 'Stage value is invalid',
-        },
       ];
 
       invalidStages.forEach(({ expression, errorMessage }) => {

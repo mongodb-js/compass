@@ -10,8 +10,11 @@ import {
   isStageLike,
   StageAssertionErrorCodes,
 } from './pipeline-parser/stage-parser';
-import type { PipelineParserError } from './pipeline-parser/utils';
-import { generate, parseShellBSON } from './pipeline-parser/utils';
+import {
+  generate,
+  parseShellBSON,
+  type PipelineParserError,
+} from './pipeline-parser/utils';
 import { getId } from './stage-ids';
 
 function createStageNode({
@@ -92,11 +95,43 @@ export default class Stage {
     return this;
   }
 
+  /**
+   * Records shell parser errors that babel validation can't catch (e.g.
+   * `ObjectId("invalid")`). The parser only runs async, in a worker.
+   */
+  async validateWithParser(): Promise<void> {
+    if (this.syntaxError || this.disabled) {
+      return;
+    }
+    const { operator, value } = this;
+    // If there's no operator, we show that warning, so let's
+    // skip the validation part.
+    if (!value || !this.operator) {
+      return;
+    }
+    try {
+      // Parse only the value so error positions match the stage editor text
+      await parseShellBSON(value);
+    } catch (e) {
+      // Stage might have been edited while parsing
+      if (
+        this.operator === operator &&
+        this.value === value &&
+        !this.syntaxError
+      ) {
+        this.syntaxError = e as PipelineParserError;
+      }
+    }
+  }
+
   changeOperator(operator: string) {
     this.operator = operator;
     try {
       if (!isStageLike(this.node, true)) {
-        this.node = createStageNode({ key: operator });
+        this.node = createStageNode({
+          key: operator,
+          value: this.value ?? undefined,
+        });
       } else {
         this.node.properties[0].key = { type: 'Identifier', name: operator };
       }
@@ -164,10 +199,10 @@ export default class Stage {
       .join('\n');
   }
 
-  toBSON() {
+  async toBSON(): Promise<Document | null> {
     if (this.disabled) {
       return null;
     }
-    return parseShellBSON<Document>(this.toString());
+    return await parseShellBSON<Document>(this.toString());
   }
 }

@@ -49,10 +49,13 @@ module.exports = (_env, args) => {
     ),
   });
 
-  // Every directory in src/utilities is a utility process: its entry is
-  // `<name>/index.mts` and it is built to `<name>.mjs`, which main forks.
-  // Adding a utility means adding a directory, nothing here.
-  const utilitiesDir = path.resolve(__dirname, 'src', 'utilities');
+  // Every directory in @mongodb-js/compass-utilities is a utility process: its
+  // entry is `<name>/index.mts` and it is built to `<name>.mjs`, which main
+  // forks. Adding a utility means adding a directory there, nothing here.
+  const utilitiesDir = path.join(
+    path.dirname(require.resolve('@mongodb-js/compass-utilities/package.json')),
+    'src'
+  );
   const utilityEntries = Object.fromEntries(
     fs
       .readdirSync(utilitiesDir, { withFileTypes: true })
@@ -63,6 +66,11 @@ module.exports = (_env, args) => {
   const utilitiesConfig = withoutStartElectron(
     createElectronMainConfig({
       ...opts,
+      // Utilities are never coverage instrumented: istanbul's preamble calls
+      // `new Function('return this')`, and utility processes are forked with
+      // NODE_OPTIONS forbidding code generation from strings (application.ts),
+      // so an instrumented utility crashes on load.
+      coverage: '',
       entry: utilityEntries,
       outputFilename: '[name].mjs',
     })
@@ -200,13 +208,34 @@ module.exports = (_env, args) => {
           'web-worker',
         ].map((name) => [name, `node-commonjs ${name}`])
       ),
-      plugins: [
-        new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // Main forks one file per utility
-        new webpack.optimize.LimitChunkCountPlugin({
-          maxChunks: Object.keys(utilityEntries).length,
-        }),
-      ],
+      resolve: {
+        alias: {
+          // Same as the renderer: Atlas Local is a native dependency the app
+          // does not ship for this flow, and bundling it only adds megabytes
+          '@mongodb-js/atlas-local': false,
+        },
+      },
+      // Utilities share the heavy Node-side dependencies (the driver, the MCP
+      // server, their transitive graph) instead of every utility bundling its
+      // own copy.
+      optimization: {
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            // Only the sharing rule: everything else stays in the utility that
+            // uses it, so this does not fragment the output
+            default: false,
+            defaultVendors: false,
+            utilitiesVendor: {
+              name: 'utilities-vendor',
+              chunks: 'all',
+              minChunks: 2,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      },
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
     merge(preloadConfig, {
       name: 'preload',

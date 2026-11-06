@@ -81,6 +81,49 @@ describe('Stage', function () {
 }`);
   });
 
+  describe('validateWithParser', function () {
+    [`{query}`, `{_id: Math.random()}`, `{_id: ObjectId('invalid')}`].forEach(
+      (value) => {
+        it(`records parser error for ${value}`, async function () {
+          stage.changeOperator('$match');
+          stage.changeValue(value);
+          expect(stage.syntaxError).to.be.null;
+
+          await stage.validateWithParser();
+
+          expect(stage.syntaxError).to.have.property(
+            'code',
+            'InvalidStageValue'
+          );
+        });
+      }
+    );
+
+    it('records parser error location relative to the stage value', async function () {
+      stage.changeOperator('$match');
+      stage.changeValue(`{\n  _id: ObjectId('invalid')\n}`);
+
+      await stage.validateWithParser();
+
+      expect(stage.syntaxError?.loc).to.deep.equal({
+        line: 2,
+        column: 7,
+        index: 9,
+      });
+    });
+
+    it('keeps valid stage without errors', async function () {
+      stage.changeOperator('$addFields');
+      stage.changeValue(
+        `{f: {$function: {body: function(x) { return x; }, args: [], lang: 'js'}}}`
+      );
+
+      await stage.validateWithParser();
+
+      expect(stage.syntaxError).to.be.null;
+    });
+  });
+
   describe('isEmpty', function () {
     it("returns true when stage doesn't have value and operator", function () {
       const ast = babelParser.parseExpression(`{}`);

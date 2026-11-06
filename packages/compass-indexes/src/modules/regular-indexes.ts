@@ -1,5 +1,8 @@
 import { isEqual, pick } from 'lodash';
-import type { IndexBuildProgress, IndexDefinition } from 'mongodb-data-service';
+import type {
+  IndexBuildProgress,
+  IndexDefinition,
+} from '@mongodb-js/mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,

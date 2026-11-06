@@ -247,16 +247,18 @@ export function mapSearchStageOperatorToSearchIndexType(
  * Extracts the search index name from a $search, $searchMeta, or $vectorSearch stage.
  * Returns null if the stage value cannot be parsed or doesn't contain an index field.
  */
-export function getSearchIndexNameFromSearchStage(
+export async function getSearchIndexNameFromSearchStage(
   stageOperator: string | null,
   stageValue: string | null
-): string | null {
+): Promise<string | null> {
   if (!stageOperator || !stageValue || !isSearchStage(stageOperator)) {
     return null;
   }
 
   try {
-    const stage = parseShellBSON<Document>(`{${stageOperator}: ${stageValue}}`);
+    const stage = await parseShellBSON<Document>(
+      `{${stageOperator}: ${stageValue}}`
+    );
     const indexName = stage[stageOperator]?.index;
     return typeof indexName === 'string' ? indexName : null;
   } catch {
@@ -264,36 +266,54 @@ export function getSearchIndexNameFromSearchStage(
   }
 }
 
+export type SearchStageInfo = {
+  searchIndexName: string | null;
+  searchStageOperator: SearchStageOperator | null;
+};
+
+export const NO_SEARCH_STAGE_INFO: SearchStageInfo = {
+  searchIndexName: null,
+  searchStageOperator: null,
+};
+
+/**
+ * Extracts the stage operator and index name from the first stage of an
+ * already parsed pipeline. Search stages must be the first stage in a pipeline.
+ */
+export function getSearchStageInfoFromParsedPipeline(
+  pipeline: unknown
+): SearchStageInfo {
+  if (!Array.isArray(pipeline) || pipeline.length === 0) {
+    return NO_SEARCH_STAGE_INFO;
+  }
+
+  const firstStage = pipeline[0] as Document;
+  const stageOperator = getStageOperator(firstStage);
+
+  if (!isSearchStage(stageOperator)) {
+    return NO_SEARCH_STAGE_INFO;
+  }
+
+  const indexName = firstStage[stageOperator]?.index;
+  return {
+    searchIndexName: typeof indexName === 'string' ? indexName : null,
+    searchStageOperator: stageOperator,
+  };
+}
+
 /**
  * Finds the search stage ($search, $searchMeta, or $vectorSearch) in a pipeline
  * and extracts both the stage operator and index name from it.
- * Search stages must be the first stage in a pipeline.
  */
-export function getSearchStageInfoFromPipeline(pipelineText: string): {
-  searchIndexName: string | null;
-  searchStageOperator: SearchStageOperator | null;
-} {
-  const invalid = { searchIndexName: null, searchStageOperator: null };
+export async function getSearchStageInfoFromPipeline(
+  pipelineText: string
+): Promise<SearchStageInfo> {
   try {
-    const pipeline = parseShellBSON<Document[]>(pipelineText);
-    if (!Array.isArray(pipeline) || pipeline.length === 0) {
-      return invalid;
-    }
-
-    const firstStage = pipeline[0];
-    const stageOperator = getStageOperator(firstStage);
-
-    if (!isSearchStage(stageOperator)) {
-      return invalid;
-    }
-
-    const indexName = firstStage[stageOperator]?.index;
-    return {
-      searchIndexName: typeof indexName === 'string' ? indexName : null,
-      searchStageOperator: stageOperator,
-    };
+    return getSearchStageInfoFromParsedPipeline(
+      await parseShellBSON<Document[]>(pipelineText)
+    );
   } catch {
-    return invalid;
+    return NO_SEARCH_STAGE_INFO;
   }
 }
 
@@ -373,40 +393,41 @@ export const getStageHelpLink = (
 };
 
 export function getStageInfo(
-  namespace: string,
   stageOperator: string | null,
-  stageValue: string | undefined | null,
   enableAutoEmbeddingPublicPreview = false
-): { description?: string; link: string | null; destination: string | null } {
+): { description?: string; link: string | null } {
   const stage = stageOperator
     ? getStageOperatorsMap(enableAutoEmbeddingPublicPreview).get(stageOperator)
     : undefined;
   return {
     description: stage?.description,
     link: getStageHelpLink(stageOperator),
-    destination:
-      stageOperator && isOutputStage(stageOperator)
-        ? (() => {
-            try {
-              const stage = parseShellBSON<Document>(
-                `{${stageOperator}: ${stageValue}}`
-              );
-              if (stage[stageOperator].s3) {
-                return 'S3 bucket';
-              }
-              if (
-                stage[stageOperator].atlas ||
-                stage[stageOperator].into?.atlas
-              ) {
-                return 'Atlas cluster';
-              }
-              return getDestinationNamespaceFromStage(namespace, stage);
-            } catch {
-              return null;
-            }
-          })()
-        : null,
   };
+}
+
+/**
+ * Where an output stage ($out / $merge) writes its documents, or null for
+ * other stages and values that can't be parsed.
+ */
+export function getStageDestination(
+  namespace: string,
+  stage: Document
+): string | null {
+  const stageOperator = getStageOperator(stage);
+  if (!stageOperator) {
+    return null;
+  }
+  if (!isOutputStage(stageOperator)) {
+    return null;
+  }
+  const stageValue = stage[stageOperator];
+  if (stageValue?.s3) {
+    return 'S3 bucket';
+  }
+  if (stageValue?.atlas || stageValue?.into?.atlas) {
+    return 'Atlas cluster';
+  }
+  return getDestinationNamespaceFromStage(namespace, stage);
 }
 
 /**

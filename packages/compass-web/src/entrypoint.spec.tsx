@@ -6,7 +6,7 @@ import {
   userEvent,
   MockDataService as TestHelpersMockDataService,
 } from '@mongodb-js/testing-library-compass';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectFnProvider } from '@mongodb-js/compass-connections';
@@ -103,13 +103,13 @@ describe('CompassWeb', function () {
     await renderCompassWebAndConnect();
 
     await waitFor(() => {
-      screen.getByText('Connecting to localhost:27017');
+      expect(
+        mockConnectFn.getCall(0).args[0].connectionOptions
+      ).to.have.property(
+        'connectionString',
+        'mongodb://localhost:27017/?appName=Compass+Web'
+      );
     });
-
-    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.have.property(
-      'connectionString',
-      'mongodb://localhost:27017/?appName=Compass+Web'
-    );
 
     await waitFor(() => {
       screen.getByText('Connected to localhost:27017');

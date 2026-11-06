@@ -1,3 +1,4 @@
+import { MessageChannel } from 'node:worker_threads';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -8,17 +9,16 @@ import {
   type PreferencesAccess,
 } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
-import { DeviceId } from '@mongodb-js/mcp-tools-mongodb';
-import { ApiClient } from '@mongodb-js/mcp-atlas-api-client';
-import type { ITelemetry } from '@mongodb-js/mcp-types';
 import type { ToolsConnectParams } from './tools-connection-manager';
-import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
+import { ToolsHost } from './tools/infrastructure/tools-host';
 import type { ToolGroup } from './tools-controller';
 import { ToolsController } from './tools-controller';
-import type { CompassMcpTelemetry } from './compass-mcp-telemetry';
 
 describe('ToolsController', function () {
+  // The MCP server starts in the utility host on the other end of the port;
+  // starting it and registering tools is not instant.
+  this.timeout(10_000);
+
   let sandbox: sinon.SinonSandbox;
   let logger: Logger;
   let toolsController: ToolsController;
@@ -28,6 +28,47 @@ describe('ToolsController', function () {
 
   const baseTools = ['atlas-connection-error-debugger'];
 
+  // Every controller gets its own channel with a real ToolsHost on the other
+  // end, so the tests exercise the whole rpc boundary.
+  const openChannels: MessageChannel[] = [];
+  const openHosts: ToolsHost[] = [];
+
+  /**
+   * setContext delivers the utility's config without awaiting the rpc call, so
+   * tests wait for the effect instead of guessing how long a message takes.
+   */
+  async function waitFor(
+    condition: () => boolean,
+    timeoutMs = 2000
+  ): Promise<void> {
+    const deadline = Date.now() + timeoutMs;
+    while (!condition() && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    }
+  }
+
+  const asRendererPort = (port: MessageChannel['port1']): MessagePort =>
+    port as unknown as MessagePort;
+
+  function createController(
+    overrides: Partial<ConstructorParameters<typeof ToolsController>[0]> = {}
+  ): ToolsController {
+    const channel = new MessageChannel();
+    const host = new ToolsHost(asRendererPort(channel.port2), { logger });
+    openChannels.push(channel);
+    openHosts.push(host);
+    return new ToolsController({
+      enableMCPTelemetry: false,
+      logger,
+      getTelemetryAnonymousId,
+      track: createNoopTrack(),
+      preferences,
+      atlasAdminApi,
+      openPort: () => asRendererPort(channel.port1),
+      ...overrides,
+    });
+  }
+
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
     logger = createNoopLogger();
@@ -35,18 +76,20 @@ describe('ToolsController', function () {
     preferences = await createSandboxFromDefaultPreferences();
     atlasAdminApi = {} as AtlasAdminApiService;
 
-    toolsController = new ToolsController({
-      enableMCPTelemetry: false,
-      logger,
-      getTelemetryAnonymousId,
-      track: createNoopTrack(),
-      preferences,
-      atlasAdminApi,
-    });
+    toolsController = createController();
   });
 
   afterEach(async function () {
     await toolsController.stopServer();
+    for (const host of openHosts) {
+      await host.stop();
+    }
+    for (const channel of openChannels) {
+      channel.port1.close();
+      channel.port2.close();
+    }
+    openChannels.length = 0;
+    openHosts.length = 0;
     sandbox.restore();
   });
 
@@ -58,10 +101,6 @@ describe('ToolsController', function () {
     it('initializes with empty tool groups', function () {
       const tools = toolsController.getActiveTools();
       expect(Object.keys(tools)).to.have.lengthOf(baseTools.length);
-    });
-
-    it('server is initially undefined', function () {
-      expect(toolsController.server).to.be.undefined;
     });
   });
 
@@ -249,14 +288,7 @@ describe('ToolsController', function () {
       });
 
       it('ignores db tools if the server is not started', function () {
-        const newController = new ToolsController({
-          enableMCPTelemetry: false,
-          logger,
-          getTelemetryAnonymousId,
-          track: createNoopTrack(),
-          preferences,
-          atlasAdminApi,
-        });
+        const newController = createController();
         newController.setActiveTools(new Set(['db-read']));
 
         expect(Object.keys(newController.getActiveTools())).to.deep.equal(
@@ -281,31 +313,8 @@ describe('ToolsController', function () {
         ];
 
         for (const toolName of readonlyToolNames) {
-          expect(tools).to.have.property(toolName);
+          expect(tools, toolName).to.have.property(toolName);
         }
-      });
-
-      it('ensures all read only database tools are retrievable from the server after initialization', function () {
-        expect(toolsController.server).to.not.be.undefined;
-        expect(toolsController.server?.tools).to.not.be.undefined;
-
-        const serverTools = toolsController.server?.tools ?? [];
-        const serverToolNames = serverTools.map((tool) => tool.name);
-
-        for (const tool of READ_ONLY_DATABASE_TOOLS) {
-          expect(
-            serverToolNames,
-            `Expected server to have tool: ${tool.name}`
-          ).to.include(tool.name);
-        }
-
-        // Verify the count matches
-        expect(
-          serverToolNames.filter((name) =>
-            READ_ONLY_DATABASE_TOOLS.map((t) => t.name).includes(name)
-          ).length,
-          'Expected all READ_ONLY_DATABASE_TOOLS to be in server tools'
-        ).to.equal(READ_ONLY_DATABASE_TOOLS.length);
       });
 
       it('does not include non-readonly tools', function () {
@@ -316,12 +325,11 @@ describe('ToolsController', function () {
         expect(tools).to.not.have.property('update-many');
       });
 
-      it('database tools have needsApproval and strict properties', function () {
+      it('database tools have needsApproval property', function () {
         const tools = toolsController.getActiveTools();
         const listDatabasesTool = tools['list-databases'];
 
         expect(listDatabasesTool).to.have.property('needsApproval', true);
-        expect(listDatabasesTool).to.have.property('strict', true);
       });
 
       it('collection-schema tool has a custom description that instructs the model to use it before queries and aggregations', function () {
@@ -434,202 +442,64 @@ describe('ToolsController', function () {
       expect(result.query).to.equal('new query');
     });
 
-    it('syncs maxTimeMS setting with the tools config', async function () {
+    it('uses the context set before startup when the server starts', async function () {
+      // Context often arrives before the first message starts the utility;
+      // those values must not be replaced by the constructor defaults.
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        maxTimeMS: 1234,
+        connections: [],
+      });
+
       await toolsController.startServer();
+      const host = openHosts[0] as any;
+
+      await waitFor(() => host.maxTimeMS === 1234);
+      expect(host.enableMCPTelemetry).to.equal(true);
+      expect(host.maxTimeMS).to.equal(1234);
+      expect(host.server.config.maxTimeMS).to.equal(1234);
+    });
+
+    it('syncs telemetry setting with the utility host', async function () {
+      await toolsController.startServer();
+      const host = openHosts[0] as any;
+
+      toolsController.setContext({
+        enableMCPTelemetry: true,
+        connections: [],
+      });
+      await waitFor(() => host.enableMCPTelemetry === true);
+      expect(host.enableMCPTelemetry).to.equal(true);
+
+      toolsController.setContext({
+        enableMCPTelemetry: false,
+        connections: [],
+      });
+      await waitFor(() => host.enableMCPTelemetry === false);
+      expect(host.enableMCPTelemetry).to.equal(false);
+    });
+
+    it('syncs maxTimeMS setting with the utility host', async function () {
+      await toolsController.startServer();
+      const host = openHosts[0] as any;
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: 5000,
         connections: [],
       });
-      expect(toolsController.server?.config.maxTimeMS).to.equal(5000);
+      await waitFor(() => host.server.config.maxTimeMS === 5000);
+      expect(host.maxTimeMS).to.equal(5000);
+      expect(host.server.config.maxTimeMS).to.equal(5000);
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: undefined,
         connections: [],
       });
-      expect(toolsController.server?.config.maxTimeMS).to.equal(undefined);
-    });
-
-    it('applies maxTimeMS set before the server starts', async function () {
-      toolsController.setContext({
-        enableMCPTelemetry: false,
-        maxTimeMS: 5000,
-        connections: [],
-      });
-
-      await toolsController.startServer();
-
-      expect(toolsController.server?.config.maxTimeMS).to.equal(5000);
-    });
-  });
-
-  describe('MCP telemetry', function () {
-    let createDeviceId: sinon.SinonStub;
-
-    beforeEach(function () {
-      createDeviceId = sandbox.stub(DeviceId, 'create').returns({
-        get: sandbox.stub().resolves('test-device-id'),
-        close: sandbox.stub(),
-      } as any);
-    });
-
-    const emitEvent = (telemetry: ITelemetry | undefined) => {
-      telemetry?.emitEvents([
-        {
-          timestamp: new Date().toISOString(),
-          source: 'mdbmcp',
-          properties: {},
-        },
-      ]);
-    };
-
-    it('syncs telemetry setting with the tools config', async function () {
-      await toolsController.startServer();
-
-      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
-        false
-      );
-
-      toolsController.setContext({
-        enableMCPTelemetry: true,
-        connections: [],
-      });
-      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
-        true
-      );
-
-      toolsController.setContext({
-        enableMCPTelemetry: false,
-        connections: [],
-      });
-      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
-        false
-      );
-    });
-
-    it('honours the preference set before the server starts', async function () {
-      toolsController.setContext({
-        enableMCPTelemetry: true,
-        connections: [],
-      });
-
-      await toolsController.startServer();
-
-      expect(toolsController.server?.telemetry.isTelemetryEnabled()).to.equal(
-        true
-      );
-    });
-
-    it('resolves no device id while telemetry is disabled', async function () {
-      await toolsController.startServer();
-
-      emitEvent(toolsController.server?.telemetry);
-
-      expect(createDeviceId.called).to.equal(false);
-    });
-
-    it('starts the pipeline on the first event once enabled', async function () {
-      await toolsController.startServer();
-      toolsController.setContext({
-        enableMCPTelemetry: true,
-        connections: [],
-      });
-
-      emitEvent(toolsController.server?.telemetry);
-
-      expect(createDeviceId.calledOnce).to.equal(true);
-    });
-
-    it('stamps the Compass hosting mode on every event', async function () {
-      await toolsController.startServer();
-      const telemetry = toolsController.server
-        ?.telemetry as unknown as CompassMcpTelemetry;
-
-      expect(telemetry.getCommonProperties()).to.have.property(
-        'hosting_mode',
-        'compass'
-      );
-    });
-
-    describe('when a database tool runs', function () {
-      let sendEvents: sinon.SinonStub;
-
-      beforeEach(async function () {
-        sendEvents = sandbox.stub(ApiClient.prototype, 'sendEvents').resolves();
-        sandbox.stub(NodeDriverServiceProvider, 'connect').resolves({
-          close: sandbox.stub().resolves(),
-          initialDb: 'test',
-          listDatabases: sandbox.stub().resolves({
-            databases: [{ name: 'admin', sizeOnDisk: 1024 }],
-          }),
-        } as any);
-
-        await toolsController.startServer();
-        toolsController.setActiveTools(new Set(['db-read']));
-        toolsController.setConnectionIdForToolCall({
-          toolCallId: 'call-1',
-          connectionId: 'conn-1',
-        });
-      });
-
-      const setTelemetryEnabled = (enableMCPTelemetry: boolean) => {
-        toolsController.setContext({
-          enableMCPTelemetry,
-          connections: [
-            {
-              connectionId: 'conn-1',
-              connectionString: 'mongodb://localhost:27017',
-              connectOptions: {} as any,
-            },
-          ],
-        });
-      };
-
-      const runListDatabases = async () => {
-        const tools = toolsController.getActiveTools();
-        await tools['list-databases'].execute?.({}, {
-          toolCallId: 'call-1',
-        } as any);
-      };
-
-      // Tool telemetry is fire-and-forget, and the pipeline only drains on
-      // close or on its timer, so give the event time to reach the client.
-      const waitForSend = async () => {
-        const deadline = Date.now() + 2000;
-        while (!sendEvents.called && Date.now() < deadline) {
-          await new Promise((resolve) => setTimeout(resolve, 5));
-        }
-      };
-
-      it('reports the tool call to the Atlas API client', async function () {
-        setTelemetryEnabled(true);
-        await runListDatabases();
-        await toolsController.stopServer();
-        await waitForSend();
-
-        expect(sendEvents.called).to.equal(true);
-        const [events] = sendEvents.firstCall.args;
-        expect(events[0].properties).to.include({
-          command: 'list-databases',
-          component: 'tool',
-          category: 'mongodb',
-          result: 'success',
-          hosting_mode: 'compass',
-        });
-      });
-
-      it('reports nothing while telemetry is disabled', async function () {
-        setTelemetryEnabled(false);
-        await runListDatabases();
-        await toolsController.stopServer();
-
-        // Long enough for the fire-and-forget tool telemetry and the drain.
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        expect(sendEvents.called).to.equal(false);
-      });
+      await waitFor(() => host.server.config.maxTimeMS === undefined);
+      expect(host.maxTimeMS).to.equal(undefined);
+      expect(host.server.config.maxTimeMS).to.equal(undefined);
     });
   });
 
@@ -666,22 +536,48 @@ describe('ToolsController', function () {
 
   describe('server lifecycle', function () {
     describe('startServer', function () {
-      it('starts the MCP server', async function () {
-        expect(toolsController.server).to.be.undefined;
-
+      it('fetches the db tool definitions from the utility host', async function () {
         await toolsController.startServer();
+        toolsController.setActiveTools(new Set(['db-read']));
 
-        expect(toolsController.server).to.not.be.undefined;
+        expect(toolsController.getActiveTools()).to.have.property('find');
       });
 
-      it('does not restart server if already started', async function () {
-        await toolsController.startServer();
-        const firstServer = toolsController.server;
+      it('does not open a second port if already started', async function () {
+        const openPort = sandbox.stub().returns(openChannels[0].port1);
+        const controller = createController({ openPort });
 
-        await toolsController.startServer();
-        const secondServer = toolsController.server;
+        await controller.startServer();
+        await controller.startServer();
 
-        expect(firstServer).to.equal(secondServer);
+        expect(openPort.calledOnce).to.be.true;
+      });
+
+      it('shares one startup between concurrent calls', async function () {
+        const openPort = sandbox.stub().returns(openChannels[0].port1);
+        const controller = createController({ openPort });
+        controller.setActiveTools(new Set(['db-read']));
+
+        await Promise.all([controller.startServer(), controller.startServer()]);
+
+        expect(openPort.calledOnce).to.be.true;
+        expect(controller.getActiveTools()).to.have.property('find');
+      });
+
+      it('gives up on a utility that never answers', async function () {
+        this.timeout(20_000);
+        const silentChannel = new MessageChannel();
+        openChannels.push(silentChannel);
+        const controller = createController({
+          openPort: () => asRendererPort(silentChannel.port1),
+        });
+        controller.setActiveTools(new Set(['db-read']));
+
+        await controller.startServer();
+
+        expect(Object.keys(controller.getActiveTools())).to.deep.equal(
+          baseTools
+        );
       });
 
       it('logs when server starts successfully', async function () {
@@ -698,40 +594,20 @@ describe('ToolsController', function () {
           logStub.calledWith(
             sinon.match.number,
             'ToolsController',
-            'In-memory MCP server started successfully'
+            'Assistant tools utility process client started successfully'
           )
         ).to.be.true;
       });
 
       it('handles errors during server startup gracefully', async function () {
-        const errorController = new ToolsController({
-          enableMCPTelemetry: false,
-          logger,
-          getTelemetryAnonymousId,
-          track: createNoopTrack(),
-          preferences,
-          atlasAdminApi,
+        const errorController = createController({
+          getTelemetryAnonymousId: () => {
+            throw new Error('Telemetry error');
+          },
         });
-        sandbox
-          .stub(errorController as any, 'createServer')
-          .throws(new Error('Server creation error'));
-        const logStub = sandbox.stub(logger.log, 'error');
 
         // Should not throw even if there's an error
         await errorController.startServer();
-
-        expect(errorController.server).to.be.undefined;
-        for (const args of logStub.args) {
-          (args[0] as any) = args[0].__value;
-        }
-        expect(
-          logStub.calledWith(
-            sinon.match.number,
-            'ToolsController',
-            'Error when attempting to start MCP server'
-          )
-        ).to.be.true;
-
         // don't hang
         await errorController.stopServer();
       });
@@ -740,12 +616,22 @@ describe('ToolsController', function () {
     describe('stopServer', function () {
       it('stops the MCP server', async function () {
         await toolsController.startServer();
-        expect(toolsController.server).to.not.be.undefined;
 
         await toolsController.stopServer();
 
         // Server should be cleaned up
         expect(() => toolsController.stopServer()).to.not.throw();
+      });
+
+      it('drops the db tools after stopping', async function () {
+        await toolsController.startServer();
+        toolsController.setActiveTools(new Set(['db-read']));
+        expect(toolsController.getActiveTools()).to.have.property('find');
+
+        await toolsController.stopServer();
+        expect(Object.keys(toolsController.getActiveTools())).to.deep.equal(
+          baseTools
+        );
       });
 
       it('handles stop when server is not running', async function () {
@@ -756,11 +642,6 @@ describe('ToolsController', function () {
       });
 
       it('logs when server stops successfully', async function () {
-        // TODO: flushTimeout.unref is not a function
-        if ((process as any).type === 'renderer') {
-          return this.skip();
-        }
-
         await toolsController.startServer();
         const logStub = sandbox.stub(logger.log, 'info');
 
@@ -779,19 +660,6 @@ describe('ToolsController', function () {
           )
         ).to.be.true;
       });
-    });
-  });
-
-  describe('server property', function () {
-    it('returns undefined when server is not started', function () {
-      expect(toolsController.server).to.be.undefined;
-    });
-
-    it('returns server instance when started', async function () {
-      await toolsController.startServer();
-
-      expect(toolsController.server).to.not.be.undefined;
-      expect(toolsController.server).to.have.property('tools');
     });
   });
 
@@ -839,67 +707,6 @@ describe('ToolsController', function () {
       const result = await tools['get-current-query'].execute?.({}, {} as any);
 
       expect(result.query).to.equal(query);
-    });
-  });
-
-  describe('db-read tool execution', function () {
-    beforeEach(async function () {
-      sandbox.stub(NodeDriverServiceProvider, 'connect').resolves({
-        close: sandbox.stub().resolves(),
-        initialDb: 'test',
-        listDatabases: sandbox.stub().resolves({
-          databases: [{ name: 'admin', sizeOnDisk: 1024 }],
-        }),
-      } as any);
-
-      await toolsController.startServer();
-      toolsController.setActiveTools(new Set(['db-read']));
-      toolsController.setConnectionIdForToolCall({
-        toolCallId: 'call-1',
-        connectionId: 'conn-1',
-      });
-      toolsController.setContext({
-        enableMCPTelemetry: false,
-        connections: [
-          {
-            connectionId: 'conn-1',
-            connectionString: 'mongodb://localhost:27017',
-            connectOptions: {} as any,
-          },
-        ],
-      });
-    });
-
-    it('invokes the MCP tool against the Compass connection', async function () {
-      const tools = toolsController.getActiveTools();
-      const result: any = await tools['list-databases'].execute?.({}, {
-        toolCallId: 'call-1',
-      } as any);
-
-      expect(result.isError).to.not.equal(true);
-      expect(JSON.stringify(result.content)).to.include('admin');
-    });
-
-    it('does not expose the connection handle to the model', function () {
-      const tools = toolsController.getActiveTools();
-      const shape = (tools['list-databases'] as any).inputSchema.shape;
-
-      expect(shape).to.not.have.property('connectionId');
-    });
-
-    it('exposes schemas the model arguments can be validated against', function () {
-      const tools = toolsController.getActiveTools();
-      const schema = (tools['find'] as any).inputSchema;
-
-      expect(
-        schema.safeParse({
-          database: 'db',
-          collection: 'coll',
-          filter: { status: 'active' },
-          limit: 5,
-        }).success
-      ).to.equal(true);
-      expect(schema.safeParse({ database: 'db' }).success).to.equal(false);
     });
   });
 

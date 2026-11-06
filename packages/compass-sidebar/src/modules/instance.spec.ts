@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { spy, stub, type SinonSpy } from 'sinon';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type {

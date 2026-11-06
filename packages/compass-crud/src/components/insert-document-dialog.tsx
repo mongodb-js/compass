@@ -6,8 +6,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type Document from 'hadron-document';
-import { Element } from 'hadron-document';
+import type Document from '@mongodb-js/hadron-document';
+import { Element } from '@mongodb-js/hadron-document';
 import {
   Banner,
   css,
@@ -18,6 +18,7 @@ import {
   SegmentedControlOption,
   spacing,
   useSyncStateOnPropChange,
+  useParsedShellValue,
   InfoSprinkle,
   Code,
   Tooltip,
@@ -30,10 +31,7 @@ import { useSafeIntegerLinter } from '@mongodb-js/compass-editor';
 import type { Extension, EditorRef } from '@mongodb-js/compass-editor';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { InsertDocumentView, WriteError } from '../stores/crud-store';
-import {
-  parseInsertDocumentText,
-  toInsertHadronDocument,
-} from '../stores/crud-store';
+import { parseInsertEJSON, toInsertHadronDocument } from '../stores/crud-store';
 import { convertEJSONToShellSyntax } from '../utils/ejson-conversion';
 import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
@@ -44,9 +42,23 @@ import InsertDocumentEditor, {
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 
-/**
- * The insert invalid message.
- */
+const NOT_PARSED = { value: null, error: null } as const;
+
+function validateInsertValue(result: { value: unknown; error: Error | null }): {
+  value: unknown;
+  error: Error | null;
+} {
+  if (result.error) {
+    return result;
+  }
+  try {
+    toInsertHadronDocument(result.value);
+    return result;
+  } catch (error) {
+    return { value: null, error: error as Error };
+  }
+}
+
 const INSERT_INVALID_MESSAGE =
   'Insert not permitted while document contains errors.';
 
@@ -226,23 +238,34 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   // either the parsed value or the error, so the text is only parsed once per
   // change here. In the list view the editor text is not the source of truth,
   // so there is nothing to parse.
-  const parseResult = useMemo((): {
-    value: unknown;
-    error: Error | null;
-  } => {
-    if (insertView === 'list') {
-      return { value: null, error: null };
+  const shellParse = useParsedShellValue(
+    insertView === 'shell' ? editorText : ''
+  );
+  const ejsonParse = useMemo(() => {
+    if (insertView !== 'json') {
+      return NOT_PARSED;
     }
     try {
-      const value = parseInsertDocumentText(insertView, editorText);
-      // Not everything that parses can be inserted as a document, and that is
-      // part of what makes the text invalid.
-      toInsertHadronDocument(value);
-      return { value, error: null };
-    } catch (e) {
-      return { value: null, error: e as Error };
+      return { value: parseInsertEJSON(editorText), error: null };
+    } catch (error) {
+      return { value: null, error: error as Error };
     }
-  }, [editorText, insertView]);
+  }, [insertView, editorText]);
+
+  const parseResult = useMemo(() => {
+    if (insertView === 'list') {
+      return NOT_PARSED;
+    }
+    if (insertView === 'json') {
+      return validateInsertValue(ejsonParse);
+    }
+    return validateInsertValue({
+      value: shellParse.value ?? null,
+      error: shellParse.error ?? null,
+    });
+  }, [insertView, ejsonParse, shellParse.value, shellParse.error]);
+
+  const isTextParsePending = insertView === 'shell' && shellParse.pending;
 
   // The visual editor can only represent a single document, so disable it when
   // the editor holds an array.
@@ -314,6 +337,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   }, [doc, handleInvalid, handleValid]);
 
   const handleInsert = useCallback(() => {
+    if (isTextParsePending) {
+      return;
+    }
     setInsertInProgress(true);
     // This is kinda silly: the banner shows up for just a blip and immediately
     // disappears. There's probably a better way to deal with that state
@@ -325,7 +351,13 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     } else {
       insertDocument();
     }
-  }, [setInsertInProgress, insertMany, insertDocument, isManyDocuments]);
+  }, [
+    isTextParsePending,
+    setInsertInProgress,
+    insertMany,
+    insertDocument,
+    isManyDocuments,
+  ]);
 
   /**
    * Switches between the JSON, Shell, and Hadron Document views.
@@ -350,6 +382,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     failedConversion?.text === editorText ? failedConversion.message : null;
 
   const onFixEJSONToShellSyntax = useCallback(() => {
+    if (isTextParsePending) {
+      return;
+    }
     let succeeded = false;
     try {
       onChangeText(convertEJSONToShellSyntax(parseResult.value));
@@ -371,7 +406,15 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       { success: succeeded },
       connectionInfoRef.current
     );
-  }, [parseResult, editorText, onChangeText, logger, track, connectionInfoRef]);
+  }, [
+    isTextParsePending,
+    parseResult,
+    editorText,
+    onChangeText,
+    logger,
+    track,
+    connectionInfoRef,
+  ]);
 
   const {
     onFixViolations: onFixSafeIntegerViolations,
@@ -417,7 +460,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
       submitDisabled={Boolean(
-        documentValidationError || safeIntegerViolations.length > 0
+        isTextParsePending ||
+        documentValidationError ||
+        safeIntegerViolations.length > 0
       )}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
@@ -448,6 +493,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
               <SegmentedControlOption
                 key={option.value}
                 disabled={
+                  isTextParsePending ||
                   Boolean(documentValidationError) ||
                   hasSafeIntegerViolations ||
                   disabledForManyDocs
@@ -496,6 +542,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       {insertView === 'shell' && (
         <InsertEJSONConversionBanner
           parsedEditorText={parseResult.value}
+          isConvertDisabled={isTextParsePending}
           conversionError={conversionError}
           onConvert={onFixEJSONToShellSyntax}
         />

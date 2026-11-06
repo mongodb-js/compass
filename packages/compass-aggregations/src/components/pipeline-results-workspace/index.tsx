@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import {
   css,
   cx,

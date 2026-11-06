@@ -1,17 +1,16 @@
 import React from 'react';
-import {
-  cleanup,
-  render as _render,
-  screen,
-} from '@mongodb-js/testing-library-compass';
-import type { Stage } from '@mongodb-js/explain-plan-helper';
+import { render as _render, screen } from '@mongodb-js/testing-library-compass';
+import type {
+  SerializedExplainPlan,
+  Stage,
+} from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import { activatePlugin } from '../stores';
 import { ExplainPlanView } from './explain-plan-view';
 
-const simpleExplain = new ExplainPlan({
+const simpleExplainData = {
   queryPlanner: {
     plannerVersion: 1,
     namespace: 'test.test',
@@ -47,7 +46,7 @@ const simpleExplain = new ExplainPlan({
     allPlansExecution: [],
   },
   ok: 1,
-} as unknown as Stage).serialize();
+} as unknown as Stage;
 
 function render(props: React.ComponentProps<typeof ExplainPlanView>) {
   const { store } = activatePlugin(
@@ -63,7 +62,11 @@ function render(props: React.ComponentProps<typeof ExplainPlanView>) {
 }
 
 describe('ExplainPlanView', function () {
-  afterEach(cleanup);
+  let simpleExplain: SerializedExplainPlan;
+
+  before(async function () {
+    simpleExplain = await new ExplainPlan(simpleExplainData).serialize();
+  });
 
   it('should render explain plan', function () {
     render({

@@ -11,7 +11,7 @@ import {
   withDarkMode,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'hadron-document';
+import type { Document } from '@mongodb-js/hadron-document';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
 import {
   useIsLastAppliedQueryOutdated,

@@ -16,6 +16,8 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+import { EditorActionTypes } from './text-editor-pipeline';
+import type { EditorPipelineParsedAction } from './text-editor-pipeline';
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
@@ -67,8 +69,11 @@ const reducer: Reducer<PipelineModeState, Action> = (
 
 export const changePipelineMode = (
   newMode: PipelineMode
-): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
-  return (
+): PipelineBuilderThunkAction<
+  Promise<void>,
+  PipelineModeToggledAction | EditorPipelineParsedAction
+> => {
+  return async (
     dispatch,
     getState,
     { pipelineBuilder, track, connectionInfoRef }
@@ -77,35 +82,49 @@ export const changePipelineMode = (
       return;
     }
 
-    // Sync the PipelineBuilder
-    if (newMode === 'as-text') {
-      pipelineBuilder.stagesToSource();
-    } else {
-      pipelineBuilder.sourceToStages();
-    }
-
+    const parsedPromise =
+      newMode === 'as-text'
+        ? pipelineBuilder.stagesToSource()
+        : pipelineBuilder.sourceToStages();
+    const source = pipelineBuilder.source;
     dispatch({
       type: ActionTypes.PipelineModeToggled,
       mode: newMode,
-      pipelineText: pipelineBuilder.source,
-      pipeline: pipelineBuilder.pipeline,
+      pipelineText: source,
+      pipeline: newMode === 'as-text' ? null : pipelineBuilder.pipeline,
       syntaxErrors: pipelineBuilder.syntaxError,
       stages: pipelineBuilder.stages,
     });
 
-    const num_stages = getPipelineFromBuilderState(
-      getState(),
-      pipelineBuilder
-    ).length;
+    await parsedPromise;
+    if (
+      getState().pipelineBuilder.pipelineMode !== newMode ||
+      pipelineBuilder.source !== source
+    ) {
+      return;
+    }
+    dispatch({
+      type: EditorActionTypes.EditorPipelineParsed,
+      pipelineText: source,
+      pipeline: pipelineBuilder.pipeline,
+      syntaxErrors: pipelineBuilder.syntaxError,
+    });
 
-    track(
-      'Editor Type Changed',
-      {
-        num_stages,
-        editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      },
-      connectionInfoRef.current
-    );
+    try {
+      const num_stages = (
+        await getPipelineFromBuilderState(getState(), pipelineBuilder)
+      ).length;
+      track(
+        'Editor Type Changed',
+        {
+          num_stages,
+          editor_view_type: mapPipelineModeToEditorViewType(getState()),
+        },
+        connectionInfoRef.current
+      );
+    } catch {
+      // Pipeline with syntax errors, nothing to count
+    }
 
     dispatch(updatePipelinePreview());
   };

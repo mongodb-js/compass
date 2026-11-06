@@ -26,5 +26,6 @@ export function isUtilityPortChannel(
 export function openUtilityPort(name: string): MessagePort {
   const { port1, port2 } = new MessageChannel();
   window.postMessage({ type: utilityPortChannel(name) }, '*', [port2]);
+  port1.start();
   return port1;
 }

@@ -1,7 +1,7 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
 import { groupBy, sortBy, map } from 'lodash';
-import { getBsonType } from 'hadron-type-checker';
+import { getBsonType } from '@mongodb-js/hadron-type-checker';
 import many from './many';
 import shared from './shared';
 

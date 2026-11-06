@@ -261,7 +261,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
 
   /**
    * @param {{
-   *    dataService: import('mongodb-data-service').DataService,
+   *    dataService: import('@mongodb-js/mongodb-data-service').DataService,
    *    fetchInfo: boolean,
    *    force: boolean
    * }} options
@@ -312,7 +312,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
    * Fetches collection info and returns a special format of collection metadata
    * that events like open-in-new-tab, select-namespace, edit-view require
    * @param {{
-   *    dataService: import('mongodb-data-service').DataService,
+   *    dataService: import('@mongodb-js/mongodb-data-service').DataService,
    * }} options
    */
   async fetchMetadata({ dataService }) {
@@ -385,7 +385,7 @@ const CollectionCollection = AmpersandCollection.extend(
     model: CollectionModel,
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetch({ dataService }) {

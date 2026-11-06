@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import type { Action, AnyAction } from 'redux';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';

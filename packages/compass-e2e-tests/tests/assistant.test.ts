@@ -166,8 +166,10 @@ describe('MongoDB Assistant (with real backend)', function () {
 
   it('sends a message that results in a tool call request, approves it and renders the response', async function () {
     for (let attempt = 1; attempt <= 3; attempt++) {
+      // list-collections requires a database, so the tool call always has
+      // input and its card always starts expanded
       const chatMessages = await sendAndWaitForToolCall(
-        'Use the list-databases tool to list all databases'
+        `Use the list-collections tool to list all collections in the ${dbName} database`
       );
 
       // Approve the tool call
@@ -182,26 +184,17 @@ describe('MongoDB Assistant (with real backend)', function () {
         await browser.waitUntil(
           async () => {
             const text = await chatMessages.getText();
-            expect(text).to.include('Ran list-databases');
+            expect(text).to.include('Ran list-collections');
             return true;
           },
           { timeout: 20_000 }
         );
 
-        // Expand the tool call card to see the response
-        const expandButton = chatMessages.$(
-          'button[aria-label="Expand additional content"]'
-        );
-        await expandButton.waitForDisplayed();
-        await browser.clickVisible(expandButton);
-
-        // Wait for the expanded content to include the response with structuredContent.databases
         await browser.waitUntil(
           async () => {
-            // TODO: pick out just the pre tabparse this as JSON rather and then check the object
             const text = await chatMessages.getText();
             expect(text).to.include('structuredContent');
-            expect(text).to.include('databases');
+            expect(text).to.include('totalCount');
             return true;
           },
           {
