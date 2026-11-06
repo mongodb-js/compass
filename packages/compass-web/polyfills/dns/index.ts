@@ -1,4 +1,19 @@
-import { query, lookupTxt } from 'dns-query';
+// import { query, lookupTxt } from 'dns-query';
+
+// webpack@5.112.1 introduced some change related to globals detection that
+// now causes our URL being inserted into the bundled code causing override
+// after defined errors in compass-web specifically. try to repo and submit to
+// webpack, in the meantime we can probably workaround so that we can update
+// compass webpack to latest
+
+// commit with logic change in webpack https://github.com/webpack/webpack/pull/22862/changes
+
+function query(..._args: any[]): Promise<any> {
+  return Promise.resolve({ answers: undefined }) as any;
+}
+function lookupTxt(..._args: any[]): Promise<any> {
+  return Promise.resolve({ entries: [] }) as any;
+}
 
 const dohEndpoints = process.env.COMPASS_WEB_DOH_ENDPOINT ?? [
   'dns.google',

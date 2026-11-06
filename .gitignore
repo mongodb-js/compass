@@ -1,6 +1,7 @@
 npm-debug.log
 build
 dist
+dist-*
 node_modules
 .DS_Store
 .idea
