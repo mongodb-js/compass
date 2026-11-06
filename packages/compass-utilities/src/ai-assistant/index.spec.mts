@@ -2,7 +2,7 @@ import process from 'node:process';
 import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
 import type { MessagePortMain, ParentPort } from 'electron';
-import { main } from './index.mts';
+import { main } from './main.mts';
 
 function createFakePort(): MessagePortMain & { sent: unknown[] } {
   const sent: unknown[] = [];

@@ -82,6 +82,12 @@ export class ToolsController {
     this.currentConfig = { enableMCPTelemetry, maxTimeMS };
   }
 
+  private getAtlasBaseUrl(): string {
+    return getAtlasConfigForPreset(
+      this.preferences.getPreferences().atlasServiceBackendPreset
+    ).atlasUiBaseUrl;
+  }
+
   setActiveTools(toolGroups: Set<ToolGroup>): void {
     this.toolGroups = toolGroups;
   }
@@ -201,8 +207,8 @@ export class ToolsController {
     };
     void this.portClient
       ?.call('setUserConfig', {
-        enableMCPTelemetry: context.enableMCPTelemetry,
-        maxTimeMS: context.maxTimeMS,
+        ...this.currentConfig,
+        atlasBaseUrl: this.getAtlasBaseUrl(),
         telemetryAnonymousId: this.getTelemetryAnonymousId(),
       })
       .catch((error: unknown) => {
@@ -242,6 +248,7 @@ export class ToolsController {
         'setUserConfig',
         {
           ...this.currentConfig,
+          atlasBaseUrl: this.getAtlasBaseUrl(),
           telemetryAnonymousId: this.getTelemetryAnonymousId(),
         },
         signal

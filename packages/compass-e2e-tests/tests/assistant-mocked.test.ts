@@ -481,24 +481,32 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
           const chatMessages = browser.$(Selectors.AssistantChatMessages);
           await chatMessages.waitForDisplayed();
-          expect(await chatMessages.getText()).to.include(
-            'Please confirm your request'
+          // The confirmation is appended once the assistant tools have
+          // started, so wait for it rather than reading the chat as soon as
+          // the drawer opens
+          await browser.waitUntil(async () =>
+            (await chatMessages.getText()).includes(
+              'Please confirm your request'
+            )
           );
 
           // Click Cancel button
           await browser.clickVisible('button*=Cancel');
 
-          // Wait a bit to ensure no request is sent
+          await browser.waitUntil(async () =>
+            (await chatMessages.getText()).includes('Request cancelled')
+          );
+
+          // Wait a bit to ensure a wrongly sent request would have been
+          // recorded by the mock server by now
           await browser.pause(300);
 
           const finalMessages = await browser.getDisplayedMessages();
           expect(finalMessages.length).to.equal(0);
 
-          expect(await chatMessages.getText()).to.include(
-            'Please confirm your request'
-          );
-
-          expect(await chatMessages.getText()).to.include('Request cancelled');
+          const finalText = await chatMessages.getText();
+          expect(finalText).to.include('Please confirm your request');
+          expect(finalText).to.include('Request cancelled');
 
           // Verify no assistant request was made
           expect(mockAssistantServer.getRequests()).to.be.empty;
