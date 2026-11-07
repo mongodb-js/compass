@@ -61,7 +61,7 @@
     "@mongodb-js/mongodb-ns": "^3.2.9",
     "@mongodb-js/my-queries-storage": "^1.8.0",
     "@mongodb-js/workspace-info": "^1.15.0",
-    "bson": "^7.3.2",
+    "bson": "^7.3.4",
     "fuse.js": "^6.5.3",
     "react": "^18.3.1",
     "react-redux": "^8.1.3",
