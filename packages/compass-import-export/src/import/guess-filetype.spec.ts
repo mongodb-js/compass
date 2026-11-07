@@ -160,6 +160,19 @@ describe('guessFileType', function () {
     expect(jsonlResult.type).to.equal('jsonl');
   });
 
+  it('reject when reading the input fails', async function () {
+    const input = new Readable({
+      read() {
+        this.destroy(new Error('read failed'));
+      },
+    });
+
+    await expect(guessFileType({ input })).to.be.rejectedWith(
+      Error,
+      'read failed'
+    );
+  });
+
   it('errors if a file is not valid utf8', async function () {
     const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
 
@@ -167,10 +180,7 @@ describe('guessFileType', function () {
       guessFileType({
         input: Readable.from(latin1Buffer),
       })
-    ).to.be.rejectedWith(
-      TypeError,
-      'The encoded data was not valid for encoding utf-8'
-    );
+    ).to.be.rejectedWith(TypeError, /The encoded data was not valid/);
   });
 
   it('does not mind a BOM character', async function () {

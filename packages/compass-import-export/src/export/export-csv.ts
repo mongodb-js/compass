@@ -1,9 +1,4 @@
-import fs from 'node:fs';
-import { pipeline } from 'node:stream/promises';
-import { Transform } from 'node:stream';
-import type { Readable, Writable } from 'node:stream';
-import path from 'node:path';
-import os from 'node:os';
+import stream, { type Readable, type Writable, Transform } from 'node:stream';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
 import toNS from '@mongodb-js/mongodb-ns';
@@ -19,24 +14,51 @@ import {
   formatCSVValue,
   formatCSVHeaderName,
 } from '../csv/csv-utils';
+
 import type { Delimiter, Linebreak, PathPart } from '../csv/csv-types';
 import { createDebug } from '../utils/logger';
-import { lookupValueForPath, ColumnRecorder } from './export-utils';
+import { readableFromWeb, writableFromWeb } from '../utils/web-streams';
 import type {
   ExportAggregation,
   ExportQuery,
   ExportResult,
 } from './export-types';
-
+import { lookupValueForPath, ColumnRecorder } from './export-utils';
 import { createAggregationCursor, createFindCursor } from './export-cursor';
 
 const debug = createDebug('export-csv');
 
-const generateTempFilename = (suffix: string) => {
+const TEMP_FILE_PREFIX = 'export-csv-';
+const STALE_TEMP_FILE_AGE = 24 * 60 * 60 * 1000;
+
+// Temporary files live in the origin private file system. Nothing else cleans
+// it up, so remove files that exports which crashed or got killed left behind.
+async function removeStaleTempFiles(directory: FileSystemDirectoryHandle) {
+  for await (const name of directory.keys()) {
+    if (!name.startsWith(TEMP_FILE_PREFIX)) {
+      continue;
+    }
+    const file = await (await directory.getFileHandle(name)).getFile();
+    if (Date.now() - file.lastModified > STALE_TEMP_FILE_AGE) {
+      await directory.removeEntry(name);
+    }
+  }
+}
+
+async function createTempFile() {
+  const directory = await navigator.storage.getDirectory();
+  // Housekeeping only: another tab can remove its own temp file mid-sweep
+  await removeStaleTempFiles(directory).catch(() => undefined);
   const randomString = Math.random().toString(36).substring(2, 15);
-  const filename = `temp-${randomString}${suffix}`;
-  return path.join(os.tmpdir(), filename);
-};
+  const fileHandle = await directory.getFileHandle(
+    `${TEMP_FILE_PREFIX}${randomString}.jsonl`,
+    { create: true }
+  );
+  return {
+    fileHandle,
+    remove: () => directory.removeEntry(fileHandle.name),
+  };
+}
 
 // First we download all the docs for the query/aggregation to a temporary file
 // while determining the unique set of columns we'll need and their order
@@ -154,7 +176,7 @@ async function _exportCSV({
   });
 
   try {
-    await pipeline(
+    await stream.promises.pipeline(
       [input, rowStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
@@ -231,22 +253,23 @@ async function loadEJSONFileAndColumns({
   cursor,
   abortSignal,
   progressCallback,
+  tempFile,
 }: {
   cursor: AggregationCursor | FindCursor;
   abortSignal?: AbortSignal;
   progressCallback?: (index: number, phase: CSVExportPhase) => void;
-}): Promise<{ filename: string; input: Readable; columns: PathPart[][] }> {
+  tempFile: Awaited<ReturnType<typeof createTempFile>>;
+}): Promise<{ input: Readable; columns: PathPart[][] }> {
   // Write the cursor to a temp file containing one ejson doc per line
   // while simultaneously determining the unique set of columns in the order
   // we'll have to write to the file.
   const inputStream = cursor.stream();
-  const filename = generateTempFilename('.jsonl');
-  const output = fs.createWriteStream(filename);
+  const output = writableFromWeb(await tempFile.fileHandle.createWritable());
 
   const columnStream = new ColumnStream(progressCallback);
 
   try {
-    await pipeline(
+    await stream.promises.pipeline(
       [inputStream, columnStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
@@ -259,15 +282,12 @@ async function loadEJSONFileAndColumns({
   debug('columns', JSON.stringify(columns));
 
   // Make a stream of EJSON documents for the temp file
-  const input = fs
-    .createReadStream(filename)
+  const input = readableFromWeb((await tempFile.fileHandle.getFile()).stream())
     .pipe(Parser.parser({ jsonStreaming: true }))
     .pipe(StreamValues.streamValues())
     .pipe(new EJSONStream());
 
-  debug(`writing to ${filename}`);
-
-  return { filename, input, columns };
+  return { input, columns };
 }
 
 export async function exportCSVFromAggregation({
@@ -291,13 +311,15 @@ export async function exportCSVFromAggregation({
     preferences,
   });
 
-  let filename, input, columns;
+  let tempFile, input, columns;
   try {
     try {
-      ({ filename, input, columns } = await loadEJSONFileAndColumns({
+      tempFile = await createTempFile();
+      ({ input, columns } = await loadEJSONFileAndColumns({
         cursor: aggregationCursor,
         abortSignal: exportOptions.abortSignal,
         progressCallback: exportOptions.progressCallback,
+        tempFile,
       }));
     } catch (err: any) {
       if (err.code === 'ABORT_ERR') {
@@ -320,10 +342,9 @@ export async function exportCSVFromAggregation({
       columns,
     });
   } finally {
-    if (filename) {
-      // clean up the temporary file
-      void fs.promises.rm(filename);
-    }
+    await tempFile?.remove().catch((err) => {
+      debug('failed to remove the temporary file', err);
+    });
   }
 }
 
@@ -345,14 +366,15 @@ export async function exportCSVFromQuery({
     dataService,
   });
 
-  let filename, input, columns;
-
+  let tempFile, input, columns;
   try {
     try {
-      ({ filename, input, columns } = await loadEJSONFileAndColumns({
+      tempFile = await createTempFile();
+      ({ input, columns } = await loadEJSONFileAndColumns({
         cursor: findCursor,
         abortSignal: exportOptions.abortSignal,
         progressCallback: exportOptions.progressCallback,
+        tempFile,
       }));
     } catch (err: any) {
       if (err.code === 'ABORT_ERR') {
@@ -375,9 +397,8 @@ export async function exportCSVFromQuery({
       columns,
     });
   } finally {
-    if (filename) {
-      // clean up the temporary file
-      void fs.promises.rm(filename);
-    }
+    await tempFile?.remove().catch((err) => {
+      debug('failed to remove the temporary file', err);
+    });
   }
 }

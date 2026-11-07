@@ -90,7 +90,6 @@ export async function importCSV({
   dataService,
   ns,
   input,
-  output,
   abortSignal,
   progressCallback,
   errorCallback,
@@ -125,7 +124,6 @@ export async function importCSV({
   return await doImport(input, streams, transformer, {
     dataService,
     ns,
-    output,
     abortSignal,
     progressCallback,
     errorCallback,
