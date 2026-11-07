@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/hadron-build",
   "description": "Tooling for Hadron apps like Compass",
-  "version": "25.11.4",
+  "version": "25.11.5",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "types": "./dist/index.d.ts",
