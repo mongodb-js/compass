@@ -2542,13 +2542,19 @@ export const loadFolders = (): ConnectionsThunkAction<
   Promise<void>,
   FoldersLoadSuccessAction
 > => {
-  return async (dispatch, _getState, { folderStorage }) => {
-    const { folders, assignments } = await folderStorage.load();
-    dispatch({
-      type: ActionTypes.FoldersLoadSuccess,
-      folders,
-      folderAssignments: assignments,
-    });
+  return async (dispatch, _getState, { folderStorage, logger: { debug } }) => {
+    try {
+      const { folders, assignments } = await folderStorage.load();
+      dispatch({
+        type: ActionTypes.FoldersLoadSuccess,
+        folders,
+        folderAssignments: assignments,
+      });
+    } catch (err) {
+      // Folders are secondary to connections, so a failed load leaves the app
+      // usable with an empty folder list rather than blocking startup.
+      debug('failed to load folders', err);
+    }
   };
 };
 
@@ -2645,9 +2651,10 @@ export const deleteFolder = (
 };
 
 /**
- * The organization is one document, so a save applies either all of the
- * requested moves or none. `failedIds` reports the ones not applied so the
- * caller can keep them selected for a retry.
+ * The whole organization is one document, so a save either applies every valid
+ * move or, if it fails, none of them. `failedIds` reports the connections that
+ * weren't moved (unknown ids, or all of them on a failed save) so the caller
+ * can keep them selected for a retry.
  */
 export const moveConnectionsToFolder = (
   connectionIds: ConnectionId[],
@@ -2691,6 +2698,9 @@ export const moveConnectionsToFolder = (
         },
       });
     } catch (err) {
+      // Unlike the single-folder actions, this one reports failures through its
+      // return value instead of throwing, so a caller can retry just the moves
+      // that didn't apply.
       debug('failed to save folder organization', err);
       return { movedIds: [], failedIds: connectionIds };
     }

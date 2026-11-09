@@ -915,6 +915,8 @@ describe('CompassConnections store', function () {
     });
   });
 
+  // Exercised against the store directly because there is no folder UI yet;
+  // the user-facing flows are covered by the sidebar tree tests once they land.
   describe('folders', function () {
     it('loads persisted folders and assignments on startup', async function () {
       const folderStorage = new InMemoryFolderStorage({
