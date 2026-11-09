@@ -940,4 +940,68 @@ describe('useFilteredConnections', function () {
       });
     });
   });
+
+  context('with folders', function () {
+    const folders = [{ id: 'folder_1', name: 'Work' }];
+
+    const renderWithFolders = (
+      filter: { regex: RegExp | null; excludeInactive: boolean } = {
+        regex: null,
+        excludeInactive: false,
+      }
+    ) =>
+      renderHookWithContext(useFilteredConnections, {
+        initialProps: {
+          connections: mockSidebarConnections,
+          folders,
+          filter,
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        },
+      });
+
+    it('as collapsed, it should return false for a folder', async function () {
+      const { result } = renderWithFolders();
+
+      await waitFor(() => {
+        expect(result.current.expanded).to.have.property('folder_1', false);
+      });
+    });
+
+    it('should return an expanded marker for a folder after onFolderToggle', async function () {
+      const { result } = renderWithFolders();
+
+      result.current.onFolderToggle('folder_1', true);
+
+      await waitFor(() => {
+        expect(result.current.expanded.folder_1).to.not.equal(false);
+      });
+    });
+
+    it('should collapse folders when onCollapseAll is triggered', async function () {
+      const { result } = renderWithFolders();
+
+      result.current.onFolderToggle('folder_1', true);
+      await waitFor(() => {
+        expect(result.current.expanded.folder_1).to.not.equal(false);
+      });
+
+      result.current.onCollapseAll();
+
+      await waitFor(() => {
+        expect(result.current.expanded).to.have.property('folder_1', false);
+      });
+    });
+
+    it('should expand folders while a filter is active', async function () {
+      const { result } = renderWithFolders({
+        regex: new RegExp('connected', 'i'),
+        excludeInactive: false,
+      });
+
+      await waitFor(() => {
+        expect(result.current.expanded.folder_1).to.not.equal(false);
+      });
+    });
+  });
 });

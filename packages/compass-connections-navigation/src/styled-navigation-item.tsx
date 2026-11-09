@@ -35,7 +35,10 @@ export default function StyledNavigationItem({
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
     const style: AcceptedStyles = {};
     const connectionId = getConnectionId(item);
-    const isConnectable = getConnectable(connectionId);
+    // A folder isn't tied to a connection, so it must not inherit the inactive
+    // color that unconnectable connections get.
+    const isConnectable =
+      item.type === 'folder' ? true : getConnectable(connectionId ?? '');
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
     const inferredFromPrivilegesNamespace =

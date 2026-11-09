@@ -9,6 +9,7 @@ import type {
   SidebarNotConnectedConnection,
 } from '@mongodb-js/compass-connections-navigation';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 
 type ExpandedDatabases = Record<
@@ -209,6 +210,9 @@ const collapseAll = (
 
 interface ConnectionsState {
   expanded: ExpandedConnections;
+  // Folder expansion is kept separate from connection expansion: the shapes of
+  // the two are unrelated, and folder ids never collide with connection ids.
+  expandedFolders: Record<string, boolean>;
   filtered: SidebarConnection[] | undefined;
 }
 
@@ -256,13 +260,21 @@ interface CollapseAllAction {
   connections: ConnectionInfo[];
 }
 
+const FOLDER_TOGGLE = 'sidebar/active-connections/FOLDER_TOGGLE' as const;
+interface ToggleFolderAction {
+  type: typeof FOLDER_TOGGLE;
+  folderId: string;
+  expand: boolean;
+}
+
 type ConnectionsAction =
   | FilterConnectionsAction
   | ClearConnectionsFilterAction
   | ToggleConnectionAction
   | ToggleDatabaseAction
   | ConnectionsChangedAction
-  | CollapseAllAction;
+  | CollapseAllAction
+  | ToggleFolderAction;
 
 const connectionsReducer = (
   state: ConnectionsState,
@@ -273,6 +285,18 @@ const connectionsReducer = (
       return {
         ...state,
         expanded: collapseAll(action.connections),
+        expandedFolders: {},
+      };
+    }
+    case FOLDER_TOGGLE: {
+      const { folderId, expand } = action;
+      if (!!state.expandedFolders[folderId] === expand) return state;
+      return {
+        ...state,
+        expandedFolders: {
+          ...state.expandedFolders,
+          [folderId]: expand,
+        },
       };
     }
     case FILTER_CONNECTIONS: {
@@ -364,6 +388,7 @@ type UseFilteredConnectionsHookResult = {
     databaseId: string,
     isExpanded: boolean
   ): void;
+  onFolderToggle(this: void, folderId: string, isExpanded: boolean): void;
 };
 
 function filteredConnectionsToSidebarConnection(
@@ -399,19 +424,25 @@ export type ConnectionsFilter = {
 
 export const useFilteredConnections = ({
   connections,
+  folders = [],
   filter,
   fetchAllCollections,
   onDatabaseExpand,
 }: {
   connections: SidebarConnection[];
+  folders?: Folder[];
   filter: ConnectionsFilter;
   fetchAllCollections: () => void;
   onDatabaseExpand: (connectionId: string, databaseId: string) => void;
 }): UseFilteredConnectionsHookResult => {
-  const [{ filtered, expanded }, dispatch] = useReducer(connectionsReducer, {
-    filtered: undefined,
-    expanded: {},
-  });
+  const [{ filtered, expanded, expandedFolders }, dispatch] = useReducer(
+    connectionsReducer,
+    {
+      filtered: undefined,
+      expanded: {},
+      expandedFolders: {},
+    }
+  );
 
   const activeConnections = useMemo(() => {
     return connections
@@ -488,6 +519,16 @@ export const useFilteredConnections = ({
     dispatch({ type: COLLAPSE_ALL, connections: activeConnections });
   }, [activeConnections]);
 
+  const onFolderToggle = useCallback(
+    (folderId: string, expand: boolean) =>
+      dispatch({ type: FOLDER_TOGGLE, folderId, expand }),
+    []
+  );
+
+  // While a filter is active every folder is expanded, so that connections that
+  // matched inside a collapsed folder are still visible.
+  const expandAllFolders = !!filter.regex || filter.excludeInactive;
+
   const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
     useMemo(() => {
       const result: Record<string, false | Record<string, boolean>> =
@@ -511,8 +552,12 @@ export const useFilteredConnections = ({
         result[connectionInfo.id] =
           expandedState !== 'collapsed' ? expandedItemsInConnection : false;
       }
+      for (const { id } of folders) {
+        result[id] =
+          expandAllFolders || expandedFolders[id] ? Object.create(null) : false;
+      }
       return result;
-    }, [expanded, connections]);
+    }, [expanded, connections, folders, expandedFolders, expandAllFolders]);
 
   // This is done to strip the isMatch that we attach on filtered items
   const filteredMemo = useMemo(() => {
@@ -528,5 +573,6 @@ export const useFilteredConnections = ({
     onCollapseAll,
     onConnectionToggle,
     onDatabaseToggle,
+    onFolderToggle,
   };
 };

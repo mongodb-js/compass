@@ -1255,4 +1255,131 @@ describe('ConnectionsNavigationTree', function () {
       });
     });
   });
+
+  describe('folders', function () {
+    const folders = [
+      { id: 'folder_b', name: 'Beta' },
+      { id: 'folder_a', name: 'Alpha' },
+    ];
+    const folderAssignments = {
+      connection_ready: 'folder_a',
+      connection_disconnected: 'folder_b',
+    };
+    const folderProps = { folders, folderAssignments };
+
+    const renderedItemIds = () =>
+      screen.getAllByRole('treeitem').map((item) => item.dataset.id);
+
+    it('should render folders before uncategorized connections, both alphabetically', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      // 'peaches' (connection_initial) is the only connection left uncategorized.
+      expect(renderedItemIds()).to.deep.equal([
+        'folder_a',
+        'folder_b',
+        'connection_initial',
+      ]);
+    });
+
+    it('should render a folder as a top level item', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      expect(screen.getByTestId('folder_a')).to.have.attribute(
+        'aria-level',
+        '1'
+      );
+      expect(screen.getByText('Alpha')).to.exist;
+    });
+
+    it('should not render the connections of a collapsed folder', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      expect(screen.queryByTestId('connection_ready')).not.to.exist;
+      expect(screen.queryByText('turtles')).not.to.exist;
+    });
+
+    it('should render the connections of an expanded folder beneath it', async function () {
+      await renderConnectionsNavigationTree({
+        ...folderProps,
+        expanded: { folder_a: {} },
+      });
+
+      expect(renderedItemIds()).to.deep.equal([
+        'folder_a',
+        'connection_ready',
+        'folder_b',
+        'connection_initial',
+      ]);
+      expect(screen.getByTestId('connection_ready')).to.have.attribute(
+        'aria-level',
+        '2'
+      );
+    });
+
+    it('should render the databases of a connection inside a folder one level deeper', async function () {
+      await renderConnectionsNavigationTree({
+        ...folderProps,
+        expanded: { folder_a: {}, connection_ready: {} },
+      });
+
+      expect(
+        screen.getByTestId('connection_ready.db_initial')
+      ).to.have.attribute('aria-level', '3');
+    });
+
+    it('should render a connection assigned to a folder that does not exist as uncategorized', async function () {
+      await renderConnectionsNavigationTree({
+        folders: [],
+        folderAssignments: { connection_ready: 'folder_gone' },
+      });
+
+      expect(renderedItemIds()).to.deep.equal([
+        'connection_ready',
+        'connection_initial',
+        'connection_disconnected',
+      ]);
+    });
+
+    it('should expand a folder when its title is clicked', async function () {
+      const onItemExpand = Sinon.spy();
+      await renderConnectionsNavigationTree({ ...folderProps, onItemExpand });
+
+      userEvent.click(screen.getByText('Alpha'));
+
+      expect(onItemExpand).to.be.calledOnce;
+      const [[item, isExpanded]] = onItemExpand.args;
+      expect(item.type).to.equal('folder');
+      expect(item.folderId).to.equal('folder_a');
+      expect(isExpanded).to.equal(true);
+    });
+
+    it('should expand a folder on ArrowRight', async function () {
+      const onItemExpand = Sinon.spy();
+      await renderConnectionsNavigationTree({ ...folderProps, onItemExpand });
+
+      screen.getByTestId('folder_a').focus();
+      userEvent.keyboard('{ArrowRight}');
+
+      expect(onItemExpand).to.be.calledOnce;
+      expect(onItemExpand.args[0][0].type).to.equal('folder');
+      expect(onItemExpand.args[0][1]).to.equal(true);
+    });
+
+    it('should not render a folder row as an inactive item', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      const styledRow = screen.getByTestId('folder_a').firstElementChild;
+      expect(
+        (styledRow as HTMLElement).style.getPropertyValue('--item-color')
+      ).to.equal('');
+    });
+
+    it('should not render an actions menu for a folder', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      expect(
+        within(screen.getByTestId('folder_a')).queryByTitle('Show actions')
+      ).not.to.exist;
+    });
+  });
 });

@@ -16,6 +16,10 @@ import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provid
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  InMemoryFolderStorage,
+  type Folder,
+} from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import {
   AtlasClusterConnectionsOnlyProvider,
@@ -94,7 +98,12 @@ describe('Multiple Connections Sidebar Component', function () {
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
     connections: ConnectionInfo[] | 'no-preload' = [savedFavoriteConnection],
-    atlasClusterConnectionsOnly: boolean | undefined = undefined
+    atlasClusterConnectionsOnly: boolean | undefined = undefined,
+    folderOrganization: {
+      folders: Folder[];
+      assignments: Record<string, string>;
+    } = { folders: [], assignments: {} },
+    enableConnectionFolders = false
   ) {
     workspace = sinon.spy({
       openMyQueriesWorkspace: () => undefined,
@@ -141,6 +150,10 @@ describe('Multiple Connections Sidebar Component', function () {
 
     const result = renderWithConnections(component, {
       connections,
+      folderStorage: new InMemoryFolderStorage(folderOrganization),
+      preferences: enableConnectionFolders
+        ? { enableConnectionFolders: true }
+        : undefined,
       connectFn() {
         return {
           currentOp() {
@@ -719,6 +732,80 @@ describe('Multiple Connections Sidebar Component', function () {
             });
           });
         });
+      });
+    });
+  });
+
+  describe('connection folders', function () {
+    const folders: Folder[] = [{ id: 'folder_1', name: 'Work' }];
+    const assignments = { [savedFavoriteConnection.id]: 'folder_1' };
+
+    const renderWithFolders = async (enableConnectionFolders: boolean) => {
+      doRender(
+        null,
+        [savedFavoriteConnection, savedRecentConnection],
+        undefined,
+        { folders, assignments },
+        enableConnectionFolders
+      );
+      await waitFor(() => screen.getByRole('tree'));
+    };
+
+    it('should group connections under folders when the feature flag is enabled', async function () {
+      await renderWithFolders(true);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-level',
+          '1'
+        );
+      });
+      expect(screen.getByText('Work')).to.be.visible;
+      // The connection filed in the folder is only shown once it is expanded,
+      // while the uncategorized one stays at the top level.
+      expect(screen.queryByTestId(savedFavoriteConnection.id)).not.to.exist;
+      expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
+    });
+
+    it('should show the folder contents when the folder is expanded', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByText('Work'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+      });
+    });
+
+    it('should leave the tree unchanged when the feature flag is disabled', async function () {
+      await renderWithFolders(false);
+
+      expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+      expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
+      expect(screen.queryByTestId('folder_1')).not.to.exist;
+      expect(screen.queryByText('Work')).not.to.exist;
+    });
+
+    it('should collapse a folder when collapse all is triggered', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByText('Work'));
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'true'
+        );
+      });
+
+      userEvent.click(screen.getByLabelText('Collapse all connections'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'false'
+        );
       });
     });
   });

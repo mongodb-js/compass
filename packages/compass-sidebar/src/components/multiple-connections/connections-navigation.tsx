@@ -39,6 +39,7 @@ import {
   type useConnectionsWithStatus,
   ConnectionStatus,
   useConnectionsListLoadingStatus,
+  useFolders,
 } from '@mongodb-js/compass-connections/provider';
 import {
   useOpenWorkspace,
@@ -278,18 +279,56 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     'enableCreatingNewConnections'
   );
 
+  const enableConnectionFolders = usePreference('enableConnectionFolders');
+  const { folders, folderAssignments } = useFolders();
+
+  const sidebarFolders = useMemo(
+    () => (enableConnectionFolders ? folders : []),
+    [enableConnectionFolders, folders]
+  );
+  const sidebarFolderAssignments = useMemo(
+    () => (enableConnectionFolders ? folderAssignments : {}),
+    [enableConnectionFolders, folderAssignments]
+  );
+
   const {
     filtered,
     expanded,
     onCollapseAll,
     onConnectionToggle,
     onDatabaseToggle,
+    onFolderToggle,
   } = useFilteredConnections({
     connections,
+    folders: sidebarFolders,
     filter,
     fetchAllCollections,
     onDatabaseExpand,
   });
+
+  const visibleFolders = useMemo(() => {
+    if (!filter.regex && !filter.excludeInactive) {
+      return sidebarFolders;
+    }
+    // A folder with no visible connection is hidden rather than shown empty
+    // while filtering. Matching a folder on its own name is part of the filter
+    // work, not the tree rendering.
+    const visibleFolderIds = new Set<string>();
+    for (const { connectionInfo } of filtered ?? connections) {
+      const folderId = sidebarFolderAssignments[connectionInfo.id];
+      if (folderId) {
+        visibleFolderIds.add(folderId);
+      }
+    }
+    return sidebarFolders.filter((folder) => visibleFolderIds.has(folder.id));
+  }, [
+    filter.regex,
+    filter.excludeInactive,
+    sidebarFolders,
+    sidebarFolderAssignments,
+    filtered,
+    connections,
+  ]);
 
   const connectionListTitleActions =
     useMemo((): ItemAction<ConnectionListTitleActions>[] => {
@@ -329,6 +368,11 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const onItemAction = useCallback(
     (item: SidebarItem, action: Actions) => {
+      // Folders have no actions yet; the folder management UI adds them.
+      if (item.type === 'folder') {
+        return;
+      }
+
       const getConnectionInfo = (item: SidebarItem) => {
         switch (item.type) {
           case 'connection':
@@ -347,7 +391,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       };
 
       const getNamespace = (item: SidebarItem) => {
-        if (item.type === 'connection') {
+        if (item.type === 'connection' || item.type === 'folder') {
           throw new Error(
             `Item type ${item.type} does not have a namespace for action ${action}`
           );
@@ -520,13 +564,15 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const onItemExpand = useCallback(
     (item: SidebarItem, isExpanded: boolean) => {
-      if (item.type === 'connection') {
+      if (item.type === 'folder') {
+        onFolderToggle(item.folderId, isExpanded);
+      } else if (item.type === 'connection') {
         onConnectionToggle(item.connectionInfo.id, isExpanded);
       } else if (item.type === 'database') {
         onDatabaseToggle(item.connectionId, item.dbName, isExpanded);
       }
     },
-    [onConnectionToggle, onDatabaseToggle]
+    [onConnectionToggle, onDatabaseToggle, onFolderToggle]
   );
 
   const onConnectionListTitleAction = useCallback(
@@ -631,6 +677,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         ) : (
           <ConnectionsNavigationTree
             connections={filtered || connections}
+            folders={visibleFolders}
+            folderAssignments={sidebarFolderAssignments}
             activeWorkspace={activeWorkspace}
             onItemAction={onItemAction}
             onItemExpand={onItemExpand}

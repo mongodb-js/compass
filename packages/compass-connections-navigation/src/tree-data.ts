@@ -1,4 +1,5 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
@@ -86,6 +87,13 @@ export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 };
 
+export type FolderTreeItem = VirtualTreeItem & {
+  name: string;
+  type: 'folder';
+  folderId: string;
+  colorCode?: string;
+};
+
 export type DatabaseTreeItem = VirtualTreeItem & {
   name: string;
   type: 'database';
@@ -113,6 +121,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
 };
 
 export type SidebarActionableItem =
+  | FolderTreeItem
   | NotConnectedConnectionTreeItem
   | ConnectedConnectionTreeItem
   | DatabaseTreeItem
@@ -120,9 +129,13 @@ export type SidebarActionableItem =
 
 export type SidebarTreeItem = PlaceholderTreeItem | SidebarActionableItem;
 
-export function getConnectionId(item: SidebarTreeItem): string {
-  if (item.type === 'placeholder') {
-    return '';
+/**
+ * Returns the id of the connection an item belongs to, or `null` for items that
+ * are not tied to a connection (folders and placeholders).
+ */
+export function getConnectionId(item: SidebarTreeItem): string | null {
+  if (item.type === 'placeholder' || item.type === 'folder') {
+    return null;
   } else if (item.type === 'connection') {
     return item.connectionInfo.id;
   } else {
@@ -132,21 +145,23 @@ export function getConnectionId(item: SidebarTreeItem): string {
 
 const notConnectedConnectionToItems = ({
   connection: { name, connectionInfo, connectionStatus },
-  connectionIndex,
-  connectionsLength,
+  level,
+  setSize,
+  posInSet,
 }: {
   connection: NotConnectedConnection;
-  connectionIndex: number;
-  connectionsLength: number;
+  level: number;
+  setSize: number;
+  posInSet: number;
 }): SidebarTreeItem[] => {
   return [
     {
       id: connectionInfo.id,
-      level: 1,
+      level,
       name,
       type: 'connection' as const,
-      setSize: connectionsLength,
-      posInSet: connectionIndex + 1,
+      setSize,
+      posInSet,
       colorCode: connectionInfo.favorite?.color,
       connectionInfo,
       connectionStatus,
@@ -170,16 +185,18 @@ const connectedConnectionToItems = ({
     isGenuineMongoDB,
     csfleMode,
   },
-  connectionIndex,
-  connectionsLength,
+  level,
+  setSize,
+  posInSet,
   expandedItems = {},
   preferencesReadOnly,
   preferencesReadWrite,
   preferencesShellEnabled,
 }: {
   connection: ConnectedConnection;
-  connectionIndex: number;
-  connectionsLength: number;
+  level: number;
+  setSize: number;
+  posInSet: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
   preferencesReadWrite: boolean;
@@ -191,11 +208,11 @@ const connectedConnectionToItems = ({
     preferencesReadOnly || isDataLake || !isWritable;
   const connectionTI: ConnectedConnectionTreeItem = {
     id: connectionInfo.id,
-    level: 1,
+    level,
     name,
     type: 'connection' as const,
-    setSize: connectionsLength,
-    posInSet: connectionIndex + 1,
+    setSize,
+    posInSet,
     isExpanded,
     isExpandable: true,
     colorCode,
@@ -226,7 +243,7 @@ const connectedConnectionToItems = ({
   if (!areDatabasesReady) {
     return sidebarData.concat(
       Array.from({ length: placeholdersLength }, (_, index) => ({
-        level: 2,
+        level: level + 1,
         type: 'placeholder' as const,
         colorCode,
         id: `${connectionInfo.id}.placeholder.${index}`,
@@ -241,7 +258,7 @@ const connectedConnectionToItems = ({
         connectionItem: connectionTI,
         database,
         expandedItems: expandedItems[connectionInfo.id] || {},
-        level: 2,
+        level: level + 1,
         colorCode,
         databasesLength,
         databaseIndex,
@@ -350,45 +367,182 @@ const databaseToItems = ({
   );
 };
 
+const connectionToItems = ({
+  connection,
+  level,
+  setSize,
+  posInSet,
+  expandedItems,
+  preferencesReadOnly,
+  preferencesReadWrite,
+  preferencesShellEnabled,
+}: {
+  connection: Connection;
+  level: number;
+  setSize: number;
+  posInSet: number;
+  expandedItems: Record<string, false | Record<string, boolean>>;
+  preferencesReadOnly: boolean;
+  preferencesReadWrite: boolean;
+  preferencesShellEnabled: boolean;
+}): SidebarTreeItem[] => {
+  if (connection.connectionStatus === ConnectionStatus.Connected) {
+    return connectedConnectionToItems({
+      connection,
+      level,
+      setSize,
+      posInSet,
+      expandedItems,
+      preferencesReadOnly,
+      preferencesReadWrite,
+      preferencesShellEnabled,
+    });
+  } else {
+    return notConnectedConnectionToItems({
+      connection,
+      level,
+      setSize,
+      posInSet,
+    });
+  }
+};
+
+type TopLevelEntry =
+  | { type: 'folder'; folder: Folder; connections: Connection[] }
+  | { type: 'connection'; connection: Connection };
+
 /**
- * Converts a list connections to virtual tree items.
+ * Splits the connections into the ones filed under a folder and the ones that
+ * stay uncategorized. Membership is resolved from the assignments, so a
+ * connection whose assignment points at a folder that doesn't exist is
+ * uncategorized rather than dropped.
+ */
+function groupConnectionsByFolder(
+  connections: Connection[],
+  folders: Folder[],
+  folderAssignments: Record<string, string>
+): TopLevelEntry[] {
+  const foldersById = new Map(folders.map((folder) => [folder.id, folder]));
+  const connectionsByFolderId = new Map<string, Connection[]>();
+  const uncategorized: Connection[] = [];
+
+  for (const connection of connections) {
+    const folderId = folderAssignments[connection.connectionInfo.id];
+    if (!folderId || !foldersById.has(folderId)) {
+      uncategorized.push(connection);
+      continue;
+    }
+    const siblings = connectionsByFolderId.get(folderId);
+    if (siblings) {
+      siblings.push(connection);
+    } else {
+      connectionsByFolderId.set(folderId, [connection]);
+    }
+  }
+
+  const sortedFolders = folders
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return [
+    ...sortedFolders.map((folder): TopLevelEntry => ({
+      type: 'folder',
+      folder,
+      connections: connectionsByFolderId.get(folder.id) ?? [],
+    })),
+    ...uncategorized.map((connection): TopLevelEntry => ({
+      type: 'connection',
+      connection,
+    })),
+  ];
+}
+
+/**
+ * Converts a list of connections to virtual tree items, grouped under folders.
  *
  * The IDs of the items are just to be used by the tree to correctly identify the items and
  * do not represent the actual IDs of the items.
  *
+ * Folders and the connections inside them are both ordered alphabetically.
+ * Connections keep the order they are given in, which the connections store
+ * already sorts by title.
+ *
  * @param connections - The connections.
- * @param expandedItems - The expanded items.
+ * @param folders - The folders to group the connections under.
+ * @param folderAssignments - Maps a connection id to the folder id it belongs to.
+ * @param expandedItems - The expanded items, keyed by connection or folder id.
  */
 export function getVirtualTreeItems({
   connections,
+  folders = [],
+  folderAssignments = {},
   expandedItems = {},
   preferencesReadOnly,
   preferencesReadWrite,
   preferencesShellEnabled,
 }: {
   connections: (NotConnectedConnection | ConnectedConnection)[];
+  folders?: Folder[];
+  folderAssignments?: Record<string, string>;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
   preferencesReadWrite: boolean;
   preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] {
-  return connections.flatMap((connection, connectionIndex) => {
-    if (connection.connectionStatus === ConnectionStatus.Connected) {
-      return connectedConnectionToItems({
-        connection,
+  const topLevel = groupConnectionsByFolder(
+    connections,
+    folders,
+    folderAssignments
+  );
+  const setSize = topLevel.length;
+
+  return topLevel.flatMap((entry, index) => {
+    const posInSet = index + 1;
+
+    if (entry.type === 'connection') {
+      return connectionToItems({
+        connection: entry.connection,
+        level: 1,
+        setSize,
+        posInSet,
         expandedItems,
-        connectionIndex,
-        connectionsLength: connections.length,
         preferencesReadOnly,
         preferencesReadWrite,
         preferencesShellEnabled,
       });
-    } else {
-      return notConnectedConnectionToItems({
-        connection,
-        connectionsLength: connections.length,
-        connectionIndex,
-      });
     }
+
+    const isExpanded = !!expandedItems[entry.folder.id];
+    const folderItem: FolderTreeItem = {
+      id: entry.folder.id,
+      level: 1,
+      name: entry.folder.name,
+      type: 'folder',
+      folderId: entry.folder.id,
+      setSize,
+      posInSet,
+      isExpandable: true,
+      isExpanded,
+    };
+
+    if (!isExpanded) {
+      return [folderItem];
+    }
+
+    return [
+      folderItem,
+      ...entry.connections.flatMap((connection, connectionIndex) =>
+        connectionToItems({
+          connection,
+          level: 2,
+          setSize: entry.connections.length,
+          posInSet: connectionIndex + 1,
+          expandedItems,
+          preferencesReadOnly,
+          preferencesReadWrite,
+          preferencesShellEnabled,
+        })
+      ),
+    ];
   });
 }
