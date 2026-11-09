@@ -1,9 +1,10 @@
 import {
   ConnectionManager,
   ConnectionStateConnected,
+  type ConnectionSettings,
   type ConnectionStateDisconnected,
-  type LoggerBase,
-} from 'mongodb-mcp-server';
+} from '@mongodb-js/mcp-tools-mongodb';
+import type { LoggerBase } from '@mongodb-js/mcp-core';
 import {
   NodeDriverServiceProvider,
   type DevtoolsConnectOptions,
@@ -22,15 +23,23 @@ export interface ToolsConnectParams {
 export const DATABASE_TOOLS_TELEMETRY_APP_NAME = 'Database Tools';
 const DEFAULT_TELEMETRY_APP_NAME = 'MongoDB Compass';
 
+/**
+ * The handle MCP tools use to address Compass's single connection; Compass
+ * drives that connection itself (see {@link ToolsConnectionManager}).
+ */
+export const COMPASS_CONNECTION_ID = 'compass';
+
 type ToolsConnectionManagerConfig = {
   logger: LoggerBase;
   getTelemetryAnonymousId: () => string;
+  getMaxTimeMS: () => number | undefined;
   mongoLogId: Logger['mongoLogId'];
 };
 
 export class ToolsConnectionManager extends ConnectionManager {
   private logger: LoggerBase;
   private getTelemetryAnonymousId: () => string;
+  private getMaxTimeMS: () => number | undefined;
   private mongoLogId: ToolsConnectionManagerConfig['mongoLogId'];
   private activeConnection: {
     id: string;
@@ -40,15 +49,17 @@ export class ToolsConnectionManager extends ConnectionManager {
   constructor({
     logger,
     getTelemetryAnonymousId,
+    getMaxTimeMS,
     mongoLogId,
   }: ToolsConnectionManagerConfig) {
     super();
     this.logger = logger;
     this.getTelemetryAnonymousId = getTelemetryAnonymousId;
+    this.getMaxTimeMS = getMaxTimeMS;
     this.mongoLogId = mongoLogId;
   }
 
-  override connect(): Promise<never> {
+  override connect(_settings?: ConnectionSettings): Promise<never> {
     // It shouldn't be possible for a user to get here because the connect tool
     // is not included. We also only include the database tools when there is a
     // relevant connection.
@@ -115,7 +126,9 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       const serviceProvider = await NodeDriverServiceProvider.connect(
         connectionString,
         {
-          timeoutMS: 30_000,
+          // v3 dropped the per-operation `maxTimeMS`; apply the Compass
+          // preference as the connection's driver `timeoutMS`.
+          timeoutMS: this.getMaxTimeMS() ?? 30_000,
           readPreference: 'secondaryPreferred',
           readConcern: {
             level: 'local',
@@ -129,7 +142,7 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
       };
       return void this.changeState(
         'connection-success',
-        new ConnectionStateConnected(serviceProvider)
+        new ConnectionStateConnected({ serviceProvider })
       );
     } catch (error) {
       this.logger.error({
