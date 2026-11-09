@@ -6,7 +6,7 @@ import type {
 import type { MongoLogWriter } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
-import { openUtilityPort } from '@mongodb-js/compass-utils';
+import { openUtilityPort } from '@mongodb-js/compass-events';
 import { ShellRuntime } from './shell-runtime';
 
 export function createWorkerRuntime(

@@ -1,7 +1,6 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import { UUID } from 'bson';
-import { isCancelError } from '@mongodb-js/compass-utils';
 
 import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
@@ -757,7 +756,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
     } catch (err: any) {
       // Check if the error is due to cancellation
       if (abortController.signal.aborted) return;
-      if (isCancelError(err)) {
+      if (err?.name === 'AbortError') {
         logger.debug('Schema analysis was aborted');
         dispatch({
           type: CollectionActions.SchemaAnalysisCanceled,
@@ -986,7 +985,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
         requestId: requestId,
       });
     } catch (e) {
-      if (isCancelError(e)) {
+      if ((e as Error)?.name === 'AbortError') {
         // abort errors should not produce error logs
         return;
       }

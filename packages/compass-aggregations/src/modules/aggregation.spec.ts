@@ -5,7 +5,6 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 
 import type { Document } from 'mongodb';
-import { createCancelError } from '@mongodb-js/compass-utils';
 import HadronDocument from '@mongodb-js/hadron-document';
 import { omit } from 'lodash';
 import { EJSON } from 'bson';
@@ -125,7 +124,7 @@ describe('aggregation module', function () {
       },
       {
         aggregate() {
-          throw createCancelError();
+          throw new DOMException('This operation was aborted', 'AbortError');
         },
         isCancelError() {
           return true;

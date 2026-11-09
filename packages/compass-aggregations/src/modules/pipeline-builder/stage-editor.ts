@@ -2,11 +2,11 @@ import type { Action, Reducer } from 'redux';
 import HadronDocument from '@mongodb-js/hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
-import { cancellableWait } from '@mongodb-js/compass-utils';
 import {
   ExperimentTestGroups,
   ExperimentTestNames,
 } from '@mongodb-js/compass-telemetry/provider';
+import { cancellableWait } from '@mongodb-js/compass-events';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
@@ -401,7 +401,8 @@ export const loadStagePreview = (
 
                 await cancellableWait(
                   DEFAULT_PREVIEW_DEBOUNCE_MS,
-                  metadataAbortController.signal
+                  undefined,
+                  metadataAbortController
                 );
                 const previewOptions = await getPreviewOptions();
 

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { listen, waitUntil } from '@mongodb-js/compass-utils';
+import { listen, waitUntil } from '@mongodb-js/compass-events';
 import type {
   Runtime,
   RuntimeEvaluationListener,
