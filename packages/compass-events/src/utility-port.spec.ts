@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { openUtilityPort, utilityPortChannel } from './utility-process';
+import { openUtilityPort, utilityPortChannel } from './utility-port';
 
 describe('openUtilityPort', function () {
   let sandbox: sinon.SinonSandbox;

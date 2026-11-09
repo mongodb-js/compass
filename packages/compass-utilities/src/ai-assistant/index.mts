@@ -1,6 +1,6 @@
 import process from 'node:process';
 
-import { listen } from '@mongodb-js/compass-utils';
+import { listen } from '@mongodb-js/compass-events';
 import { ToolsHost } from '@mongodb-js/compass-generative-ai/utility';
 import { createUtilityLogger } from '../logging.mts';
 import type { UtilityParentPort } from '../ipc.mts';

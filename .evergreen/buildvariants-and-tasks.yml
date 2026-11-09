@@ -15,7 +15,6 @@ buildvariants:
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test
-      - name: test-electron
   - name: unit-tests-windows
     tags:
       - run-on-pr
@@ -23,7 +22,6 @@ buildvariants:
     run_on: windows-vsCurrent-large
     tasks:
       - name: test
-      - name: test-electron
   - name: unit-tests-rhel
     tags:
       - run-on-pr
@@ -31,12 +29,17 @@ buildvariants:
     run_on: rhel93-large
     tasks:
       - name: test
-      - name: test-electron
   - name: unit-tests-macos
     display_name: Unit Tests MacOS
-    run_on: macos-15-arm64-gui
+    run_on: macos-15-arm64
     tasks:
       - name: test
+  - name: unit-test-electron
+    tags:
+      - run-on-pr
+    display_name: Unit Tests Electron (Ubuntu)
+    run_on: ubuntu2604-latest-large
+    tasks:
       - name: test-electron
   - name: package-ubuntu
     tags:

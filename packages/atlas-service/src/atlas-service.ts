@@ -1,4 +1,3 @@
-import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { type UserDataType } from '@mongodb-js/compass-user-data';
@@ -123,7 +122,7 @@ export class AtlasService {
     if (this.options?.getNetworkTraffic?.() !== true) {
       throw new Error('Network traffic is not allowed');
     }
-    throwIfAborted(init?.signal as AbortSignal);
+    init?.signal?.throwIfAborted();
     this.logger.log.info(
       this.logger.mongoLogId(1_001_000_297),
       'AtlasService',

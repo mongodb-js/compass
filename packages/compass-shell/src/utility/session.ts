@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'node:url';
 import { EventEmitter } from 'node:events';
-import { errorFromEvent, listen } from '@mongodb-js/compass-utils';
+import { errorFromEvent, listen } from '@mongodb-js/compass-events';
 import Worker from 'web-worker';
 import { interrupt as nativeInterrupt } from 'interruptor';
 import type { InterruptHandle } from 'interruptor';
