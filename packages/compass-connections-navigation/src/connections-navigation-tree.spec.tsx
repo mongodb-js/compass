@@ -364,30 +364,31 @@ describe('ConnectionsNavigationTree', function () {
       activeWorkspace: null,
     });
 
-    // Tab to the first element
+    // Tab to the first element, which is 'peaches' because favorites are
+    // ordered by name
     userEvent.tab();
     await waitFor(() => {
       // Virtual list will be the one to grab the focus first, but will
       // immediately forward it to the element and mocking raf here breaks
       // virtual list implementatin, waitFor is to accomodate for that
-      expect(document.querySelector('[data-id="connection_ready"]')).to.eq(
-        document.activeElement
-      );
-      return true;
-    });
-    let tabbedItem = screen.getByTestId('connection_ready');
-    expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
-
-    // Go down to the second element
-    userEvent.keyboard('{arrowdown}');
-    await waitFor(() => {
       expect(document.querySelector('[data-id="connection_initial"]')).to.eq(
         document.activeElement
       );
       return true;
     });
+    let tabbedItem = screen.getByTestId('connection_initial');
+    expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
 
-    tabbedItem = screen.getByTestId('connection_initial');
+    // Go down to the second element
+    userEvent.keyboard('{arrowdown}');
+    await waitFor(() => {
+      expect(document.querySelector('[data-id="connection_ready"]')).to.eq(
+        document.activeElement
+      );
+      return true;
+    });
+
+    tabbedItem = screen.getByTestId('connection_ready');
     expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
   });
 
@@ -1267,8 +1268,11 @@ describe('ConnectionsNavigationTree', function () {
     };
     const folderProps = { folders, folderAssignments };
 
-    const renderedItemIds = () =>
-      screen.getAllByRole('treeitem').map((item) => item.dataset.id);
+    const renderedItemIds = (): string[] =>
+      screen
+        .getAllByRole('treeitem')
+        .map((item) => item.dataset.id)
+        .filter((id): id is string => id !== undefined);
 
     it('should render folders before uncategorized connections, both alphabetically', async function () {
       await renderConnectionsNavigationTree(folderProps);
@@ -1334,8 +1338,68 @@ describe('ConnectionsNavigationTree', function () {
       });
 
       expect(renderedItemIds()).to.deep.equal([
-        'connection_ready',
         'connection_initial',
+        'connection_ready',
+        'connection_disconnected',
+      ]);
+    });
+
+    it('should sort folders alphabetically, ignoring case', async function () {
+      await renderConnectionsNavigationTree({
+        folders: [
+          { id: 'folder_upper', name: 'Beta' },
+          { id: 'folder_lower', name: 'alpha' },
+        ],
+        folderAssignments: {},
+      });
+
+      expect(
+        renderedItemIds().filter((id) => id.startsWith('folder_'))
+      ).to.deep.equal(['folder_lower', 'folder_upper']);
+    });
+
+    it('should order uncategorized connections with favorites first, then by name', async function () {
+      await renderConnectionsNavigationTree({
+        folders: [],
+        folderAssignments: {},
+      });
+
+      expect(renderedItemIds()).to.deep.equal([
+        'connection_initial',
+        'connection_ready',
+        'connection_disconnected',
+      ]);
+    });
+
+    it('should order the connections inside a folder with favorites first, then by name', async function () {
+      await renderConnectionsNavigationTree({
+        folders: [{ id: 'folder_a', name: 'Work' }],
+        folderAssignments: {
+          connection_ready: 'folder_a',
+          connection_initial: 'folder_a',
+          connection_disconnected: 'folder_a',
+        },
+        expanded: { folder_a: {} },
+      });
+
+      expect(renderedItemIds()).to.deep.equal([
+        'folder_a',
+        'connection_initial',
+        'connection_ready',
+        'connection_disconnected',
+      ]);
+    });
+
+    it('should sort the connections it is given rather than relying on their order', async function () {
+      await renderConnectionsNavigationTree({
+        connections: [...connections].reverse(),
+        folders: [],
+        folderAssignments: {},
+      });
+
+      expect(renderedItemIds()).to.deep.equal([
+        'connection_initial',
+        'connection_ready',
         'connection_disconnected',
       ]);
     });
@@ -1380,6 +1444,19 @@ describe('ConnectionsNavigationTree', function () {
       expect(
         within(screen.getByTestId('folder_a')).queryByTitle('Show actions')
       ).not.to.exist;
+    });
+
+    it('should render a folder with an outlined folder icon', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      // LeafyGreen glyphs paint with fill; the folder icon is stroked, which is
+      // what distinguishes it from the filled "Folder" glyph used elsewhere.
+      const strokedIcon = Array.from(
+        screen.getByTestId('folder_a').querySelectorAll('svg')
+      ).find((svg) => svg.querySelector('path[stroke]'));
+
+      expect(strokedIcon).to.exist;
+      expect(strokedIcon?.getAttribute('fill')).to.equal('none');
     });
   });
 });

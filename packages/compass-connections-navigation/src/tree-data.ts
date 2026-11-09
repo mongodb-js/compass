@@ -412,6 +412,24 @@ type TopLevelEntry =
   | { type: 'connection'; connection: Connection };
 
 /**
+ * Favorites first, then by display name, then by id so connections sharing a
+ * name keep a stable order. Mirrors the ordering the connections store applies,
+ * so the tree renders the same order whether or not the list it is given is
+ * already sorted.
+ */
+function compareConnections(a: Connection, b: Connection): number {
+  const aIsFavorite = a.connectionInfo.savedConnectionType === 'favorite';
+  const bIsFavorite = b.connectionInfo.savedConnectionType === 'favorite';
+  if (aIsFavorite !== bIsFavorite) {
+    return aIsFavorite ? -1 : 1;
+  }
+  return (
+    a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase()) ||
+    a.connectionInfo.id.localeCompare(b.connectionInfo.id)
+  );
+}
+
+/**
  * Splits the connections into the ones filed under a folder and the ones that
  * stay uncategorized. Membership is resolved from the assignments, so a
  * connection whose assignment points at a folder that doesn't exist is
@@ -426,7 +444,10 @@ function groupConnectionsByFolder(
   const connectionsByFolderId = new Map<string, Connection[]>();
   const uncategorized: Connection[] = [];
 
-  for (const connection of connections) {
+  // Sorting once before splitting is enough: the split preserves relative
+  // order, so each folder's connections and the uncategorized ones all come out
+  // ordered.
+  for (const connection of connections.slice().sort(compareConnections)) {
     const folderId = folderAssignments[connection.connectionInfo.id];
     if (!folderId || !foldersById.has(folderId)) {
       uncategorized.push(connection);
@@ -442,7 +463,9 @@ function groupConnectionsByFolder(
 
   const sortedFolders = folders
     .slice()
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) =>
+      a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
+    );
 
   return [
     ...sortedFolders.map((folder): TopLevelEntry => ({
@@ -463,9 +486,9 @@ function groupConnectionsByFolder(
  * The IDs of the items are just to be used by the tree to correctly identify the items and
  * do not represent the actual IDs of the items.
  *
- * Folders and the connections inside them are both ordered alphabetically.
- * Connections keep the order they are given in, which the connections store
- * already sorts by title.
+ * Folders are ordered alphabetically, each followed by its connections one
+ * level deeper. Within a folder, and among the uncategorized connections,
+ * favorites come first and everything is ordered by display name.
  *
  * @param connections - The connections.
  * @param folders - The folders to group the connections under.
