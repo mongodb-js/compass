@@ -28,8 +28,8 @@ import { ToolsLogger } from '../../tools-logger';
 import {
   COMPASS_CONNECTION_ID,
   ToolsConnectionManager,
-  ToolsConnectionRegistry,
 } from '../../tools-connection-manager';
+import { ToolsConnectionRegistry } from '../../tools-connection-registry';
 import { removeZodTransforms } from '../../remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from '../../available-tools';
 import type { ToolsRpcMethod } from './protocol';
