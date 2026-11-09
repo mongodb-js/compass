@@ -78,7 +78,8 @@ export async function parseXmlToJsonResponse(
           `Failed to parse value for tag <${tag}>: ${value}`,
           { error: e }
         );
-        result[tag] = null;
+        // Keep the unparseable value so the user can see and fix it in the editor
+        result[tag] = value;
       }
     })
   );

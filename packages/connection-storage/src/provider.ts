@@ -6,10 +6,17 @@ import {
   type AtlasClusterMetadata,
 } from './connection-storage';
 import { InMemoryConnectionStorage } from './in-memory-connection-storage';
+import {
+  type Folder,
+  type FolderOrganization,
+  type FolderStorage,
+} from './folder-storage';
+import { InMemoryFolderStorage } from './in-memory-folder-storage';
 
-export { InMemoryConnectionStorage };
+export { InMemoryConnectionStorage, InMemoryFolderStorage };
 
 export type { ConnectionStorage, ConnectionInfo, AtlasClusterMetadata };
+export type { Folder, FolderOrganization, FolderStorage };
 
 export const ConnectionStorageContext = createContext<ConnectionStorage | null>(
   null
@@ -33,6 +40,25 @@ export function useConnectionStorageContext(): ConnectionStorage {
 export const connectionStorageLocator = createServiceLocator(
   useConnectionStorageContext,
   'connectionStorageLocator'
+);
+
+export const FolderStorageContext = createContext<FolderStorage | null>(null);
+
+export const FolderStorageProvider = FolderStorageContext.Provider;
+
+export function useFolderStorage(): FolderStorage {
+  const folderStorage = useContext(FolderStorageContext);
+  if (!folderStorage) {
+    throw new Error(
+      'Could not find the current FolderStorage. Did you forget to setup the FolderStorageProvider?'
+    );
+  }
+  return folderStorage;
+}
+
+export const folderStorageLocator = createServiceLocator(
+  useFolderStorage,
+  'folderStorageLocator'
 );
 
 export {

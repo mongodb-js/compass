@@ -7,3 +7,8 @@ export type {
   ExportConnectionOptions,
   ImportConnectionOptions,
 } from './import-export-connection';
+export type { Folder, FolderOrganization } from './folder-storage';
+export {
+  initCompassMainFolderStorage,
+  getCompassMainFolderStorage,
+} from './compass-main-folder-storage';

@@ -9,7 +9,6 @@ import type {
 } from '@mongodb-js/connection-info';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
 import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import { deleteCompassAppNameParam } from './utils';
 import {
@@ -108,7 +107,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
   async loadAll({ signal }: { signal?: AbortSignal } = {}): Promise<
     ConnectionInfo[]
   > {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     try {
       const connections = await this.getConnections();
       const loadedConnections = connections
@@ -138,7 +137,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     id: string;
     signal?: AbortSignal;
   }): Promise<ConnectionInfo | undefined> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     if (!id) {
       return undefined;
     }
@@ -153,7 +152,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     connectionInfo: ConnectionInfo;
     signal?: AbortSignal;
   }): Promise<void> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     try {
       const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
         extractSecrets(connectionInfo);
@@ -195,7 +194,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     id: string;
     signal?: AbortSignal;
   }): Promise<void> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     if (!id) {
       return;
     }
@@ -318,7 +317,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     options: ImportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<ConnectionInfo[]> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
 
     const { passphrase, trackingProps, filterConnectionIds } = options;
     const connections = await deserializeConnections(content, {
@@ -339,7 +338,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     options?: ImportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<void> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
 
     const connections = await this.deserializeConnections({
       content,
@@ -377,7 +376,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     options?: ExportConnectionOptions;
     signal?: AbortSignal;
   } = {}): Promise<string> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
 
     const { filterConnectionIds, ...restOfOptions } = options;
     const connections = await this.loadAll({ signal });

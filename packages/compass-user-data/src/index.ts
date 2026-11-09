@@ -11,3 +11,4 @@ export {
   isUserScopedUserDataType,
 } from './user-data';
 export { z } from 'zod';
+export { getStoragePath } from './storage-path';

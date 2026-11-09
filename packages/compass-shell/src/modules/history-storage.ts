@@ -1,5 +1,4 @@
 import { FileUserData, z } from '@mongodb-js/compass-user-data';
-import { getAppName } from '@mongodb-js/compass-utils';
 
 export class HistoryStorage {
   fileName = 'shell-history';
@@ -22,7 +21,7 @@ export class HistoryStorage {
     }
     this.migrationChecked = true;
 
-    const oldAppName = getAppName();
+    const oldAppName = process.env.HADRON_PRODUCT_NAME;
     if (oldAppName) {
       await this.userData.migrateFromOldFolder(oldAppName);
     }

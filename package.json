@@ -69,8 +69,8 @@
   "devDependencies": {
     "@mongodb-js/diagramming": "^2.4.1",
     "@mongodb-js/eslint-config-devtools": "^0.11.5",
-    "@mongodb-js/monorepo-tools": "^1.6.1",
-    "@mongodb-js/sbom-tools": "^0.10.24",
+    "@mongodb-js/monorepo-tools": "^1.6.3",
+    "@mongodb-js/sbom-tools": "^0.10.25",
     "@mongodb-js/tracking-plan": "^0.3.2",
     "@testing-library/dom": "^9.3.4",
     "ag-grid-react": "^36.2.0",
@@ -86,7 +86,7 @@
     "reflux": "^0.4.1"
   },
   "engines": {
-    "node": ">=24.15.0",
+    "node": ">=24.22.2",
     "npm": ">=11.16.0"
   },
   "bugs": {

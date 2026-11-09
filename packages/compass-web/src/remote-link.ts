@@ -1,4 +1,4 @@
-import { listen } from '@mongodb-js/compass-utils';
+import { listen } from '@mongodb-js/compass-events';
 import type { Link, MultiplexSocketCallbacks } from './multiplex-link';
 
 type Destination = { da: string; dp: number };

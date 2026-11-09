@@ -115,7 +115,6 @@ module.exports = (env, args) => {
         // be defined before `fs` so that webpack first reads the namespaced
         // alias before trying to resolve it relative to `fs` polyfill path
         'fs/promises': localPolyfill('fs/promises'),
-        // TODO(COMPASS-7411): compass-utils
         fs: localPolyfill('fs'),
 
         // We can't polyfill connection-form because some shared methods from

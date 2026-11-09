@@ -5,6 +5,7 @@ import {
   screen,
   within,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -26,7 +27,7 @@ import { Provider } from '../stores/context';
 import { configureStore } from '../stores/query-bar-store';
 import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import { AIQueryActionTypes } from '../stores/ai-query-reducer';
+import { AIQueryActionTypes, runAIQuery } from '../stores/ai-query-reducer';
 import { mapQueryToFormFields } from '../utils/query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import QueryBar from './query-bar';
@@ -265,6 +266,66 @@ describe('QueryBar Component', function () {
       );
 
       testIsEditorDisabled('query-bar-option-filter-input', true);
+    });
+  });
+
+  describe('when ai generates an unparseable query', function () {
+    beforeEach(async function () {
+      const store = configureStore({ namespace: 'db.coll' }, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        connectionInfoRef: { current: { id: 'TEST' } },
+        dataService: { sample: () => Promise.resolve([]) },
+        collection: { fetchMetadata: () => Promise.resolve({ isFLE: false }) },
+        atlasAiService: {
+          getQueryFromUserInput: () =>
+            Promise.resolve({
+              content: {
+                query: { filter: '{ name: "Alice"', project: '{ name: 1' },
+              },
+            }),
+        },
+      } as unknown as QueryBarExtraArgs);
+
+      render(
+        <Provider store={store}>
+          <QueryBar
+            source="test"
+            buttonLabel="Apply"
+            onApply={noop}
+            onReset={noop}
+            resultId="123"
+          />
+        </Provider>
+      );
+
+      await store.dispatch(runAIQuery('find alice'));
+    });
+
+    it('shows the generated query in the editors', async function () {
+      await waitFor(() => {
+        expect(
+          within(screen.getByTestId('query-bar-option-filter-input')).getByRole(
+            'textbox'
+          ).textContent
+        ).to.equal('{ name: "Alice"');
+        expect(
+          within(
+            screen.getByTestId('query-bar-option-project-input')
+          ).getByRole('textbox').textContent
+        ).to.equal('{ name: 1');
+      });
+    });
+
+    it('disables the apply button', async function () {
+      await waitFor(() => {
+        expect(
+          screen
+            .getByTestId('query-bar-apply-filter-button')
+            .getAttribute('aria-disabled')
+        ).to.equal('true');
+      });
     });
   });
 

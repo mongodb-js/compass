@@ -1,9 +1,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { getStoragePath } from '@mongodb-js/compass-utils';
 import type { z } from 'zod';
 import writeFile from 'write-file-atomic';
+import { getStoragePath } from './storage-path';
 import { Semaphore } from './semaphore';
 
 const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
@@ -17,6 +17,7 @@ const validUserDataTypes = [
   'AppPreferences',
   'Users',
   'Connections',
+  'Folders',
   'AtlasState',
   'ShellHistory',
 ] as const;

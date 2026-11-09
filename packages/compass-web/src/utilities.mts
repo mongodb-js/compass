@@ -2,7 +2,7 @@ import {
   errorFromEvent,
   listen,
   utilityPortChannel,
-} from '@mongodb-js/compass-utils';
+} from '@mongodb-js/compass-events';
 import { CrossOriginWorker } from './cross-origin-worker.mts';
 import type { CompassWebLogger } from './logger-and-telemetry.tsx';
 import { getLink } from './multiplex-link.ts';
@@ -13,10 +13,8 @@ const UTILITIES: Map<string, () => CrossOriginWorker> = new Map([
     'ai-assistant',
     () =>
       new CrossOriginWorker(
-        new URL(
-          '../../compass-utilities/src/ai-assistant/index.mts',
-          import.meta.url
-        )
+        new URL('@mongodb-js/compass-utilities/ai-assistant', import.meta.url),
+        { name: 'ai-assistant' }
       ),
   ],
 ]);

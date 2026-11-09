@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create Github App Token
-        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@a5a3678435bde24f36e21ae4cab9ccd7aca1a3c7 # main
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
