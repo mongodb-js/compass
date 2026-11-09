@@ -1354,5 +1354,68 @@ describe('ConnectionsNavigationTree', function () {
         (styledRow as HTMLElement).style.getPropertyValue('--item-color')
       ).to.equal('');
     });
+
+    it('should show rename and delete actions for a folder', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      userEvent.hover(screen.getByText('alpha'));
+      const showActions = within(screen.getByTestId('folder_a')).getByTitle(
+        'Show actions'
+      );
+
+      userEvent.click(showActions);
+
+      expect(screen.getByText('Rename folder')).to.exist;
+      expect(screen.getByText('Delete folder')).to.exist;
+    });
+
+    it('should activate callback with `rename-folder` when the rename action is clicked', async function () {
+      const spy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        ...folderProps,
+        onItemAction: spy,
+      });
+
+      userEvent.hover(screen.getByText('alpha'));
+      userEvent.click(
+        within(screen.getByTestId('folder_a')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText('Rename folder'));
+
+      expect(spy).to.be.calledOnce;
+      const [[item, action]] = spy.args;
+      expect(item.type).to.equal('folder');
+      expect(item.folderId).to.equal('folder_a');
+      expect(action).to.equal('rename-folder');
+    });
+
+    it('should activate callback with `delete-folder` when the delete action is clicked', async function () {
+      const spy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        ...folderProps,
+        onItemAction: spy,
+      });
+
+      userEvent.hover(screen.getByText('alpha'));
+      userEvent.click(
+        within(screen.getByTestId('folder_a')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText('Delete folder'));
+
+      expect(spy).to.be.calledOnce;
+      const [[item, action]] = spy.args;
+      expect(item.type).to.equal('folder');
+      expect(item.folderId).to.equal('folder_a');
+      expect(action).to.equal('delete-folder');
+    });
+
+    it('should show rename and delete in the folder context menu', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      userEvent.click(screen.getByText('alpha'), { button: 2 });
+
+      expect(screen.getByText('Rename folder')).to.exist;
+      expect(screen.getByText('Delete folder')).to.exist;
+    });
   });
 });

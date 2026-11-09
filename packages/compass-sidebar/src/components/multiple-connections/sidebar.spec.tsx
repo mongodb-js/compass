@@ -16,6 +16,10 @@ import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provid
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  InMemoryFolderStorage,
+  type Folder,
+} from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import {
   AtlasClusterConnectionsOnlyProvider,
@@ -94,7 +98,12 @@ describe('Multiple Connections Sidebar Component', function () {
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
     connections: ConnectionInfo[] | 'no-preload' = [savedFavoriteConnection],
-    atlasClusterConnectionsOnly: boolean | undefined = undefined
+    atlasClusterConnectionsOnly: boolean | undefined = undefined,
+    folderOrganization: {
+      folders: Folder[];
+      assignments: Record<string, string>;
+    } = { folders: [], assignments: {} },
+    enableConnectionFolders = false
   ) {
     workspace = sinon.spy({
       openMyQueriesWorkspace: () => undefined,
@@ -141,6 +150,10 @@ describe('Multiple Connections Sidebar Component', function () {
 
     const result = renderWithConnections(component, {
       connections,
+      folderStorage: new InMemoryFolderStorage(folderOrganization),
+      preferences: enableConnectionFolders
+        ? { enableConnectionFolders: true }
+        : undefined,
       connectFn() {
         return {
           currentOp() {
@@ -720,6 +733,217 @@ describe('Multiple Connections Sidebar Component', function () {
           });
         });
       });
+    });
+  });
+
+  describe('connection folders', function () {
+    const folders: Folder[] = [{ id: 'folder_1', name: 'Work' }];
+    const assignments = { [savedFavoriteConnection.id]: 'folder_1' };
+
+    const renderWithFolders = async (enableConnectionFolders: boolean) => {
+      doRender(
+        null,
+        [savedFavoriteConnection, savedRecentConnection],
+        undefined,
+        { folders, assignments },
+        enableConnectionFolders
+      );
+      await waitFor(() => screen.getByRole('tree'));
+    };
+
+    it('should group connections under folders when the feature flag is enabled', async function () {
+      await renderWithFolders(true);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-level',
+          '1'
+        );
+      });
+      expect(screen.getByText('Work')).to.be.visible;
+      // The connection filed in the folder is only shown once it is expanded,
+      // while the uncategorized one stays at the top level.
+      expect(screen.queryByTestId(savedFavoriteConnection.id)).not.to.exist;
+      expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
+    });
+
+    it('should show the folder contents when the folder is expanded', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByText('Work'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+      });
+    });
+
+    it('should leave the tree unchanged when the feature flag is disabled', async function () {
+      await renderWithFolders(false);
+
+      expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+      expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
+      expect(screen.queryByTestId('folder_1')).not.to.exist;
+      expect(screen.queryByText('Work')).not.to.exist;
+    });
+
+    it('should collapse a folder when collapse all is triggered', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByText('Work'));
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'true'
+        );
+      });
+
+      userEvent.click(screen.getByLabelText('Collapse all connections'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'false'
+        );
+      });
+    });
+
+    it('should offer the create folder action when the feature flag is enabled', async function () {
+      await renderWithFolders(true);
+
+      expect(screen.getByLabelText('Create folder')).to.be.visible;
+    });
+
+    it('should not offer the create folder action when the feature flag is disabled', async function () {
+      await renderWithFolders(false);
+
+      expect(screen.queryByLabelText('Create folder')).not.to.exist;
+    });
+
+    it('should offer the create folder action in the header context menu', async function () {
+      await renderWithFolders(true);
+
+      userEvent.click(screen.getByTestId('connections-header'), { button: 2 });
+
+      const menu = screen.getByTestId('context-menu');
+      expect(within(menu).getByText('Create folder')).to.be.visible;
+    });
+
+    it('should create a folder from the "Create folder" action', async function () {
+      await renderWithFolders(true);
+
+      userEvent.click(screen.getByLabelText('Create folder'));
+
+      const input = await screen.findByLabelText('Folder name');
+      userEvent.type(input, 'Production');
+      userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(connectionsStoreActions.createFolder).to.have.been.calledWith(
+          'Production'
+        );
+      });
+      expect(
+        await screen.findByText('New folder Production created in sidebar.')
+      ).to.be.visible;
+    });
+
+    it('should not create a folder whose name duplicates an existing one', async function () {
+      await renderWithFolders(true);
+
+      userEvent.click(screen.getByLabelText('Create folder'));
+
+      const input = await screen.findByLabelText('Folder name');
+      // Folder names are compared case-insensitively.
+      userEvent.type(input, 'work');
+      userEvent.click(screen.getByTestId('submit-button'));
+
+      expect(screen.getByText('A folder with this name already exists')).to.be
+        .visible;
+      expect(connectionsStoreActions.createFolder).not.to.have.been.called;
+    });
+
+    it('should rename a folder from its actions menu', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.hover(screen.getByText('Work'));
+      userEvent.click(
+        within(screen.getByTestId('folder_1')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText('Rename folder'));
+
+      const input = (await screen.findByLabelText(
+        'Folder name'
+      )) as HTMLInputElement;
+      expect(input.value).to.equal('Work');
+
+      userEvent.clear(input);
+      userEvent.type(input, 'Personal');
+      userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(connectionsStoreActions.renameFolder).to.have.been.calledWith(
+          'folder_1',
+          'Personal'
+        );
+      });
+      expect(await screen.findByText('Folder renamed Work to Personal')).to.be
+        .visible;
+    });
+
+    it('should delete a folder after the user confirms', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.hover(screen.getByText('Work'));
+      userEvent.click(
+        within(screen.getByTestId('folder_1')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText('Delete folder'));
+
+      const confirmationModal = await screen.findByTestId('confirmation-modal');
+      expect(within(confirmationModal).getByText('Delete "Work"?')).to.be
+        .visible;
+      // The one connection filed in the folder is called out, so the user knows
+      // it isn't deleted along with the folder.
+      expect(
+        within(confirmationModal).getByText(
+          '1 connection(s) inside will move back to the top-level list instead.'
+        )
+      ).to.be.visible;
+
+      userEvent.click(
+        within(confirmationModal).getByRole('button', {
+          name: 'Delete folder',
+        })
+      );
+
+      await waitFor(() => {
+        expect(connectionsStoreActions.deleteFolder).to.have.been.calledWith(
+          'folder_1'
+        );
+      });
+      expect(await screen.findByText('Work folder deleted')).to.be.visible;
+    });
+
+    it('should not delete a folder when the user cancels the confirmation', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.hover(screen.getByText('Work'));
+      userEvent.click(
+        within(screen.getByTestId('folder_1')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText('Delete folder'));
+
+      const confirmationModal = await screen.findByTestId('confirmation-modal');
+      userEvent.click(
+        within(confirmationModal).getByRole('button', { name: 'Cancel' })
+      );
+
+      expect(connectionsStoreActions.deleteFolder).not.to.have.been.called;
     });
   });
 });
