@@ -69,8 +69,8 @@
   "devDependencies": {
     "@mongodb-js/diagramming": "^2.4.1",
     "@mongodb-js/eslint-config-devtools": "^0.11.5",
-    "@mongodb-js/monorepo-tools": "^1.6.3",
-    "@mongodb-js/sbom-tools": "^0.10.25",
+    "@mongodb-js/monorepo-tools": "^1.6.6",
+    "@mongodb-js/sbom-tools": "^0.10.27",
     "@mongodb-js/tracking-plan": "^0.3.2",
     "@testing-library/dom": "^9.3.4",
     "ag-grid-react": "^36.2.0",
@@ -101,8 +101,8 @@
   "overrides": {
     "autoevals": "^0.4.1",
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.72.0",
-      "@typescript-eslint/parser": "^8.72.0",
+      "@typescript-eslint/eslint-plugin": "^8.72.2",
+      "@typescript-eslint/parser": "^8.72.2",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",

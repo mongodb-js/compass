@@ -452,51 +452,68 @@ describe('ToolsController', function () {
       });
 
       await toolsController.startServer();
-      const runner = (openHosts[0] as any).runner;
+      const host = openHosts[0] as any;
 
-      await waitFor(() => runner.userConfig.maxTimeMS === 1234);
-      expect(runner.userConfig.telemetry).to.equal('enabled');
-      expect(runner.userConfig.maxTimeMS).to.equal(1234);
+      await waitFor(() => host.maxTimeMS === 1234);
+      expect(host.enableMCPTelemetry).to.equal(true);
+      expect(host.maxTimeMS).to.equal(1234);
+      expect(host.connectionManager.getMaxTimeMS()).to.equal(1234);
     });
 
-    it('syncs telemetry setting with the utility host runner', async function () {
+    it('sends the Atlas base URL for the configured preset', async function () {
+      await preferences.savePreferences({
+        atlasServiceBackendPreset: 'atlas-dev',
+      });
+
       await toolsController.startServer();
-      const runner = (openHosts[0] as any).runner;
+      const host = openHosts[0] as any;
+
+      await waitFor(
+        () => host.atlasBaseUrl === 'https://cloud-dev.mongodb.com'
+      );
+      expect(host.atlasBaseUrl).to.equal('https://cloud-dev.mongodb.com');
+    });
+
+    it('syncs telemetry setting with the utility host', async function () {
+      await toolsController.startServer();
+      const host = openHosts[0] as any;
 
       toolsController.setContext({
         enableMCPTelemetry: true,
         connections: [],
       });
-      await waitFor(() => runner.userConfig.telemetry === 'enabled');
-      expect(runner.userConfig.telemetry).to.equal('enabled');
+      await waitFor(() => host.enableMCPTelemetry === true);
+      expect(host.enableMCPTelemetry).to.equal(true);
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         connections: [],
       });
-      await waitFor(() => runner.userConfig.telemetry === 'disabled');
-      expect(runner.userConfig.telemetry).to.equal('disabled');
+      await waitFor(() => host.enableMCPTelemetry === false);
+      expect(host.enableMCPTelemetry).to.equal(false);
     });
 
-    it('syncs maxTimeMS setting with the utility host runner', async function () {
+    it('syncs maxTimeMS setting with the utility host', async function () {
       await toolsController.startServer();
-      const runner = (openHosts[0] as any).runner;
+      const host = openHosts[0] as any;
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: 5000,
         connections: [],
       });
-      await waitFor(() => runner.userConfig.maxTimeMS === 5000);
-      expect(runner.userConfig.maxTimeMS).to.equal(5000);
+      await waitFor(() => host.connectionManager.getMaxTimeMS() === 5000);
+      expect(host.maxTimeMS).to.equal(5000);
+      expect(host.connectionManager.getMaxTimeMS()).to.equal(5000);
 
       toolsController.setContext({
         enableMCPTelemetry: false,
         maxTimeMS: undefined,
         connections: [],
       });
-      await waitFor(() => runner.userConfig.maxTimeMS === undefined);
-      expect(runner.userConfig.maxTimeMS).to.equal(undefined);
+      await waitFor(() => host.connectionManager.getMaxTimeMS() === undefined);
+      expect(host.maxTimeMS).to.equal(undefined);
+      expect(host.connectionManager.getMaxTimeMS()).to.equal(undefined);
     });
   });
 
