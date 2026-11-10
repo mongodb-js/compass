@@ -525,10 +525,6 @@ export const useFilteredConnections = ({
     []
   );
 
-  // While a filter is active every folder is expanded, so that connections that
-  // matched inside a collapsed folder are still visible.
-  const expandAllFolders = !!filter.regex || filter.excludeInactive;
-
   const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
     useMemo(() => {
       const result: Record<string, false | Record<string, boolean>> =
@@ -553,11 +549,10 @@ export const useFilteredConnections = ({
           expandedState !== 'collapsed' ? expandedItemsInConnection : false;
       }
       for (const { id } of folders) {
-        result[id] =
-          expandAllFolders || expandedFolders[id] ? Object.create(null) : false;
+        result[id] = expandedFolders[id] ? Object.create(null) : false;
       }
       return result;
-    }, [expanded, connections, folders, expandedFolders, expandAllFolders]);
+    }, [expanded, connections, folders, expandedFolders]);
 
   // This is done to strip the isMatch that we attach on filtered items
   const filteredMemo = useMemo(() => {

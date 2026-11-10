@@ -306,30 +306,6 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     onDatabaseExpand,
   });
 
-  const visibleFolders = useMemo(() => {
-    if (!filter.regex && !filter.excludeInactive) {
-      return sidebarFolders;
-    }
-    // A folder with no visible connection is hidden rather than shown empty
-    // while filtering. Matching a folder on its own name is part of the filter
-    // work, not the tree rendering.
-    const visibleFolderIds = new Set<string>();
-    for (const { connectionInfo } of filtered ?? connections) {
-      const folderId = sidebarFolderAssignments[connectionInfo.id];
-      if (folderId) {
-        visibleFolderIds.add(folderId);
-      }
-    }
-    return sidebarFolders.filter((folder) => visibleFolderIds.has(folder.id));
-  }, [
-    filter.regex,
-    filter.excludeInactive,
-    sidebarFolders,
-    sidebarFolderAssignments,
-    filtered,
-    connections,
-  ]);
-
   const connectionListTitleActions =
     useMemo((): ItemAction<ConnectionListTitleActions>[] => {
       const actions: ItemAction<ConnectionListTitleActions>[] = [
@@ -677,7 +653,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         ) : (
           <ConnectionsNavigationTree
             connections={filtered || connections}
-            folders={visibleFolders}
+            folders={sidebarFolders}
             folderAssignments={sidebarFolderAssignments}
             activeWorkspace={activeWorkspace}
             onItemAction={onItemAction}
