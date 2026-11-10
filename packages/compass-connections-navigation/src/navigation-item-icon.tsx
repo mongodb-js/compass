@@ -17,12 +17,14 @@ const INFERRED_FROM_PRIVILEGES_TEXT =
 
 const FolderIcon = () => {
   const darkMode = useDarkMode();
-  const stroke = darkMode ? palette.white : palette.gray.dark1;
+  const stroke = darkMode ? palette.white : palette.gray.dark2;
   return (
     <svg
       width="16"
       height="16"
-      viewBox="0 0 24 24"
+      // The design's artwork is a 24x24 frame with the folder drawn inset; this
+      // crops to the drawing so the glyph fills the 16px box like its siblings.
+      viewBox="2 2 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
