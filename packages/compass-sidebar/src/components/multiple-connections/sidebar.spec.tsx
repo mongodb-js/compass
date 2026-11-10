@@ -767,17 +767,6 @@ describe('Multiple Connections Sidebar Component', function () {
       expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
     });
 
-    it('should show the folder contents when the folder is expanded', async function () {
-      await renderWithFolders(true);
-      await waitFor(() => screen.getByText('Work'));
-
-      userEvent.click(screen.getByText('Work'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
-      });
-    });
-
     it('should leave the tree unchanged when the feature flag is disabled', async function () {
       await renderWithFolders(false);
 

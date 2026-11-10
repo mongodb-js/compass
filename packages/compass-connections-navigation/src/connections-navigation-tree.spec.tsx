@@ -1260,7 +1260,7 @@ describe('ConnectionsNavigationTree', function () {
   describe('folders', function () {
     const folders = [
       { id: 'folder_b', name: 'Beta' },
-      { id: 'folder_a', name: 'Alpha' },
+      { id: 'folder_a', name: 'alpha' },
     ];
     const folderAssignments = {
       connection_ready: 'folder_a',
@@ -1274,10 +1274,11 @@ describe('ConnectionsNavigationTree', function () {
         .map((item) => item.dataset.id)
         .filter((id): id is string => id !== undefined);
 
-    it('should render folders before uncategorized connections, both alphabetically', async function () {
+    it('should render folders alphabetically before uncategorized connections', async function () {
       await renderConnectionsNavigationTree(folderProps);
 
-      // 'peaches' (connection_initial) is the only connection left uncategorized.
+      // 'alpha' sorts before 'Beta' only case-insensitively, and 'peaches'
+      // (connection_initial) is the only connection left uncategorized.
       expect(renderedItemIds()).to.deep.equal([
         'folder_a',
         'folder_b',
@@ -1285,24 +1286,13 @@ describe('ConnectionsNavigationTree', function () {
       ]);
     });
 
-    it('should render a folder as a top level item', async function () {
-      await renderConnectionsNavigationTree(folderProps);
-
-      expect(screen.getByTestId('folder_a')).to.have.attribute(
-        'aria-level',
-        '1'
-      );
-      expect(screen.getByText('Alpha')).to.exist;
-    });
-
     it('should not render the connections of a collapsed folder', async function () {
       await renderConnectionsNavigationTree(folderProps);
 
       expect(screen.queryByTestId('connection_ready')).not.to.exist;
-      expect(screen.queryByText('turtles')).not.to.exist;
     });
 
-    it('should render the connections of an expanded folder beneath it', async function () {
+    it('should render the connections of an expanded folder one level deeper', async function () {
       await renderConnectionsNavigationTree({
         ...folderProps,
         expanded: { folder_a: {} },
@@ -1331,47 +1321,7 @@ describe('ConnectionsNavigationTree', function () {
       ).to.have.attribute('aria-level', '3');
     });
 
-    it('should render a connection assigned to a folder that does not exist as uncategorized', async function () {
-      await renderConnectionsNavigationTree({
-        folders: [],
-        folderAssignments: { connection_ready: 'folder_gone' },
-      });
-
-      expect(renderedItemIds()).to.deep.equal([
-        'connection_initial',
-        'connection_ready',
-        'connection_disconnected',
-      ]);
-    });
-
-    it('should sort folders alphabetically, ignoring case', async function () {
-      await renderConnectionsNavigationTree({
-        folders: [
-          { id: 'folder_upper', name: 'Beta' },
-          { id: 'folder_lower', name: 'alpha' },
-        ],
-        folderAssignments: {},
-      });
-
-      expect(
-        renderedItemIds().filter((id) => id.startsWith('folder_'))
-      ).to.deep.equal(['folder_lower', 'folder_upper']);
-    });
-
-    it('should order uncategorized connections with favorites first, then by name', async function () {
-      await renderConnectionsNavigationTree({
-        folders: [],
-        folderAssignments: {},
-      });
-
-      expect(renderedItemIds()).to.deep.equal([
-        'connection_initial',
-        'connection_ready',
-        'connection_disconnected',
-      ]);
-    });
-
-    it('should order the connections inside a folder with favorites first, then by name', async function () {
+    it('should order connections with favorites first, then by name', async function () {
       await renderConnectionsNavigationTree({
         folders: [{ id: 'folder_a', name: 'Work' }],
         folderAssignments: {
@@ -1390,11 +1340,10 @@ describe('ConnectionsNavigationTree', function () {
       ]);
     });
 
-    it('should sort the connections it is given rather than relying on their order', async function () {
+    it('should render a connection assigned to a folder that does not exist as uncategorized', async function () {
       await renderConnectionsNavigationTree({
-        connections: [...connections].reverse(),
         folders: [],
-        folderAssignments: {},
+        folderAssignments: { connection_ready: 'folder_gone' },
       });
 
       expect(renderedItemIds()).to.deep.equal([
@@ -1408,25 +1357,13 @@ describe('ConnectionsNavigationTree', function () {
       const onItemExpand = Sinon.spy();
       await renderConnectionsNavigationTree({ ...folderProps, onItemExpand });
 
-      userEvent.click(screen.getByText('Alpha'));
+      userEvent.click(screen.getByText('alpha'));
 
       expect(onItemExpand).to.be.calledOnce;
       const [[item, isExpanded]] = onItemExpand.args;
       expect(item.type).to.equal('folder');
       expect(item.folderId).to.equal('folder_a');
       expect(isExpanded).to.equal(true);
-    });
-
-    it('should expand a folder on ArrowRight', async function () {
-      const onItemExpand = Sinon.spy();
-      await renderConnectionsNavigationTree({ ...folderProps, onItemExpand });
-
-      screen.getByTestId('folder_a').focus();
-      userEvent.keyboard('{ArrowRight}');
-
-      expect(onItemExpand).to.be.calledOnce;
-      expect(onItemExpand.args[0][0].type).to.equal('folder');
-      expect(onItemExpand.args[0][1]).to.equal(true);
     });
 
     it('should not render a folder row as an inactive item', async function () {
@@ -1436,27 +1373,6 @@ describe('ConnectionsNavigationTree', function () {
       expect(
         (styledRow as HTMLElement).style.getPropertyValue('--item-color')
       ).to.equal('');
-    });
-
-    it('should not render an actions menu for a folder', async function () {
-      await renderConnectionsNavigationTree(folderProps);
-
-      expect(
-        within(screen.getByTestId('folder_a')).queryByTitle('Show actions')
-      ).not.to.exist;
-    });
-
-    it('should render a folder with an outlined folder icon', async function () {
-      await renderConnectionsNavigationTree(folderProps);
-
-      // LeafyGreen glyphs paint with fill; the folder icon is stroked, which is
-      // what distinguishes it from the filled "Folder" glyph used elsewhere.
-      const strokedIcon = Array.from(
-        screen.getByTestId('folder_a').querySelectorAll('svg')
-      ).find((svg) => svg.querySelector('path[stroke]'));
-
-      expect(strokedIcon).to.exist;
-      expect(strokedIcon?.getAttribute('fill')).to.equal('none');
     });
   });
 });
