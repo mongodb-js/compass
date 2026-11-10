@@ -11,7 +11,7 @@ import {
   contextMenuClassName,
 } from '@mongodb-js/compass-context-menu';
 import { useCurrentValueRef } from '../hooks/use-current-value-ref';
-import { Menu, MenuItem, MenuSeparator } from './leafygreen';
+import { Menu, MenuItem, MenuSeparator, SubMenu } from './leafygreen';
 
 export type {
   ContextMenuItem,
@@ -116,17 +116,48 @@ export function ContextMenu({
               >
                 {itemGroup.items.map(
                   (item: ContextMenuItem, itemIndex: number) => {
+                    const testId = `menu-group-${groupIndex}-item-${itemIndex}`;
+                    const stopMouseDown = (evt: React.MouseEvent) => {
+                      // Keep focus on the element that was right-clicked to open the menu.
+                      evt.preventDefault();
+                      evt.stopPropagation();
+                    };
+                    if (item.items) {
+                      return (
+                        <SubMenu
+                          key={testId}
+                          data-text={item.label}
+                          data-testid={testId}
+                          className={itemStyles}
+                          title={item.label}
+                          onMouseDown={stopMouseDown}
+                        >
+                          {item.items.map((subItem, subIndex) => (
+                            <MenuItem
+                              key={`${testId}-${subIndex}`}
+                              data-text={subItem.label}
+                              data-testid={`${testId}-${subIndex}`}
+                              className={itemStyles}
+                              onMouseDown={stopMouseDown}
+                              onClick={(evt: React.MouseEvent) => {
+                                subItem.onAction?.(evt);
+                                onContextMenuItemClick?.(itemGroup, subItem);
+                                menu.close();
+                              }}
+                            >
+                              {subItem.label}
+                            </MenuItem>
+                          ))}
+                        </SubMenu>
+                      );
+                    }
                     return (
                       <MenuItem
-                        key={`menu-group-${groupIndex}-item-${itemIndex}`}
+                        key={testId}
                         data-text={item.label}
-                        data-testid={`menu-group-${groupIndex}-item-${itemIndex}`}
+                        data-testid={testId}
                         className={itemStyles}
-                        onMouseDown={(evt: React.MouseEvent) => {
-                          // Keep focus on the element that was right-clicked to open the menu.
-                          evt.preventDefault();
-                          evt.stopPropagation();
-                        }}
+                        onMouseDown={stopMouseDown}
                         onClick={(evt: React.MouseEvent) => {
                           item.onAction?.(evt);
                           onContextMenuItemClick?.(itemGroup, item);

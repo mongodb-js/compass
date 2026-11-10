@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import type { RenderMode } from '@leafygreen-ui/popover';
 
-import { Menu, MenuItem, MenuSeparator } from '../leafygreen';
+import { Menu, MenuItem, MenuSeparator, SubMenu } from '../leafygreen';
 
 import { ItemActionButtonSize } from './constants';
 import { ActionGlyph } from './action-glyph';
-import type { MenuAction } from './types';
+import type { ItemBase, MenuAction } from './types';
 import { SmallIconButton } from './small-icon-button';
 import { actionTestId, isSeparatorMenuAction } from './utils';
 
@@ -25,7 +25,7 @@ export type ItemActionMenuProps<Action extends string> = {
    * Note: In the current implementation, this is called when a menu is opened.
    */
   setHidable?(hideable: boolean): void;
-  onAction(actionName: Action): void;
+  onAction(actionName: Action, actionPayload?: unknown): void;
   // TODO: Merge className and menuClassName
   className?: string;
   menuClassName?: string;
@@ -33,6 +33,9 @@ export type ItemActionMenuProps<Action extends string> = {
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
   iconSize?: ItemActionButtonSize;
+  /** Trigger button glyph and label, defaults to the "Show actions" ellipsis. */
+  glyph?: ItemBase<Action>['icon'];
+  label?: string;
   'data-testid'?: string;
 };
 
@@ -47,6 +50,8 @@ export function ItemActionMenu<Action extends string>({
   iconClassName,
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
+  glyph = 'Ellipsis',
+  label = 'Show actions',
   'data-testid': dataTestId,
 }: ItemActionMenuProps<Action>) {
   // This ref is used by the Menu component to calculate the height and position
@@ -54,17 +59,14 @@ export function ItemActionMenu<Action extends string>({
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
-    (evt) => {
+  const onItemClick = useCallback(
+    (
+      evt: React.MouseEvent<HTMLElement>,
+      { action, actionPayload }: ItemBase<Action>
+    ) => {
       evt.stopPropagation();
-      if (evt.currentTarget.dataset.menuitem) {
-        setIsMenuOpen(false);
-      }
-      const actionName = evt.currentTarget.dataset.action;
-      if (typeof actionName !== 'string') {
-        throw new Error('Expected element to have a "data-action" attribute');
-      }
-      onAction(actionName as Action);
+      setIsMenuOpen(false);
+      onAction(action, actionPayload);
     },
     [onAction]
   );
@@ -103,9 +105,9 @@ export function ItemActionMenu<Action extends string>({
             <SmallIconButton
               ref={menuTriggerRef}
               size={iconSize}
-              glyph="Ellipsis"
-              label="Show actions"
-              title="Show actions"
+              glyph={glyph}
+              label={label}
+              title={label}
               data-testid={
                 dataTestId ? `${dataTestId}-show-actions` : undefined
               }
@@ -133,7 +135,37 @@ export function ItemActionMenu<Action extends string>({
             variant,
             isDisabled,
             disabledDescription,
+            actions: subActions,
           } = menuAction;
+
+          if (subActions) {
+            return (
+              <SubMenu
+                key={action}
+                data-testid={actionTestId(dataTestId, action)}
+                title={label}
+                glyph={<ActionGlyph glyph={icon} size={iconSize} />}
+                disabled={isDisabled}
+                description={isDisabled ? disabledDescription : ''}
+              >
+                {subActions.map((subAction, subIdx) => (
+                  <MenuItem
+                    key={`${subAction.action}-${subIdx}`}
+                    data-testid={actionTestId(dataTestId, subAction.action)}
+                    data-action={subAction.action}
+                    data-menuitem={true}
+                    onClick={(evt: React.MouseEvent<HTMLElement>) =>
+                      onItemClick(evt, subAction)
+                    }
+                    variant={subAction.variant || 'default'}
+                    disabled={subAction.isDisabled}
+                  >
+                    {subAction.label}
+                  </MenuItem>
+                ))}
+              </SubMenu>
+            );
+          }
 
           return (
             <MenuItem
@@ -142,7 +174,9 @@ export function ItemActionMenu<Action extends string>({
               data-action={action}
               data-menuitem={true}
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
-              onClick={onClick}
+              onClick={(evt: React.MouseEvent<HTMLElement>) =>
+                onItemClick(evt, menuAction)
+              }
               variant={variant || 'default'}
               disabled={isDisabled}
               description={isDisabled ? disabledDescription : ''}

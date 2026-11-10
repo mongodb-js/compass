@@ -101,6 +101,76 @@ describe('item action controls components', function () {
       expect(onAction).have.been.calledWith('delete');
     });
 
+    it('renders nested actions as a submenu (menu)', function () {
+      const onAction = sinon.spy();
+      render(
+        <ItemActionControls
+          actions={[
+            {
+              action: 'move',
+              label: 'Move to',
+              icon: 'Folder',
+              actions: [
+                {
+                  action: 'move',
+                  label: 'Folder A',
+                  actionPayload: { id: 'a' },
+                },
+                {
+                  action: 'move',
+                  label: 'Folder B',
+                  actionPayload: { id: 'b' },
+                },
+              ],
+            },
+            { action: 'copy', label: 'Copy', icon: 'Copy' },
+          ]}
+          onAction={onAction}
+          data-testid="test-actions"
+          collapseToMenuThreshold={1}
+        />
+      );
+
+      userEvent.click(screen.getByTestId('test-actions-show-actions'));
+      userEvent.click(screen.getByText('Move to'));
+      userEvent.click(screen.getByText('Folder B'));
+      expect(onAction).to.have.been.calledOnceWith('move', { id: 'b' });
+    });
+
+    it('renders nested actions as a dropdown menu (buttons)', function () {
+      const onAction = sinon.spy();
+      render(
+        <ItemActionControls
+          actions={[
+            {
+              action: 'move',
+              label: 'Move to',
+              icon: 'Folder',
+              actions: [
+                {
+                  action: 'move',
+                  label: 'Folder A',
+                  actionPayload: { id: 'a' },
+                },
+                {
+                  action: 'move',
+                  label: 'Folder B',
+                  actionPayload: { id: 'b' },
+                },
+              ],
+            },
+          ]}
+          onAction={onAction}
+          data-testid="test-actions"
+          collapseToMenuThreshold={2}
+        />
+      );
+
+      userEvent.click(screen.getByTitle('Move to'));
+      userEvent.click(screen.getByText('Folder A'));
+      expect(onAction).to.have.been.calledOnceWith('move', { id: 'a' });
+    });
+
     it('renders action icons when collapseAfter is provided', function () {
       render(
         <ItemActionControls
