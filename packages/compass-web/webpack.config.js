@@ -57,6 +57,14 @@ module.exports = (env, args) => {
           // records unless you're super sure it's needed
         }),
       ],
+      optimization: {
+        // TODO(COMPASS-11368): recent changes in how webpack handles missing
+        // exports causes the build to fail when unused exports optimisation is
+        // being applied. For that reason we're temporarily going to disable
+        // usedExports analysis. This does result in slightly bigger build in
+        // total, but unblocks us from staying up to date on our tooling version
+        usedExports: false,
+      },
     }
   );
 
@@ -192,6 +200,19 @@ module.exports = (env, args) => {
       },
     },
     module: {
+      rules: [
+        {
+          test: /\.m?js$/,
+          use: {
+            // See loader source for context
+            loader: path.join(
+              __dirname,
+              'scripts',
+              'patch-dns-query-loader.js'
+            ),
+          },
+        },
+      ],
       parser: {
         javascript: {
           // Must match the import in src/utilities.mts character for character
