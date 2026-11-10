@@ -534,7 +534,7 @@ This document was automatically generated on Tue Nov 10 2026.
 | **[style-to-object](#a13ff1db998d00430594044801432a2f2244dad01c667bbb176270eef03a9674)**                                    | 0.4.4        | MIT                                 |
 | **[stylis](#131ca0470639719771dc1f233c9962655afffb6d27143e894c43e967517107cf)**                                             | 4.2.0        | MIT                                 |
 | **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**                                     | 7.2.0        | MIT                                 |
-| **[system-ca](#37546d95936426fb53ac75c628cd4ab062b360fd5e95279a3b8a26f57afd66fe)**                                          | 3.0.0        | Apache-2.0                          |
+| **[system-ca](#71d25a90a0a9952267b388b95c6df79dfc823a9243ebeb2b834720ba0104cc0a)**                                          | 3.0.1        | Apache-2.0                          |
 | **[tabbable](#0ebe87140b76c7f2135bbd5099e7973a5ec2b5d8fe2bec8e272608cf0b3f396a)**                                           | 5.3.3        | MIT                                 |
 | **[tabbable](#2d739f1daa79be2426cf054c54e02b3982f59e4d97a931fcef73b49c7f8b5855)**                                           | 6.3.0        | MIT                                 |
 | **[tar-fs](#907e1fea910142adbe6c4af5f6279670d17eff5a61dd89c7c7487b4a1257f35a)**                                             | 2.1.4        | MIT                                 |
@@ -39661,9 +39661,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="37546d95936426fb53ac75c628cd4ab062b360fd5e95279a3b8a26f57afd66fe"></a>
+<a id="71d25a90a0a9952267b388b95c6df79dfc823a9243ebeb2b834720ba0104cc0a"></a>
 
-### [system-ca](https://www.npmjs.com/package/system-ca) (version 3.0.0)
+### [system-ca](https://www.npmjs.com/package/system-ca) (version 3.0.1)
 
 License tags: Apache-2.0
 
