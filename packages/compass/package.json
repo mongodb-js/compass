@@ -121,7 +121,6 @@
           "**/ipv6-normalize/**",
           "**/node-addon-api/**",
           "**/win-export-certificate-and-key/**",
-          "**/macos-export-certificate-and-key/**",
           "**/@mongodb-js/macos-export-certificate-and-key/**",
           "**/system-ca/**",
           "**/mongo_crypt_v1.*"
@@ -134,7 +133,6 @@
           "os-dns-native",
           "@mongodb-js/native-machine-id",
           "win-export-certificate-and-key",
-          "macos-export-certificate-and-key",
           "@mongodb-js/macos-export-certificate-and-key"
         ]
       },
@@ -191,7 +189,7 @@
     "kerberos": "^7.0.0",
     "mongodb-client-encryption": "^7.2.1",
     "os-dns-native": "^2.0.1",
-    "system-ca": "^3.0.0",
+    "system-ca": "^3.0.1",
     "web-worker": "^1.5.0"
   },
   "devDependencies": {

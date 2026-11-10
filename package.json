@@ -143,7 +143,6 @@
     "interruptor": true,
     "kerberos": true,
     "macos-alias": true,
-    "macos-export-certificate-and-key": true,
     "@mongodb-js/macos-export-certificate-and-key": true,
     "mongodb-client-encryption": true,
     "@mongodb-js/native-machine-id": true,
