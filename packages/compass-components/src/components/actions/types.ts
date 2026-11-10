@@ -16,6 +16,12 @@ export type ItemBase<Action extends string> = {
    * @default ItemActionButton
    */
   expandedAs?: React.ComponentType<ItemComponentProps<Action>>;
+  /**
+   * Nested actions. Rendered as a submenu inside a menu, or as a dropdown
+   * menu when the item is rendered inline as a button.
+   */
+  actions?: ItemBase<Action>[];
+  actionPayload?: unknown;
 };
 
 export type ItemComponentProps<Action extends string> = Omit<

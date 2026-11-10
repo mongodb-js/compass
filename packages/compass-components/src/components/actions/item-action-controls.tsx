@@ -19,7 +19,7 @@ const actionControlsStyle = css({
 export type ItemActionControlsProps<Action extends string> = {
   isVisible?: boolean;
   actions: (ItemAction<Action> | ItemSeparator)[];
-  onAction(actionName: Action): void;
+  onAction(actionName: Action, actionPayload?: unknown): void;
   className?: string;
   menuClassName?: string;
   iconSize?: ItemActionButtonSize;

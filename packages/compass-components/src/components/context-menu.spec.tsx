@@ -123,6 +123,27 @@ describe('useContextMenuGroups', function () {
     expect(onAction).to.have.been.calledOnceWithExactly(2);
   });
 
+  it('renders nested items as a submenu', function () {
+    const onAction = sinon.spy();
+    const items = [
+      {
+        label: 'Move to',
+        items: [
+          { label: 'Folder A', onAction: () => onAction('a') },
+          { label: 'Folder B', onAction: () => onAction('b') },
+        ],
+      },
+    ];
+
+    render(<TestComponent items={items} />);
+
+    userEvent.click(screen.getByTestId(menuTestTriggerId), { button: 2 });
+    userEvent.click(screen.getByTestId('menu-group-0-item-0'));
+    userEvent.click(screen.getByTestId('menu-group-0-item-0-1'));
+
+    expect(onAction).to.have.been.calledOnceWithExactly('b');
+  });
+
   describe('with nested components', function () {
     const childTriggerId = 'child-trigger';
 

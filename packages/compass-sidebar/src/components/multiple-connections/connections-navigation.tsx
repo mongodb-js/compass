@@ -25,6 +25,7 @@ import {
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type {
+  ActionPayload,
   Actions,
   SidebarConnectedConnection,
   SidebarConnection,
@@ -40,6 +41,7 @@ import {
   ConnectionStatus,
   useConnectionsListLoadingStatus,
   useFolders,
+  useConnectionActions,
 } from '@mongodb-js/compass-connections/provider';
 import {
   useOpenWorkspace,
@@ -281,6 +283,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const enableConnectionFolders = usePreference('enableConnectionFolders');
   const { folders, folderAssignments } = useFolders();
+  const { moveConnectionsToFolder } = useConnectionActions();
 
   const sidebarFolders = useMemo(
     () => (enableConnectionFolders ? folders : []),
@@ -343,7 +346,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     }, [supportsConnectionImportExport, enableCreatingNewConnections]);
 
   const onItemAction = useCallback(
-    (item: SidebarItem, action: Actions) => {
+    (item: SidebarItem, action: Actions, actionPayload?: ActionPayload) => {
       // TODO(COMPASS-11306): Folders have no actions yet; the folder
       // management UI adds them.
       if (item.type === 'folder') {
@@ -380,6 +383,18 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         item.type === 'connection' ? item.connectionInfo.id : item.connectionId;
 
       switch (action) {
+        case 'move-to-folder':
+          // Fired by the submenu items; the parent entry itself has no actionPayload.
+          if (actionPayload?.folderId) {
+            void moveConnectionsToFolder(
+              [connectionId],
+              actionPayload.folderId
+            );
+          }
+          return;
+        case 'remove-from-folder':
+          void moveConnectionsToFolder([connectionId], null);
+          return;
         case 'select-connection':
           openDatabasesWorkspace(connectionId);
           return;
@@ -531,6 +546,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenCsfleModal,
       onOpenNonGenuineMongoDBModal,
       onOpenConnectViaModal,
+      moveConnectionsToFolder,
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,

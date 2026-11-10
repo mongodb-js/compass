@@ -26,5 +26,6 @@ export type ContextMenuContextType = {
 
 export type ContextMenuItem = {
   label: string;
-  onAction: (event: React.KeyboardEvent | React.MouseEvent) => void;
+  onAction?: (event: React.KeyboardEvent | React.MouseEvent) => void;
+  items?: ContextMenuItem[]; // nested items
 };

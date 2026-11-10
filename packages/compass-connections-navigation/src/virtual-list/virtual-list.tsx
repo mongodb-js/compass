@@ -12,7 +12,7 @@ import {
   useId,
 } from '@mongodb-js/compass-components';
 import { type SidebarActionableItem, type SidebarTreeItem } from '../tree-data';
-import { type Actions } from '../constants';
+import { type ActionPayload, type Actions } from '../constants';
 import { type NavigationItemActions } from '../item-actions';
 import {
   isPlaceholderItem,
@@ -60,7 +60,12 @@ type RenderItem<T> = (props: {
   isActive: boolean;
   isFocused: boolean;
   item: T;
-  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  onItemAction(
+    this: void,
+    item: SidebarActionableItem,
+    action: Actions,
+    actionPayload?: ActionPayload
+  ): void;
   onItemExpand(
     this: void,
     item: SidebarActionableItem,
@@ -100,7 +105,12 @@ type VirtualTreeProps<T extends VirtualItem> = {
     item: SidebarActionableItem,
     isExpanded: boolean
   ): void;
-  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  onItemAction(
+    this: void,
+    item: SidebarActionableItem,
+    action: Actions,
+    actionPayload?: ActionPayload
+  ): void;
   getItemActions(
     this: void,
     item: SidebarTreeItem
@@ -238,7 +248,12 @@ type VirtualItemData<T extends VirtualItem> = {
   activeItemId?: string;
   renderItem: RenderItem<T>;
   onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
-  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  onItemAction(
+    this: void,
+    item: SidebarActionableItem,
+    action: Actions,
+    actionPayload?: ActionPayload
+  ): void;
   onItemExpand(
     this: void,
     item: SidebarActionableItem,

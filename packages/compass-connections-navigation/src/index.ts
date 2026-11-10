@@ -1,4 +1,4 @@
-export type { Actions } from './constants';
+export type { Actions, ActionPayload } from './constants';
 export type {
   Connection as SidebarConnection,
   ConnectedConnection as SidebarConnectedConnection,

@@ -38,7 +38,7 @@ type NavigationBaseItemProps = React.PropsWithChildren<{
     collapseAfter?: number;
     collapseToMenuThreshold?: number;
     actions: NavigationItemActions;
-    onAction: (action: Actions) => void;
+    onAction: (action: Actions, actionPayload?: unknown) => void;
   };
   toggleExpand: () => void;
 }>;
