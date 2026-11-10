@@ -15,6 +15,13 @@ const attempts = [
   [
     () =>
       process.platform === 'darwin' &&
+      require('@mongodb-js/macos-export-certificate-and-key'),
+    '@mongodb-js/macos-export-certificate-and-key',
+  ],
+  // Still pulled in by system-ca@3.0.0; drop once system-ca uses the scoped name
+  [
+    () =>
+      process.platform === 'darwin' &&
       require('macos-export-certificate-and-key'),
     'macos-export-certificate-and-key',
   ],
