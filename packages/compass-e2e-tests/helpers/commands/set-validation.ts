@@ -6,19 +6,15 @@ export async function setValidationWithinValidationTab(
   value: string
 ): Promise<void> {
   // enter edit mode if not already entered
-  const enableEditBtn = browser.$(Selectors.EnableEditValidationButton);
-  if (await enableEditBtn.isExisting()) {
-    await browser.clickVisible(enableEditBtn);
+  if (await browser.$(Selectors.EnableEditValidationButton).isExisting()) {
+    await browser.clickVisible(Selectors.EnableEditValidationButton);
   }
 
   // change value
   await browser.setCodemirrorEditorValue(Selectors.ValidationEditor, value);
 
   // it should eventually detect that the text changed
-  const validationActionMessageElement = browser.$(
-    Selectors.ValidationActionMessage
-  );
-  await validationActionMessageElement.waitForDisplayed();
+  await browser.$(Selectors.ValidationActionMessage).waitForDisplayed();
 
   await browser.clickVisible(Selectors.UpdateValidationButton);
 
@@ -31,14 +27,11 @@ export async function setValidationWithinValidationTab(
   );
 
   // both buttons should become hidden if it succeeds
-  await validationActionMessageElement.waitForDisplayed({
+  await browser.$(Selectors.ValidationActionMessage).waitForDisplayed({
     reverse: true,
   });
 
-  const updateValidationButtonElement = browser.$(
-    Selectors.UpdateValidationButton
-  );
-  await updateValidationButtonElement.waitForDisplayed({
+  await browser.$(Selectors.UpdateValidationButton).waitForDisplayed({
     reverse: true,
   });
 
