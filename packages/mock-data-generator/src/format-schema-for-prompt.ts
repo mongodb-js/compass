@@ -1,4 +1,4 @@
-import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser/stringify';
 
 import type { RawSchema } from './schema';
 
