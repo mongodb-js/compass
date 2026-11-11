@@ -107,7 +107,6 @@ describe('item action controls components', function () {
         <ItemActionControls
           actions={[
             {
-              action: 'move',
               label: 'Move to',
               icon: 'Folder',
               actions: [
@@ -143,7 +142,6 @@ describe('item action controls components', function () {
         <ItemActionControls
           actions={[
             {
-              action: 'move',
               label: 'Move to',
               icon: 'Folder',
               actions: [

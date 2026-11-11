@@ -2,8 +2,7 @@ import type { glyphs } from '@leafygreen-ui/icon';
 
 import type { ItemActionButtonSize } from './constants';
 
-export type ItemBase<Action extends string> = {
-  action: Action;
+type ItemCommon<Action extends string> = {
   label: string;
   icon?: React.ReactChild;
   variant?: 'default' | 'destructive';
@@ -16,12 +15,22 @@ export type ItemBase<Action extends string> = {
    * @default ItemActionButton
    */
   expandedAs?: React.ComponentType<ItemComponentProps<Action>>;
-  /**
-   * Nested actions. Rendered as a submenu inside a menu, or as a dropdown
-   * menu when the item is rendered inline as a button.
-   */
-  actions?: ItemBase<Action>[];
+};
+
+export type ItemBase<Action extends string> = ItemCommon<Action> & {
+  action: Action;
   actionPayload?: unknown;
+  actions?: never;
+};
+
+/**
+ * An item whose only purpose is to pick one of its nested actions. Rendered
+ * as a submenu inside a menu, or as a dropdown menu when rendered inline.
+ */
+export type ItemActionGroupItem<Action extends string> = ItemCommon<Action> & {
+  action?: never;
+  actionPayload?: never;
+  actions: ItemBase<Action>[];
 };
 
 export type ItemComponentProps<Action extends string> = Omit<
@@ -39,7 +48,7 @@ export type ItemComponentProps<Action extends string> = Omit<
 
 export type ItemAction<Action extends string> = {
   icon: keyof typeof glyphs | React.ReactElement;
-} & ItemBase<Action>;
+} & (ItemBase<Action> | ItemActionGroupItem<Action>);
 
 export type ItemSeparator = { separator: true };
 

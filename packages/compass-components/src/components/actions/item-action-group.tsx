@@ -89,8 +89,8 @@ export function ItemActionGroup<Action extends string>({
 
         if (itemProps.actions) {
           return (
-            <ItemActionMenu
-              key={itemProps.action}
+            <ItemActionMenu<Action>
+              key={itemProps.label}
               actions={itemProps.actions}
               onAction={onAction}
               glyph={itemProps.icon}
@@ -100,7 +100,7 @@ export function ItemActionGroup<Action extends string>({
               iconStyle={iconStyle}
               iconClassName={iconClassName}
               setHidable={setHidable}
-              data-testid={actionTestId(dataTestId, itemProps.action)}
+              data-testid={actionTestId(dataTestId, itemProps.label)}
             />
           );
         }

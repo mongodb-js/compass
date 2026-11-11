@@ -153,8 +153,10 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           return false;
         }
 
-        return ['refresh-databases', 'create-database', 'open-shell'].includes(
-          (action as ItemAction<Actions>).action
+        const name = (action as ItemAction<Actions>).action;
+        return (
+          name !== undefined &&
+          ['refresh-databases', 'create-database', 'open-shell'].includes(name)
         );
       };
 

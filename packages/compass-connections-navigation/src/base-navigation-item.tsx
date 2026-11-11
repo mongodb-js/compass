@@ -210,7 +210,7 @@ export const NavigationBaseItem = React.forwardRef<
           <ClusterStateBadgeWithTooltip item={item} />
         )}
         <div className={actionControlsWrapperStyles}>
-          <ItemActionControls
+          <ItemActionControls<Actions>
             menuClassName={menuStyles}
             isVisible={isActive || isHovered || isFocused}
             data-testid="sidebar-navigation-item-actions"
