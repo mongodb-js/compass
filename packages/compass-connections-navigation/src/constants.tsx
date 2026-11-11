@@ -41,6 +41,7 @@ export type Actions =
   | 'modify-view'
   | 'rename-collection'
   | 'move-to-folder'
-  | 'remove-from-folder';
+  | 'remove-from-folder'
+  | 'add-to-new-folder';
 
 export type ActionPayload = { folderId: string };
