@@ -11,7 +11,10 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
-import { getDataServiceForConnection } from './connections-store-redux';
+import {
+  getDataServiceForConnection,
+  validateFolderName,
+} from './connections-store-redux';
 
 const mockConnections = [
   {
@@ -865,6 +868,49 @@ describe('CompassConnections store', function () {
       expect(stored?.connectionOptions.oidc?.serializedState).to.equal(
         'token-data'
       );
+    });
+  });
+
+  describe('validateFolderName', function () {
+    it('rejects an empty or whitespace-only name', function () {
+      expect(validateFolderName('', [])).to.equal("Folder name can't be empty");
+      expect(validateFolderName('   ', [])).to.equal(
+        "Folder name can't be empty"
+      );
+    });
+
+    it('rejects a name that already exists, case-insensitively', function () {
+      expect(validateFolderName('Work', ['work'])).to.equal(
+        'A folder with this name already exists'
+      );
+    });
+
+    it('rejects path separators', function () {
+      expect(validateFolderName('a/b', [])).to.equal(
+        "Folder name can't contain / or \\"
+      );
+      expect(validateFolderName('a\\b', [])).to.equal(
+        "Folder name can't contain / or \\"
+      );
+    });
+
+    it('rejects control characters', function () {
+      expect(validateFolderName('a\u0000b', [])).to.equal(
+        "Folder name can't contain control characters"
+      );
+    });
+
+    it('rejects Windows-reserved characters and names the offending one', function () {
+      expect(validateFolderName('a<b', [])).to.equal(
+        "Folder name can't contain <"
+      );
+      expect(validateFolderName('a?b', [])).to.equal(
+        "Folder name can't contain ?"
+      );
+    });
+
+    it('allows unicode and internal spaces', function () {
+      expect(validateFolderName('Проекты 2024', [])).to.be.undefined;
     });
   });
 });
