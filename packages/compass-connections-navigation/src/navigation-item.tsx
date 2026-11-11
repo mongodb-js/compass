@@ -252,7 +252,7 @@ export function NavigationItem({
           actionProps={actionProps}
         >
           {!!connectionStaticActions.length && (
-            <ItemActionControls
+            <ItemActionControls<Actions>
               iconSize="xsmall"
               actions={connectionStaticActions}
               onAction={onAction}

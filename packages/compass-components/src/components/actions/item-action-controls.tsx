@@ -73,8 +73,8 @@ export function ItemActionControls<Action extends string>({
     const collapsedActions = actions.slice(collapseAfter);
     return (
       <div className={actionControlsStyle}>
-        <ItemActionGroup {...sharedProps} actions={visibleActions} />
-        <ItemActionMenu
+        <ItemActionGroup<Action> {...sharedProps} actions={visibleActions} />
+        <ItemActionMenu<Action>
           {...sharedProps}
           {...sharedMenuProps}
           actions={collapsedActions}
@@ -87,9 +87,13 @@ export function ItemActionControls<Action extends string>({
 
   if (shouldShowMenu) {
     return (
-      <ItemActionMenu actions={actions} {...sharedProps} {...sharedMenuProps} />
+      <ItemActionMenu<Action>
+        actions={actions}
+        {...sharedProps}
+        {...sharedMenuProps}
+      />
     );
   }
 
-  return <ItemActionGroup actions={actions} {...sharedProps} />;
+  return <ItemActionGroup<Action> actions={actions} {...sharedProps} />;
 }

@@ -591,7 +591,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         telemetryLabel: 'Connection List Title Actions',
         items: connectionListTitleActions.map(({ label, action }) => ({
           label,
-          onAction: () => onConnectionListTitleAction(action),
+          onAction: () => {
+            if (action) onConnectionListTitleAction(action);
+          },
         })),
       },
     ],

@@ -19,16 +19,20 @@ function findAction(
   return actions.find((item) => 'action' in item && item.action === action);
 }
 
+function findMoveTo(actions: ReturnType<typeof commonConnectionItemActions>) {
+  return actions.find((item) => 'label' in item && item.label === 'Move to…');
+}
+
 describe('commonConnectionItemActions', function () {
   it('does not show folder actions when there are no folders', function () {
     const actions = commonConnectionItemActions({ connectionInfo });
-    expect(findAction(actions, 'move-to-folder')).to.be.undefined;
+    expect(findMoveTo(actions)).to.be.undefined;
     expect(findAction(actions, 'remove-from-folder')).to.be.undefined;
   });
 
   it('lists all folders for an uncategorized connection', function () {
     const actions = commonConnectionItemActions({ connectionInfo, folders });
-    const moveTo = findAction(actions, 'move-to-folder');
+    const moveTo = findMoveTo(actions);
     expect(moveTo)
       .to.have.nested.property('actions')
       .that.deep.equals([
@@ -42,6 +46,7 @@ describe('commonConnectionItemActions', function () {
           label: 'Beta',
           actionPayload: { folderId: 'folder_b' },
         },
+        { action: 'add-to-new-folder', label: 'New folder…' },
       ]);
     expect(findAction(actions, 'remove-from-folder')).to.be.undefined;
   });
@@ -52,7 +57,7 @@ describe('commonConnectionItemActions', function () {
       folders,
       folderId: 'folder_a',
     });
-    const moveTo = findAction(actions, 'move-to-folder');
+    const moveTo = findMoveTo(actions);
     expect(moveTo)
       .to.have.nested.property('actions')
       .that.deep.equals([
@@ -61,6 +66,7 @@ describe('commonConnectionItemActions', function () {
           label: 'Beta',
           actionPayload: { folderId: 'folder_b' },
         },
+        { action: 'add-to-new-folder', label: 'New folder…' },
       ]);
     expect(findAction(actions, 'remove-from-folder')).to.exist;
   });
@@ -71,7 +77,7 @@ describe('commonConnectionItemActions', function () {
       folders: [folders[0]],
       folderId: 'folder_a',
     });
-    expect(findAction(actions, 'move-to-folder')).to.be.undefined;
+    expect(findMoveTo(actions)).to.be.undefined;
     expect(findAction(actions, 'remove-from-folder')).to.exist;
   });
 
@@ -84,7 +90,7 @@ describe('commonConnectionItemActions', function () {
       folders,
       folderId: 'folder_a',
     });
-    expect(findAction(actions, 'move-to-folder')).to.be.undefined;
+    expect(findMoveTo(actions)).to.be.undefined;
     expect(findAction(actions, 'remove-from-folder')).to.be.undefined;
   });
 });

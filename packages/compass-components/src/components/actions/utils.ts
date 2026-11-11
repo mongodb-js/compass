@@ -1,4 +1,9 @@
-import type { ItemBase, ItemSeparator, MenuAction } from './types';
+import type {
+  ItemActionGroupItem,
+  ItemBase,
+  ItemSeparator,
+  MenuAction,
+} from './types';
 
 export function isSeparatorMenuAction(value: unknown): value is ItemSeparator {
   return (
@@ -14,10 +19,11 @@ export function actionTestId(dataTestId: string | undefined, action: string) {
 }
 
 export function splitBySeparator<Action extends string>(
-  actions: MenuAction<Action>[]
+  actions: (MenuAction<Action> | ItemActionGroupItem<Action>)[]
 ) {
-  const result: ItemBase<Action>[][] = [];
-  let currentGroup: ItemBase<Action>[] = [];
+  type Item = ItemBase<Action> | ItemActionGroupItem<Action>;
+  const result: Item[][] = [];
+  let currentGroup: Item[] = [];
   for (const action of actions) {
     if (isSeparatorMenuAction(action)) {
       if (currentGroup.length > 0) {

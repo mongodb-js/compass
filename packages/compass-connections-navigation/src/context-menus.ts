@@ -19,21 +19,32 @@ export function itemActionsToContextMenuGroups(
 ): ContextMenuItemGroup[] {
   return splitBySeparator<Actions>(itemActions).map((actions) => ({
     telemetryLabel,
-    items: actions.map(({ label, action, actions: subActions }) => ({
-      label,
-      onAction() {
-        onItemAction({ ...item, entrypoint: 'context-menu' }, action);
-      },
-      items: subActions?.map(({ label, action, actionPayload }) => ({
-        label,
-        onAction() {
-          onItemAction(
-            { ...item, entrypoint: 'context-menu' },
-            action,
-            actionPayload as ActionPayload | undefined
-          );
-        },
-      })),
-    })),
+    items: actions.map((menuAction) =>
+      menuAction.actions
+        ? {
+            label: menuAction.label,
+            items: menuAction.actions.map(
+              ({ label, action, actionPayload }) => ({
+                label,
+                onAction() {
+                  onItemAction(
+                    { ...item, entrypoint: 'context-menu' },
+                    action,
+                    actionPayload as ActionPayload | undefined
+                  );
+                },
+              })
+            ),
+          }
+        : {
+            label: menuAction.label,
+            onAction() {
+              onItemAction(
+                { ...item, entrypoint: 'context-menu' },
+                menuAction.action
+              );
+            },
+          }
+    ),
   }));
 }
