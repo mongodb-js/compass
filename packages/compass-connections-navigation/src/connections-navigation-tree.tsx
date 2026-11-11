@@ -93,7 +93,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
-      // Folders have no connection to select, so the row itself expands them.
+      // A folder has no default action beyond expanding or collapsing itself.
       if (item.type === 'folder') {
         onItemExpand(item, !item.isExpanded);
         return;

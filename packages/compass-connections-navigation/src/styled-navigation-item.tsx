@@ -35,10 +35,8 @@ export default function StyledNavigationItem({
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
     const style: AcceptedStyles = {};
     const connectionId = getConnectionId(item);
-    // A folder isn't tied to a connection, so it must not inherit the inactive
-    // color that unconnectable connections get.
-    const isConnectable =
-      item.type === 'folder' ? true : getConnectable(connectionId ?? '');
+    const isUnconnectable =
+      connectionId !== null && !getConnectable(connectionId);
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
     const inferredFromPrivilegesNamespace =
@@ -54,13 +52,13 @@ export default function StyledNavigationItem({
     if (
       isDisconnectedConnection ||
       inferredFromPrivilegesNamespace ||
-      !isConnectable
+      isUnconnectable
     ) {
       style['--item-color'] = inactiveColor;
     }
 
     // We always show these as inactive
-    if (inferredFromPrivilegesNamespace || !isConnectable) {
+    if (inferredFromPrivilegesNamespace || isUnconnectable) {
       style['--item-color-active'] = inactiveColor;
     }
     return style;
