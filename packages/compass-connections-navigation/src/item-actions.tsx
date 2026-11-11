@@ -78,17 +78,23 @@ export const commonConnectionItemActions = ({
           icon: 'Trash',
           variant: 'destructive',
         },
+    { separator: true },
     isAtlas || otherFolders.length === 0
       ? null
       : {
-          action: 'move-to-folder',
           icon: <MoveToFolderIcon />,
           label: 'Move to…',
-          actions: otherFolders.map((folder) => ({
-            action: 'move-to-folder' as const,
-            label: folder.name,
-            actionPayload: { folderId: folder.id },
-          })),
+          actions: [
+            ...otherFolders.map((folder) => ({
+              action: 'move-to-folder' as const,
+              label: folder.name,
+              actionPayload: { folderId: folder.id },
+            })),
+            {
+              action: 'add-to-new-folder',
+              label: 'New folder…',
+            },
+          ],
         },
     isAtlas || !folderId
       ? null

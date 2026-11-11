@@ -21,6 +21,8 @@ import {
   cx,
   Placeholder,
   useContextMenuGroups,
+  showPrompt,
+  openToast,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -283,7 +285,31 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const enableConnectionFolders = usePreference('enableConnectionFolders');
   const { folders, folderAssignments } = useFolders();
-  const { moveConnectionsToFolder } = useConnectionActions();
+  const { moveConnectionsToFolder, createFolder } = useConnectionActions();
+
+  const addToNewFolder = useCallback(
+    async (connectionId: string) => {
+      const name = await showPrompt({
+        title: 'New folder',
+        label: 'Folder name',
+        buttonText: 'Create',
+      });
+      if (name === null) {
+        return;
+      }
+      try {
+        const folder = await createFolder(name);
+        await moveConnectionsToFolder([connectionId], folder.id);
+      } catch (err) {
+        openToast('create-folder-error', {
+          title: 'Failed to create folder',
+          description: (err as Error).message,
+          variant: 'warning',
+        });
+      }
+    },
+    [createFolder, moveConnectionsToFolder]
+  );
 
   const sidebarFolders = useMemo(
     () => (enableConnectionFolders ? folders : []),
@@ -394,6 +420,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           return;
         case 'remove-from-folder':
           void moveConnectionsToFolder([connectionId], null);
+          return;
+        case 'add-to-new-folder':
+          void addToNewFolder(connectionId);
           return;
         case 'select-connection':
           openDatabasesWorkspace(connectionId);
@@ -547,6 +576,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenNonGenuineMongoDBModal,
       onOpenConnectViaModal,
       moveConnectionsToFolder,
+      addToNewFolder,
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
