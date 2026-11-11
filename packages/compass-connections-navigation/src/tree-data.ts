@@ -412,24 +412,6 @@ type TopLevelEntry =
   | { type: 'connection'; connection: Connection };
 
 /**
- * Favorites first, then by display name, then by id so connections sharing a
- * name keep a stable order. Mirrors the ordering the connections store applies,
- * so the tree renders the same order whether or not the list it is given is
- * already sorted.
- */
-function compareConnections(a: Connection, b: Connection): number {
-  const aIsFavorite = a.connectionInfo.savedConnectionType === 'favorite';
-  const bIsFavorite = b.connectionInfo.savedConnectionType === 'favorite';
-  if (aIsFavorite !== bIsFavorite) {
-    return aIsFavorite ? -1 : 1;
-  }
-  return (
-    a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase()) ||
-    a.connectionInfo.id.localeCompare(b.connectionInfo.id)
-  );
-}
-
-/**
  * Splits the connections into the ones filed under a folder and the ones that
  * stay uncategorized. Membership is resolved from the assignments, so a
  * connection whose assignment points at a folder that doesn't exist is
@@ -444,10 +426,7 @@ function groupConnectionsByFolder(
   const connectionsByFolderId = new Map<string, Connection[]>();
   const uncategorized: Connection[] = [];
 
-  // Sorting once before splitting is enough: the split preserves relative
-  // order, so each folder's connections and the uncategorized ones all come out
-  // ordered.
-  for (const connection of connections.slice().sort(compareConnections)) {
+  for (const connection of connections) {
     const folderId = folderAssignments[connection.connectionInfo.id];
     if (!folderId || !foldersById.has(folderId)) {
       uncategorized.push(connection);
@@ -487,10 +466,10 @@ function groupConnectionsByFolder(
  * do not represent the actual IDs of the items.
  *
  * Folders are ordered alphabetically, each followed by its connections one
- * level deeper. Within a folder, and among the uncategorized connections,
- * favorites come first and everything is ordered by display name.
+ * level deeper. Connections are rendered in the order they are given, which is
+ * the order the connections store produces: favorites first, then by name.
  *
- * @param connections - The connections.
+ * @param connections - The connections, in the order they should be rendered.
  * @param folders - The folders to group the connections under.
  * @param folderAssignments - Maps a connection id to the folder id it belongs to.
  * @param expandedItems - The expanded items, keyed by connection or folder id.

@@ -210,8 +210,6 @@ const collapseAll = (
 
 interface ConnectionsState {
   expanded: ExpandedConnections;
-  // Folder expansion is kept separate from connection expansion: the shapes of
-  // the two are unrelated, and folder ids never collide with connection ids.
   expandedFolders: Record<string, boolean>;
   filtered: SidebarConnection[] | undefined;
 }

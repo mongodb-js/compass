@@ -344,7 +344,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const onItemAction = useCallback(
     (item: SidebarItem, action: Actions) => {
-      // Folders have no actions yet; the folder management UI adds them.
+      // TODO(COMPASS-11306): Folders have no actions yet; the folder
+      // management UI adds them.
       if (item.type === 'folder') {
         return;
       }
