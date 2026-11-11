@@ -431,6 +431,33 @@ describe('exportJSON', function () {
     expect(resultText).to.deep.equal(expectedText);
   });
 
+  it('not write to the output after it ended', async function () {
+    await dataService.insertOne(testNS, { testDoc: true });
+    const output = new Writable({
+      write(_chunk, _encoding, callback) {
+        callback();
+      },
+    });
+    const writesAfterEnd: unknown[] = [];
+    const write = output.write.bind(output);
+    output.write = ((chunk: unknown, ...args: any[]) => {
+      if (output.writableEnded) {
+        writesAfterEnd.push(chunk);
+      }
+      return write(chunk, ...args);
+    }) as typeof output.write;
+
+    await exportJSONFromQuery({
+      dataService,
+      ns: testNS,
+      output,
+      variant: 'default',
+    });
+
+    expect(output.writableEnded).to.equal(true);
+    expect(writesAfterEnd).to.deep.equal([]);
+  });
+
   it('throws when the database stream errors', async function () {
     const abortController = new AbortController();
 

@@ -105,6 +105,38 @@ export function skipForWeb(
   }
 }
 
+/**
+ * Compass Web hides import/export in browsers that lack the File System Access
+ * API and OPFS. Detect the APIs instead of the browser name so that the tests
+ * start running once a browser ships them, but fail instead of skipping in
+ * Electron and Chrome.
+ */
+export async function skipIfImportExportUnsupported(
+  test: Mocha.Runnable | Mocha.Context,
+  browser: CompassBrowser
+) {
+  const supported = await browser.execute(function () {
+    return (
+      'showSaveFilePicker' in globalThis &&
+      typeof navigator.storage?.getDirectory === 'function'
+    );
+  });
+  if (supported) {
+    return;
+  }
+  // Electron and Chrome ship these APIs, so losing them there is a regression
+  // (e.g. after an Electron upgrade) that a skip would hide.
+  const { browserName = '' } = browser.capabilities as { browserName?: string };
+  if (!isTestingWeb() || /chrom/i.test(browserName)) {
+    throw new Error(
+      `Import/export browser APIs are missing in ${
+        isTestingWeb() ? browserName : 'Electron'
+      }, where they are expected to be supported`
+    );
+  }
+  test.skip();
+}
+
 export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean

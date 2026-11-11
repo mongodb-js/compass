@@ -39,6 +39,7 @@ export async function listCSVFields({
 
     const validator = new Utf8Validator();
 
+    input.once('error', reject);
     validator.once('error', function (err: any) {
       reject(err);
     });
