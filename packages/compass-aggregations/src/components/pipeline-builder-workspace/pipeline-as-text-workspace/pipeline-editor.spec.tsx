@@ -7,11 +7,7 @@ import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import sinon from 'sinon';
 
 import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../../test/configure-store';
+import { renderWithStore } from '../../../../test/configure-store';
 import type { AggregationsPluginServices } from '../../../stores/store';
 
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
@@ -21,11 +17,11 @@ const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelineEditor>> = {},
   storeOptions: any = {},
   {
-    enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {},
+    enableAtlasSearchIndexes = false,
+  }: { enableAtlasSearchIndexes?: boolean } = {},
   services: Partial<AggregationsPluginServices> = {}
 ) => {
-  let ui = (
+  const ui = (
     <PipelineEditor
       namespace="test.test"
       isTimeSeries={false}
@@ -44,13 +40,10 @@ const renderPipelineEditor = (
       {...props}
     />
   );
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
-  return renderWithStore(ui, storeOptions, undefined, services);
+  return renderWithStore(ui, storeOptions, undefined, {
+    preferences: new ReadOnlyPreferenceAccess({ enableAtlasSearchIndexes }),
+    ...services,
+  });
 };
 
 describe('PipelineEditor', function () {
@@ -91,7 +84,7 @@ describe('PipelineEditor', function () {
             searchIndexes: [],
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(await screen.findByTestId('search-index-does-not-exist-banner'))
@@ -107,7 +100,7 @@ describe('PipelineEditor', function () {
             searchIndexes: [],
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(await screen.findByTestId('search-index-does-not-exist-banner'))
@@ -144,7 +137,7 @@ describe('PipelineEditor', function () {
             serverError: new MongoServerError({ message: 'Server error' }),
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
@@ -160,7 +153,7 @@ describe('PipelineEditor', function () {
             syntaxErrors: [new PipelineParserError('Syntax error')],
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('pipeline-as-text-error-container')).to.exist;
@@ -182,7 +175,7 @@ describe('PipelineEditor', function () {
             }),
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
@@ -229,7 +222,7 @@ describe('PipelineEditor', function () {
             onEditSearchIndexClick,
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         const editLink = await screen.findByText('Edit Search Index');
@@ -242,7 +235,10 @@ describe('PipelineEditor', function () {
 
     describe('$rerank version warning', function () {
       const rerankPreferences = {
-        preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }),
+        preferences: new ReadOnlyPreferenceAccess({
+          enableRerank: true,
+          enableAtlasSearchIndexes: false,
+        }),
       };
 
       it('should show warning when server < 8.3 and pipeline has $rerank', async function () {

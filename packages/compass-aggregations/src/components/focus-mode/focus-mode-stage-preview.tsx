@@ -6,10 +6,10 @@ import {
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type HadronDocument from '@mongodb-js/hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import { connect } from 'react-redux';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
@@ -152,7 +152,7 @@ export const FocusModePreview = ({
     [onExpand, onCollapse, stageIndex]
   );
 
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
 
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -192,14 +192,13 @@ export const FocusModePreview = ({
           copyToClipboard={copyToClipboard}
           className={documentListStyles}
         />
-        {enableSearchActivationProgramP1 &&
-          showSearchIndexStaleResultsBanner && (
-            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
-          )}
+        {enableAtlasSearchIndexes && showSearchIndexStaleResultsBanner && (
+          <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+        )}
       </>
     );
   } else if (
-    !enableSearchActivationProgramP1 &&
+    !enableAtlasSearchIndexes &&
     isSearchStage(stageOperator) &&
     !emptyStateAction
   ) {

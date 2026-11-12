@@ -21,10 +21,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import semver from 'semver';
 
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../modules';
 import { createSearchIndexOpened } from '../../modules/search-indexes';
 import { createIndexOpened } from '../../modules/create-index';
@@ -122,9 +119,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     'enableAtlasSearchIndexes',
     'enableIndexesManagement',
   ]);
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
-  const isSearchManagementActive =
-    enableAtlasSearchIndexes || enableSearchActivationProgramP1;
+  const isSearchManagementActive = enableAtlasSearchIndexes;
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
   // `readWrite` (Atlas "Project Data Access Read Write") normally hides index

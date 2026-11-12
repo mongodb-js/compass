@@ -125,7 +125,6 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
       enableIndexesManagement,
     }),
     shallowEqual

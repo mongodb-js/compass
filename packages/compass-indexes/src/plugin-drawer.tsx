@@ -7,9 +7,10 @@ import {
   showConfirmation,
   spacing,
 } from '@mongodb-js/compass-components';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
-import { connect } from 'react-redux';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { connect, useSelector, shallowEqual } from 'react-redux';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
+import { selectReadWriteAccess } from './utils/indexes-read-write-access';
 import type { RootState } from './modules';
 import IndexesListDrawerView from './components/drawer-views/indexes-list-drawer-view';
 import CreateSearchIndexView from './components/drawer-views/create-search-index-drawer-view';
@@ -49,7 +50,26 @@ const Drawer = ({
   subTab,
   openIndexesListDrawerView,
 }: DrawerProps) => {
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableIndexesManagement,
+  } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+    'enableIndexesManagement',
+  ]);
+  const { isSearchIndexesReadable } = useSelector(
+    selectReadWriteAccess({
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+      enableIndexesManagement,
+    }),
+    shallowEqual
+  );
 
   const beforeSectionHide = useCallback(async () => {
     if (!isDirty) {
@@ -64,7 +84,7 @@ const Drawer = ({
     });
   }, [isDirty]);
 
-  if (!enableSearchActivationProgramP1) {
+  if (!isSearchIndexesReadable) {
     return null;
   }
 

@@ -15,12 +15,10 @@ import {
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
+import { selectCanUseSearchIndexes } from '../../utils/can-use-search-indexes';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
@@ -126,6 +124,7 @@ type StageToolbarProps = {
   stage: StoreStage;
   env: ServerEnvironment;
   isSearchIndexesSupported: boolean;
+  canUseSearchIndexes: boolean;
   isRerankFirstStage: boolean;
   hasSearchIndex: boolean;
   isSearchIndexesLoading: boolean;
@@ -150,6 +149,7 @@ export function StageToolbar({
   stage,
   env,
   isSearchIndexesSupported,
+  canUseSearchIndexes,
   isRerankFirstStage,
   hasSearchIndex,
   isSearchIndexesLoading,
@@ -161,7 +161,7 @@ export function StageToolbar({
   onClickViewSearchIndexes,
 }: StageToolbarProps) {
   const enableRerank = usePreference('enableRerank');
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
@@ -238,7 +238,8 @@ export function StageToolbar({
             View $rerank Usage and Rate Limits
           </Link>
         )}
-        {enableSearchActivationProgramP1 &&
+        {enableAtlasSearchIndexes &&
+          canUseSearchIndexes &&
           isSearchStage(stage.stageOperator) && (
             <Button
               data-testid="stage-toolbar-view-indexes-button"
@@ -309,6 +310,7 @@ export default connect(
       stage,
       env,
       isSearchIndexesSupported,
+      canUseSearchIndexes: selectCanUseSearchIndexes(state),
       isRerankFirstStage: getIsRerankFirstStage(state, ownProps.index),
       hasSearchIndex: searchIndexes.length > 0,
       isSearchIndexesLoading:
