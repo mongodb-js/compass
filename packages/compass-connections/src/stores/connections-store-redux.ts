@@ -2560,9 +2560,14 @@ export const loadFolders = (): ConnectionsThunkAction<
  * save failed; both are reported to the user here.
  */
 export const createFolder = (
-  name: string
+  name: string,
+  source:
+    | 'connection_context_menu'
+    | 'connection_actions'
+    | 'connection_form'
+    | 'sidebar_icon'
 ): ConnectionsThunkAction<Promise<Folder | undefined>, CreateFolderAction> => {
-  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
+  return async (dispatch, getState, { folderStorage, track, logger: { debug } }) => {
     const state = getState();
     const folder: Folder = {
       id: new UUID().toString(),
@@ -2599,6 +2604,10 @@ export const createFolder = (
       description: 'To organize connections, use the three-dot menu (•••).',
       variant: 'success',
     });
+    track('Folder Created', {
+      source,
+      num_folders_after: state.folders.ids.length + 1,
+    });
     return folder;
   };
 };
@@ -2611,7 +2620,7 @@ export const renameFolder = (
   return async (
     dispatch,
     getState,
-    { folderStorage, logger: { log, mongoLogId } }
+    { folderStorage, track, logger: { log, mongoLogId } }
   ) => {
     const state = getState();
     const existingFolder = state.folders.byId[folderId];
@@ -2663,6 +2672,7 @@ export const renameFolder = (
       title: `Folder renamed ${existingFolder.name} to ${trimmedName}`,
       variant: 'success',
     });
+    track('Folder Renamed', {});
   };
 };
 
@@ -2673,7 +2683,7 @@ export const deleteFolder = (
   return async (
     dispatch,
     getState,
-    { folderStorage, logger: { log, mongoLogId } }
+    { folderStorage, track, logger: { log, mongoLogId } }
   ) => {
     const state = getState();
     const folder = state.folders.byId[folderId];
@@ -2714,6 +2724,12 @@ export const deleteFolder = (
       title: `${folder.name} folder deleted`,
       variant: 'success',
     });
+    track('Folder Deleted', {
+      num_folders_after: folders.length,
+      connections_moved:
+        Object.keys(state.folderAssignments).length -
+        Object.keys(assignments).length,
+    });
   };
 };
 
@@ -2725,12 +2741,22 @@ export const deleteFolder = (
  */
 export const moveConnectionsToFolder = (
   connectionIds: ConnectionId[],
-  folderId: string | null
+  folderId: string | null,
+  source:
+    | 'connection_context_menu'
+    | 'connection_actions'
+    | 'drag_and_drop'
+    | 'connection_form'
+    | 'folder_form'
 ): ConnectionsThunkAction<
   Promise<{ movedIds: ConnectionId[]; failedIds: ConnectionId[] }>,
   MoveConnectionsToFolderAction
 > => {
-  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { debug } }
+  ) => {
     const state = getState();
 
     if (folderId !== null && !state.folders.byId[folderId]) {
@@ -2781,6 +2807,19 @@ export const moveConnectionsToFolder = (
       type: ActionTypes.MoveConnectionsToFolder,
       connectionIds: validIds,
       folderId,
+    });
+
+    const fromFolder = validIds.filter((id) => state.folderAssignments[id]);
+    track('Connections Moved To Folder', {
+      source,
+      from:
+        fromFolder.length === 0
+          ? 'uncategorized'
+          : fromFolder.length === validIds.length
+            ? 'folder'
+            : 'mixed',
+      to: folderId ? 'folder' : 'uncategorized',
+      num_moved: validIds.length,
     });
 
     return { movedIds: validIds, failedIds: invalidIds };
