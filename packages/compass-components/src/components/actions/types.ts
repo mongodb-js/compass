@@ -23,10 +23,6 @@ export type ItemBase<Action extends string> = ItemCommon<Action> & {
   actions?: never;
 };
 
-/**
- * An item whose only purpose is to pick one of its nested actions. Rendered
- * as a submenu inside a menu, or as a dropdown menu when rendered inline.
- */
 export type ItemActionGroupItem<Action extends string> = ItemCommon<Action> & {
   action?: never;
   actionPayload?: never;
