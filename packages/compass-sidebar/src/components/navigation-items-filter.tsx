@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { css, spacing, TextInput } from '@mongodb-js/compass-components';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
 import type { ConnectionsFilter } from './use-filtered-connections';
 import ConnectionsFilterPopover from './connections-filter-popover';
 
@@ -16,6 +17,8 @@ const textInputStyles = css({
   flexGrow: 1,
 });
 
+const EMPTY_FOLDERS: Folder[] = [];
+
 function createRegExp(input: string) {
   try {
     return input ? new RegExp(input, 'i') : null;
@@ -30,6 +33,7 @@ export default function NavigationItemsFilter({
   title = 'Search',
   filter,
   onFilterChange,
+  folders = EMPTY_FOLDERS,
   disabled = false,
 }: {
   placeholder?: string;
@@ -39,6 +43,7 @@ export default function NavigationItemsFilter({
   onFilterChange(
     updater: (filter: ConnectionsFilter) => ConnectionsFilter
   ): void;
+  folders?: Folder[];
   disabled?: boolean;
 }): React.ReactElement {
   const onChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
@@ -75,6 +80,7 @@ export default function NavigationItemsFilter({
         setOpen={setPopoverOpen}
         filter={filter}
         onFilterChange={onFilterChange}
+        folders={folders}
         disabled={disabled}
       />
     </form>

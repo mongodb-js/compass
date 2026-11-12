@@ -2,11 +2,15 @@ import type {
   SidebarConnectedConnection,
   SidebarConnection,
 } from '@mongodb-js/compass-connections-navigation';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
 import _ from 'lodash';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { renderHook, waitFor } from '@mongodb-js/testing-library-compass';
-import { useFilteredConnections } from './use-filtered-connections';
+import {
+  useFilteredConnections,
+  type ConnectionsFilter,
+} from './use-filtered-connections';
 
 const connectedConnection1 = {
   id: 'connected_connection_1',
@@ -936,6 +940,236 @@ describe('useFilteredConnections', function () {
             connected_connection_2: false,
             disconnected_connection_1: false,
           });
+        });
+      });
+    });
+  });
+
+  context('when connections are filed in folders', function () {
+    const folderWork: Folder = { id: 'folder_work', name: 'Work' };
+    const folderPersonal: Folder = { id: 'folder_personal', name: 'Personal' };
+    const mockFolders = [folderWork, folderPersonal];
+    // Only the first connection is filed; the other two are uncategorized.
+    const mockFolderAssignments = { [connectedConnection1.id]: folderWork.id };
+
+    const renderWithFolders = (filter: ConnectionsFilter) => {
+      return renderHookWithContext(useFilteredConnections, {
+        initialProps: {
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter,
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        },
+      });
+    };
+
+    it('should return the folders unchanged when not filtering', async function () {
+      const { result } = renderWithFolders({
+        regex: null,
+        excludeInactive: false,
+      });
+
+      await waitFor(() => {
+        expect(result.current.filtered).to.be.undefined;
+        expect(result.current.folders).to.deep.equal(mockFolders);
+        expect(result.current.expanded[folderWork.id]).to.equal(false);
+      });
+    });
+
+    context('when searching', function () {
+      it('should show all the connections of a folder that matches, and expand it', async function () {
+        const { result } = renderWithFolders({
+          regex: new RegExp('work', 'i'),
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          // The filed connection matches through its folder's name.
+          expect(result.current.filtered).to.deep.equal([
+            sidebarConnections[0],
+          ]);
+          // The empty folder has no name match, so it is hidden.
+          expect(result.current.folders).to.deep.equal([folderWork]);
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+      });
+
+      it('should keep and expand the parent folder of a matching connection', async function () {
+        const { result } = renderWithFolders({
+          regex: new RegExp('^connected_connection_1$', 'i'),
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filtered).to.deep.equal([
+            sidebarConnections[0],
+          ]);
+          expect(result.current.folders).to.deep.equal([folderWork]);
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+      });
+
+      it('should hide a folder that neither matches nor holds a matching connection', async function () {
+        const { result } = renderWithFolders({
+          regex: new RegExp('^connected_connection_2$', 'i'),
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filtered).to.deep.equal([
+            sidebarConnections[1],
+          ]);
+          expect(result.current.folders).to.deep.equal([]);
+        });
+      });
+
+      it('should collapse the folders the search opened once the search is cleared', async function () {
+        const { result, rerender } = renderWithFolders({
+          regex: null,
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.equal(false);
+        });
+
+        rerender({
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter: { regex: new RegExp('work', 'i'), excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+
+        rerender({
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter: { regex: null, excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.equal(false);
+        });
+      });
+
+      it('should keep a folder the user expanded on their own expanded after the search is cleared', async function () {
+        const { result, rerender } = renderWithFolders({
+          regex: null,
+          excludeInactive: false,
+        });
+
+        result.current.onFolderToggle(folderWork.id, true);
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+
+        rerender({
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter: { regex: new RegExp('work', 'i'), excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+
+        rerender({
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter: { regex: null, excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+      });
+    });
+
+    context('when filtering the visible folders', function () {
+      it('should hide a folder and its connections', async function () {
+        const { result } = renderWithFolders({
+          regex: null,
+          excludeInactive: false,
+          hiddenFolderIds: [folderWork.id],
+        });
+
+        await waitFor(() => {
+          expect(result.current.folders).to.deep.equal([folderPersonal]);
+          // The filed connection is hidden with its folder; the uncategorized
+          // ones stay, since the filter never changes membership.
+          expect(result.current.filtered).to.deep.equal([
+            sidebarConnections[1],
+            sidebarConnections[2],
+          ]);
+        });
+      });
+
+      it('should hide uncategorized connections when asked', async function () {
+        const { result } = renderWithFolders({
+          regex: null,
+          excludeInactive: false,
+          hideUncategorizedConnections: true,
+        });
+
+        await waitFor(() => {
+          expect(result.current.folders).to.deep.equal(mockFolders);
+          expect(result.current.filtered).to.deep.equal([
+            sidebarConnections[0],
+          ]);
+        });
+      });
+    });
+
+    context('when the active-only filter is on', function () {
+      it('should hide an empty folder', async function () {
+        const { result } = renderWithFolders({
+          regex: null,
+          excludeInactive: true,
+        });
+
+        await waitFor(() => {
+          // The empty folder hides; the one holding an active connection stays.
+          expect(result.current.folders).to.deep.equal([folderWork]);
+          expect(result.current.filtered).to.deep.equal([
+            sidebarConnections[0],
+            sidebarConnections[1],
+          ]);
+        });
+      });
+
+      it('should hide a folder whose connections are all filtered out', async function () {
+        const { result } = renderHookWithContext(useFilteredConnections, {
+          initialProps: {
+            connections: mockSidebarConnections,
+            folders: mockFolders,
+            // The only connection filed in the folder is inactive.
+            folderAssignments: {
+              [disconnectedConnection.id]: folderPersonal.id,
+            },
+            filter: { regex: null, excludeInactive: true },
+            fetchAllCollections: fetchAllCollectionsStub,
+            onDatabaseExpand: onDatabaseExpandStub,
+          },
+        });
+
+        await waitFor(() => {
+          expect(result.current.folders).to.deep.equal([]);
+          expect(result.current.filtered).to.deep.equal([
+            sidebarConnections[0],
+            sidebarConnections[1],
+          ]);
         });
       });
     });

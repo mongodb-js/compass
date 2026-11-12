@@ -467,7 +467,9 @@ describe('Multiple Connections Sidebar Component', function () {
           userEvent.click(screen.getByLabelText('Filter connections'));
 
           userEvent.click(
-            screen.getByLabelText('Show only active connections')
+            screen.getByLabelText('Show only active connections'),
+            undefined,
+            { skipPointerEventsCheck: true }
           );
 
           expect(screen.queryByTestId(favoriteConnectionId)).to.be.null;
@@ -921,6 +923,130 @@ describe('Multiple Connections Sidebar Component', function () {
 
       expect(screen.getByText('Work')).to.be.visible;
       expect(screen.queryByText('Work folder deleted')).not.to.exist;
+    });
+
+    it('should expand a folder and show all of its connections when the search matches the folder name', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+      userEvent.type(searchInput, 'Work');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'true'
+        );
+      });
+      // A matching folder shows all of its connections, even the ones that
+      // don't match the search themselves.
+      expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+      expect(screen.queryByTestId(savedRecentConnection.id)).not.to.exist;
+    });
+
+    it('should expand the parent folder of a matching connection and collapse it again when the search is cleared', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      expect(screen.getByTestId('folder_1')).to.have.attribute(
+        'aria-expanded',
+        'false'
+      );
+
+      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+      userEvent.type(searchInput, 'localhost');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'true'
+        );
+      });
+      expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+
+      userEvent.clear(searchInput);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'false'
+        );
+      });
+      // The folder is collapsed again, so its connection is hidden once more.
+      expect(screen.queryByTestId(savedFavoriteConnection.id)).not.to.exist;
+    });
+
+    it('should hide a folder and its connections when it is unchecked in the filter popover', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      // The checkboxes are visually hidden inputs, so the pointer events check
+      // has to be skipped to click them.
+      userEvent.click(screen.getByTestId('folder-filter-folder_1'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('folder_1')).not.to.exist;
+      });
+      expect(within(screen.getByRole('tree')).queryByText('Work')).not.to.exist;
+      // Uncategorized connections stay reachable; the filter only changes what
+      // is shown, never which folder a connection belongs to.
+      expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
+    });
+
+    it('should hide uncategorized connections when they are unchecked in the filter popover', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(
+        screen.getByTestId('folder-filter-uncategorized'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(savedRecentConnection.id)).not.to.exist;
+      });
+      // The folder and its connection are untouched.
+      expect(screen.getByTestId('folder_1')).to.be.visible;
+    });
+
+    it('should hide every folder and uncategorized connection when "All connections" is cleared', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(screen.getByTestId('folder-filter-all'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('No results found.')).to.be.visible;
+      });
+      expect(screen.queryByTestId('folder_1')).not.to.exist;
+      expect(screen.queryByTestId(savedRecentConnection.id)).not.to.exist;
+    });
+
+    it('should hide a folder when the active connections filter leaves it empty', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(
+        screen.getByLabelText('Show only active connections'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
+
+      // Neither saved connection is connected, so the folder empties out and
+      // hides along with the uncategorized connections.
+      await waitFor(() => {
+        expect(screen.getByText('No results found.')).to.be.visible;
+      });
+      expect(screen.queryByTestId('folder_1')).not.to.exist;
     });
   });
 });
