@@ -1,5 +1,9 @@
 import React from 'react';
-import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
+import {
+  FolderIcon,
+  type ItemAction,
+  type ItemSeparator,
+} from '@mongodb-js/compass-components';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import type { Folder } from '@mongodb-js/connection-storage/provider';
 import { type NotConnectedConnectionStatus } from './tree-data';
@@ -83,16 +87,17 @@ export const commonConnectionItemActions = ({
       ? null
       : {
           icon: <MoveToFolderIcon />,
-          label: 'Move to…',
+          label: 'Move to folder',
           actions: [
             ...otherFolders.map((folder) => ({
               action: 'move-to-folder' as const,
               label: folder.name,
+              icon: <FolderIcon />,
               actionPayload: { folderId: folder.id },
             })),
             {
               action: 'add-to-new-folder',
-              label: 'New folder…',
+              label: 'New folder',
             },
           ],
         },

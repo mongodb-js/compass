@@ -154,6 +154,11 @@ export function ItemActionMenu<Action extends string>({
                     data-testid={actionTestId(dataTestId, subAction.action)}
                     data-action={subAction.action}
                     data-menuitem={true}
+                    glyph={
+                      subAction.icon ? (
+                        <ActionGlyph glyph={subAction.icon} size={iconSize} />
+                      ) : undefined
+                    }
                     onClick={(evt: React.MouseEvent<HTMLElement>) =>
                       onItemClick(evt, subAction)
                     }
