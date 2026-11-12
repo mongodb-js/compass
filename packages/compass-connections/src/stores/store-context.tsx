@@ -172,9 +172,10 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     },
     moveConnectionsToNewFolder: (
       connectionIds: ConnectionId[],
-      name: string
+      name: string,
+      source: Parameters<typeof moveConnectionsToNewFolder>[2]
     ) => {
-      return dispatch(moveConnectionsToNewFolder(connectionIds, name));
+      return dispatch(moveConnectionsToNewFolder(connectionIds, name, source));
     },
   };
 }

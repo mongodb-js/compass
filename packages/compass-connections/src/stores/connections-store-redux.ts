@@ -2828,15 +2828,19 @@ export const moveConnectionsToFolder = (
 
 export const moveConnectionsToNewFolder = (
   connectionIds: ConnectionId[],
-  name: string
+  name: string,
+  source: Parameters<typeof createFolder>[1] &
+    Parameters<typeof moveConnectionsToFolder>[2]
 ): ConnectionsThunkAction<
   Promise<void>,
   CreateFolderAction | MoveConnectionsToFolderAction
 > => {
   return async (dispatch) => {
-    const folder = await dispatch(createFolder(name));
+    const folder = await dispatch(createFolder(name, source));
     if (folder) {
-      await dispatch(moveConnectionsToFolder(connectionIds, folder.id));
+      await dispatch(
+        moveConnectionsToFolder(connectionIds, folder.id, source)
+      );
     }
   };
 };
