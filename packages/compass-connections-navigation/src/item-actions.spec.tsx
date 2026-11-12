@@ -20,7 +20,28 @@ function findAction(
 }
 
 function findMoveTo(actions: ReturnType<typeof commonConnectionItemActions>) {
-  return actions.find((item) => 'label' in item && item.label === 'Move to…');
+  return actions.find(
+    (item) => 'label' in item && item.label === 'Move to folder'
+  );
+}
+
+/** Nested actions reduced to the fields under test (icons don't deep-equal). */
+function nestedActions(
+  actions: ReturnType<typeof commonConnectionItemActions>
+) {
+  const moveTo = findMoveTo(actions);
+  if (!moveTo || !('actions' in moveTo) || !moveTo.actions) {
+    return undefined;
+  }
+  return moveTo.actions.map((item) =>
+    'separator' in item
+      ? item
+      : {
+          action: item.action,
+          label: item.label,
+          ...(item.actionPayload ? { actionPayload: item.actionPayload } : {}),
+        }
+  );
 }
 
 describe('commonConnectionItemActions', function () {
@@ -28,26 +49,25 @@ describe('commonConnectionItemActions', function () {
     const actions = commonConnectionItemActions({ connectionInfo });
     expect(findMoveTo(actions)).to.be.undefined;
     expect(findAction(actions, 'remove-from-folder')).to.be.undefined;
+    expect(actions[actions.length - 1]).not.to.have.property('separator');
   });
 
   it('lists all folders for an uncategorized connection', function () {
     const actions = commonConnectionItemActions({ connectionInfo, folders });
-    const moveTo = findMoveTo(actions);
-    expect(moveTo)
-      .to.have.nested.property('actions')
-      .that.deep.equals([
-        {
-          action: 'move-to-folder',
-          label: 'Alpha',
-          actionPayload: { folderId: 'folder_a' },
-        },
-        {
-          action: 'move-to-folder',
-          label: 'Beta',
-          actionPayload: { folderId: 'folder_b' },
-        },
-        { action: 'add-to-new-folder', label: 'New folder…' },
-      ]);
+    expect(nestedActions(actions)).to.deep.equal([
+      {
+        action: 'move-to-folder',
+        label: 'Alpha',
+        actionPayload: { folderId: 'folder_a' },
+      },
+      {
+        action: 'move-to-folder',
+        label: 'Beta',
+        actionPayload: { folderId: 'folder_b' },
+      },
+      { separator: true },
+      { action: 'add-to-new-folder', label: 'New folder' },
+    ]);
     expect(findAction(actions, 'remove-from-folder')).to.be.undefined;
   });
 
@@ -57,17 +77,15 @@ describe('commonConnectionItemActions', function () {
       folders,
       folderId: 'folder_a',
     });
-    const moveTo = findMoveTo(actions);
-    expect(moveTo)
-      .to.have.nested.property('actions')
-      .that.deep.equals([
-        {
-          action: 'move-to-folder',
-          label: 'Beta',
-          actionPayload: { folderId: 'folder_b' },
-        },
-        { action: 'add-to-new-folder', label: 'New folder…' },
-      ]);
+    expect(nestedActions(actions)).to.deep.equal([
+      {
+        action: 'move-to-folder',
+        label: 'Beta',
+        actionPayload: { folderId: 'folder_b' },
+      },
+      { separator: true },
+      { action: 'add-to-new-folder', label: 'New folder' },
+    ]);
     expect(findAction(actions, 'remove-from-folder')).to.exist;
   });
 

@@ -1,6 +1,8 @@
 import {
+  isSeparatorMenuAction,
   splitBySeparator,
   type ContextMenuItemGroup,
+  type ItemSeparator,
 } from '@mongodb-js/compass-components';
 
 import type { NavigationItemActions } from './item-actions';
@@ -23,8 +25,14 @@ export function itemActionsToContextMenuGroups(
       menuAction.actions
         ? {
             label: menuAction.label,
-            items: menuAction.actions.map(
-              ({ label, action, actionPayload }) => ({
+            items: menuAction.actions
+              .filter(
+                (
+                  subAction
+                ): subAction is Exclude<typeof subAction, ItemSeparator> =>
+                  !isSeparatorMenuAction(subAction)
+              )
+              .map(({ label, action, actionPayload }) => ({
                 label,
                 onAction() {
                   onItemAction(
@@ -33,8 +41,7 @@ export function itemActionsToContextMenuGroups(
                     actionPayload as ActionPayload | undefined
                   );
                 },
-              })
-            ),
+              })),
           }
         : {
             label: menuAction.label,

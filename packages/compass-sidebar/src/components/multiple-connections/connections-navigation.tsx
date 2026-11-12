@@ -297,16 +297,18 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       if (name === null) {
         return;
       }
+      let folder;
       try {
-        const folder = await createFolder(name);
-        await moveConnectionsToFolder([connectionId], folder.id);
+        folder = await createFolder(name);
       } catch (err) {
         openToast('create-folder-error', {
           title: 'Failed to create folder',
           description: (err as Error).message,
           variant: 'warning',
         });
+        return;
       }
+      void moveConnectionsToFolder([connectionId], folder.id);
     },
     [createFolder, moveConnectionsToFolder]
   );
