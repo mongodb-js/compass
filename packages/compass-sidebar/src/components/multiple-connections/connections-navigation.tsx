@@ -442,7 +442,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       actions.push({
         action: 'create-folder',
         label: 'Create folder',
-        icon: <FolderPlusIcon size={16} />,
+        icon: <FolderPlusIcon />,
       });
       inlineActionCount++;
     }

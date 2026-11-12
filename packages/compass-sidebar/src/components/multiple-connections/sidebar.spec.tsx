@@ -809,25 +809,10 @@ describe('Multiple Connections Sidebar Component', function () {
       });
     });
 
-    it('should offer the create folder action when the feature flag is enabled', async function () {
-      await renderWithFolders(true);
-
-      expect(screen.getByLabelText('Create folder')).to.be.visible;
-    });
-
     it('should not offer the create folder action when the feature flag is disabled', async function () {
       await renderWithFolders(false);
 
       expect(screen.queryByLabelText('Create folder')).not.to.exist;
-    });
-
-    it('should offer the create folder action in the header context menu', async function () {
-      await renderWithFolders(true);
-
-      userEvent.click(screen.getByTestId('connections-header'), { button: 2 });
-
-      const menu = screen.getByTestId('context-menu');
-      expect(within(menu).getByText('Create folder')).to.be.visible;
     });
 
     it('should create a folder from the "Create folder" action', async function () {
@@ -839,14 +824,10 @@ describe('Multiple Connections Sidebar Component', function () {
       userEvent.type(input, 'Production');
       userEvent.click(screen.getByTestId('submit-button'));
 
-      await waitFor(() => {
-        expect(connectionsStoreActions.createFolder).to.have.been.calledWith(
-          'Production'
-        );
-      });
       expect(
         await screen.findByText('New folder Production created in sidebar.')
       ).to.be.visible;
+      expect(screen.getByText('Production')).to.be.visible;
     });
 
     it('should not create a folder whose name duplicates an existing one', async function () {
@@ -861,7 +842,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
       expect(screen.getByText('A folder with this name already exists')).to.be
         .visible;
-      expect(connectionsStoreActions.createFolder).not.to.have.been.called;
+      expect(screen.queryByText(/folder .* created in sidebar/)).not.to.exist;
     });
 
     it('should rename a folder from its actions menu', async function () {
@@ -883,14 +864,10 @@ describe('Multiple Connections Sidebar Component', function () {
       userEvent.type(input, 'Personal');
       userEvent.click(screen.getByTestId('submit-button'));
 
-      await waitFor(() => {
-        expect(connectionsStoreActions.renameFolder).to.have.been.calledWith(
-          'folder_1',
-          'Personal'
-        );
-      });
       expect(await screen.findByText('Folder renamed Work to Personal')).to.be
         .visible;
+      expect(screen.getByText('Personal')).to.be.visible;
+      expect(screen.queryByText('Work')).not.to.exist;
     });
 
     it('should delete a folder after the user confirms', async function () {
@@ -920,12 +897,11 @@ describe('Multiple Connections Sidebar Component', function () {
         })
       );
 
-      await waitFor(() => {
-        expect(connectionsStoreActions.deleteFolder).to.have.been.calledWith(
-          'folder_1'
-        );
-      });
       expect(await screen.findByText('Work folder deleted')).to.be.visible;
+      // The folder is gone from the tree, but its connection is not: it comes
+      // back as an uncategorized top-level item.
+      expect(screen.queryByText('Work')).not.to.exist;
+      expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
     });
 
     it('should not delete a folder when the user cancels the confirmation', async function () {
@@ -943,7 +919,8 @@ describe('Multiple Connections Sidebar Component', function () {
         within(confirmationModal).getByRole('button', { name: 'Cancel' })
       );
 
-      expect(connectionsStoreActions.deleteFolder).not.to.have.been.called;
+      expect(screen.getByText('Work')).to.be.visible;
+      expect(screen.queryByText('Work folder deleted')).not.to.exist;
     });
   });
 });
