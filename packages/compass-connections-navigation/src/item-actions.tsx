@@ -82,7 +82,9 @@ export const commonConnectionItemActions = ({
           icon: 'Trash',
           variant: 'destructive',
         },
-    { separator: true },
+    isAtlas || (otherFolders.length === 0 && !folderId)
+      ? null
+      : { separator: true },
     isAtlas || otherFolders.length === 0
       ? null
       : {
@@ -95,9 +97,11 @@ export const commonConnectionItemActions = ({
               icon: <FolderIcon />,
               actionPayload: { folderId: folder.id },
             })),
+            { separator: true },
             {
               action: 'add-to-new-folder',
               label: 'New folder',
+              // TODO(COMPASS-11306): Folder plus icon
             },
           ],
         },

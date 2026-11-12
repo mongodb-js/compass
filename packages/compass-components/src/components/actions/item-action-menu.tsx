@@ -148,26 +148,32 @@ export function ItemActionMenu<Action extends string>({
                 disabled={isDisabled}
                 description={isDisabled ? disabledDescription : ''}
               >
-                {subActions.map((subAction, subIdx) => (
-                  <MenuItem
-                    key={`${subAction.action}-${subIdx}`}
-                    data-testid={actionTestId(dataTestId, subAction.action)}
-                    data-action={subAction.action}
-                    data-menuitem={true}
-                    glyph={
-                      subAction.icon ? (
-                        <ActionGlyph glyph={subAction.icon} size={iconSize} />
-                      ) : undefined
-                    }
-                    onClick={(evt: React.MouseEvent<HTMLElement>) =>
-                      onItemClick(evt, subAction)
-                    }
-                    variant={subAction.variant || 'default'}
-                    disabled={subAction.isDisabled}
-                  >
-                    {subAction.label}
-                  </MenuItem>
-                ))}
+                {subActions
+                  // LG SubMenu already divides its items;
+                  .filter(
+                    (subAction): subAction is ItemBase<Action> =>
+                      !isSeparatorMenuAction(subAction)
+                  )
+                  .map((subAction, subIdx) => (
+                    <MenuItem
+                      key={`${subAction.action}-${subIdx}`}
+                      data-testid={actionTestId(dataTestId, subAction.action)}
+                      data-action={subAction.action}
+                      data-menuitem={true}
+                      glyph={
+                        subAction.icon ? (
+                          <ActionGlyph glyph={subAction.icon} size={iconSize} />
+                        ) : undefined
+                      }
+                      onClick={(evt: React.MouseEvent<HTMLElement>) =>
+                        onItemClick(evt, subAction)
+                      }
+                      variant={subAction.variant || 'default'}
+                      disabled={subAction.isDisabled}
+                    >
+                      {subAction.label}
+                    </MenuItem>
+                  ))}
               </SubMenu>
             );
           }

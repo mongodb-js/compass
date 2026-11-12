@@ -30,7 +30,7 @@ export type ItemBase<Action extends string> = ItemCommon<Action> & {
 export type ItemActionGroupItem<Action extends string> = ItemCommon<Action> & {
   action?: never;
   actionPayload?: never;
-  actions: ItemBase<Action>[];
+  actions: (ItemBase<Action> | ItemSeparator)[];
 };
 
 export type ItemComponentProps<Action extends string> = Omit<
