@@ -25,7 +25,6 @@ export type FolderModalProps = {
   existingNames: string[];
   onSubmit(name: string): void;
   onClose(): void;
-  'data-testid'?: string;
 };
 
 export function FolderModal({
@@ -36,7 +35,6 @@ export function FolderModal({
   existingNames,
   onSubmit,
   onClose,
-  'data-testid': dataTestId = 'folder-modal',
 }: FolderModalProps) {
   const [name, setName] = useState(initialName);
   // Validation only surfaces once the user has interacted with the field, so
@@ -76,11 +74,9 @@ export function FolderModal({
       submitButtonText={submitButtonText}
       onSubmit={handleSubmit}
       onCancel={onClose}
-      data-testid={dataTestId}
     >
       <TextInput
         className={textInputStyles}
-        data-testid="folder-name-input"
         label="Folder name"
         placeholder="e.g. Production clusters"
         value={name}

@@ -35,6 +35,7 @@ import type {
   Actions,
   SidebarConnectedConnection,
   SidebarConnection,
+  SidebarFolderTreeItem,
   SidebarItem,
 } from '@mongodb-js/compass-connections-navigation';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
@@ -129,6 +130,20 @@ const deleteFolderBannerStyles = css({
   marginTop: spacing[300],
 });
 
+// All folder actions share one toast id so the latest replaces the previous
+// one instead of stacking them up.
+const folderToastId = 'folder-action';
+
+/**
+ * The folder modal is a native `<dialog>`, which hands focus back to whatever
+ * was focused when it opened. Left alone, the button that opened it keeps
+ * showing its focus highlight after the dialog closes, so drop focus first and
+ * let it fall back to the body instead.
+ */
+function blurActiveElement() {
+  (document.activeElement as HTMLElement | null)?.blur();
+}
+
 /**
  * Indicates only Atlas cluster connections are supported, and the user cannot navigate
  * to other types of connections from this UI.
@@ -150,6 +165,9 @@ type ConnectionListTitleActions =
   | 'create-folder'
   | 'add-new-connection'
   | ConnectionImportExportAction;
+
+type FolderModalTarget =
+  { mode: 'create' } | { mode: 'rename'; folderId: string; name: string };
 
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
@@ -307,45 +325,69 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const { createFolder, renameFolder, deleteFolder } = useConnectionActions();
 
-  const [isCreateFolderModalOpen, setCreateFolderModalOpen] = useState(false);
-  const [renameFolderTarget, setRenameFolderTarget] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  // One modal serves both create and rename. The target is kept after closing
+  // so the dialog's title and button don't flip to the create wording while it
+  // animates out.
+  const [folderModalTarget, setFolderModalTarget] = useState<FolderModalTarget>(
+    { mode: 'create' }
+  );
+  const [isFolderModalOpen, setFolderModalOpen] = useState(false);
+
+  const renameFolderId =
+    folderModalTarget.mode === 'rename' ? folderModalTarget.folderId : null;
 
   // Renaming a folder must not clash with its own current name, so it is
   // excluded from the names the modal validates against.
   const folderModalExistingNames = useMemo(
     () =>
       sidebarFolders
-        .filter((folder) => folder.id !== renameFolderTarget?.id)
+        .filter((folder) => folder.id !== renameFolderId)
         .map((folder) => folder.name),
-    [sidebarFolders, renameFolderTarget]
+    [sidebarFolders, renameFolderId]
+  );
+
+  const onOpenCreateFolderModal = useCallback(() => {
+    blurActiveElement();
+    setFolderModalTarget({ mode: 'create' });
+    setFolderModalOpen(true);
+  }, []);
+
+  const onOpenRenameFolderModal = useCallback(
+    (folder: SidebarFolderTreeItem) => {
+      blurActiveElement();
+      setFolderModalTarget({
+        mode: 'rename',
+        folderId: folder.folderId,
+        name: folder.name,
+      });
+      setFolderModalOpen(true);
+    },
+    []
   );
 
   const onCloseFolderModal = useCallback(() => {
-    setCreateFolderModalOpen(false);
-    setRenameFolderTarget(null);
+    setFolderModalOpen(false);
   }, []);
 
   const onFolderModalSubmit = useCallback(
     (name: string) => {
-      const renameTarget = renameFolderTarget;
-      const request = renameTarget
-        ? renameFolder(renameTarget.id, name)
-        : createFolder(name);
+      const request =
+        folderModalTarget.mode === 'rename'
+          ? renameFolder(folderModalTarget.folderId, name)
+          : createFolder(name);
       void request
         .then(() => {
           onCloseFolderModal();
-          openToast('folder-saved', {
-            title: renameTarget
-              ? `Folder renamed ${renameTarget.name} to ${name}`
-              : `New folder ${name} created in sidebar.`,
-            ...(renameTarget
+          openToast(folderToastId, {
+            title:
+              folderModalTarget.mode === 'rename'
+                ? `Folder renamed ${folderModalTarget.name} to ${name}`
+                : `New folder ${name} created in sidebar.`,
+            ...(folderModalTarget.mode === 'rename'
               ? {}
               : {
                   description:
-                    'To organize connections, use the three-dot menu (•••) or drag them into a folder or manage connections in folder.',
+                    'To organize connections, use the three-dot menu (•••).',
                 }),
             variant: 'success',
           });
@@ -353,14 +395,14 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         .catch((err: Error) => {
           // The modal validates names before submitting, so a failure here is
           // a storage error rather than a rejected name.
-          openToast('folder-save-failed', {
+          openToast(folderToastId, {
             title: 'Failed to save folder',
             description: err.message,
             variant: 'warning',
           });
         });
     },
-    [createFolder, renameFolder, renameFolderTarget, onCloseFolderModal]
+    [createFolder, renameFolder, folderModalTarget, onCloseFolderModal]
   );
 
   const onDeleteFolder = useCallback(
@@ -393,12 +435,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       }
       try {
         await deleteFolder(folder.id);
-        openToast('folder-deleted', {
+        openToast(folderToastId, {
           title: `${folder.name} folder deleted`,
           variant: 'success',
         });
       } catch (err) {
-        openToast('folder-delete-failed', {
+        openToast(folderToastId, {
           title: 'Failed to delete folder',
           description: (err as Error).message,
           variant: 'warning',
@@ -487,7 +529,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     (item: SidebarItem, action: Actions) => {
       if (item.type === 'folder') {
         if (action === 'rename-folder') {
-          setRenameFolderTarget({ id: item.folderId, name: item.name });
+          onOpenRenameFolderModal(item);
         } else if (action === 'delete-folder') {
           void onDeleteFolder({ id: item.folderId, name: item.name });
         }
@@ -681,6 +723,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       openEditViewWorkspace,
       _onNamespaceAction,
       onDeleteFolder,
+      onOpenRenameFolderModal,
     ]
   );
 
@@ -703,7 +746,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         onCollapseAll();
         track('Sidebar Connections Collapsed All', {});
       } else if (action === 'create-folder') {
-        setCreateFolderModalOpen(true);
+        onOpenCreateFolderModal();
       } else if (action === 'add-new-connection') {
         onNewConnection();
       } else if (
@@ -713,7 +756,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         openConnectionImportExportModal(action);
       }
     },
-    [onCollapseAll, onNewConnection, openConnectionImportExportModal, track]
+    [
+      onCollapseAll,
+      onNewConnection,
+      openConnectionImportExportModal,
+      onOpenCreateFolderModal,
+      track,
+    ]
   );
 
   const contextMenuRef = useContextMenuGroups(
@@ -827,27 +876,23 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         </div>
       ) : null}
       {enableConnectionFolders && (
-        <>
-          <FolderModal
-            data-testid="create-folder-modal"
-            open={isCreateFolderModalOpen}
-            title="Create new folder"
-            submitButtonText="Create"
-            existingNames={folderModalExistingNames}
-            onSubmit={onFolderModalSubmit}
-            onClose={onCloseFolderModal}
-          />
-          <FolderModal
-            data-testid="rename-folder-modal"
-            open={!!renameFolderTarget}
-            title="Rename folder"
-            submitButtonText="Rename"
-            initialName={renameFolderTarget?.name}
-            existingNames={folderModalExistingNames}
-            onSubmit={onFolderModalSubmit}
-            onClose={onCloseFolderModal}
-          />
-        </>
+        <FolderModal
+          open={isFolderModalOpen}
+          title={
+            folderModalTarget.mode === 'rename'
+              ? 'Rename folder'
+              : 'Create new folder'
+          }
+          submitButtonText={
+            folderModalTarget.mode === 'rename' ? 'Rename' : 'Create'
+          }
+          initialName={
+            folderModalTarget.mode === 'rename' ? folderModalTarget.name : ''
+          }
+          existingNames={folderModalExistingNames}
+          onSubmit={onFolderModalSubmit}
+          onClose={onCloseFolderModal}
+        />
       )}
     </div>
   );
