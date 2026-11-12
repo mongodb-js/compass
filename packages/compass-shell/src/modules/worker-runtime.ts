@@ -21,19 +21,17 @@ export function createWorkerRuntime(
   const loggingAndTelemetry = setupLoggingAndTelemetry({
     bus: emitter,
     analytics: {
-      identify: () => {
-        /* not needed */
-      },
       // Prefix Segment events with `Shell ` to avoid event name collisions.
       // We always enable telemetry here, since the track call will
       // already check whether Compass telemetry is enabled or not.
-      track: ({ event, properties }) => {
-        return track(
-          `Shell ${event}`,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          properties,
-          connectionInfo.current
-        );
+      track: ({ name, payload }) => {
+        // Compass identifies the user itself, so mongosh's identify is not needed.
+        if (name === 'Identify') {
+          return;
+        }
+        // Compass declares shell events with a generic `Shell ${string}` name
+        const eventName: `Shell ${string}` = `Shell ${name}`;
+        return track(eventName, payload, connectionInfo.current);
       },
       flush: () => {
         return Promise.resolve(); // not needed

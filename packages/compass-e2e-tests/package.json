@@ -64,7 +64,7 @@
     "mocha": "^10.2.0",
     "mongodb": "^7.5.0",
     "mongodb-connection-string-url": "^7.0.2",
-    "mongodb-log-writer": "^2.4.4",
+    "mongodb-log-writer": "^3.0.4",
     "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
     "ps-list": "^8.1.0",
