@@ -1,19 +1,25 @@
-import React, { useCallback, useState, type PropsWithChildren } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  type PropsWithChildren,
+} from 'react';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import {
+  Checkbox,
   css,
+  HorizontalRule,
   Icon,
   IconButton,
   InteractivePopover,
-  Label,
   Overline,
   palette,
   spacing,
-  Toggle,
   Tooltip,
   useId,
 } from '@mongodb-js/compass-components';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
 import type { ConnectionsFilter } from './use-filtered-connections';
 
 const containerStyles = css({
@@ -30,12 +36,41 @@ const activatedIndicatorStyles = css({
   right: spacing[50],
 });
 
-const groupStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  gap: spacing[200],
+const dividerStyles = css({
+  width: '100%',
   marginTop: spacing[200],
+  marginBottom: spacing[200],
 });
+
+const folderListStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[200],
+  maxHeight: '40vh',
+  overflow: 'auto',
+  // Stretch to the popover width so the scrollbar sits on the far right
+  // instead of hugging the labels.
+  alignSelf: 'stretch',
+});
+
+// Folders and uncategorized are nested under "All connections", so they read
+// as its subcategories.
+const folderItemStyles = css({
+  paddingLeft: spacing[600],
+});
+
+const EMPTY_FOLDERS: Folder[] = [];
+const EMPTY_HIDDEN_FOLDER_IDS: string[] = [];
+
+// Stands in for "connections not filed in any folder" in the folders list, so
+// uncategorized connections can be shown or hidden alongside real folders.
+const UNCATEGORIZED_ITEM_ID = 'uncategorized';
+
+type FolderFilterItem = {
+  id: string;
+  name: string;
+  selected: boolean;
+};
 
 type ConnectionsFilterPopoverProps = PropsWithChildren<{
   open: boolean;
@@ -44,6 +79,7 @@ type ConnectionsFilterPopoverProps = PropsWithChildren<{
   onFilterChange(
     updater: (filter: ConnectionsFilter) => ConnectionsFilter
   ): void;
+  folders?: Folder[];
   disabled?: boolean;
 }>;
 
@@ -52,6 +88,7 @@ export default function ConnectionsFilterPopover({
   setOpen,
   filter,
   onFilterChange,
+  folders = EMPTY_FOLDERS,
   disabled = false,
 }: ConnectionsFilterPopoverProps) {
   const track = useTelemetry();
@@ -68,11 +105,75 @@ export default function ConnectionsFilterPopover({
     [onFilterChange, track]
   );
 
-  const excludeInactiveToggleId = useId();
-  const excludeInactiveLabelId = useId();
+  const excludeInactiveCheckboxId = useId();
+  const allConnectionsCheckboxId = useId();
+
+  const hiddenFolderIds = filter.hiddenFolderIds ?? EMPTY_HIDDEN_FOLDER_IDS;
+  const hideUncategorizedConnections = !!filter.hideUncategorizedConnections;
+
+  // The folders are listed in the same order as the tree, so the popover and
+  // the sidebar read the same way.
+  const folderItems = useMemo((): FolderFilterItem[] => {
+    const sortedFolders = folders
+      .slice()
+      .sort((a, b) =>
+        a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
+      );
+    return [
+      ...sortedFolders.map((folder) => ({
+        id: folder.id,
+        name: folder.name,
+        selected: !hiddenFolderIds.includes(folder.id),
+      })),
+      {
+        id: UNCATEGORIZED_ITEM_ID,
+        name: 'Uncategorized',
+        selected: !hideUncategorizedConnections,
+      },
+    ];
+  }, [folders, hiddenFolderIds, hideUncategorizedConnections]);
+
+  const allItemsSelected = folderItems.every((item) => item.selected);
+  const someItemsSelected = folderItems.some((item) => item.selected);
+
+  const onToggleAllItems = useCallback(
+    (checked: boolean) => {
+      onFilterChange((filter) => ({
+        ...filter,
+        hiddenFolderIds: checked ? [] : folders.map((folder) => folder.id),
+        hideUncategorizedConnections: !checked,
+      }));
+    },
+    [folders, onFilterChange]
+  );
+
+  const onToggleItem = useCallback(
+    (itemId: string, checked: boolean) => {
+      if (itemId === UNCATEGORIZED_ITEM_ID) {
+        onFilterChange((filter) => ({
+          ...filter,
+          hideUncategorizedConnections: !checked,
+        }));
+        return;
+      }
+      onFilterChange((filter) => {
+        const hidden = filter.hiddenFolderIds ?? EMPTY_HIDDEN_FOLDER_IDS;
+        return {
+          ...filter,
+          hiddenFolderIds: checked
+            ? hidden.filter((folderId) => folderId !== itemId)
+            : [...hidden, itemId],
+        };
+      });
+    },
+    [onFilterChange]
+  );
 
   // Add future filters to the boolean below
-  const isActivated = filter.excludeInactive;
+  const isActivated =
+    filter.excludeInactive ||
+    hiddenFolderIds.length > 0 ||
+    hideUncategorizedConnections;
 
   // Manually handling the tooltip state instead of supplying a trigger
   // we do this to avoid the tooltip from rendering when the popover is open
@@ -130,19 +231,42 @@ export default function ConnectionsFilterPopover({
           </>
         )}
       >
-        <Overline>Filter Options</Overline>
-        <div className={groupStyles}>
-          <Toggle
-            id={excludeInactiveToggleId}
-            aria-labelledby={excludeInactiveLabelId}
-            checked={filter.excludeInactive}
-            onChange={onExcludeInactiveChange}
-            size="small"
-          />
-          <Label htmlFor={excludeInactiveToggleId} id={excludeInactiveLabelId}>
-            Show only active connections
-          </Label>
-        </div>
+        <Overline>Filters</Overline>
+        <Checkbox
+          id={excludeInactiveCheckboxId}
+          checked={filter.excludeInactive}
+          onChange={(evt) => onExcludeInactiveChange(evt.target.checked)}
+          label="Show only active connections"
+          disabled={disabled}
+        />
+        {folders.length > 0 && (
+          <>
+            <HorizontalRule className={dividerStyles} />
+            <div className={folderListStyles}>
+              <Checkbox
+                data-testid="folder-filter-all"
+                id={allConnectionsCheckboxId}
+                checked={allItemsSelected}
+                indeterminate={!allItemsSelected && someItemsSelected}
+                onChange={(evt) => onToggleAllItems(evt.target.checked)}
+                label="All connections"
+                disabled={disabled}
+              />
+              {folderItems.map((item) => (
+                <Checkbox
+                  key={item.id}
+                  className={folderItemStyles}
+                  data-testid={`folder-filter-${item.id}`}
+                  id={`folder-filter-${item.id}`}
+                  checked={item.selected}
+                  onChange={(evt) => onToggleItem(item.id, evt.target.checked)}
+                  label={item.name}
+                  disabled={disabled}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </InteractivePopover>
     </>
   );
