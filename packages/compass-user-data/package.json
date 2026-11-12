@@ -49,7 +49,7 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.19.2",
     "@electron/remote": "^2.1.4",
-    "electron": "^45.2.2",
+    "electron": "^45.3.0",
     "write-file-atomic": "^5.0.1",
     "zod": "^4.6.7"
   },
