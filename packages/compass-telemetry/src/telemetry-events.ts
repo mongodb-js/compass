@@ -1008,6 +1008,91 @@ type SidebarConnectionsActiveConnectionsFilterEvent = CommonEvent<{
   };
 }>;
 
+type FolderCreationEntrypoint =
+  | 'connection_context_menu'
+  | 'connection_actions'
+  | 'connection_form'
+  | 'sidebar_icon';
+/**
+ * This event is fired when the creation of a new folder is started.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreationStartedEvent = CommonEvent<{
+  name: 'Folder Creation Started';
+  payload: {
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when the creation of a new folder is cancelled.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreationCancelledEvent = CommonEvent<{
+  name: 'Folder Creation Cancelled';
+  payload: {
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a new folder is created.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreatedEvent = CommonEvent<{
+  name: 'Folder Created';
+  payload: {
+    num_folders_after: number;
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a new folder is deleted.
+ *
+ * @category ConnectionFolder
+ */
+type FolderDeletedEvent = CommonEvent<{
+  name: 'Folder Deleted';
+  payload: {
+    num_folders_after: number;
+    connections_moved: number;
+  };
+}>;
+
+/**
+ * This event is fired when a folder is renamed.
+ *
+ * @category ConnectionFolder
+ */
+type FolderRenamedEvent = CommonEvent<{
+  name: 'Folder Renamed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a connection is moved to a folder.
+ *
+ * @category ConnectionFolder
+ */
+type ConnectionsFolderChangeEvent = CommonEvent<{
+  name: 'Connections Moved To Folder';
+  payload: {
+    source:
+      | 'connection_context_menu'
+      | 'connection_actions'
+      | 'drag_and_drop'
+      | 'connection_form'
+      | 'folder_form';
+    from: 'folder' | 'uncategorized' | 'mixed';
+    to: 'folder' | 'uncategorized';
+    num_moved: number;
+  };
+}>;
+
 /**
  * This event is fired when user copies a document to the clipboard.
  *
@@ -4537,6 +4622,12 @@ export type TelemetryEvent =
   | SearchIndexEditCancelledEvent
   | SidebarConnectionsCollapsedAllEvent
   | SidebarConnectionsActiveConnectionsFilterEvent
+  | FolderCreationStartedEvent
+  | FolderCreationCancelledEvent
+  | FolderCreatedEvent
+  | FolderDeletedEvent
+  | FolderRenamedEvent
+  | ConnectionsFolderChangeEvent
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent
