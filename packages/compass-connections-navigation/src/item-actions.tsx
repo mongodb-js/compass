@@ -84,7 +84,7 @@ export const commonConnectionItemActions = ({
     isAtlas || (otherFolders.length === 0 && !folderId)
       ? null
       : { separator: true },
-    isAtlas || otherFolders.length === 0
+    isAtlas
       ? null
       : {
           icon: <MoveToFolderIcon />,
