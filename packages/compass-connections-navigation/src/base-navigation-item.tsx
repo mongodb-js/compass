@@ -45,7 +45,6 @@ type NavigationBaseItemProps = React.PropsWithChildren<{
 
 const menuStyles = css({
   width: '240px',
-  maxHeight: 'unset',
   marginLeft: 'auto',
 });
 

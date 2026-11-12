@@ -105,7 +105,6 @@ export function ContextMenu({
         setOpen={menu.close}
         justify="start"
         className={cx(menuStyles, contextMenuClassName)}
-        maxHeight={Number.MAX_SAFE_INTEGER}
       >
         {itemGroups.map(
           (itemGroup: ContextMenuItemGroup, groupIndex: number) => {
