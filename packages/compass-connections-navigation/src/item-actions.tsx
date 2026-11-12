@@ -18,7 +18,6 @@ export type NullableNavigationItemActions = (NavigationItemAction | null)[];
 
 type FolderOptions = {
   folders?: Folder[];
-  /** Folder the connection currently belongs to, if any. */
   folderId?: string;
 };
 
