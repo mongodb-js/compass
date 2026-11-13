@@ -45,8 +45,21 @@ function nestedActions(
 }
 
 describe('commonConnectionItemActions', function () {
+  it('hides folder actions when folders are disabled', function () {
+    const actions = commonConnectionItemActions({
+      connectionInfo,
+      folders,
+      folderId: 'folder_a',
+    });
+    expect(findMoveTo(actions)).to.be.undefined;
+    expect(findAction(actions, 'remove-from-folder')).to.be.undefined;
+  });
+
   it('shows a single "new folder" action when there are no folders', function () {
-    const actions = commonConnectionItemActions({ connectionInfo });
+    const actions = commonConnectionItemActions({
+      connectionInfo,
+      isFoldersEnabled: true,
+    });
     expect(nestedActions(actions)).to.deep.equal([
       { action: 'add-to-new-folder', label: 'New folder' },
     ]);
@@ -55,7 +68,11 @@ describe('commonConnectionItemActions', function () {
   });
 
   it('lists all folders for an uncategorized connection', function () {
-    const actions = commonConnectionItemActions({ connectionInfo, folders });
+    const actions = commonConnectionItemActions({
+      connectionInfo,
+      isFoldersEnabled: true,
+      folders,
+    });
     expect(nestedActions(actions)).to.deep.equal([
       {
         action: 'move-to-folder',
@@ -76,6 +93,7 @@ describe('commonConnectionItemActions', function () {
   it('excludes the current folder and offers removal', function () {
     const actions = commonConnectionItemActions({
       connectionInfo,
+      isFoldersEnabled: true,
       folders,
       folderId: 'folder_a',
     });
@@ -97,6 +115,7 @@ describe('commonConnectionItemActions', function () {
         ...connectionInfo,
         atlasMetadata: {} as NonNullable<ConnectionInfo['atlasMetadata']>,
       },
+      isFoldersEnabled: true,
       folders,
       folderId: 'folder_a',
     });
