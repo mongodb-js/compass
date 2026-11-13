@@ -299,7 +299,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       }
       let folder;
       try {
-        folder = await createFolder(name);
+        folder = await createFolder(name, 'connection_context_menu');
       } catch (err) {
         openToast('create-folder-error', {
           title: 'Failed to create folder',
@@ -308,7 +308,11 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         });
         return;
       }
-      void moveConnectionsToFolder([connectionId], folder.id);
+      void moveConnectionsToFolder(
+        [connectionId],
+        folder.id,
+        'connection_context_menu'
+      );
     },
     [createFolder, moveConnectionsToFolder]
   );
@@ -416,12 +420,17 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           if (actionPayload?.folderId) {
             void moveConnectionsToFolder(
               [connectionId],
-              actionPayload.folderId
+              actionPayload.folderId,
+              'connection_context_menu'
             );
           }
           return;
         case 'remove-from-folder':
-          void moveConnectionsToFolder([connectionId], null);
+          void moveConnectionsToFolder(
+            [connectionId],
+            null,
+            'connection_context_menu'
+          );
           return;
         case 'add-to-new-folder':
           void addToNewFolder(connectionId);
