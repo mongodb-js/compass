@@ -188,6 +188,22 @@ export const notConnectedConnectionItemActions = ({
   }
 };
 
+export const folderItemActions = (): NavigationItemActions => {
+  return [
+    {
+      action: 'rename-folder',
+      label: 'Rename folder',
+      icon: 'Edit',
+    },
+    {
+      action: 'delete-folder',
+      label: 'Delete folder',
+      icon: 'Trash',
+      variant: 'destructive',
+    },
+  ];
+};
+
 export const databaseItemActions = ({
   hasWriteActionsDisabled,
   canDeleteDatabase,
