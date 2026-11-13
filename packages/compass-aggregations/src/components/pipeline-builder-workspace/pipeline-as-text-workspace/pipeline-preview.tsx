@@ -9,9 +9,9 @@ import {
   Overline,
   WarningSummary,
 } from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import type HadronDocument from '@mongodb-js/hadron-document';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { RootState } from '../../../modules';
 import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
@@ -111,7 +111,7 @@ const PreviewResults = ({
     void navigator.clipboard.writeText(str);
   }, []);
 
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
 
   if (isLoading) {
     return (
@@ -142,7 +142,7 @@ const PreviewResults = ({
   }
 
   if (previewDocs.length === 0) {
-    if (!enableSearchActivationProgramP1 && atlasOperator) {
+    if (!enableAtlasSearchIndexes && atlasOperator) {
       return <SearchNoResults />;
     }
     return (
@@ -164,7 +164,7 @@ const PreviewResults = ({
         isEditable={false}
         className={documentListStyles}
       />
-      {enableSearchActivationProgramP1 && showSearchIndexStaleResultsBanner && (
+      {enableAtlasSearchIndexes && showSearchIndexStaleResultsBanner && (
         <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
       )}
     </>

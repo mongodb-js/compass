@@ -223,24 +223,9 @@ export function activatePlugin(
       logger.debug('Failed to fetch collection metadata', { namespace, error });
     });
 
-  // Assign experiment for Search Activation Program P1
+  // Assign experiment for Search Activation Program P2
   // Only assign when we're connected to Atlas
   if (connectionInfoRef.current?.atlasMetadata?.clusterName) {
-    void experimentationServices
-      .assignExperiment(ExperimentTestNames.searchActivationProgramP1, {
-        team: 'Search Web Platform',
-      })
-      .catch((error) => {
-        logger.debug(
-          'Search Activation Program P1 experiment assignment failed',
-          {
-            experiment: ExperimentTestNames.searchActivationProgramP1,
-            namespace: namespace,
-            error: error instanceof Error ? error.message : String(error),
-          }
-        );
-      });
-
     void experimentationServices
       .assignExperiment(ExperimentTestNames.searchActivationProgramP2, {
         team: 'Search Web Platform',

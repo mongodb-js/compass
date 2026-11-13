@@ -12,13 +12,11 @@ import {
   Link,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { Document } from '@mongodb-js/compass-crud';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
-import {
-  useSearchActivationProgramP1,
-  useSearchActivationProgramP2,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { RootState } from '../../modules';
 import {
@@ -185,7 +183,7 @@ function StagePreviewBody({
     searchIndexName,
     searchIndexes
   );
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
     trackIsInSample: false,
   });
@@ -275,7 +273,7 @@ function StagePreviewBody({
   }
 
   if (
-    !enableSearchActivationProgramP1 &&
+    !enableAtlasSearchIndexes &&
     isSearchStage(stageOperator) &&
     documents?.length === 0 &&
     !isNoResultsSearchStage
@@ -307,10 +305,9 @@ function StagePreviewBody({
     return (
       <div className={previewBodyStyles}>
         <div className={documentsStyles}>{docs}</div>
-        {enableSearchActivationProgramP1 &&
-          showSearchIndexStaleResultsBanner && (
-            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
-          )}
+        {enableAtlasSearchIndexes && showSearchIndexStaleResultsBanner && (
+          <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+        )}
         {showAnalyzeButton && (
           <AnalyzeAndRefineResultsButton
             onClick={handleAnalyzeOutput}

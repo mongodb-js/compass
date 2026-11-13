@@ -437,7 +437,6 @@ const fetchIndexes = (
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1: false, // regular indexes are not affected by the experiment
       enableIndexesManagement,
     })(getState());
 

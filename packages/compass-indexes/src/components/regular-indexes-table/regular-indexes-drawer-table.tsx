@@ -12,7 +12,6 @@ import {
   nbsp,
   spacing,
 } from '@mongodb-js/compass-components';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
 
@@ -177,13 +176,11 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     'enableAtlasSearchIndexes',
     'enableIndexesManagement',
   ]);
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isRegularIndexesWritable } = useSelector(
     selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     }),
     shallowEqual

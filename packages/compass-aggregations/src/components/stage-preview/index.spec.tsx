@@ -44,14 +44,14 @@ const renderStagePreview = async (
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
-    enableSearchActivationP1Experiment = false,
+    enableAtlasSearchIndexes = false,
     enableSearchActivationP2Experiment = false,
     enableAIAssistant = false,
     preferences,
     interpretAnalyzeOutput,
     diagnoseSearchStage,
   }: {
-    enableSearchActivationP1Experiment?: boolean;
+    enableAtlasSearchIndexes?: boolean;
     enableSearchActivationP2Experiment?: boolean;
     enableAIAssistant?: boolean;
     preferences?: PreferencesAccess;
@@ -59,12 +59,11 @@ const renderStagePreview = async (
     diagnoseSearchStage?: Sinon.SinonSpy;
   } = {}
 ) => {
-  const experimentVariant = enableSearchActivationP1Experiment
-    ? ExperimentTestGroups.searchActivationProgramP1Variant
-    : enableSearchActivationP2Experiment
-      ? ExperimentTestGroups.searchActivationProgramP2Variant
-      : null;
+  const experimentVariant = enableSearchActivationP2Experiment
+    ? ExperimentTestGroups.searchActivationProgramP2Variant
+    : null;
   const preferencesAccess = await createSandboxFromDefaultPreferences();
+  await preferencesAccess.savePreferences({ enableAtlasSearchIndexes });
   if (enableAIAssistant) {
     await preferencesAccess.savePreferences(AI_ASSISTANT_PREFERENCES);
   }
@@ -313,7 +312,7 @@ describe('StagePreview', function () {
         },
         [{ $search: { index: 'test-index' } }],
         {},
-        { enableSearchActivationP1Experiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(await screen.findByTestId('search-index-stale-results-banner')).to
@@ -337,7 +336,7 @@ describe('StagePreview', function () {
         },
         [{ $vectorSearch: { index: 'vector-index' } }],
         {},
-        { enableSearchActivationP1Experiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(await screen.findByTestId('search-index-stale-results-banner')).to
@@ -412,7 +411,7 @@ describe('StagePreview', function () {
         },
         [{ $match: { _id: 1 } }],
         {},
-        { enableSearchActivationP1Experiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not

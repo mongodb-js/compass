@@ -3,7 +3,6 @@ import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
 
@@ -67,13 +66,11 @@ export const RegularIndexesTable: React.FunctionComponent<
     'enableAtlasSearchIndexes',
     'enableIndexesManagement',
   ]);
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isRegularIndexesWritable } = useSelector(
     selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     }),
     shallowEqual

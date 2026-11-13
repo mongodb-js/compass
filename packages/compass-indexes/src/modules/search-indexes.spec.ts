@@ -576,7 +576,6 @@ describe('search-indexes module', function () {
 
       store.dispatch(startPollingSearchIndexes());
 
-      // poll (tickAsync processes microtasks/promises from experimentationServices)
       await clock.tickAsync(pollInterval);
       expect(getSearchIndexesStub.callCount).to.equal(2);
       expect(store.getState().searchIndexes.status).to.equal('READY');

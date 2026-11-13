@@ -1,12 +1,8 @@
 import React from 'react';
 import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import type { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../test/configure-store';
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { renderWithStore } from '../../../test/configure-store';
 import {
   changeStageCollapsed,
   changeStageDisabled,
@@ -17,25 +13,20 @@ const renderStageToolbar = async (
   pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
   preferences?: InstanceType<typeof ReadOnlyPreferenceAccess>,
   {
-    enableSearchActivationExperiment = false,
+    enableAtlasSearchIndexes = false,
     services = {},
     stageIndex = 0,
   }: {
-    enableSearchActivationExperiment?: boolean;
+    enableAtlasSearchIndexes?: boolean;
     services?: Parameters<typeof renderWithStore>[3];
     stageIndex?: number;
   } = {}
 ) => {
-  let ui = <StageToolbar index={stageIndex} />;
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
+  const ui = <StageToolbar index={stageIndex} />;
   const result = await renderWithStore(ui, { pipeline }, undefined, {
     ...services,
-    ...(preferences ? { preferences } : {}),
+    preferences:
+      preferences ?? new ReadOnlyPreferenceAccess({ enableAtlasSearchIndexes }),
   });
   return result.plugin.store;
 };
@@ -97,42 +88,42 @@ describe('StageToolbar', function () {
   });
 
   context('View Indexes button', function () {
-    it('does not render when experiment is not in variant', async function () {
+    it('does not render when Atlas search indexes are disabled', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
       expect(screen.queryByTestId('stage-toolbar-view-indexes-button')).to.not
         .exist;
     });
     it('does not render when stage is not a search stage', async function () {
       await renderStageToolbar([{ $match: { _id: 1 } }], undefined, {
-        enableSearchActivationExperiment: true,
+        enableAtlasSearchIndexes: true,
       });
       expect(screen.queryByTestId('stage-toolbar-view-indexes-button')).to.not
         .exist;
     });
-    it('renders when experiment is in variant and stage is $search', async function () {
+    it('renders when Atlas search indexes are enabled and stage is $search', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }], undefined, {
-        enableSearchActivationExperiment: true,
+        enableAtlasSearchIndexes: true,
       });
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
-    it('renders when experiment is in variant and stage is $searchMeta', async function () {
+    it('renders when Atlas search indexes are enabled and stage is $searchMeta', async function () {
       await renderStageToolbar(
         [{ $searchMeta: { index: 'default' } }],
         undefined,
         {
-          enableSearchActivationExperiment: true,
+          enableAtlasSearchIndexes: true,
         }
       );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
-    it('renders when experiment is in variant and stage is $vectorSearch', async function () {
+    it('renders when Atlas search indexes are enabled and stage is $vectorSearch', async function () {
       await renderStageToolbar(
         [{ $vectorSearch: { index: 'default' } }],
         undefined,
         {
-          enableSearchActivationExperiment: true,
+          enableAtlasSearchIndexes: true,
         }
       );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
