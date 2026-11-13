@@ -31,6 +31,23 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(3);
     });
 
+    it('renders a field named _bsontype as regular document data', async function () {
+      await renderPipelineBuilderUIWorkspace(
+        {},
+        {
+          pipeline: [
+            {
+              $match: {
+                field: { _bsontype: 'Timestamp', high: 'a', low: 'b' },
+              },
+            },
+          ],
+        }
+      );
+      expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(1);
+      expect(screen.getByTestId('stage-editor')).to.contain.text('_bsontype');
+    });
+
     it('renders add stage icon button between stages', async function () {
       await renderPipelineBuilderUIWorkspace();
       const buttons = screen.getAllByTestId('add-stage-icon-button');
