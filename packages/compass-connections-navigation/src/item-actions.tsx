@@ -97,9 +97,7 @@ export const commonConnectionItemActions = ({
               icon: <FolderIcon />,
               actionPayload: { folderId: folder.id },
             })),
-            ...(otherFolders.length > 0 || !folderId
-              ? [{ separator: true } as const]
-              : []),
+            ...(otherFolders.length > 0 ? [{ separator: true } as const] : []),
             {
               action: 'add-to-new-folder',
               label: 'New folder',
