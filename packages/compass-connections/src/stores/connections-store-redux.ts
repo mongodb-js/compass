@@ -2702,6 +2702,11 @@ export const moveConnectionsToFolder = (
       // return value instead of throwing, so a caller can retry just the moves
       // that didn't apply.
       debug('failed to save folder organization', err);
+      openToast('failed-to-save-folder-organization', {
+        title: 'Failed to move connection(s) to folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
       return { movedIds: [], failedIds: connectionIds };
     }
 
