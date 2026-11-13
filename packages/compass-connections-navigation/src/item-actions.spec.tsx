@@ -45,9 +45,11 @@ function nestedActions(
 }
 
 describe('commonConnectionItemActions', function () {
-  it('does not show folder actions when there are no folders', function () {
+  it('shows a single "new folder" action when there are no folders', function () {
     const actions = commonConnectionItemActions({ connectionInfo });
-    expect(findMoveTo(actions)).to.be.undefined;
+    expect(nestedActions(actions)).to.deep.equal([
+      { action: 'add-to-new-folder', label: 'New folder' },
+    ]);
     expect(findAction(actions, 'remove-from-folder')).to.be.undefined;
     expect(actions[actions.length - 1]).not.to.have.property('separator');
   });
@@ -86,16 +88,6 @@ describe('commonConnectionItemActions', function () {
       { separator: true },
       { action: 'add-to-new-folder', label: 'New folder' },
     ]);
-    expect(findAction(actions, 'remove-from-folder')).to.exist;
-  });
-
-  it('hides "Move to" when the only folder is the current one', function () {
-    const actions = commonConnectionItemActions({
-      connectionInfo,
-      folders: [folders[0]],
-      folderId: 'folder_a',
-    });
-    expect(findMoveTo(actions)).to.be.undefined;
     expect(findAction(actions, 'remove-from-folder')).to.exist;
   });
 
