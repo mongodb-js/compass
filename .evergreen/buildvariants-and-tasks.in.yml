@@ -24,7 +24,7 @@ const UNIT_TESTS_BUILD_VARIANTS = [
     // Even though this host doesn't have a -gui postfix, it seems to be using
     // the pool of the -gui hosts anyway and so to save some resources, we're
     // not going to run these tests on PRs
-    run_on: 'macos-15-arm64',
+    run_on: 'macos-26-arm64-gui',
     run_on_prs: false,
   },
   {
@@ -91,9 +91,9 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     depends_on: 'package-rhel',
   },
   {
-    name: 'test-packaged-app-macos-15-arm',
-    display_name: 'MacOS arm64 15',
-    run_on: 'macos-15-arm64-gui',
+    name: 'test-packaged-app-macos-26-arm',
+    display_name: 'MacOS arm64 26',
+    run_on: 'macos-26-arm64-gui',
     depends_on: 'package-macos-arm'
   },
   {
