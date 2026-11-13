@@ -25,7 +25,10 @@ export type ContextMenuContextType = {
 };
 
 export type ContextMenuItem = {
+  /** if label contains sensitive data that shouldn't be used for telemetry, provide an alternative {@link trackingLabel} */
   label: string;
+  /** use this parameter if the {@link label} itself can contain sensitive data */
+  trackingLabel?: string;
   onAction?: (event: React.KeyboardEvent | React.MouseEvent) => void;
   items?: ContextMenuItem[];
 };

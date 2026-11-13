@@ -193,7 +193,7 @@ export default function ThemedHome(
       onContextMenuItemClick={(itemGroup, item) => {
         track('Context Menu Item Clicked', {
           item_group: itemGroup.telemetryLabel,
-          item_label: item.label,
+          item_label: item.trackingLabel ?? item.label,
         });
       }}
       onDrawerSectionOpen={(drawerSectionId) => {
