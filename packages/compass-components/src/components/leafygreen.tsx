@@ -21,7 +21,7 @@ import {
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
-import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+import { Menu, MenuSeparator, MenuItem, SubMenu } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 import { ProgressBar } from '@leafygreen-ui/progress-bar';
 
@@ -146,6 +146,7 @@ export {
   Menu,
   MenuItem,
   MenuSeparator,
+  SubMenu,
   Modal,
   ModalFooter,
   MarketingModal,

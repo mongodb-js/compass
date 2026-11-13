@@ -14,7 +14,7 @@ import type { Folder } from '@mongodb-js/connection-storage/provider';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { getConnectionId, getVirtualTreeItems } from './tree-data';
 import { ROW_HEIGHT } from './constants';
-import type { Actions } from './constants';
+import type { ActionPayload, Actions } from './constants';
 import { VirtualTree } from './virtual-list/virtual-list';
 import type { OnDefaultAction } from './virtual-list/virtual-list';
 import { NavigationItem } from './navigation-item';
@@ -47,7 +47,11 @@ export interface ConnectionsNavigationTreeProps {
   activeWorkspace: WorkspaceTab | null;
   expanded: Record<string, false | Record<string, boolean>>;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
-  onItemAction(item: SidebarActionableItem, action: Actions): void;
+  onItemAction(
+    item: SidebarActionableItem,
+    action: Actions,
+    actionPayload?: ActionPayload
+  ): void;
 }
 
 const ConnectionsNavigationTree: React.FunctionComponent<
@@ -65,7 +69,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     enableShell: preferencesShellEnabled,
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
-  } = usePreferences(['enableShell', 'readOnly', 'readWrite']);
+    enableConnectionFolders: isFoldersEnabled,
+  } = usePreferences([
+    'enableShell',
+    'readOnly',
+    'readWrite',
+    'enableConnectionFolders',
+  ]);
   const isRenameCollectionEnabled = !preferencesReadWrite;
 
   const id = useId();
@@ -148,8 +158,10 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           return false;
         }
 
-        return ['refresh-databases', 'create-database', 'open-shell'].includes(
-          (action as ItemAction<Actions>).action
+        const name = (action as ItemAction<Actions>).action;
+        return (
+          name !== undefined &&
+          ['refresh-databases', 'create-database', 'open-shell'].includes(name)
         );
       };
 
@@ -198,6 +210,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
+              isFoldersEnabled,
+              folders,
+              folderId: folderAssignments?.[item.connectionInfo.id],
               isPerformanceTabAvailable: item.isPerformanceTabAvailable,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
@@ -211,6 +226,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             return {
               actions: notConnectedConnectionItemActions({
                 connectionInfo: item.connectionInfo,
+                isFoldersEnabled,
+                folders,
+                folderId: folderAssignments?.[item.connectionInfo.id],
                 connectionStatus: item.connectionStatus,
               }),
               config: {
@@ -241,6 +259,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       isRenameCollectionEnabled,
       getCollapseAfterForConnectedItem,
       getConnectable,
+      isFoldersEnabled,
+      folders,
+      folderAssignments,
     ]
   );
 
@@ -262,12 +283,18 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                   hasWriteActionsDisabled: item.hasWriteActionsDisabled,
                   isShellEnabled: item.isShellEnabled,
                   connectionInfo: item.connectionInfo,
+                  isFoldersEnabled,
+                  folders,
+                  folderId: folderAssignments?.[item.connectionInfo.id],
                   isPerformanceTabAvailable: item.isPerformanceTabAvailable,
                   isPerformanceTabSupported: item.isPerformanceTabSupported,
                   isAtlas: !!item.connectionInfo.atlasMetadata,
                 })
               : notConnectedConnectionItemActions({
                   connectionInfo: item.connectionInfo,
+                  isFoldersEnabled,
+                  folders,
+                  folderId: folderAssignments?.[item.connectionInfo.id],
                   connectionStatus: item.connectionStatus,
                 })
           );
@@ -319,7 +346,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, isRenameCollectionEnabled]
+    [
+      onItemAction,
+      isRenameCollectionEnabled,
+      isFoldersEnabled,
+      folders,
+      folderAssignments,
+    ]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';

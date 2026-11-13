@@ -7,6 +7,7 @@ import { MenuSeparator, Tooltip } from '../leafygreen';
 import { ItemActionButtonSize } from './constants';
 import type { ItemAction, ItemSeparator } from './types';
 import { ItemActionButton } from './item-action-button';
+import { ItemActionMenu } from './item-action-menu';
 import { actionTestId, isSeparatorMenuAction } from './utils';
 
 export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
@@ -25,9 +26,13 @@ const itemActionGroupContainerStyles = css({
   display: 'inherit',
 });
 
+const nestedMenuStyles = css({
+  marginLeft: 0,
+});
+
 export type ItemActionGroupProps<Action extends string> = {
   actions: (GroupedItemAction<Action> | ItemSeparator)[];
-  onAction(actionName: Action): void;
+  onAction(actionName: Action, actionPayload?: unknown): void;
   isVisible?: boolean;
   /**
    * Called to signal to the parent if the component wants to prevent becoming hidden.
@@ -81,6 +86,24 @@ export function ItemActionGroup<Action extends string>({
           tooltipProps,
           ...itemProps
         } = menuItem;
+
+        if (itemProps.actions) {
+          return (
+            <ItemActionMenu<Action>
+              key={itemProps.label}
+              actions={itemProps.actions}
+              onAction={onAction}
+              glyph={itemProps.icon}
+              label={itemProps.label}
+              className={nestedMenuStyles}
+              iconSize={iconSize}
+              iconStyle={iconStyle}
+              iconClassName={iconClassName}
+              setHidable={setHidable}
+              data-testid={actionTestId(dataTestId, itemProps.label)}
+            />
+          );
+        }
 
         const item = (
           <ItemComponent

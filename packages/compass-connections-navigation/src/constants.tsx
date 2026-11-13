@@ -39,4 +39,9 @@ export type Actions =
   | 'open-in-new-tab'
   | 'duplicate-view'
   | 'modify-view'
-  | 'rename-collection';
+  | 'rename-collection'
+  | 'move-to-folder'
+  | 'remove-from-folder'
+  | 'add-to-new-folder';
+
+export type ActionPayload = { folderId: string };

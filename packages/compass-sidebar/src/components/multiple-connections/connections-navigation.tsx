@@ -21,10 +21,13 @@ import {
   cx,
   Placeholder,
   useContextMenuGroups,
+  showPrompt,
+  openToast,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type {
+  ActionPayload,
   Actions,
   SidebarConnectedConnection,
   SidebarConnection,
@@ -40,6 +43,7 @@ import {
   ConnectionStatus,
   useConnectionsListLoadingStatus,
   useFolders,
+  useConnectionActions,
 } from '@mongodb-js/compass-connections/provider';
 import {
   useOpenWorkspace,
@@ -281,6 +285,33 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const enableConnectionFolders = usePreference('enableConnectionFolders');
   const { folders, folderAssignments } = useFolders();
+  const { moveConnectionsToFolder, createFolder } = useConnectionActions();
+
+  const addToNewFolder = useCallback(
+    async (connectionId: string) => {
+      const name = await showPrompt({
+        title: 'New folder',
+        label: 'Folder name',
+        buttonText: 'Create',
+      });
+      if (name === null) {
+        return;
+      }
+      let folder;
+      try {
+        folder = await createFolder(name);
+      } catch (err) {
+        openToast('create-folder-error', {
+          title: 'Failed to create folder',
+          description: (err as Error).message,
+          variant: 'warning',
+        });
+        return;
+      }
+      void moveConnectionsToFolder([connectionId], folder.id);
+    },
+    [createFolder, moveConnectionsToFolder]
+  );
 
   const sidebarFolders = useMemo(
     () => (enableConnectionFolders ? folders : []),
@@ -343,7 +374,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     }, [supportsConnectionImportExport, enableCreatingNewConnections]);
 
   const onItemAction = useCallback(
-    (item: SidebarItem, action: Actions) => {
+    (item: SidebarItem, action: Actions, actionPayload?: ActionPayload) => {
       // TODO(COMPASS-11306): Folders have no actions yet; the folder
       // management UI adds them.
       if (item.type === 'folder') {
@@ -380,6 +411,21 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         item.type === 'connection' ? item.connectionInfo.id : item.connectionId;
 
       switch (action) {
+        case 'move-to-folder':
+          // Fired by the submenu items; the parent entry itself has no actionPayload.
+          if (actionPayload?.folderId) {
+            void moveConnectionsToFolder(
+              [connectionId],
+              actionPayload.folderId
+            );
+          }
+          return;
+        case 'remove-from-folder':
+          void moveConnectionsToFolder([connectionId], null);
+          return;
+        case 'add-to-new-folder':
+          void addToNewFolder(connectionId);
+          return;
         case 'select-connection':
           openDatabasesWorkspace(connectionId);
           return;
@@ -531,6 +577,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenCsfleModal,
       onOpenNonGenuineMongoDBModal,
       onOpenConnectViaModal,
+      moveConnectionsToFolder,
+      addToNewFolder,
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
@@ -575,7 +623,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         telemetryLabel: 'Connection List Title Actions',
         items: connectionListTitleActions.map(({ label, action }) => ({
           label,
-          onAction: () => onConnectionListTitleAction(action),
+          onAction: () => {
+            if (action) onConnectionListTitleAction(action);
+          },
         })),
       },
     ],

@@ -16,7 +16,7 @@ import { NavigationBaseItem } from './base-navigation-item';
 import type { NavigationItemActions } from './item-actions';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
-import type { Actions } from './constants';
+import type { ActionPayload, Actions } from './constants';
 import { NavigationItemIcon } from './navigation-item-icon';
 
 const nonGenuineBtnStyles = css({
@@ -101,7 +101,11 @@ type NavigationItemProps = {
       collapseAfter: number;
     };
   };
-  onItemAction: (item: SidebarActionableItem, action: Actions) => void;
+  onItemAction: (
+    item: SidebarActionableItem,
+    action: Actions,
+    actionPayload?: ActionPayload
+  ) => void;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
   getContextMenuGroups(item: SidebarTreeItem): ContextMenuItemGroup[];
 };
@@ -117,9 +121,9 @@ export function NavigationItem({
 }: NavigationItemProps) {
   const isDarkMode = useDarkMode();
   const onAction = useCallback(
-    (action: Actions) => {
+    (action: Actions, actionPayload?: unknown) => {
       if (item.type !== 'placeholder') {
-        onItemAction(item, action);
+        onItemAction(item, action, actionPayload as ActionPayload | undefined);
       }
     },
     [item, onItemAction]
@@ -248,7 +252,7 @@ export function NavigationItem({
           actionProps={actionProps}
         >
           {!!connectionStaticActions.length && (
-            <ItemActionControls
+            <ItemActionControls<Actions>
               iconSize="xsmall"
               actions={connectionStaticActions}
               onAction={onAction}

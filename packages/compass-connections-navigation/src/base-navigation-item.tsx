@@ -38,14 +38,13 @@ type NavigationBaseItemProps = React.PropsWithChildren<{
     collapseAfter?: number;
     collapseToMenuThreshold?: number;
     actions: NavigationItemActions;
-    onAction: (action: Actions) => void;
+    onAction: (action: Actions, actionPayload?: unknown) => void;
   };
   toggleExpand: () => void;
 }>;
 
 const menuStyles = css({
   width: '240px',
-  maxHeight: 'unset',
   marginLeft: 'auto',
 });
 
@@ -210,7 +209,7 @@ export const NavigationBaseItem = React.forwardRef<
           <ClusterStateBadgeWithTooltip item={item} />
         )}
         <div className={actionControlsWrapperStyles}>
-          <ItemActionControls
+          <ItemActionControls<Actions>
             menuClassName={menuStyles}
             isVisible={isActive || isHovered || isFocused}
             data-testid="sidebar-navigation-item-actions"
