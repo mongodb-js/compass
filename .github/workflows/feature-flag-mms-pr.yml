@@ -88,13 +88,26 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-flags.outputs.flags_count != '' && needs.detect-flags.outputs.flags_count != '0'
     steps:
       - name: Create Github App Token
-        uses: mongodb-js/devtools-shared/actions/setup-bot-token@a5a3678435bde24f36e21ae4cab9ccd7aca1a3c7 # main
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
           owner: 10gen
           repositories: mms
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Set up Git
+        id: app-user
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          USER_ID=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          echo "app-email=${USER_ID}+${APP_SLUG}[bot]@users.noreply.github.com" >> "$GITHUB_OUTPUT"
+          git config --global user.name "${APP_SLUG}[bot]"
+          git config --global user.email "${USER_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
 
       - name: Checkout MMS
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -156,7 +169,7 @@ jobs:
           commit-message: 'sync feature flags from ${{ github.repository }}@${{ github.sha }}'
           title: '${{ steps.pull-request-info.outputs.ticket }}: Add feature flag config from Compass'
           reviewers: ${{ steps.pull-request-info.outputs.reviewer }}
-          author: '${{ steps.app-token.outputs.app-slug }}[bot] <${{ steps.app-token.outputs.app-email }}>'
+          author: '${{ steps.app-token.outputs.app-slug }}[bot] <${{ steps.app-user.outputs.app-email }}>'
           body: |
             Ticket: [${{ steps.pull-request-info.outputs.ticket }}](https://jira.mongodb.org/browse/${{ steps.pull-request-info.outputs.ticket }})
 
