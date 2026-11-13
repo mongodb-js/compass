@@ -91,7 +91,7 @@
     "@mongodb-js/hadron-document": "^8.13.2",
     "@mongodb-js/hadron-type-checker": "^7.5.16",
     "@mongodb-js/mongodb-query-util": "^2.6.16",
-    "@mongodb-js/shell-bson-parser": "^2.2.0",
+    "@mongodb-js/shell-bson-parser": "^2.2.3",
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",
