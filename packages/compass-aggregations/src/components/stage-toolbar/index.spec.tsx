@@ -14,28 +14,20 @@ const renderStageToolbar = async (
   preferences?: InstanceType<typeof ReadOnlyPreferenceAccess>,
   {
     enableAtlasSearchIndexes = false,
-    isSearchIndexesSupported = true,
     services = {},
     stageIndex = 0,
   }: {
     enableAtlasSearchIndexes?: boolean;
-    isSearchIndexesSupported?: boolean;
     services?: Parameters<typeof renderWithStore>[3];
     stageIndex?: number;
   } = {}
 ) => {
   const ui = <StageToolbar index={stageIndex} />;
-  const result = await renderWithStore(
-    ui,
-    { pipeline, isSearchIndexesSupported },
-    undefined,
-    {
-      ...services,
-      preferences:
-        preferences ??
-        new ReadOnlyPreferenceAccess({ enableAtlasSearchIndexes }),
-    }
-  );
+  const result = await renderWithStore(ui, { pipeline }, undefined, {
+    ...services,
+    preferences:
+      preferences ?? new ReadOnlyPreferenceAccess({ enableAtlasSearchIndexes }),
+  });
   return result.plugin.store;
 };
 
@@ -98,14 +90,6 @@ describe('StageToolbar', function () {
   context('View Indexes button', function () {
     it('does not render when Atlas search indexes are disabled', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
-      expect(screen.queryByTestId('stage-toolbar-view-indexes-button')).to.not
-        .exist;
-    });
-    it('does not render when the connection does not support search indexes', async function () {
-      await renderStageToolbar([{ $search: { index: 'default' } }], undefined, {
-        enableAtlasSearchIndexes: true,
-        isSearchIndexesSupported: false,
-      });
       expect(screen.queryByTestId('stage-toolbar-view-indexes-button')).to.not
         .exist;
     });

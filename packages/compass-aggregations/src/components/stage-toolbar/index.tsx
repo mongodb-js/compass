@@ -18,7 +18,6 @@ import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
-import { selectCanUseSearchIndexes } from '../../utils/can-use-search-indexes';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
@@ -124,7 +123,6 @@ type StageToolbarProps = {
   stage: StoreStage;
   env: ServerEnvironment;
   isSearchIndexesSupported: boolean;
-  canUseSearchIndexes: boolean;
   isRerankFirstStage: boolean;
   hasSearchIndex: boolean;
   isSearchIndexesLoading: boolean;
@@ -149,7 +147,6 @@ export function StageToolbar({
   stage,
   env,
   isSearchIndexesSupported,
-  canUseSearchIndexes,
   isRerankFirstStage,
   hasSearchIndex,
   isSearchIndexesLoading,
@@ -238,28 +235,26 @@ export function StageToolbar({
             View $rerank Usage and Rate Limits
           </Link>
         )}
-        {enableAtlasSearchIndexes &&
-          canUseSearchIndexes &&
-          isSearchStage(stage.stageOperator) && (
-            <Button
-              data-testid="stage-toolbar-view-indexes-button"
-              size="xsmall"
-              className={viewIndexesButtonStyles}
-              onClick={() => {
-                track('Search Index View Indexes Button Clicked', {
-                  context: 'Stage Toolbar',
-                });
-                openDrawer('compass-indexes-drawer');
-                void getSearchIndexNameFromSearchStage(
-                  stage.stageOperator,
-                  stage.value
-                ).then((name) => onClickViewSearchIndexes(name ?? undefined));
-              }}
-              title="View Indexes"
-            >
-              View Indexes
-            </Button>
-          )}
+        {enableAtlasSearchIndexes && isSearchStage(stage.stageOperator) && (
+          <Button
+            data-testid="stage-toolbar-view-indexes-button"
+            size="xsmall"
+            className={viewIndexesButtonStyles}
+            onClick={() => {
+              track('Search Index View Indexes Button Clicked', {
+                context: 'Stage Toolbar',
+              });
+              openDrawer('compass-indexes-drawer');
+              void getSearchIndexNameFromSearchStage(
+                stage.stageOperator,
+                stage.value
+              ).then((name) => onClickViewSearchIndexes(name ?? undefined));
+            }}
+            title="View Indexes"
+          >
+            View Indexes
+          </Button>
+        )}
         {insight && (
           <SignalPopover
             signals={insight}
@@ -310,7 +305,6 @@ export default connect(
       stage,
       env,
       isSearchIndexesSupported,
-      canUseSearchIndexes: selectCanUseSearchIndexes(state),
       isRerankFirstStage: getIsRerankFirstStage(state, ownProps.index),
       hasSearchIndex: searchIndexes.length > 0,
       isSearchIndexesLoading:
