@@ -139,7 +139,7 @@ describe('ServerErrorBanner', function () {
       const onEditSearchIndexClick = sinon.spy();
       const element = (
         <AssistantActionsContext.Provider
-          value={{ debugSearchError: sinon.stub() } as any}
+          value={{ debugSearchError: sinon.stub() }}
         >
           <ServerErrorBanner
             message={ERROR_MESSAGE}
@@ -168,7 +168,7 @@ describe('ServerErrorBanner', function () {
       const debugSearchError = sinon.stub();
       const onEditSearchIndexClick = sinon.spy();
       const element = (
-        <AssistantActionsContext.Provider value={{ debugSearchError } as any}>
+        <AssistantActionsContext.Provider value={{ debugSearchError }}>
           <ServerErrorBanner
             message={ERROR_MESSAGE}
             searchIndexName="test-index"
