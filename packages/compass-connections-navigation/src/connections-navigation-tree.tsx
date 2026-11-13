@@ -69,7 +69,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     enableShell: preferencesShellEnabled,
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
-  } = usePreferences(['enableShell', 'readOnly', 'readWrite']);
+    enableConnectionFolders: isFoldersEnabled,
+  } = usePreferences([
+    'enableShell',
+    'readOnly',
+    'readWrite',
+    'enableConnectionFolders',
+  ]);
   const isRenameCollectionEnabled = !preferencesReadWrite;
 
   const id = useId();
@@ -204,6 +210,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
+              isFoldersEnabled,
               folders,
               folderId: folderAssignments?.[item.connectionInfo.id],
               isPerformanceTabAvailable: item.isPerformanceTabAvailable,
@@ -219,6 +226,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             return {
               actions: notConnectedConnectionItemActions({
                 connectionInfo: item.connectionInfo,
+                isFoldersEnabled,
                 folders,
                 folderId: folderAssignments?.[item.connectionInfo.id],
                 connectionStatus: item.connectionStatus,
@@ -251,6 +259,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       isRenameCollectionEnabled,
       getCollapseAfterForConnectedItem,
       getConnectable,
+      isFoldersEnabled,
       folders,
       folderAssignments,
     ]
@@ -274,6 +283,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                   hasWriteActionsDisabled: item.hasWriteActionsDisabled,
                   isShellEnabled: item.isShellEnabled,
                   connectionInfo: item.connectionInfo,
+                  isFoldersEnabled,
                   folders,
                   folderId: folderAssignments?.[item.connectionInfo.id],
                   isPerformanceTabAvailable: item.isPerformanceTabAvailable,
@@ -282,6 +292,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                 })
               : notConnectedConnectionItemActions({
                   connectionInfo: item.connectionInfo,
+                  isFoldersEnabled,
                   folders,
                   folderId: folderAssignments?.[item.connectionInfo.id],
                   connectionStatus: item.connectionStatus,
@@ -335,7 +346,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, isRenameCollectionEnabled, folders, folderAssignments]
+    [
+      onItemAction,
+      isRenameCollectionEnabled,
+      isFoldersEnabled,
+      folders,
+      folderAssignments,
+    ]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
