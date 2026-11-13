@@ -1354,5 +1354,14 @@ describe('ConnectionsNavigationTree', function () {
         (styledRow as HTMLElement).style.getPropertyValue('--item-color')
       ).to.equal('');
     });
+
+    it('should show rename and delete in the folder context menu', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      userEvent.click(screen.getByText('alpha'), { button: 2 });
+
+      expect(screen.getByText('Rename folder')).to.exist;
+      expect(screen.getByText('Delete folder')).to.exist;
+    });
   });
 });

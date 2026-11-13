@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import { connect } from 'react-redux';
 import {
@@ -14,12 +15,18 @@ import {
   Subtitle,
   css,
   spacing,
+  Banner,
+  BannerVariant,
   Body,
   Button,
   Icon,
   ButtonVariant,
+  ConfirmationModalVariant,
   cx,
+  FolderPlusIcon,
+  openToast,
   Placeholder,
+  showConfirmation,
   useContextMenuGroups,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
@@ -28,6 +35,7 @@ import type {
   Actions,
   SidebarConnectedConnection,
   SidebarConnection,
+  SidebarFolderTreeItem,
   SidebarItem,
 } from '@mongodb-js/compass-connections-navigation';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
@@ -38,6 +46,7 @@ import {
 import {
   type useConnectionsWithStatus,
   ConnectionStatus,
+  useConnectionActions,
   useConnectionsListLoadingStatus,
   useFolders,
 } from '@mongodb-js/compass-connections/provider';
@@ -58,6 +67,7 @@ import {
   buildQueryInsightsUrl,
 } from '@mongodb-js/atlas-service/provider';
 import NavigationItemsFilter from '../navigation-items-filter';
+import { FolderModal } from '../folder-modal';
 import {
   type ConnectionsFilter,
   useFilteredConnections,
@@ -116,6 +126,24 @@ const noSearchResultsStyles = css({
   paddingTop: spacing[400],
 });
 
+const deleteFolderBannerStyles = css({
+  marginTop: spacing[300],
+});
+
+// All folder actions share one toast id so the latest replaces the previous
+// one instead of stacking them up.
+const folderToastId = 'folder-action';
+
+/**
+ * The folder modal is a native `<dialog>`, which hands focus back to whatever
+ * was focused when it opened. Left alone, the button that opened it keeps
+ * showing its focus highlight after the dialog closes, so drop focus first and
+ * let it fall back to the body instead.
+ */
+function blurActiveElement() {
+  (document.activeElement as HTMLElement | null)?.blur();
+}
+
 /**
  * Indicates only Atlas cluster connections are supported, and the user cannot navigate
  * to other types of connections from this UI.
@@ -134,8 +162,12 @@ function findCollection(ns: string, databases: Database[]) {
 
 type ConnectionListTitleActions =
   | 'collapse-all-connections'
+  | 'create-folder'
   | 'add-new-connection'
   | ConnectionImportExportAction;
+
+type FolderModalTarget =
+  { mode: 'create' } | { mode: 'rename'; folderId: string; name: string };
 
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
@@ -291,8 +323,136 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     [enableConnectionFolders, folderAssignments]
   );
 
+  const { createFolder, renameFolder, deleteFolder } = useConnectionActions();
+
+  // One modal serves both create and rename. The target is kept after closing
+  // so the dialog's title and button don't flip to the create wording while it
+  // animates out.
+  const [folderModalTarget, setFolderModalTarget] = useState<FolderModalTarget>(
+    { mode: 'create' }
+  );
+  const [isFolderModalOpen, setFolderModalOpen] = useState(false);
+
+  const renameFolderId =
+    folderModalTarget.mode === 'rename' ? folderModalTarget.folderId : null;
+
+  // Renaming a folder must not clash with its own current name, so it is
+  // excluded from the names the modal validates against.
+  const folderModalExistingNames = useMemo(
+    () =>
+      sidebarFolders
+        .filter((folder) => folder.id !== renameFolderId)
+        .map((folder) => folder.name),
+    [sidebarFolders, renameFolderId]
+  );
+
+  const onOpenCreateFolderModal = useCallback(() => {
+    blurActiveElement();
+    setFolderModalTarget({ mode: 'create' });
+    setFolderModalOpen(true);
+  }, []);
+
+  const onOpenRenameFolderModal = useCallback(
+    (folder: SidebarFolderTreeItem) => {
+      blurActiveElement();
+      setFolderModalTarget({
+        mode: 'rename',
+        folderId: folder.folderId,
+        name: folder.name,
+      });
+      setFolderModalOpen(true);
+    },
+    []
+  );
+
+  const onCloseFolderModal = useCallback(() => {
+    setFolderModalOpen(false);
+  }, []);
+
+  const onFolderModalSubmit = useCallback(
+    (name: string) => {
+      const request =
+        folderModalTarget.mode === 'rename'
+          ? renameFolder(folderModalTarget.folderId, name)
+          : createFolder(name);
+      void request
+        .then(() => {
+          onCloseFolderModal();
+          openToast(folderToastId, {
+            title:
+              folderModalTarget.mode === 'rename'
+                ? `Folder renamed ${folderModalTarget.name} to ${name}`
+                : `New folder ${name} created in sidebar.`,
+            ...(folderModalTarget.mode === 'rename'
+              ? {}
+              : {
+                  description:
+                    'To organize connections, use the three-dot menu (•••).',
+                }),
+            variant: 'success',
+          });
+        })
+        .catch((err: Error) => {
+          // The modal validates names before submitting, so a failure here is
+          // a storage error rather than a rejected name.
+          openToast(folderToastId, {
+            title: 'Failed to save folder',
+            description: err.message,
+            variant: 'warning',
+          });
+        });
+    },
+    [createFolder, renameFolder, folderModalTarget, onCloseFolderModal]
+  );
+
+  const onDeleteFolder = useCallback(
+    async (folder: { id: string; name: string }) => {
+      const connectionsInFolder = connections.filter(
+        ({ connectionInfo }) =>
+          sidebarFolderAssignments[connectionInfo.id] === folder.id
+      ).length;
+
+      const confirmed = await showConfirmation({
+        variant: ConfirmationModalVariant.Danger,
+        title: 'Delete folder',
+        description: (
+          <>
+            <div>{`Delete "${folder.name}"?`}</div>
+            {connectionsInFolder > 0 && (
+              <Banner
+                variant={BannerVariant.Info}
+                className={deleteFolderBannerStyles}
+              >
+                {`${connectionsInFolder} connection(s) inside will move back to the top-level list instead.`}
+              </Banner>
+            )}
+          </>
+        ),
+        buttonText: 'Delete folder',
+      });
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await deleteFolder(folder.id);
+        openToast(folderToastId, {
+          title: `${folder.name} folder deleted`,
+          variant: 'success',
+        });
+      } catch (err) {
+        openToast(folderToastId, {
+          title: 'Failed to delete folder',
+          description: (err as Error).message,
+          variant: 'warning',
+        });
+      }
+    },
+    [deleteFolder, connections, sidebarFolderAssignments]
+  );
+
   const {
     filtered,
+    folders: visibleFolders,
     expanded,
     onCollapseAll,
     onConnectionToggle,
@@ -301,52 +461,80 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   } = useFilteredConnections({
     connections,
     folders: sidebarFolders,
+    folderAssignments: sidebarFolderAssignments,
     filter,
     fetchAllCollections,
     onDatabaseExpand,
   });
 
-  const connectionListTitleActions =
-    useMemo((): ItemAction<ConnectionListTitleActions>[] => {
-      const actions: ItemAction<ConnectionListTitleActions>[] = [
+  const connectionListTitleActions = useMemo((): {
+    actions: ItemAction<ConnectionListTitleActions>[];
+    inlineActionCount: number;
+  } => {
+    const actions: ItemAction<ConnectionListTitleActions>[] = [
+      {
+        action: 'collapse-all-connections',
+        label: 'Collapse all connections',
+        icon: <ChevronCollapse width={14} height={14} />,
+      },
+    ];
+    // The actions that stay visible next to each other; the rest collapse into
+    // the "..." menu.
+    let inlineActionCount = 1;
+
+    if (enableConnectionFolders) {
+      actions.push({
+        action: 'create-folder',
+        label: 'Create folder',
+        icon: <FolderPlusIcon />,
+      });
+      inlineActionCount++;
+    }
+
+    if (enableCreatingNewConnections) {
+      actions.push({
+        action: 'add-new-connection',
+        label: 'Add new connection',
+        icon: 'Plus',
+      });
+      inlineActionCount++;
+    }
+
+    if (supportsConnectionImportExport) {
+      actions.push(
         {
-          action: 'collapse-all-connections',
-          label: 'Collapse all connections',
-          icon: <ChevronCollapse width={14} height={14} />,
+          action: 'import-saved-connections',
+          label: 'Import connections',
+          icon: 'Download',
         },
-      ];
+        {
+          action: 'export-saved-connections',
+          label: 'Export connections',
+          icon: 'Export',
+        }
+      );
+    }
 
-      if (enableCreatingNewConnections) {
-        actions.push({
-          action: 'add-new-connection',
-          label: 'Add new connection',
-          icon: 'Plus',
-        });
-      }
-
-      if (supportsConnectionImportExport) {
-        actions.push(
-          {
-            action: 'import-saved-connections',
-            label: 'Import connections',
-            icon: 'Download',
-          },
-          {
-            action: 'export-saved-connections',
-            label: 'Export connections',
-            icon: 'Export',
-          }
-        );
-      }
-
-      return actions;
-    }, [supportsConnectionImportExport, enableCreatingNewConnections]);
+    return {
+      actions,
+      // Without folders the header keeps its previous layout, which shows one
+      // more action inline than the actions above account for.
+      inlineActionCount: enableConnectionFolders ? inlineActionCount : 2,
+    };
+  }, [
+    supportsConnectionImportExport,
+    enableCreatingNewConnections,
+    enableConnectionFolders,
+  ]);
 
   const onItemAction = useCallback(
     (item: SidebarItem, action: Actions) => {
-      // TODO(COMPASS-11306): Folders have no actions yet; the folder
-      // management UI adds them.
       if (item.type === 'folder') {
+        if (action === 'rename-folder') {
+          onOpenRenameFolderModal(item);
+        } else if (action === 'delete-folder') {
+          void onDeleteFolder({ id: item.folderId, name: item.name });
+        }
         return;
       }
 
@@ -536,6 +724,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       openCollectionWorkspace,
       openEditViewWorkspace,
       _onNamespaceAction,
+      onDeleteFolder,
+      onOpenRenameFolderModal,
     ]
   );
 
@@ -557,6 +747,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       if (action === 'collapse-all-connections') {
         onCollapseAll();
         track('Sidebar Connections Collapsed All', {});
+      } else if (action === 'create-folder') {
+        onOpenCreateFolderModal();
       } else if (action === 'add-new-connection') {
         onNewConnection();
       } else if (
@@ -566,14 +758,20 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         openConnectionImportExportModal(action);
       }
     },
-    [onCollapseAll, onNewConnection, openConnectionImportExportModal, track]
+    [
+      onCollapseAll,
+      onNewConnection,
+      openConnectionImportExportModal,
+      onOpenCreateFolderModal,
+      track,
+    ]
   );
 
   const contextMenuRef = useContextMenuGroups(
     () => [
       {
         telemetryLabel: 'Connection List Title Actions',
-        items: connectionListTitleActions.map(({ label, action }) => ({
+        items: connectionListTitleActions.actions.map(({ label, action }) => ({
           label,
           onAction: () => onConnectionListTitleAction(action),
         })),
@@ -626,11 +824,11 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         </Subtitle>
         <ItemActionControls<ConnectionListTitleActions>
           iconSize="xsmall"
-          actions={connectionListTitleActions}
+          actions={connectionListTitleActions.actions}
           onAction={onConnectionListTitleAction}
           data-testid="connections-list-title-actions"
           collapseToMenuThreshold={3}
-          collapseAfter={2}
+          collapseAfter={connectionListTitleActions.inlineActionCount}
         ></ItemActionControls>
       </div>
       <NavigationItemsFilter
@@ -639,6 +837,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         }
         filter={filter}
         onFilterChange={onFilterChange}
+        folders={sidebarFolders}
         disabled={isInitialConnectionsLoad || connections.length === 0}
       />
       {isInitialConnectionsLoad ? (
@@ -654,7 +853,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         ) : (
           <ConnectionsNavigationTree
             connections={filtered || connections}
-            folders={sidebarFolders}
+            folders={visibleFolders}
             folderAssignments={sidebarFolderAssignments}
             activeWorkspace={activeWorkspace}
             onItemAction={onItemAction}
@@ -679,6 +878,25 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           )}
         </div>
       ) : null}
+      {enableConnectionFolders && (
+        <FolderModal
+          open={isFolderModalOpen}
+          title={
+            folderModalTarget.mode === 'rename'
+              ? 'Rename folder'
+              : 'Create new folder'
+          }
+          submitButtonText={
+            folderModalTarget.mode === 'rename' ? 'Rename' : 'Create'
+          }
+          initialName={
+            folderModalTarget.mode === 'rename' ? folderModalTarget.name : ''
+          }
+          existingNames={folderModalExistingNames}
+          onSubmit={onFolderModalSubmit}
+          onClose={onCloseFolderModal}
+        />
+      )}
     </div>
   );
 };
