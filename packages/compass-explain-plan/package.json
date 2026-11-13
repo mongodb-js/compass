@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "7.10.0",
+  "version": "7.11.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -68,16 +68,16 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-app-registry": "^9.16.2",
-    "@mongodb-js/compass-assistant": "^2.9.1",
-    "@mongodb-js/compass-collection": "^5.10.0",
-    "@mongodb-js/compass-components": "^1.71.2",
-    "@mongodb-js/compass-connections": "^2.10.0",
-    "@mongodb-js/compass-editor": "^0.73.2",
-    "@mongodb-js/compass-logging": "^1.19.2",
-    "@mongodb-js/compass-preferences-model": "^3.9.1",
-    "@mongodb-js/compass-telemetry": "^1.37.2",
-    "@mongodb-js/explain-plan-helper": "^1.6.2",
+    "@mongodb-js/compass-app-registry": "^9.17.0",
+    "@mongodb-js/compass-assistant": "^2.10.0",
+    "@mongodb-js/compass-collection": "^5.11.0",
+    "@mongodb-js/compass-components": "^1.72.0",
+    "@mongodb-js/compass-connections": "^2.11.0",
+    "@mongodb-js/compass-editor": "^0.74.0",
+    "@mongodb-js/compass-logging": "^1.20.0",
+    "@mongodb-js/compass-preferences-model": "^3.10.0",
+    "@mongodb-js/compass-telemetry": "^1.38.0",
+    "@mongodb-js/explain-plan-helper": "^1.6.3",
     "d3": "^3.5.17",
     "d3-flextree": "^2.1.2",
     "d3-hierarchy": "^3.1.2",
