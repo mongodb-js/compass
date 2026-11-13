@@ -88,7 +88,7 @@
     "@mongodb-js/mongodb-ns": "^3.2.9",
     "@mongodb-js/my-queries-storage": "^1.8.1",
     "@mongodb-js/reflux-state-mixin": "^1.2.45",
-    "@mongodb-js/shell-bson-parser": "^2.2.0",
+    "@mongodb-js/shell-bson-parser": "^2.2.3",
     "ag-grid-community": "^36.2.0",
     "ag-grid-react": "^36.2.0",
     "bson": "^7.3.2",
