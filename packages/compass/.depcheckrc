@@ -8,7 +8,7 @@ ignores: [
     'os-dns-native',
     'system-ca',
     'win-export-certificate-and-key',
-    'macos-export-certificate-and-key',
+    '@mongodb-js/macos-export-certificate-and-key',
     'mongodb-client-encryption',
     'interruptor',
     # externalized from the embedded-shell utility bundle, which compass-shell

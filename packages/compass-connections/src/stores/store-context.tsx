@@ -17,7 +17,10 @@ import {
 } from '@mongodb-js/connection-info';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { isEqual, memoize } from 'lodash';
-import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
+import type {
+  Folder,
+  ImportConnectionOptions,
+} from '@mongodb-js/connection-storage/provider';
 import { useInitialValue } from '@mongodb-js/compass-components';
 import {
   cancelEditConnection,
@@ -25,13 +28,17 @@ import {
   connectInNewWindow,
   saveAndConnect,
   connectionsEventEmitter,
+  createFolder,
   createNewConnection,
+  deleteFolder,
   disconnect,
   duplicateConnection,
   editConnection,
   getDataServiceForConnection,
+  moveConnectionsToFolder,
   removeAllRecentConnections,
   removeConnection,
+  renameFolder,
   saveEditedConnectionInfo,
   showNonGenuineMongoDBWarningModal,
   toggleConnectionFavoritedStatus,
@@ -142,6 +149,21 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     },
     refreshConnections: () => {
       return dispatch(refreshConnections());
+    },
+    createFolder: (name: string) => {
+      return dispatch(createFolder(name));
+    },
+    renameFolder: (folderId: string, name: string) => {
+      return dispatch(renameFolder(folderId, name));
+    },
+    deleteFolder: (folderId: string) => {
+      return dispatch(deleteFolder(folderId));
+    },
+    moveConnectionsToFolder: (
+      connectionIds: ConnectionId[],
+      folderId: string | null
+    ) => {
+      return dispatch(moveConnectionsToFolder(connectionIds, folderId));
     },
   };
 }
@@ -387,6 +409,24 @@ export function useConnectionsListLoadingStatus() {
       status,
       error: state.connections.error?.message ?? null,
       isInitialLoad: status === 'initial' || status === 'loading',
+    };
+  }, isEqual);
+}
+
+/**
+ * Returns the folders and the connection-to-folder assignments. Callers that
+ * render the sidebar tree need both: a connection is uncategorized when it has
+ * no assignment, and an assignment pointing at a missing folder is treated the
+ * same way, so resolving membership requires the folder list too.
+ */
+export function useFolders(): {
+  folders: Folder[];
+  folderAssignments: Record<ConnectionId, string>;
+} {
+  return useSelector((state) => {
+    return {
+      folders: state.folders.ids.map((id) => state.folders.byId[id]),
+      folderAssignments: state.folderAssignments,
     };
   }, isEqual);
 }

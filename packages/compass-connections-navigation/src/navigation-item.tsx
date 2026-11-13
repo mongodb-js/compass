@@ -152,6 +152,12 @@ export function NavigationItem({
     if (item.type === 'placeholder') {
       return {};
     }
+    if (item.type === 'folder') {
+      return {
+        'data-folder-id': item.folderId,
+        'data-folder-name': item.name,
+      };
+    }
     if (item.type === 'connection') {
       return {
         'data-is-active': isActive.toString(),
