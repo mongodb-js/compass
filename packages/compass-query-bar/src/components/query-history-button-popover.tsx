@@ -89,7 +89,7 @@ const QueryHistoryButtonPopover = ({
             type="button"
             ref={ref}
           >
-            <Icon glyph="Clock" />
+            <Icon glyph="CurlyBraces" />
             <Icon glyph="CaretDown" />
           </button>
           {children}
