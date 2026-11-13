@@ -44,7 +44,7 @@ export function wrapWithExperimentProvider(
     testName: ExperimentTestName
   ): ExperimentTestGroup | null =>
     variant && typeof variant === 'object'
-      ? variant[testName] ?? null
+      ? (variant[testName] ?? null)
       : variant;
 
   return React.createElement(
