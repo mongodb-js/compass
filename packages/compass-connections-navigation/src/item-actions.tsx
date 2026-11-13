@@ -93,10 +93,13 @@ export const commonConnectionItemActions = ({
             ...otherFolders.map((folder) => ({
               action: 'move-to-folder' as const,
               label: folder.name,
+              trackingLabel: '<folder name>',
               icon: <FolderIcon />,
               actionPayload: { folderId: folder.id },
             })),
-            { separator: true },
+            ...(otherFolders.length > 0 || !folderId
+              ? [{ separator: true } as const]
+              : []),
             {
               action: 'add-to-new-folder',
               label: 'New folder',
