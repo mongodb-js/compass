@@ -66,7 +66,7 @@
     "@mongodb-js/hadron-type-checker": "^7.5.16",
     "@mongodb-js/mock-data-generator": "^1.2.2",
     "@mongodb-js/mongodb-collection-model": "^5.44.1",
-    "@mongodb-js/mongodb-ns": "^3.2.9",
+    "@mongodb-js/mongodb-ns": "^3.2.11",
     "@mongodb-js/mongodb-schema": "^12.8.11",
     "@mongodb-js/workspace-info": "^1.15.1",
     "bson": "^7.3.2",

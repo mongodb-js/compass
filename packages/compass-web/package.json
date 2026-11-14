@@ -115,7 +115,7 @@
     "@mongodb-js/eslint-config-compass": "^1.4.33",
     "@mongodb-js/mocha-config-compass": "^1.9.1",
     "@mongodb-js/mongodb-data-service": "^22.42.1",
-    "@mongodb-js/mongodb-ns": "^3.2.9",
+    "@mongodb-js/mongodb-ns": "^3.2.11",
     "@mongodb-js/my-queries-storage": "^1.8.1",
     "@mongodb-js/prettier-config-compass": "^1.2.10",
     "@mongodb-js/testing-library-compass": "^1.8.0",

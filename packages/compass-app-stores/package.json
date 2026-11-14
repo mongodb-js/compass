@@ -80,7 +80,7 @@
     "@mongodb-js/mongodb-collection-model": "^5.44.1",
     "@mongodb-js/mongodb-database-model": "^2.44.1",
     "@mongodb-js/mongodb-instance-model": "^13.9.1",
-    "@mongodb-js/mongodb-ns": "^3.2.9",
+    "@mongodb-js/mongodb-ns": "^3.2.11",
     "react": "^18.3.1"
   },
   "is_compass_plugin": true
