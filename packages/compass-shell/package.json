@@ -66,7 +66,7 @@
     "@mongosh/browser-runtime-core": "^5.11.9",
     "@mongosh/logging": "^5.4.4",
     "@mongosh/node-runtime-worker-thread": "^5.5.4",
-    "bson": "^7.3.2",
+    "bson": "^7.3.4",
     "interruptor": "^2.0.1",
     "react": "^18.3.1",
     "react-redux": "^8.1.3",

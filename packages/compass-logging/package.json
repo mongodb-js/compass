@@ -56,7 +56,7 @@
     "@mongodb-js/hadron-ipc": "^3.6.10",
     "debug": "^4.3.4",
     "is-electron-renderer": "^2.0.1",
-    "mongodb-log-writer": "^3.0.4",
+    "mongodb-log-writer": "^3.0.6",
     "react": "^18.3.1"
   },
   "devDependencies": {
