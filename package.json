@@ -119,7 +119,7 @@
     },
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
-    "basic-ftp": "^6.2.2",
+    "basic-ftp": "^6.2.6",
     "braintrust": {
       "esbuild": "0.26.0"
     },
