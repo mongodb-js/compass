@@ -1013,13 +1013,14 @@ type FolderCreationEntrypoint =
   | 'connection_actions'
   | 'connection_form'
   | 'sidebar_icon';
+// TODO(COMPASS-11306): Fire FolderCreationFormOpenedEvent and FolderCreationFormCancelledEvent when appropriate.
 /**
  * This event is fired when the creation of a new folder is started.
  *
  * @category ConnectionFolder
  */
-type FolderCreationStartedEvent = CommonEvent<{
-  name: 'Folder Creation Started';
+type FolderCreationFormOpenedEvent = CommonEvent<{
+  name: 'Folder Creation Form Opened';
   payload: {
     source: FolderCreationEntrypoint;
   };
@@ -1030,8 +1031,8 @@ type FolderCreationStartedEvent = CommonEvent<{
  *
  * @category ConnectionFolder
  */
-type FolderCreationCancelledEvent = CommonEvent<{
-  name: 'Folder Creation Cancelled';
+type FolderCreationFormCancelledEvent = CommonEvent<{
+  name: 'Folder Creation Form Cancelled';
   payload: {
     source: FolderCreationEntrypoint;
   };
@@ -4626,8 +4627,8 @@ export type TelemetryEvent =
   | SearchIndexEditCancelledEvent
   | SidebarConnectionsCollapsedAllEvent
   | SidebarConnectionsActiveConnectionsFilterEvent
-  | FolderCreationStartedEvent
-  | FolderCreationCancelledEvent
+  | FolderCreationFormOpenedEvent
+  | FolderCreationFormCancelledEvent
   | FolderCreatedEvent
   | FolderDeletedEvent
   | FolderRenamedEvent
