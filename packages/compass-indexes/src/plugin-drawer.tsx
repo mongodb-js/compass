@@ -96,14 +96,6 @@ const Drawer = ({
         glyph="SearchIndex"
         disabled={subTab === 'Indexes'}
         beforeSectionHide={beforeSectionHide}
-        guideCue={{
-          cueId: 'indexes-drawer',
-          title: 'Easily access all your search indexes',
-          description: 'Click to view and manage search indexes.',
-          buttonText: 'Got it',
-          tooltipAlign: 'left',
-          tooltipJustify: 'start',
-        }}
       >
         {currentView === 'indexes-list' && <IndexesListDrawerView />}
         {currentView === 'create-search-index' && <CreateSearchIndexView />}
