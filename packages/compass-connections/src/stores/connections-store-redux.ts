@@ -2737,7 +2737,8 @@ export const deleteFolder = (
  * The whole organization is one document, so a save either applies every valid
  * move or, if it fails, none of them. `failedIds` reports the connections that
  * weren't moved (unknown ids, or all of them on a failed save) so the caller
- * can keep them selected for a retry.
+ * can keep them selected for a retry. Ids already at the destination appear
+ * in neither list.
  */
 export const moveConnectionsToFolder = (
   connectionIds: ConnectionId[],
@@ -2763,15 +2764,17 @@ export const moveConnectionsToFolder = (
       return { movedIds: [], failedIds: connectionIds };
     }
 
-    const validIds = connectionIds.filter((connectionId) =>
-      hasConnectionForId(state, connectionId)
+    const validIds = [...new Set(connectionIds)].filter(
+      (connectionId) =>
+        hasConnectionForId(state, connectionId) &&
+        (state.folderAssignments[connectionId] ?? null) !== folderId
     );
     const invalidIds = connectionIds.filter(
       (connectionId) => !hasConnectionForId(state, connectionId)
     );
 
     if (validIds.length === 0) {
-      return { movedIds: [], failedIds: connectionIds };
+      return { movedIds: [], failedIds: invalidIds };
     }
 
     const assignments = { ...state.folderAssignments };
