@@ -19,10 +19,7 @@ import {
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import {
-  useTelemetry,
-  useSearchActivationProgramP1,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
@@ -155,7 +152,7 @@ export const StageEditor = ({
 
   const fields = useAutocompleteFields(namespace);
 
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const enableRerank = usePreference('enableRerank');
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
@@ -309,7 +306,7 @@ export const StageEditor = ({
           .
         </Banner>
       )}
-      {enableSearchActivationProgramP1 &&
+      {enableAtlasSearchIndexes &&
         !serverError &&
         !syntaxError &&
         showSearchIndexDoesNotExistBanner &&
