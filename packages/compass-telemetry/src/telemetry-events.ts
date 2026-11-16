@@ -1079,7 +1079,7 @@ type FolderRenamedEvent = CommonEvent<{
  * @category ConnectionFolder
  */
 type ConnectionsFolderChangeEvent = CommonEvent<{
-  name: 'Connections Moved To Folder';
+  name: 'Connections Folder Change';
   payload: {
     source:
       | 'connection_context_menu'
@@ -1090,6 +1090,9 @@ type ConnectionsFolderChangeEvent = CommonEvent<{
     from: 'folder' | 'uncategorized' | 'mixed';
     to: 'folder' | 'uncategorized';
     num_moved: number;
+    num_connections_in_folders: number;
+    num_connections_uncategorized: number;
+    max_connections_in_folders: number;
   };
 }>;
 

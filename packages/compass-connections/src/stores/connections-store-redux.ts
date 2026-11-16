@@ -2810,7 +2810,17 @@ export const moveConnectionsToFolder = (
     });
 
     const fromFolder = validIds.filter((id) => state.folderAssignments[id]);
-    track('Connections Moved To Folder', {
+    const perFolder: Record<string, number> = {};
+    for (const id of state.connections.ids) {
+      const fid = assignments[id];
+      if (fid && state.folders.byId[fid]) {
+        perFolder[fid] = (perFolder[fid] ?? 0) + 1;
+      }
+    }
+    const inFolders = Object.values(perFolder).reduce((a, b) => a + b, 0);
+    const inUncategorized = state.connections.ids.length - inFolders;
+    const maxInFolders = Math.max(0, ...Object.values(perFolder));
+    track('Connections Folder Change', {
       source,
       from:
         fromFolder.length === 0
@@ -2820,6 +2830,9 @@ export const moveConnectionsToFolder = (
             : 'mixed',
       to: folderId ? 'folder' : 'uncategorized',
       num_moved: validIds.length,
+      num_connections_in_folders: inFolders,
+      num_connections_uncategorized: inUncategorized,
+      max_connections_in_folders: maxInFolders,
     });
 
     return { movedIds: validIds, failedIds: invalidIds };
