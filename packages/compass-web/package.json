@@ -142,7 +142,7 @@
     "is-ip": "^5.0.1",
     "mocha": "^10.2.0",
     "mongodb": "^7.5.0",
-    "mongodb-connection-string-url": "^7.0.2",
+    "mongodb-connection-string-url": "^7.0.3",
     "mongodb-log-writer": "^3.0.4",
     "nyc": "^15.1.0",
     "os-browserify": "^0.3.0",
