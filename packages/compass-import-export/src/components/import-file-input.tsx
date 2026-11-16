@@ -1,44 +1,88 @@
 import React, { useCallback } from 'react';
-import { FilePickerDialog } from '@mongodb-js/compass-components';
+import {
+  Button,
+  FileSelector,
+  Icon,
+  Label,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
+
+const inputId = 'import-file_file_input';
+
+const containerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+  marginTop: spacing[200],
+  marginBottom: spacing[200],
+});
+
+const buttonStyles = css({
+  border: 'none',
+  background: 'none',
+  fontWeight: 'normal',
+  '&:hover, &:active': {
+    background: 'none',
+    boxShadow: 'none',
+  },
+});
+
+const buttonTextStyles = css({
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+});
+
+// Chromium fires `cancel` instead of `change` when the same file is picked
+// again, so clear the selection first to let users re-pick a file they fixed.
+const clearSelection = (event: React.MouseEvent<HTMLInputElement>) => {
+  event.currentTarget.value = '';
+};
 
 type ImportFileInputProps = {
-  autoOpen?: boolean;
-  onCancel?: () => void;
-  selectImportFileName: (fileName: string) => void;
+  selectImportFile: (file: File) => void;
   fileName: string;
 };
 
-function ImportFileInput({
-  autoOpen,
-  onCancel,
-  selectImportFileName,
-  fileName,
-}: ImportFileInputProps) {
-  const handleChooseFile = useCallback(
-    (files: string[]) => {
+function ImportFileInput({ selectImportFile, fileName }: ImportFileInputProps) {
+  const handleSelect = useCallback(
+    (files: File[]) => {
       if (files.length > 0) {
-        void selectImportFileName(files[0]);
-      } else if (typeof onCancel === 'function') {
-        onCancel();
+        selectImportFile(files[0]);
       }
     },
-    [onCancel, selectImportFileName]
+    [selectImportFile]
   );
 
-  const values = fileName ? [fileName] : undefined;
+  const renderTrigger = useCallback(
+    ({ onClick }: { onClick: () => void }) => (
+      <Button
+        size="small"
+        className={buttonStyles}
+        onClick={onClick}
+        rightGlyph={<Icon glyph="Edit" title={null} fill="currentColor" />}
+      >
+        <span className={buttonTextStyles}>
+          {fileName || 'Select a file\u2026'}
+        </span>
+      </Button>
+    ),
+    [fileName]
+  );
 
   return (
-    <FilePickerDialog
-      autoOpen={autoOpen}
-      label="Import file:"
-      id="import-file"
-      onChange={handleChooseFile}
-      values={values}
-      variant="small"
-      mode="open"
-      title="Select JSON or CSV to import"
-      buttonLabel="Select"
-    />
+    <div className={containerStyles}>
+      <Label htmlFor={inputId}>Import file:</Label>
+      <FileSelector
+        id={inputId}
+        data-testid="import-file-input"
+        multiple={false}
+        onClick={clearSelection}
+        onSelect={handleSelect}
+        trigger={renderTrigger}
+      />
+    </div>
   );
 }
 

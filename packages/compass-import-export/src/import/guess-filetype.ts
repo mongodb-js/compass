@@ -1,6 +1,4 @@
-import { PassThrough, Transform } from 'node:stream';
-import type { Readable } from 'node:stream';
-import util from 'node:util';
+import { PassThrough, Transform, type Readable } from 'node:stream';
 import Papa from 'papaparse';
 import StreamJSON from 'stream-json';
 
@@ -199,7 +197,7 @@ class FileSizeEnforcer extends Transform {
 
 class NewlineDetector extends Transform {
   chunks: string[] = [];
-  decoder = new util.TextDecoder('utf8', { fatal: true, ignoreBOM: true });
+  decoder = new TextDecoder('utf8', { fatal: true, ignoreBOM: true });
 
   _transform(
     chunk: Buffer,
@@ -260,6 +258,8 @@ export function guessFileType({
   return new Promise<GuessFileTypeResult>((resolve, reject) => {
     void (async () => {
       const newlineDetector = new NewlineDetector();
+      // pipe() doesn't forward errors from the source
+      input.once('error', reject);
       input = input.pipe(newlineDetector);
 
       input.once('error', function (err) {

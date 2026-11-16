@@ -9,6 +9,8 @@ import ExportPluginComponent from './export-plugin';
 import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ImportPluginComponent from './import-plugin';
 
+export { isImportExportSupported } from './utils/is-import-export-supported';
+
 /**
  * The import plugin.
  */

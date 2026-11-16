@@ -28,7 +28,7 @@ import {
   startImport,
   cancelImport,
   skipCSVAnalyze,
-  selectImportFileName,
+  selectImportFile,
   setDelimiter,
   setStopOnErrors,
   setIgnoreBlanks,
@@ -39,7 +39,6 @@ import {
 import type { RootImportState } from '../stores/import-store';
 import type { FieldFromCSV } from '../modules/import';
 import type { Delimiter, CSVParsableFieldType } from '../csv/csv-types';
-import { ImportFileInput } from './import-file-input';
 import { ImportOptions } from './import-options';
 import ImportPreviewLoader from './import-preview-loader';
 import { ImportPreview } from './import-preview';
@@ -86,7 +85,7 @@ type ImportModalProps = {
   /**
    * See `<ImportOptions />`
    */
-  selectImportFileName: (fileName: string) => void;
+  selectImportFile: (file: File) => void;
   setDelimiter: (delimiter: Delimiter) => void;
   delimiter: Delimiter;
   fileType: AcceptedFileType | '';
@@ -123,7 +122,7 @@ function ImportModal({
   errors,
   status,
 
-  selectImportFileName,
+  selectImportFile,
   setDelimiter,
   delimiter,
   fileType,
@@ -169,22 +168,6 @@ function ImportModal({
     undefined
   );
 
-  if (isOpen && !fileName && errors.length === 0) {
-    // Show the file input when we don't have a file to import yet.
-    return (
-      // Don't actually show it on the screen, just render it to trigger
-      // autoOpen
-      <div style={{ display: 'none' }}>
-        <ImportFileInput
-          autoOpen
-          onCancel={handleClose}
-          fileName={fileName}
-          selectImportFileName={selectImportFileName}
-        />
-      </div>
-    );
-  }
-
   return (
     <Modal
       open={isOpen}
@@ -199,7 +182,7 @@ function ImportModal({
           setDelimiter={setDelimiter}
           fileType={fileType}
           fileName={fileName}
-          selectImportFileName={selectImportFileName}
+          selectImportFile={selectImportFile}
           stopOnErrors={stopOnErrors}
           setStopOnErrors={setStopOnErrors}
           ignoreBlanks={ignoreBlanks}
@@ -274,7 +257,7 @@ const mapStateToProps = (state: RootImportState) => ({
   isOpen: state.import.isOpen,
   errors: state.import.firstErrors,
   fileType: state.import.fileType,
-  fileName: state.import.fileName,
+  fileName: state.import.file?.name ?? '',
   status: state.import.status,
   delimiter: state.import.delimiter,
   stopOnErrors: state.import.stopOnErrors,
@@ -293,7 +276,7 @@ export default connect(mapStateToProps, {
   startImport,
   cancelImport,
   skipCSVAnalyze,
-  selectImportFileName,
+  selectImportFile,
   setDelimiter,
   setStopOnErrors,
   setIgnoreBlanks,

@@ -40,7 +40,6 @@ class JSONTransformer {
 export async function importJSON({
   dataService,
   ns,
-  output,
   abortSignal,
   progressCallback,
   errorCallback,
@@ -70,7 +69,6 @@ export async function importJSON({
   return await doImport(input, streams, transformer, {
     dataService,
     ns,
-    output,
     abortSignal,
     progressCallback,
     errorCallback,
