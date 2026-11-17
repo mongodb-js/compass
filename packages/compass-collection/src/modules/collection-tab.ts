@@ -12,7 +12,10 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
+import type {
+  experimentationServiceLocator,
+  TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
@@ -109,6 +112,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
+    track: TrackFunction;
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
     schemaAnalysisAbortControllerRef: { current?: AbortController };
@@ -600,7 +604,14 @@ export const selectTab = (
 export const openMockDataGeneratorModal = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState, { atlasAiService, logger }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasAiService, logger, preferences, track }
+  ) => {
+    track('Mock Data Generator Clicked', {
+      ai_opted_in: preferences.getPreferences().optInGenAIFeatures,
+    });
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();

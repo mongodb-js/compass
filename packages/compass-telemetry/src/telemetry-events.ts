@@ -3755,6 +3755,20 @@ type MockDataGeneratorCtaButtonViewedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when the user selects "Generate mock data script" from Add Data,
+ * before checking AI feature access.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorClickedEvent = CommonEvent<{
+  name: 'Mock Data Generator Clicked';
+  payload: {
+    /** Whether the user has opted into AI features at the time of the click. */
+    ai_opted_in: boolean;
+  };
+}>;
+
+/**
  * This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
  *
  * @category Mock Data Generator
@@ -4515,6 +4529,7 @@ export type TelemetryEvent =
   | ContextMenuOpened
   | ContextMenuItemClicked
   | MockDataGeneratorCtaButtonViewedEvent
+  | MockDataGeneratorClickedEvent
   | MockDataGeneratorOpenedEvent
   | MockDataGeneratorScreenViewedEvent
   | MockDataGeneratorScreenProceededEvent
