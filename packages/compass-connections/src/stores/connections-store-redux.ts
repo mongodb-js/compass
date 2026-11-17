@@ -2481,14 +2481,18 @@ export const openSettingsModal = (
   };
 };
 
-// Windows-reserved characters are rejected on every platform so names stay
-// portable between machines.
+// Windows-reserved characters are rejected everywhere so names stay portable.
 const RESTRICTED_CHARACTERS = ['/', '\\', '<', '>', ':', '"', '|', '?', '*'];
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHARACTERS_REGEX = /[\u0000-\u001F\u007F]/;
 
 // A shared id so folder toasts replace each other instead of stacking.
 const FOLDER_TOAST_ID = 'folder-action';
+
+// The whole set, not just the character used, so one rejection is enough.
+const INVALID_CHARACTERS_MESSAGE = `Folder name can't contain ${RESTRICTED_CHARACTERS.join(
+  ' '
+)}.`;
 
 /** `existingNames` must exclude the folder being renamed. */
 export function validateFolderName(
@@ -2510,16 +2514,13 @@ export function validateFolderName(
     return 'A folder with this name already exists';
   }
 
-  // Report all of them at once so fixing a name isn't whack-a-mole.
-  const restrictedCharacters = RESTRICTED_CHARACTERS.filter((character) =>
-    trimmedName.includes(character)
-  );
-  if (restrictedCharacters.length > 0) {
-    return `Folder name can't contain ${restrictedCharacters.join(' ')}`;
-  }
-
-  if (CONTROL_CHARACTERS_REGEX.test(trimmedName)) {
-    return "Folder name can't contain control characters";
+  if (
+    RESTRICTED_CHARACTERS.some((character) =>
+      trimmedName.includes(character)
+    ) ||
+    CONTROL_CHARACTERS_REGEX.test(trimmedName)
+  ) {
+    return INVALID_CHARACTERS_MESSAGE;
   }
 
   return undefined;
@@ -2584,7 +2585,7 @@ export const createFolder = (
       });
     } catch (err) {
       debug('failed to create folder', err);
-      openToast('create-folder-error', {
+      openToast(FOLDER_TOAST_ID, {
         title: 'Failed to create folder',
         description: (err as Error).message,
         variant: 'warning',
@@ -2602,35 +2603,47 @@ export const createFolder = (
   };
 };
 
+/** As with `createFolder`, failures are reported here rather than thrown. */
 export const renameFolder = (
   folderId: string,
   name: string
 ): ConnectionsThunkAction<Promise<void>, RenameFolderAction> => {
-  return async (dispatch, getState, { folderStorage }) => {
+  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
     const state = getState();
     const existingFolder = state.folders.byId[folderId];
     if (!existingFolder) {
       return;
     }
 
-    const error = validateFolderName(
-      name,
-      getFolderNames(state, { excludeFolderId: folderId })
-    );
-    if (error) {
-      throw new Error(error);
-    }
-
     const trimmedName = name.trim();
-    const folders = state.folders.ids.map((id) =>
-      id === folderId
-        ? { ...state.folders.byId[id], name: trimmedName }
-        : state.folders.byId[id]
-    );
 
-    await folderStorage.save({
-      folderOrganization: { folders, assignments: state.folderAssignments },
-    });
+    try {
+      const error = validateFolderName(
+        name,
+        getFolderNames(state, { excludeFolderId: folderId })
+      );
+      if (error) {
+        throw new Error(error);
+      }
+
+      const folders = state.folders.ids.map((id) =>
+        id === folderId
+          ? { ...state.folders.byId[id], name: trimmedName }
+          : state.folders.byId[id]
+      );
+
+      await folderStorage.save({
+        folderOrganization: { folders, assignments: state.folderAssignments },
+      });
+    } catch (err) {
+      debug('failed to rename folder', err);
+      openToast(FOLDER_TOAST_ID, {
+        title: 'Failed to rename folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return;
+    }
 
     dispatch({
       type: ActionTypes.RenameFolder,
@@ -2644,10 +2657,11 @@ export const renameFolder = (
   };
 };
 
+/** As with `createFolder`, a failed save is reported here rather than thrown. */
 export const deleteFolder = (
   folderId: string
 ): ConnectionsThunkAction<Promise<void>, DeleteFolderAction> => {
-  return async (dispatch, getState, { folderStorage }) => {
+  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
     const state = getState();
     const folder = state.folders.byId[folderId];
     if (!folder) {
@@ -2663,7 +2677,19 @@ export const deleteFolder = (
       )
     );
 
-    await folderStorage.save({ folderOrganization: { folders, assignments } });
+    try {
+      await folderStorage.save({
+        folderOrganization: { folders, assignments },
+      });
+    } catch (err) {
+      debug('failed to delete folder', err);
+      openToast(FOLDER_TOAST_ID, {
+        title: 'Failed to delete folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return;
+    }
 
     dispatch({ type: ActionTypes.DeleteFolder, folderId });
     openToast(FOLDER_TOAST_ID, {

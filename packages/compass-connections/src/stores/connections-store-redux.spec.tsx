@@ -872,6 +872,9 @@ describe('CompassConnections store', function () {
   });
 
   describe('validateFolderName', function () {
+    const invalidCharactersMessage =
+      'Folder name can\'t contain / \\ < > : " | ? *.';
+
     it('rejects an empty or whitespace-only name', function () {
       expect(validateFolderName('', [])).to.equal("Folder name can't be empty");
       expect(validateFolderName('   ', [])).to.equal(
@@ -885,27 +888,18 @@ describe('CompassConnections store', function () {
       );
     });
 
-    it('rejects path separators and Windows-reserved characters', function () {
-      expect(validateFolderName('a/b', [])).to.equal(
-        "Folder name can't contain /"
-      );
-      expect(validateFolderName('a\\b', [])).to.equal(
-        "Folder name can't contain \\"
-      );
-      expect(validateFolderName('a?b', [])).to.equal(
-        "Folder name can't contain ?"
-      );
-    });
-
-    it('lists every restricted character found, not just the first', function () {
-      expect(validateFolderName('a<b?c', [])).to.equal(
-        "Folder name can't contain < ?"
+    it('names the whole restricted set whichever one is used', function () {
+      expect(validateFolderName('a/b', [])).to.equal(invalidCharactersMessage);
+      expect(validateFolderName('a\\b', [])).to.equal(invalidCharactersMessage);
+      expect(validateFolderName('a?b', [])).to.equal(invalidCharactersMessage);
+      expect(validateFolderName('a<b*c', [])).to.equal(
+        invalidCharactersMessage
       );
     });
 
     it('rejects control characters', function () {
       expect(validateFolderName('a\u0000b', [])).to.equal(
-        "Folder name can't contain control characters"
+        invalidCharactersMessage
       );
     });
 

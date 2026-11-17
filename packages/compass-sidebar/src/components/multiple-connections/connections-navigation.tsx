@@ -24,7 +24,6 @@ import {
   ConfirmationModalVariant,
   cx,
   FolderPlusIcon,
-  openToast,
   Placeholder,
   showConfirmation,
   useContextMenuGroups,
@@ -129,10 +128,6 @@ const noSearchResultsStyles = css({
 const deleteFolderBannerStyles = css({
   marginTop: spacing[300],
 });
-
-// Shared with the folder thunks' success toasts, so a failure replaces a stale
-// success rather than stacking on it.
-const folderToastId = 'folder-action';
 
 /**
  * Indicates only Atlas cluster connections are supported, and the user cannot navigate
@@ -331,8 +326,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     [enableConnectionFolders, folderAssignments]
   );
 
-  // One modal for both create and rename; the target is kept after closing so
-  // the title doesn't flip to the create wording while it animates out.
+  // One modal for create, rename and create-and-move; the target is kept after
+  // closing so the title doesn't flip while it animates out.
   const [folderModalTarget, setFolderModalTarget] = useState<FolderModalTarget>(
     { mode: 'create' }
   );
@@ -341,7 +336,6 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   const renameFolderId =
     folderModalTarget.mode === 'rename' ? folderModalTarget.folderId : null;
 
-  // Exclude the folder being renamed so keeping its own name isn't a duplicate.
   const folderModalExistingNames = useMemo(
     () =>
       sidebarFolders
@@ -392,15 +386,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         default:
           request = onCreateFolder(name);
       }
-      void request.then(onCloseFolderModal).catch((err: Error) => {
-        // The modal validates names first, so this is a storage failure; it
-        // stays open so the name isn't lost.
-        openToast(folderToastId, {
-          title: 'Failed to save folder',
-          description: err.message,
-          variant: 'warning',
-        });
-      });
+      void request.then(onCloseFolderModal);
     },
     [
       onCreateFolder,
@@ -439,15 +425,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       if (!confirmed) {
         return;
       }
-      try {
-        await onDeleteFolder(folder.id);
-      } catch (err) {
-        openToast(folderToastId, {
-          title: 'Failed to delete folder',
-          description: (err as Error).message,
-          variant: 'warning',
-        });
-      }
+      await onDeleteFolder(folder.id);
     },
     [onDeleteFolder, connections, sidebarFolderAssignments]
   );

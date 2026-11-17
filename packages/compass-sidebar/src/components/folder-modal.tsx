@@ -36,8 +36,8 @@ export function FolderModal({
   // Don't complain the name is empty before the user has typed anything.
   const [isDirty, setIsDirty] = useState(false);
 
-  // Re-seed on open so a cancelled edit doesn't leak into the next one. Adjusting
-  // state during render is the documented alternative to an effect:
+  // Re-seed on open so a cancelled edit doesn't leak into the next one; this is
+  // done during render rather than in an effect, as React documents:
   // https://react.dev/reference/react/useState#storing-information-from-previous-renders
   const [wasOpen, setWasOpen] = useState(open);
   if (open !== wasOpen) {

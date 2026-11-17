@@ -808,19 +808,31 @@ describe('Multiple Connections Sidebar Component', function () {
     const folders: Folder[] = [{ id: 'folder_1', name: 'Work' }];
     const assignments = { [savedFavoriteConnection.id]: 'folder_1' };
 
+    let folderStorage: InMemoryFolderStorage;
+
     const renderWithFolders = async (enableConnectionFolders: boolean) => {
+      folderStorage = new InMemoryFolderStorage({ folders, assignments });
       doRender(
         null,
         [savedFavoriteConnection, savedRecentConnection],
         undefined,
         {
-          folderStorage: new InMemoryFolderStorage({ folders, assignments }),
+          folderStorage,
           ...(enableConnectionFolders && {
             preferences: { enableConnectionFolders: true },
           }),
         }
       );
       await waitFor(() => screen.getByRole('tree'));
+    };
+
+    const openFolderAction = async (action: string) => {
+      await waitFor(() => screen.getByText('Work'));
+      userEvent.hover(screen.getByText('Work'));
+      userEvent.click(
+        within(screen.getByTestId('folder_1')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText(action));
     };
 
     it('should group connections under folders when the feature flag is enabled', async function () {
@@ -833,8 +845,8 @@ describe('Multiple Connections Sidebar Component', function () {
         );
       });
       expect(screen.getByText('Work')).to.be.visible;
-      // The connection filed in the folder is only shown once it is expanded,
-      // while the uncategorized one stays at the top level.
+      // The filed connection appears only once expanded; the other stays at the
+      // top level.
       expect(screen.queryByTestId(savedFavoriteConnection.id)).not.to.exist;
       expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
     });
@@ -923,6 +935,16 @@ describe('Multiple Connections Sidebar Component', function () {
       expect(screen.queryByText(/folder .* created in sidebar/)).not.to.exist;
     });
 
+    it('should name the whole restricted set when one character is used', async function () {
+      await renderWithFolders(true);
+
+      userEvent.click(screen.getByLabelText('Create folder'));
+      userEvent.type(await screen.findByLabelText('Folder name'), 'a?b');
+
+      expect(screen.getByText('Folder name can\'t contain / \\ < > : " | ? *.'))
+        .to.be.visible;
+    });
+
     it('should rename a folder from its actions menu', async function () {
       await renderWithFolders(true);
       await waitFor(() => screen.getByText('Work'));
@@ -961,8 +983,7 @@ describe('Multiple Connections Sidebar Component', function () {
       const confirmationModal = await screen.findByTestId('confirmation-modal');
       expect(within(confirmationModal).getByText('Delete "Work"?')).to.be
         .visible;
-      // The one connection filed in the folder is called out, so the user knows
-      // it isn't deleted along with the folder.
+      // The count is called out so the user knows the connection survives.
       expect(
         within(confirmationModal).getByText(
           '1 connection(s) inside will move back to the top-level list instead.'
@@ -976,10 +997,40 @@ describe('Multiple Connections Sidebar Component', function () {
       );
 
       expect(await screen.findByText('Work folder deleted')).to.be.visible;
-      // The folder is gone from the tree, but its connection is not: it comes
-      // back as an uncategorized top-level item.
+      // The folder is gone but its connection isn't: it returns to the top
+      // level.
       expect(screen.queryByText('Work')).not.to.exist;
       expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+    });
+
+    it('should report a failed rename and leave the folder alone', async function () {
+      await renderWithFolders(true);
+      sinon.stub(folderStorage, 'save').rejects(new Error('disk full'));
+
+      await openFolderAction('Rename folder');
+      const input = await screen.findByLabelText('Folder name');
+      userEvent.clear(input);
+      userEvent.type(input, 'Personal');
+      userEvent.click(screen.getByTestId('submit-button'));
+
+      expect(await screen.findByText('Failed to rename folder')).to.be.visible;
+      expect(screen.getByText('disk full')).to.be.visible;
+      expect(screen.getByText('Work')).to.be.visible;
+    });
+
+    it('should report a failed delete and keep the folder', async function () {
+      await renderWithFolders(true);
+      sinon.stub(folderStorage, 'save').rejects(new Error('disk full'));
+
+      await openFolderAction('Delete folder');
+      const confirmationModal = await screen.findByTestId('confirmation-modal');
+      userEvent.click(
+        within(confirmationModal).getByRole('button', { name: 'Delete folder' })
+      );
+
+      expect(await screen.findByText('Failed to delete folder')).to.be.visible;
+      expect(screen.getByText('disk full')).to.be.visible;
+      expect(screen.getByText('Work')).to.be.visible;
     });
 
     it('should not delete a folder when the user cancels the confirmation', async function () {
