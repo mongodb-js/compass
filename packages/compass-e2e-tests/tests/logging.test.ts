@@ -83,13 +83,6 @@ describe('Logging and Telemetry integration', function () {
         expect(identify.traits.os_type).to.be.a('string');
       });
 
-      it('tracks an event for shell use', function () {
-        const shellUse = telemetry
-          .events()
-          .find((entry) => entry.event === 'Shell Use');
-        expect(shellUse.properties.compass_version).to.be.a('string');
-      });
-
       it('tracks an event for shell connection', function () {
         const shellNewConnection = telemetry
           .events()

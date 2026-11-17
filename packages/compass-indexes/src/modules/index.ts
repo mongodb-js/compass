@@ -5,7 +5,6 @@ import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
@@ -84,7 +83,6 @@ export type IndexesExtraArgs = {
     searchIndexes: ReturnType<typeof setInterval> | null;
   };
   preferences: PreferencesAccess;
-  experimentationServices: ExperimentationServices;
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   RootState,

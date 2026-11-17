@@ -9,10 +9,6 @@ import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
 import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
-import {
-  ExperimentTestGroups,
-  ExperimentTestNames,
-} from '@mongodb-js/compass-telemetry/provider';
 import { isAction } from '../utils/is-action';
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
 import type { FetchStatus } from '../utils/fetch-status';
@@ -756,13 +752,7 @@ const fetchIndexes = (
   return async (
     dispatch,
     getState,
-    {
-      dataService,
-      preferences,
-      connectionInfoRef,
-      experimentationServices,
-      track,
-    }
+    { dataService, preferences, connectionInfoRef, track }
   ) => {
     const {
       isWritable,
@@ -777,18 +767,10 @@ const fetchIndexes = (
       enableIndexesManagement,
     } = preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
-    const assignment = await experimentationServices.getAssignment(
-      ExperimentTestNames.searchActivationProgramP1,
-      false
-    );
-    const enableSearchActivationProgramP1 =
-      assignment?.assignmentData?.variant ===
-      ExperimentTestGroups.searchActivationProgramP1Variant;
     const { isSearchIndexesReadable } = selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     })(getState());
 
@@ -812,10 +794,7 @@ const fetchIndexes = (
       dispatch(fetchSearchIndexesSucceeded(indexes));
 
       // Show toasts for status changes (only on poll and refresh, not initial fetch)
-      if (
-        enableSearchActivationProgramP1 &&
-        reason !== FetchReasons.INITIAL_FETCH
-      ) {
+      if (reason !== FetchReasons.INITIAL_FETCH) {
         showSearchIndexStatusChangeToasts(
           previousIndexes,
           indexes,

@@ -76,6 +76,7 @@ export { DropdownMenuButton } from './components/actions/dropdown-menu-button';
 export { AssistantAvatar as AssistantSparkleIcon } from '@leafygreen-ui/avatar';
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
+export { FolderIcon } from './components/icons/folder-icon';
 export { ServerIcon } from './components/icons/server-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
 export { PngIcon } from './components/icons/png-icon';

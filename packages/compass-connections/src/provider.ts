@@ -61,6 +61,7 @@ export {
   useConnectionInfoRefForId,
   useConnectionsList,
   useConnectionsListRef,
+  useFolders,
   connectionsLocator,
   useConnectionsListLoadingStatus,
 } from './stores/store-context';
