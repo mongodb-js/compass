@@ -2558,30 +2558,43 @@ export const loadFolders = (): ConnectionsThunkAction<
   };
 };
 
+/**
+ * Resolves with the new folder, or `undefined` if the name is invalid or the
+ * save failed; both are reported to the user here.
+ */
 export const createFolder = (
   name: string
-): ConnectionsThunkAction<Promise<Folder>, CreateFolderAction> => {
-  return async (dispatch, getState, { folderStorage }) => {
+): ConnectionsThunkAction<Promise<Folder | undefined>, CreateFolderAction> => {
+  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
     const state = getState();
-    const error = validateFolderName(name, getFolderNames(state));
-    if (error) {
-      throw new Error(error);
-    }
-
     const folder: Folder = {
       id: new UUID().toString(),
       name: name.trim(),
     };
 
-    await folderStorage.save({
-      folderOrganization: {
-        folders: [
-          ...state.folders.ids.map((id) => state.folders.byId[id]),
-          folder,
-        ],
-        assignments: state.folderAssignments,
-      },
-    });
+    try {
+      const error = validateFolderName(name, getFolderNames(state));
+      if (error) {
+        throw new Error(error);
+      }
+      await folderStorage.save({
+        folderOrganization: {
+          folders: [
+            ...state.folders.ids.map((id) => state.folders.byId[id]),
+            folder,
+          ],
+          assignments: state.folderAssignments,
+        },
+      });
+    } catch (err) {
+      debug('failed to create folder', err);
+      openToast('create-folder-error', {
+        title: 'Failed to create folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return;
+    }
 
     dispatch({ type: ActionTypes.CreateFolder, folder });
     return folder;
@@ -2717,6 +2730,21 @@ export const moveConnectionsToFolder = (
     });
 
     return { movedIds: validIds, failedIds: invalidIds };
+  };
+};
+
+export const moveConnectionsToNewFolder = (
+  connectionIds: ConnectionId[],
+  name: string
+): ConnectionsThunkAction<
+  Promise<void>,
+  CreateFolderAction | MoveConnectionsToFolderAction
+> => {
+  return async (dispatch) => {
+    const folder = await dispatch(createFolder(name));
+    if (folder) {
+      await dispatch(moveConnectionsToFolder(connectionIds, folder.id));
+    }
   };
 };
 

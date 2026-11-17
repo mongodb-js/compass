@@ -22,7 +22,6 @@ import {
   Placeholder,
   useContextMenuGroups,
   showPrompt,
-  openToast,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -285,7 +284,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const enableConnectionFolders = usePreference('enableConnectionFolders');
   const { folders, folderAssignments } = useFolders();
-  const { moveConnectionsToFolder, createFolder } = useConnectionActions();
+  const { moveConnectionsToFolder, moveConnectionsToNewFolder } =
+    useConnectionActions();
 
   const addToNewFolder = useCallback(
     async (connectionId: string) => {
@@ -297,20 +297,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       if (name === null) {
         return;
       }
-      let folder;
-      try {
-        folder = await createFolder(name);
-      } catch (err) {
-        openToast('create-folder-error', {
-          title: 'Failed to create folder',
-          description: (err as Error).message,
-          variant: 'warning',
-        });
-        return;
-      }
-      void moveConnectionsToFolder([connectionId], folder.id);
+      await moveConnectionsToNewFolder([connectionId], name);
     },
-    [createFolder, moveConnectionsToFolder]
+    [moveConnectionsToNewFolder]
   );
 
   const sidebarFolders = useMemo(
