@@ -17,11 +17,7 @@ export type FolderModalProps = {
   submitButtonText: string;
   /** Pre-filled value, used when renaming an existing folder. */
   initialName?: string;
-  /**
-   * Names that would clash with the new one. When renaming, this must exclude
-   * the folder being renamed so keeping its own name isn't reported as a
-   * duplicate.
-   */
+  /** Names that would clash with the new one; exclude the folder being renamed. */
   existingNames: string[];
   onSubmit(name: string): void;
   onClose(): void;
@@ -37,13 +33,11 @@ export function FolderModal({
   onClose,
 }: FolderModalProps) {
   const [name, setName] = useState(initialName);
-  // Validation only surfaces once the user has interacted with the field, so
-  // the form doesn't open already complaining that the name is empty.
+  // Don't complain the name is empty before the user has typed anything.
   const [isDirty, setIsDirty] = useState(false);
 
-  // Re-seed the form whenever the modal opens, so a cancelled edit doesn't leak
-  // into the next one. Adjusting state during render is the documented
-  // alternative to an effect here:
+  // Re-seed on open so a cancelled edit doesn't leak into the next one. Adjusting
+  // state during render is the documented alternative to an effect:
   // https://react.dev/reference/react/useState#storing-information-from-previous-renders
   const [wasOpen, setWasOpen] = useState(open);
   if (open !== wasOpen) {
@@ -58,6 +52,7 @@ export function FolderModal({
 
   const handleSubmit = useCallback(() => {
     setIsDirty(true);
+    // The button is only aria-disabled, so Enter in the field can still submit.
     if (error) {
       return;
     }
@@ -72,6 +67,7 @@ export function FolderModal({
       setOpen={onClose}
       title={title}
       submitButtonText={submitButtonText}
+      submitDisabled={!!error}
       onSubmit={handleSubmit}
       onCancel={onClose}
     >

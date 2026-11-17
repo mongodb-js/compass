@@ -885,27 +885,27 @@ describe('CompassConnections store', function () {
       );
     });
 
-    it('rejects path separators', function () {
+    it('rejects path separators and Windows-reserved characters', function () {
       expect(validateFolderName('a/b', [])).to.equal(
-        "Folder name can't contain / or \\"
+        "Folder name can't contain /"
       );
       expect(validateFolderName('a\\b', [])).to.equal(
-        "Folder name can't contain / or \\"
+        "Folder name can't contain \\"
+      );
+      expect(validateFolderName('a?b', [])).to.equal(
+        "Folder name can't contain ?"
+      );
+    });
+
+    it('lists every restricted character found, not just the first', function () {
+      expect(validateFolderName('a<b?c', [])).to.equal(
+        "Folder name can't contain < ?"
       );
     });
 
     it('rejects control characters', function () {
       expect(validateFolderName('a\u0000b', [])).to.equal(
         "Folder name can't contain control characters"
-      );
-    });
-
-    it('rejects Windows-reserved characters and names the offending one', function () {
-      expect(validateFolderName('a<b', [])).to.equal(
-        "Folder name can't contain <"
-      );
-      expect(validateFolderName('a?b', [])).to.equal(
-        "Folder name can't contain ?"
       );
     });
 

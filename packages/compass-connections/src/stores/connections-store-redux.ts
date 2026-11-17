@@ -2481,17 +2481,16 @@ export const openSettingsModal = (
   };
 };
 
-// Windows-reserved characters, disallowed on all platforms so a name stays
+// Windows-reserved characters are rejected on every platform so names stay
 // portable between machines.
-const WINDOWS_RESERVED_CHARACTERS = ['<', '>', ':', '"', '|', '?', '*'];
+const RESTRICTED_CHARACTERS = ['/', '\\', '<', '>', ':', '"', '|', '?', '*'];
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHARACTERS_REGEX = /[\u0000-\u001F\u007F]/;
-const PATH_SEPARATORS_REGEX = /[/\\]/;
 
-/**
- * `existingNames` must exclude the folder being renamed, so renaming a folder
- * to the name it already has isn't reported as a duplicate.
- */
+// A shared id so folder toasts replace each other instead of stacking.
+const FOLDER_TOAST_ID = 'folder-action';
+
+/** `existingNames` must exclude the folder being renamed. */
 export function validateFolderName(
   name: string,
   existingNames: string[]
@@ -2511,19 +2510,16 @@ export function validateFolderName(
     return 'A folder with this name already exists';
   }
 
-  if (PATH_SEPARATORS_REGEX.test(trimmedName)) {
-    return "Folder name can't contain / or \\";
+  // Report all of them at once so fixing a name isn't whack-a-mole.
+  const restrictedCharacters = RESTRICTED_CHARACTERS.filter((character) =>
+    trimmedName.includes(character)
+  );
+  if (restrictedCharacters.length > 0) {
+    return `Folder name can't contain ${restrictedCharacters.join(' ')}`;
   }
 
   if (CONTROL_CHARACTERS_REGEX.test(trimmedName)) {
     return "Folder name can't contain control characters";
-  }
-
-  const reservedCharacter = WINDOWS_RESERVED_CHARACTERS.find((character) =>
-    trimmedName.includes(character)
-  );
-  if (reservedCharacter) {
-    return `Folder name can't contain ${reservedCharacter}`;
   }
 
   return undefined;
@@ -2584,6 +2580,11 @@ export const createFolder = (
     });
 
     dispatch({ type: ActionTypes.CreateFolder, folder });
+    openToast(FOLDER_TOAST_ID, {
+      title: `New folder ${folder.name} created in sidebar.`,
+      description: 'To organize connections, use the three-dot menu (•••).',
+      variant: 'success',
+    });
     return folder;
   };
 };
@@ -2623,6 +2624,10 @@ export const renameFolder = (
       folderId,
       name: trimmedName,
     });
+    openToast(FOLDER_TOAST_ID, {
+      title: `Folder renamed ${existingFolder.name} to ${trimmedName}`,
+      variant: 'success',
+    });
   };
 };
 
@@ -2631,7 +2636,8 @@ export const deleteFolder = (
 ): ConnectionsThunkAction<Promise<void>, DeleteFolderAction> => {
   return async (dispatch, getState, { folderStorage }) => {
     const state = getState();
-    if (!state.folders.byId[folderId]) {
+    const folder = state.folders.byId[folderId];
+    if (!folder) {
       return;
     }
 
@@ -2647,6 +2653,10 @@ export const deleteFolder = (
     await folderStorage.save({ folderOrganization: { folders, assignments } });
 
     dispatch({ type: ActionTypes.DeleteFolder, folderId });
+    openToast(FOLDER_TOAST_ID, {
+      title: `${folder.name} folder deleted`,
+      variant: 'success',
+    });
   };
 };
 

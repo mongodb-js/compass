@@ -838,10 +838,16 @@ describe('Multiple Connections Sidebar Component', function () {
       const input = await screen.findByLabelText('Folder name');
       // Folder names are compared case-insensitively.
       userEvent.type(input, 'work');
-      userEvent.click(screen.getByTestId('submit-button'));
 
       expect(screen.getByText('A folder with this name already exists')).to.be
         .visible;
+      expect(screen.getByTestId('submit-button')).to.have.attribute(
+        'aria-disabled',
+        'true'
+      );
+
+      userEvent.click(screen.getByTestId('submit-button'));
+
       expect(screen.queryByText(/folder .* created in sidebar/)).not.to.exist;
     });
 

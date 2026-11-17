@@ -46,7 +46,6 @@ import {
 import {
   type useConnectionsWithStatus,
   ConnectionStatus,
-  useConnectionActions,
   useConnectionsListLoadingStatus,
   useFolders,
 } from '@mongodb-js/compass-connections/provider';
@@ -130,19 +129,9 @@ const deleteFolderBannerStyles = css({
   marginTop: spacing[300],
 });
 
-// All folder actions share one toast id so the latest replaces the previous
-// one instead of stacking them up.
+// Shared with the folder thunks' success toasts, so a failure replaces a stale
+// success rather than stacking on it.
 const folderToastId = 'folder-action';
-
-/**
- * The folder modal is a native `<dialog>`, which hands focus back to whatever
- * was focused when it opened. Left alone, the button that opened it keeps
- * showing its focus highlight after the dialog closes, so drop focus first and
- * let it fall back to the body instead.
- */
-function blurActiveElement() {
-  (document.activeElement as HTMLElement | null)?.blur();
-}
 
 /**
  * Indicates only Atlas cluster connections are supported, and the user cannot navigate
@@ -191,6 +180,9 @@ type ConnectionsNavigationComponentProps = {
   onOpenConnectViaModal?: (
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;
+  onCreateFolder(name: string): Promise<unknown>;
+  onRenameFolder(folderId: string, name: string): Promise<unknown>;
+  onDeleteFolder(folderId: string): Promise<unknown>;
 };
 
 type MapStateProps = {
@@ -239,6 +231,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onRefreshDatabases: _onRefreshDatabases,
   onNamespaceAction: _onNamespaceAction,
   onOpenConnectViaModal,
+  onCreateFolder,
+  onRenameFolder,
+  onDeleteFolder,
 }) => {
   const {
     openShellWorkspace,
@@ -323,11 +318,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     [enableConnectionFolders, folderAssignments]
   );
 
-  const { createFolder, renameFolder, deleteFolder } = useConnectionActions();
-
-  // One modal serves both create and rename. The target is kept after closing
-  // so the dialog's title and button don't flip to the create wording while it
-  // animates out.
+  // One modal for both create and rename; the target is kept after closing so
+  // the title doesn't flip to the create wording while it animates out.
   const [folderModalTarget, setFolderModalTarget] = useState<FolderModalTarget>(
     { mode: 'create' }
   );
@@ -336,8 +328,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   const renameFolderId =
     folderModalTarget.mode === 'rename' ? folderModalTarget.folderId : null;
 
-  // Renaming a folder must not clash with its own current name, so it is
-  // excluded from the names the modal validates against.
+  // Exclude the folder being renamed so keeping its own name isn't a duplicate.
   const folderModalExistingNames = useMemo(
     () =>
       sidebarFolders
@@ -347,14 +338,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   );
 
   const onOpenCreateFolderModal = useCallback(() => {
-    blurActiveElement();
     setFolderModalTarget({ mode: 'create' });
     setFolderModalOpen(true);
   }, []);
 
   const onOpenRenameFolderModal = useCallback(
     (folder: SidebarFolderTreeItem) => {
-      blurActiveElement();
       setFolderModalTarget({
         mode: 'rename',
         folderId: folder.folderId,
@@ -373,39 +362,22 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     (name: string) => {
       const request =
         folderModalTarget.mode === 'rename'
-          ? renameFolder(folderModalTarget.folderId, name)
-          : createFolder(name);
-      void request
-        .then(() => {
-          onCloseFolderModal();
-          openToast(folderToastId, {
-            title:
-              folderModalTarget.mode === 'rename'
-                ? `Folder renamed ${folderModalTarget.name} to ${name}`
-                : `New folder ${name} created in sidebar.`,
-            ...(folderModalTarget.mode === 'rename'
-              ? {}
-              : {
-                  description:
-                    'To organize connections, use the three-dot menu (•••).',
-                }),
-            variant: 'success',
-          });
-        })
-        .catch((err: Error) => {
-          // The modal validates names before submitting, so a failure here is
-          // a storage error rather than a rejected name.
-          openToast(folderToastId, {
-            title: 'Failed to save folder',
-            description: err.message,
-            variant: 'warning',
-          });
+          ? onRenameFolder(folderModalTarget.folderId, name)
+          : onCreateFolder(name);
+      void request.then(onCloseFolderModal).catch((err: Error) => {
+        // The modal validates names first, so this is a storage failure; it
+        // stays open so the name isn't lost.
+        openToast(folderToastId, {
+          title: 'Failed to save folder',
+          description: err.message,
+          variant: 'warning',
         });
+      });
     },
-    [createFolder, renameFolder, folderModalTarget, onCloseFolderModal]
+    [onCreateFolder, onRenameFolder, folderModalTarget, onCloseFolderModal]
   );
 
-  const onDeleteFolder = useCallback(
+  const onDeleteFolderWithConfirmation = useCallback(
     async (folder: { id: string; name: string }) => {
       const connectionsInFolder = connections.filter(
         ({ connectionInfo }) =>
@@ -434,11 +406,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         return;
       }
       try {
-        await deleteFolder(folder.id);
-        openToast(folderToastId, {
-          title: `${folder.name} folder deleted`,
-          variant: 'success',
-        });
+        await onDeleteFolder(folder.id);
       } catch (err) {
         openToast(folderToastId, {
           title: 'Failed to delete folder',
@@ -447,7 +415,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         });
       }
     },
-    [deleteFolder, connections, sidebarFolderAssignments]
+    [onDeleteFolder, connections, sidebarFolderAssignments]
   );
 
   const {
@@ -476,17 +444,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         icon: <ChevronCollapse width={14} height={14} />,
       },
     ];
-    // The actions that stay visible next to each other; the rest collapse into
-    // the "..." menu.
-    let inlineActionCount = 1;
-
     if (enableConnectionFolders) {
       actions.push({
         action: 'create-folder',
         label: 'Create folder',
         icon: <FolderPlusIcon />,
       });
-      inlineActionCount++;
     }
 
     if (enableCreatingNewConnections) {
@@ -495,8 +458,11 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         label: 'Add new connection',
         icon: 'Plus',
       });
-      inlineActionCount++;
     }
+
+    // The actions above stay inline and import/export collapse into the "..."
+    // menu. Two is the count the header has always used without folders.
+    const inlineActionCount = enableConnectionFolders ? actions.length : 2;
 
     if (supportsConnectionImportExport) {
       actions.push(
@@ -513,12 +479,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       );
     }
 
-    return {
-      actions,
-      // Without folders the header keeps its previous layout, which shows one
-      // more action inline than the actions above account for.
-      inlineActionCount: enableConnectionFolders ? inlineActionCount : 2,
-    };
+    return { actions, inlineActionCount };
   }, [
     supportsConnectionImportExport,
     enableCreatingNewConnections,
@@ -531,7 +492,10 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         if (action === 'rename-folder') {
           onOpenRenameFolderModal(item);
         } else if (action === 'delete-folder') {
-          void onDeleteFolder({ id: item.folderId, name: item.name });
+          void onDeleteFolderWithConfirmation({
+            id: item.folderId,
+            name: item.name,
+          });
         }
         return;
       }
@@ -722,7 +686,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       openCollectionWorkspace,
       openEditViewWorkspace,
       _onNamespaceAction,
-      onDeleteFolder,
+      onDeleteFolderWithConfirmation,
       onOpenRenameFolderModal,
     ]
   );
