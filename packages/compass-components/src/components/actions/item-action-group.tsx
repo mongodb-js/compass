@@ -57,14 +57,14 @@ export function ItemActionGroup<Action extends string>({
   iconSize = ItemActionButtonSize.Default,
   'data-testid': dataTestId,
 }: ItemActionGroupProps<Action>) {
-  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
-    (evt) => {
+  const onItemClick = useCallback(
+    (evt: React.MouseEvent<HTMLElement>, actionPayload: unknown) => {
       evt.stopPropagation();
       const actionName = evt.currentTarget.dataset.action;
       if (typeof actionName !== 'string') {
         throw new Error('Expected element to have a "data-action" attribute');
       }
-      onAction(actionName as Action);
+      onAction(actionName as Action, actionPayload);
     },
     [onAction]
   );
@@ -77,7 +77,7 @@ export function ItemActionGroup<Action extends string>({
     <div className={cx(containerStyle, className)} data-testid={dataTestId}>
       {actions.map((menuItem, idx) => {
         if (isSeparatorMenuAction(menuItem)) {
-          return <MenuSeparator key={`separator-${idx}`} />;
+          return <MenuSeparator key={idx} />;
         }
 
         const {
@@ -90,7 +90,7 @@ export function ItemActionGroup<Action extends string>({
         if (itemProps.actions) {
           return (
             <ItemActionMenu<Action>
-              key={itemProps.label}
+              key={idx}
               actions={itemProps.actions}
               onAction={onAction}
               glyph={itemProps.icon}
@@ -107,13 +107,15 @@ export function ItemActionGroup<Action extends string>({
 
         const item = (
           <ItemComponent
-            key={itemProps.action}
+            key={idx}
             {...itemProps}
             tooltip={tooltip}
             iconSize={iconSize}
             iconStyle={iconStyle}
             iconClassName={iconClassName}
-            onClick={onClick}
+            onClick={(evt: React.MouseEvent<HTMLElement>) =>
+              onItemClick(evt, itemProps.actionPayload)
+            }
             data-testid={actionTestId(dataTestId, itemProps.action)}
             setHidable={setHidable}
           />
@@ -122,7 +124,7 @@ export function ItemActionGroup<Action extends string>({
         if (tooltip) {
           return (
             <Tooltip
-              key={itemProps.action}
+              key={idx}
               {...tooltipProps}
               // Wrapping the item in a div, because the `trigger` must accept and render `children`
               // See docs for the prop for more information

@@ -125,7 +125,7 @@ export function ItemActionMenu<Action extends string>({
       >
         {actions.map((menuAction, idx) => {
           if (isSeparatorMenuAction(menuAction)) {
-            return <MenuSeparator key={`separator-${idx}`} />;
+            return <MenuSeparator key={idx} />;
           }
 
           const {
@@ -141,7 +141,7 @@ export function ItemActionMenu<Action extends string>({
           if (subActions) {
             return (
               <SubMenu
-                key={label}
+                key={idx}
                 data-testid={actionTestId(dataTestId, label)}
                 title={label}
                 glyph={<ActionGlyph glyph={icon} size={iconSize} />}
@@ -156,10 +156,9 @@ export function ItemActionMenu<Action extends string>({
                   )
                   .map((subAction, subIdx) => (
                     <MenuItem
-                      key={`${subAction.action}-${subIdx}`}
+                      key={subIdx}
                       data-testid={actionTestId(dataTestId, subAction.action)}
                       data-action={subAction.action}
-                      data-menuitem={true}
                       glyph={
                         subAction.icon ? (
                           <ActionGlyph glyph={subAction.icon} size={iconSize} />
@@ -180,10 +179,9 @@ export function ItemActionMenu<Action extends string>({
 
           return (
             <MenuItem
-              key={action}
+              key={idx}
               data-testid={actionTestId(dataTestId, action)}
               data-action={action}
-              data-menuitem={true}
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
               onClick={(evt: React.MouseEvent<HTMLElement>) =>
                 onItemClick(evt, menuAction)

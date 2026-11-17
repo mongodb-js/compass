@@ -25,7 +25,6 @@ export function ConnectButton(props: ItemComponentProps<Actions>) {
     } = props;
     return (
       <Button
-        key={action}
         title={!tooltip ? label : undefined}
         size={iconSize}
         data-action={action}
