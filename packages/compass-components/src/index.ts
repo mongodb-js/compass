@@ -68,6 +68,7 @@ export type {
 export {
   splitBySeparator,
   isSeparatorMenuAction,
+  isItemActionGroupItem,
 } from './components/actions/utils';
 export type { GroupedItemAction } from './components/actions/item-action-group';
 

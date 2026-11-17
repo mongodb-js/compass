@@ -14,6 +14,17 @@ export function isSeparatorMenuAction(value: unknown): value is ItemSeparator {
   );
 }
 
+export function isItemActionGroupItem<Action extends string>(
+  value: unknown
+): value is ItemActionGroupItem<Action> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'actions' in value &&
+    Array.isArray(value.actions)
+  );
+}
+
 export function actionTestId(dataTestId: string | undefined, action: string) {
   return dataTestId ? `${dataTestId}-${action}-action` : undefined;
 }
