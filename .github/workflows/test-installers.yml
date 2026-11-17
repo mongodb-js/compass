@@ -109,13 +109,17 @@ jobs:
             distro-id: rhel80
             prepare-container: |
               dnf clean all && dnf update -y --refresh
-              dnf install -y bash gcc gcc-c++ make git nss dbus xorg-x11-server-Xvfb yum-utils
+              dnf install -y gcc gcc-c++ make git nss dbus xorg-x11-server-Xvfb yum-utils
               # Enable the devel repo to install compat-openssl11 (bringing libcrupto.so.1.1 to run mongod)
               dnf config-manager --set-enabled devel
               dnf update -y
               dnf install -y compat-openssl11
             container:
               image: rockylinux:9
+              # Newer rockylinux:9 images ship without PATH in their config; setup-node
+              # then prepends to an empty PATH and `bash` can no longer be found.
+              env:
+                PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
               volumes:
                 - ${{ github.workspace }}:/compass
 
