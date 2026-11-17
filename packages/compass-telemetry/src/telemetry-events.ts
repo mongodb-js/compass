@@ -3769,19 +3769,6 @@ type MockDataGeneratorClickedEvent = CommonEvent<{
 }>;
 
 /**
- * This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
- *
- * @category Mock Data Generator
- */
-type MockDataGeneratorOpenedEvent = CommonEvent<{
-  name: 'Mock Data Generator Opened';
-  payload: {
-    gen_ai_features_enabled: boolean;
-    send_sample_values_enabled: boolean;
-  };
-}>;
-
-/**
  * This event is fired when the user views a screen in the Mock Data Generator modal.
  *
  * @category Mock Data Generator
@@ -4530,7 +4517,6 @@ export type TelemetryEvent =
   | ContextMenuItemClicked
   | MockDataGeneratorCtaButtonViewedEvent
   | MockDataGeneratorClickedEvent
-  | MockDataGeneratorOpenedEvent
   | MockDataGeneratorScreenViewedEvent
   | MockDataGeneratorScreenProceededEvent
   | MockDataGeneratorDismissedEvent
