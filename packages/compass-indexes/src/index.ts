@@ -10,10 +10,7 @@ import {
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import {
-  telemetryLocator,
-  experimentationServiceLocator,
-} from '@mongodb-js/compass-telemetry/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -45,7 +42,6 @@ export const CompassIndexesPluginProvider = registerCompassPlugin(
     atlasService: atlasServiceLocator,
     preferences: preferencesLocator,
     workspaces: workspacesServiceLocator,
-    experimentationServices: experimentationServiceLocator,
   }
 );
 

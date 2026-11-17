@@ -33,6 +33,7 @@ import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navig
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type {
   Actions,
+  OnItemAction,
   SidebarConnectedConnection,
   SidebarConnection,
   SidebarFolderTreeItem,
@@ -156,7 +157,9 @@ type ConnectionListTitleActions =
   | ConnectionImportExportAction;
 
 type FolderModalTarget =
-  { mode: 'create' } | { mode: 'rename'; folderId: string; name: string };
+  | { mode: 'create' }
+  | { mode: 'rename'; folderId: string; name: string }
+  | { mode: 'create-and-move'; connectionId: string };
 
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
@@ -183,6 +186,14 @@ type ConnectionsNavigationComponentProps = {
   onCreateFolder(name: string): Promise<unknown>;
   onRenameFolder(folderId: string, name: string): Promise<unknown>;
   onDeleteFolder(folderId: string): Promise<unknown>;
+  onMoveConnectionsToFolder(
+    connectionIds: string[],
+    folderId: string | null
+  ): Promise<unknown>;
+  onMoveConnectionsToNewFolder(
+    connectionIds: string[],
+    name: string
+  ): Promise<unknown>;
 };
 
 type MapStateProps = {
@@ -234,6 +245,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onCreateFolder,
   onRenameFolder,
   onDeleteFolder,
+  onMoveConnectionsToFolder,
+  onMoveConnectionsToNewFolder,
 }) => {
   const {
     openShellWorkspace,
@@ -354,16 +367,31 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     []
   );
 
+  const onAddToNewFolder = useCallback((connectionId: string) => {
+    setFolderModalTarget({ mode: 'create-and-move', connectionId });
+    setFolderModalOpen(true);
+  }, []);
+
   const onCloseFolderModal = useCallback(() => {
     setFolderModalOpen(false);
   }, []);
 
   const onFolderModalSubmit = useCallback(
     (name: string) => {
-      const request =
-        folderModalTarget.mode === 'rename'
-          ? onRenameFolder(folderModalTarget.folderId, name)
-          : onCreateFolder(name);
+      let request: Promise<unknown>;
+      switch (folderModalTarget.mode) {
+        case 'rename':
+          request = onRenameFolder(folderModalTarget.folderId, name);
+          break;
+        case 'create-and-move':
+          request = onMoveConnectionsToNewFolder(
+            [folderModalTarget.connectionId],
+            name
+          );
+          break;
+        default:
+          request = onCreateFolder(name);
+      }
       void request.then(onCloseFolderModal).catch((err: Error) => {
         // The modal validates names first, so this is a storage failure; it
         // stays open so the name isn't lost.
@@ -374,7 +402,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         });
       });
     },
-    [onCreateFolder, onRenameFolder, folderModalTarget, onCloseFolderModal]
+    [
+      onCreateFolder,
+      onRenameFolder,
+      onMoveConnectionsToNewFolder,
+      folderModalTarget,
+      onCloseFolderModal,
+    ]
   );
 
   const onDeleteFolderWithConfirmation = useCallback(
@@ -486,8 +520,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     enableConnectionFolders,
   ]);
 
-  const onItemAction = useCallback(
-    (item: SidebarItem, action: Actions) => {
+  const onItemAction: OnItemAction = useCallback(
+    (item, action, actionPayload) => {
       if (item.type === 'folder') {
         if (action === 'rename-folder') {
           onOpenRenameFolderModal(item);
@@ -530,6 +564,21 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         item.type === 'connection' ? item.connectionInfo.id : item.connectionId;
 
       switch (action) {
+        case 'move-to-folder':
+          // Fired by the submenu items; the parent entry itself has no actionPayload.
+          if (actionPayload?.folderId) {
+            void onMoveConnectionsToFolder(
+              [connectionId],
+              actionPayload.folderId
+            );
+          }
+          return;
+        case 'remove-from-folder':
+          void onMoveConnectionsToFolder([connectionId], null);
+          return;
+        case 'add-to-new-folder':
+          onAddToNewFolder(connectionId);
+          return;
         case 'select-connection':
           openDatabasesWorkspace(connectionId);
           return;
@@ -681,6 +730,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenCsfleModal,
       onOpenNonGenuineMongoDBModal,
       onOpenConnectViaModal,
+      onMoveConnectionsToFolder,
+      onAddToNewFolder,
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
@@ -735,7 +786,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         telemetryLabel: 'Connection List Title Actions',
         items: connectionListTitleActions.actions.map(({ label, action }) => ({
           label,
-          onAction: () => onConnectionListTitleAction(action),
+          onAction: () => {
+            if (action) onConnectionListTitleAction(action);
+          },
         })),
       },
     ],

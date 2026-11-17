@@ -69,7 +69,6 @@ export function ConnectButtonWithMenu({
 
   return (
     <SplitButton
-      key={action}
       title={!tooltip ? label : undefined}
       label={label}
       size={iconSize}

@@ -7,7 +7,7 @@ import {
   showConfirmation,
   spacing,
 } from '@mongodb-js/compass-components';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import type { RootState } from './modules';
@@ -49,7 +49,7 @@ const Drawer = ({
   subTab,
   openIndexesListDrawerView,
 }: DrawerProps) => {
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
 
   const beforeSectionHide = useCallback(async () => {
     if (!isDirty) {
@@ -64,7 +64,7 @@ const Drawer = ({
     });
   }, [isDirty]);
 
-  if (!enableSearchActivationProgramP1) {
+  if (!enableAtlasSearchIndexes) {
     return null;
   }
 
@@ -96,14 +96,6 @@ const Drawer = ({
         glyph="SearchIndex"
         disabled={subTab === 'Indexes'}
         beforeSectionHide={beforeSectionHide}
-        guideCue={{
-          cueId: 'indexes-drawer',
-          title: 'Easily access all your search indexes',
-          description: 'Click to view and manage search indexes.',
-          buttonText: 'Got it',
-          tooltipAlign: 'left',
-          tooltipJustify: 'start',
-        }}
       >
         {currentView === 'indexes-list' && <IndexesListDrawerView />}
         {currentView === 'create-search-index' && <CreateSearchIndexView />}

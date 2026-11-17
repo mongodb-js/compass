@@ -1,7 +1,10 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { RenderWithConnectionsHookResult } from '@mongodb-js/testing-library-compass';
+import type {
+  RenderConnectionsOptions,
+  RenderWithConnectionsHookResult,
+} from '@mongodb-js/testing-library-compass';
 import {
   createPluginTestHelpers,
   screen,
@@ -99,11 +102,7 @@ describe('Multiple Connections Sidebar Component', function () {
     activeWorkspace: WorkspaceTab | null = null,
     connections: ConnectionInfo[] | 'no-preload' = [savedFavoriteConnection],
     atlasClusterConnectionsOnly: boolean | undefined = undefined,
-    folderOrganization: {
-      folders: Folder[];
-      assignments: Record<string, string>;
-    } = { folders: [], assignments: {} },
-    enableConnectionFolders = false
+    renderOptions: Partial<RenderConnectionsOptions> = {}
   ) {
     workspace = sinon.spy({
       openMyQueriesWorkspace: () => undefined,
@@ -149,11 +148,8 @@ describe('Multiple Connections Sidebar Component', function () {
     }
 
     const result = renderWithConnections(component, {
+      ...renderOptions,
       connections,
-      folderStorage: new InMemoryFolderStorage(folderOrganization),
-      preferences: enableConnectionFolders
-        ? { enableConnectionFolders: true }
-        : undefined,
       connectFn() {
         return {
           currentOp() {
@@ -733,6 +729,78 @@ describe('Multiple Connections Sidebar Component', function () {
           });
         });
       });
+
+      context('folders', function () {
+        let folderStorage: InMemoryFolderStorage;
+
+        beforeEach(async function () {
+          folderStorage = new InMemoryFolderStorage();
+          doRender(undefined, [savedFavoriteConnection], undefined, {
+            folderStorage,
+            preferences: { enableConnectionFolders: true },
+          });
+          await waitFor(() => screen.getByRole('tree'));
+        });
+
+        const addConnectionToNewFolder = async (name: string) => {
+          const item = screen.getByTestId(savedFavoriteConnection.id);
+          userEvent.hover(within(item).getByTestId('base-navigation-item'));
+          userEvent.click(within(item).getByLabelText('Show actions'));
+          userEvent.click(screen.getByText('Move to folder'));
+          userEvent.click(screen.getByText('New folder'));
+
+          const input = await screen.findByLabelText('Folder name');
+          userEvent.type(input, name);
+          userEvent.click(screen.getByTestId('submit-button'));
+        };
+
+        it('creates a folder and moves the connection into it', async function () {
+          await addConnectionToNewFolder('Work');
+
+          const folderItem = await screen.findByText('Work');
+          expect(folderItem).to.be.visible;
+
+          const { folders, assignments } = await folderStorage.load();
+          expect(folders).to.have.lengthOf(1);
+          expect(folders[0].name).to.equal('Work');
+          expect(assignments).to.deep.equal({
+            [savedFavoriteConnection.id]: folders[0].id,
+          });
+        });
+
+        it('shows an error and keeps the tree unchanged when the folder can not be saved', async function () {
+          sinon.stub(folderStorage, 'save').rejects(new Error('disk full'));
+
+          await addConnectionToNewFolder('Work');
+
+          expect(await screen.findByText('Failed to create folder')).to.be
+            .visible;
+          expect(screen.getByText('disk full')).to.be.visible;
+          expect(screen.getAllByRole('treeitem')).to.have.lengthOf(1);
+          expect((await folderStorage.load()).folders).to.be.empty;
+        });
+
+        it('keeps the new folder and shows an error when the connection can not be moved', async function () {
+          // First save creates the folder, second one moves the connection
+          sinon
+            .stub(folderStorage, 'save')
+            .callThrough()
+            .onSecondCall()
+            .rejects(new Error('disk full'));
+
+          await addConnectionToNewFolder('Work');
+
+          expect(
+            await screen.findByText('Failed to move connection(s) to folder')
+          ).to.be.visible;
+          expect(screen.getByText('disk full')).to.be.visible;
+
+          const { folders, assignments } = await folderStorage.load();
+          expect(folders.map(({ name }) => name)).to.deep.equal(['Work']);
+          expect(assignments).to.deep.equal({});
+          expect(screen.getByTestId(folders[0].id)).to.have.text('Work');
+        });
+      });
     });
   });
 
@@ -745,8 +813,12 @@ describe('Multiple Connections Sidebar Component', function () {
         null,
         [savedFavoriteConnection, savedRecentConnection],
         undefined,
-        { folders, assignments },
-        enableConnectionFolders
+        {
+          folderStorage: new InMemoryFolderStorage({ folders, assignments }),
+          ...(enableConnectionFolders && {
+            preferences: { enableConnectionFolders: true },
+          }),
+        }
       );
       await waitFor(() => screen.getByRole('tree'));
     };

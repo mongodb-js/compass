@@ -119,6 +119,8 @@ export function MultipleConnectionSidebar({
     createFolder,
     renameFolder,
     deleteFolder,
+    moveConnectionsToFolder,
+    moveConnectionsToNewFolder,
   } = useConnectionActions();
 
   const findActiveConnection = (id: string) => {
@@ -214,6 +216,8 @@ export function MultipleConnectionSidebar({
           onCreateFolder={createFolder}
           onRenameFolder={renameFolder}
           onDeleteFolder={deleteFolder}
+          onMoveConnectionsToFolder={moveConnectionsToFolder}
+          onMoveConnectionsToNewFolder={moveConnectionsToNewFolder}
         />
         <MappedCsfleModal
           connectionId={csfleModalConnectionId}

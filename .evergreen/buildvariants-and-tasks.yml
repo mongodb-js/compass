@@ -31,7 +31,7 @@ buildvariants:
       - name: test
   - name: unit-tests-macos
     display_name: Unit Tests MacOS
-    run_on: macos-15-arm64
+    run_on: macos-26-arm64-gui
     tasks:
       - name: test
   - name: unit-test-electron
@@ -207,11 +207,11 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
-  - name: test-packaged-app-macos-15-arm
+  - name: test-packaged-app-macos-26-arm
     tags:
       - run-on-pr
-    display_name: Test Packaged App MacOS arm64 15
-    run_on: macos-15-arm64-gui
+    display_name: Test Packaged App MacOS arm64 26
+    run_on: macos-26-arm64-gui
     depends_on:
       - name: package-compass
         variant: package-macos-arm

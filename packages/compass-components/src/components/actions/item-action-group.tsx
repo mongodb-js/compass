@@ -7,6 +7,7 @@ import { MenuSeparator, Tooltip } from '../leafygreen';
 import { ItemActionButtonSize } from './constants';
 import type { ItemAction, ItemSeparator } from './types';
 import { ItemActionButton } from './item-action-button';
+import { ItemActionMenu } from './item-action-menu';
 import { actionTestId, isSeparatorMenuAction } from './utils';
 
 export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
@@ -25,9 +26,13 @@ const itemActionGroupContainerStyles = css({
   display: 'inherit',
 });
 
+const nestedMenuStyles = css({
+  marginLeft: 0,
+});
+
 export type ItemActionGroupProps<Action extends string> = {
   actions: (GroupedItemAction<Action> | ItemSeparator)[];
-  onAction(actionName: Action): void;
+  onAction(actionName: Action, actionPayload?: unknown): void;
   isVisible?: boolean;
   /**
    * Called to signal to the parent if the component wants to prevent becoming hidden.
@@ -52,14 +57,14 @@ export function ItemActionGroup<Action extends string>({
   iconSize = ItemActionButtonSize.Default,
   'data-testid': dataTestId,
 }: ItemActionGroupProps<Action>) {
-  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
-    (evt) => {
+  const onItemClick = useCallback(
+    (evt: React.MouseEvent<HTMLElement>, actionPayload: unknown) => {
       evt.stopPropagation();
       const actionName = evt.currentTarget.dataset.action;
       if (typeof actionName !== 'string') {
         throw new Error('Expected element to have a "data-action" attribute');
       }
-      onAction(actionName as Action);
+      onAction(actionName as Action, actionPayload);
     },
     [onAction]
   );
@@ -72,7 +77,7 @@ export function ItemActionGroup<Action extends string>({
     <div className={cx(containerStyle, className)} data-testid={dataTestId}>
       {actions.map((menuItem, idx) => {
         if (isSeparatorMenuAction(menuItem)) {
-          return <MenuSeparator key={`separator-${idx}`} />;
+          return <MenuSeparator key={idx} />;
         }
 
         const {
@@ -82,15 +87,35 @@ export function ItemActionGroup<Action extends string>({
           ...itemProps
         } = menuItem;
 
+        if (itemProps.actions) {
+          return (
+            <ItemActionMenu<Action>
+              key={idx}
+              actions={itemProps.actions}
+              onAction={onAction}
+              glyph={itemProps.icon}
+              label={itemProps.label}
+              className={nestedMenuStyles}
+              iconSize={iconSize}
+              iconStyle={iconStyle}
+              iconClassName={iconClassName}
+              setHidable={setHidable}
+              data-testid={actionTestId(dataTestId, itemProps.label)}
+            />
+          );
+        }
+
         const item = (
           <ItemComponent
-            key={itemProps.action}
+            key={idx}
             {...itemProps}
             tooltip={tooltip}
             iconSize={iconSize}
             iconStyle={iconStyle}
             iconClassName={iconClassName}
-            onClick={onClick}
+            onClick={(evt: React.MouseEvent<HTMLElement>) =>
+              onItemClick(evt, itemProps.actionPayload)
+            }
             data-testid={actionTestId(dataTestId, itemProps.action)}
             setHidable={setHidable}
           />
@@ -99,7 +124,7 @@ export function ItemActionGroup<Action extends string>({
         if (tooltip) {
           return (
             <Tooltip
-              key={itemProps.action}
+              key={idx}
               {...tooltipProps}
               // Wrapping the item in a div, because the `trigger` must accept and render `children`
               // See docs for the prop for more information

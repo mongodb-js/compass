@@ -1,5 +1,6 @@
 import {
   cloneDeep,
+  escape,
   isArray,
   isNumber,
   isString,
@@ -148,7 +149,7 @@ export function schemaFieldsToAutocompleteItems(
       score: 1,
       meta: 'field',
       version: '0.0.0',
-      description: stringifyType(field.type),
+      description: escape(stringifyType(field.type)),
     };
   });
 }
