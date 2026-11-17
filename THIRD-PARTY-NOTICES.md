@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Nov 15 2026.
+This document was automatically generated on Tue Nov 17 2026.
 
 ## List of dependencies
 
@@ -197,7 +197,7 @@ This document was automatically generated on Sun Nov 15 2026.
 | **[ast-types](#b10f17e6889028ee16e1f388d24ed535333cd289f0871c70d99c6180f498c6e0)**                                          | 0.13.4       | MIT                                 |
 | **[bail](#7bb145b871ec0ce498fe08f97b015e1298676bc4b6584732692f919e426a34a1)**                                               | 2.0.2        | MIT                                 |
 | **[base64-js](#cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6)**                                          | 1.5.1        | MIT                                 |
-| **[basic-ftp](#d05397370d77bee97474a4e1a22ebf59ae353de417521105785398ac26811be2)**                                          | 6.2.3        | MIT                                 |
+| **[basic-ftp](#6f2c559d7c4077ad0d78e94a199616e82d13403c1f53172f78b3d3faa97616a0)**                                          | 6.2.6        | MIT                                 |
 | **[bcrypt-pbkdf](#b6b5900f1e48a933591abc1c918fbcc9c890b3d071f607c59d704bc1c13b3937)**                                       | 1.0.2        | BSD-3-Clause                        |
 | **[bignumber.js](#72ac920aeb92af6ca1db48e34a5fb141e8e8e98ad9fab1e2223c1ecc8b539f73)**                                       | 9.3.1        | MIT                                 |
 | **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**                                                 | 4.1.0        | MIT                                 |
@@ -257,7 +257,7 @@ This document was automatically generated on Sun Nov 15 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#52788b05deec4998a077e1dadcf63397c4d863cc49add00ce67d385258c850bf)**                                           | 45.3.0       | MIT                                 |
+| **[electron](#bc3679becab5d5d4fb9e936ef9fa613545f3e02bdb95ee7a16d25af21f0a71a0)**                                           | 45.3.2       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#d4ec33708205e0aab97e631fb8d69c095cd87da7c10128dcdac6b5ba2cc1395d)**                                      | 1.4.5        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -20657,9 +20657,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="d05397370d77bee97474a4e1a22ebf59ae353de417521105785398ac26811be2"></a>
+<a id="6f2c559d7c4077ad0d78e94a199616e82d13403c1f53172f78b3d3faa97616a0"></a>
 
-### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 6.2.3)
+### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 6.2.6)
 
 License tags: MIT
 
@@ -22782,9 +22782,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="52788b05deec4998a077e1dadcf63397c4d863cc49add00ce67d385258c850bf"></a>
+<a id="bc3679becab5d5d4fb9e936ef9fa613545f3e02bdb95ee7a16d25af21f0a71a0"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 45.3.0)
+### [electron](https://www.npmjs.com/package/electron) (version 45.3.2)
 
 License tags: MIT
 

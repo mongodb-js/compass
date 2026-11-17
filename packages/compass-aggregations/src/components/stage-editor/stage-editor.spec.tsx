@@ -6,19 +6,17 @@ import { expect } from 'chai';
 import type { MongoServerError } from 'mongodb';
 import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
-import { wrapWithExperimentProvider } from '../../../test/configure-store';
 import { StageEditor } from './stage-editor';
 
 const renderStageEditor = (
   props: Partial<ComponentProps<typeof StageEditor>> = {},
   renderOptions: Partial<RenderConnectionsOptions> = {},
   {
-    enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    enableAtlasSearchIndexes = false,
+  }: { enableAtlasSearchIndexes?: boolean } = {}
 ) => {
-  let ui = (
+  const ui = (
     <StageEditor
       namespace="test.test"
       stageValue='{ name: "testing" }'
@@ -39,13 +37,10 @@ const renderStageEditor = (
       {...props}
     />
   );
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
-  return render(ui, renderOptions);
+  return render(ui, {
+    ...renderOptions,
+    preferences: { enableAtlasSearchIndexes, ...renderOptions.preferences },
+  });
 };
 
 describe('StageEditor [Component]', function () {
@@ -93,7 +88,7 @@ describe('StageEditor [Component]', function () {
           searchIndexes: [],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(await screen.findByTestId('search-index-does-not-exist-banner')).to
@@ -111,7 +106,7 @@ describe('StageEditor [Component]', function () {
           searchIndexes: [],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(await screen.findByTestId('search-index-does-not-exist-banner')).to
@@ -134,7 +129,7 @@ describe('StageEditor [Component]', function () {
           searchIndexes: [],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
@@ -155,7 +150,7 @@ describe('StageEditor [Component]', function () {
           searchIndexes: [],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(screen.getByTestId('stage-editor-syntax-error')).to.exist;
@@ -173,7 +168,7 @@ describe('StageEditor [Component]', function () {
           searchIndexes: [],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       // Banner should show but without links
@@ -215,7 +210,7 @@ describe('StageEditor [Component]', function () {
           searchIndexes: [{ name: 'test-index' } as SearchIndex],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;

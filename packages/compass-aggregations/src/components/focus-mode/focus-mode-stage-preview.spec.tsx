@@ -55,6 +55,7 @@ const renderOutputPreview = async (
   const experimentVariant = enableSearchActivationP2Experiment
     ? ExperimentTestGroups.searchActivationProgramP2Variant
     : null;
+  await preferences.savePreferences({ enableAtlasSearchIndexes: false });
   if (enableAIAssistant) {
     await preferences.savePreferences(AI_ASSISTANT_PREFERENCES);
   }
@@ -79,33 +80,31 @@ const renderOutputPreview = async (
   return renderWithStore(ui, { pipeline: DEFAULT_PIPELINE });
 };
 
-const renderFocusModePreview = (
+const renderFocusModePreview = async (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
-    enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    enableAtlasSearchIndexes = false,
+  }: { enableAtlasSearchIndexes?: boolean } = {}
 ) => {
-  let ui = (
-    <FocusModePreview
-      title=""
-      isLoading={false}
-      stageIndex={-1}
-      stageOperator={null}
-      documents={null}
-      isMissingAtlasOnlyStageSupport={false}
-      onExpand={() => {}}
-      onCollapse={() => {}}
-      {...props}
-    />
+  const preferences = await createSandboxFromDefaultPreferences();
+  await preferences.savePreferences({ enableAtlasSearchIndexes });
+  const ui = (
+    <PreferencesProvider value={preferences}>
+      <FocusModePreview
+        title=""
+        isLoading={false}
+        stageIndex={-1}
+        stageOperator={null}
+        documents={null}
+        isMissingAtlasOnlyStageSupport={false}
+        onExpand={() => {}}
+        onCollapse={() => {}}
+        {...props}
+      />
+    </PreferencesProvider>
   );
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
   return renderWithStore(ui, { pipeline, ...storeOptions });
 };
 
@@ -250,7 +249,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('search-index-stale-results-banner')).to
@@ -267,7 +266,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('search-index-stale-results-banner')).to
@@ -308,7 +307,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.queryByTestId('search-index-stale-results-banner')).to.not

@@ -15,10 +15,7 @@ import {
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
@@ -161,7 +158,7 @@ export function StageToolbar({
   onClickViewSearchIndexes,
 }: StageToolbarProps) {
   const enableRerank = usePreference('enableRerank');
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
@@ -238,27 +235,26 @@ export function StageToolbar({
             View $rerank Usage and Rate Limits
           </Link>
         )}
-        {enableSearchActivationProgramP1 &&
-          isSearchStage(stage.stageOperator) && (
-            <Button
-              data-testid="stage-toolbar-view-indexes-button"
-              size="xsmall"
-              className={viewIndexesButtonStyles}
-              onClick={() => {
-                track('Search Index View Indexes Button Clicked', {
-                  context: 'Stage Toolbar',
-                });
-                openDrawer('compass-indexes-drawer');
-                void getSearchIndexNameFromSearchStage(
-                  stage.stageOperator,
-                  stage.value
-                ).then((name) => onClickViewSearchIndexes(name ?? undefined));
-              }}
-              title="View Indexes"
-            >
-              View Indexes
-            </Button>
-          )}
+        {enableAtlasSearchIndexes && isSearchStage(stage.stageOperator) && (
+          <Button
+            data-testid="stage-toolbar-view-indexes-button"
+            size="xsmall"
+            className={viewIndexesButtonStyles}
+            onClick={() => {
+              track('Search Index View Indexes Button Clicked', {
+                context: 'Stage Toolbar',
+              });
+              openDrawer('compass-indexes-drawer');
+              void getSearchIndexNameFromSearchStage(
+                stage.stageOperator,
+                stage.value
+              ).then((name) => onClickViewSearchIndexes(name ?? undefined));
+            }}
+            title="View Indexes"
+          >
+            View Indexes
+          </Button>
+        )}
         {insight && (
           <SignalPopover
             signals={insight}
