@@ -99,7 +99,6 @@ export class ToolsController {
       tools['get-current-query'] = {
         description: 'Get the query from the focused tab.',
         inputSchema: z.object({}),
-        needsApproval: true,
         strict: false,
         execute: (): Promise<{ query?: string }> => {
           this.logger.log.info(
@@ -118,7 +117,6 @@ export class ToolsController {
       tools['get-current-pipeline'] = {
         description: 'Get the pipeline from the focused tab.',
         inputSchema: z.object({}),
-        needsApproval: true,
         strict: false,
         execute: (): Promise<{ pipeline?: string }> => {
           this.logger.log.info(
@@ -138,7 +136,6 @@ export class ToolsController {
         tools[definition.name] = tool({
           description: getCustomToolDescription(definition),
           inputSchema: jsonSchema(definition.inputSchema),
-          needsApproval: true,
           strict: false,
           execute: async (args: unknown, options) => {
             const connectParams = this.resolveConnectParams(options.toolCallId);
