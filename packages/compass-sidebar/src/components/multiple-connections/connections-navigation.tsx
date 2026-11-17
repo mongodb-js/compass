@@ -27,8 +27,8 @@ import {
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type {
-  ActionPayload,
   Actions,
+  OnItemAction,
   SidebarConnectedConnection,
   SidebarConnection,
   SidebarItem,
@@ -373,8 +373,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       return actions;
     }, [supportsConnectionImportExport, enableCreatingNewConnections]);
 
-  const onItemAction = useCallback(
-    (item: SidebarItem, action: Actions, actionPayload?: ActionPayload) => {
+  const onItemAction: OnItemAction = useCallback(
+    (item, action, actionPayload) => {
       // TODO(COMPASS-11306): Folders have no actions yet; the folder
       // management UI adds them.
       if (item.type === 'folder') {

@@ -1,3 +1,5 @@
+import type { SidebarActionableItem } from './tree-data';
+
 // TODO: Currently we show placeholder for every collection/database item in the list, but
 // do we want to / need to?
 export const MAX_COLLECTION_PLACEHOLDER_ITEMS = Infinity;
@@ -45,3 +47,9 @@ export type Actions =
   | 'add-to-new-folder';
 
 export type ActionPayload = { folderId: string };
+
+export type OnItemAction = (
+  item: SidebarActionableItem,
+  action: Actions,
+  actionPayload?: ActionPayload
+) => void;

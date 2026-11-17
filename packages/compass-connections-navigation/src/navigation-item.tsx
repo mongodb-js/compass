@@ -16,7 +16,7 @@ import { NavigationBaseItem } from './base-navigation-item';
 import type { NavigationItemActions } from './item-actions';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
-import type { ActionPayload, Actions } from './constants';
+import type { ActionPayload, Actions, OnItemAction } from './constants';
 import { NavigationItemIcon } from './navigation-item-icon';
 
 const nonGenuineBtnStyles = css({
@@ -101,11 +101,7 @@ type NavigationItemProps = {
       collapseAfter: number;
     };
   };
-  onItemAction: (
-    item: SidebarActionableItem,
-    action: Actions,
-    actionPayload?: ActionPayload
-  ) => void;
+  onItemAction: OnItemAction;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
   getContextMenuGroups(item: SidebarTreeItem): ContextMenuItemGroup[];
 };

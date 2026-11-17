@@ -14,7 +14,7 @@ import type { Folder } from '@mongodb-js/connection-storage/provider';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { getConnectionId, getVirtualTreeItems } from './tree-data';
 import { ROW_HEIGHT } from './constants';
-import type { ActionPayload, Actions } from './constants';
+import type { Actions, OnItemAction } from './constants';
 import { VirtualTree } from './virtual-list/virtual-list';
 import type { OnDefaultAction } from './virtual-list/virtual-list';
 import { NavigationItem } from './navigation-item';
@@ -47,11 +47,7 @@ export interface ConnectionsNavigationTreeProps {
   activeWorkspace: WorkspaceTab | null;
   expanded: Record<string, false | Record<string, boolean>>;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
-  onItemAction(
-    item: SidebarActionableItem,
-    action: Actions,
-    actionPayload?: ActionPayload
-  ): void;
+  onItemAction: OnItemAction;
 }
 
 const ConnectionsNavigationTree: React.FunctionComponent<

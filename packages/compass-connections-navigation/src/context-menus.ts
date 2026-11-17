@@ -6,17 +6,13 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { NavigationItemActions } from './item-actions';
-import type { ActionPayload, Actions } from './constants';
+import type { ActionPayload, Actions, OnItemAction } from './constants';
 import type { SidebarActionableItem } from './tree-data';
 
 export function itemActionsToContextMenuGroups(
   telemetryLabel: string,
   item: SidebarActionableItem,
-  onItemAction: (
-    item: SidebarActionableItem,
-    action: Actions,
-    actionPayload?: ActionPayload
-  ) => void,
+  onItemAction: OnItemAction,
   itemActions: NavigationItemActions
 ): ContextMenuItemGroup[] {
   return splitBySeparator<Actions>(itemActions).map((actions) => ({
