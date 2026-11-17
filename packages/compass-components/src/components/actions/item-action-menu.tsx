@@ -157,7 +157,7 @@ export function ItemActionMenu<Action extends string>({
                   .map((subAction, subIdx) => (
                     <MenuItem
                       key={subIdx}
-                      data-testid={actionTestId(dataTestId, subAction.action)}
+                      data-testid={actionTestId(dataTestId, subAction.label)}
                       data-action={subAction.action}
                       glyph={
                         subAction.icon ? (
