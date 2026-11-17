@@ -48,13 +48,11 @@ const folderListStyles = css({
   gap: spacing[200],
   maxHeight: '40vh',
   overflow: 'auto',
-  // Stretch to the popover width so the scrollbar sits on the far right
-  // instead of hugging the labels.
+  // Keeps the scrollbar on the popover edge instead of next to the labels.
   alignSelf: 'stretch',
 });
 
-// Folders and uncategorized are nested under "All connections", so they read
-// as its subcategories.
+// Folders read as subcategories of "All connections".
 const folderItemStyles = css({
   paddingLeft: spacing[600],
 });
@@ -62,8 +60,7 @@ const folderItemStyles = css({
 const EMPTY_FOLDERS: Folder[] = [];
 const EMPTY_HIDDEN_FOLDER_IDS: string[] = [];
 
-// Stands in for "connections not filed in any folder" in the folders list, so
-// uncategorized connections can be shown or hidden alongside real folders.
+// Stands in for connections that aren't filed in any folder.
 const UNCATEGORIZED_ITEM_ID = 'uncategorized';
 
 type FolderFilterItem = {
@@ -111,8 +108,7 @@ export default function ConnectionsFilterPopover({
   const hiddenFolderIds = filter.hiddenFolderIds ?? EMPTY_HIDDEN_FOLDER_IDS;
   const hideUncategorizedConnections = !!filter.hideUncategorizedConnections;
 
-  // The folders are listed in the same order as the tree, so the popover and
-  // the sidebar read the same way.
+  // Same order as the tree, so the popover and the sidebar read the same.
   const folderItems = useMemo((): FolderFilterItem[] => {
     const sortedFolders = folders
       .slice()
@@ -237,6 +233,7 @@ export default function ConnectionsFilterPopover({
           checked={filter.excludeInactive}
           onChange={(evt) => onExcludeInactiveChange(evt.target.checked)}
           label="Show only active connections"
+          bold
           disabled={disabled}
         />
         {folders.length > 0 && (
@@ -250,6 +247,7 @@ export default function ConnectionsFilterPopover({
                 indeterminate={!allItemsSelected && someItemsSelected}
                 onChange={(evt) => onToggleAllItems(evt.target.checked)}
                 label="All connections"
+                bold
                 disabled={disabled}
               />
               {folderItems.map((item) => (

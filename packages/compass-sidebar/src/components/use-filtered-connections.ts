@@ -49,13 +49,8 @@ const isConnectionInactive = (connection: SidebarConnection): boolean =>
   connection.connectionStatus !== 'connected' &&
   connection.connectionStatus !== 'connecting';
 
-/**
- * Matches a connection, its databases and its collections against the search.
- *
- * When `includeAll` is set the connection is kept even if nothing about it
- * matches, which is what a folder that matches by name needs: it shows all of
- * its connections.
- */
+/** `includeAll` keeps the connection even when nothing about it matches, which
+ * is what a folder matching by name needs: it shows all of its connections. */
 const filterConnection = (
   connection: SidebarConnection,
   regex: RegExp | null,
@@ -89,16 +84,8 @@ interface FilteredTree {
   temporarilyExpandedFolderIds: string[];
 }
 
-/**
- * Filters connections and folders for the search and the visible-folders
- * filter.
- *
- * A folder that matches by name keeps all of its connections; a connection
- * that matches keeps its parent folder so the match stays reachable. Folders
- * hidden by the visible-folders filter are dropped along with their
- * connections, which is what keeps the filter to "what is shown" only: the
- * folder assignments are never touched.
- */
+/** A folder matching by name keeps all its connections; a matching connection
+ * keeps its parent folder. Folder assignments are read, never written. */
 const filterConnections = (
   connections: SidebarConnection[],
   folders: Folder[],
@@ -111,8 +98,7 @@ const filterConnections = (
   const hiddenFolders = new Set(hiddenFolderIds);
   const foldersById = new Map(folders.map((folder) => [folder.id, folder]));
 
-  // A connection whose assignment points at a folder that doesn't exist is
-  // uncategorized, mirroring how the tree resolves membership.
+  // An assignment pointing at a missing folder is uncategorized, as in the tree.
   const resolveFolderId = (connection: SidebarConnection) => {
     const folderId = folderAssignments[connection.connectionInfo.id];
     return folderId && foldersById.has(folderId) ? folderId : undefined;
@@ -147,16 +133,14 @@ const filterConnections = (
     }
 
     const folderConnections = connectionsByFolderId.get(folder.id) ?? [];
-    // A folder that matches the search by name shows all of its connections,
-    // including the ones that don't match themselves.
+    // A name match shows the folder's connections even when they don't match.
     const nameMatches = !!regex && regex.test(folder.name);
     const connectionsToShow = folderConnections
       .map((connection) => filterConnection(connection, regex, nameMatches))
       .filter((connection): connection is FilteredConnection => !!connection);
 
-    // Without a narrowing filter an empty folder still shows, so a folder the
-    // user just created is visible. Once a search or the active-only filter is
-    // on, folders with nothing left to show hide automatically.
+    // Empty folders only hide while a narrowing filter is on, so a folder the
+    // user just created stays visible.
     if (
       !nameMatches &&
       !connectionsToShow.length &&
@@ -168,8 +152,7 @@ const filterConnections = (
     visibleFolders.push(folder);
     filteredConnections.push(...connectionsToShow);
 
-    // Expand the folder while a search is active so its matches are visible;
-    // the user's own expanded state is restored once the search is cleared.
+    // Expanded during search only; the user's own state returns when cleared.
     if (regex) {
       temporarilyExpandedFolderIds.push(folder.id);
     }
@@ -307,10 +290,7 @@ const revertTemporaryExpanded = (
   return cleared;
 };
 
-/**
- * Temporarily expands the folders a search matched, leaving folders the user
- * expanded on their own untouched.
- */
+/** Expands the folders a search matched, leaving the user's own choices alone. */
 const temporarilyExpandFolders = (
   expandedFolders: ExpandedFolders,
   folderIds: string[]
@@ -324,9 +304,7 @@ const temporarilyExpandFolders = (
   return newExpanded;
 };
 
-/**
- * Reverts 'temporarilyExpandFolders', collapsing the folders the search opened.
- */
+/** Reverts 'temporarilyExpandFolders', collapsing the folders the search opened. */
 const revertTemporaryExpandedFolders = (
   expandedFolders: ExpandedFolders
 ): ExpandedFolders => {
