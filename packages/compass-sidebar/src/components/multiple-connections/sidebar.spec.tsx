@@ -793,11 +793,11 @@ describe('Multiple Connections Sidebar Component', function () {
             await screen.findByText('Failed to move connection(s) to folder')
           ).to.be.visible;
           expect(screen.getByText('disk full')).to.be.visible;
-          expect(screen.getByText('Work')).to.be.visible;
 
           const { folders, assignments } = await folderStorage.load();
           expect(folders.map(({ name }) => name)).to.deep.equal(['Work']);
           expect(assignments).to.deep.equal({});
+          expect(screen.getByTestId(folders[0].id)).to.have.text('Work');
         });
       });
     });
