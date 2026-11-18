@@ -2608,7 +2608,11 @@ export const renameFolder = (
   folderId: string,
   name: string
 ): ConnectionsThunkAction<Promise<void>, RenameFolderAction> => {
-  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, logger: { log, mongoLogId } }
+  ) => {
     const state = getState();
     const existingFolder = state.folders.byId[folderId];
     if (!existingFolder) {
@@ -2636,7 +2640,12 @@ export const renameFolder = (
         folderOrganization: { folders, assignments: state.folderAssignments },
       });
     } catch (err) {
-      debug('failed to rename folder', err);
+      log.error(
+        mongoLogId(1_001_000_458),
+        'Connection UI',
+        'Failed to rename folder',
+        { error: (err as Error).message }
+      );
       openToast(FOLDER_TOAST_ID, {
         title: 'Failed to rename folder',
         description: (err as Error).message,
@@ -2661,7 +2670,11 @@ export const renameFolder = (
 export const deleteFolder = (
   folderId: string
 ): ConnectionsThunkAction<Promise<void>, DeleteFolderAction> => {
-  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, logger: { log, mongoLogId } }
+  ) => {
     const state = getState();
     const folder = state.folders.byId[folderId];
     if (!folder) {
@@ -2682,7 +2695,12 @@ export const deleteFolder = (
         folderOrganization: { folders, assignments },
       });
     } catch (err) {
-      debug('failed to delete folder', err);
+      log.error(
+        mongoLogId(1_001_000_459),
+        'Connection UI',
+        'Failed to delete folder',
+        { error: (err as Error).message }
+      );
       openToast(FOLDER_TOAST_ID, {
         title: 'Failed to delete folder',
         description: (err as Error).message,
