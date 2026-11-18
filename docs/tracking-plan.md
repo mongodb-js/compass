@@ -190,7 +190,7 @@
   - [Manage Search Indexes Link Clicked](#manage-search-indexes-link-clicked)
 - [Mock Data Generator](#mock-data-generator)
   - [Mock Data Generator CTA Button Viewed](#mock-data-generator-cta-button-viewed)
-  - [Mock Data Generator Opened](#mock-data-generator-opened)
+  - [Mock Data Generator Clicked](#mock-data-generator-clicked)
   - [Mock Data Generator Screen Viewed](#mock-data-generator-screen-viewed)
   - [Mock Data Generator Screen Proceeded](#mock-data-generator-screen-proceeded)
   - [Mock Data Generator Dismissed](#mock-data-generator-dismissed)
@@ -2100,15 +2100,15 @@ This event is fired when the Mock Data Generator CTA button is viewed.
 | `send_sample_values_enabled` | `boolean`           | Yes      |             |
 | `is_compass_web`             | `true \| undefined` | No       |             |
 
-### Mock Data Generator Opened
+### Mock Data Generator Clicked
 
-This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+This event is fired when the user selects "Generate mock data script" from Add Data,
+before checking AI feature access.
 
-| Property                     | Type                | Required | Description |
-| ---------------------------- | ------------------- | -------- | ----------- |
-| `gen_ai_features_enabled`    | `boolean`           | Yes      |             |
-| `send_sample_values_enabled` | `boolean`           | Yes      |             |
-| `is_compass_web`             | `true \| undefined` | No       |             |
+| Property         | Type                | Required | Description                                                           |
+| ---------------- | ------------------- | -------- | --------------------------------------------------------------------- |
+| `ai_opted_in`    | `boolean`           | Yes      | Whether the user has opted into AI features at the time of the click. |
+| `is_compass_web` | `true \| undefined` | No       |                                                                       |
 
 ### Mock Data Generator Screen Viewed
 
