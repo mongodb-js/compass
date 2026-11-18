@@ -30,6 +30,9 @@ export type Actions =
   | 'open-non-genuine-mongodb-modal'
   | 'open-csfle-modal'
   | 'refresh-databases'
+  // folder item related actions
+  | 'rename-folder'
+  | 'delete-folder'
   // database item related actions
   | 'select-database'
   | 'create-database'
