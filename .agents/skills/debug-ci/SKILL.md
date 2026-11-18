@@ -10,7 +10,8 @@ Compass CI is split in two. Pick the system first:
 | Failing thing                                                | System                                                                  | Start at  |
 | ------------------------------------------------------------ | ----------------------------------------------------------------------- | --------- |
 | `.github/workflows/*` (release, publish, bump/update PRs)    | GitHub Actions                                                          | section 1 |
-| Unit/e2e/package tests, builds, installers on a PR or `main` | Evergreen                                                               | section 2 |
+| Unit/e2e/package tests and builds on a PR or `main` | Evergreen | section 2 |
+| Installer smoke tests (`smoketest-packaged-app`) | Evergreen dispatches `.github/workflows/test-installers.yml` | section 2, then section 1 using the dispatched run URL in the task log |
 | Unsure                                                       | check PR checks: `gh pr checks <pr>` shows which system owns each check | both      |
 
 Never read a whole log (100k+ lines happens). Search for the error, then read a small window. Truncate long lines (`cut -c1-300`) and never print tokens or env dumps. Write scratch output to `/tmp`, not the repo.
