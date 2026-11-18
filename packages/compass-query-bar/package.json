@@ -83,7 +83,7 @@
     "@mongodb-js/mongodb-instance-model": "^13.9.1",
     "@mongodb-js/mongodb-ns": "^3.2.9",
     "@mongodb-js/mongodb-query-util": "^2.6.16",
-    "@mongodb-js/mongodb-schema": "^12.8.11",
+    "@mongodb-js/mongodb-schema": "^12.8.20",
     "@mongodb-js/my-queries-storage": "^1.8.1",
     "@mongodb-js/shell-bson-parser": "^2.2.3",
     "bson": "^7.3.2",

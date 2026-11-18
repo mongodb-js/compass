@@ -63,7 +63,7 @@
     "@mongodb-js/hadron-type-checker": "^7.5.16",
     "@mongodb-js/mongodb-data-service": "^22.42.1",
     "@mongodb-js/mongodb-ns": "^3.2.9",
-    "@mongodb-js/mongodb-schema": "^12.8.11",
+    "@mongodb-js/mongodb-schema": "^12.8.20",
     "@mongodb-js/shell-bson-parser": "^2.2.3",
     "bson": "^7.3.2",
     "debug": "^4.3.4",

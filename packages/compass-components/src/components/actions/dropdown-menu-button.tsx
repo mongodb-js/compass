@@ -9,7 +9,7 @@ import { WorkspaceContainer } from '../workspace-container';
 import { ItemActionButtonSize } from './constants';
 import { ActionGlyph } from './action-glyph';
 import { actionTestId, isSeparatorMenuAction } from './utils';
-import type { MenuAction } from './types';
+import type { ItemBase, MenuAction } from './types';
 
 const getHiddenOnNarrowStyles = (narrowBreakpoint: string) =>
   css({
@@ -21,7 +21,7 @@ const getHiddenOnNarrowStyles = (narrowBreakpoint: string) =>
 
 export type DropdownMenuButtonProps<Action extends string> = {
   actions: MenuAction<Action>[];
-  onAction(actionName: Action): void;
+  onAction(actionName: Action, actionPayload?: unknown): void;
   renderMode?: RenderMode;
   iconSize?: ItemActionButtonSize;
   isVisible?: boolean;
@@ -52,17 +52,14 @@ export function DropdownMenuButton<Action extends string>({
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
-    (evt) => {
+  const onItemClick = useCallback(
+    (
+      evt: React.MouseEvent<HTMLElement>,
+      { action, actionPayload }: ItemBase<Action>
+    ) => {
       evt.stopPropagation();
-      if (evt.currentTarget.dataset.menuitem) {
-        setIsMenuOpen(false);
-      }
-      const actionName = evt.currentTarget.dataset.action;
-      if (typeof actionName !== 'string') {
-        throw new Error('Expected element to have a "data-action" attribute');
-      }
-      onAction(actionName as Action);
+      setIsMenuOpen(false);
+      onAction(action, actionPayload);
     },
     [onAction]
   );
@@ -119,7 +116,7 @@ export function DropdownMenuButton<Action extends string>({
     >
       {actions.map((menuAction, idx) => {
         if (isSeparatorMenuAction(menuAction)) {
-          return <MenuSeparator key={`separator-${idx}`} />;
+          return <MenuSeparator key={idx} />;
         }
 
         const { action, label, icon, isDisabled, disabledDescription } =
@@ -127,14 +124,15 @@ export function DropdownMenuButton<Action extends string>({
         return (
           <MenuItem
             active={activeAction === action}
-            key={action}
+            key={idx}
             data-testid={actionTestId(dataTestId, action)}
             data-action={action}
-            data-menuitem={true}
             glyph={
               icon ? <ActionGlyph glyph={icon} size={iconSize} /> : undefined
             }
-            onClick={onClick}
+            onClick={(evt: React.MouseEvent<HTMLElement>) =>
+              onItemClick(evt, menuAction)
+            }
             disabled={isDisabled}
             description={
               isDisabled && disabledDescription

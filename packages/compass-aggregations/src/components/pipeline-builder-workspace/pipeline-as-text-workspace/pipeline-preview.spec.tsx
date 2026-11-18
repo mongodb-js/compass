@@ -9,13 +9,9 @@ import {
 import { expect } from 'chai';
 import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-
 import HadronDocument from '@mongodb-js/hadron-document';
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../../test/configure-store';
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { renderWithStore } from '../../../../test/configure-store';
 import type { ConfigureStoreOptions } from '../../../stores/store';
 import { PipelinePreview } from './pipeline-preview';
 
@@ -23,10 +19,10 @@ const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelinePreview>> = {},
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
-    enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    enableAtlasSearchIndexes = false,
+  }: { enableAtlasSearchIndexes?: boolean } = {}
 ) => {
-  let ui = (
+  const ui = (
     <PipelinePreview
       isPreviewStale={false}
       isMergeStage={false}
@@ -42,13 +38,9 @@ const renderPipelineEditor = (
       {...props}
     />
   );
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
-  return renderWithStore(ui, storeOptions);
+  return renderWithStore(ui, storeOptions, undefined, {
+    preferences: new ReadOnlyPreferenceAccess({ enableAtlasSearchIndexes }),
+  });
 };
 
 describe('PipelinePreview', function () {
@@ -261,7 +253,7 @@ describe('PipelinePreview', function () {
           ],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(await screen.findByTestId('search-index-stale-results-banner')).to
@@ -337,7 +329,7 @@ describe('PipelinePreview', function () {
           ],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
       expect(await screen.findByTestId('search-index-stale-results-banner')).to

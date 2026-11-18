@@ -8,10 +8,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import {
-  ExperimentTestGroups,
-  ExperimentTestNames,
-} from '@mongodb-js/compass-telemetry';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import { wrapWithExperimentProvider } from '../../test/configure-store';
 import ServerErrorBanner from './server-error-banner';
 
@@ -150,14 +147,9 @@ describe('ServerErrorBanner', function () {
         </AssistantActionsContext.Provider>
       );
 
-      await renderWithActiveConnection(
-        wrapWithExperimentProvider(
-          element,
-          ExperimentTestGroups.searchActivationProgramP1Variant
-        ),
-        CONNECTION,
-        { preferences: AI_PREFERENCES }
-      );
+      await renderWithActiveConnection(element, CONNECTION, {
+        preferences: { ...AI_PREFERENCES, enableAtlasSearchIndexes: true },
+      });
 
       expect(screen.getByText('Edit Search Index')).to.exist;
       expect(screen.queryByTestId('server-error-banner-debug-button')).to.not
@@ -181,14 +173,12 @@ describe('ServerErrorBanner', function () {
       );
 
       await renderWithActiveConnection(
-        wrapWithExperimentProvider(element, {
-          [ExperimentTestNames.searchActivationProgramP1]:
-            ExperimentTestGroups.searchActivationProgramP1Variant,
-          [ExperimentTestNames.searchActivationProgramP2]:
-            ExperimentTestGroups.searchActivationProgramP2Variant,
-        }),
+        wrapWithExperimentProvider(
+          element,
+          ExperimentTestGroups.searchActivationProgramP2Variant
+        ),
         CONNECTION,
-        { preferences: AI_PREFERENCES }
+        { preferences: { ...AI_PREFERENCES, enableAtlasSearchIndexes: true } }
       );
 
       expect(screen.queryByText('Edit Search Index')).to.not.exist;

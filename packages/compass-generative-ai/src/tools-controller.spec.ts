@@ -188,7 +188,7 @@ describe('ToolsController', function () {
         expect(queryTool).to.have.property('description');
         expect(queryTool.description).to.include('query');
         expect(queryTool).to.have.property('inputSchema');
-        expect(queryTool).to.have.property('needsApproval', true);
+        expect(queryTool).to.not.have.property('needsApproval');
         expect(queryTool).to.have.property('strict', false);
         expect(queryTool).to.have.property('execute');
       });
@@ -243,7 +243,7 @@ describe('ToolsController', function () {
         expect(pipelineTool).to.have.property('description');
         expect(pipelineTool.description).to.include('pipeline');
         expect(pipelineTool).to.have.property('inputSchema');
-        expect(pipelineTool).to.have.property('needsApproval', true);
+        expect(pipelineTool).to.not.have.property('needsApproval');
         expect(pipelineTool).to.have.property('strict', false);
         expect(pipelineTool).to.have.property('execute');
       });
@@ -325,11 +325,11 @@ describe('ToolsController', function () {
         expect(tools).to.not.have.property('update-many');
       });
 
-      it('database tools have needsApproval property', function () {
+      it('database tools do not require approval, matching mongodb-mcp-server defaults', function () {
         const tools = toolsController.getActiveTools();
         const listDatabasesTool = tools['list-databases'];
 
-        expect(listDatabasesTool).to.have.property('needsApproval', true);
+        expect(listDatabasesTool).to.not.have.property('needsApproval');
       });
 
       it('collection-schema tool has a custom description that instructs the model to use it before queries and aggregations', function () {

@@ -13,10 +13,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { isReadyStatus } from '../../utils/fetch-status';
 import {
@@ -148,7 +145,6 @@ export const SearchIndexesTable: React.FunctionComponent<
     'enableAutoEmbeddingPublicPreview',
   ]);
 
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   useEffect(() => {
     onSearchIndexesOpened(tabId);
     return () => {
@@ -160,7 +156,6 @@ export const SearchIndexesTable: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     }),
     shallowEqual
