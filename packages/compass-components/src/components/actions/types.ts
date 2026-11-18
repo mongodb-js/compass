@@ -2,8 +2,7 @@ import type { glyphs } from '@leafygreen-ui/icon';
 
 import type { ItemActionButtonSize } from './constants';
 
-export type ItemBase<Action extends string> = {
-  action: Action;
+type ItemCommon<Action extends string> = {
   label: string;
   icon?: React.ReactChild;
   variant?: 'default' | 'destructive';
@@ -16,6 +15,18 @@ export type ItemBase<Action extends string> = {
    * @default ItemActionButton
    */
   expandedAs?: React.ComponentType<ItemComponentProps<Action>>;
+};
+
+export type ItemBase<Action extends string> = ItemCommon<Action> & {
+  action: Action;
+  actionPayload?: unknown;
+  actions?: never;
+};
+
+export type ItemActionGroupItem<Action extends string> = ItemCommon<Action> & {
+  action?: never;
+  actionPayload?: never;
+  actions: (ItemBase<Action> | ItemSeparator)[];
 };
 
 export type ItemComponentProps<Action extends string> = Omit<
@@ -33,7 +44,7 @@ export type ItemComponentProps<Action extends string> = Omit<
 
 export type ItemAction<Action extends string> = {
   icon: keyof typeof glyphs | React.ReactElement;
-} & ItemBase<Action>;
+} & (ItemBase<Action> | ItemActionGroupItem<Action>);
 
 export type ItemSeparator = { separator: true };
 

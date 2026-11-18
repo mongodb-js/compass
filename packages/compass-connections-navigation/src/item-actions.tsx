@@ -1,12 +1,26 @@
-import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
+import React from 'react';
+import {
+  FolderIcon,
+  type ItemAction,
+  type ItemSeparator,
+} from '@mongodb-js/compass-components';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
 import { type NotConnectedConnectionStatus } from './tree-data';
 import { ConnectButton } from './connect-button';
 import type { Actions } from './constants';
+import { MoveToFolderIcon } from './icons/move-to-folder-icon';
+import { RemoveFromFolderIcon } from './icons/remove-from-folder-icon';
 
 export type NavigationItemAction = ItemAction<Actions> | ItemSeparator;
 export type NavigationItemActions = NavigationItemAction[];
 export type NullableNavigationItemActions = (NavigationItemAction | null)[];
+
+type FolderOptions = {
+  isFoldersEnabled?: boolean;
+  folders?: Folder[];
+  folderId?: string;
+};
 
 function stripNullActions(
   actions: NullableNavigationItemActions
@@ -18,10 +32,15 @@ function stripNullActions(
 
 export const commonConnectionItemActions = ({
   connectionInfo,
+  isFoldersEnabled = false,
+  folders = [],
+  folderId,
 }: {
   connectionInfo: ConnectionInfo;
-}): NavigationItemAction[] => {
+} & FolderOptions): NavigationItemAction[] => {
   const isAtlas = !!connectionInfo.atlasMetadata;
+  const otherFolders = folders.filter((folder) => folder.id !== folderId);
+  const showFolderActions = isFoldersEnabled && !isAtlas;
   return stripNullActions([
     {
       action: 'edit-connection',
@@ -65,6 +84,35 @@ export const commonConnectionItemActions = ({
           icon: 'Trash',
           variant: 'destructive',
         },
+    showFolderActions ? { separator: true } : null,
+    showFolderActions
+      ? {
+          icon: <MoveToFolderIcon />,
+          label: 'Move to folder',
+          actions: [
+            ...otherFolders.map((folder) => ({
+              action: 'move-to-folder' as const,
+              label: folder.name,
+              trackingLabel: '<folder name>',
+              icon: <FolderIcon />,
+              actionPayload: { folderId: folder.id },
+            })),
+            ...(otherFolders.length > 0 ? [{ separator: true } as const] : []),
+            {
+              action: 'add-to-new-folder',
+              label: 'New folder',
+              // TODO(COMPASS-11306): Folder plus icon
+            },
+          ],
+        }
+      : null,
+    showFolderActions && folderId
+      ? {
+          action: 'remove-from-folder',
+          icon: <RemoveFromFolderIcon />,
+          label: 'Remove from folder',
+        }
+      : null,
   ]);
 };
 
@@ -74,6 +122,9 @@ export const connectedConnectionItemActions = ({
   isPerformanceTabAvailable,
   isPerformanceTabSupported,
   isShellEnabled,
+  isFoldersEnabled,
+  folders,
+  folderId,
 }: {
   connectionInfo: ConnectionInfo;
   hasWriteActionsDisabled: boolean;
@@ -84,10 +135,13 @@ export const connectedConnectionItemActions = ({
   // performance workspace
   isPerformanceTabSupported: boolean;
   isShellEnabled: boolean;
-}): NavigationItemActions => {
+} & FolderOptions): NavigationItemActions => {
   const isAtlas = !!connectionInfo.atlasMetadata;
   const connectionManagementActions = commonConnectionItemActions({
     connectionInfo,
+    isFoldersEnabled,
+    folders,
+    folderId,
   });
   return stripNullActions([
     {
@@ -168,11 +222,19 @@ export const connectedConnectionItemActions = ({
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
   connectionStatus,
+  isFoldersEnabled,
+  folders,
+  folderId,
 }: {
   connectionInfo: ConnectionInfo;
   connectionStatus: NotConnectedConnectionStatus;
-}): NavigationItemActions => {
-  const commonActions = commonConnectionItemActions({ connectionInfo });
+} & FolderOptions): NavigationItemActions => {
+  const commonActions = commonConnectionItemActions({
+    connectionInfo,
+    isFoldersEnabled,
+    folders,
+    folderId,
+  });
   if (connectionStatus === 'connecting') {
     return commonActions;
   } else {
@@ -291,6 +353,9 @@ export const connectionContextMenuActions = ({
   isShellEnabled,
   hasWriteActionsDisabled,
   connectionInfo,
+  isFoldersEnabled,
+  folders,
+  folderId,
 }: {
   isPerformanceTabAvailable: boolean;
   isPerformanceTabSupported: boolean;
@@ -298,12 +363,17 @@ export const connectionContextMenuActions = ({
   isShellEnabled: boolean;
   hasWriteActionsDisabled: boolean;
   connectionInfo?: ConnectionInfo;
-}): NavigationItemActions => {
+} & FolderOptions): NavigationItemActions => {
   return stripNullActions([
     ...(hasWriteActionsDisabled || !connectionInfo
       ? []
       : [
-          ...commonConnectionItemActions({ connectionInfo }),
+          ...commonConnectionItemActions({
+            connectionInfo,
+            isFoldersEnabled,
+            folders,
+            folderId,
+          }),
           { separator: true } as NavigationItemAction,
         ]),
     isShellEnabled

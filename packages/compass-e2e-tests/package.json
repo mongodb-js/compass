@@ -63,7 +63,7 @@
     "lodash": "^4.18.1",
     "mocha": "^10.2.0",
     "mongodb": "^7.5.0",
-    "mongodb-connection-string-url": "^7.0.2",
+    "mongodb-connection-string-url": "^7.0.3",
     "mongodb-log-writer": "^3.0.4",
     "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",

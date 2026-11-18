@@ -116,6 +116,10 @@ jobs:
               dnf install -y compat-openssl11
             container:
               image: rockylinux:9
+              # Newer rockylinux:9 images ship without PATH in their config; setup-node
+              # then prepends to an empty PATH and `bash` can no longer be found.
+              env:
+                PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
               volumes:
                 - ${{ github.workspace }}:/compass
 

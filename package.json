@@ -100,6 +100,9 @@
   ],
   "overrides": {
     "autoevals": "^0.4.1",
+    "mongodb-connection-string-url@^7.0.3": {
+      "whatwg-url": "14.0.0"
+    },
     "@mongodb-js/eslint-config-devtools": {
       "@typescript-eslint/eslint-plugin": "^8.73.0",
       "@typescript-eslint/parser": "^8.73.0",

@@ -119,7 +119,8 @@ jobs:
           # Branch Name
           REPO_SANITIZED="${{ github.repository }}"
           REPO_SANITIZED="${REPO_SANITIZED//\//-}"
-          BRANCH_NAME="${TICKET}/${REPO_SANITIZED}-${{ github.sha }}"
+          # Prefix with repo, not ticket: a bare "${TICKET}" branch in mms would conflict with "${TICKET}/..."
+          BRANCH_NAME="${REPO_SANITIZED}/${TICKET}-${{ github.sha }}"
           echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
           # Assign the PR to the author of the commit, fallback to empty if not available
