@@ -7,12 +7,12 @@ description: Diagnose failed Compass CI, both GitHub Actions and Evergreen. Use 
 
 Compass CI is split in two. Pick the system first:
 
-| Failing thing                                                | System                                                                  | Start at  |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------- | --------- |
-| `.github/workflows/*` (release, publish, bump/update PRs)    | GitHub Actions                                                          | section 1 |
-| Unit/e2e/package tests and builds on a PR or `main` | Evergreen | section 2 |
-| Installer smoke tests (`smoketest-packaged-app`) | Evergreen dispatches `.github/workflows/test-installers.yml` | section 2, then section 1 using the dispatched run URL in the task log |
-| Unsure                                                       | check PR checks: `gh pr checks <pr>` shows which system owns each check | both      |
+| Failing thing                                             | System                                                                  | Start at                                                               |
+| --------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `.github/workflows/*` (release, publish, bump/update PRs) | GitHub Actions                                                          | section 1                                                              |
+| Unit/e2e/package tests and builds on a PR or `main`       | Evergreen                                                               | section 2                                                              |
+| Installer smoke tests (`smoketest-packaged-app`)          | Evergreen dispatches `.github/workflows/test-installers.yml`            | section 2, then section 1 using the dispatched run URL in the task log |
+| Unsure                                                    | check PR checks: `gh pr checks <pr>` shows which system owns each check | both                                                                   |
 
 Never read a whole log (100k+ lines happens). Search for the error, then read a small window. Truncate long lines (`cut -c1-300`) and never print tokens or env dumps. Write scratch output to `/tmp`, not the repo.
 
@@ -45,21 +45,16 @@ Project `10gen-compass-main`, UI `https://spruce.corp.mongodb.com`. PRs run ever
 
 IDs: version/patch page `/version/<patch_id>`, task page `/task/<task_id>`. Both are in the Spruce URL.
 
-Prefer the Evergreen MCP tools when available (broad to narrow; do not skip steps):
+Use Evergreen MCP tools when available. If they are unavailable, follow the [`evergreen-cli` skill](../evergreen-cli/SKILL.md) for all CLI-based patch, mainline, task, log, and artifact lookup; keep CLI instructions centralized there. Never call Evergreen's HTTP/REST API directly, including with `curl` or another HTTP client.
+
+With Evergreen MCP tools, skip patch discovery when a task URL or ID is already provided. For PR patches, use the broad-to-narrow workflow:
 
 1. `list_user_recent_patches_evergreen`: find the patch (PR patches carry the PR number in the description).
 2. `get_patch_failed_jobs_evergreen` (patch_id): failed tasks and variants.
 3. `get_task_test_results_evergreen` (task_id): which tests failed.
 4. `get_task_logs_evergreen` (task_id): the log for one task.
 
-No MCP? Use the CLI, see `.agents/skills/evergreen-cli/SKILL.md` for setup and flags:
-
-```bash
-evergreen list-patches -n 5
-evergreen task build TaskLogs --task_id <task_id> --type task_log -n 500 --print_time
-evergreen task build TaskLogs --task_id <task_id> --type task_log -o /tmp/task.log
-evergreen fetch --task <task_id> --artifacts --shallow -d /tmp/artifacts
-```
+For mainline failures, use Evergreen MCP version/task-history tools when available. If neither MCP nor the CLI skill can identify the failed task, ask for its URL or ID.
 
 Notes:
 

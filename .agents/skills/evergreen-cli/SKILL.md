@@ -119,6 +119,16 @@ evergreen last-green -v unit-tests-ubuntu -v test-server-80x-enterprise-1 -p 10g
 
 Returns the most recent mainline version where all listed variants passed. Use it to bisect flaky-vs-broken.
 
+To locate a recent mainline version with failed tasks for a variant, first check `evergreen --version` and `evergreen last-revision --help`. The command below was verified with CLI version `2026-10-06`; use it only if the installed CLI lists `--min-failed`.
+
+```bash
+evergreen last-revision --rv '<variant-regex>' --min-failed 0.001 -p 10gen-compass-main
+```
+
+If `--min-failed` is unavailable, report the CLI version mismatch and ask before updating the shared CLI installation. Do not remove the filter: that would no longer identify a failing version.
+
+This returns a version ID and revision, not task IDs. Open `https://spruce.corp.mongodb.com/version/<version_id>` to identify the failed task, then use its task ID with the log commands above. If you already have the task URL or ID, skip version discovery.
+
 ## Edit CI config
 
 Follow `.evergreen/AGENTS.md`. Short version:
