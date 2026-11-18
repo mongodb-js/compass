@@ -2567,7 +2567,11 @@ export const createFolder = (
     | 'connection_form'
     | 'sidebar_icon'
 ): ConnectionsThunkAction<Promise<Folder | undefined>, CreateFolderAction> => {
-  return async (dispatch, getState, { folderStorage, track, logger: { debug } }) => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { debug } }
+  ) => {
     const state = getState();
     const folder: Folder = {
       id: new UUID().toString(),
@@ -2813,7 +2817,7 @@ export const moveConnectionsToFolder = (
     });
 
     const fromFolder = validIds.filter((id) => state.folderAssignments[id]);
-    const perFolder: Record<string, number> = {};
+    const perFolder: Record<string, number> = Object.create(null);
     for (const id of state.connections.ids) {
       const fid = assignments[id];
       if (fid && state.folders.byId[fid]) {
@@ -2854,9 +2858,7 @@ export const moveConnectionsToNewFolder = (
   return async (dispatch) => {
     const folder = await dispatch(createFolder(name, source));
     if (folder) {
-      await dispatch(
-        moveConnectionsToFolder(connectionIds, folder.id, source)
-      );
+      await dispatch(moveConnectionsToFolder(connectionIds, folder.id, source));
     }
   };
 };
