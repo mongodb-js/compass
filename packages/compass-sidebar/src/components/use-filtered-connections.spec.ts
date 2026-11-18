@@ -171,7 +171,7 @@ describe('useFilteredConnections', function () {
       });
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.undefined;
+        expect(result.current.filteredConnections).to.be.undefined;
       });
     });
 
@@ -208,7 +208,7 @@ describe('useFilteredConnections', function () {
           }
         );
 
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           sidebarConnections[0],
           sidebarConnections[1],
         ]);
@@ -220,7 +220,7 @@ describe('useFilteredConnections', function () {
           onDatabaseExpand: onDatabaseExpandStub,
         });
 
-        expect(result.current.filtered).to.be.undefined;
+        expect(result.current.filteredConnections).to.be.undefined;
       });
     });
 
@@ -510,7 +510,7 @@ describe('useFilteredConnections', function () {
       );
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.deep.equal(
+        expect(result.current.filteredConnections).to.be.deep.equal(
           mockSidebarConnections
         );
       });
@@ -525,7 +525,7 @@ describe('useFilteredConnections', function () {
         onDatabaseExpand: onDatabaseExpandStub,
       });
       await waitFor(() => {
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           mockSidebarConnections[2], // this is the disconnected tree item
         ]);
       });
@@ -547,7 +547,7 @@ describe('useFilteredConnections', function () {
       const matchedItem = sidebarConnections[0] as SidebarConnectedConnection;
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           {
             ...matchedItem,
             // will only match one database
@@ -589,7 +589,10 @@ describe('useFilteredConnections', function () {
 
       await waitFor(() => {
         expect(
-          (result.current.filtered?.[0] as SidebarConnectedConnection).databases
+          (
+            result.current
+              .filteredConnections?.[0] as SidebarConnectedConnection
+          ).databases
         ).to.have.length(2); // both databases are included
       });
     });
@@ -610,7 +613,7 @@ describe('useFilteredConnections', function () {
       const matchedItem = sidebarConnections[1] as SidebarConnectedConnection;
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           {
             ...matchedItem,
             // will only match the second database's collection
@@ -640,8 +643,10 @@ describe('useFilteredConnections', function () {
 
       await waitFor(() => {
         expect(
-          (result.current.filtered?.[0] as SidebarConnectedConnection)
-            .databases[0].collections
+          (
+            result.current
+              .filteredConnections?.[0] as SidebarConnectedConnection
+          ).databases[0].collections
         ).to.have.length(2); // the result has 2 collections
       });
     });
@@ -661,8 +666,10 @@ describe('useFilteredConnections', function () {
 
       await waitFor(() => {
         expect(
-          (result.current.filtered?.[0] as SidebarConnectedConnection)
-            .databases[0].collections
+          (
+            result.current
+              .filteredConnections?.[0] as SidebarConnectedConnection
+          ).databases[0].collections
         ).to.have.length(1); // the result has 1 collection
       });
     });
@@ -708,7 +715,7 @@ describe('useFilteredConnections', function () {
           }
         );
 
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           sidebarConnections[0],
         ]);
 
@@ -722,7 +729,7 @@ describe('useFilteredConnections', function () {
           onDatabaseExpand: onDatabaseExpandStub,
         });
 
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           sidebarConnections[0],
           sidebarConnections[2],
         ]);
@@ -972,8 +979,8 @@ describe('useFilteredConnections', function () {
       });
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.undefined;
-        expect(result.current.folders).to.deep.equal(mockFolders);
+        expect(result.current.filteredConnections).to.be.undefined;
+        expect(result.current.filteredFolders).to.deep.equal(mockFolders);
         expect(result.current.expanded[folderWork.id]).to.equal(false);
       });
     });
@@ -987,11 +994,11 @@ describe('useFilteredConnections', function () {
 
         await waitFor(() => {
           // The filed connection matches through its folder's name.
-          expect(result.current.filtered).to.deep.equal([
+          expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[0],
           ]);
           // The empty folder has no name match, so it is hidden.
-          expect(result.current.folders).to.deep.equal([folderWork]);
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
           expect(result.current.expanded[folderWork.id]).to.deep.equal({});
         });
       });
@@ -1003,10 +1010,10 @@ describe('useFilteredConnections', function () {
         });
 
         await waitFor(() => {
-          expect(result.current.filtered).to.deep.equal([
+          expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[0],
           ]);
-          expect(result.current.folders).to.deep.equal([folderWork]);
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
           expect(result.current.expanded[folderWork.id]).to.deep.equal({});
         });
       });
@@ -1018,10 +1025,10 @@ describe('useFilteredConnections', function () {
         });
 
         await waitFor(() => {
-          expect(result.current.filtered).to.deep.equal([
+          expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[1],
           ]);
-          expect(result.current.folders).to.deep.equal([]);
+          expect(result.current.filteredFolders).to.deep.equal([]);
         });
       });
 
@@ -1106,10 +1113,12 @@ describe('useFilteredConnections', function () {
         });
 
         await waitFor(() => {
-          expect(result.current.folders).to.deep.equal([folderPersonal]);
+          expect(result.current.filteredFolders).to.deep.equal([
+            folderPersonal,
+          ]);
           // The filed connection is hidden with its folder; the uncategorized
           // ones stay, since the filter never changes membership.
-          expect(result.current.filtered).to.deep.equal([
+          expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[1],
             sidebarConnections[2],
           ]);
@@ -1124,8 +1133,8 @@ describe('useFilteredConnections', function () {
         });
 
         await waitFor(() => {
-          expect(result.current.folders).to.deep.equal(mockFolders);
-          expect(result.current.filtered).to.deep.equal([
+          expect(result.current.filteredFolders).to.deep.equal(mockFolders);
+          expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[0],
           ]);
         });
@@ -1141,8 +1150,8 @@ describe('useFilteredConnections', function () {
 
         await waitFor(() => {
           // The empty folder hides; the one holding an active connection stays.
-          expect(result.current.folders).to.deep.equal([folderWork]);
-          expect(result.current.filtered).to.deep.equal([
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
+          expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[0],
             sidebarConnections[1],
           ]);
@@ -1165,8 +1174,8 @@ describe('useFilteredConnections', function () {
         });
 
         await waitFor(() => {
-          expect(result.current.folders).to.deep.equal([]);
-          expect(result.current.filtered).to.deep.equal([
+          expect(result.current.filteredFolders).to.deep.equal([]);
+          expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[0],
             sidebarConnections[1],
           ]);

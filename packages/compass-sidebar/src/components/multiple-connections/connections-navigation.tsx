@@ -431,8 +431,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   );
 
   const {
-    filtered,
-    folders: visibleFolders,
+    filteredConnections,
+    filteredFolders,
     expanded,
     onCollapseAll,
     onConnectionToggle,
@@ -838,7 +838,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {isInitialConnectionsLoad ? (
         <ConnectionsPlaceholder></ConnectionsPlaceholder>
       ) : connections.length > 0 ? (
-        filtered && filtered.length === 0 ? (
+        filteredConnections && filteredConnections.length === 0 ? (
           <div
             className={noSearchResultsStyles}
             data-testid="no-search-results"
@@ -847,8 +847,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           </div>
         ) : (
           <ConnectionsNavigationTree
-            connections={filtered || connections}
-            folders={visibleFolders}
+            connections={filteredConnections || connections}
+            folders={filteredFolders}
             folderAssignments={sidebarFolderAssignments}
             activeWorkspace={activeWorkspace}
             onItemAction={onItemAction}

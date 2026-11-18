@@ -80,7 +80,7 @@ const filterConnection = (
 
 interface FilteredTree {
   connections: FilteredConnection[];
-  folders: Folder[];
+  filteredFolders: Folder[];
   temporarilyExpandedFolderIds: string[];
 }
 
@@ -124,7 +124,7 @@ const filterConnections = (
   }
 
   const filteredConnections: FilteredConnection[] = [];
-  const visibleFolders: Folder[] = [];
+  const filteredFolders: Folder[] = [];
   const temporarilyExpandedFolderIds: string[] = [];
 
   for (const folder of folders) {
@@ -149,7 +149,7 @@ const filterConnections = (
       continue;
     }
 
-    visibleFolders.push(folder);
+    filteredFolders.push(folder);
     filteredConnections.push(...connectionsToShow);
 
     // Expanded during search only; the user's own state returns when cleared.
@@ -160,16 +160,16 @@ const filterConnections = (
 
   if (!hideUncategorizedConnections) {
     for (const connection of uncategorized) {
-      const filtered = filterConnection(connection, regex, false);
-      if (filtered) {
-        filteredConnections.push(filtered);
+      const filteredConnection = filterConnection(connection, regex, false);
+      if (filteredConnection) {
+        filteredConnections.push(filteredConnection);
       }
     }
   }
 
   return {
     connections: filteredConnections,
-    folders: visibleFolders,
+    filteredFolders,
     temporarilyExpandedFolderIds,
   };
 };
@@ -331,8 +331,8 @@ const collapseAll = (
 interface ConnectionsState {
   expanded: ExpandedConnections;
   expandedFolders: ExpandedFolders;
-  filtered: SidebarConnection[] | undefined;
-  folders: Folder[] | undefined;
+  filteredConnections: SidebarConnection[] | undefined;
+  filteredFolders: Folder[] | undefined;
 }
 
 const FILTER_CONNECTIONS =
@@ -433,8 +433,8 @@ const connectionsReducer = (
         hideUncategorizedConnections,
       } = action;
       const {
-        connections: filtered,
-        folders: visibleFolders,
+        connections: filteredConnections,
+        filteredFolders,
         temporarilyExpandedFolderIds,
       } = filterConnections(
         connections,
@@ -451,9 +451,9 @@ const connectionsReducer = (
       );
       return {
         ...state,
-        filtered,
-        folders: visibleFolders,
-        expanded: temporarilyExpand(persistingExpanded, filtered),
+        filteredConnections,
+        filteredFolders,
+        expanded: temporarilyExpand(persistingExpanded, filteredConnections),
         expandedFolders: temporarilyExpandFolders(
           persistingFolders,
           temporarilyExpandedFolderIds
@@ -463,8 +463,8 @@ const connectionsReducer = (
     case CLEAR_FILTER:
       return {
         ...state,
-        filtered: undefined,
-        folders: undefined,
+        filteredConnections: undefined,
+        filteredFolders: undefined,
         expanded: revertTemporaryExpanded(state.expanded),
         expandedFolders: revertTemporaryExpandedFolders(state.expandedFolders),
       };
@@ -524,8 +524,8 @@ const connectionsReducer = (
 };
 
 type UseFilteredConnectionsHookResult = {
-  filtered: SidebarConnection[] | undefined;
-  folders: Folder[];
+  filteredConnections: SidebarConnection[] | undefined;
+  filteredFolders: Folder[];
   expanded: ConnectionsNavigationTreeProps['expanded'];
   onCollapseAll(this: void): void;
   onConnectionToggle(
@@ -601,11 +601,11 @@ export const useFilteredConnections = ({
   onDatabaseExpand: (connectionId: string, databaseId: string) => void;
 }): UseFilteredConnectionsHookResult => {
   const [
-    { filtered, folders: visibleFolders, expanded, expandedFolders },
+    { filteredConnections, filteredFolders, expanded, expandedFolders },
     dispatch,
   ] = useReducer(connectionsReducer, {
-    filtered: undefined,
-    folders: undefined,
+    filteredConnections: undefined,
+    filteredFolders: undefined,
     expanded: {},
     expandedFolders: {},
   });
@@ -709,7 +709,7 @@ export const useFilteredConnections = ({
 
   // While a filter is active the tree only gets the folders that survived it;
   // otherwise it gets the full list.
-  const foldersToRender = visibleFolders ?? folders;
+  const foldersToRender = filteredFolders ?? folders;
 
   const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
     useMemo(() => {
@@ -742,15 +742,15 @@ export const useFilteredConnections = ({
 
   // This is done to strip the isMatch that we attach on filtered items
   const filteredMemo = useMemo(() => {
-    if (!filtered) {
+    if (!filteredConnections) {
       return undefined;
     }
-    return filteredConnectionsToSidebarConnection(filtered);
-  }, [filtered]);
+    return filteredConnectionsToSidebarConnection(filteredConnections);
+  }, [filteredConnections]);
 
   return {
-    filtered: filteredMemo,
-    folders: foldersToRender,
+    filteredConnections: filteredMemo,
+    filteredFolders: foldersToRender,
     expanded: expandedMemo,
     onCollapseAll,
     onConnectionToggle,

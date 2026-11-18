@@ -60,7 +60,6 @@ const folderItemStyles = css({
 const EMPTY_FOLDERS: Folder[] = [];
 const EMPTY_HIDDEN_FOLDER_IDS: string[] = [];
 
-// Stands in for connections that aren't filed in any folder.
 const UNCATEGORIZED_ITEM_ID = 'uncategorized';
 
 type FolderFilterItem = {
