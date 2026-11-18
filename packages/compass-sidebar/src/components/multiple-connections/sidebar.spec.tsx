@@ -19,6 +19,7 @@ import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provid
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { palette } from '@mongodb-js/compass-components';
 import {
   InMemoryFolderStorage,
   type Folder,
@@ -29,6 +30,12 @@ import {
   CompassSidebarPlugin,
 } from '../../index';
 import MultipleConnectionSidebar from './sidebar';
+
+// `getComputedStyle` reports colors as rgb(), never as the hex they were set as.
+const toRgb = (hex: string) => {
+  const value = parseInt(hex.replace('#', ''), 16);
+  return `rgb(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255})`;
+};
 
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
@@ -484,7 +491,7 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByTestId(favoriteConnectionId)).to.be.visible;
         });
 
-        it('should show "No results found." when search matches nothing, and restore the list when cleared', async function () {
+        it('should leave the list blank when search matches nothing, and restore it when cleared', async function () {
           await renderAndWaitForNavigationTree();
 
           expect(screen.getByRole('tree')).to.be.visible;
@@ -493,16 +500,16 @@ describe('Multiple Connections Sidebar Component', function () {
           userEvent.type(searchInput, 'zzz_no_match_zzz');
 
           await waitFor(() => {
-            expect(screen.getByText('No results found.')).to.be.visible;
+            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
           });
-          expect(screen.queryByRole('tree')).to.be.null;
+          expect(screen.queryByText('No results found.')).to.be.null;
 
           userEvent.clear(searchInput);
 
           await waitFor(() => {
-            expect(screen.getByRole('tree')).to.be.visible;
+            expect(screen.getByTestId(savedFavoriteConnection.id)).to.be
+              .visible;
           });
-          expect(screen.queryByText('No results found.')).to.be.null;
         });
 
         context('and performing actions', function () {
@@ -1153,9 +1160,8 @@ describe('Multiple Connections Sidebar Component', function () {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('No results found.')).to.be.visible;
+        expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
-      expect(screen.queryByTestId('folder_1')).not.to.exist;
       expect(screen.queryByTestId(savedRecentConnection.id)).not.to.exist;
     });
 
@@ -1173,9 +1179,114 @@ describe('Multiple Connections Sidebar Component', function () {
       // Neither saved connection is connected, so the folder empties out and
       // hides along with the uncategorized connections.
       await waitFor(() => {
-        expect(screen.getByText('No results found.')).to.be.visible;
+        expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
-      expect(screen.queryByTestId('folder_1')).not.to.exist;
+    });
+
+    it('should leave "All connections" unchecked rather than mixed while only some folders are shown', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      expect(screen.getByTestId('folder-filter-all')).to.have.attribute(
+        'aria-checked',
+        'true'
+      );
+
+      userEvent.click(screen.getByTestId('folder-filter-folder_1'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder-filter-all')).to.have.attribute(
+          'aria-checked',
+          'false'
+        );
+      });
+    });
+
+    it('should say a filter is applied while one is active', async function () {
+      await renderWithFolders(true);
+      expect(screen.queryByText('Filter applied')).not.to.exist;
+
+      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+      userEvent.type(searchInput, 'localhost');
+
+      await waitFor(() => {
+        expect(screen.getByText('Filter applied')).to.be.visible;
+      });
+
+      userEvent.clear(searchInput);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Filter applied')).not.to.exist;
+      });
+    });
+
+    it('should render the filter caption in the secondary text color, sized like the tree labels', async function () {
+      await renderWithFolders(true);
+      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+      userEvent.type(searchInput, 'localhost');
+
+      const caption = await screen.findByText('Filter applied');
+      const styles = getComputedStyle(caption);
+
+      // The caption sits inside a LeafyGreen typography component that sets its
+      // own color, so a color on a wrapping element would be silently ignored.
+      expect(styles.color).to.equal(toRgb(palette.gray.dark1));
+      expect(styles.fontSize).to.equal('12px');
+    });
+
+    it('should say a filter is applied while the folder filter hides a folder', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(screen.getByTestId('folder-filter-folder_1'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Filter applied')).to.be.visible;
+      });
+    });
+
+    it('should clear the folder filter when Reset is clicked', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(screen.getByTestId('folder-filter-folder_1'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('folder_1')).not.to.exist;
+      });
+
+      userEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.be.visible;
+      });
+      expect(screen.queryByText('Filter applied')).not.to.exist;
+    });
+
+    it('should clear the search box when Reset is clicked', async function () {
+      await renderWithFolders(true);
+      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+      userEvent.type(searchInput, 'localhost');
+
+      await waitFor(() => {
+        expect(screen.getByText('Filter applied')).to.be.visible;
+      });
+
+      userEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+      await waitFor(() => {
+        expect(searchInput).to.have.value('');
+      });
+      expect(screen.queryByText('Filter applied')).not.to.exist;
+      expect(screen.getByTestId('folder_1')).to.be.visible;
     });
   });
 });

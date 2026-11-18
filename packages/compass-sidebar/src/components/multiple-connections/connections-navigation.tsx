@@ -119,12 +119,6 @@ const noDeploymentStyles = css({
   gap: spacing[200],
 });
 
-const noSearchResultsStyles = css({
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  paddingTop: spacing[400],
-});
-
 const deleteFolderBannerStyles = css({
   marginTop: spacing[300],
 });
@@ -838,24 +832,15 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {isInitialConnectionsLoad ? (
         <ConnectionsPlaceholder></ConnectionsPlaceholder>
       ) : connections.length > 0 ? (
-        filteredConnections && filteredConnections.length === 0 ? (
-          <div
-            className={noSearchResultsStyles}
-            data-testid="no-search-results"
-          >
-            <Body>No results found.</Body>
-          </div>
-        ) : (
-          <ConnectionsNavigationTree
-            connections={filteredConnections || connections}
-            folders={filteredFolders}
-            folderAssignments={sidebarFolderAssignments}
-            activeWorkspace={activeWorkspace}
-            onItemAction={onItemAction}
-            onItemExpand={onItemExpand}
-            expanded={expanded}
-          />
-        )
+        <ConnectionsNavigationTree
+          connections={filteredConnections || connections}
+          folders={filteredFolders}
+          folderAssignments={sidebarFolderAssignments}
+          activeWorkspace={activeWorkspace}
+          onItemAction={onItemAction}
+          onItemExpand={onItemExpand}
+          expanded={expanded}
+        />
       ) : connections.length === 0 ? (
         <div className={noDeploymentStyles}>
           <Body data-testid="no-deployments-text">

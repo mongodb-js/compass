@@ -129,7 +129,6 @@ export default function ConnectionsFilterPopover({
   }, [folders, hiddenFolderIds, hideUncategorizedConnections]);
 
   const allItemsSelected = folderItems.every((item) => item.selected);
-  const someItemsSelected = folderItems.some((item) => item.selected);
 
   const onToggleAllItems = useCallback(
     (checked: boolean) => {
@@ -164,7 +163,7 @@ export default function ConnectionsFilterPopover({
     [onFilterChange]
   );
 
-  // Add future filters to the boolean below
+  // The indicator dot reflects this popover's filters, not the search box.
   const isActivated =
     filter.excludeInactive ||
     hiddenFolderIds.length > 0 ||
@@ -208,7 +207,7 @@ export default function ConnectionsFilterPopover({
               ref={ref}
               disabled={disabled}
             >
-              <Icon glyph="Filter" />
+              <Icon glyph="Filter" size="large" />
               {isActivated && (
                 <svg
                   className={activatedIndicatorStyles}
@@ -243,7 +242,6 @@ export default function ConnectionsFilterPopover({
                 data-testid="folder-filter-all"
                 id={allConnectionsCheckboxId}
                 checked={allItemsSelected}
-                indeterminate={!allItemsSelected && someItemsSelected}
                 onChange={(evt) => onToggleAllItems(evt.target.checked)}
                 label="All connections"
                 bold

@@ -84,8 +84,7 @@ interface FilteredTree {
   temporarilyExpandedFolderIds: string[];
 }
 
-/** A folder matching by name keeps all its connections; a matching connection
- * keeps its parent folder. Folder assignments are read, never written. */
+/** Folder assignments are read, never written. */
 const filterConnections = (
   connections: SidebarConnection[],
   folders: Folder[],
@@ -133,7 +132,6 @@ const filterConnections = (
     }
 
     const folderConnections = connectionsByFolderId.get(folder.id) ?? [];
-    // A name match shows the folder's connections even when they don't match.
     const nameMatches = !!regex && regex.test(folder.name);
     const connectionsToShow = folderConnections
       .map((connection) => filterConnection(connection, regex, nameMatches))
@@ -304,7 +302,6 @@ const temporarilyExpandFolders = (
   return newExpanded;
 };
 
-/** Reverts 'temporarilyExpandFolders', collapsing the folders the search opened. */
 const revertTemporaryExpandedFolders = (
   expandedFolders: ExpandedFolders
 ): ExpandedFolders => {
@@ -577,13 +574,18 @@ export type ConnectionsFilter = {
    * only changes what is displayed, never which folder a connection belongs to.
    */
   hiddenFolderIds?: string[];
-  /** Hide connections that are not filed in any folder. */
   hideUncategorizedConnections?: boolean;
 };
 
 const EMPTY_FOLDERS: Folder[] = [];
 const EMPTY_FOLDER_ASSIGNMENTS: Record<string, string> = Object.create(null);
 const EMPTY_HIDDEN_FOLDER_IDS: string[] = [];
+
+export const isConnectionsFilterActive = (filter: ConnectionsFilter): boolean =>
+  !!filter.regex ||
+  filter.excludeInactive ||
+  (filter.hiddenFolderIds?.length ?? 0) > 0 ||
+  !!filter.hideUncategorizedConnections;
 
 export const useFilteredConnections = ({
   connections,
@@ -612,11 +614,7 @@ export const useFilteredConnections = ({
 
   const hiddenFolderIds = filter.hiddenFolderIds ?? EMPTY_HIDDEN_FOLDER_IDS;
   const hideUncategorizedConnections = !!filter.hideUncategorizedConnections;
-  const isFilterActive =
-    !!filter.regex ||
-    filter.excludeInactive ||
-    hiddenFolderIds.length > 0 ||
-    hideUncategorizedConnections;
+  const isFilterActive = isConnectionsFilterActive(filter);
 
   const activeConnections = useMemo(() => {
     return connections
