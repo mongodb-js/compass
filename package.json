@@ -123,7 +123,6 @@
     "braintrust": {
       "esbuild": "0.26.0"
     },
-    "fast-xml-parser": "^5.12.1",
     "nwsapi": "2.2.25",
     "qs": "^6.16.1",
     "react": "^18.3.1",
