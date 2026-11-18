@@ -88,7 +88,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-flags.outputs.flags_count != '' && needs.detect-flags.outputs.flags_count != '0'
     steps:
       - name: Create Github App Token
-        uses: mongodb-js/devtools-shared/actions/setup-bot-token@a5a3678435bde24f36e21ae4cab9ccd7aca1a3c7 # main
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
