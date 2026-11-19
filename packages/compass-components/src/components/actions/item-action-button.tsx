@@ -20,7 +20,6 @@ export function ItemActionButton<Action extends string>({
 }: ItemComponentProps<Action>) {
   return (
     <SmallIconButton
-      key={action}
       glyph={icon}
       label={label}
       title={!tooltip ? label : undefined}

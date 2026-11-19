@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-11-17. Do not edit manually.
+> Auto-generated on 2026-11-19. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -85,6 +85,13 @@
   - [Connection Imported](#connection-imported)
   - [Connection Removed](#connection-removed)
   - [New Connection](#new-connection)
+- [ConnectionFolder](#connectionfolder)
+  - [Folder Creation Form Opened](#folder-creation-form-opened)
+  - [Folder Creation Form Cancelled](#folder-creation-form-cancelled)
+  - [Folder Created](#folder-created)
+  - [Folder Deleted](#folder-deleted)
+  - [Folder Renamed](#folder-renamed)
+  - [Connections Folder Change](#connections-folder-change)
 - [Context Menu](#context-menu)
   - [Context Menu Opened](#context-menu-opened)
   - [Context Menu Item Clicked](#context-menu-item-clicked)
@@ -190,7 +197,7 @@
   - [Manage Search Indexes Link Clicked](#manage-search-indexes-link-clicked)
 - [Mock Data Generator](#mock-data-generator)
   - [Mock Data Generator CTA Button Viewed](#mock-data-generator-cta-button-viewed)
-  - [Mock Data Generator Opened](#mock-data-generator-opened)
+  - [Mock Data Generator Clicked](#mock-data-generator-clicked)
   - [Mock Data Generator Screen Viewed](#mock-data-generator-screen-viewed)
   - [Mock Data Generator Screen Proceeded](#mock-data-generator-screen-proceeded)
   - [Mock Data Generator Dismissed](#mock-data-generator-dismissed)
@@ -1079,6 +1086,67 @@ This event is fired when user successfully connects to a new server/cluster.
 | `count_kms_azure`          | `number \| undefined`  | No       | Specifies the number of Azure KMS providers used.                                                                                                             |
 | `is_compass_web`           | `true \| undefined`    | No       |                                                                                                                                                               |
 | `connection_id`            | `string \| undefined`  | No       | The id of the connection associated to this event.                                                                                                            |
+
+## ConnectionFolder
+
+### Folder Creation Form Opened
+
+This event is fired when the creation of a new folder is started.
+
+| Property         | Type                       | Required | Description |
+| ---------------- | -------------------------- | -------- | ----------- |
+| `source`         | `FolderCreationEntrypoint` | Yes      |             |
+| `is_compass_web` | `true \| undefined`        | No       |             |
+
+### Folder Creation Form Cancelled
+
+This event is fired when the creation of a new folder is cancelled.
+
+| Property         | Type                       | Required | Description |
+| ---------------- | -------------------------- | -------- | ----------- |
+| `source`         | `FolderCreationEntrypoint` | Yes      |             |
+| `is_compass_web` | `true \| undefined`        | No       |             |
+
+### Folder Created
+
+This event is fired when a new folder is created.
+
+| Property            | Type                       | Required | Description |
+| ------------------- | -------------------------- | -------- | ----------- |
+| `num_folders_after` | `number`                   | Yes      |             |
+| `source`            | `FolderCreationEntrypoint` | Yes      |             |
+| `is_compass_web`    | `true \| undefined`        | No       |             |
+
+### Folder Deleted
+
+This event is fired when a new folder is deleted.
+
+| Property            | Type                | Required | Description |
+| ------------------- | ------------------- | -------- | ----------- |
+| `num_folders_after` | `number`            | Yes      |             |
+| `connections_moved` | `number`            | Yes      |             |
+| `is_compass_web`    | `true \| undefined` | No       |             |
+
+### Folder Renamed
+
+This event is fired when a folder is renamed.
+
+_No additional properties._
+
+### Connections Folder Change
+
+This event is fired when a connection is moved to a folder.
+
+| Property                        | Type                                                                                                         | Required | Description |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------ | -------- | ----------- |
+| `source`                        | `"drag_and_drop" \| "connection_context_menu" \| "connection_actions" \| "connection_form" \| "folder_form"` | Yes      |             |
+| `from`                          | `"folder" \| "uncategorized" \| "mixed"`                                                                     | Yes      |             |
+| `to`                            | `"folder" \| "uncategorized"`                                                                                | Yes      |             |
+| `num_moved`                     | `number`                                                                                                     | Yes      |             |
+| `num_connections_in_folders`    | `number`                                                                                                     | Yes      |             |
+| `num_connections_uncategorized` | `number`                                                                                                     | Yes      |             |
+| `max_connections_in_folders`    | `number`                                                                                                     | Yes      |             |
+| `is_compass_web`                | `true \| undefined`                                                                                          | No       |             |
 
 ## Context Menu
 
@@ -2100,15 +2168,15 @@ This event is fired when the Mock Data Generator CTA button is viewed.
 | `send_sample_values_enabled` | `boolean`           | Yes      |             |
 | `is_compass_web`             | `true \| undefined` | No       |             |
 
-### Mock Data Generator Opened
+### Mock Data Generator Clicked
 
-This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+This event is fired when the user selects "Generate mock data script" from Add Data,
+before checking AI feature access.
 
-| Property                     | Type                | Required | Description |
-| ---------------------------- | ------------------- | -------- | ----------- |
-| `gen_ai_features_enabled`    | `boolean`           | Yes      |             |
-| `send_sample_values_enabled` | `boolean`           | Yes      |             |
-| `is_compass_web`             | `true \| undefined` | No       |             |
+| Property         | Type                | Required | Description                                                           |
+| ---------------- | ------------------- | -------- | --------------------------------------------------------------------- |
+| `ai_opted_in`    | `boolean`           | Yes      | Whether the user has opted into AI features at the time of the click. |
+| `is_compass_web` | `true \| undefined` | No       |                                                                       |
 
 ### Mock Data Generator Screen Viewed
 

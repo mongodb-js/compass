@@ -36,6 +36,7 @@ import {
   editConnection,
   getDataServiceForConnection,
   moveConnectionsToFolder,
+  moveConnectionsToNewFolder,
   removeAllRecentConnections,
   removeConnection,
   renameFolder,
@@ -150,8 +151,11 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     refreshConnections: () => {
       return dispatch(refreshConnections());
     },
-    createFolder: (name: string) => {
-      return dispatch(createFolder(name));
+    createFolder: (
+      name: string,
+      source: Parameters<typeof createFolder>[1]
+    ) => {
+      return dispatch(createFolder(name, source));
     },
     renameFolder: (folderId: string, name: string) => {
       return dispatch(renameFolder(folderId, name));
@@ -161,9 +165,17 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     },
     moveConnectionsToFolder: (
       connectionIds: ConnectionId[],
-      folderId: string | null
+      folderId: string | null,
+      source: Parameters<typeof moveConnectionsToFolder>[2]
     ) => {
-      return dispatch(moveConnectionsToFolder(connectionIds, folderId));
+      return dispatch(moveConnectionsToFolder(connectionIds, folderId, source));
+    },
+    moveConnectionsToNewFolder: (
+      connectionIds: ConnectionId[],
+      name: string,
+      source: Parameters<typeof moveConnectionsToNewFolder>[2]
+    ) => {
+      return dispatch(moveConnectionsToNewFolder(connectionIds, name, source));
     },
   };
 }

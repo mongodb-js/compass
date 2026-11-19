@@ -116,6 +116,11 @@ export function MultipleConnectionSidebar({
     duplicateConnection,
     toggleFavoritedConnectionStatus,
     showNonGenuineMongoDBWarningModal,
+    createFolder,
+    renameFolder,
+    deleteFolder,
+    moveConnectionsToFolder,
+    moveConnectionsToNewFolder,
   } = useConnectionActions();
 
   const findActiveConnection = (id: string) => {
@@ -208,6 +213,11 @@ export function MultipleConnectionSidebar({
             showNonGenuineMongoDBWarningModal(connectionId);
           }}
           onOpenConnectViaModal={onOpenConnectViaModal}
+          onCreateFolder={createFolder}
+          onRenameFolder={renameFolder}
+          onDeleteFolder={deleteFolder}
+          onMoveConnectionsToFolder={moveConnectionsToFolder}
+          onMoveConnectionsToNewFolder={moveConnectionsToNewFolder}
         />
         <MappedCsfleModal
           connectionId={csfleModalConnectionId}
