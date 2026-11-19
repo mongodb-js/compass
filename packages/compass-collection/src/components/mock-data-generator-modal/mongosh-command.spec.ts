@@ -23,6 +23,7 @@ describe('getMongoshCommand', () => {
     ['`value`', '%60value%60'],
     ['";value', '%22;value'],
     ['\\', '%5C'],
+    ['!value', '%21value'],
     ['\u201Cvalue\u201D', '%E2%80%9Cvalue%E2%80%9D'],
     [';', ';'],
     ["it's", "it's"],
