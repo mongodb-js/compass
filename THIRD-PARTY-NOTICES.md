@@ -431,7 +431,7 @@ This document was automatically generated on Thu Nov 19 2026.
 | **[os-dns-native](#d095ec47d4bbea620f8cc876fe95ff5e5b6ba27249f693c7f48d628dec40c6e1)**                                      | 2.1.3        | MIT                                 |
 | **[pac-proxy-agent](#751f2ba44d5fbf79ece4fea4bc03df4f4b3cb4470a1495adda33a28db3dd6d1f)**                                    | 7.1.0        | MIT                                 |
 | **[pac-resolver](#7935fe0839f6e2b7c51abcc08705a6096eff5670dc2bdc3819fd096b8d114d8b)**                                       | 7.0.1        | MIT                                 |
-| **[papaparse](#a94a34c1e6cf2f678ffd64381c6d54f9ad5f6b3c65281a0b077dd5b92f028684)**                                          | 5.3.2        | MIT                                 |
+| **[papaparse](#b7dd358662645eee26efaefa3224f76785fec7c460ddfa3fdeb7bed91a638a44)**                                          | 5.7.1        | MIT                                 |
 | **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**                                           | 1.3.3        | MIT                                 |
 | **[path-exists](#3ae48f237e1a4424a3b1b60cfc95f35ca29141cd956f8bda85e763d7969e12c7)**                                        | 4.0.0        | MIT                                 |
 | **[path-to-regexp](#815c8b96310baa514797933e7743b0bdd46815906d71d246af97fbf96bb1d572)**                                     | 8.4.2        | MIT                                 |
@@ -29338,9 +29338,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="a94a34c1e6cf2f678ffd64381c6d54f9ad5f6b3c65281a0b077dd5b92f028684"></a>
+<a id="b7dd358662645eee26efaefa3224f76785fec7c460ddfa3fdeb7bed91a638a44"></a>
 
-### [papaparse](https://www.npmjs.com/package/papaparse) (version 5.3.2)
+### [papaparse](https://www.npmjs.com/package/papaparse) (version 5.7.1)
 
 License tags: MIT
 
