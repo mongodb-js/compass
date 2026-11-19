@@ -173,3 +173,11 @@ if (typeof globalThis.DisposableStack === 'undefined') {
     defer() {}
   };
 }
+// TODO(COMPASS-11393): Remove this once jsdom 30+ is used, as CSS.escape will be natively available.
+globalThis.CSS ??= {
+  escape: (value) => String(value).replace(/[^\w-]/g, '\\$&'),
+};
+
+// jsdom doesn't implement the Range measuring APIs (used by Lexical)
+Range.prototype.getBoundingClientRect ??= () => new DOMRect();
+Range.prototype.getClientRects ??= () => [];

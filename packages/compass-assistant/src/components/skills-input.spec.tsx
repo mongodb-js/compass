@@ -37,17 +37,6 @@ const skills: Skill[] = [
 describe('SkillsInput', function () {
   let onSend: sinon.SinonStub;
 
-  // jsdom implements neither the Range measuring APIs Lexical uses nor the
-  // CSS.escape react-aria's menu uses
-  before(function () {
-    globalThis.CSS ??= {
-      escape: (value: string) => value.replace(/[^\w-]/g, '\\$&'),
-    } as typeof CSS;
-    Range.prototype.getBoundingClientRect = () => new DOMRect();
-    Range.prototype.getClientRects = () =>
-      [] as unknown as ReturnType<Range['getClientRects']>;
-  });
-
   function renderInput({
     fetchSkills = () => Promise.resolve(skills),
     withTools = false,
