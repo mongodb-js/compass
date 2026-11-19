@@ -11,6 +11,7 @@ module.exports = {
     ...base.require,
     path.resolve(__dirname, 'register', 'resolve-from-source-register.js'),
     path.resolve(__dirname, 'register', 'node-env-register.js'),
+    path.resolve(__dirname, 'register', 'via-register.js'),
   ],
   'node-option': [
     // TODO(COMPASS-10162): starting with Node.js 22.15+ there is an issue
