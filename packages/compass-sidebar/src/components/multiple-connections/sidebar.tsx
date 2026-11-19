@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { type MapStateToProps, connect } from 'react-redux';
 import {
   ConnectionStatus,
   useConnectionActions,
   useConnectionsWithStatus,
+  useFolders,
 } from '@mongodb-js/compass-connections/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
@@ -20,7 +21,10 @@ import { type RootState, type SidebarThunkAction } from '../../modules';
 import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,
 } from '../csfle-connection-modal';
-import type { ConnectionsFilter } from '../use-filtered-connections';
+import {
+  INITIAL_CONNECTIONS_FILTER,
+  type ConnectionsFilter,
+} from '../use-filtered-connections';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
 import ConnectionsNavigation from './connections-navigation';
 import { Navigation } from './navigation/navigation';
@@ -99,7 +103,7 @@ export function MultipleConnectionSidebar({
     string | undefined
   >(undefined);
   const [connectionsFilter, setConnectionsFilter] = useState<ConnectionsFilter>(
-    { regex: null, excludeInactive: false }
+    INITIAL_CONNECTIONS_FILTER
   );
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
@@ -122,6 +126,7 @@ export function MultipleConnectionSidebar({
     moveConnectionsToFolder,
     moveConnectionsToNewFolder,
   } = useConnectionActions();
+  const { folders } = useFolders();
 
   const findActiveConnection = (id: string) => {
     return connectionsWithStatus.find(
@@ -160,6 +165,21 @@ export function MultipleConnectionSidebar({
   const onCloseCsfleModal = useCallback(() => {
     setCsfleModalConnectionId(undefined);
   }, []);
+
+  // A hidden folder id whose folder is gone keeps the filter active with
+  // nothing hidden, so the filter never holds ids the folder list does not.
+  useEffect(() => {
+    setConnectionsFilter((filter) => {
+      if (!filter.hiddenFolderIds?.length) {
+        return filter;
+      }
+      const folderIds = new Set(folders.map(({ id }) => id));
+      const pruned = filter.hiddenFolderIds.filter((id) => folderIds.has(id));
+      return pruned.length === filter.hiddenFolderIds.length
+        ? filter
+        : { ...filter, hiddenFolderIds: pruned };
+    });
+  }, [folders]);
 
   const onCsfleChanged = useCallback(
     (isEnabled: boolean) => {

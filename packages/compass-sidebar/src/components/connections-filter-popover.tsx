@@ -20,7 +20,10 @@ import {
   useId,
 } from '@mongodb-js/compass-components';
 import type { Folder } from '@mongodb-js/connection-storage/provider';
-import type { ConnectionsFilter } from './use-filtered-connections';
+import {
+  areConnectionsFiltersActive,
+  type ConnectionsFilter,
+} from './use-filtered-connections';
 
 const containerStyles = css({
   display: 'flex',
@@ -163,11 +166,7 @@ export default function ConnectionsFilterPopover({
     [onFilterChange]
   );
 
-  // The indicator dot reflects this popover's filters, not the search box.
-  const isActivated =
-    filter.excludeInactive ||
-    hiddenFolderIds.length > 0 ||
-    hideUncategorizedConnections;
+  const isActivated = areConnectionsFiltersActive(filter);
 
   // Manually handling the tooltip state instead of supplying a trigger
   // we do this to avoid the tooltip from rendering when the popover is open

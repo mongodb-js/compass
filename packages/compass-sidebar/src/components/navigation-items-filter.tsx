@@ -9,7 +9,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Folder } from '@mongodb-js/connection-storage/provider';
 import {
-  isConnectionsFilterActive,
+  areConnectionsFiltersActive,
+  INITIAL_CONNECTIONS_FILTER,
   type ConnectionsFilter,
 } from './use-filtered-connections';
 import ConnectionsFilterPopover from './connections-filter-popover';
@@ -51,21 +52,6 @@ const captionRowStyles = css({
 
 const EMPTY_FOLDERS: Folder[] = [];
 
-const NO_FILTER: ConnectionsFilter = {
-  regex: null,
-  excludeInactive: false,
-  hiddenFolderIds: [],
-  hideUncategorizedConnections: false,
-};
-
-function createRegExp(input: string) {
-  try {
-    return input ? new RegExp(input, 'i') : null;
-  } catch {
-    return null;
-  }
-}
-
 export default function NavigationItemsFilter({
   placeholder = 'Search',
   ariaLabel = 'Search',
@@ -85,24 +71,16 @@ export default function NavigationItemsFilter({
   folders?: Folder[];
   disabled?: boolean;
 }): React.ReactElement {
-  // The filter only holds the compiled regex, so the text the user typed is
-  // kept here — it is what the input renders and what Reset has to clear.
-  const [searchText, setSearchText] = useState('');
-
   const onChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (event) => {
-      setSearchText(event.target.value);
-      onFilterChange((filter) => ({
-        ...filter,
-        regex: createRegExp(event.target.value),
-      }));
+      const search = event.target.value;
+      onFilterChange((filter) => ({ ...filter, search }));
     },
     [onFilterChange]
   );
 
   const onReset = useCallback(() => {
-    setSearchText('');
-    onFilterChange(() => NO_FILTER);
+    onFilterChange(() => INITIAL_CONNECTIONS_FILTER);
   }, [onFilterChange]);
 
   const [isPopoverOpen, setPopoverOpen] = useState(false);
@@ -121,7 +99,7 @@ export default function NavigationItemsFilter({
           type="search"
           aria-label={ariaLabel}
           title={title}
-          value={searchText}
+          value={filter.search}
           onChange={onChange}
           className={textInputStyles}
           disabled={disabled}
@@ -135,7 +113,7 @@ export default function NavigationItemsFilter({
           disabled={disabled}
         />
       </form>
-      {isConnectionsFilterActive(filter) && (
+      {areConnectionsFiltersActive(filter) && (
         <div className={cx(captionTextStyles, captionRowStyles)}>
           <Description className={captionTextStyles}>
             Filter applied

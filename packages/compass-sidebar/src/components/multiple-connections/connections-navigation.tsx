@@ -19,6 +19,7 @@ import {
   BannerVariant,
   Body,
   Button,
+  Description,
   Icon,
   ButtonVariant,
   ConfirmationModalVariant,
@@ -68,6 +69,7 @@ import {
 import NavigationItemsFilter from '../navigation-items-filter';
 import { FolderModal } from '../folder-modal';
 import {
+  isConnectionsFilterActive,
   type ConnectionsFilter,
   useFilteredConnections,
 } from '../use-filtered-connections';
@@ -109,6 +111,12 @@ const connectionCountStyles = css({
 
 const connectionCountDisabledStyles = css({
   opacity: 0.6,
+});
+
+// Description for the theme-aware secondary text color; centered per the mockup.
+const noSearchResultsStyles = css({
+  padding: spacing[400],
+  textAlign: 'center',
 });
 
 const noDeploymentStyles = css({
@@ -440,6 +448,14 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     fetchAllCollections,
     onDatabaseExpand,
   });
+
+  // The filter is on and nothing survived it — folders or connections. The
+  // hook computes its result in an effect, so falling back to `connections`
+  // keeps the message from flashing before the first result arrives.
+  const isTreeEmpty =
+    isConnectionsFilterActive(filter) &&
+    (filteredConnections ?? connections).length === 0 &&
+    filteredFolders.length === 0;
 
   const connectionListTitleActions = useMemo((): {
     actions: ItemAction<ConnectionListTitleActions>[];
@@ -831,6 +847,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       />
       {isInitialConnectionsLoad ? (
         <ConnectionsPlaceholder></ConnectionsPlaceholder>
+      ) : isTreeEmpty ? (
+        <Description
+          className={noSearchResultsStyles}
+          data-testid="no-search-results"
+        >
+          No matching folders, connections or databases
+        </Description>
       ) : connections.length > 0 ? (
         <ConnectionsNavigationTree
           connections={filteredConnections || connections}

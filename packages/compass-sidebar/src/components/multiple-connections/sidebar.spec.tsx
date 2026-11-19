@@ -491,7 +491,7 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByTestId(favoriteConnectionId)).to.be.visible;
         });
 
-        it('should leave the list blank when search matches nothing, and restore it when cleared', async function () {
+        it('should say nothing matched when search matches nothing, and restore the list when cleared', async function () {
           await renderAndWaitForNavigationTree();
 
           expect(screen.getByRole('tree')).to.be.visible;
@@ -500,9 +500,11 @@ describe('Multiple Connections Sidebar Component', function () {
           userEvent.type(searchInput, 'zzz_no_match_zzz');
 
           await waitFor(() => {
-            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
+            expect(
+              screen.getByText('No matching folders, connections or databases')
+            ).to.be.visible;
           });
-          expect(screen.queryByText('No results found.')).to.be.null;
+          expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
 
           userEvent.clear(searchInput);
 
@@ -821,7 +823,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
     const renderWithFolders = async (enableConnectionFolders: boolean) => {
       folderStorage = new InMemoryFolderStorage({ folders, assignments });
-      doRender(
+      const result = doRender(
         null,
         [savedFavoriteConnection, savedRecentConnection],
         undefined,
@@ -833,6 +835,7 @@ describe('Multiple Connections Sidebar Component', function () {
         }
       );
       await waitFor(() => screen.getByRole('tree'));
+      return result;
     };
 
     const openFolderAction = async (action: string) => {
@@ -1061,23 +1064,45 @@ describe('Multiple Connections Sidebar Component', function () {
       expect(screen.queryByText('Work folder deleted')).not.to.exist;
     });
 
-    it('should expand a folder and show all of its connections when the search matches the folder name', async function () {
+    it('should drop a deleted folder from the filter so the caption does not linger', async function () {
+      const { connectionsStore } = await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      // Hide the only folder there is, then delete it through the store, as
+      // another surface would: the tree row is gone, but the id lingers in
+      // the filter.
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(screen.getByTestId('folder-filter-folder_1'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+      await waitFor(() => {
+        expect(screen.getByText('Filter applied')).to.be.visible;
+        expect(screen.queryByTestId('folder_1')).not.to.exist;
+      });
+
+      await connectionsStore.actions.deleteFolder('folder_1');
+
+      // With the folder gone, nothing is hidden anymore: the filter is back
+      // to its initial value and says so.
+      await waitFor(() => {
+        expect(screen.queryByText('Filter applied')).not.to.exist;
+      });
+    });
+
+    it('should keep a folder collapsed when the search matches only the folder name', async function () {
       await renderWithFolders(true);
       await waitFor(() => screen.getByText('Work'));
 
       const searchInput = screen.getByRole('searchbox', { name: 'Search' });
       userEvent.type(searchInput, 'Work');
 
+      // As with connections and databases, only a child match opens the parent.
       await waitFor(() => {
         expect(screen.getByTestId('folder_1')).to.have.attribute(
           'aria-expanded',
-          'true'
+          'false'
         );
       });
-      // A matching folder shows all of its connections, even the ones that
-      // don't match the search themselves.
-      expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
-      expect(screen.queryByTestId(savedRecentConnection.id)).not.to.exist;
     });
 
     it('should expand the parent folder of a matching connection and collapse it again when the search is cleared', async function () {
@@ -1163,6 +1188,8 @@ describe('Multiple Connections Sidebar Component', function () {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
       expect(screen.queryByTestId(savedRecentConnection.id)).not.to.exist;
+      expect(screen.getByText('No matching folders, connections or databases'))
+        .to.be.visible;
     });
 
     it('should hide a folder when the active connections filter leaves it empty', async function () {
@@ -1181,6 +1208,8 @@ describe('Multiple Connections Sidebar Component', function () {
       await waitFor(() => {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
+      expect(screen.getByText('No matching folders, connections or databases'))
+        .to.be.visible;
     });
 
     it('should leave "All connections" unchecked rather than mixed while only some folders are shown', async function () {
@@ -1205,18 +1234,28 @@ describe('Multiple Connections Sidebar Component', function () {
       });
     });
 
-    it('should say a filter is applied while one is active', async function () {
+    it('should say a filter is applied only while a popover filter is active', async function () {
       await renderWithFolders(true);
       expect(screen.queryByText('Filter applied')).not.to.exist;
 
+      // Search alone does not turn the caption on; the input has its own
+      // clear button.
       const searchInput = screen.getByRole('searchbox', { name: 'Search' });
       userEvent.type(searchInput, 'localhost');
+      expect(screen.queryByText('Filter applied')).not.to.exist;
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(
+        screen.getByLabelText('Show only active connections'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
 
       await waitFor(() => {
         expect(screen.getByText('Filter applied')).to.be.visible;
       });
 
-      userEvent.clear(searchInput);
+      userEvent.click(screen.getByRole('button', { name: 'Reset' }));
 
       await waitFor(() => {
         expect(screen.queryByText('Filter applied')).not.to.exist;
@@ -1225,8 +1264,13 @@ describe('Multiple Connections Sidebar Component', function () {
 
     it('should render the filter caption in the secondary text color, sized like the tree labels', async function () {
       await renderWithFolders(true);
-      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
-      userEvent.type(searchInput, 'localhost');
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(
+        screen.getByLabelText('Show only active connections'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
 
       const caption = await screen.findByText('Filter applied');
       const styles = getComputedStyle(caption);
@@ -1271,10 +1315,17 @@ describe('Multiple Connections Sidebar Component', function () {
       expect(screen.queryByText('Filter applied')).not.to.exist;
     });
 
-    it('should clear the search box when Reset is clicked', async function () {
+    it('should clear the search box along with the filters when Reset is clicked', async function () {
       await renderWithFolders(true);
       const searchInput = screen.getByRole('searchbox', { name: 'Search' });
       userEvent.type(searchInput, 'localhost');
+
+      userEvent.click(screen.getByLabelText('Filter connections'));
+      userEvent.click(
+        screen.getByLabelText('Show only active connections'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
 
       await waitFor(() => {
         expect(screen.getByText('Filter applied')).to.be.visible;
@@ -1287,6 +1338,44 @@ describe('Multiple Connections Sidebar Component', function () {
       });
       expect(screen.queryByText('Filter applied')).not.to.exist;
       expect(screen.getByTestId('folder_1')).to.be.visible;
+    });
+
+    it('should say nothing matched when the search is not a valid regular expression', async function () {
+      await renderWithFolders(true);
+      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+
+      // An unparseable regex filters everything out, like any no-match search.
+      userEvent.type(searchInput, 'enron(');
+
+      expect(
+        await screen.findByText('No matching folders, connections or databases')
+      ).to.be.visible;
+      expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
+
+      userEvent.clear(searchInput);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.be.visible;
+      });
+    });
+
+    it('should say nothing matched when the search holds a folder-name restricted character', async function () {
+      await renderWithFolders(true);
+      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+
+      // Restricted characters can not be in folder or database names, so they
+      // match nothing, whatever the regex engine makes of them.
+      userEvent.type(searchInput, 'happy/*<>');
+
+      expect(
+        await screen.findByText('No matching folders, connections or databases')
+      ).to.be.visible;
+
+      userEvent.clear(searchInput);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.be.visible;
+      });
     });
   });
 });

@@ -150,8 +150,19 @@ const filterConnections = (
     filteredFolders.push(folder);
     filteredConnections.push(...connectionsToShow);
 
-    // Expanded during search only; the user's own state returns when cleared.
-    if (regex) {
+    // Matches connections and databases: only a child match opens the parent,
+    // a folder that matched by its own name stays closed. A connection can be
+    // the match through its own children, so its subtree counts too. Expanded
+    // during search only; the user's own state returns when cleared.
+    if (
+      regex &&
+      !nameMatches &&
+      connectionsToShow.some(
+        (c) =>
+          c.isMatch ||
+          (c.connectionStatus === 'connected' && c.databases.length > 0)
+      )
+    ) {
       temporarilyExpandedFolderIds.push(folder.id);
     }
   }
@@ -288,7 +299,7 @@ const revertTemporaryExpanded = (
   return cleared;
 };
 
-/** Expands the folders a search matched, leaving the user's own choices alone. */
+/** Expands folders holding a search match, leaving the user's own choices alone. */
 const temporarilyExpandFolders = (
   expandedFolders: ExpandedFolders,
   folderIds: string[]
@@ -566,7 +577,8 @@ function filteredConnectionsToSidebarConnection(
 }
 
 export type ConnectionsFilter = {
-  regex: RegExp | null;
+  /** The search text as typed; compiled to a regex for the tree. */
+  search: string;
   excludeInactive: boolean;
   /**
    * Folder ids hidden from the tree. Folders that are not listed stay visible,
@@ -577,15 +589,55 @@ export type ConnectionsFilter = {
   hideUncategorizedConnections?: boolean;
 };
 
+/** The one default for the filter: the store starts with it and Reset returns
+ * to it, so the two can not diverge. */
+export const INITIAL_CONNECTIONS_FILTER: ConnectionsFilter = {
+  search: '',
+  excludeInactive: false,
+};
+
+// A search that can not match anything — unparseable as a regex, or holding
+// a character below — leaves the tree to its empty state.
+const NEVER_MATCHING_REGEX = /(?!)/;
+
+// Windows-reserved characters — rejected in folder names, forbidden in
+// database names — can not be in what the tree shows, so a search holding
+// one matches nothing. The regex escape stays legal, for dot-notation searches.
+const RESTRICTED_CHARACTERS_REGEX = /[/<>:"|?*]/;
+
+function createRegExp(search: string): RegExp | null {
+  try {
+    return new RegExp(search, 'i');
+  } catch {
+    return null;
+  }
+}
+
+/** Null when there is no search, never-matching when it can not match. */
+const filteringRegex = (search: string): RegExp | null => {
+  if (!search) {
+    return null;
+  }
+  if (RESTRICTED_CHARACTERS_REGEX.test(search)) {
+    return NEVER_MATCHING_REGEX;
+  }
+  return createRegExp(search) ?? NEVER_MATCHING_REGEX;
+};
+
 const EMPTY_FOLDERS: Folder[] = [];
 const EMPTY_FOLDER_ASSIGNMENTS: Record<string, string> = Object.create(null);
 const EMPTY_HIDDEN_FOLDER_IDS: string[] = [];
 
-export const isConnectionsFilterActive = (filter: ConnectionsFilter): boolean =>
-  !!filter.regex ||
+/** The popover's filters, which are the ones that show the caption and dot. */
+export const areConnectionsFiltersActive = (
+  filter: ConnectionsFilter
+): boolean =>
   filter.excludeInactive ||
   (filter.hiddenFolderIds?.length ?? 0) > 0 ||
   !!filter.hideUncategorizedConnections;
+
+export const isConnectionsFilterActive = (filter: ConnectionsFilter): boolean =>
+  !!filter.search || areConnectionsFiltersActive(filter);
 
 export const useFilteredConnections = ({
   connections,
@@ -649,7 +701,7 @@ export const useFilteredConnections = ({
         connections: connectionsWhenFiltering,
         folders,
         folderAssignments,
-        filterRegex: filter.regex,
+        filterRegex: filteringRegex(filter.search),
         excludeInactive: filter.excludeInactive,
         hiddenFolderIds,
         hideUncategorizedConnections,
@@ -657,7 +709,7 @@ export const useFilteredConnections = ({
     }
   }, [
     isFilterActive,
-    filter.regex,
+    filter.search,
     filter.excludeInactive,
     hiddenFolderIds,
     hideUncategorizedConnections,
