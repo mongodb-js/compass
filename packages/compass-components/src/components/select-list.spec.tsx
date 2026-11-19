@@ -2,8 +2,8 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import React from 'react';
 import sinon from 'sinon';
-import { SelectList } from './select-list';
 import { cloneDeep } from 'lodash';
+import { SelectList } from './select-list';
 
 type TestItem = {
   id: string;

@@ -6,11 +6,11 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import sinon from 'sinon';
+import { withPreferences } from './react';
+import { PreferencesProvider } from './provider';
 import type { AllPreferences } from './';
 import { createSandboxFromDefaultPreferences } from './index';
-import { withPreferences } from './react';
-import sinon from 'sinon';
-import { PreferencesProvider } from './provider';
 
 function TestComponent(props: { outerProp: number; enableMaps: boolean }) {
   return <div data-testid="props-as-json">{JSON.stringify(props)}</div>;

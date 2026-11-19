@@ -1,6 +1,5 @@
 import type { IpcRenderer } from 'electron';
-import { isUtilityPortChannel } from '@mongodb-js/compass-utils';
-import { listen } from '@mongodb-js/compass-utils';
+import { isUtilityPortChannel, listen } from '@mongodb-js/compass-events';
 
 export function forwardUtilityPorts(
   target: Window,

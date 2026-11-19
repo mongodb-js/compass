@@ -10,9 +10,8 @@ import {
   withDarkMode,
 } from '@mongodb-js/compass-components';
 import type { DocumentList as DocumentListTypes } from '@mongodb-js/compass-components';
-import { Element } from 'hadron-document';
-import type { ICellRenderer } from 'ag-grid-community';
-import type { ICellRendererParams } from 'ag-grid-community';
+import { Element } from '@mongodb-js/hadron-document';
+import type { ICellRenderer, ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
 import type { GridContext } from './document-table-view';

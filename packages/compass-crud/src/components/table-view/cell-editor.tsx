@@ -1,15 +1,13 @@
 import React from 'react';
-import { type TypeCastTypes } from 'hadron-type-checker';
-import type { Editor, Element } from 'hadron-document';
-import type Document from 'hadron-document';
+import { type TypeCastTypes } from '@mongodb-js/hadron-type-checker';
+import type { Editor, Element } from '@mongodb-js/hadron-document';
+import type Document from '@mongodb-js/hadron-document';
 import {
   ElementEditor as initEditors,
   getEditorNameByType,
   getDefaultValueForType,
   getDisplayType,
-} from 'hadron-document';
-import TypesDropdown from './types-dropdown';
-import AddFieldButton from './add-field-button';
+} from '@mongodb-js/hadron-document';
 import {
   Button,
   css,
@@ -27,6 +25,8 @@ import type {
 } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
+import AddFieldButton from './add-field-button';
+import TypesDropdown from './types-dropdown';
 import type { GridContext } from './document-table-view';
 
 /**

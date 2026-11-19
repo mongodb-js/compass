@@ -18,6 +18,7 @@ import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { SchemaAccessor } from '@mongodb-js/mongodb-schema';
+import type { InternalLayer } from '../modules/geo';
 import {
   schemaAnalysisReducer,
   cleanupAnalysis,
@@ -27,7 +28,6 @@ import {
   openLegacyModal,
   schemaExportReducer,
 } from './schema-export-reducer';
-import type { InternalLayer } from '../modules/geo';
 
 export type RequiredDataServiceProps = 'sampleCursor';
 export type DataService = Pick<OriginalDataService, RequiredDataServiceProps>;

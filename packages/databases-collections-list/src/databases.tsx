@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { ItemsTable, VirtualItemsTable } from './items-table';
 import type { DatabaseProps } from '@mongodb-js/mongodb-database-model';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { LGColumnDef } from '@mongodb-js/compass-components';
@@ -18,6 +17,7 @@ import {
   compactBytes,
   compactNumber,
 } from '@mongodb-js/compass-components';
+import { ItemsTable, VirtualItemsTable } from './items-table';
 
 const databaseNameWrapStyles = css({
   display: 'flex',

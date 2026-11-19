@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { expect } from 'chai';
 import clipboard from 'clipboardy';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';

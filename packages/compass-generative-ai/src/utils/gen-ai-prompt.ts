@@ -1,6 +1,6 @@
 import { toJSString } from '@mongodb-js/shell-bson-parser';
-import { flattenSchemaToObject } from './util';
 import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
+import { flattenSchemaToObject } from './util';
 
 // chatbot slim model support ~250k characters
 const MAX_TOTAL_PROMPT_LENGTH = 250_000;

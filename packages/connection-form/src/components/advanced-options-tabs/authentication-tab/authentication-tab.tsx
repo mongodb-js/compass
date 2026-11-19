@@ -9,18 +9,18 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { AuthMechanism } from 'mongodb';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type { ConnectionFormError } from '../../../utils/validation';
 
+import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 import AuthenticationDefault from './authentication-default';
 import AuthenticationX509 from './authentication-x509';
 import AuthenticationGSSAPI from './authentication-gssapi';
 import AuthenticationPlain from './authentication-plain';
 import AuthenticationAWS from './authentication-aws';
 import AuthenticationOidc from './authentication-oidc';
-import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 interface TabOption {
   id: AuthMechanism;

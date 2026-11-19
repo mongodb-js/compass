@@ -14,26 +14,21 @@ import {
   Link,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../modules';
-import ToggleStage from './toggle-stage';
-import StageCollapser from './stage-collapser';
-import StageOperatorSelect from './stage-operator-select';
-import {
-  getSearchIndexNameFromSearchStage,
-  hasSyntaxError,
-  isSearchStage,
-} from '../../utils/stage';
-import { enableFocusMode } from '../../modules/focus-mode';
-import OptionMenu from './option-menu';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
 import { getInsightForStage } from '../../utils/insights';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
+import { enableFocusMode } from '../../modules/focus-mode';
+import {
+  hasSyntaxError,
+  isSearchStage,
+  getSearchIndexNameFromSearchStage,
+} from '../../utils/stage';
+import type { RootState } from '../../modules';
 import type { ServerEnvironment } from '../../modules/env';
 import {
   createSearchIndex,
@@ -41,6 +36,10 @@ import {
   refreshSearchIndexes,
 } from '../../modules/search-indexes';
 import { useRerankInsight } from '../rerank-first-stage-banner';
+import OptionMenu from './option-menu';
+import StageOperatorSelect from './stage-operator-select';
+import StageCollapser from './stage-collapser';
+import ToggleStage from './toggle-stage';
 
 const toolbarStyles = css({
   width: '100%',
@@ -159,7 +158,7 @@ export function StageToolbar({
   onClickViewSearchIndexes,
 }: StageToolbarProps) {
   const enableRerank = usePreference('enableRerank');
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
@@ -236,29 +235,26 @@ export function StageToolbar({
             View $rerank Usage and Rate Limits
           </Link>
         )}
-        {enableSearchActivationProgramP1 &&
-          isSearchStage(stage.stageOperator) && (
-            <Button
-              data-testid="stage-toolbar-view-indexes-button"
-              size="xsmall"
-              className={viewIndexesButtonStyles}
-              onClick={() => {
-                track('Search Index View Indexes Button Clicked', {
-                  context: 'Stage Toolbar',
-                });
-                openDrawer('compass-indexes-drawer');
-                onClickViewSearchIndexes(
-                  getSearchIndexNameFromSearchStage(
-                    stage.stageOperator,
-                    stage.value
-                  ) ?? undefined
-                );
-              }}
-              title="View Indexes"
-            >
-              View Indexes
-            </Button>
-          )}
+        {enableAtlasSearchIndexes && isSearchStage(stage.stageOperator) && (
+          <Button
+            data-testid="stage-toolbar-view-indexes-button"
+            size="xsmall"
+            className={viewIndexesButtonStyles}
+            onClick={() => {
+              track('Search Index View Indexes Button Clicked', {
+                context: 'Stage Toolbar',
+              });
+              openDrawer('compass-indexes-drawer');
+              void getSearchIndexNameFromSearchStage(
+                stage.stageOperator,
+                stage.value
+              ).then((name) => onClickViewSearchIndexes(name ?? undefined));
+            }}
+            title="View Indexes"
+          >
+            View Indexes
+          </Button>
+        )}
         {insight && (
           <SignalPopover
             signals={insight}

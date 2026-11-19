@@ -4,7 +4,9 @@ import {
   WorkspaceContainer,
   css,
 } from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import Settings from '../settings';
 import SavingPipelineModal from '../saving-pipeline-modal';
 import type { PipelineToolbarProps } from '../pipeline-toolbar';
@@ -16,9 +18,6 @@ import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 import type { SavingPipelineModalProps } from '../saving-pipeline-modal/saving-pipeline-modal';
 import type { SettingsProps } from '../settings/settings';
 import type { Workspace } from '../../modules/workspace';
-
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 
 const pipelineStyles = css({
   display: 'flex',
@@ -105,7 +104,7 @@ const Pipeline: React.FC<PipelineProps> = ({
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
 }) => {
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const isViewVersionSearchCompatible =
     VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(serverVersion);
   const isSearchIndexesReadable = isReadonlyView
@@ -114,7 +113,7 @@ const Pipeline: React.FC<PipelineProps> = ({
 
   // Manage search indexes polling based on pipeline content
   useEffect(() => {
-    if (!enableSearchActivationProgramP1 || !isSearchIndexesReadable) {
+    if (!enableAtlasSearchIndexes || !isSearchIndexesReadable) {
       return;
     }
 
@@ -126,7 +125,7 @@ const Pipeline: React.FC<PipelineProps> = ({
 
     return stopPollingSearchIndexes;
   }, [
-    enableSearchActivationProgramP1,
+    enableAtlasSearchIndexes,
     hasSearchStage,
     isSearchIndexesReadable,
     startPollingSearchIndexes,

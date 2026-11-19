@@ -6,11 +6,11 @@
  */
 
 /* eslint-disable no-console */
-const os = require('os');
-const path = require('path');
-const { promises: fs, createWriteStream } = require('fs');
-const { pipeline } = require('stream');
-const { promisify } = require('util');
+const os = require('node:os');
+const path = require('node:path');
+const { promises: fs, createWriteStream } = require('node:fs');
+const { pipeline } = require('node:stream');
+const { promisify } = require('node:util');
 
 const PACKAGE_ROOT = process.cwd();
 

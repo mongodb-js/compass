@@ -1,11 +1,11 @@
-import { isCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
+import { abortable } from '@mongodb-js/compass-events';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { mongoLogId } from './logger';
 
 import type { UnboundDataServiceImplLogger } from './logger';
 import connect from './connect';
 import type { DataService } from './data-service';
 import type { ConnectionOptions } from './connection-options';
-import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 function isConnectionAttemptTerminatedError(err: Error) {
   return err?.name === 'MongoTopologyClosedError';
@@ -35,11 +35,10 @@ export class ConnectionAttempt {
   }
 
   connect(connectionOptions: ConnectionOptions): Promise<DataService | void> {
-    return raceWithAbort(
-      this._connect(connectionOptions),
-      this._abortController.signal
-    ).catch((err) => {
-      if (!isCancelError(err)) throw err;
+    return abortable(this._connect(connectionOptions), {
+      signal: this._abortController.signal,
+    }).catch((err) => {
+      if ((err as Error)?.name !== 'AbortError') throw err;
     });
   }
 

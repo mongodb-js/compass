@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
 
-import { configureStore } from './query-bar-store';
-import type {
-  QueryBarExtraArgs,
-  QueryBarStoreOptions,
-} from './query-bar-store';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import {
   AIQueryActionTypes,
   AI_INPUT_VISIBLE_STORAGE_KEY,
@@ -14,10 +13,11 @@ import {
   showInput,
   hideInput,
 } from './ai-query-reducer';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type {
+  QueryBarExtraArgs,
+  QueryBarStoreOptions,
+} from './query-bar-store';
+import { configureStore } from './query-bar-store';
 
 const mockCollectionModel = {
   fetchMetadata() {
@@ -165,6 +165,47 @@ describe('aiQueryReducer', function () {
           aiQueryRequestId: null,
           lastAIQueryRequestId: null,
         });
+      });
+    });
+
+    describe('when cancelled while the response is being parsed', function () {
+      let store: ReturnType<typeof createStore>;
+      let query: any;
+      beforeEach(function () {
+        // Parsing starts by reading the content, so cancel right there
+        const response = {
+          get content() {
+            store.dispatch(cancelAIQuery());
+            return { query };
+          },
+        };
+        store = createStore({ namespace: 'database.collection' }, {
+          atlasAiService: {
+            getQueryFromUserInput: sandbox.stub().resolves(response),
+          },
+          dataService: { sample: sandbox.stub().resolves([]) },
+          connectionInfoRef,
+          preferences,
+          logger: createNoopLogger(),
+          track: createNoopTrack(),
+          collection: mockCollectionModel,
+        } as any);
+      });
+
+      it('does not apply the generated query', async function () {
+        query = { filter: '{_id: 1}' };
+        await store.dispatch(runAIQuery('testing prompt'));
+        expect(store.getState().aiQuery.status).to.equal('ready');
+        expect(store.getState().aiQuery.lastAIQueryRequestId).to.equal(null);
+      });
+
+      it('does not show a parsing error', async function () {
+        // A null query makes parsing throw
+        query = null;
+        await store.dispatch(runAIQuery('testing prompt'));
+
+        expect(store.getState().aiQuery.status).to.equal('ready');
+        expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
       });
     });
 

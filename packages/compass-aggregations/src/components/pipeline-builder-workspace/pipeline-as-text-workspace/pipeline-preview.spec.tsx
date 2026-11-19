@@ -7,25 +7,22 @@ import {
   cleanup,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../../test/configure-store';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-
-import { PipelinePreview } from './pipeline-preview';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { renderWithStore } from '../../../../test/configure-store';
 import type { ConfigureStoreOptions } from '../../../stores/store';
+import { PipelinePreview } from './pipeline-preview';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelinePreview>> = {},
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
-    enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    enableAtlasSearchIndexes = false,
+  }: { enableAtlasSearchIndexes?: boolean } = {}
 ) => {
-  let ui = (
+  const ui = (
     <PipelinePreview
       isPreviewStale={false}
       isMergeStage={false}
@@ -34,20 +31,16 @@ const renderPipelineEditor = (
       previewDocs={null}
       isMissingAtlasSupport={false}
       atlasOperator=""
-      showSearchIndexStaleResultsBanner={false}
-      searchIndexName={null}
+      pipelineText=""
+      searchIndexes={[]}
       onExpand={() => {}}
       onCollapse={() => {}}
       {...props}
     />
   );
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
-  return renderWithStore(ui, storeOptions);
+  return renderWithStore(ui, storeOptions, undefined, {
+    preferences: new ReadOnlyPreferenceAccess({ enableAtlasSearchIndexes }),
+  });
 };
 
 describe('PipelinePreview', function () {
@@ -246,25 +239,38 @@ describe('PipelinePreview', function () {
   });
 
   describe('search index stale results banner', function () {
-    it('should show stale results banner when showSearchIndexStaleResultsBanner is true', async function () {
+    it('should show stale results banner when the search index is not ready yet', async function () {
       await renderPipelineEditor(
         {
           previewDocs: [new HadronDocument({ _id: 1 })],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'test-index',
+          pipelineText: '[{ $search: { index: "test-index" } }]',
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'PENDING',
+              queryable: true,
+            } as SearchIndex,
+          ],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
-      expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
+      expect(await screen.findByTestId('search-index-stale-results-banner')).to
+        .exist;
     });
 
-    it('should NOT show stale results banner when showSearchIndexStaleResultsBanner is false', async function () {
+    it('should NOT show stale results banner when the search index is ready', async function () {
       await renderPipelineEditor({
         previewDocs: [new HadronDocument({ _id: 1 })],
-        showSearchIndexStaleResultsBanner: false,
-        searchIndexName: 'test-index',
+        pipelineText: '[{ $search: { index: "test-index" } }]',
+        searchIndexes: [
+          {
+            name: 'test-index',
+            status: 'READY',
+            queryable: true,
+          } as SearchIndex,
+        ],
       });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
@@ -274,8 +280,14 @@ describe('PipelinePreview', function () {
     it('should NOT show stale results banner when there are no documents', async function () {
       await renderPipelineEditor({
         previewDocs: [],
-        showSearchIndexStaleResultsBanner: true,
-        searchIndexName: 'test-index',
+        pipelineText: '[{ $search: { index: "test-index" } }]',
+        searchIndexes: [
+          {
+            name: 'test-index',
+            status: 'PENDING',
+            queryable: true,
+          } as SearchIndex,
+        ],
       });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
@@ -285,8 +297,14 @@ describe('PipelinePreview', function () {
     it('should NOT show stale results banner when previewDocs is null', async function () {
       await renderPipelineEditor({
         previewDocs: null,
-        showSearchIndexStaleResultsBanner: true,
-        searchIndexName: 'test-index',
+        pipelineText: '[{ $search: { index: "test-index" } }]',
+        searchIndexes: [
+          {
+            name: 'test-index',
+            status: 'PENDING',
+            queryable: true,
+          } as SearchIndex,
+        ],
       });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
@@ -301,21 +319,34 @@ describe('PipelinePreview', function () {
             new HadronDocument({ _id: 2 }),
             new HadronDocument({ _id: 3 }),
           ],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'vector-index',
+          pipelineText: '[{ $vectorSearch: { index: "vector-index" } }]',
+          searchIndexes: [
+            {
+              name: 'vector-index',
+              status: 'PENDING',
+              queryable: true,
+            } as SearchIndex,
+          ],
         },
         {},
-        { enableSearchActivationExperiment: true }
+        { enableAtlasSearchIndexes: true }
       );
 
-      expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
+      expect(await screen.findByTestId('search-index-stale-results-banner')).to
+        .exist;
     });
 
     it('should NOT show stale results banner when experiment is not in variant', async function () {
       await renderPipelineEditor({
         previewDocs: [new HadronDocument({ _id: 1 })],
-        showSearchIndexStaleResultsBanner: true,
-        searchIndexName: 'test-index',
+        pipelineText: '[{ $search: { index: "test-index" } }]',
+        searchIndexes: [
+          {
+            name: 'test-index',
+            status: 'PENDING',
+            queryable: true,
+          } as SearchIndex,
+        ],
       });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not

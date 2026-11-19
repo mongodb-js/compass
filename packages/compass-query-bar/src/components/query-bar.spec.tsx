@@ -1,25 +1,17 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import {
-  cleanup,
   render,
   screen,
   within,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import QueryBar from './query-bar';
-import { Provider } from '../stores/context';
-import { configureStore } from '../stores/query-bar-store';
-import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
-import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import { AIQueryActionTypes } from '../stores/ai-query-reducer';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { mapQueryToFormFields } from '../utils/query';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
@@ -31,6 +23,14 @@ import {
   createElectronRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/electron';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import { Provider } from '../stores/context';
+import { configureStore } from '../stores/query-bar-store';
+import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
+import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import { AIQueryActionTypes, runAIQuery } from '../stores/ai-query-reducer';
+import { mapQueryToFormFields } from '../utils/query';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import QueryBar from './query-bar';
 
 const noop = () => {
   /* no op */
@@ -111,8 +111,6 @@ describe('QueryBar Component', function () {
     onApplySpy = sinon.spy();
     onResetSpy = sinon.spy();
   });
-
-  afterEach(cleanup);
 
   describe('when rendered', function () {
     beforeEach(function () {
@@ -271,6 +269,66 @@ describe('QueryBar Component', function () {
     });
   });
 
+  describe('when ai generates an unparseable query', function () {
+    beforeEach(async function () {
+      const store = configureStore({ namespace: 'db.coll' }, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        connectionInfoRef: { current: { id: 'TEST' } },
+        dataService: { sample: () => Promise.resolve([]) },
+        collection: { fetchMetadata: () => Promise.resolve({ isFLE: false }) },
+        atlasAiService: {
+          getQueryFromUserInput: () =>
+            Promise.resolve({
+              content: {
+                query: { filter: '{ name: "Alice"', project: '{ name: 1' },
+              },
+            }),
+        },
+      } as unknown as QueryBarExtraArgs);
+
+      render(
+        <Provider store={store}>
+          <QueryBar
+            source="test"
+            buttonLabel="Apply"
+            onApply={noop}
+            onReset={noop}
+            resultId="123"
+          />
+        </Provider>
+      );
+
+      await store.dispatch(runAIQuery('find alice'));
+    });
+
+    it('shows the generated query in the editors', async function () {
+      await waitFor(() => {
+        expect(
+          within(screen.getByTestId('query-bar-option-filter-input')).getByRole(
+            'textbox'
+          ).textContent
+        ).to.equal('{ name: "Alice"');
+        expect(
+          within(
+            screen.getByTestId('query-bar-option-project-input')
+          ).getByRole('textbox').textContent
+        ).to.equal('{ name: 1');
+      });
+    });
+
+    it('disables the apply button', async function () {
+      await waitFor(() => {
+        expect(
+          screen
+            .getByTestId('query-bar-apply-filter-button')
+            .getAttribute('aria-disabled')
+        ).to.equal('true');
+      });
+    });
+  });
+
   describe('with ai is enabled', function () {
     beforeEach(async function () {
       await preferences.savePreferences({
@@ -279,13 +337,13 @@ describe('QueryBar Component', function () {
     });
 
     describe('with filter content supplied', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
         renderQueryBar(
           {
             queryOptionsLayout: ['filter'],
           },
           {
-            fields: mapQueryToFormFields(
+            fields: await mapQueryToFormFields(
               { maxTimeMS: undefined },
               {
                 ...DEFAULT_FIELD_VALUES,

@@ -16,8 +16,8 @@ import {
   MinKey,
   MaxKey,
   BSONSymbol,
+  BSONError,
 } from 'bson';
-import { BSONError } from 'bson';
 
 import {
   detectCSVFieldType,

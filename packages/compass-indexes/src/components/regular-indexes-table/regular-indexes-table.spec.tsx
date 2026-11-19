@@ -9,7 +9,6 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import { RegularIndexesTable } from './regular-indexes-table';
 import { setupStore } from '../../../test/setup-store';
 import type {
   RegularIndex,
@@ -19,6 +18,7 @@ import type {
 import { mockRegularIndex } from '../../../test/helpers';
 import type { RootState } from '../../modules';
 import { formatUsageSince } from '../../utils/format-usage-since';
+import { RegularIndexesTable } from './regular-indexes-table';
 
 const indexes: RegularIndex[] = [
   {

@@ -1,18 +1,18 @@
-import Target from '../lib/target';
+import util from 'node:util';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import createCLI from 'mongodb-js-cli';
-import util from 'util';
-import path from 'path';
-import { promises as fs } from 'fs';
 import del from 'del';
 import _ from 'lodash';
 import asar from 'asar';
 import packager from 'electron-packager';
 import Arborist from '@npmcli/arborist';
-import createApplicationZip from '../lib/zip';
-import { runCommand } from '../lib/run';
 import { rebuild } from '@electron/rebuild';
-import { signArchive } from '../lib/signtool';
 import type { Argv, CommandModule } from 'yargs';
+import { runCommand } from '../lib/run';
+import { signArchive } from '../lib/signtool';
+import createApplicationZip from '../lib/zip';
+import Target from '../lib/target';
 import type {
   BuilderCallbackParsedArgs,
   ExcludeYargsRequiredArgs,

@@ -5,6 +5,8 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import {
   DrawerContentProvider,
   DrawerSection,
@@ -12,8 +14,6 @@ import {
   useDrawerState,
   useDrawerActions,
 } from './drawer-portal';
-import { expect } from 'chai';
-import sinon from 'sinon';
 
 describe('DrawerSection', function () {
   it('renders DrawerSection in the portal and updates the content when it updates', async function () {

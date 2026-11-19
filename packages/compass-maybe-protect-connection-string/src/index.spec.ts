@@ -1,5 +1,5 @@
-import { maybeProtectConnectionString } from './';
 import { expect } from 'chai';
+import { maybeProtectConnectionString } from './';
 
 const connectionString = 'mongodb://username:p4ssw0rd@localhost/';
 

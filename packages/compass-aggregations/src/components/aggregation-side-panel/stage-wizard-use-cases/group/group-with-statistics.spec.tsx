@@ -6,7 +6,6 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { GroupWithStatistics } from './group-with-statistics';
 import sinon from 'sinon';
 import {
   setMultiSelectComboboxValues,
@@ -15,6 +14,7 @@ import {
 } from '../../../../../test/form-helper';
 import type { StageWizardFields } from '..';
 import { MULTI_SELECT_LABEL, SINGLE_SELECT_LABEL } from '../field-combobox';
+import { GroupWithStatistics } from './group-with-statistics';
 
 const SAMPLE_FIELDS: StageWizardFields = [
   {

@@ -15,7 +15,6 @@ import {
   AIExperienceEntry,
   createAIPlaceholderHTMLPlaceholder,
 } from '@mongodb-js/compass-generative-ai/provider';
-import { connect } from '../stores/context';
 import {
   useIsAIFeatureEnabled,
   usePreference,
@@ -25,14 +24,21 @@ import {
   useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  useFavoriteQueryStorageAccess,
+  useRecentQueryStorageAccess,
+} from '@mongodb-js/my-queries-storage/provider';
+import {
+  useSyncAssistantGlobalState,
+  useAssistantActions,
+} from '@mongodb-js/compass-assistant';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { connect } from '../stores/context';
 
 import {
   OPTION_DEFINITION,
   type QueryOption,
 } from '../constants/query-option-definition';
-import QueryOptionComponent from './query-option';
-import QueryHistoryButtonPopover from './query-history-button-popover';
-import { QueryBarRow } from './query-bar-row';
 import {
   applyQuery,
   openExportToLanguage,
@@ -42,26 +48,23 @@ import {
   explainQueryInterpret,
   type ExplainMode,
 } from '../stores/query-bar-reducer';
-import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import {
+  hasPendingFieldValidation,
+  toggleQueryOptions,
+} from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery } from '../utils/query';
 import { isQueryValid } from '../utils/validate-query';
 import type { QueryProperty } from '../constants/query-properties';
-import { QueryAI } from './query-ai';
 import type {
   QueryBarThunkDispatch,
   RootState,
 } from '../stores/query-bar-store';
 import { hideInput, showInput } from '../stores/ai-query-reducer';
-import {
-  useFavoriteQueryStorageAccess,
-  useRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage/provider';
+import QueryOptionComponent from './query-option';
+import QueryHistoryButtonPopover from './query-history-button-popover';
+import { QueryBarRow } from './query-bar-row';
+import { QueryAI } from './query-ai';
 import { useQueryBarQuery } from './hooks';
-import {
-  useSyncAssistantGlobalState,
-  useAssistantActions,
-} from '@mongodb-js/compass-assistant';
-import { toJSString } from '@mongodb-js/shell-bson-parser';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -121,7 +124,7 @@ const QueryOptionsToggle = connect(
 
 type QueryBarProps = {
   buttonLabel?: string;
-  onApply: () => void;
+  onApply: () => Promise<void>;
   onReset: () => void;
   onOpenExportToLanguage: () => void;
   queryOptionsLayout?: (QueryOption | QueryOption[])[];
@@ -232,9 +235,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   );
 
   const onFormSubmit = useCallback(
-    (evt: React.FormEvent) => {
+    async (evt: React.FormEvent) => {
       evt.preventDefault();
-      onApply();
+      await onApply();
     },
     [onApply]
   );
@@ -291,7 +294,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     <form
       className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
       data-testid="query-bar"
-      onSubmit={onFormSubmit}
+      onSubmit={(e) => void onFormSubmit(e)}
       noValidate
       data-result-id={resultId}
       data-apply-id={applyId}
@@ -310,7 +313,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           <QueryOptionComponent
             name="filter"
             id={filterQueryOptionId}
-            onApply={onApply}
+            onApply={() => void onApply()}
             placeholder={filterPlaceholder}
             disabled={isAIFetching}
           />
@@ -366,7 +369,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         <Button
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
-          onClick={handleReset}
+          onClick={() => void handleReset()}
           disabled={!queryChanged || isAIFetching}
           size="small"
           type="button"
@@ -379,7 +382,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           variant="primary"
           size="small"
           type="submit"
-          onClick={onFormSubmit}
+          onClick={(e: React.FormEvent<Element>) => void onFormSubmit(e)}
         >
           {buttonLabel}
         </Button>
@@ -403,7 +406,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               <QueryBarRow
                 queryOptionsLayout={queryOptionRowLayout}
                 key={`query-bar-row-${rowIndex}`}
-                onApply={onApply}
+                onApply={() => void onApply()}
                 disabled={isAIFetching}
                 placeholders={placeholders}
               />
@@ -421,15 +424,13 @@ type OwnProps = {
 };
 
 export default connect(
-  ({
-    queryBar: { expanded, fields, applyId, isInterpretLoading },
-    aiQuery,
-  }: RootState) => {
+  ({ queryBar, aiQuery }: RootState) => {
+    const { expanded, fields, applyId, isInterpretLoading } = queryBar;
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
       filterHasContent: fields.filter.string !== '',
-      valid: isQueryValid(fields),
+      valid: isQueryValid(fields) && !hasPendingFieldValidation(queryBar),
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
       isAIFetching: aiQuery.status === 'fetching',
@@ -450,8 +451,8 @@ export default connect(
       onOpenExportToLanguage: () => {
         dispatch(openExportToLanguage());
       },
-      onApply: () => {
-        const applied = dispatch(applyQuery(ownProps.source));
+      onApply: async () => {
+        const applied = await dispatch(applyQuery(ownProps.source));
         if (applied === false) {
           return;
         }

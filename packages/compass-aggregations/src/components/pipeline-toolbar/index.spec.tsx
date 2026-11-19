@@ -6,9 +6,9 @@ import {
   cleanup,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import { renderWithStore } from '../../../test/configure-store';
 import { PipelineToolbar } from './index';
-import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 
 describe('PipelineToolbar', function () {
   describe('renders with setting row - visible', function () {

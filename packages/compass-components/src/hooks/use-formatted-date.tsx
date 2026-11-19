@@ -1,6 +1,6 @@
+import { useState, useEffect } from 'react';
 import { formatDate } from '../utils/format-date';
 
-import { useState, useEffect } from 'react';
 import { useSyncStateOnPropChange } from './use-sync-state-on-prop-change';
 
 export function useFormattedDate(timestamp: number): string;

@@ -1,19 +1,19 @@
-import React from 'react';
+import { EventEmitter } from 'node:events';
 import { expect } from 'chai';
-import { EventEmitter } from 'events';
-import { WorkspaceTab } from './index';
+import React from 'react';
 import {
   renderWithActiveConnection,
   screen,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { RuntimeMap } from './stores/store';
 import { palette, ThemeProvider, Themes } from '@mongodb-js/compass-components';
-import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
+import { RuntimeMap } from './stores/store';
+import type { ShellRuntime } from './modules/shell-runtime';
+import { WorkspaceTab } from './index';
 
-type EvaluateArgs = Parameters<WorkerRuntime['evaluate']>;
+type EvaluateArgs = Parameters<ShellRuntime['evaluate']>;
 
-type TestRuntime = Pick<WorkerRuntime, 'evaluate' | 'terminate'> & {
+type TestRuntime = Pick<ShellRuntime, 'evaluate' | 'terminate'> & {
   eventEmitter: EventEmitter;
 };
 
@@ -31,7 +31,7 @@ function setTestRuntime(
     },
   };
 
-  RuntimeMap.set('test', runtime as unknown as WorkerRuntime);
+  RuntimeMap.set('test', runtime as unknown as ShellRuntime);
 }
 
 async function renderShellBackgroundColor({

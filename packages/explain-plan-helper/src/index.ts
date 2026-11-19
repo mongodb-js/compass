@@ -16,6 +16,35 @@ export type IndexInformation = { fields: Record<string, unknown> } & (
   | { shard: null; index: string }
 );
 
+type IndexEntry = { fields?: Record<string, unknown> } & (
+  | {
+      index: string;
+      shard: string | null;
+      stage: Stage | null;
+    }
+  | { index: null; shard: string; stage: null }
+);
+
+export type SerializedExplainPlan = Pick<
+  ExplainPlan,
+  | 'namespace'
+  | 'parsedQuery'
+  | 'executionSuccess'
+  | 'nReturned'
+  | 'executionTimeMillis'
+  | 'totalKeysExamined'
+  | 'totalDocsExamined'
+  | 'originalExplainData'
+  | 'executionStats'
+  | 'isCovered'
+  | 'isMultiKey'
+  | 'inMemorySort'
+  | 'isCollectionScan'
+  | 'isSharded'
+  | 'numShards'
+  | 'indexType'
+> & { usedIndexes: IndexInformation[] };
+
 export class ExplainPlan {
   namespace: string;
   parsedQuery: Stage;
@@ -49,13 +78,18 @@ export class ExplainPlan {
     this.winningPlan = qpInfo.winningPlan;
   }
 
-  get usedIndexes(): IndexInformation[] {
+  private _getIndexEntries(): IndexEntry[] {
     const ixscan = this.findAllStagesByName('IXSCAN');
     const expressIxscan = this.findAllStagesByName('EXPRESS_IXSCAN');
     const countScan = this.findAllStagesByName('COUNT_SCAN');
     // special case for IDHACK stage, using the _id_ index.
     const idhack = this.findStageByName('IDHACK');
-    const ret: IndexInformation[] = this.executionStats?.stageIndexes ?? [];
+    const ret: IndexEntry[] = (this.executionStats?.stageIndexes ?? []).map(
+      (indexInfo) => ({
+        ...indexInfo,
+        stage: null,
+      })
+    );
     for (const stage of [...ixscan, ...expressIxscan, ...countScan, idhack]) {
       if (!stage) continue;
       let shard: string | null = null;
@@ -67,23 +101,40 @@ export class ExplainPlan {
           }
         }
       }
-      const index: string = stage === idhack ? '_id_' : stage.indexName;
-      const fields = stage === idhack ? { _id: 1 } : getStageIndexFields(stage);
-      ret.push({ index, shard, fields });
+      ret.push(
+        stage === idhack
+          ? { index: '_id_', shard, stage: null, fields: { _id: 1 } }
+          : { index: stage.indexName, shard, stage }
+      );
     }
     if (this.isSharded) {
       for (const shard of this.executionStats?.executionStages?.shards ?? []) {
-        if (!ret.some((indexInfo) => indexInfo.shard === shard.shardName)) {
-          ret.push({ index: null, shard: shard.shardName, fields: {} });
+        if (!ret.some((entry) => entry.shard === shard.shardName)) {
+          ret.push({ index: null, shard: shard.shardName, stage: null });
         }
       }
     }
     return ret.filter(
-      (indexInfo, index, arr) =>
+      (entry, index, arr) =>
         arr.findIndex(
-          (i) => i.index === indexInfo.index && i.shard === indexInfo.shard
+          (i) => i.index === entry.index && i.shard === entry.shard
         ) === index
     );
+  }
+
+  async getUsedIndexes(): Promise<IndexInformation[]> {
+    const usedIndexes: IndexInformation[] = [];
+    for (const entry of this._getIndexEntries()) {
+      const fields =
+        entry.fields ??
+        (entry.stage ? await getStageIndexFields(entry.stage) : {});
+      if (entry.index === null) {
+        usedIndexes.push({ index: null, shard: entry.shard, fields });
+      } else {
+        usedIndexes.push({ index: entry.index, shard: entry.shard, fields });
+      }
+    }
+    return usedIndexes;
   }
 
   get isCovered(): boolean {
@@ -127,7 +178,7 @@ export class ExplainPlan {
   }
 
   get indexType() {
-    const indexes = this.usedIndexes;
+    const indexes = this._getIndexEntries();
 
     // Currently the CLUSTERED_IXSCAN and EXPRESS_CLUSTERED_IXSCAN do not report
     // any indexes in the winning stage. Even though the query clearly uses
@@ -229,26 +280,8 @@ export class ExplainPlan {
     }
   }
 
-  serialize(): Pick<
-    ExplainPlan,
-    | 'namespace'
-    | 'parsedQuery'
-    | 'executionSuccess'
-    | 'nReturned'
-    | 'executionTimeMillis'
-    | 'totalKeysExamined'
-    | 'totalDocsExamined'
-    | 'originalExplainData'
-    | 'executionStats'
-    | 'usedIndexes'
-    | 'isCovered'
-    | 'isMultiKey'
-    | 'inMemorySort'
-    | 'isCollectionScan'
-    | 'isSharded'
-    | 'numShards'
-    | 'indexType'
-  > {
+  async serialize(): Promise<SerializedExplainPlan> {
+    const usedIndexes = await this.getUsedIndexes();
     return JSON.parse(
       JSON.stringify({
         namespace: this.namespace,
@@ -260,7 +293,7 @@ export class ExplainPlan {
         totalDocsExamined: this.totalDocsExamined,
         originalExplainData: this.originalExplainData,
         executionStats: this.executionStats,
-        usedIndexes: this.usedIndexes,
+        usedIndexes,
         isCovered: this.isCovered,
         isMultiKey: this.isMultiKey,
         inMemorySort: this.inMemorySort,

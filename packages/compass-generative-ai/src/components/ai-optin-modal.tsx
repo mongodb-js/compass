@@ -12,11 +12,11 @@ import {
   MarketingModal,
   cx,
 } from '@mongodb-js/compass-components';
-import { AiImageBanner } from './ai-image-banner';
-import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
-import type { RootState } from '../store/atlas-ai-store';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { closeOptInModal, optIn } from '../store/atlas-optin-reducer';
+import type { RootState } from '../store/atlas-ai-store';
+import { AiImageBanner } from './ai-image-banner';
 
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 

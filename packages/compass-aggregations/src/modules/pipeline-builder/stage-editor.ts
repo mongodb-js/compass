@@ -1,15 +1,33 @@
 import type { Action, Reducer } from 'redux';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
+import { cancellableWait } from '@mongodb-js/compass-events';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
-import type Stage from './stage';
+import { getCollationForExecution } from '../collation-string';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
+import {
+  createSearchStageMetadata,
+  injectSearchScoreMetadata,
+} from '../../utils/search-score-injection';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
+import { aggregatePipeline } from '../../utils/cancellable-aggregation';
+import {
+  getDestinationNamespaceFromStage,
+  isOutputStage,
+  stageOperatorsWithAutoEmbedPreview,
+} from '../../utils/stage';
+import { fetchExplainForPipeline } from '../insights';
+import type Stage from './stage';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   createPreviewAggregation,
@@ -17,35 +35,18 @@ import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
-import {
-  createSearchStageMetadata,
-  injectSearchScoreMetadata,
-} from '../../utils/search-score-injection';
-import type { StagePreviewMetadata } from '../../utils/search-score-injection';
-import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import {
-  getDestinationNamespaceFromStage,
-  isOutputStage,
-  stageOperatorsWithAutoEmbedPreview,
-} from '../../utils/stage';
 import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
-import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
 import type { ServerEnvironment } from './../env';
 import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
-import { cancellableWait } from '@mongodb-js/compass-utils';
-import {
-  ExperimentTestGroups,
-  ExperimentTestNames,
-} from '@mongodb-js/compass-telemetry/provider';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
@@ -127,6 +128,7 @@ export type ChangeStageValueAction = {
   type: typeof StageEditorActionTypes.StageValueChange;
   id: number;
   stage: Stage;
+  syntaxError: PipelineParserError | null;
 };
 
 export type ChangeStageOperatorAction = {
@@ -146,6 +148,7 @@ export type ChangeStageDisabledAction = {
   type: typeof StageEditorActionTypes.StageDisabledChange;
   id: number;
   disabled: boolean;
+  syntaxError: PipelineParserError | null;
 };
 
 export type StageAddAction = {
@@ -354,41 +357,54 @@ export const loadStagePreview = (
         collectionStats,
       } = getState();
 
+      // Shared by the preview and the metadata query so collation is parsed
+      // at most once per request
+      let previewOptionsPromise: Promise<PreviewOptions> | undefined;
+      const getPreviewOptions = () =>
+        (previewOptionsPromise ??= getCollationForExecution(
+          collationString
+        ).then((collation) => ({
+          maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+          collation: collation ?? undefined,
+          sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
+          previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
+          totalDocumentCount: collectionStats?.document_count,
+        })));
+
+      const previewPromise = pipelineBuilder.getPreviewForStage(
+        idxInPipeline,
+        namespace,
+        getPreviewOptions
+      );
+
       const activeDataService = dataService.dataService;
       const isSingleSearchStagePreview =
         !!activeDataService &&
         stagesForPreview.length === 1 &&
         stagesForPreview[0].stageOperator === '$search';
-      let shouldFetchSearchStageMetadata = false;
-      if (isSingleSearchStagePreview) {
-        const assignment = await experimentationServices.getAssignment(
-          ExperimentTestNames.searchActivationProgramP2,
-          false
-        );
-        shouldFetchSearchStageMetadata =
-          assignment?.assignmentData?.variant ===
-          ExperimentTestGroups.searchActivationProgramP2Variant;
-      }
-      const aggregateOptions: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collationString.value ?? undefined,
-      };
-      const options: PreviewOptions = {
-        ...aggregateOptions,
-        sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
-        previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: collectionStats?.document_count,
-      };
 
       const metadataAbortController = new AbortController();
       const metadataPromise =
-        shouldFetchSearchStageMetadata && activeDataService
+        isSingleSearchStagePreview && activeDataService
           ? (async () => {
               try {
+                const assignment = await experimentationServices.getAssignment(
+                  ExperimentTestNames.searchActivationProgramP2,
+                  false
+                );
+                if (
+                  assignment?.assignmentData?.variant !==
+                  ExperimentTestGroups.searchActivationProgramP2Variant
+                ) {
+                  return null;
+                }
+
                 await cancellableWait(
                   DEFAULT_PREVIEW_DEBOUNCE_MS,
-                  metadataAbortController.signal
+                  undefined,
+                  metadataAbortController
                 );
+                const previewOptions = await getPreviewOptions();
 
                 return await aggregatePipeline({
                   dataService: activeDataService,
@@ -397,14 +413,17 @@ export const loadStagePreview = (
                   namespace,
                   pipeline: createPreviewAggregation(
                     injectSearchScoreMetadata(
-                      pipelineBuilder.getPipelineFromStages(
+                      await pipelineBuilder.getPipelineFromStages(
                         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
                       ),
-                      options.previewSize ?? DEFAULT_PREVIEW_LIMIT
+                      previewOptions.previewSize ?? DEFAULT_PREVIEW_LIMIT
                     ),
-                    options
+                    previewOptions
                   ),
-                  options: aggregateOptions,
+                  options: {
+                    maxTimeMS: previewOptions.maxTimeMS,
+                    collation: previewOptions.collation,
+                  },
                 });
               } catch {
                 return null;
@@ -414,7 +433,7 @@ export const loadStagePreview = (
 
       try {
         const [documents, metadataDocs] = await Promise.all([
-          pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
+          previewPromise,
           metadataPromise,
         ]);
         const stageMetadata = createSearchStageMetadata(
@@ -557,12 +576,15 @@ export const runStage = (
 
     try {
       dispatch({ type: StageEditorActionTypes.StageRun, id: idx });
-      const pipeline = pipelineBuilder.getPipelineFromStages(
-        pipelineBuilder.stages.slice(0, idxInPipeline + 1)
-      );
+      const [pipeline, collation] = await Promise.all([
+        pipelineBuilder.getPipelineFromStages(
+          pipelineBuilder.stages.slice(0, idxInPipeline + 1)
+        ),
+        getCollationForExecution(collationString),
+      ]);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collationString.value ?? undefined,
+        collation: collation ?? undefined,
       };
       // We are not handling cancelling, just supporting `aggregatePipeline` interface
       const { signal } = new AbortController();
@@ -600,8 +622,8 @@ export const runStage = (
 export const changeStageValue = (
   id: number,
   newVal: string
-): PipelineBuilderThunkAction<void, ChangeStageValueAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+): PipelineBuilderThunkAction<Promise<void>, ChangeStageValueAction> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -619,9 +641,36 @@ export const changeStageValue = (
       return;
     }
 
+    const previousSyntaxError = stageInStore.syntaxError;
     stage.changeValue(newVal);
-    dispatch({ type: StageEditorActionTypes.StageValueChange, id, stage });
-    dispatch(loadPreviewForStagesFrom(id));
+    // Value and babel errors land right away so the editor never lags
+    dispatch({
+      type: StageEditorActionTypes.StageValueChange,
+      id,
+      stage,
+      // Avoid flicker - if there's previous error, show it
+      // until we have parse results.
+      syntaxError: stage.syntaxError ?? previousSyntaxError ?? null,
+    });
+
+    await stage.validateWithParser();
+    if (stage.value !== newVal) {
+      return;
+    }
+    const currentIdx = getState().pipelineBuilder.stageEditor.stages.findIndex(
+      (s) => s.type === 'stage' && s.id === stage.id
+    );
+    // Stage may have been added, removed or moved while parsing
+    if (currentIdx === -1 || stage.value !== newVal) {
+      return;
+    }
+    dispatch({
+      type: StageEditorActionTypes.StageValueChange,
+      id: currentIdx,
+      stage,
+      syntaxError: stage.syntaxError ?? null,
+    });
+    dispatch(loadPreviewForStagesFrom(currentIdx));
     void dispatch(fetchExplainForPipeline());
   };
 };
@@ -759,8 +808,27 @@ export const changeStageOperator = (
       newSnippet: !!newSnippet,
     });
 
-    dispatch(loadPreviewForStagesFrom(id));
-    void dispatch(fetchExplainForPipeline());
+    // changeOperator clears all errors, so re-run the async parser validation.
+    // Not awaited because the snippet has to be returned synchronously
+    void stage.validateWithParser().then(() => {
+      const currentIdx =
+        getState().pipelineBuilder.stageEditor.stages.findIndex(
+          (s) => s.type === 'stage' && s.id === stage.id
+        );
+      if (currentIdx === -1 || stage.operator !== newVal) {
+        return;
+      }
+      if (stage.syntaxError) {
+        dispatch({
+          type: StageEditorActionTypes.StageOperatorChange,
+          id: currentIdx,
+          stage,
+          newSnippet: !!newSnippet,
+        });
+      }
+      dispatch(loadPreviewForStagesFrom(currentIdx));
+      void dispatch(fetchExplainForPipeline());
+    });
 
     return newSnippet;
   };
@@ -793,9 +861,28 @@ export const changeStageDisabled = (
       type: StageEditorActionTypes.StageDisabledChange,
       id,
       disabled: newVal,
+      syntaxError: stage.syntaxError,
     });
-    dispatch(loadPreviewForStagesFrom(id));
-    void dispatch(fetchExplainForPipeline());
+
+    void stage.validateWithParser().then(() => {
+      const currentIdx =
+        getState().pipelineBuilder.stageEditor.stages.findIndex(
+          (s) => s.type === 'stage' && s.id === stage.id
+        );
+      if (currentIdx === -1) {
+        return;
+      }
+      if (stage.syntaxError) {
+        dispatch({
+          type: StageEditorActionTypes.StageDisabledChange,
+          id: currentIdx,
+          disabled: stage.disabled,
+          syntaxError: stage.syntaxError,
+        });
+      }
+      dispatch(loadPreviewForStagesFrom(currentIdx));
+      void dispatch(fetchExplainForPipeline());
+    });
   };
 };
 
@@ -861,7 +948,7 @@ export const addSearchStageBefore = (
 
     const { env, comments } = getState();
     const initialValue = getStageSnippet('$search', env, comments, true);
-    dispatch(changeStageValue(storeIndex, initialValue));
+    void dispatch(changeStageValue(storeIndex, initialValue));
   };
 };
 
@@ -1011,34 +1098,41 @@ export const removeWizard = (at: number): WizardRemoveAction => ({
 export const updateWizardValue = (
   at: number,
   value: string
-): PipelineBuilderThunkAction<void, WizardChangeAction> => {
-  return (dispatch, getState) => {
-    const {
-      pipelineBuilder: {
-        stageEditor: { stages },
-      },
-    } = getState();
-    const itemAtIdx = stages[at];
+): PipelineBuilderThunkAction<Promise<void>, WizardChangeAction> => {
+  return async (dispatch, getState) => {
+    const getWizard = () => getState().pipelineBuilder.stageEditor.stages[at];
+    const itemAtIdx = getWizard();
     if (itemAtIdx.type !== 'wizard') {
       return;
     }
 
+    // Store the value right away so the form never lags behind typing, and
+    // keep the previous syntax error until the new value has been parsed
+    dispatch({
+      type: StageEditorActionTypes.WizardChanged,
+      at,
+      value,
+      syntaxError: itemAtIdx.syntaxError,
+    });
+
+    let syntaxError: SyntaxError | null = null;
     try {
-      parseShellBSON(value);
-      dispatch({
-        type: StageEditorActionTypes.WizardChanged,
-        at,
-        value,
-        syntaxError: null,
-      });
+      await parseShellBSON(value);
     } catch (e) {
-      dispatch({
-        type: StageEditorActionTypes.WizardChanged,
-        at,
-        value,
-        syntaxError: e as SyntaxError,
-      });
+      syntaxError = e as SyntaxError;
     }
+
+    // The wizard might have been edited again or removed while parsing
+    const current = getWizard();
+    if (current?.type !== 'wizard' || current.value !== value) {
+      return;
+    }
+    dispatch({
+      type: StageEditorActionTypes.WizardChanged,
+      at,
+      value,
+      syntaxError,
+    });
   };
 };
 
@@ -1353,7 +1447,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           previewDocs: null,
           value: action.stage.value,
-          syntaxError: action.stage.syntaxError,
+          syntaxError: action.syntaxError,
           empty: action.stage.isEmpty,
           fromSnippet: false,
         },
@@ -1401,6 +1495,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           serverError: null,
           previewDocs: null,
           disabled: action.disabled,
+          syntaxError: action.syntaxError,
         },
         ...state.stages.slice(action.id + 1),
       ],

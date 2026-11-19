@@ -1,5 +1,5 @@
-import type { CompassBrowser } from '../compass-browser.ts';
 import type { ChainablePromiseElement } from 'webdriverio';
+import type { CompassBrowser } from '../compass-browser.ts';
 import { resolveElement } from '../utils.ts';
 
 interface ClickOptions {

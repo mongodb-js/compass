@@ -1,10 +1,8 @@
-import { expect } from 'chai';
+import os from 'node:os';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import sinon from 'sinon';
-import { useExportConnections } from './use-export-connections';
-import type { ImportExportResult } from './common';
-import os from 'os';
-import path from 'path';
-import { promises as fs } from 'fs';
+import { expect } from 'chai';
 import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
 import {
   renderHookWithConnections,
@@ -13,6 +11,8 @@ import {
   createDefaultConnectionInfo,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
+import type { ImportExportResult } from './common';
+import { useExportConnections } from './use-export-connections';
 
 describe('useExportConnections', function () {
   let sandbox: sinon.SinonSandbox;

@@ -1,9 +1,9 @@
 'use strict';
 const { expect } = require('chai');
-const { MongoDBInstance } = require('../');
 const {
   createSandboxFromDefaultPreferences,
 } = require('@mongodb-js/compass-preferences-model');
+const { MongoDBInstance } = require('../');
 
 describe('mongodb-instance-model', function () {
   let preferences;

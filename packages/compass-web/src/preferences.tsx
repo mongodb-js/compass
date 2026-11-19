@@ -20,7 +20,7 @@ export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableExplainPlan: true,
   enableAggregationBuilderRunPipeline: true,
   enableAggregationBuilderExtraOptions: true,
-  enableAtlasSearchIndexes: false,
+  enableAtlasSearchIndexes: true,
   enableImportExport: false,
   enableGenAIFeatures: true,
   enableGenAIFeaturesAtlasProject: false,

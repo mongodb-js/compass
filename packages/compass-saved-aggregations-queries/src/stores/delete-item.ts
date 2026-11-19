@@ -1,8 +1,8 @@
-import type { SavedQueryAggregationThunkAction } from '.';
 import {
   showConfirmation,
   ConfirmationModalVariant,
 } from '@mongodb-js/compass-components';
+import type { SavedQueryAggregationThunkAction } from '.';
 
 export const ActionTypes = {
   DeleteItemConfirm: 'compass-saved-aggregations-queries/deleteItemConfirm',

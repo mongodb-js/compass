@@ -1,3 +1,4 @@
+import chai from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import { startTelemetryServer } from '../helpers/telemetry.ts';
 import type { Telemetry } from '../helpers/telemetry.ts';
@@ -11,9 +12,9 @@ import {
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import chai from 'chai';
 import { createSidebarDatabase } from '../helpers/mongo-clients.ts';
 import { getShellOutputText } from '../helpers/commands/index.ts';
+
 const { expect } = chai;
 
 describe('Shell', function () {

@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 import { css } from '@mongodb-js/compass-components';
 import {
   SortableContext,
@@ -8,6 +7,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 
 import Stage from '../../stage';
 import Wizard from '../../stage-wizard';

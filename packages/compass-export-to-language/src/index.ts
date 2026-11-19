@@ -1,7 +1,7 @@
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
+import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
 import ExportToLanguageModal from './components/modal';
 import { activatePlugin } from './stores';
-import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
 
 const ExportToLanguagePlugin = registerCompassPlugin(
   {

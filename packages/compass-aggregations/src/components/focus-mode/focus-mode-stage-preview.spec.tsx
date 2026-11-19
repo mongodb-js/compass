@@ -1,28 +1,33 @@
 import React, { type ComponentProps } from 'react';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  within,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
+import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../test/configure-store';
+import {
+  MERGE_STAGE_PREVIEW_TEXT,
+  OUT_STAGE_PREVIEW_TEXT,
+} from '../../constants';
+import type { ConfigureStoreOptions } from '../../stores/store';
 import {
   FocusModePreview,
   InputPreview,
   OutputPreview,
 } from './focus-mode-stage-preview';
-import {
-  MERGE_STAGE_PREVIEW_TEXT,
-  OUT_STAGE_PREVIEW_TEXT,
-} from '../../constants';
-import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
-
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../test/configure-store';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
@@ -50,6 +55,7 @@ const renderOutputPreview = async (
   const experimentVariant = enableSearchActivationP2Experiment
     ? ExperimentTestGroups.searchActivationProgramP2Variant
     : null;
+  await preferences.savePreferences({ enableAtlasSearchIndexes: false });
   if (enableAIAssistant) {
     await preferences.savePreferences(AI_ASSISTANT_PREFERENCES);
   }
@@ -74,33 +80,31 @@ const renderOutputPreview = async (
   return renderWithStore(ui, { pipeline: DEFAULT_PIPELINE });
 };
 
-const renderFocusModePreview = (
+const renderFocusModePreview = async (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
-    enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    enableAtlasSearchIndexes = false,
+  }: { enableAtlasSearchIndexes?: boolean } = {}
 ) => {
-  let ui = (
-    <FocusModePreview
-      title=""
-      isLoading={false}
-      stageIndex={-1}
-      stageOperator={null}
-      documents={null}
-      isMissingAtlasOnlyStageSupport={false}
-      onExpand={() => {}}
-      onCollapse={() => {}}
-      {...props}
-    />
+  const preferences = await createSandboxFromDefaultPreferences();
+  await preferences.savePreferences({ enableAtlasSearchIndexes });
+  const ui = (
+    <PreferencesProvider value={preferences}>
+      <FocusModePreview
+        title=""
+        isLoading={false}
+        stageIndex={-1}
+        stageOperator={null}
+        documents={null}
+        isMissingAtlasOnlyStageSupport={false}
+        onExpand={() => {}}
+        onCollapse={() => {}}
+        {...props}
+      />
+    </PreferencesProvider>
   );
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
   return renderWithStore(ui, { pipeline, ...storeOptions });
 };
 
@@ -245,7 +249,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('search-index-stale-results-banner')).to
@@ -262,7 +266,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('search-index-stale-results-banner')).to
@@ -303,7 +307,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
@@ -359,7 +363,6 @@ describe('FocusModeStagePreview', function () {
           stageOperator: '$search',
           documents: [],
           stageValue: '{ "index": "movies" }',
-          searchIndexName: 'movies',
           onCloseFocusMode,
         },
         {
@@ -368,13 +371,21 @@ describe('FocusModeStagePreview', function () {
           diagnoseSearchStage,
         }
       );
-      userEvent.click(screen.getByTestId('focus-mode-diagnose-search-button'));
-      expect(onCloseFocusMode).to.have.been.calledOnce;
-      expect(diagnoseSearchStage).to.have.been.calledOnceWith({
-        stageOperator: '$search',
-        indexName: 'movies',
-        stageValue: '{ "index": "movies" }',
+      // Index name is parsed async, so retry the click until it resolves and
+      // reset spies each attempt to assert on a single click
+      await waitFor(() => {
+        diagnoseSearchStage.resetHistory();
+        onCloseFocusMode.resetHistory();
+        userEvent.click(
+          screen.getByTestId('focus-mode-diagnose-search-button')
+        );
+        expect(diagnoseSearchStage).to.have.been.calledOnceWith({
+          stageOperator: '$search',
+          indexName: 'movies',
+          stageValue: '{ "index": "movies" }',
+        });
       });
+      expect(onCloseFocusMode).to.have.been.calledOnce;
     });
   });
 

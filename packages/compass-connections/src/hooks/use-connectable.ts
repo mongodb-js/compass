@@ -1,5 +1,5 @@
-import { useStore } from '../stores/store-context';
 import { useCallback } from 'react';
+import { useStore } from '../stores/store-context';
 import { connectable } from '../utils/connection-supports';
 
 export function useConnectable(): (connectionId: string) => boolean {

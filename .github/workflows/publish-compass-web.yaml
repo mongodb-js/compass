@@ -45,12 +45,12 @@ jobs:
       commit_hash: ${{ steps.define_commit_hash.outputs.commit_hash }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 24.15.0
+          node-version: 24.22.2
           cache: 'npm'
 
       - name: Install npm@11.16.0
@@ -99,7 +99,7 @@ jobs:
           echo "environment=$COMPASS_WEB_PUBLISH_ENVIRONMENT" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # Evergreen CLI needs the full history
           ref: ${{ github.head_ref }}
@@ -111,9 +111,9 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 24.15.0
+          node-version: 24.22.2
           cache: 'npm'
 
       - name: Install npm@11.16.0
@@ -154,7 +154,7 @@ jobs:
 
       - name: Configure AWS credentials
         if: ${{ !steps.check_if_deployed.outputs.already_deployed }}
-        uses: aws-actions/configure-aws-credentials@56d6a583f00f6bad6d19d91d53a7bc3b8143d0e9 # v5.1.1
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           role-to-assume: arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass
           aws-region: us-east-1

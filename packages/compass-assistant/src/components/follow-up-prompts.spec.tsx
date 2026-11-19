@@ -5,9 +5,9 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
 
 describe('parseFollowUpQuestions', function () {
   const complete = { isLastMessage: true, isResponseComplete: true };

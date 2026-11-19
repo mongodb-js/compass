@@ -1,8 +1,8 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
-import { type IndexesStore } from './store';
 import { setupStore } from '../../test/setup-store';
+import { type IndexesStore } from './store';
 
 class FakeInstance extends EventEmitter {
   isWritable = true;

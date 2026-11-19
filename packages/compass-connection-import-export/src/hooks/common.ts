@@ -1,6 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect } from 'react';
-import { useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import type { HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
 import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 

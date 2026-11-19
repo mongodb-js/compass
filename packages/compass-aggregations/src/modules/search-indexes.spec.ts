@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import reducer, { fetchIndexes, ActionTypes } from './search-indexes';
-import configureStore from '../../test/configure-store';
 import sinon from 'sinon';
 import type { AnyAction } from 'redux';
+import configureStore from '../../test/configure-store';
 import type { AggregationsStore } from '../stores/store';
+import reducer, { fetchIndexes, ActionTypes } from './search-indexes';
 
 describe('search-indexes module', function () {
   describe('#reducer', function () {

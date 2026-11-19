@@ -1,34 +1,34 @@
 import type { Reducer } from 'redux';
-import { isAction } from './util';
-import type { DataModelingThunkAction } from './reducer';
 import {
   analyzeDocuments,
   type MongoDBJSONSchema,
 } from '@mongodb-js/mongodb-schema';
-import {
-  applySetModelEdit,
-  getCurrentDiagramFromState,
-  selectCurrentModel,
-} from './diagram';
 import { type Document, UUID } from 'bson';
-import {
-  type Relationship,
-  type StaticModel,
-} from '../services/data-model-storage';
 import { applyLayout } from '@mongodb-js/compass-components';
-import {
-  collectionToBaseNodeForLayout,
-  relationshipToDiagramEdge,
-} from '../utils/nodes-and-edges';
-import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-import { extractFieldsFromFieldData } from '../utils/schema';
 import { isEqual } from 'lodash';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type {
   ConnectionsService,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
+import { extractFieldsFromFieldData } from '../utils/schema';
+import {
+  collectionToBaseNodeForLayout,
+  relationshipToDiagramEdge,
+} from '../utils/nodes-and-edges';
+import {
+  type Relationship,
+  type StaticModel,
+} from '../services/data-model-storage';
+import { inferForeignToLocalRelationshipsForCollection } from './relationships';
+import {
+  applySetModelEdit,
+  getCurrentDiagramFromState,
+  selectCurrentModel,
+} from './diagram';
+import type { DataModelingThunkAction } from './reducer';
+import { isAction } from './util';
 import type { SamplingOptions } from './sampling-options';
 
 type AnalyzedCollection = {

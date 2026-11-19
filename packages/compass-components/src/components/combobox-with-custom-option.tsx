@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Combobox } from './leafygreen';
 import type { ComboboxProps } from '@leafygreen-ui/combobox';
+import { Combobox } from './leafygreen';
 
 type SelectValueType<T extends boolean> = Required<ComboboxProps<T>>['value'];
 type OnChangeType<T extends boolean> = Required<ComboboxProps<T>>['onChange'];

@@ -1,5 +1,5 @@
 import { z } from '@mongodb-js/compass-user-data';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { MongoDBJSONSchema } from '@mongodb-js/mongodb-schema';
 
 export const FieldPathSchema = z.array(z.string());

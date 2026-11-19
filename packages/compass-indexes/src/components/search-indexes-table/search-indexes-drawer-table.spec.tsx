@@ -10,7 +10,6 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { SearchIndexesDrawerTable } from './search-indexes-drawer-table';
 import { FetchStatuses } from '../../utils/fetch-status';
 import {
   searchIndexes as indexes,
@@ -18,6 +17,7 @@ import {
 } from '../../../test/fixtures/search-indexes';
 import { mockSearchIndex } from '../../../test/helpers';
 import { setupStore } from '../../../test/setup-store';
+import { SearchIndexesDrawerTable } from './search-indexes-drawer-table';
 
 const NBSP = '\u00A0';
 

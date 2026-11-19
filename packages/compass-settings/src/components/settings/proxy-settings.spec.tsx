@@ -8,10 +8,10 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import { ProxySettings } from './proxy-settings';
+import { proxyPreferenceToProxyOptions } from '@mongodb-js/compass-preferences-model';
 import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
-import { proxyPreferenceToProxyOptions } from '@mongodb-js/compass-preferences-model';
+import { ProxySettings } from './proxy-settings';
 
 describe('ProxyOptions', function () {
   let container: HTMLElement;

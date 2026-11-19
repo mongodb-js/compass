@@ -1,7 +1,7 @@
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { CreateIndexesOptions, IndexSpecification } from 'mongodb';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 
 export type AtlasIndexStats = {
   collName: string;

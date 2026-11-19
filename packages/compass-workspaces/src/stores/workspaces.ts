@@ -2,8 +2,7 @@ import type { Reducer, AnyAction, Action } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from '@mongodb-js/compass-app-registry';
-import toNS from 'mongodb-ns';
-import type { WorkspacesServices } from '..';
+import toNS from '@mongodb-js/mongodb-ns';
 import type {
   WorkspaceTab,
   WorkspaceTabProps,
@@ -13,14 +12,15 @@ import type {
   Workspace,
 } from '@mongodb-js/workspace-info';
 import { isEqual } from 'lodash';
+import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { showConfirmation } from '@mongodb-js/compass-components';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
 import {
   cleanupTabDestroyHandler,
   canCloseTab,
   canReplaceTab,
 } from '../components/workspace-close-handler';
-import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { showConfirmation } from '@mongodb-js/compass-components';
+import type { WorkspacesServices } from '..';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 

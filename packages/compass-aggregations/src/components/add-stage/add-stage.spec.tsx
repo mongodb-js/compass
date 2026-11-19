@@ -1,13 +1,13 @@
 import React, { type ComponentProps } from 'react';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { AddStage } from './add-stage';
 import {
   cleanup,
   render,
   screen,
   within,
 } from '@mongodb-js/testing-library-compass';
+import { AddStage } from './add-stage';
 
 const renderAddStage = (
   props: Partial<ComponentProps<typeof AddStage>> = {}

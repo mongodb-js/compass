@@ -16,13 +16,13 @@ import {
   PngIcon,
   useDiagram,
 } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
   closeExportModal,
   exportDiagram,
   selectFormat,
 } from '../store/export-diagram';
-import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 
 const modelBodyStyles = css({

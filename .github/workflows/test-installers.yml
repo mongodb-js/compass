@@ -184,7 +184,7 @@ jobs:
         if: matrix.prepare-container
         run: ${{ matrix.prepare-container }}
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2
         # The way actions/checkout sets up `safe.directly` config option doesn't
         # work for GHA workflows that use containers, so we have to follow-up
         # the checkout by setting this option ourselves specifically on a system
@@ -196,9 +196,9 @@ jobs:
         run: |
           git config --system --add safe.directory $GITHUB_WORKSPACE
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 24.15.0
+          node-version: 24.22.2
           cache: 'npm'
 
       - name: Install npm@11.16.0
@@ -206,7 +206,7 @@ jobs:
           npm install -g npm@11.16.0
 
       - name: Cache downloads
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           key: smoke-tests-downloads-${{ inputs.dev_version || github.ref_name }}-${{ runner.os }}-${{ runner.arch }}-${{ matrix.package }}
           path: packages/compass-smoke-tests/.downloads
@@ -217,7 +217,7 @@ jobs:
 
       - name: Create GitHub App Token
         if: matrix.install-update-server
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
@@ -226,7 +226,7 @@ jobs:
           repositories: compass-mongodb-com
       - name: Checkout Compass Update server
         if: matrix.install-update-server
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: 10gen/compass-mongodb-com
           token: ${{ steps.app-token.outputs.token }}
@@ -286,7 +286,7 @@ jobs:
           Get-ChildItem -Path $destination
 
       - name: 'Upload logs'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: ${{ matrix.hadron-distribution}}-${{ matrix.hadron-platform}}-${{ matrix.arch }}-${{ matrix.package }}-${{ matrix.test }}-logs

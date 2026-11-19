@@ -1,5 +1,17 @@
 import React, { useCallback, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
+import type { ContextMenuItemGroup } from '@mongodb-js/compass-context-menu';
+import {
+  VisuallyHidden,
+  css,
+  spacing,
+  useId,
+} from '@mongodb-js/compass-components';
+import { useConnectable } from '@mongodb-js/compass-connections/provider';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { getConnectionId, getVirtualTreeItems } from './tree-data';
 import { ROW_HEIGHT } from './constants';
 import type { Actions } from './constants';
@@ -11,17 +23,6 @@ import type {
   SidebarActionableItem,
   Connection,
 } from './tree-data';
-import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
-import type { ContextMenuItemGroup } from '@mongodb-js/compass-context-menu';
-import {
-  VisuallyHidden,
-  css,
-  spacing,
-  useId,
-} from '@mongodb-js/compass-components';
-import { useConnectable } from '@mongodb-js/compass-connections/provider';
-import type { WorkspaceTab } from '@mongodb-js/workspace-info';
-import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,
@@ -41,6 +42,8 @@ const ConnectionsNavigationContainerStyles = css({
 });
 export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
+  folders?: Folder[];
+  folderAssignments?: Record<string, string>;
   activeWorkspace: WorkspaceTab | null;
   expanded: Record<string, false | Record<string, boolean>>;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
@@ -51,6 +54,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   ConnectionsNavigationTreeProps
 > = ({
   connections,
+  folders,
+  folderAssignments,
   activeWorkspace,
   expanded,
   onItemExpand,
@@ -69,6 +74,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const treeData = useMemo(() => {
     return getVirtualTreeItems({
       connections,
+      folders,
+      folderAssignments,
       expandedItems: expanded,
       preferencesReadOnly,
       preferencesReadWrite,
@@ -76,6 +83,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     });
   }, [
     connections,
+    folders,
+    folderAssignments,
     expanded,
     preferencesReadOnly,
     preferencesReadWrite,
@@ -84,8 +93,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
+      // A folder has no default action beyond expanding or collapsing itself.
+      if (item.type === 'folder') {
+        onItemExpand(item, !item.isExpanded);
+        return;
+      }
+
       const connectionId = getConnectionId(item);
-      if (!getConnectable(connectionId)) {
+      if (!connectionId || !getConnectable(connectionId)) {
         return;
       }
 
@@ -103,7 +118,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, getConnectable]
+    [onItemAction, getConnectable, onItemExpand]
   );
 
   const activeItemId = useMemo(() => {
@@ -165,17 +180,18 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
+      if (item.type === 'placeholder' || item.type === 'folder') {
+        return {
+          actions: [],
+        };
+      }
       const connectionId = getConnectionId(item);
-      if (!getConnectable(connectionId)) {
+      if (!connectionId || !getConnectable(connectionId)) {
         return {
           actions: [],
         };
       }
       switch (item.type) {
-        case 'placeholder':
-          return {
-            actions: [],
-          };
         case 'connection': {
           if (item.connectionStatus === 'connected') {
             const actions = connectedConnectionItemActions({
@@ -234,6 +250,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     ): ContextMenuItemGroup[] {
       switch (item.type) {
         case 'placeholder':
+        case 'folder':
           return [];
         case 'connection':
           return itemActionsToContextMenuGroups(

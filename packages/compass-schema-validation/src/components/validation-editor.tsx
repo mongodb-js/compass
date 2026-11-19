@@ -31,7 +31,6 @@ import type {
   ValidationServerAction,
   ValidationState,
 } from '../modules/validation';
-import { ActionSelector, LevelSelector } from './validation-selectors';
 import type { RootState } from '../modules';
 import {
   checkValidator,
@@ -44,6 +43,7 @@ import {
 import { clearSampleDocuments } from '../modules/sample-documents';
 import { enableEditRules } from '../modules/edit-mode';
 import { generateValidationRules } from '../modules/rules-generation';
+import { ActionSelector, LevelSelector } from './validation-selectors';
 
 const validationEditorStyles = css({
   padding: spacing[400],
@@ -197,8 +197,8 @@ export const ValidationEditor: React.FunctionComponent<
   const validationRef = useCurrentValueRef(validation);
 
   const trackValidator = useCallback(
-    (validator: string) => {
-      const checkedValidator = checkValidator(validator);
+    async (validator: string) => {
+      const checkedValidator = await checkValidator(validator);
       const trackEvent = {
         json_schema:
           typeof checkedValidator.validator === 'object' &&
@@ -215,7 +215,7 @@ export const ValidationEditor: React.FunctionComponent<
     // eslint-disable-next-line react-hooks/refs
     return debounce((validator: string) => {
       clearSampleDocumentsRef.current();
-      trackValidator(validator);
+      void trackValidator(validator);
     }, 750);
   }, [clearSampleDocumentsRef, trackValidator]);
 

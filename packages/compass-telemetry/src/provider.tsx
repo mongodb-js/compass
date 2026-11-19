@@ -1,15 +1,15 @@
 import React, { useRef, useContext } from 'react';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from './types';
-import type { ExperimentTestName } from './growth-experiments';
-import { ExperimentationContext } from './experimentation-provider';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 import {
   useCurrentValueRef,
   useInitialValue,
 } from '@mongodb-js/compass-components';
+import { createTrack, type TelemetryServiceOptions } from './generic-track';
+import type { TrackFunction } from './types';
+import type { ExperimentTestName } from './growth-experiments';
+import { ExperimentationContext } from './experimentation-provider';
 
 const noop = () => {
   // noop
@@ -138,7 +138,7 @@ export function useTrackOnChange(
  *
  * @example
  * useFireExperimentViewed({
- *   testName: ExperimentTestNames.searchActivationProgramP1,
+ *   testName: ExperimentTestNames.searchActivationProgramP2,
  *   shouldFire: enableMockDataGenerator,
  * });
  */
@@ -173,9 +173,6 @@ export type {
   ExperimentTestGroup,
 } from './growth-experiments';
 export { useAssignment, useTrackInSample } from './experimentation-provider';
-
-// @experiment Search Activation Program P1  | Jira Epic: CLOUDP-308952
-export { useSearchActivationProgramP1 } from './search-activation-program-p1';
 
 // @experiment Search Activation Program P2 | Jira Epic: CLOUDP-331931
 export { useSearchActivationProgramP2 } from './search-activation-program-p2';

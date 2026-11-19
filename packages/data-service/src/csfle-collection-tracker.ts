@@ -4,17 +4,17 @@ import type {
   Document,
   AutoEncryptionOptions,
 } from 'mongodb';
+import parseNamespace from '@mongodb-js/mongodb-ns';
+import _ from 'lodash';
+import { EJSON } from 'bson';
 import type { DataService } from './data-service';
 import type {
   CollectionInfo,
   CollectionInfoNameOnly,
   ListCollectionsOptions,
 } from './run-command';
-import parseNamespace from 'mongodb-ns';
-import _ from 'lodash';
 import type { UnboundDataServiceImplLogger } from './logger';
 import { mongoLogId } from './logger';
-import { EJSON } from 'bson';
 
 /**
  * A list of field paths for a document.

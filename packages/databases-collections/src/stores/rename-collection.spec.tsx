@@ -1,7 +1,6 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { RenameCollectionPlugin } from '..';
 import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
 import {
   render,
@@ -9,6 +8,7 @@ import {
   screen,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
+import { RenameCollectionPlugin } from '..';
 
 describe('RenameCollectionPlugin', function () {
   const sandbox = Sinon.createSandbox();

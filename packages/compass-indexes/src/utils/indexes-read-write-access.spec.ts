@@ -1,11 +1,10 @@
 import { expect } from 'chai';
-import { useSelector } from 'react-redux';
+import { useSelector, Provider } from 'react-redux';
 import { renderHook } from '@mongodb-js/testing-library-compass';
-import { Provider } from 'react-redux';
 import React from 'react';
-import { selectReadWriteAccess } from './indexes-read-write-access';
 import { setupStore } from '../../test/setup-store';
 import type { IndexesPluginOptions } from '../stores/store';
+import { selectReadWriteAccess } from './indexes-read-write-access';
 
 describe('indexes-read-write-access', function () {
   describe('selectReadWriteAccess', function () {
@@ -16,7 +15,6 @@ describe('indexes-read-write-access', function () {
         readWrite?: boolean;
         enableIndexesManagement?: boolean;
         enableAtlasSearchIndexes?: boolean;
-        enableSearchActivationProgramP1?: boolean;
       } = {}
     ) {
       const store = setupStore(options, {}, {});
@@ -29,8 +27,6 @@ describe('indexes-read-write-access', function () {
         preferences.enableIndexesManagement ?? false;
       const enableAtlasSearchIndexes =
         preferences.enableAtlasSearchIndexes ?? true;
-      const enableSearchActivationProgramP1 =
-        preferences.enableSearchActivationProgramP1 ?? false;
       const { result } = renderHook(
         () =>
           useSelector(
@@ -38,7 +34,6 @@ describe('indexes-read-write-access', function () {
               readOnly,
               readWrite,
               enableAtlasSearchIndexes,
-              enableSearchActivationProgramP1,
               enableIndexesManagement,
             })
           ),

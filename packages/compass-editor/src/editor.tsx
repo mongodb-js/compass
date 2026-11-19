@@ -29,6 +29,9 @@ import {
   syntaxTree,
   foldInside,
   foldEffect,
+  LanguageSupport,
+  syntaxHighlighting,
+  HighlightStyle,
 } from '@codemirror/language';
 import {
   cursorDocEnd,
@@ -65,11 +68,6 @@ import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension, TransactionSpec } from '@codemirror/state';
 import { Facet, Compartment, EditorState } from '@codemirror/state';
-import {
-  LanguageSupport,
-  syntaxHighlighting,
-  HighlightStyle,
-} from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
 

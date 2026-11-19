@@ -1,23 +1,28 @@
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import type { connect as devtoolsConnect } from 'mongodb-data-service';
+import type { connect as devtoolsConnect } from '@mongodb-js/mongodb-data-service';
 import React, { useContext } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
+import {
+  connectionStorageLocator,
+  folderStorageLocator,
+} from '@mongodb-js/connection-storage/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { cloneDeep } from 'lodash';
+import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
+import { useInitialValue } from '@mongodb-js/compass-components';
+import { ConnectionsStoreContext } from './stores/store-context';
 import {
   autoconnectCheck,
   configureStore,
   disconnect,
   loadConnections,
+  loadFolders,
 } from './stores/connections-store-redux';
-import { cloneDeep } from 'lodash';
-import { ConnectionsStoreContext } from './stores/store-context';
+import ConnectionsComponent from './stores/connections';
+
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports, connectable } from './utils/connection-supports';
-import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
-import { useInitialValue } from '@mongodb-js/compass-components';
-import ConnectionsComponent from './stores/connections';
 
 const CompassConnectionsPlugin = registerCompassPlugin(
   {
@@ -29,6 +34,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
         logger,
         preferences,
         connectionStorage,
+        folderStorage,
         track,
         globalAppRegistry,
         compassAssistant,
@@ -39,6 +45,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
         logger,
         preferences,
         connectionStorage,
+        folderStorage,
         track,
         getExtraConnectionData: initialProps.onExtraConnectionDataRequest,
         appName: initialProps.appName,
@@ -49,6 +56,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
 
       setTimeout(() => {
         void store.dispatch(loadConnections());
+        void store.dispatch(loadFolders());
         if (initialProps.onAutoconnectInfoRequest) {
           void store.dispatch(
             autoconnectCheck(
@@ -116,6 +124,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
     logger: createLoggerLocator('COMPASS-CONNECTIONS'),
     preferences: preferencesLocator,
     connectionStorage: connectionStorageLocator,
+    folderStorage: folderStorageLocator,
     track: telemetryLocator,
     compassAssistant: compassAssistantServiceLocator,
   }

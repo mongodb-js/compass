@@ -5,13 +5,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type HadronDocument from 'hadron-document';
-import { DocumentEvents, ElementEvents } from 'hadron-document';
-import type { Element } from 'hadron-document';
-import { Button } from '../leafygreen';
+import type HadronDocument from '@mongodb-js/hadron-document';
+import { DocumentEvents, ElementEvents } from '@mongodb-js/hadron-document';
+import type { Element } from '@mongodb-js/hadron-document';
 import { css } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
+import { Button } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import { showErrorDetails } from '../../hooks/use-error-details';
 

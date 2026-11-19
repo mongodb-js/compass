@@ -1,19 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect, shallowEqual, useSelector } from 'react-redux';
-import type { RootState } from '../../modules';
-import {
-  createIndex,
-  createSearchIndexClosed,
-} from '../../modules/search-indexes';
-import {
-  openIndexesListDrawerView,
-  setIsDirty,
-} from '../../modules/indexes-drawer';
-import {
-  useOnAsyncSuccess,
-  useIndexDefinitionChange,
-} from './drawer-view-hooks';
-import type { SearchIndexType } from '../../modules/indexes-drawer';
 import {
   Body,
   Button,
@@ -26,6 +12,40 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocompleter,
+} from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
+import {
+  ATLAS_SEARCH_TEMPLATES,
+  ATLAS_VECTOR_SEARCH_TEMPLATE,
+  ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
+} from '@mongodb-js/mongodb-constants';
+import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
+import {
+  useConnectionInfo,
+  useConnectionInfoRef,
+} from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import {
+  VectorSearchIndexTemplateDropdown,
+  type VectorIndexTemplateChoice,
+} from '../search-index-template-dropdown/vector-search-index-template-dropdown';
+import type { SearchIndexType } from '../../modules/indexes-drawer';
+import {
+  openIndexesListDrawerView,
+  setIsDirty,
+} from '../../modules/indexes-drawer';
+import {
+  createIndex,
+  createSearchIndexClosed,
+} from '../../modules/search-indexes';
+import type { RootState } from '../../modules';
+import { useJsonSchema } from '../../utils/use-json-schema';
+import {
   containerStyles,
   contentStyles,
   buttonContainerStyles,
@@ -33,32 +53,10 @@ import {
   editorContainerDarkModeStyles,
   overflowWrapStyles,
 } from './drawer-view-styles';
-import type { Document } from 'mongodb';
 import {
-  CodemirrorMultilineEditor,
-  useJsonSchemaAutocompleter,
-} from '@mongodb-js/compass-editor';
-import type { EditorRef } from '@mongodb-js/compass-editor';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
-import {
-  ATLAS_SEARCH_TEMPLATES,
-  ATLAS_VECTOR_SEARCH_TEMPLATE,
-  ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
-} from '@mongodb-js/mongodb-constants';
-import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
-import type { SearchIndex } from 'mongodb-data-service';
-import {
-  VectorSearchIndexTemplateDropdown,
-  type VectorIndexTemplateChoice,
-} from '../search-index-template-dropdown/vector-search-index-template-dropdown';
-import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import {
-  useConnectionInfo,
-  useConnectionInfoRef,
-} from '@mongodb-js/compass-connections/provider';
-import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useJsonSchema } from '../../utils/use-json-schema';
+  useOnAsyncSuccess,
+  useIndexDefinitionChange,
+} from './drawer-view-hooks';
 
 /**
  * Strips snippet tab-stop placeholders (e.g. `${1:default}` → `default`)
@@ -96,7 +94,7 @@ type CreateSearchIndexViewProps = {
   onResetCreateState: () => void;
   createIndex: (index: {
     name: string;
-    definition: Document;
+    definition: string;
     type?: string;
   }) => void;
   onIndexDefinitionEdit: (isDirty: boolean) => void;
@@ -176,7 +174,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
       enableIndexesManagement,
     }),
     shallowEqual
@@ -220,7 +217,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     });
     createIndex({
       name,
-      definition: parseShellBSON(indexDefinition),
+      definition: indexDefinition,
       type: currentIndexType,
     });
   }, [name, indexDefinition, createIndex, currentIndexType, track]);

@@ -1,4 +1,5 @@
 import { createLogger } from '@mongodb-js/compass-logging';
+
 const { debug } = createLogger('COMPASS-INTERCOM');
 
 type WindowWithIntercomGlobals = Window &

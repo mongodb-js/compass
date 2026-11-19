@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import type { AtlasUserInfo } from './util';
 
 export type ArgsWithSignal<T = Record<string, unknown>> = T & {

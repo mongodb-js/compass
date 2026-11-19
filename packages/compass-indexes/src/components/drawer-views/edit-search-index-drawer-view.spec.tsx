@@ -10,9 +10,9 @@ import sinon from 'sinon';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Provider } from 'react-redux';
 
-import { EditSearchIndexDrawerView } from './edit-search-index-drawer-view';
 import { mockSearchIndex } from '../../../test/helpers';
 import { setupStore } from '../../../test/setup-store';
+import { EditSearchIndexDrawerView } from './edit-search-index-drawer-view';
 
 const defaultSearchIndex = mockSearchIndex({
   name: 'testIndex',
@@ -202,7 +202,9 @@ describe('EditSearchIndexDrawerView', function () {
       const submitButton = screen.getByTestId(
         'edit-search-index-drawer-view-submit-button'
       );
-      expect(submitButton).to.have.attribute('aria-disabled', 'false');
+      await waitFor(() => {
+        expect(submitButton).to.have.attribute('aria-disabled', 'false');
+      });
     });
 
     it('disables submit button for malformed JSON syntax', async function () {

@@ -1,11 +1,11 @@
 import React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mongodb-js/testing-library-compass';
+import { renderWithStore } from '../../../tests/create-store';
 import {
   ShardKeyInvalid,
   type ShardKeyInvalidProps,
 } from './shard-key-invalid';
-import { renderWithStore } from '../../../tests/create-store';
 
 describe('ShardKeyInvalid', function () {
   const baseProps: ShardKeyInvalidProps = {

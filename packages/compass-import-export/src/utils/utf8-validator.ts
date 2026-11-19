@@ -1,5 +1,5 @@
-import { Transform } from 'stream';
-import util from 'util';
+import { Transform } from 'node:stream';
+import util from 'node:util';
 
 export class Utf8Validator extends Transform {
   decoder = new util.TextDecoder('utf8', { fatal: true, ignoreBOM: true });

@@ -7,8 +7,9 @@ import {
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
+import { DrawerAnchor, getDrawerIds } from '@mongodb-js/compass-components';
+import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '../../index';
-import DiagramEditorSidePanel from './diagram-editor-side-panel';
 import {
   addCollection,
   openDiagram,
@@ -23,12 +24,11 @@ import type {
   DataModelCollection,
   Relationship,
 } from '../../services/data-model-storage';
-import { DrawerAnchor, getDrawerIds } from '@mongodb-js/compass-components';
 import {
   type DataModelStorageService,
   DataModelStorageServiceProvider,
 } from '../../provider';
-import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import DiagramEditorSidePanel from './diagram-editor-side-panel';
 
 const drawerTestId = getDrawerIds().root;
 

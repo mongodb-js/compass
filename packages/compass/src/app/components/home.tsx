@@ -13,11 +13,13 @@ import CompassConnections from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
-import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import {
+  type ConnectionStorage,
+  FolderStorageProvider,
+  type FolderStorage,
+} from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import React from 'react';
-import Workspace from './workspace';
-import { getExtraConnectionData } from '../utils/telemetry';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
@@ -27,8 +29,12 @@ import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provid
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
-import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
-import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
+import {
+  CompassAssistantProvider,
+  APP_NAMES_FOR_PROMPT,
+} from '@mongodb-js/compass-assistant';
+import { getExtraConnectionData } from '../utils/telemetry';
+import Workspace from './workspace';
 
 resetGlobalCSS();
 
@@ -95,36 +101,42 @@ type HomeWithConnectionsProps = HomeProps &
     'onAutoconnectInfoRequest'
   > & {
     connectionStorage: ConnectionStorage;
+    folderStorage: FolderStorage;
     createFileInputBackend: () => FileInputBackend;
   };
 
 function HomeWithConnections({
   onAutoconnectInfoRequest,
   connectionStorage,
+  folderStorage,
   createFileInputBackend,
   ...props
 }: HomeWithConnectionsProps) {
   return (
     <ConnectionStorageProvider value={connectionStorage}>
-      <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-        <ToolsControllerProvider>
-          <AtlasAuthPlugin>
-            <CompassAssistantProvider
-              originForPrompt="mongodb-compass"
-              appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
-            >
-              <CompassConnections
-                appName={props.appName}
-                onExtraConnectionDataRequest={getExtraConnectionData}
-                onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-                doNotReconnectDisconnectedAutoconnectInfo
+      <FolderStorageProvider value={folderStorage}>
+        <FileInputBackendProvider
+          createFileInputBackend={createFileInputBackend}
+        >
+          <ToolsControllerProvider>
+            <AtlasAuthPlugin>
+              <CompassAssistantProvider
+                originForPrompt="mongodb-compass"
+                appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
               >
-                <Home {...props}></Home>
-              </CompassConnections>
-            </CompassAssistantProvider>
-          </AtlasAuthPlugin>
-        </ToolsControllerProvider>
-      </FileInputBackendProvider>
+                <CompassConnections
+                  appName={props.appName}
+                  onExtraConnectionDataRequest={getExtraConnectionData}
+                  onAutoconnectInfoRequest={onAutoconnectInfoRequest}
+                  doNotReconnectDisconnectedAutoconnectInfo
+                >
+                  <Home {...props}></Home>
+                </CompassConnections>
+              </CompassAssistantProvider>
+            </AtlasAuthPlugin>
+          </ToolsControllerProvider>
+        </FileInputBackendProvider>
+      </FolderStorageProvider>
     </ConnectionStorageProvider>
   );
 }

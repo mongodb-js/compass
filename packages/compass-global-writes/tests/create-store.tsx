@@ -1,9 +1,4 @@
 import React from 'react';
-import type {
-  GlobalWritesPluginOptions,
-  GlobalWritesPluginServices,
-} from '../src/store';
-import { activateGlobalWritesPlugin } from '../src/store';
 import { createActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
@@ -11,6 +6,11 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { Provider } from 'react-redux';
 import { renderWithActiveConnection } from '@mongodb-js/testing-library-compass';
+import { activateGlobalWritesPlugin } from '../src/store';
+import type {
+  GlobalWritesPluginOptions,
+  GlobalWritesPluginServices,
+} from '../src/store';
 
 import clusterApiResponse from './cluster-api-response.json';
 

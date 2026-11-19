@@ -4,8 +4,8 @@ import {
   ToastProvider,
   useToast as useLeafygreenToast,
 } from '@leafygreen-ui/toast';
-import { useStackedComponent } from './use-stacked-component';
 import { css } from '..';
+import { useStackedComponent } from './use-stacked-component';
 import { useInitialValue } from './use-initial-value';
 import { useCurrentValueRef } from './use-current-value-ref';
 

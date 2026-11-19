@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import {
-  cleanup,
   render,
   screen,
   waitFor,
@@ -10,17 +9,7 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import { Provider } from '../stores/context';
 
-import { QueryAI } from './query-ai';
-import type { QueryBarExtraArgs } from '../stores/query-bar-store';
-import { configureStore } from '../stores/query-bar-store';
-import {
-  AIQueryActionTypes,
-  changeAIPromptText,
-} from '../stores/ai-query-reducer';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
@@ -29,6 +18,16 @@ import {
   createNoopLogger,
 } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
+import type { QueryBarExtraArgs } from '../stores/query-bar-store';
+import { configureStore } from '../stores/query-bar-store';
+import {
+  AIQueryActionTypes,
+  changeAIPromptText,
+} from '../stores/ai-query-reducer';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { mapQueryToFormFields } from '../utils/query';
+import { Provider } from '../stores/context';
+import { QueryAI } from './query-ai';
 
 const noop = () => {
   /* no op */
@@ -47,8 +46,6 @@ describe('QueryAI Component', function () {
       properties: typeof properties === 'function' ? properties() : properties,
     });
   };
-
-  afterEach(cleanup);
 
   const renderQueryAI = ({
     ...props
@@ -88,7 +85,6 @@ describe('QueryAI Component', function () {
 
   afterEach(function () {
     trackingEvents = [];
-    cleanup();
     sinon.restore();
   });
 
@@ -142,7 +138,7 @@ describe('QueryAI Component', function () {
 
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
-          fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+          fields: await mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
           requestId: 'pineapple',
         });
 
@@ -187,12 +183,12 @@ describe('QueryAI Component', function () {
         store = renderQueryAI();
       });
 
-      it('should not show the feedback items', function () {
+      it('should not show the feedback items', async function () {
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
 
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
-          fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+          fields: await mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
         });
 
         // No feedback popover is shown.

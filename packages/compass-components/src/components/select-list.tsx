@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
-import { Checkbox } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
+import { Checkbox } from './leafygreen';
 
 const checkboxStyles = css({
   padding: spacing[100],

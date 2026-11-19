@@ -1,8 +1,8 @@
 'use strict';
 const Reflux = require('reflux');
+const { remove, has, round, max } = require('lodash');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
-const { remove, has, round, max } = require('lodash');
 
 /* eslint complexity:0 */
 

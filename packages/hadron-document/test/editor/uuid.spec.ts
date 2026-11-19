@@ -1,7 +1,7 @@
 import { Binary } from 'bson';
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { UUIDEditor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('UUIDEditor', function () {
   const uuidString = '01234567-89ab-cdef-0123-456789abcdef';

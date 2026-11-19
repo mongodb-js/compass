@@ -21,10 +21,17 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-macos',
     display_name: 'Unit Tests MacOS',
-    // We only have gui variants of the macos 15, so both unit tests will be
-    // running on it. We will not be running those on patches to save resources
-    run_on: 'macos-15-arm64-gui',
+    // Even though this host doesn't have a -gui postfix, it seems to be using
+    // the pool of the -gui hosts anyway and so to save some resources, we're
+    // not going to run these tests on PRs
+    run_on: 'macos-26-arm64-gui',
     run_on_prs: false,
+  },
+  {
+    name: 'unit-test-electron',
+    display_name: 'Unit Tests Electron (Ubuntu)',
+    run_on: 'ubuntu2604-latest-large',
+    test_electron: true,
   }
 ];
 
@@ -84,9 +91,9 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     depends_on: 'package-rhel',
   },
   {
-    name: 'test-packaged-app-macos-15-arm',
-    display_name: 'MacOS arm64 15',
-    run_on: 'macos-15-arm64-gui',
+    name: 'test-packaged-app-macos-26-arm',
+    display_name: 'MacOS arm64 26',
+    run_on: 'macos-26-arm64-gui',
     depends_on: 'package-macos-arm'
   },
   {
@@ -195,11 +202,11 @@ buildvariants:
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:
-    - name: test
+    <% if (buildVariant.test_electron ?? false) { %>
     - name: test-electron
-      <% if (buildVariant.run_on_gui) { %>
-      run_on: <%= buildVariant.run_on_gui %>
-      <% } %>
+    <% } else { %>
+    - name: test
+    <% } %>
 <% } %>
 
   # package
@@ -370,7 +377,7 @@ buildvariants:
   - name: test-web-sandbox
     tags:
       - run-on-pr
-    display_name: Test Web Sandbox
+    display_name: Test Compass Web in sandbox
     # DEVPROD-22850: On ubuntu24.02, AppArmor blocks electron proxy used in web tests.
     run_on: ubuntu2404-latest-large
     tasks:
@@ -389,7 +396,7 @@ buildvariants:
       - name: test-can-bundle-compass-web
 
   - name: test-web-sandbox-atlas-cloud
-    display_name: Test Web Sandbox (w/ Atlas Cloud login)
+    display_name: Test Compass Web (w/ Atlas Cloud login and Free Tier cluster)
     run_on: ubuntu2404-latest-large
     tasks:
     <% for(const group of E2E_TEST_GROUPS) { %>
@@ -397,7 +404,7 @@ buildvariants:
     <% } %>
 
   - name: test-web-sandbox-atlas-cloud-geo-sharded
-    display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
+    display_name: Test Compass Web (w/ Atlas Cloud login and Geo Sharded cluster)
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-geo-sharded
@@ -724,7 +731,7 @@ tasks:
       - func: prepare
       - func: install
       - func: bootstrap
-      - func: compile-compass-web
+      - func: test-can-bundle-compass-web
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
 
@@ -745,7 +752,7 @@ tasks:
           e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
           atlas_cloud_test_args: >-
-            --atlas-cloud-default-cluster-type=Dedicated
+            --atlas-cloud-default-cluster-type=Free
             --test-filter="!atlas-cloud/dedicated-cluster/**/*"
 <% } %>
 

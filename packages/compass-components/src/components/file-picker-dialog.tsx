@@ -11,6 +11,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useDarkMode } from '../hooks/use-theme';
 
+import { useInitialValue } from '../hooks/use-initial-value';
 import {
   Button,
   Icon,
@@ -19,7 +20,6 @@ import {
   Link,
   Description,
 } from './leafygreen';
-import { useInitialValue } from '../hooks/use-initial-value';
 
 const { base: redBaseColor } = palette.red;
 

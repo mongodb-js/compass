@@ -2,10 +2,11 @@ import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
 import { checkConnectionStringPolicy } from '@mongodb-js/connection-string-policy';
-import COMPASS_ICON from './icon';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { UUID } from 'bson';
+import COMPASS_ICON from './icon';
+
 const { log } = createLogger('COMPASS-AUTO-CONNECT-MAIN');
 
 export type AutoConnectPreferences = Partial<

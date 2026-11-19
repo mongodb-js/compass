@@ -3,6 +3,7 @@
   "compilerOptions": {
     // reversing options that are not relevant for the build
     "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true,
     "noEmit": false
   },
   "include": ["src/**/*"],

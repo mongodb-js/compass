@@ -1,9 +1,9 @@
+import child_process from 'node:child_process';
+import path from 'node:path';
 import type {
   PutObjectCommandInput,
   PutObjectCommandOutput,
 } from '@aws-sdk/client-s3';
-import child_process from 'child_process';
-import path from 'path';
 
 // TODO(SRE-4971): replace with a compass-web-only bucket when provisioned
 export const DOWNLOADS_BUCKET = 'cdn-origin-compass';
@@ -20,7 +20,9 @@ export const ALLOWED_PUBLISH_ENVIRONMENTS = ['dev', 'qa', 'staging', 'prod'];
 
 export const PUBLISH_ENVIRONMENT = process.env.COMPASS_WEB_PUBLISH_ENVIRONMENT;
 
-export const DRY_RUN = process.env.COMPASS_WEB_PUBLISH_DRY_RUN === 'true';
+export const DRY_RUN =
+  process.env.COMPASS_WEB_PUBLISH_DRY_RUN === 'true' ||
+  process.argv.includes('--dry-run');
 
 export const RELEASE_COMMIT =
   process.env.COMPASS_WEB_RELEASE_COMMIT ||

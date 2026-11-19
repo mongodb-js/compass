@@ -1,7 +1,7 @@
 import React from 'react';
-import Aggregations from './components/aggregations';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import Aggregations from './components/aggregations';
 import type { ConfigureStoreOptions } from './stores/store';
 
 export const AggregationsPlugin: React.FunctionComponent<

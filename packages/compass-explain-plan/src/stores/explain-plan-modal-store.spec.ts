@@ -1,19 +1,19 @@
 import AppRegistry, {
   createActivateHelpers,
 } from '@mongodb-js/compass-app-registry';
-import {
-  closeExplainPlanModal,
-  openExplainPlanModal,
-  openExplainPlanForInterpret,
-} from './explain-plan-modal-store';
-import type { ExplainPlanModalServices } from './';
-import { activatePlugin } from './';
 import { expect } from 'chai';
 import type { Document } from 'mongodb';
 import Sinon from 'sinon';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import * as compassComponents from '@mongodb-js/compass-components';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import {
+  closeExplainPlanModal,
+  openExplainPlanModal,
+  openExplainPlanForInterpret,
+} from './explain-plan-modal-store';
+import { activatePlugin } from './';
+import type { ExplainPlanModalServices } from './';
 
 const localAppRegistry = new AppRegistry();
 

@@ -3,28 +3,28 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
-} from 'hadron-document';
+} from '@mongodb-js/hadron-document';
 import {
   ElementEvents,
   DEFAULT_VISIBLE_ELEMENTS,
   getEditorByType,
   getDisplayType,
-} from 'hadron-document';
-import BSONValue from '../bson-value';
-import { bsonValueDisplayVar } from './bson-utils';
+} from '@mongodb-js/hadron-document';
 import { spacing } from '@leafygreen-ui/tokens';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { palette } from '@leafygreen-ui/palette';
+import { hasDistinctValue } from '@mongodb-js/mongodb-query-util';
+import BSONValue from '../bson-value';
+import { Icon } from '../leafygreen';
+import { useDarkMode } from '../../hooks/use-theme';
+import { useContextMenuGroups } from '../context-menu';
+import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
+import { bsonValueDisplayVar } from './bson-utils';
 import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
-import { css, cx } from '@leafygreen-ui/emotion';
-import { palette } from '@leafygreen-ui/palette';
-import { Icon } from '../leafygreen';
-import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
-import { hasDistinctValue } from 'mongodb-query-util';
-import { useContextMenuGroups } from '../context-menu';
-import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 import { useBSONDisplayOptions } from './bson-display-options-context';
 import { setDraggedDocumentField } from './field-drag';
 

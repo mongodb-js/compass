@@ -3,13 +3,13 @@ import {
   waitFor,
   cleanup as cleanupHooks,
 } from '@mongodb-js/testing-library-compass';
+import { expect } from 'chai';
 import {
   useTabState,
   tabStateStore,
   TabStoreProvider,
   reset as resetTabState,
 } from './workspace-tab-state-provider';
-import { expect } from 'chai';
 
 describe('useTabState', function () {
   afterEach(function () {

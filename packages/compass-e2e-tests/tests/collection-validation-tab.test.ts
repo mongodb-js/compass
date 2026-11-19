@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -14,7 +15,6 @@ import {
   createBsonValidationCollection,
   BSON_VALIDATION_UUID,
 } from '../helpers/mongo-clients.ts';
-import { expect } from 'chai';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';

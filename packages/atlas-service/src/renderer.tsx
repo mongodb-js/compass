@@ -1,8 +1,8 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { activatePlugin } from './store/atlas-signin-store';
 import { atlasAuthServiceLocator } from './provider';
-import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 
 const AtlasAuthComponent: React.FunctionComponent<{
   children?: React.ReactNode;

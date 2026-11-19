@@ -12,21 +12,24 @@ import {
   Link,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { Document } from '@mongodb-js/compass-crud';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
+import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import type { RootState } from '../../modules';
 import {
   isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
-  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
+import {
+  isSearchIndexStale,
+  useSearchIndexNameFromStage,
+} from '../../utils/use-search-index-name';
 
 import LoadingOverlay from '../loading-overlay';
-import { AtlasStagePreview } from './atlas-stage-preview';
-import OutputStagePreivew from './output-stage-preview';
-import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getIndexOfFirstStageWithServerError,
@@ -35,10 +38,6 @@ import {
 import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 import SearchNoResults from '../search-no-results';
-import {
-  useSearchActivationProgramP1,
-  useSearchActivationProgramP2,
-} from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 import {
   SearchStageDiagnoseButton,
@@ -50,6 +49,9 @@ import {
   useShouldShowAnalyzeOutput,
   type AnalyzableDocument,
 } from '../search-analyze-output-button';
+import StagePreviewHeader from './stage-preview-header';
+import OutputStagePreivew from './output-stage-preview';
+import { AtlasStagePreview } from './atlas-stage-preview';
 
 const centeredContent = css({
   display: 'flex',
@@ -155,8 +157,7 @@ type StagePreviewProps = {
   documents: DocumentType[] | null;
   stageMetadata: StagePreviewMetadata | null;
   shouldRenderStage: boolean;
-  showSearchIndexStaleResultsBanner: boolean;
-  searchIndexName: string | null;
+  searchIndexes: SearchIndex[];
   serverErrorStageIdx: number | null;
   pipeline: string | null;
 };
@@ -170,12 +171,19 @@ function StagePreviewBody({
   isMissingAtlasOnlyStageSupport,
   shouldRenderStage,
   isLoading,
-  showSearchIndexStaleResultsBanner,
-  searchIndexName,
+  searchIndexes,
   serverErrorStageIdx,
   pipeline,
 }: StagePreviewProps) {
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const searchIndexName = useSearchIndexNameFromStage(
+    stageOperator,
+    stageValue
+  );
+  const showSearchIndexStaleResultsBanner = isSearchIndexStale(
+    searchIndexName,
+    searchIndexes
+  );
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
     trackIsInSample: false,
   });
@@ -265,7 +273,7 @@ function StagePreviewBody({
   }
 
   if (
-    !enableSearchActivationProgramP1 &&
+    !enableAtlasSearchIndexes &&
     isSearchStage(stageOperator) &&
     documents?.length === 0 &&
     !isNoResultsSearchStage
@@ -297,10 +305,9 @@ function StagePreviewBody({
     return (
       <div className={previewBodyStyles}>
         <div className={documentsStyles}>{docs}</div>
-        {enableSearchActivationProgramP1 &&
-          showSearchIndexStaleResultsBanner && (
-            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
-          )}
+        {enableAtlasSearchIndexes && showSearchIndexStaleResultsBanner && (
+          <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+        )}
         {showAnalyzeButton && (
           <AnalyzeAndRefineResultsButton
             onClick={handleAnalyzeOutput}
@@ -373,16 +380,6 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     !stage.disabled && !stage.syntaxError && !stage.syntaxError && stage.value
   );
 
-  const searchIndexName = getSearchIndexNameFromSearchStage(
-    stage.stageOperator,
-    stage.value
-  );
-  const showSearchIndexStaleResultsBanner =
-    !!searchIndexName &&
-    state.searchIndexes.indexes.some(
-      (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
-    );
-
   const pipeline = getPipelineStringForStage(
     state.pipelineBuilder.stageEditor.stages,
     ownProps.index
@@ -397,8 +394,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     documents: stage.previewDocs,
     stageMetadata: stage.stageMetadata,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
-    showSearchIndexStaleResultsBanner,
-    searchIndexName,
+    searchIndexes: state.searchIndexes.indexes,
     serverErrorStageIdx: getIndexOfFirstStageWithServerError(
       state.pipelineBuilder.stageEditor.stages,
       ownProps.index

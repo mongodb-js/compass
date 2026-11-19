@@ -3,18 +3,17 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { Eval } from 'braintrust';
 import type { EvalCase } from 'braintrust';
-import { evalCases } from './eval-cases';
-import { makeEntrypointCases } from './entrypoints';
 import type {
   ConversationEvalCaseInput,
   ConversationEvalCaseExpected,
   ConversationTaskOutput,
-  MessageBase,
 } from 'mongodb-assistant-eval/eval';
 import {
   makeFactuality,
   makeBinaryNdcgAtK,
 } from 'mongodb-assistant-eval/scorers';
+import { evalCases } from './eval-cases';
+import { makeEntrypointCases } from './entrypoints';
 
 import { EVAL_MODEL, instructions, judgeConfig } from './eval-config';
 
@@ -95,9 +94,7 @@ async function makeAssistantCall(
     },
   });
 
-  // mongodb-assistant-eval's types are built against zod 3, so its inferred
-  // message type doesn't survive our zod 4 resolution. Annotate explicitly.
-  const prompt = input.messages.map((m: MessageBase) => m.content).join('\n');
+  const prompt = input.messages.map((m) => m.content).join('\n');
 
   const result = streamText({
     model: openai.responses(EVAL_MODEL),

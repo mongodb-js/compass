@@ -1,6 +1,6 @@
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { StringEditor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('StringEditor', function () {
   describe('#size', function () {

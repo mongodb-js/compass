@@ -1,4 +1,19 @@
-import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import path from 'node:path';
+import os from 'node:os';
+import { promises as fs } from 'node:fs';
+import { once, EventEmitter } from 'node:events';
+import type { Server as HTTPServer, IncomingMessage } from 'node:http';
+import { createServer as createHTTPServer } from 'node:http';
+import type { Socket, AddressInfo } from 'node:net';
+import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
+import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
+import { expect } from 'chai';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
+import { ConnectionString } from 'mongodb-connection-string-url';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { setupProxyServer } from '../helpers/proxy.ts';
 import {
   init,
   cleanup,
@@ -9,22 +24,7 @@ import {
   TEST_COMPASS_WEB,
   connectionNameFromString,
 } from '../helpers/compass.ts';
-import { setupProxyServer } from '../helpers/proxy.ts';
-import * as Selectors from '../helpers/selectors.ts';
-import type { Compass } from '../helpers/compass.ts';
-import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
-import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
-import path from 'path';
-import os from 'os';
-import { promises as fs } from 'fs';
-import { once, EventEmitter } from 'events';
-import type { Server as HTTPServer, IncomingMessage } from 'http';
-import { createServer as createHTTPServer } from 'http';
-import type { Socket, AddressInfo } from 'net';
-import { expect } from 'chai';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
-import { startTestServer } from '@mongodb-js/compass-test-server';
-import { ConnectionString } from 'mongodb-connection-string-url';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import { FIXTURES_PATH } from '../helpers/test-runner-paths.ts';
 
 const DEFAULT_TOKEN_PAYLOAD = {

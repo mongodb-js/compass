@@ -223,15 +223,11 @@ describe('Collection tab mock data generator integration', function () {
       }
     );
     await expectEntry();
-    expect(assignExperiment).to.have.been.calledTwice;
-    for (const testName of [
-      ExperimentTestNames.searchActivationProgramP1,
+    expect(assignExperiment).to.have.been.calledOnce;
+    expect(assignExperiment).to.have.been.calledWith(
       ExperimentTestNames.searchActivationProgramP2,
-    ]) {
-      expect(assignExperiment).to.have.been.calledWith(testName, {
-        team: 'Search Web Platform',
-      });
-    }
+      { team: 'Search Web Platform' }
+    );
   });
 
   it('does not block the generator if Search Activation assignment fails', async function () {

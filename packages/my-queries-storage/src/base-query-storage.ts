@@ -1,6 +1,5 @@
 import { UUID } from 'bson';
-import { type z } from '@mongodb-js/compass-user-data';
-import { type IUserData } from '@mongodb-js/compass-user-data';
+import { type z, type IUserData } from '@mongodb-js/compass-user-data';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
 import type {
   RecentQueryStorageInterface,

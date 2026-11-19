@@ -7,7 +7,7 @@ import type {
   BulkWriteResult,
   MongoServerError,
 } from 'mongodb';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type { ErrorJSON } from '../import/import-types';
 
 import { createDebug } from '../utils/logger';

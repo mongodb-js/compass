@@ -6,15 +6,15 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import ReselectCollectionsModal from './reselect-collections-modal';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import toNS from '@mongodb-js/mongodb-ns';
+import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import dataModel from '../../test/fixtures/data-model-with-relationships.json';
 import { DataModelingWorkspaceTab } from '..';
 import { getCurrentModel, openDiagram } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 import { reselectCollections } from '../store/reselect-collections-wizard';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import toNS from 'mongodb-ns';
-import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
+import ReselectCollectionsModal from './reselect-collections-modal';
 
 const DATA_MODEL_CONNECTION_ID = dataModel.connectionId;
 const DATA_MODEL_SELECTED_COLLECTIONS = getCurrentModel(

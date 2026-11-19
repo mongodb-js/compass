@@ -1,4 +1,4 @@
-import type { IndexDefinition } from 'mongodb-data-service';
+import type { IndexDefinition } from '@mongodb-js/mongodb-data-service';
 import type { InProgressIndex } from '../../src/modules/regular-indexes';
 
 export const indexesList: IndexDefinition[] = [

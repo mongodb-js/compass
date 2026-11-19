@@ -8,18 +8,18 @@ import {
   spacing,
   Tooltip,
 } from '@mongodb-js/compass-components';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from '@mongodb-js/compass-preferences-model/provider';
+import { UUID } from 'bson';
 import { AssistantChat } from './components/assistant-chat';
 import {
   ASSISTANT_DRAWER_ID,
   AssistantContext,
   type ThreadedChat,
 } from './compass-assistant-provider';
-import {
-  useIsAIFeatureEnabled,
-  usePreference,
-} from '@mongodb-js/compass-preferences-model/provider';
 import { useChat } from './@ai-sdk/react/use-chat';
-import { UUID } from 'bson';
 import { stopChat } from './utils';
 
 const assistantTitleStyles = css({
@@ -120,12 +120,10 @@ export const ClearChatButton: React.FunctionComponent<{
       await stopChat(chat);
       clearError();
 
-      // TODO: We use one chat instance for the entire Assistant service but when a conversation is cleared,
-      // we need to treat it as a new chat. So, we override the ID to a newly generated one.
-      // This is used by e.g. SuggestedPrompts to reset the state of the selected index.
-      // @ts-expect-error This is a readonly property but we need to mutate it to generate a new ID
+      // One chat instance is used for the entire Assistant service, so a new
+      // thread id is what marks a cleared conversation as a new chat. It is
+      // used by e.g. SuggestedPrompts to reset the selected index.
       // eslint-disable-next-line react-hooks/immutability
-      chat.id = chat.generateId();
       chat.threadId = new UUID().toString();
 
       // Set messages directly on the chat instance (not through the hook's

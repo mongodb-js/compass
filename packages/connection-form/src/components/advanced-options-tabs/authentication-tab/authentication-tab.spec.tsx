@@ -5,11 +5,11 @@ import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { AuthMechanism } from 'mongodb';
 
-import AuthenticationTab from './authentication-tab';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { ConnectionFormSettingsContext } from '../../../hooks/use-connect-form-settings';
 import type { ConnectionFormSettings } from '../../../hooks/use-connect-form-settings';
+import AuthenticationTab from './authentication-tab';
 
 function renderComponent({
   errors = [],

@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 import type { ClonePipelineAction } from './clone-pipeline';
 import { CLONE_PIPELINE } from './clone-pipeline';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
@@ -20,8 +22,6 @@ import type {
   PipelineGeneratedFromQueryAction,
 } from './pipeline-builder/pipeline-ai';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
-import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
 
 /**
  * Reducer function for handle state changes to isModified.

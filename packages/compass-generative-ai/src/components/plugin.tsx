@@ -1,6 +1,6 @@
 import React from 'react';
-import AIOptInModal from './ai-optin-modal';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
+import AIOptInModal from './ai-optin-modal';
 
 export interface AtlasAiPluginProps {
   projectId?: string;

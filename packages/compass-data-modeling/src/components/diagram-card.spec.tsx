@@ -1,8 +1,8 @@
 import React from 'react';
 import { expect } from 'chai';
 import { render, screen } from '@mongodb-js/testing-library-compass';
-import { DiagramCard } from './diagram-card';
 import type { Edit } from '../services/data-model-storage';
+import { DiagramCard } from './diagram-card';
 
 describe('DiagramCard', () => {
   const props = {

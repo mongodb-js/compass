@@ -5,13 +5,13 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { ToolCallMessage } from './tool-call-message';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
-import { containsText } from './test-helpers';
 import { TOOL_DENIAL_REASONS } from '../prompts';
+import { containsText } from './test-helpers';
+import { ToolCallMessage } from './tool-call-message';
 
 describe('ToolCallMessage', function () {
   const defaultConnection: BasicConnectionInfo = {

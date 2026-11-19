@@ -12,5 +12,5 @@ echo "klist:"
 klist
 echo
 
-echo "Running 'npm run test-connectivity --workspace mongodb-data-service' in ${PWD}"
-npm run test-connectivity --workspace mongodb-data-service
+echo "Running 'npm run test-connectivity --workspace @mongodb-js/mongodb-data-service' in ${PWD}"
+npm run test-connectivity --workspace @mongodb-js/mongodb-data-service

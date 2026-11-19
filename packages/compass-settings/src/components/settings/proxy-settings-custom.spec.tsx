@@ -7,9 +7,9 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { ProxySettingsCustom } from './proxy-settings-custom';
 import type { DevtoolsProxyOptions } from '@mongodb-js/compass-preferences-model';
 import sinon from 'sinon';
+import { ProxySettingsCustom } from './proxy-settings-custom';
 
 describe('ProxySettingsCustom', function () {
   let container: HTMLElement;

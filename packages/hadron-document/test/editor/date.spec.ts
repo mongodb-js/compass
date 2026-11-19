@@ -1,6 +1,6 @@
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { DateEditor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('DateEditor', function () {
   describe('#start', function () {

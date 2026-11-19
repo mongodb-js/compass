@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import fs from 'fs';
+import fs from 'node:fs';
 import { analyzeCSVFields } from '../src/import/analyze-csv-fields';
 
 function run() {

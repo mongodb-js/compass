@@ -1,6 +1,6 @@
-import path from 'path';
-import { brotliCompressSync } from 'zlib';
-import { inspect } from 'util';
+import path from 'node:path';
+import { brotliCompressSync } from 'node:zlib';
+import { inspect } from 'node:util';
 import {
   ALLOWED_PUBLISH_ENVIRONMENTS,
   DOWNLOADS_BUCKET,

@@ -1,15 +1,15 @@
-import fs from 'fs/promises';
-import path from 'path';
-import os from 'os';
-import crypto from 'crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import crypto from 'node:crypto';
+import { expect } from 'chai';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { getDefaultsForStoredPreferences } from './preferences-schema';
-import { expect } from 'chai';
 import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
 } from './utils';
-import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 const getPreferencesFolder = (tmpDir: string) => {
   return path.join(tmpDir, 'AppPreferences');

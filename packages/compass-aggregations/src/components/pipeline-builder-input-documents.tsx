@@ -19,8 +19,8 @@ import {
   refreshInputDocuments,
   toggleInputDocumentsCollapsed,
 } from '../modules/input-documents';
-import LoadingOverlay from './loading-overlay';
 import type { CollectionStats } from '../modules/collection-stats';
+import LoadingOverlay from './loading-overlay';
 
 const headerStyles = css({
   display: 'flex',

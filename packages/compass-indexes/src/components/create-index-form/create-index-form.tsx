@@ -1,17 +1,17 @@
 import React, { useMemo } from 'react';
 import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
-import type { Field } from '../../modules/create-index';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { CreateIndexFields } from '../create-index-fields';
-import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
-import CheckboxInput from './checkbox-input';
-import CollapsibleInput from './collapsible-input';
 import {
   useConnectionInfo,
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { Field } from '../../modules/create-index';
+import { CreateIndexFields } from '../create-index-fields';
+import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
+import CheckboxInput from './checkbox-input';
+import CollapsibleInput from './collapsible-input';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[600]}px 0 ${spacing[800]}px 0`,

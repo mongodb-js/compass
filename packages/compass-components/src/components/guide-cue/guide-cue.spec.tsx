@@ -9,10 +9,10 @@ import {
   waitForElementToBeRemoved,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
+import Sinon from 'sinon';
 import { Icon, IconButton, Button } from '../..';
 import * as GuideCueGroups from './guide-cue-groups';
 import { GuideCue, GuideCueProvider } from './guide-cue';
-import Sinon from 'sinon';
 
 const renderGuideCue = (
   props: Omit<

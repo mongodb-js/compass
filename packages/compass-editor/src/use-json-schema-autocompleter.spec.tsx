@@ -3,11 +3,11 @@ import { render, waitFor } from '@mongodb-js/testing-library-compass';
 import { CompletionContext } from '@codemirror/autocomplete';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { EditorView } from '@codemirror/view';
+import { expect } from 'chai';
+import type { JSONSchema7 } from 'json-schema';
 import { CodemirrorMultilineEditor, languages } from './editor';
 import { useJsonSchemaAutocompleter } from './use-json-schema-autocompleter';
 import type { EditorRef } from './types';
-import { expect } from 'chai';
-import type { JSONSchema7 } from 'json-schema';
 import type { Annotation } from './editor';
 
 // Simple JSON schema for testing

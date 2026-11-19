@@ -1,12 +1,12 @@
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
+import { isAction } from '../util';
 import {
   checkValidator,
   ValidationActions,
   type ValidationCanceledAction,
 } from './validation';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { RootAction, SchemaValidationThunkAction } from '.';
-import { isAction } from '../util';
 
 export const SAMPLE_SIZE = 10000;
 
@@ -238,17 +238,17 @@ const getSampleDocuments = async ({
 };
 
 export const fetchSampleDocuments = (): SchemaValidationThunkAction<
-  void,
+  Promise<void>,
   FetchingSampleDocumentsAction
 > => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     dispatch(fetchingSampleDocuments());
 
     const state = getState();
     const namespace = state.namespace.ns;
     const validator = state.validation.validator;
 
-    const query = checkValidator(validator).validator;
+    const query = (await checkValidator(validator)).validator;
 
     void dispatch(fetchValidDocument({ namespace, query }));
     void dispatch(fetchInvalidDocument({ namespace, query }));

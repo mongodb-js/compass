@@ -1,5 +1,7 @@
 'use strict';
-const path = require('path');
+const path = require('node:path');
+const { execFile, spawn, execFileSync } = require('node:child_process');
+const { promisify } = require('node:util');
 const {
   webpack,
   createWebConfig,
@@ -7,8 +9,6 @@ const {
   merge,
   HtmlWebpackPlugin,
 } = require('@mongodb-js/webpack-config-compass');
-const { execFile, spawn, execFileSync } = require('child_process');
-const { promisify } = require('util');
 const { createWebSocketProxy } = require('./scripts/ws-proxy');
 
 const execFileAsync = promisify(execFile);
@@ -57,6 +57,14 @@ module.exports = (env, args) => {
           // records unless you're super sure it's needed
         }),
       ],
+      optimization: {
+        // TODO(COMPASS-11368): recent changes in how webpack handles missing
+        // exports causes the build to fail when unused exports optimisation is
+        // being applied. For that reason we're temporarily going to disable
+        // usedExports analysis. This does result in slightly bigger build in
+        // total, but unblocks us from staying up to date on our tooling version
+        usedExports: false,
+      },
     }
   );
 
@@ -75,6 +83,7 @@ module.exports = (env, args) => {
           ? 'compass-web.mjs'
           : '[name].[contenthash].mjs';
       },
+      chunkFilename: '[name].[contenthash].mjs',
       library: {
         type: 'module',
       },
@@ -114,7 +123,6 @@ module.exports = (env, args) => {
         // be defined before `fs` so that webpack first reads the namespaced
         // alias before trying to resolve it relative to `fs` polyfill path
         'fs/promises': localPolyfill('fs/promises'),
-        // TODO(COMPASS-7411): compass-utils
         fs: localPolyfill('fs'),
 
         // We can't polyfill connection-form because some shared methods from
@@ -186,23 +194,30 @@ module.exports = (env, args) => {
         'mongodb-client-encryption/package.json': localPolyfill('throwError'),
         'mongodb-client-encryption': localPolyfill('throwError'),
 
-        'prom-client': false,
-        // lru-cache (bundled inside mongodb-mcp-server) calls channel() and
-        // tracingChannel() from diagnostics_channel
-        diagnostics_channel: localPolyfill('diagnostics_channel'),
-        // We want to use the cjs dist instead of esm to make sure that no dynamic
-        // import code from mcp-server ends up in compass bundle.
-        // Otherwise, this breaks COMPILE_CLIENT_BAZEL task on mms side.
-        'mongodb-mcp-server': require.resolve('mongodb-mcp-server'),
-
-        // mongodb-mcp-server polyfills
-        // This is only used by StreamableHttpTransport which we do not use.
-        express: false,
-        http2: false,
-        // Only used by Atlas Local tools which we do not currently use.
-        '@mongodb-js/atlas-local': localPolyfill('throwError'),
-        // Only used by Atlas tools which we do not currently use.
-        'node-fetch': false,
+        // Left resolvable, the device-id dynamic import emits a chunk that
+        // breaks the MMS COMPILE_CLIENT_BAZEL task.
+        'node-machine-id': localPolyfill('throwError'),
+      },
+    },
+    module: {
+      rules: [
+        {
+          test: /\.m?js$/,
+          use: {
+            // See loader source for context
+            loader: path.join(
+              __dirname,
+              'scripts',
+              'patch-dns-query-loader.js'
+            ),
+          },
+        },
+      ],
+      parser: {
+        javascript: {
+          // Must match the import in src/utilities.mts character for character
+          worker: ['CrossOriginWorker from ./cross-origin-worker.mts', '...'],
+        },
       },
     },
     externalsType: 'window',

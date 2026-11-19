@@ -5,9 +5,9 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import React from 'react';
+import { connect } from 'react-redux';
 import ShardKeyMarkup from '../shard-key-markup';
 import type { RootState, ShardKey } from '../../store/reducer';
-import { connect } from 'react-redux';
 import { containerStyles, bannerStyles } from '../common-styles';
 
 const paragraphStyles = css({

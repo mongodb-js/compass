@@ -1,12 +1,12 @@
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
 import {
   init,
   cleanup,
   skipForWeb,
   TEST_COMPASS_WEB,
 } from '../helpers/compass.ts';
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
 
 /**
  * @securityTest Enhanced Network Isolation Tests

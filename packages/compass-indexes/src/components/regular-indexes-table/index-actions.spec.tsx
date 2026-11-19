@@ -9,9 +9,9 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import IndexActions from './index-actions';
 import type { InProgressIndex } from '../../modules/regular-indexes';
 import { mockRegularIndex } from '../../../test/helpers';
+import IndexActions from './index-actions';
 
 describe('IndexActions Component', function () {
   let onDeleteIndexClick: sinon.SinonSpy;

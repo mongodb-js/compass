@@ -17,14 +17,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { MongoDBInstancesManager } from './instances-manager';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type Collection from '@mongodb-js/mongodb-collection-model';
 import type Database from '@mongodb-js/mongodb-database-model';
 import type {
   AllPreferences,
   PreferencesAccess,
 } from '@mongodb-js/compass-preferences-model';
+import { MongoDBInstancesManager } from './instances-manager';
 
 export {
   MongoDBInstancesManagerEvents,

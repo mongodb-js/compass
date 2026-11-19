@@ -1,16 +1,20 @@
-import { activateSchemaPlugin } from './store';
-import type { SchemaStore, SchemaPluginServices } from './store';
 import AppRegistry, {
   createActivateHelpers,
 } from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 
-import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import Sinon from 'sinon';
+import { Circle, LayerGroup, Polygon } from 'leaflet';
+import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
+import {
+  changeExportSchemaFormat,
+  openExportSchema,
+} from './schema-export-reducer';
 import {
   geoLayerAdded,
   geoLayersDeleted,
@@ -18,12 +22,8 @@ import {
   startAnalysis,
   stopAnalysis,
 } from './schema-analysis-reducer';
-import Sinon from 'sinon';
-import {
-  changeExportSchemaFormat,
-  openExportSchema,
-} from './schema-export-reducer';
-import { Circle, LayerGroup, Polygon } from 'leaflet';
+import type { SchemaStore, SchemaPluginServices } from './store';
+import { activateSchemaPlugin } from './store';
 
 const dummyLogger = createNoopLogger('TEST');
 const dummyTrack = createNoopTrack();

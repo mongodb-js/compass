@@ -1,6 +1,4 @@
 import React from 'react';
-import CollectionTab from './components/collection-tab';
-import { activatePlugin as activateCollectionTabPlugin } from './stores/collection-tab';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
@@ -13,6 +11,8 @@ import { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/pro
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
+import { activatePlugin as activateCollectionTabPlugin } from './stores/collection-tab';
+import CollectionTab from './components/collection-tab';
 import {
   CollectionWorkspaceTitle,
   CollectionPluginTitleComponent,

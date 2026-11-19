@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import type { RootState } from './modules';
 import {
   Badge,
   css,
@@ -10,6 +9,7 @@ import {
   compactNumber,
 } from '@mongodb-js/compass-components';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import type { RootState } from './modules';
 
 const containerStyles = css({
   display: 'flex',

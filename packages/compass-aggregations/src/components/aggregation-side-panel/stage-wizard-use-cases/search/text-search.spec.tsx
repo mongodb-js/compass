@@ -1,5 +1,4 @@
 import React, { type ComponentProps } from 'react';
-import { TextSearch } from './text-search';
 import { screen, render } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -10,6 +9,7 @@ import {
   setSelectValue,
 } from '../../../../../test/form-helper';
 import { MULTI_SELECT_LABEL } from '../field-combobox';
+import { TextSearch } from './text-search';
 
 const FIELDS = [
   { name: 'a', type: 'string' },

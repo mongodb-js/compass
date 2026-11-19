@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
+import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
 import { CompassWebPreferencesAccess } from './compass-web-preferences-access';
 import { AtlasPreferencesStorage } from './preferences-atlas';
-import type { AtlasServiceLike } from '@mongodb-js/compass-user-data';
 
 describe('CompassWebPreferencesAccess', function () {
   let sandbox: Sinon.SinonSandbox;

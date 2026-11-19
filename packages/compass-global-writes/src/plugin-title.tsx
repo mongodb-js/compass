@@ -1,11 +1,6 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import {
-  type RootState,
-  type ShardingStatus,
-  ShardingStatuses,
-} from './store/reducer';
-import {
   Body,
   css,
   cx,
@@ -15,6 +10,11 @@ import {
   Tooltip,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import {
+  type RootState,
+  type ShardingStatus,
+  ShardingStatuses,
+} from './store/reducer';
 
 const containerStyles = css({
   display: 'flex',

@@ -1,15 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import type { Schema as MongodbSchema } from '@mongodb-js/mongodb-schema';
 import { connect } from 'react-redux';
-import type { AnalysisState } from '../constants/analysis-states';
-import {
-  ANALYSIS_STATE_INITIAL,
-  ANALYSIS_STATE_ANALYZING,
-  ANALYSIS_STATE_COMPLETE,
-} from '../constants/analysis-states';
-import SchemaToolbar from './schema-toolbar';
-import Field from './field';
-import { ZeroGraphic } from './zero-graphic';
 import {
   Button,
   CancelLoader,
@@ -31,12 +22,21 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { getAtlasPerformanceAdvisorLink } from '../utils';
+import {
+  ANALYSIS_STATE_INITIAL,
+  ANALYSIS_STATE_ANALYZING,
+  ANALYSIS_STATE_COMPLETE,
+} from '../constants/analysis-states';
+import type { AnalysisState } from '../constants/analysis-states';
 import type { RootState } from '../stores/store';
 import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
 import { openExportSchema } from '../stores/schema-export-reducer';
+import { ZeroGraphic } from './zero-graphic';
+import Field from './field';
+import SchemaToolbar from './schema-toolbar';
 import ExportSchemaModal from './export-schema-modal';
 import ExportSchemaLegacyModal from './export-schema-legacy-modal';
 

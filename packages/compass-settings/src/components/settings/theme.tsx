@@ -11,12 +11,12 @@ import {
   RadioBox,
   palette,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../stores';
-import { changeFieldValue } from '../../stores/settings';
 import type {
   PreferenceStateInformation,
   THEMES,
 } from '@mongodb-js/compass-preferences-model';
+import type { RootState } from '../../stores';
+import { changeFieldValue } from '../../stores/settings';
 import { settingStateLabels } from './state-labels';
 import SettingsList from './settings-list';
 

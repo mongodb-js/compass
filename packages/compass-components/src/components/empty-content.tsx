@@ -3,8 +3,8 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
-import { Body, Subtitle } from './leafygreen';
 import { useDarkMode } from '../hooks/use-theme';
+import { Body, Subtitle } from './leafygreen';
 
 const containerStyles = css({
   display: 'flex',

@@ -1,10 +1,10 @@
 import { expect } from 'chai';
+import FlightDiagram from '../../test/fixtures/data-model-with-relationships.json';
 import {
   getDownloadDiagramContent,
   getDiagramName,
   getDiagramContentsFromFile,
 } from './open-and-download-diagram';
-import FlightDiagram from '../../test/fixtures/data-model-with-relationships.json';
 
 describe('open-and-download-diagram', function () {
   it('should return correct content to download', function () {

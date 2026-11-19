@@ -1,10 +1,10 @@
+import type { Writable } from 'node:stream';
 import type { MongoLogEntry } from 'mongodb-log-writer/mongo-log-writer';
 import {
   MongoLogWriter,
   mongoLogId,
 } from 'mongodb-log-writer/mongo-log-writer';
 import createDebug from 'debug';
-import type { Writable } from 'stream';
 
 export type Logger = {
   log: ReturnType<MongoLogWriter['bindComponent']>;

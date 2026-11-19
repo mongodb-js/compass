@@ -8,11 +8,11 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
 import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
 
 const shortcutsTableContainerStyles = css({
   marginTop: spacing[200],

@@ -1,20 +1,19 @@
 import React, { useContext, useRef } from 'react';
-import { useSelector, useStore } from './stores/context';
-import type { TabOptions } from './stores/workspaces';
-import {
-  collectionSubtabSelected,
-  getActiveTab,
-  openWorkspace as openWorkspaceAction,
-} from './stores/workspaces';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import type {
   CollectionSubtab,
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
-import type { OpenWorkspaceOptions } from './stores/workspaces';
+import { useInitialValue } from '@mongodb-js/compass-components';
+import { useSelector, useStore } from './stores/context';
+import type { TabOptions, OpenWorkspaceOptions } from './stores/workspaces';
+import {
+  collectionSubtabSelected,
+  getActiveTab,
+  openWorkspace as openWorkspaceAction,
+} from './stores/workspaces';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
-import { useInitialValue } from '@mongodb-js/compass-components';
 
 function useWorkspacesStore() {
   try {

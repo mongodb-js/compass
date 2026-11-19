@@ -4,8 +4,8 @@ import type {
   QueryOption,
   QueryBarRowLayout,
 } from '../constants/query-option-definition';
-import QueryOptionComponent from './query-option';
 import type { QueryProperty } from '../constants/query-properties';
+import QueryOptionComponent from './query-option';
 
 const rowStyles = css({
   alignItems: 'flex-start',

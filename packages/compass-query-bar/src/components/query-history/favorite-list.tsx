@@ -1,11 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
+import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { connect } from '../../stores/context';
 import {
   applyFromHistory,
   deleteFavoriteQuery,
 } from '../../stores/query-bar-reducer';
-import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
-import { ZeroGraphic } from './zero-graphic';
+import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
+import type { BaseQuery } from '../../constants/query-properties';
+import type { RootState } from '../../stores/query-bar-store';
 import {
   QueryItemCard,
   QueryItemContent,
@@ -13,13 +18,8 @@ import {
   CopyActionButton,
   DeleteActionButton,
 } from './query-item';
-import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import type { BaseQuery } from '../../constants/query-properties';
-import type { RootState } from '../../stores/query-bar-store';
+import { ZeroGraphic } from './zero-graphic';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 export type FavoriteActions = {
   onApply: (query: BaseQuery) => void;

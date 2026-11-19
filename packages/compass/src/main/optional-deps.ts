@@ -15,12 +15,13 @@ const attempts = [
   [
     () =>
       process.platform === 'darwin' &&
-      require('macos-export-certificate-and-key'),
-    'macos-export-certificate-and-key',
+      require('@mongodb-js/macos-export-certificate-and-key'),
+    '@mongodb-js/macos-export-certificate-and-key',
   ],
 ] as const;
 const expectedPackages: string[] =
   require('../../package.json').config.hadron.rebuild.onlyModules;
+
 if (
   expectedPackages.some((pkg) => !attempts.find(([, pkg2]) => pkg === pkg2))
 ) {

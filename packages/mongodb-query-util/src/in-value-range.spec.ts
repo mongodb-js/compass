@@ -1,6 +1,6 @@
-import { inValueRange } from './';
 import { ObjectId, Decimal128 } from 'bson';
 import { expect } from 'chai';
+import { inValueRange } from './';
 
 describe('inValueRange [Util]', function () {
   let query: any;

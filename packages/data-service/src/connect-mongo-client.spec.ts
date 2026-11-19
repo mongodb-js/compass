@@ -1,15 +1,15 @@
-import assert from 'assert';
-import asyncHooks from 'async_hooks';
+import assert from 'node:assert';
+import asyncHooks from 'node:async_hooks';
 import { expect } from 'chai';
 import type { MongoClientOptions } from 'mongodb';
 
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import ConnectionString from 'mongodb-connection-string-url';
 import {
   connectMongoClientDataService as connectMongoClient,
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import ConnectionString from 'mongodb-connection-string-url';
 
 const defaultOptions = {
   productDocsLink: 'https://www.mongodb.com/docs/compass/',

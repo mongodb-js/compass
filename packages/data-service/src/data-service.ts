@@ -1,6 +1,6 @@
+import { EventEmitter } from 'node:events';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
-import { EventEmitter } from 'events';
-import { ExplainVerbosity, ClientEncryption } from 'mongodb';
+import { ExplainVerbosity, ClientEncryption, ReadPreference } from 'mongodb';
 import type {
   AggregateOptions,
   AggregationCursor,
@@ -56,9 +56,14 @@ import type {
   WithId,
   Abortable,
 } from 'mongodb';
-import { ReadPreference } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import parseNamespace from 'mongodb-ns';
+import parseNamespace from '@mongodb-js/mongodb-ns';
+import { abortable } from '@mongodb-js/compass-events';
+import type {
+  DevtoolsConnectionState,
+  DevtoolsConnectOptions,
+} from '@mongodb-js/devtools-connect';
+import { omit } from 'lodash';
 import type {
   ConnectionFleOptions,
   ConnectionOptions,
@@ -66,12 +71,11 @@ import type {
 import type {
   CollectionDetails,
   InstanceDetails,
+  DatabaseDetails,
 } from './instance-detail-helper';
 import {
   isNotAuthorized,
   isNotSupportedPipelineStage,
-} from './instance-detail-helper';
-import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
   getPrivilegesByDatabaseAndCollection,
@@ -93,11 +97,6 @@ import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
-import {
-  raceWithAbort,
-  createCancelError,
-  isCancelError,
-} from '@mongodb-js/compass-utils';
 import type {
   CurrentOpProgress,
   IndexBuildProgress,
@@ -113,11 +112,6 @@ import type {
   UnboundDataServiceImplLogger,
 } from './logger';
 import { WithLogContext, debug, mongoLogId } from './logger';
-import type { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
-import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
-import type { DatabaseDetails } from './instance-detail-helper';
-
-import { omit } from 'lodash';
 
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
@@ -2722,9 +2716,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       return await start();
     }
 
-    if (abortSignal.aborted) {
-      throw abortSignal.reason ?? createCancelError();
-    }
+    abortSignal.throwIfAborted();
 
     const session = this._startSession('CRUD');
 
@@ -2742,9 +2734,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
     };
 
     try {
-      result = await raceWithAbort(start(session, abortSignal), abortSignal);
+      result = await abortable(start(session, abortSignal), {
+        signal: abortSignal,
+      });
     } catch (err) {
-      if (isCancelError(err)) {
+      if (this.isCancelError(err)) {
         await abort();
       }
       throw err;
@@ -2754,7 +2748,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   isCancelError(error: unknown): error is Error {
-    return isCancelError(error);
+    return (error as Error)?.name === 'AbortError';
   }
 
   private _setupListeners(client: MongoClient): void {

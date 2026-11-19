@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create Github App Token
-        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@a5a3678435bde24f36e21ae4cab9ccd7aca1a3c7 # main
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # don't checkout a detatched HEAD
           ref: ${{ github.head_ref }}
@@ -29,9 +29,9 @@ jobs:
           fetch-depth: '0'
           token: ${{ steps.app-token.outputs.token }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 24.15.0
+          node-version: 24.22.2
           cache: 'npm'
 
       - name: Install npm@11.16.0

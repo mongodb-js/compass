@@ -1,11 +1,11 @@
 import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
-import type { RootAction, SidebarThunkAction } from '.';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import throttle from 'lodash/throttle';
+import type { MongoServerError } from 'mongodb';
 import { type InstanceDatabase, changeDatabases } from './databases';
 import { changeConnectionOptions } from './connection-options';
 import { setIsPerformanceTabSupported } from './is-performance-tab-supported';
-import type { MongoServerError } from 'mongodb';
+import type { RootAction, SidebarThunkAction } from '.';
 
 /**
  * Instance action.

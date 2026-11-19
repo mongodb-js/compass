@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   validateConnectionOptionsErrors,
   validateConnectionOptionsWarnings,
 } from './validation';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 /**
  * @securityTest Connection Option Validation Rules

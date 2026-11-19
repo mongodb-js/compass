@@ -5,11 +5,11 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import SavedDiagramsList from './saved-diagrams-list';
 import { renderWithStore } from '../../test/setup-store';
 import type { DataModelingStore } from '../../test/setup-store';
 import { DataModelStorageServiceProvider } from '../provider';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import SavedDiagramsList from './saved-diagrams-list';
 
 const storageItems: MongoDBDataModelDescription[] = [
   {

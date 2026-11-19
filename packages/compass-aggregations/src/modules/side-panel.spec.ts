@@ -1,10 +1,10 @@
 import type { Store } from 'redux';
-import type { RootState } from '.';
 import { expect } from 'chai';
-import { toggleSidePanel } from './side-panel';
-import configureStore from '../../test/configure-store';
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
+import configureStore from '../../test/configure-store';
+import { toggleSidePanel } from './side-panel';
+import type { RootState } from '.';
 
 describe('side-panel module', function () {
   describe('#actions', function () {
@@ -34,10 +34,10 @@ describe('side-panel module', function () {
       expect(store.getState().sidePanel.isPanelOpen).to.equal(false);
     });
 
-    it('toggles the side panel', function () {
-      store.dispatch(toggleSidePanel() as any);
+    it('toggles the side panel', async function () {
+      await store.dispatch(toggleSidePanel() as any);
       expect(store.getState().sidePanel.isPanelOpen).to.equal(true);
-      store.dispatch(toggleSidePanel() as any);
+      await store.dispatch(toggleSidePanel() as any);
       expect(store.getState().sidePanel.isPanelOpen).to.equal(false);
     });
 
@@ -45,7 +45,7 @@ describe('side-panel module', function () {
       const store1 = (await configureStore()).plugin.store;
       expect(store1.getState().sidePanel.isPanelOpen).to.equal(false);
 
-      store1.dispatch(toggleSidePanel() as any);
+      await store1.dispatch(toggleSidePanel() as any);
       expect(store1.getState().sidePanel.isPanelOpen).to.equal(true);
 
       const store2 = (await configureStore()).plugin.store;

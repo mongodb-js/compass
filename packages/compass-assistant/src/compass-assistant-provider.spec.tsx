@@ -7,13 +7,6 @@ import {
   waitFor,
   within,
 } from '@mongodb-js/testing-library-compass';
-import {
-  CompassAssistantProvider,
-  createDefaultChat,
-  useAssistantActions,
-  type AssistantMessage,
-  type ThreadedChat,
-} from './compass-assistant-provider';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -24,12 +17,6 @@ import {
 import { type AtlasService } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import { CompassAssistantDrawer } from './compass-assistant-drawer';
-import {
-  createBrokenTransport,
-  createChat,
-  createMockChat,
-} from '../test/utils';
 import {
   ToolsControllerProvider,
   type AtlasAiService,
@@ -40,16 +27,29 @@ import {
   AI_MODEL_AGENT_VERSION,
   AI_MODEL_CHAT_VERSION,
 } from '@mongodb-js/compass-generative-ai/provider';
-import type { ActiveConnectionInfo } from './assistant-global-state';
-import {
-  AssistantGlobalStateProvider,
-  useSyncAssistantGlobalState,
-} from './assistant-global-state';
 import type {
   CollectionSubtab,
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
 import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
+import {
+  createBrokenTransport,
+  createChat,
+  createMockChat,
+} from '../test/utils';
+import {
+  AssistantGlobalStateProvider,
+  useSyncAssistantGlobalState,
+} from './assistant-global-state';
+import type { ActiveConnectionInfo } from './assistant-global-state';
+import { CompassAssistantDrawer } from './compass-assistant-drawer';
+import {
+  CompassAssistantProvider,
+  createDefaultChat,
+  useAssistantActions,
+  type AssistantMessage,
+  type ThreadedChat,
+} from './compass-assistant-provider';
 
 function createMockProvider({
   mockAtlasService,
@@ -350,6 +350,7 @@ describe('CompassAssistantProvider', function () {
       enableToolCalling = true,
       enableGenAIToolCallingAtlasProject = true,
       enableGenAIToolCalling = true,
+      trackUsageStatistics,
       maxTimeMS,
       query,
       pipeline,
@@ -365,6 +366,7 @@ describe('CompassAssistantProvider', function () {
       enableToolCalling?: boolean;
       enableGenAIToolCallingAtlasProject?: boolean;
       enableGenAIToolCalling?: boolean;
+      trackUsageStatistics?: boolean;
       maxTimeMS?: number;
       query?: string;
       pipeline?: string;
@@ -395,6 +397,9 @@ describe('CompassAssistantProvider', function () {
             enableToolCalling,
             enableGenAIToolCallingAtlasProject,
             enableGenAIToolCalling,
+            ...(trackUsageStatistics !== undefined
+              ? { trackUsageStatistics }
+              : {}),
             maxTimeMS,
           },
         }
@@ -693,6 +698,41 @@ describe('CompassAssistantProvider', function () {
         connections: [],
         query,
         pipeline,
+      });
+    });
+
+    it('disables MCP telemetry when usage statistics are off', async function () {
+      const mockChat = createChat({ messages: [] });
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        trackUsageStatistics: false,
+      });
+
+      userEvent.type(
+        screen.getByPlaceholderText('Ask a question'),
+        'Hello assistant'
+      );
+      userEvent.click(screen.getByLabelText('Send message'));
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+      });
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.include({
+        enableMCPTelemetry: false,
       });
     });
 

@@ -28,9 +28,8 @@ import type { FocusState } from '../../hooks/use-focus-hover';
 import { FocusStates, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
-import type { Tab } from './tab';
-import type { WorkspaceTabCoreProps } from './tab';
 import { useHotkeys } from '../../hooks/use-hotkeys';
+import type { Tab, WorkspaceTabCoreProps } from './tab';
 
 export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
 export const scrollbarThumbDarkTheme = rgba(palette.gray.base, 0.65);

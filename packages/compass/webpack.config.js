@@ -1,7 +1,7 @@
 'use strict';
 // @ts-check
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 // @ts-ignore
 const { Target: HadronBuildTarget } = require('@mongodb-js/hadron-build');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
@@ -49,10 +49,13 @@ module.exports = (_env, args) => {
     ),
   });
 
-  // Every directory in src/utilities is a utility process: its entry is
-  // `<name>/index.mts` and it is built to `<name>.mjs`, which main forks.
-  // Adding a utility means adding a directory, nothing here.
-  const utilitiesDir = path.resolve(__dirname, 'src', 'utilities');
+  // Every directory in @mongodb-js/compass-utilities is a utility process: its
+  // entry is `<name>/index.mts` and it is built to `<name>.mjs`, which main
+  // forks. Adding a utility means adding a directory there, nothing here.
+  const utilitiesDir = path.join(
+    path.dirname(require.resolve('@mongodb-js/compass-utilities/package.json')),
+    'src'
+  );
   const utilityEntries = Object.fromEntries(
     fs
       .readdirSync(utilitiesDir, { withFileTypes: true })
@@ -63,6 +66,11 @@ module.exports = (_env, args) => {
   const utilitiesConfig = withoutStartElectron(
     createElectronMainConfig({
       ...opts,
+      // Utilities are never coverage instrumented: istanbul's preamble calls
+      // `new Function('return this')`, and utility processes are forked with
+      // NODE_OPTIONS forbidding code generation from strings (application.ts),
+      // so an instrumented utility crashes on load.
+      coverage: '',
       entry: utilityEntries,
       outputFilename: '[name].mjs',
     })
@@ -80,14 +88,6 @@ module.exports = (_env, args) => {
     ...opts,
     entry: path.resolve(__dirname, 'src', 'app', 'index.ts'),
   });
-
-  const externals = {
-    // Runtime implementation depends on worker file existing near the library
-    // main import and for that reason it needs to stay external to compass (and
-    // compass-shell plugin)
-    '@mongosh/node-runtime-worker-thread':
-      'commonjs2 @mongosh/node-runtime-worker-thread',
-  };
 
   // Having persistent build cache makes initial dev build slower, but
   // subsequent builds much much faster
@@ -177,17 +177,8 @@ module.exports = (_env, args) => {
       dependencies: ['utilities', 'preload'],
       cache,
       snapshot,
-      externals,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // In local dev mode, this flag is used to disable web security when
-        // creating windows. It allows @mongosh/node-runtime-worker-thread
-        // worker to load itself from the file path on the localhost
-        new webpack.DefinePlugin({
-          'process.env.DISABLE_ELECTRON_WEB_SECURITY': JSON.stringify(
-            isServe(opts) ? '1' : '0'
-          ),
-        }),
         ...compileOnlyPlugins,
       ],
     }),
@@ -201,19 +192,50 @@ module.exports = (_env, args) => {
       // The eval devtool wraps modules in `eval`, where `import.meta` is a
       // syntax error
       devtool: 'source-map',
-      module: { parser: { javascript: { importMeta: false } } },
+      // Leave `import.meta` and `createRequire` to the runtime: utilities
+      // resolve files that must stay on disk, like the shell's worker script,
+      // and webpack would otherwise bundle them
+      module: {
+        parser: { javascript: { importMeta: false, createRequire: false } },
+      },
       // `require` does not exist in ESM output, so CommonJS externals have to
       // go through `createRequire`
       externals: Object.fromEntries(
-        sharedExternals.map((name) => [name, `node-commonjs ${name}`])
+        [
+          ...sharedExternals,
+          // Starts its worker thread on its own file, which has to be the
+          // real one rather than this bundle
+          'web-worker',
+        ].map((name) => [name, `node-commonjs ${name}`])
       ),
-      plugins: [
-        new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // Main forks one file per utility
-        new webpack.optimize.LimitChunkCountPlugin({
-          maxChunks: Object.keys(utilityEntries).length,
-        }),
-      ],
+      resolve: {
+        alias: {
+          // Same as the renderer: Atlas Local is a native dependency the app
+          // does not ship for this flow, and bundling it only adds megabytes
+          '@mongodb-js/atlas-local': false,
+        },
+      },
+      // Utilities share the heavy Node-side dependencies (the driver, the MCP
+      // server, their transitive graph) instead of every utility bundling its
+      // own copy.
+      optimization: {
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            // Only the sharing rule: everything else stays in the utility that
+            // uses it, so this does not fragment the output
+            default: false,
+            defaultVendors: false,
+            utilitiesVendor: {
+              name: 'utilities-vendor',
+              chunks: 'all',
+              minChunks: 2,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      },
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
     merge(preloadConfig, {
       name: 'preload',
@@ -228,12 +250,6 @@ module.exports = (_env, args) => {
       // Chunk splitting makes sense only for renderer processes where the
       // amount of dependencies is massive and can benefit from them more
       optimization,
-      externals,
-      resolve: {
-        alias: {
-          '@mongodb-js/atlas-local': false,
-        },
-      },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         ...compileOnlyPlugins,

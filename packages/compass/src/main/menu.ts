@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { RendererDefinedMenuState } from '@mongodb-js/compass-electron-menu/ipc-provider-main';
 import { type CompassAppMenu } from '@mongodb-js/compass-electron-menu';
 import {
@@ -8,15 +10,13 @@ import {
   shell,
 } from 'electron';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
-import fs from 'fs';
-import path from 'path';
 import createDebug from 'debug';
 import type { THEMES } from '@mongodb-js/compass-preferences-model';
 
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import { AutoUpdateManagerStates } from './auto-update-manager';
-import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const track = createIpcTrack();
 

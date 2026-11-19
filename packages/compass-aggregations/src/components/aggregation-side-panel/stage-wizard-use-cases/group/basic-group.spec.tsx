@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { BasicGroup } from './basic-group';
 import sinon from 'sinon';
 import { setMultiSelectComboboxValues } from '../../../../../test/form-helper';
 import { MULTI_SELECT_LABEL } from '../field-combobox';
+import { BasicGroup } from './basic-group';
 
 describe('basic group', function () {
   context('renders a group form', function () {

@@ -1,5 +1,6 @@
 import { css, palette } from '@mongodb-js/compass-components';
 import d3 from 'd3';
+
 require('./d3-tip')(d3);
 
 const toolTipStyles = (darkMode) => css`

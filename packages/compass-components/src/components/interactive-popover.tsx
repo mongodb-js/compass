@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import FocusTrap from 'focus-trap-react';
 
-import { Icon, IconButton, Popover } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
 import { rgba } from 'polished';
 import { useDarkMode } from '../hooks/use-theme';
 import { useHotkeys } from '../hooks/use-hotkeys';
+import { Icon, IconButton, Popover } from './leafygreen';
 
 const borderRadius = spacing[200];
 

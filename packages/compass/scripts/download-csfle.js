@@ -1,8 +1,8 @@
 'use strict';
 /* eslint-disable no-console */
-const os = require('os');
-const path = require('path');
-const { promises: fs } = require('fs');
+const os = require('node:os');
+const path = require('node:path');
+const { promises: fs } = require('node:fs');
 const {
   downloadMongoDbWithVersionInfo,
 } = require('@mongodb-js/mongodb-downloader');

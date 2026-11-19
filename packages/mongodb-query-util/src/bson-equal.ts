@@ -1,4 +1,4 @@
-import { getBsonType } from 'hadron-type-checker';
+import { getBsonType } from '@mongodb-js/hadron-type-checker';
 
 import type { Double, Int32, ObjectId } from 'bson';
 

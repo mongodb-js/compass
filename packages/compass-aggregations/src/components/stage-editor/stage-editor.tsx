@@ -18,6 +18,11 @@ import {
   useRequiredURLSearchParams,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import {
   changeStageValue,
   getIndexOfFirstStageWithServerError,
@@ -27,13 +32,6 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
-import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import {
-  useTelemetry,
-  useSearchActivationProgramP1,
-} from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
@@ -42,10 +40,11 @@ import {
 import { disableFocusMode } from '../../modules/focus-mode';
 import type { SearchIndexType } from '../../modules/search-indexes';
 
+import { isSearchStage } from '../../utils/stage';
 import {
-  getSearchIndexNameFromSearchStage,
-  isSearchStage,
-} from '../../utils/stage';
+  isSearchIndexMissing,
+  useSearchIndexNameFromStage,
+} from '../../utils/use-search-index-name';
 import ServerErrorBanner from '../server-error-banner';
 import {
   getSearchExtensionTypeFromStage,
@@ -104,8 +103,8 @@ type StageEditorProps = {
   serverErrorStageIdx: number | null;
   num_stages: number;
   editor_view_type: 'text' | 'stage' | 'focus';
-  searchIndexName: string | null;
-  showSearchIndexDoesNotExistBanner: boolean;
+  searchIndexesStatus: string;
+  searchIndexes: SearchIndex[];
   className?: string;
   onChange: (index: number, value: string) => void;
   onViewSearchIndexesClick: (indexName?: string) => void;
@@ -132,10 +131,19 @@ export const StageEditor = ({
   serverVersion,
   num_stages,
   editor_view_type,
-  searchIndexName,
-  showSearchIndexDoesNotExistBanner,
+  searchIndexesStatus,
+  searchIndexes,
   editorRef,
 }: StageEditorProps) => {
+  const searchIndexName = useSearchIndexNameFromStage(
+    stageOperator,
+    stageValue
+  );
+  const showSearchIndexDoesNotExistBanner = isSearchIndexMissing(
+    searchIndexName,
+    searchIndexesStatus,
+    searchIndexes
+  );
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
@@ -144,7 +152,7 @@ export const StageEditor = ({
 
   const fields = useAutocompleteFields(namespace);
 
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const enableRerank = usePreference('enableRerank');
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
@@ -298,7 +306,7 @@ export const StageEditor = ({
           .
         </Banner>
       )}
-      {enableSearchActivationProgramP1 &&
+      {enableAtlasSearchIndexes &&
         !serverError &&
         !syntaxError &&
         showSearchIndexDoesNotExistBanner &&
@@ -329,15 +337,6 @@ export default connect(
     const stage = stages[ownProps.index] as StoreStage;
     const num_stages = pipelineFromStore(stages).length;
     const editor_view_type = mapPipelineModeToEditorViewType(state);
-    const searchIndexName = getSearchIndexNameFromSearchStage(
-      stage.stageOperator,
-      stage.value
-    );
-    const showSearchIndexDoesNotExistBanner =
-      !!searchIndexName &&
-      ['READY', 'POLLING'].includes(state.searchIndexes.status) &&
-      state.searchIndexes.indexes.every((x) => x.name !== searchIndexName);
-
     const shouldShowErrors = !stage.empty && !stage.fromSnippet;
 
     return {
@@ -353,8 +352,8 @@ export default connect(
       serverVersion: state.serverVersion,
       num_stages,
       editor_view_type,
-      searchIndexName,
-      showSearchIndexDoesNotExistBanner,
+      searchIndexesStatus: state.searchIndexes.status,
+      searchIndexes: state.searchIndexes.indexes,
     };
   },
   {

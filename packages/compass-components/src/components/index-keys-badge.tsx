@@ -1,9 +1,9 @@
-import { Badge } from './leafygreen';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
-import IndexIcon from './index-icon';
 import { Variant as BadgeVariant } from '@leafygreen-ui/badge';
+import IndexIcon from './index-icon';
+import { Badge } from './leafygreen';
 
 const keyListStyles = css({
   display: 'inline-flex',

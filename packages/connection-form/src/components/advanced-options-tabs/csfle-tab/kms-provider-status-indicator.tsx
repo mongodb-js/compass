@@ -1,13 +1,13 @@
 import React from 'react';
 import type { AutoEncryptionOptions } from 'mongodb';
 
+import { css, Icon, spacing, palette } from '@mongodb-js/compass-components';
 import type {
   KMSField,
   KMSProviderName,
   KMSProviderType,
 } from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
-import { css, Icon, spacing, palette } from '@mongodb-js/compass-components';
 
 const iconStyles = css({
   marginLeft: spacing[200],

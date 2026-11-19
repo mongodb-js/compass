@@ -2,14 +2,14 @@ import type { Action } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import type { CreateViewAction } from '../modules/create-view';
-import reducer, { open } from '../modules/create-view';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import reducer, { open } from '../modules/create-view';
+import type { CreateViewAction } from '../modules/create-view';
 
 type CreateViewServices = {
   globalAppRegistry: AppRegistry;

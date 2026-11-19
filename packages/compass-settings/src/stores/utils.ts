@@ -1,7 +1,5 @@
 import type { AnyAction } from 'redux';
 
-// TODO: move all to compass-utils, we use this in a lot of reducers already
-
 export function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']

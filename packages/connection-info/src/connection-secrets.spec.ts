@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { expect } from 'chai';
+import { UUID } from 'bson';
 import type { ConnectionInfo } from './connection-info';
 import { mergeSecrets, extractSecrets } from './connection-secrets';
-import { UUID } from 'bson';
 
 /**
  * @securityTest Secure Credential Storage

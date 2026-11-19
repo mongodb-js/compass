@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import type { Compiler, WebpackPluginInstance } from 'webpack';
 import { ProgressPlugin } from 'webpack';
 import type { SingleBar } from 'cli-progress';

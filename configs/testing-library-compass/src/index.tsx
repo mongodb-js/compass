@@ -1,13 +1,18 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
   createNoopLogger,
   LoggerProvider,
 } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionStorage,
+  FolderStorage,
+} from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
+  FolderStorageProvider,
+  InMemoryFolderStorage,
 } from '@mongodb-js/connection-storage/provider';
 import type {
   RenderOptions,
@@ -31,8 +36,8 @@ import type {
   ConnectionOptions,
   DataService,
   InstanceDetails,
-} from 'mongodb-data-service';
-import { identifyServerName } from 'mongodb-build-info';
+} from '@mongodb-js/mongodb-data-service';
+import { identifyServerName } from '@mongodb-js/mongodb-build-info';
 import Sinon from 'sinon';
 import React from 'react';
 import type {
@@ -52,8 +57,10 @@ import {
   ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/src/connection-info-provider';
 import type { State } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { createDefaultConnectionInfo } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { getDataServiceForConnection } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
+import {
+  createDefaultConnectionInfo,
+  getDataServiceForConnection,
+} from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
 import {
   useConnectionActions,
   useStore,
@@ -112,6 +119,10 @@ type TestConnectionsOptions = {
    * Connection storage mock
    */
   connectionStorage?: ConnectionStorage;
+  /**
+   * Folder storage mock
+   */
+  folderStorage?: FolderStorage;
   /**
    * Simulates the entity being assigned to a given experiment variant (or
    * `null` for not being in any variant, the default).
@@ -323,6 +334,7 @@ function createWrapper(
     atlasAuthService: new EventEmitter() as unknown as AtlasAuthService,
     connectionStorage:
       options.connectionStorage ?? new InMemoryConnectionStorage(connections),
+    folderStorage: options.folderStorage ?? new InMemoryFolderStorage(),
     connectionsStore: {
       getState: undefined as unknown as () => State,
       actions: {} as ReturnType<typeof useConnectionActions>,
@@ -439,34 +451,38 @@ function createWrapper(
                           <ConnectionStorageProvider
                             value={wrapperState.connectionStorage}
                           >
-                            <ConnectFnProvider connect={wrapperState.connect}>
-                              <CompassConnections
-                                appName={options.appName ?? 'TEST'}
-                                onExtraConnectionDataRequest={
-                                  options.onExtraConnectionDataRequest ??
-                                  (() => {
-                                    return Promise.resolve([{}, null] as [
-                                      any,
-                                      null,
-                                    ]);
-                                  })
-                                }
-                                onAutoconnectInfoRequest={
-                                  options.onAutoconnectInfoRequest
-                                }
-                                preloadStorageConnectionInfos={connections}
-                              >
-                                <StoreGetter>
-                                  <TestEnvCurrentConnectionContext.Provider
-                                    value={TEST_ENV_CURRENT_CONNECTION}
-                                  >
-                                    <TestingLibraryWrapper {...props}>
-                                      {children}
-                                    </TestingLibraryWrapper>
-                                  </TestEnvCurrentConnectionContext.Provider>
-                                </StoreGetter>
-                              </CompassConnections>
-                            </ConnectFnProvider>
+                            <FolderStorageProvider
+                              value={wrapperState.folderStorage}
+                            >
+                              <ConnectFnProvider connect={wrapperState.connect}>
+                                <CompassConnections
+                                  appName={options.appName ?? 'TEST'}
+                                  onExtraConnectionDataRequest={
+                                    options.onExtraConnectionDataRequest ??
+                                    (() => {
+                                      return Promise.resolve([{}, null] as [
+                                        any,
+                                        null,
+                                      ]);
+                                    })
+                                  }
+                                  onAutoconnectInfoRequest={
+                                    options.onAutoconnectInfoRequest
+                                  }
+                                  preloadStorageConnectionInfos={connections}
+                                >
+                                  <StoreGetter>
+                                    <TestEnvCurrentConnectionContext.Provider
+                                      value={TEST_ENV_CURRENT_CONNECTION}
+                                    >
+                                      <TestingLibraryWrapper {...props}>
+                                        {children}
+                                      </TestingLibraryWrapper>
+                                    </TestEnvCurrentConnectionContext.Provider>
+                                  </StoreGetter>
+                                </CompassConnections>
+                              </ConnectFnProvider>
+                            </FolderStorageProvider>
                           </ConnectionStorageProvider>
                         </CompassExperimentationProvider>
                       </TelemetryProvider>

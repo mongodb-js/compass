@@ -9,16 +9,16 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 
-import Group, { makeCreateGroup, TEST_IDS } from './match-group-form';
 import { setComboboxValue } from '../../../../../test/form-helper';
+import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import Group, { makeCreateGroup, TEST_IDS } from './match-group-form';
 import {
   makeCreateCondition,
   TEST_IDS as CONDITION_TEST_IDS,
 } from './match-condition-form';
-import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
 import type { CreateConditionFn } from './match-condition-form';
 import type { CreateGroupFn, MatchGroupFormProps } from './match-group-form';
-import { SINGLE_SELECT_LABEL } from '../field-combobox';
 import { getNestingDepth } from './match';
 
 describe('group', function () {

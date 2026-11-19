@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+import { type Db, MongoClient } from 'mongodb';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -10,8 +12,6 @@ import {
   connectionNameFromString,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
-import { expect } from 'chai';
-import { type Db, MongoClient } from 'mongodb';
 import { isTestingWebAtlasCloud } from '../helpers/test-runner-context.ts';
 
 type Connection = {

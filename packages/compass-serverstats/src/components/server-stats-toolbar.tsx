@@ -11,9 +11,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const serverStatsToolbarStyles = css({
   display: 'flex',

@@ -1,6 +1,6 @@
-import type { Readable } from 'stream';
-import { Transform } from 'stream';
-import { pipeline } from 'stream/promises';
+import type { Readable } from 'node:stream';
+import { Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import Papa from 'papaparse';
 import stripBomStream from 'strip-bom-stream';
 

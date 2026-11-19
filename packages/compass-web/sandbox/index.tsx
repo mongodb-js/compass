@@ -6,9 +6,9 @@ import {
   css,
   resetGlobalCSS,
 } from '@mongodb-js/compass-components';
+import { createHashHistory } from 'history';
 import type * as CompassWebModule from '../src';
 import { OpenInAtlasToast } from './open-in-atlas-toast';
-import { createHashHistory } from 'history';
 
 const hashHistory = createHashHistory();
 

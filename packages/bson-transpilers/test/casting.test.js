@@ -1,12 +1,11 @@
 'use strict';
 /* eslint new-cap: 0 no-sync: 0 */
-const path = require('path');
-const fs = require('fs');
-const chai = require('chai');
-const expect = chai.expect;
+const path = require('node:path');
+const fs = require('node:fs');
+const { expect } = require('chai');
+const yaml = require('js-yaml');
 
 const { getTree } = require('../');
-const yaml = require('js-yaml');
 const schema = yaml.DEFAULT_SCHEMA.extend(require('js-yaml-js-types').all);
 
 const modes = process.env.MODE ? process.env.MODE.split(',') : [];

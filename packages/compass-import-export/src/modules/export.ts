@@ -1,5 +1,5 @@
+import fs from 'node:fs';
 import type { Action, AnyAction, Reducer } from 'redux';
-import fs from 'fs';
 import _ from 'lodash';
 import {
   createProjectionFromSchemaFields,

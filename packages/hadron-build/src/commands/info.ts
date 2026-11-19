@@ -1,12 +1,12 @@
-import _ from 'lodash';
-import Target from '../lib/target';
+import { inspect } from 'node:util';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import Table from 'cli-table';
 import * as yaml from 'js-yaml';
-import { inspect } from 'util';
 import { flatten } from 'flatnest';
-import fs from 'fs/promises';
-import path from 'path';
+import _ from 'lodash';
 import type { CommandModule, Argv } from 'yargs';
+import Target from '../lib/target';
 import type {
   BuilderCallbackParsedArgs,
   ExcludeYargsRequiredArgs,

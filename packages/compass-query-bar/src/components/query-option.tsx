@@ -10,8 +10,9 @@ import {
   useDarkMode,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
-import { connect } from '../stores/context';
-import OptionEditor from './option-editor';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type {
   QueryOptionOfTypeDocument,
@@ -23,9 +24,8 @@ import {
 } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { connect } from '../stores/context';
+import OptionEditor from './option-editor';
 
 const queryOptionStyles = css({
   display: 'flex',

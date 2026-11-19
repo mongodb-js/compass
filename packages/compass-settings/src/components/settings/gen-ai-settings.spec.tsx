@@ -3,9 +3,9 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
-import { GenAISettings } from './gen-ai-settings';
 import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
+import { GenAISettings } from './gen-ai-settings';
 
 function renderGenAiSettings({
   store = configureStore(),

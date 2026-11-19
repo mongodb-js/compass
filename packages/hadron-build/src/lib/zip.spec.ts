@@ -1,11 +1,11 @@
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import JSZip from 'jszip';
+import chai from 'chai';
+import { getTarget } from '../../test/test-helpers';
 import type Target from './../lib/target';
 
 import zip, { getZipOptionsFromTarget } from './zip';
-import { getTarget } from '../../test/test-helpers';
-import chai from 'chai';
 
 const { expect } = chai;
 

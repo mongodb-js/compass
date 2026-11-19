@@ -1,5 +1,5 @@
-import { getConnectionTitle } from './connection-title';
 import { expect } from 'chai';
+import { getConnectionTitle } from './connection-title';
 
 describe('getConnectionTitle', function () {
   it('works with default host', function () {

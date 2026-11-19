@@ -1,4 +1,3 @@
-import type { RootAction } from '.';
 import { isAction } from '../util';
 import {
   type EmptyValidationFetchedAction,
@@ -6,6 +5,7 @@ import {
   type ValidationCanceledAction,
   type ValidationFetchedAction,
 } from './validation';
+import type { RootAction } from '.';
 
 /**
  * The edit mode changed action.

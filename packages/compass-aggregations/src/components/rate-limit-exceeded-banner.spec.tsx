@@ -6,8 +6,8 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import RateLimitExceededBanner from './rate-limit-exceeded-banner';
 import type { VoyageRateLimitInfo } from '../utils/search-stage-errors';
+import RateLimitExceededBanner from './rate-limit-exceeded-banner';
 
 const RPM_INFO: VoyageRateLimitInfo = { type: 'rpm', limit: '10' };
 const BILLING_INFO: VoyageRateLimitInfo = {

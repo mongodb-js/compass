@@ -8,7 +8,8 @@ import {
 import { expect } from 'chai';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import PipelineAI from './pipeline-ai';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import type Sinon from 'sinon';
 import {
   MockAtlasAiService,
   renderWithStore,
@@ -19,9 +20,8 @@ import {
   changeAIPromptText,
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
-import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import type { AggregationsStore } from '../../stores/store';
-import type Sinon from 'sinon';
+import PipelineAI from './pipeline-ai';
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 const thumbsUpId = 'ai-feedback-thumbs-up';

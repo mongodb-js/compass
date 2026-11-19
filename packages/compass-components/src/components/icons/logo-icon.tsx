@@ -1,7 +1,7 @@
 import React from 'react';
-import { useDarkMode } from '../../hooks/use-theme';
 import { palette } from '@leafygreen-ui/palette';
 import { css, cx } from '@leafygreen-ui/emotion';
+import { useDarkMode } from '../../hooks/use-theme';
 
 const iconStyles = css({
   flex: 'none',

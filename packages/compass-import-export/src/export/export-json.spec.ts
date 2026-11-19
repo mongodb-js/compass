@@ -1,28 +1,28 @@
 /* eslint-disable no-console */
-import os from 'os';
+import os from 'node:os';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Readable, Writable } from 'node:stream';
 import { EJSON, Long } from 'bson';
-import fs from 'fs';
-import path from 'path';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
-import { connect } from 'mongodb-data-service';
-import type { DataService } from 'mongodb-data-service';
-import { Readable, Writable } from 'stream';
+import { connect } from '@mongodb-js/mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type { FindCursor } from 'mongodb';
 
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { getBsonType } from '@mongodb-js/hadron-type-checker';
 import allTypesDocs from '../../test/docs/all-bson-types';
-
-temp.track();
 
 import { fixtures } from '../../test/fixtures';
 
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
-import { getBsonType } from 'hadron-type-checker';
+
+temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);

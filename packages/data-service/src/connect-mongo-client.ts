@@ -1,3 +1,4 @@
+import EventEmitter from 'node:events';
 import type { MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { connectMongoClient, hookLogger } from '@mongodb-js/devtools-connect';
@@ -6,7 +7,6 @@ import type {
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
-import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';
 

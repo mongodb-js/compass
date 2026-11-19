@@ -1,11 +1,11 @@
 import React from 'react';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
-import { Modal } from './modal';
 import { Button, ModalFooter } from '../leafygreen';
+import { css, spacing } from '../..';
+import { Modal } from './modal';
 
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
-import { css, spacing } from '../..';
 
 const footerStyles = css({
   display: 'flex',

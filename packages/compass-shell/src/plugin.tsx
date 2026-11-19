@@ -1,6 +1,5 @@
 import React from 'react';
 import thunk from 'redux-thunk';
-import { HistoryStorage } from './modules/history-storage';
 import { type Logger } from '@mongodb-js/compass-logging/provider';
 import type {
   ConnectionInfoRef,
@@ -8,14 +7,7 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import TabShell from './components/compass-shell/tab-compass-shell';
 import { applyMiddleware, createStore } from 'redux';
-import reducer, {
-  createAndStoreRuntime,
-  createRuntime,
-  destroyCurrentRuntime,
-  loadHistory,
-} from './stores/store';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import {
   Themes,
@@ -23,6 +15,14 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import reducer, {
+  createAndStoreRuntime,
+  createRuntime,
+  destroyCurrentRuntime,
+  loadHistory,
+} from './stores/store';
+import TabShell from './components/compass-shell/tab-compass-shell';
+import { HistoryStorage } from './modules/history-storage';
 
 const DARK_SHELL_THEME = { theme: Themes.Dark, enabled: true };
 const LIGHT_SHELL_THEME = { theme: Themes.Light, enabled: true };

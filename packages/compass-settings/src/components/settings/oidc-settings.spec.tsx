@@ -8,9 +8,9 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import { OIDCSettings } from './oidc-settings';
 import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
+import { OIDCSettings } from './oidc-settings';
 
 describe('OIDCSettings', function () {
   let container: HTMLElement;

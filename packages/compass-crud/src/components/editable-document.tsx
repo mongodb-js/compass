@@ -1,11 +1,11 @@
 import React from 'react';
-import type { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import type { Document } from '@mongodb-js/hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { DocumentList, css } from '@mongodb-js/compass-components';
 
-import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
 import type { CrudActions } from '../stores/crud-store';
+import { documentStyles, documentContentStyles } from './readonly-document';
 
 const documentElementsContainerStyles = css({
   position: 'relative',

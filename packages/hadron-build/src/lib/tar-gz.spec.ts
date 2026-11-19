@@ -1,8 +1,8 @@
-import path from 'path';
-import os from 'os';
-import { promises as fs } from 'fs';
-import { execFile as execFileCb } from 'child_process';
-import util from 'util';
+import path from 'node:path';
+import os from 'node:os';
+import { promises as fs } from 'node:fs';
+import { execFile as execFileCb } from 'node:child_process';
+import util from 'node:util';
 import tar from './tar-gz';
 
 const execFile = util.promisify(execFileCb);

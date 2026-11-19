@@ -1,13 +1,13 @@
 import { expect } from 'chai';
+import { UUID } from 'bson';
 import type {
   StaticModel,
   Edit,
   MongoDBDataModelDescription,
   Relationship,
 } from '../services/data-model-storage';
-import { UUID } from 'bson';
-import { getModelFromReanalysis } from './analysis-process';
 import { type DataModelingStore, setupStore } from '../../test/setup-store';
+import { getModelFromReanalysis } from './analysis-process';
 import {
   addNewFieldToCollection,
   createNewRelationship,

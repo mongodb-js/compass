@@ -2,8 +2,8 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { ToolUIPart } from 'ai';
-import { getToolCallTitle } from './tool-call-title';
 import { TOOL_DENIAL_REASONS } from '../prompts';
+import { getToolCallTitle } from './tool-call-title';
 
 describe('getToolCallTitle', function () {
   const baseToolCall: ToolUIPart = {
@@ -54,6 +54,23 @@ describe('getToolCallTitle', function () {
     render(<>{getToolCallTitle(toolCall, toolName)}</>);
 
     expect(screen.getByText(/Running/)).to.exist;
+    expect(screen.getByText('list-databases')).to.exist;
+  });
+
+  it('renders "Cancelled" immediately while the denial is still being sent', function () {
+    const toolCall: ToolUIPart = {
+      ...baseToolCall,
+      state: 'approval-responded',
+      approval: {
+        id: 'approval-1',
+        approved: false,
+        reason: TOOL_DENIAL_REASONS.userDenied,
+      },
+    };
+
+    render(<>{getToolCallTitle(toolCall, toolName)}</>);
+
+    expect(screen.getByText(/Cancelled/)).to.exist;
     expect(screen.getByText('list-databases')).to.exist;
   });
 

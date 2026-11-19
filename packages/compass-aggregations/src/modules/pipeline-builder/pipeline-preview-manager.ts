@@ -1,18 +1,18 @@
 import type { AggregateOptions, Document } from 'mongodb';
-import { aggregatePipeline } from '../../utils/cancellable-aggregation';
-import { cancellableWait } from '@mongodb-js/compass-utils';
-import {
-  getStageOperator,
-  getLastStageOperator,
-  isLastStageOutputStage,
-} from '../../utils/stage';
+import { abortable, cancellableWait } from '@mongodb-js/compass-events';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE,
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
-import type { DataService } from '../data-service';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import type { DataService } from '../data-service';
+import {
+  getStageOperator,
+  getLastStageOperator,
+  isLastStageOutputStage,
+} from '../../utils/stage';
+import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 
 // Used in the `comment` on the aggregate command to help identify
 // the operation in server logs and currentOp.
@@ -95,22 +95,26 @@ export class PipelinePreviewManager {
   async getPreviewForStage(
     idx: number,
     namespace: string,
-    pipeline: Document[],
-    {
-      sampleSize,
-      previewSize,
-      totalDocumentCount,
-      ...options
-    }: PreviewOptions = {},
+    getPipeline: () => Promise<Document[]>,
+    getPreviewOptions: () => Promise<PreviewOptions>,
     force = false
   ): Promise<Document[]> {
     this.queue.get(idx)?.abort();
     const controller = new AbortController();
     this.queue.set(idx, controller);
+    // Registered before the pipeline and options (collation) resolve so that
+    // cancelling while they are still parsing aborts this request.
+    const [
+      pipeline,
+      { sampleSize, previewSize, totalDocumentCount, ...options },
+    ] = await abortable(Promise.all([getPipeline(), getPreviewOptions()]), {
+      signal: controller.signal,
+    });
     if (!force) {
       await cancellableWait(
         options.debounceMs ?? DEFAULT_PREVIEW_DEBOUNCE_MS,
-        controller.signal
+        undefined,
+        controller
       );
     }
     this.lastPipeline.set(idx, pipeline);

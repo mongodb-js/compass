@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Icon } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
-import Actions from '../actions';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import Actions from '../actions';
 
 function removeMS(key: string, value: any) {
   if (key === 'ms_running') {

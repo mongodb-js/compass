@@ -1,5 +1,5 @@
-import type { ConversationEvalScorer } from './types';
 import { Factuality as _Factuality } from 'autoevals';
+import type { ConversationEvalScorer } from './types';
 import { allText } from './utils';
 
 export const Factuality: ConversationEvalScorer = ({

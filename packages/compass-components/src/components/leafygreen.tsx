@@ -13,10 +13,8 @@ import {
   ConfirmationModal,
   Variant as ConfirmationModalVariant,
 } from '@leafygreen-ui/confirmation-modal';
-export type { ConfirmationModalProps } from '@leafygreen-ui/confirmation-modal';
 import { Icon as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
-export type { GlyphName } from '@leafygreen-ui/icon';
 import { Chip } from '@leafygreen-ui/chip';
 import {
   AtlasNavGraphic,
@@ -24,17 +22,8 @@ import {
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
-export type { MenuItemProps } from '@leafygreen-ui/menu';
 import { InfoSprinkle } from '@leafygreen-ui/info-sprinkle';
 import { ProgressBar } from '@leafygreen-ui/progress-bar';
-
-// If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
-// clicking on a menu item will submit that form. This is because it uses a button
-// tag without specifying a type and buttons by default have type="submit".
-(MenuItem as any).defaultProps = {
-  ...(MenuItem as any).defaultProps,
-  type: 'button',
-};
 
 import { Modal, Footer as ModalFooter } from '@leafygreen-ui/modal';
 import { MarketingModal } from '@leafygreen-ui/marketing-modal';
@@ -64,24 +53,10 @@ import {
   getFilteredRowModel,
   type TableProps,
 } from '@leafygreen-ui/table';
-
-export type {
-  LGColumnDef,
-  HeaderGroup,
-  LeafyGreenVirtualTable,
-  LeafyGreenTable,
-  LeafyGreenTableCell,
-  LeafyGreenTableRow,
-  LGTableDataType,
-  LGRowData,
-  SortingState,
-  CellContext,
-} from '@leafygreen-ui/table';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import { TextArea } from '@leafygreen-ui/text-area';
 import { TextInput } from '@leafygreen-ui/text-input';
 import { SearchInput } from '@leafygreen-ui/search-input';
-export { useMergeRefs } from '@leafygreen-ui/hooks';
 import { Toggle } from '@leafygreen-ui/toggle';
 import { Tooltip as LGTooltip } from '@leafygreen-ui/tooltip';
 import {
@@ -103,6 +78,32 @@ import {
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
 import { withStackedComponentStyles } from '../hooks/use-stacked-component';
+
+export type { ConfirmationModalProps } from '@leafygreen-ui/confirmation-modal';
+export type { GlyphName } from '@leafygreen-ui/icon';
+export type { MenuItemProps } from '@leafygreen-ui/menu';
+
+// If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
+// clicking on a menu item will submit that form. This is because it uses a button
+// tag without specifying a type and buttons by default have type="submit".
+(MenuItem as any).defaultProps = {
+  ...(MenuItem as any).defaultProps,
+  type: 'button',
+};
+
+export type {
+  LGColumnDef,
+  HeaderGroup,
+  LeafyGreenVirtualTable,
+  LeafyGreenTable,
+  LeafyGreenTableCell,
+  LeafyGreenTableRow,
+  LGTableDataType,
+  LGRowData,
+  SortingState,
+  CellContext,
+} from '@leafygreen-ui/table';
+export { useMergeRefs } from '@leafygreen-ui/hooks';
 
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Tooltip = withStackedComponentStyles(LGTooltip);

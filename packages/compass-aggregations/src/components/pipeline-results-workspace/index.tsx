@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type HadronDocument from 'hadron-document';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import {
   css,
   cx,
@@ -25,13 +25,11 @@ import {
   cancelAggregation,
   retryAggregation,
 } from '../../modules/aggregation';
-import PipelineResultsList from './pipeline-results-list';
-import PipelineEmptyResults from './pipeline-empty-results';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
+  getStageOperator,
 } from '../../utils/stage';
-import { getStageOperator } from '../../utils/stage';
 import { gotoOutResults } from '../../modules/out-results-fn';
 import {
   isRerankNotEnabledError,
@@ -41,6 +39,8 @@ import {
   isRerankVersionSupported,
 } from '../../utils/search-stage-errors';
 import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
+import PipelineEmptyResults from './pipeline-empty-results';
+import PipelineResultsList from './pipeline-results-list';
 
 const containerStyles = css({
   overflow: 'hidden',

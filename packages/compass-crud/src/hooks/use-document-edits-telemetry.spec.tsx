@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { renderHook } from '@mongodb-js/testing-library-compass';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import {
   useDocumentEditsTelemetry,

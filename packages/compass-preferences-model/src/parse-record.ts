@@ -1,5 +1,5 @@
-import { inspect } from 'util';
-import { URLSearchParams } from 'url';
+import { inspect } from 'node:util';
+import { URLSearchParams } from 'node:url';
 
 // Parse a JS array or object into a list of key-value pairs.
 // See the test file for example supported formats (notably, this

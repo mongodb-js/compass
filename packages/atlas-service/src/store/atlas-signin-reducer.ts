@@ -7,7 +7,6 @@ import type {
 } from '@mongodb-js/compass-telemetry';
 import type { AtlasUserInfo } from '../util';
 import type { AtlasAuthService } from '../provider';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -410,7 +409,7 @@ export const signIn =
     const signal = controller.signal;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     try {
-      throwIfAborted(signal);
+      signal?.throwIfAborted();
       let userInfo;
 
       const doSignIn = async () => {

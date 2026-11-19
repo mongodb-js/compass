@@ -4,6 +4,7 @@ import {
   createServiceLocator,
   createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
+import { useCurrentValueRef } from '@mongodb-js/compass-components';
 import {
   useConnectionForId,
   useConnectionInfoForId,
@@ -13,7 +14,6 @@ import type {
   ConnectionId,
   ConnectionState,
 } from './stores/connections-store-redux';
-import { useCurrentValueRef } from '@mongodb-js/compass-components';
 
 export type { ConnectionInfo };
 

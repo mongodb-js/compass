@@ -4,11 +4,11 @@ import { webUtils, webFrame } from 'electron';
 import { globalAppRegistry } from '@mongodb-js/compass-app-registry';
 import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import semver from 'semver';
-import { CompassElectron } from './components/entrypoint';
 import {
   openToast,
   closeToast,
   ToastBody,
+  createElectronFileInputBackend,
 } from '@mongodb-js/compass-components';
 import ensureError from 'ensure-error';
 
@@ -19,7 +19,18 @@ import { createRoot } from 'react-dom/client';
 import { setupIntercom } from '@mongodb-js/compass-intercom';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import {
+  CompassRendererConnectionStorage,
+  CompassRendererFolderStorage,
+} from '@mongodb-js/connection-storage/renderer';
 
+import {
+  ApplicationMenuContextProvider,
+  type ApplicationMenuProvider,
+} from '@mongodb-js/compass-electron-menu';
+import { ApplicationMenu } from '@mongodb-js/compass-electron-menu/ipc-provider-renderer';
+import type { AutoConnectPreferences } from '../main/auto-connect';
+import { CompassElectron } from './components/entrypoint';
 import {
   onAutoupdateExternally,
   onAutoupdateFailed,
@@ -28,20 +39,11 @@ import {
   onAutoupdateSuccess,
 } from './components/update-toasts';
 
-import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
-import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
-import type { AutoConnectPreferences } from '../main/auto-connect';
+import 'source-code-pro/source-code-pro.css';
+import './index.less';
 
 const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
-
-import './index.less';
-import 'source-code-pro/source-code-pro.css';
-import {
-  ApplicationMenuContextProvider,
-  type ApplicationMenuProvider,
-} from '@mongodb-js/compass-electron-menu';
-import { ApplicationMenu } from '@mongodb-js/compass-electron-menu/ipc-provider-renderer';
 
 const DEFAULT_APP_VERSION = '0.0.0';
 
@@ -146,6 +148,7 @@ class Application {
       await this.getWindowAutoConnectPreferences();
     const isSecretStorageAvailable = await this.checkSecretStorageIsAvailable();
     const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
+    const folderStorage = new CompassRendererFolderStorage(ipcRenderer);
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -186,6 +189,7 @@ class Application {
               webUtils
             )}
             connectionStorage={connectionStorage}
+            folderStorage={folderStorage}
             onAutoconnectInfoRequest={
               initialAutoConnectPreferences.shouldAutoConnect
                 ? () => {

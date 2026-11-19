@@ -32,7 +32,7 @@ variables:
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
     EVERGREEN_CREATED_AT: ${created_at}
-    NODE_JS_VERSION: '24.15.0'
+    NODE_JS_VERSION: '24.22.2'
     NPM_VERSION: '11.16.0'
     # Deprecated String::Value declaration in Electron 43 doesn't parse under
     # GCC 12, breaking every native module on the Linux builders.
@@ -837,10 +837,7 @@ functions:
             npm run --workspace @mongodb-js/compass-smoke-tests start -- dispatch --ref ${branch_name}
           fi
 
-  # Creating the webpack compass-web bundle ensures
-  # that the bundle size does not grow too large for.
-  # The webpack compile fails when it exceeds the size limit.
-  compile-compass-web:
+  test-can-bundle-compass-web:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
       timeout_secs: 600
@@ -851,7 +848,12 @@ functions:
           DEBUG: ${debug|}
         script: |
           set -e
+          # Creating the webpack compass-web bundle ensures that the bundle size
+          # does not grow too large for. The webpack compile fails when it
+          # exceeds the size limit.
           npm run --workspace @mongodb-js/compass-web compile
+          # Test that all generated assets are uploadable
+          npm run --workspace @mongodb-js/compass-web upload-dist -- --dry-run
 
   test-web-sandbox:
     - command: shell.exec
@@ -944,7 +946,7 @@ functions:
             curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version continuous) | \
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
-          npm run test-csfle --workspace mongodb-data-service
+          npm run test-csfle --workspace @mongodb-js/mongodb-data-service
 
   verify-artifacts:
     - command: shell.exec

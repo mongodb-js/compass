@@ -1,11 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-import { brotliCompressSync } from 'zlib';
+import fs from 'node:fs';
+import path from 'node:path';
+import { brotliCompressSync } from 'node:zlib';
 import {
   DIST_DIR,
   DOWNLOADS_BUCKET,
   putObject,
   getObjectKey,
+  DRY_RUN,
 } from './utils.mts';
 
 const artifacts = await fs.promises.readdir(DIST_DIR);
@@ -29,6 +30,11 @@ for (const file of artifacts) {
   if (!ALLOWED_EXTS.includes(path.extname(file))) {
     throw new Error(`Unexpected artifact file extension for ${file}`);
   }
+}
+
+if (DRY_RUN) {
+  console.log('Skipping actual upload because dry run');
+  process.exit();
 }
 
 const IMMUTABLE_CACHE_MAX_AGE_SECONDS = 1 * 60 * 60 * 24 * 7; // a week

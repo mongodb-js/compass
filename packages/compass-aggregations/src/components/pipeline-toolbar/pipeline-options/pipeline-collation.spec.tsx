@@ -7,8 +7,8 @@ import {
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../../test/configure-store';
-import PipelineCollation from './pipeline-collation';
 import type { AggregationsStore } from '../../../stores/store';
+import PipelineCollation from './pipeline-collation';
 
 describe('PipelineCollation', function () {
   let store: AggregationsStore;
@@ -33,6 +33,20 @@ describe('PipelineCollation', function () {
       expect(screen.getByTestId('collation-string')).to.have.attribute(
         'aria-invalid',
         'true'
+      );
+    });
+  });
+
+  it('keeps every typed character of the collation', async function () {
+    // `{{` is user-event's escape for a literal `{`
+    userEvent.type(screen.getByTestId('collation-string'), "{{locale: 'fr'}");
+    await waitFor(() => {
+      expect(screen.getByTestId('collation-string')).to.have.value(
+        "{locale: 'fr'}"
+      );
+      expect(screen.getByTestId('collation-string')).to.have.attribute(
+        'aria-invalid',
+        'false'
       );
     });
   });

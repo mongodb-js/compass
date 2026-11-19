@@ -4,6 +4,9 @@ import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai/provider';
 import { connect } from 'react-redux';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
+import { useLogger } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import {
   changeAIPromptText,
   cancelAIPipelineGeneration,
@@ -12,10 +15,7 @@ import {
   hideInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
 import type { RootState } from '../../modules';
-import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
   const logger = useLogger('AI-PIPELINE-UI');

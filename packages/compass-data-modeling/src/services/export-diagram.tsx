@@ -1,5 +1,4 @@
 import React from 'react';
-import type { StaticModel } from './data-model-storage';
 import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
 import type { DiagramInstance } from '@mongodb-js/compass-components';
@@ -11,8 +10,9 @@ import {
   getNodesBounds,
   getViewportForBounds,
 } from '@mongodb-js/compass-components';
-import { raceWithAbort } from '@mongodb-js/compass-utils';
+import { abortable } from '@mongodb-js/compass-events';
 import { mapFieldDataToJsonSchema } from '../utils/utils';
+import type { StaticModel } from './data-model-storage';
 
 function moveSvgDefsToViewportElement(
   container: Element,
@@ -40,10 +40,7 @@ export async function exportToPng(
   diagram: DiagramInstance,
   signal?: AbortSignal
 ) {
-  const dataUri = await raceWithAbort(
-    getExportPngDataUri(diagram),
-    signal ?? new AbortController().signal
-  );
+  const dataUri = await abortable(getExportPngDataUri(diagram), { signal });
   downloadFile(dataUri, fileName);
 }
 

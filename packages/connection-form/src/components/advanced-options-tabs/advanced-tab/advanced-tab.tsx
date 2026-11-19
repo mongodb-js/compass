@@ -1,15 +1,15 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import { FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
+import type { ConnectionFormError } from '../../../utils/validation';
 import UrlOptions from './url-options';
 import ReadPreferenceForm from './read-preference-form';
-import type { ConnectionFormError } from '../../../utils/validation';
 
 function AdvancedTab({
   errors,

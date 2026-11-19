@@ -1,5 +1,3 @@
-export type { THEMES } from './preferences-schema';
-
 import type {
   UserPreferences,
   UserConfigurablePreferences,
@@ -7,6 +5,10 @@ import type {
   AllPreferences,
 } from './preferences-schema';
 import type { Preferences, PreferencesAccess } from './preferences';
+import { preferencesMain, setupPreferences } from './setup-preferences';
+import { preferencesIpc } from './renderer-ipc';
+
+export type { THEMES } from './preferences-schema';
 
 export type {
   UserPreferences,
@@ -15,8 +17,6 @@ export type {
   AllPreferences,
   Preferences,
 };
-import { preferencesMain, setupPreferences } from './setup-preferences';
-import { preferencesIpc } from './renderer-ipc';
 export {
   parseAndValidateGlobalPreferences,
   getHelpText,

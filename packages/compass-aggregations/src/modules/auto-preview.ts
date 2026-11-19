@@ -1,11 +1,11 @@
 import type { AnyAction } from 'redux';
-import type { PipelineBuilderThunkAction } from '.';
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
-import { isAction } from '../utils/is-action';
+import type { PipelineBuilderThunkAction } from '.';
 
 export const ActionTypes = {
   AutoPreviewToggled: 'compass-aggregations/autoPreviewToggled',

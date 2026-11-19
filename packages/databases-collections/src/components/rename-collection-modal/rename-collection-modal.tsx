@@ -11,16 +11,16 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 import type { RenameCollectionRootState } from '../../modules/rename-collection/rename-collection';
 import {
   submitModal,
   hideModal,
   clearError,
 } from '../../modules/rename-collection/rename-collection';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
 
 export interface RenameCollectionModalProps {
   modalState: 'input-form' | 'confirmation-screen' | 'hidden';

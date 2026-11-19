@@ -1,6 +1,6 @@
+import { expect } from 'chai';
 import type { CompassBrowser } from '../compass-browser.ts';
 import * as Selectors from '../selectors.ts';
-import { expect } from 'chai';
 
 export async function tryToInsertDocument(
   browser: CompassBrowser,

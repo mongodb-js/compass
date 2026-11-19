@@ -1,6 +1,6 @@
-import path from 'path';
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import chai from 'chai';
-import { promises as fs } from 'fs';
 
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {

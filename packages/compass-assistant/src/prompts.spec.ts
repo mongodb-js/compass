@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   buildConversationInstructionsPrompt,
   buildExplainPlanPrompt,
@@ -9,7 +10,6 @@ import {
   buildContextPrompt,
   FOLLOW_UP_QUESTIONS_HEADER,
 } from './prompts';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 describe('prompts', function () {
   describe('buildConversationInstructionsPrompt', function () {

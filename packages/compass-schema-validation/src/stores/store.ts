@@ -1,10 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import type { DataService, RootState } from '../modules';
-import reducer, { INITIAL_STATE } from '../modules';
-import toNS from 'mongodb-ns';
-import { activateValidation } from '../modules/validation';
-import { editModeChanged } from '../modules/edit-mode';
+import toNS from '@mongodb-js/mongodb-ns';
 import semver from 'semver';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type {
@@ -18,6 +14,10 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { analyzeSchema as compassAnalyzeSchema } from '@mongodb-js/compass-schema';
+import { editModeChanged } from '../modules/edit-mode';
+import { activateValidation } from '../modules/validation';
+import reducer, { INITIAL_STATE } from '../modules';
+import type { DataService, RootState } from '../modules';
 
 /**
  * The lowest supported version.

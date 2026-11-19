@@ -4,8 +4,8 @@ import {
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
 import { palette, useDarkMode } from '@mongodb-js/compass-components';
-import { getConnectionId, type SidebarTreeItem } from './tree-data';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
+import { getConnectionId, type SidebarTreeItem } from './tree-data';
 
 type AcceptedStyles = {
   '--item-bg-color'?: string;
@@ -35,7 +35,8 @@ export default function StyledNavigationItem({
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
     const style: AcceptedStyles = {};
     const connectionId = getConnectionId(item);
-    const isConnectable = getConnectable(connectionId);
+    const isUnconnectable =
+      connectionId !== null && !getConnectable(connectionId);
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
     const inferredFromPrivilegesNamespace =
@@ -51,13 +52,13 @@ export default function StyledNavigationItem({
     if (
       isDisconnectedConnection ||
       inferredFromPrivilegesNamespace ||
-      !isConnectable
+      isUnconnectable
     ) {
       style['--item-color'] = inactiveColor;
     }
 
     // We always show these as inactive
-    if (inferredFromPrivilegesNamespace || !isConnectable) {
+    if (inferredFromPrivilegesNamespace || isUnconnectable) {
       style['--item-color-active'] = inactiveColor;
     }
     return style;

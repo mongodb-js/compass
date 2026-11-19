@@ -6,8 +6,8 @@ import {
   userEvent,
   within,
 } from '@mongodb-js/testing-library-compass';
-import { ShardZonesTable } from './shard-zones-table';
 import { type ShardZoneData } from '../store/reducer';
+import { ShardZonesTable } from './shard-zones-table';
 
 describe('Compass GlobalWrites Plugin', function () {
   const shardZones: ShardZoneData[] = [

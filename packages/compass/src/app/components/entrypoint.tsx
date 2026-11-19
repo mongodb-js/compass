@@ -28,8 +28,6 @@ import {
 import { createLogger } from '@mongodb-js/compass-logging';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
-import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
-import Home from './home';
 import {
   type TelemetryServiceOptions,
   createIpcSendTrack,
@@ -37,6 +35,7 @@ import {
 import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-data-modeling/renderer';
 import { WorkspacesStorageServiceProviderDesktop } from '@mongodb-js/compass-workspaces';
 import { useInitialValue } from '@mongodb-js/compass-components';
+import Home from './home';
 
 const WithPreferencesAndLoggerProviders: React.FC<{
   children?: React.ReactNode;
@@ -70,7 +69,7 @@ export const WithAtlasProviders: React.FC<{
       <AtlasServiceProvider
         options={{
           defaultHeaders: {
-            'User-Agent': `${getAppName()}/${getAppVersion()}`,
+            'User-Agent': `${process.env.HADRON_PRODUCT_NAME}/${process.env.HADRON_APP_VERSION}`,
             'X-Request-Origin': 'mongodb-compass',
           },
           getAtlasServiceBackendPreset: () =>

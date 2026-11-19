@@ -1,15 +1,15 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
+import { applyMiddleware, createStore } from 'redux';
+import thunk from 'redux-thunk';
+import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
 import {
   WelcomeModal as WelcomeModalComponent,
   DesktopWelcomeTab,
   WebWelcomeTab,
 } from './components';
-import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
-import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
-import { applyMiddleware, createStore } from 'redux';
-import thunk from 'redux-thunk';
 import welcomeModalStore from './stores/welcome-modal-store';
 
 // These plugins don't have any state or logic of their own, so their provider

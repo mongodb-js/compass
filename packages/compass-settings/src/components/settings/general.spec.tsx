@@ -8,9 +8,9 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import { GeneralSettings } from './general';
 import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
+import { GeneralSettings } from './general';
 
 describe('GeneralSettings', function () {
   let container: HTMLElement;

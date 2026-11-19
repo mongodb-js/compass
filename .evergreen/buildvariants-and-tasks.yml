@@ -15,7 +15,6 @@ buildvariants:
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test
-      - name: test-electron
   - name: unit-tests-windows
     tags:
       - run-on-pr
@@ -23,7 +22,6 @@ buildvariants:
     run_on: windows-vsCurrent-large
     tasks:
       - name: test
-      - name: test-electron
   - name: unit-tests-rhel
     tags:
       - run-on-pr
@@ -31,12 +29,17 @@ buildvariants:
     run_on: rhel93-large
     tasks:
       - name: test
-      - name: test-electron
   - name: unit-tests-macos
     display_name: Unit Tests MacOS
-    run_on: macos-15-arm64-gui
+    run_on: macos-26-arm64-gui
     tasks:
       - name: test
+  - name: unit-test-electron
+    tags:
+      - run-on-pr
+    display_name: Unit Tests Electron (Ubuntu)
+    run_on: ubuntu2604-latest-large
+    tasks:
       - name: test-electron
   - name: package-ubuntu
     tags:
@@ -204,11 +207,11 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
-  - name: test-packaged-app-macos-15-arm
+  - name: test-packaged-app-macos-26-arm
     tags:
       - run-on-pr
-    display_name: Test Packaged App MacOS arm64 15
-    run_on: macos-15-arm64-gui
+    display_name: Test Packaged App MacOS arm64 26
+    run_on: macos-26-arm64-gui
     depends_on:
       - name: package-compass
         variant: package-macos-arm
@@ -313,7 +316,7 @@ buildvariants:
   - name: test-web-sandbox
     tags:
       - run-on-pr
-    display_name: Test Web Sandbox
+    display_name: Test Compass Web in sandbox
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-chrome-1
@@ -330,14 +333,14 @@ buildvariants:
     tasks:
       - name: test-can-bundle-compass-web
   - name: test-web-sandbox-atlas-cloud
-    display_name: Test Web Sandbox (w/ Atlas Cloud login)
+    display_name: Test Compass Web (w/ Atlas Cloud login and Free Tier cluster)
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-1
       - name: test-web-sandbox-atlas-cloud-2
       - name: test-web-sandbox-atlas-cloud-3
   - name: test-web-sandbox-atlas-cloud-geo-sharded
-    display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
+    display_name: Test Compass Web (w/ Atlas Cloud login and Geo Sharded cluster)
     run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-geo-sharded
@@ -1141,7 +1144,7 @@ tasks:
       - func: prepare
       - func: install
       - func: bootstrap
-      - func: compile-compass-web
+      - func: test-can-bundle-compass-web
         vars:
           debug: compass*,electron*,hadron*,mongo*
   - name: test-web-sandbox-atlas-cloud-1
@@ -1160,7 +1163,7 @@ tasks:
           e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
           atlas_cloud_test_args: >-
-            --atlas-cloud-default-cluster-type=Dedicated
+            --atlas-cloud-default-cluster-type=Free
             --test-filter="!atlas-cloud/dedicated-cluster/**/*"
   - name: test-web-sandbox-atlas-cloud-2
     tags:
@@ -1178,7 +1181,7 @@ tasks:
           e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
           atlas_cloud_test_args: >-
-            --atlas-cloud-default-cluster-type=Dedicated
+            --atlas-cloud-default-cluster-type=Free
             --test-filter="!atlas-cloud/dedicated-cluster/**/*"
   - name: test-web-sandbox-atlas-cloud-3
     tags:
@@ -1196,7 +1199,7 @@ tasks:
           e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
           atlas_cloud_test_args: >-
-            --atlas-cloud-default-cluster-type=Dedicated
+            --atlas-cloud-default-cluster-type=Free
             --test-filter="!atlas-cloud/dedicated-cluster/**/*"
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     tags:

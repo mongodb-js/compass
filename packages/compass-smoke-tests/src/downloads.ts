@@ -4,9 +4,9 @@ import path from 'node:path';
 import stream from 'node:stream';
 import createDebug from 'debug';
 
-const debug = createDebug('compass:smoketests:downloads');
-
 import { ensureDownloadsDirectory } from './directories';
+
+const debug = createDebug('compass:smoketests:downloads');
 
 type DownloadFileOptions = {
   url: string;

@@ -3,6 +3,12 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import {
+  favoriteQueryStorageAccessLocator,
+  pipelineStorageLocator,
+} from '@mongodb-js/my-queries-storage/provider';
 import {
   CollectionsPlugin,
   CollectionsWorkspaceName,
@@ -16,12 +22,6 @@ import { activatePlugin as activateCreateNamespacePlugin } from './stores/create
 import { DatabasesPlugin, DatabasesWorkspaceName } from './databases-plugin';
 import MappedRenameCollectionModal from './components/rename-collection-modal/rename-collection-modal';
 import { activateRenameCollectionPlugin } from './stores/rename-collection';
-import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
-import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import {
-  favoriteQueryStorageAccessLocator,
-  pipelineStorageLocator,
-} from '@mongodb-js/my-queries-storage/provider';
 import Databases from './components/databases';
 import CollectionsList from './components/collections';
 import { DatabasesPluginTitleComponent } from './databases-plugin-title';

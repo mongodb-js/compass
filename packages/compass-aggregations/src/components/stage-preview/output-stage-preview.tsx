@@ -8,6 +8,7 @@ import {
   Button,
   SpinLoader,
 } from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
 import { viewOutResults } from '../../modules/out-results-fn';
 import { runStage } from '../../modules/pipeline-builder/stage-editor';
@@ -20,7 +21,6 @@ import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
-import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 const stagePreviewStyles = css({
   display: 'flex',

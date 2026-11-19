@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import reducer, {
   TOGGLE_IS_EXPANDED,
   TOGGLE_COMMENT_MODE,
@@ -9,7 +10,6 @@ import reducer, {
   setSettingsLimit,
   INITIAL_STATE,
 } from './settings';
-import { expect } from 'chai';
 
 describe('settings', function () {
   describe('action creators', function () {

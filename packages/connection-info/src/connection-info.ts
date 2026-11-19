@@ -1,4 +1,4 @@
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 
 /**
  * Atlas metadata for clusters, refer to the backend implementation to see how

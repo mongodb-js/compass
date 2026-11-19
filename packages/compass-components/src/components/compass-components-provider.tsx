@@ -2,17 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import LeafyGreenProvider from '@leafygreen-ui/leafygreen-provider';
 import { ConfirmationModalArea } from '../hooks/use-confirmation';
 import { ToastArea } from '../hooks/use-toast';
+import { StackedComponentProvider } from '../hooks/use-stacked-component';
+import { CopyPasteContextMenu } from '../hooks/use-copy-paste-context-menu';
 import { GuideCueProvider } from './guide-cue/guide-cue';
 import { SignalHooksProvider } from './signal-popover';
 import { RequiredURLSearchParamsProvider } from './links/link';
-import { StackedComponentProvider } from '../hooks/use-stacked-component';
 import {
   type ContextMenuItem,
   type ContextMenuItemGroup,
   ContextMenuProvider,
 } from './context-menu';
 import { DrawerContentProvider } from './drawer-portal';
-import { CopyPasteContextMenu } from '../hooks/use-copy-paste-context-menu';
 import {
   type BSONDisplayOptions,
   BSONDisplayOptionsProvider,

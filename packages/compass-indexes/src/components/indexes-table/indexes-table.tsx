@@ -14,6 +14,7 @@ import {
   palette,
   flexRender,
   useLeafyGreenTable,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
   LGColumnDef,
@@ -22,7 +23,6 @@ import type {
   LeafyGreenTableRow,
   SortingState,
 } from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
 
 const tableWrapperStyles = css({

@@ -1,7 +1,6 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import { UUID } from 'bson';
-import { isCancelError } from '@mongodb-js/compass-utils';
 
 import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
@@ -17,8 +16,11 @@ import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetr
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
-import { isInternalFieldPath } from 'hadron-document';
-import toNS from 'mongodb-ns';
+import { isInternalFieldPath } from '@mongodb-js/hadron-document';
+import toNS from '@mongodb-js/mongodb-ns';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import type { Document, MongoError } from 'mongodb';
+import { getDefaultFakerMethod } from '@mongodb-js/mock-data-generator';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
   SCHEMA_ANALYSIS_STATE_COMPLETE,
@@ -33,8 +35,6 @@ import {
   processSchema,
   ProcessSchemaUnsupportedStateError,
 } from '../transform-schema-to-field-info';
-import type { Collection } from '@mongodb-js/compass-app-stores/provider';
-import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import type {
   LlmFakerMapping,
@@ -48,7 +48,6 @@ import {
   isValidFakerMethod,
   MAX_COLLECTION_NESTING_DEPTH,
 } from '../components/mock-data-generator-modal/utils';
-import { getDefaultFakerMethod } from '@mongodb-js/mock-data-generator';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -757,7 +756,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
     } catch (err: any) {
       // Check if the error is due to cancellation
       if (abortController.signal.aborted) return;
-      if (isCancelError(err)) {
+      if (err?.name === 'AbortError') {
         logger.debug('Schema analysis was aborted');
         dispatch({
           type: CollectionActions.SchemaAnalysisCanceled,
@@ -986,7 +985,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
         requestId: requestId,
       });
     } catch (e) {
-      if (isCancelError(e)) {
+      if ((e as Error)?.name === 'AbortError') {
         // abort errors should not produce error logs
         return;
       }

@@ -1,6 +1,5 @@
 import type { HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
 import { ipcRenderer } from '@mongodb-js/hadron-ipc';
-import { getActiveUser, type PreferencesAccess } from '.';
 import type {
   AllPreferences,
   PreferenceStateInformation,
@@ -9,6 +8,7 @@ import type {
 } from './preferences-schema';
 import type { PreferenceSandboxProperties } from './preferences';
 import { createSandboxAccessFromProps } from './setup-preferences';
+import { getActiveUser, type PreferencesAccess } from '.';
 
 /**
  * API to communicate with preferences from the electron renderer process.

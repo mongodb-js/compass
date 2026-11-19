@@ -6,8 +6,7 @@ import StageParser, {
   assertStageNode,
   setNodeDisabled,
 } from './stage-parser';
-import { generate } from './utils';
-import { PipelineParserError } from './utils';
+import { generate, PipelineParserError } from './utils';
 
 function commentsToCommentGroups(
   comments: t.Comment[]

@@ -1,9 +1,9 @@
 import { expect } from 'chai';
+import FlightModel from '../../test/fixtures/flights-model.json';
 import {
   getExportJsonFromModel,
   getDiagramNodesAndEdges,
 } from './export-diagram';
-import FlightModel from '../../test/fixtures/flights-model.json';
 
 describe('export-diagram', function () {
   context('json export', function () {

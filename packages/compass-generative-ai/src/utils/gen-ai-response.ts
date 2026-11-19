@@ -1,7 +1,8 @@
+import type { LanguageModel } from 'ai';
+import { streamText, toUIMessageStream } from 'ai';
+import { getErrorMessage } from '@ai-sdk/provider';
 import { AiChatbotInvalidResponseError } from '../chatbot-errors';
 import { type AiQueryPrompt } from './gen-ai-prompt';
-import type { LanguageModel } from 'ai';
-import { streamText } from 'ai';
 
 export async function getAiQueryResponse(
   model: LanguageModel,
@@ -10,7 +11,7 @@ export async function getAiQueryResponse(
 ): Promise<string> {
   const { instructions, requestId, analyticsId, sensitiveStorage } =
     message.metadata;
-  const response = streamText({
+  const result = streamText({
     model,
     messages: [{ role: 'user', content: message.prompt }],
     providerOptions: {
@@ -28,7 +29,11 @@ export async function getAiQueryResponse(
       'X-Assistant-Entrypoint': 'natural-language-to-mql',
     },
     abortSignal,
-  }).toUIMessageStream();
+  });
+  const response = toUIMessageStream({
+    stream: result.stream,
+    onError: getErrorMessage,
+  });
   const chunks: string[] = [];
   for await (const value of response) {
     if (value.type === 'text-delta') {

@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events';
 import type {
   ConnectionInfoRef,
   DataService,
@@ -5,44 +6,8 @@ import type {
 import type { MongoLogWriter } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import { setupLoggingAndTelemetry } from '@mongosh/logging';
-import { EventEmitter } from 'events';
-
-declare const __webpack_require__: typeof require;
-declare const __non_webpack_require__: typeof require;
-
-// Workaround for webpack require that overrides global require
-function getRealRequire() {
-  // eslint-disable-next-line camelcase
-  return typeof __webpack_require__ === 'function'
-    ? // eslint-disable-next-line camelcase, no-undef
-      __non_webpack_require__
-    : require;
-}
-
-/**
- * @type {{ WorkerRuntime: .WorkerRuntime }}
- */
-const { WorkerRuntime } = (() => {
-  const require = getRealRequire();
-  const realModulePath = require.resolve('@mongosh/node-runtime-worker-thread');
-  // Runtime needs to be outside the asar bundle to function properly, so if we
-  // resolved it inside of one, we will try to import it from outside (and hard
-  // fail if this didn't work)
-  if (/\.asar(?!\.unpacked)/.test(realModulePath)) {
-    try {
-      return require(realModulePath.replace('.asar', '.asar.unpacked'));
-    } catch (e: any) {
-      e.message +=
-        '\n\n@mongosh/node-runtime-worker-thread module and all its dependencies needs to be unpacked before it can be used';
-      throw e;
-    }
-  }
-
-  return require(realModulePath);
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-})() as typeof import('@mongosh/node-runtime-worker-thread');
-
-export { WorkerRuntime };
+import { openUtilityPort } from '@mongodb-js/compass-events';
+import { ShellRuntime } from './shell-runtime';
 
 export function createWorkerRuntime(
   dataService: DataService,
@@ -50,25 +15,23 @@ export function createWorkerRuntime(
   track: TrackFunction,
   connectionInfo: ConnectionInfoRef,
   deviceId: string
-): (typeof WorkerRuntime)['prototype'] {
+): ShellRuntime {
   const emitter = new EventEmitter();
 
   const loggingAndTelemetry = setupLoggingAndTelemetry({
     bus: emitter,
     analytics: {
-      identify: () => {
-        /* not needed */
-      },
       // Prefix Segment events with `Shell ` to avoid event name collisions.
       // We always enable telemetry here, since the track call will
       // already check whether Compass telemetry is enabled or not.
-      track: ({ event, properties }) => {
-        return track(
-          `Shell ${event}`,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          properties,
-          connectionInfo.current
-        );
+      track: ({ name, payload }) => {
+        // Compass identifies the user itself, so mongosh's identify is not needed.
+        if (name === 'Identify') {
+          return;
+        }
+        // Compass declares shell events with a generic `Shell ${string}` name
+        const eventName: `Shell ${string}` = `Shell ${name}`;
+        return track(eventName, payload, connectionInfo.current);
       },
       flush: () => {
         return Promise.resolve(); // not needed
@@ -106,7 +69,8 @@ export function createWorkerRuntime(
     );
   }
 
-  const runtime = new WorkerRuntime(
+  const runtime = new ShellRuntime(
+    openUtilityPort('embedded-shell'),
     driverUrl,
     driverOptions,
     cliOptions ?? {},

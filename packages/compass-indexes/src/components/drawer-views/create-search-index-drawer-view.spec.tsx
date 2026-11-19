@@ -11,11 +11,11 @@ import sinon from 'sinon';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Provider } from 'react-redux';
 
+import { setupStore } from '../../../test/setup-store';
 import {
   CreateSearchIndexDrawerView,
   getNextAvailableIndexName,
 } from './create-search-index-drawer-view';
-import { setupStore } from '../../../test/setup-store';
 
 const noop = () => {};
 

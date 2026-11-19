@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { getLocalAppRegistryForTab } from '../stores/workspaces';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import {
@@ -7,12 +6,13 @@ import {
   ConnectionThemeProvider,
 } from '@mongodb-js/compass-connections/provider';
 import { css, rafraf } from '@mongodb-js/compass-components';
+import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
+import { getLocalAppRegistryForTab } from '../stores/workspaces';
 import { useOnTabReplace } from './workspace-close-handler';
 import {
   useTabState,
   WorkspaceTabStateProvider,
 } from './workspace-tab-state-provider';
-import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import { useWorkspacePlugins } from './workspaces-provider';
 
 const workspaceTabCloseHandlerStyles = css({

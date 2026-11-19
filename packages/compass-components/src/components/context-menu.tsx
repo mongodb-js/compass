@@ -1,5 +1,4 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { Menu, MenuItem, MenuSeparator } from './leafygreen';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
@@ -12,6 +11,7 @@ import {
   contextMenuClassName,
 } from '@mongodb-js/compass-context-menu';
 import { useCurrentValueRef } from '../hooks/use-current-value-ref';
+import { Menu, MenuItem, MenuSeparator } from './leafygreen';
 
 export type {
   ContextMenuItem,

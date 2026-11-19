@@ -1,11 +1,11 @@
 import React from 'react';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
-import { activatePlugin as activateDatabasesTabPlugin } from './stores/databases-store';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
+import { activatePlugin as activateDatabasesTabPlugin } from './stores/databases-store';
 
 export const DatabasesWorkspaceName = 'Databases' as const;
 

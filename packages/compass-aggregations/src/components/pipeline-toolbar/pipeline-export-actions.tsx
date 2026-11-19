@@ -95,7 +95,7 @@ export default connect(
     onExportToLanguage: exportToLanguage,
     onExportData: () => {
       return (dispatch: PipelineBuilderThunkDispatch) => {
-        dispatch(exportAggregationResults());
+        void dispatch(exportAggregationResults());
       };
     },
   }

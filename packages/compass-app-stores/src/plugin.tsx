@@ -4,13 +4,13 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { MongoDBInstancesManagerContext } from './provider';
-import { createInstancesStore } from './stores';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
-import { type MongoDBInstancesManager } from './instances-manager';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
+import { type MongoDBInstancesManager } from './instances-manager';
+import { createInstancesStore } from './stores';
+import { MongoDBInstancesManagerContext } from './provider';
 
 interface MongoDBInstancesProviderProps {
   children?: React.ReactNode;

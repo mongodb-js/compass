@@ -1,16 +1,19 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ThemedHome from './home';
-import type { DataService } from 'mongodb-data-service';
-import { WithAtlasProviders } from './entrypoint';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import {
   renderWithConnections,
   screen,
 } from '@mongodb-js/testing-library-compass';
 import type { AllPreferences } from '@mongodb-js/compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import {
+  InMemoryConnectionStorage,
+  InMemoryFolderStorage,
+} from '@mongodb-js/connection-storage/provider';
+import { WithAtlasProviders } from './entrypoint';
+import ThemedHome from './home';
 
 const createDataService = () =>
   ({
@@ -45,6 +48,7 @@ const HOME_PROPS = {
   showCollectionSubMenu: () => {},
   getAutoConnectInfo: () => Promise.resolve(undefined),
   connectionStorage: new InMemoryConnectionStorage(),
+  folderStorage: new InMemoryFolderStorage(),
 } as const;
 
 describe('Home [Component]', function () {

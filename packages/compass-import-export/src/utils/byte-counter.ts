@@ -1,4 +1,4 @@
-import { Transform } from 'stream';
+import { Transform } from 'node:stream';
 
 export class ByteCounter extends Transform {
   total = 0;

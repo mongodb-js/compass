@@ -16,24 +16,22 @@ import {
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { Annotation } from '@mongodb-js/compass-editor';
-import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
-import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
-import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import {
-  useTelemetry,
-  useSearchActivationProgramP1,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
-import {
-  getSearchStageInfoFromPipeline,
-  getStageOperator,
-} from '../../../utils/stage';
-import type { SearchStageOperator } from '../../../utils/stage';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import { COLLECTION, VIEW, TIME_SERIES } from '@mongodb-js/mongodb-constants';
+import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
+import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
+import type { RootState } from '../../../modules';
+import { getStageOperator } from '../../../utils/stage';
+import {
+  isSearchIndexMissing,
+  useSearchStageInfoFromPipeline,
+} from '../../../utils/use-search-index-name';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
@@ -98,9 +96,8 @@ export type PipelineEditorProps = {
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   serverVersion: string;
-  searchIndexName: string | null;
-  searchStageOperator: SearchStageOperator | null;
-  showSearchIndexDoesNotExistBanner: boolean;
+  searchIndexesStatus: string;
+  searchIndexes: SearchIndex[];
   searchExtensionType?: SearchExtensionType | null;
   onChangePipelineText: (value: string) => void;
   onViewSearchIndexesClick: (indexName?: string) => void;
@@ -117,15 +114,19 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   serverError,
   syntaxErrors,
   serverVersion,
-  searchIndexName,
-  searchStageOperator,
-  showSearchIndexDoesNotExistBanner,
+  searchIndexesStatus,
+  searchIndexes,
   searchExtensionType,
   onChangePipelineText,
   onViewSearchIndexesClick,
   onCreateSearchIndexClick,
   onEditSearchIndexClick,
 }) => {
+  const { searchIndexName, searchStageOperator } =
+    useSearchStageInfoFromPipeline(pipelineText);
+  const showSearchIndexDoesNotExistBanner =
+    !!searchStageOperator &&
+    isSearchIndexMissing(searchIndexName, searchIndexesStatus, searchIndexes);
   const namespaceType = isTimeSeries
     ? TIME_SERIES
     : sourceName
@@ -188,7 +189,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
   const darkMode = useDarkMode();
 
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const enableRerank = usePreference('enableRerank');
 
   const showRerankVersionWarning =
@@ -210,7 +211,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const showErrorContainer =
     serverError ||
     syntaxErrors.length > 0 ||
-    (enableSearchActivationProgramP1 && showSearchIndexDoesNotExistBanner);
+    (enableAtlasSearchIndexes && showSearchIndexDoesNotExistBanner);
 
   return (
     <div
@@ -248,7 +249,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
               searchExtensionType={searchExtensionType}
               onEditSearchIndexClick={onEditSearchIndexClick}
             />
-          ) : enableSearchActivationProgramP1 &&
+          ) : enableAtlasSearchIndexes &&
             searchStageOperator &&
             showSearchIndexDoesNotExistBanner ? (
             <SearchIndexDoesNotExistBanner
@@ -282,14 +283,6 @@ const mapState = ({
   serverVersion,
   searchIndexes: { indexes: searchIndexes, status: searchIndexesStatus },
 }: RootState) => {
-  const { searchIndexName, searchStageOperator } =
-    getSearchStageInfoFromPipeline(pipelineText);
-  const showSearchIndexDoesNotExistBanner =
-    !!searchIndexName &&
-    !!searchStageOperator &&
-    ['READY', 'POLLING'].includes(searchIndexesStatus) &&
-    searchIndexes.every((x) => x.name !== searchIndexName);
-
   const searchExtensionType = pipeline.reduce<SearchExtensionType | null>(
     (found, stage) =>
       found ?? getSearchExtensionTypeFromStage(getStageOperator(stage)),
@@ -305,9 +298,8 @@ const mapState = ({
     serverError: pipelineServerError ?? outputStageServerError,
     syntaxErrors,
     serverVersion,
-    searchIndexName,
-    searchStageOperator,
-    showSearchIndexDoesNotExistBanner,
+    searchIndexesStatus,
+    searchIndexes,
     searchExtensionType,
   };
 };

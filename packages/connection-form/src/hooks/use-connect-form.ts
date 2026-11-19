@@ -1,5 +1,5 @@
 import { useReducer, type Dispatch, useCallback, useEffect } from 'react';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
   MongoClientOptions,
@@ -9,6 +9,8 @@ import type {
 import { cloneDeep, isEqual } from 'lodash';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
+import ConnectionString from 'mongodb-connection-string-url';
+import { isAtlas } from '@mongodb-js/mongodb-build-info';
 import type {
   ConnectionFormError,
   ConnectionFormWarning,
@@ -73,8 +75,6 @@ import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { useConnectionFormSetting } from './use-connect-form-settings';
-import ConnectionString from 'mongodb-connection-string-url';
-import { isAtlas } from 'mongodb-build-info';
 
 export type ConnectionPersonalizationOptions = {
   name: string;
@@ -271,9 +271,9 @@ function buildStateFromConnectionInfo(
       : validateConnectionOptionsWarnings(
           initialConnectionInfo.connectionOptions
         ),
-    connectionOptions: adjustCSFLEParams(
-      cloneDeep(initialConnectionInfo.connectionOptions)
-    ),
+    // Encrypted field maps keep their raw text here, they are parsed (which
+    // is async) when saving or connecting
+    connectionOptions: cloneDeep(initialConnectionInfo.connectionOptions),
     isDirty: false,
     personalizationOptions: {
       color: initialConnectionInfo.favorite?.color || undefined,
@@ -855,7 +855,7 @@ function setInitialState({
   }, [setErrors, connectionErrorMessage]);
 }
 
-export function adjustConnectionOptionsBeforeConnect({
+export async function adjustConnectionOptionsBeforeConnect({
   connectionOptions,
   connectionId,
   defaultAppName,
@@ -874,11 +874,11 @@ export function adjustConnectionOptionsBeforeConnect({
     telemetryAnonymousId?: string;
     forceConnectionOptions: [string, string][];
   };
-}): ConnectionOptions {
+}): Promise<ConnectionOptions> {
+  connectionOptions = await adjustCSFLEParams(connectionOptions);
   const transformers: ((
     connectionOptions: Readonly<ConnectionOptions>
   ) => ConnectionOptions)[] = [
-    adjustCSFLEParams,
     unsetFleOptionsIfEmptyAutoEncryption,
     setAppNameParamIfMissing({
       defaultAppName,

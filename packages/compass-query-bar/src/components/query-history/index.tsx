@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 
-import { Toolbar } from './toolbar/toolbar';
-import RecentList from './recent-list';
-import FavoriteList from './favorite-list';
-
-import { connect } from '../../stores/context';
-import type { RootState } from '../../stores/query-bar-store';
 import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { connect } from '../../stores/context';
+import type { RootState } from '../../stores/query-bar-store';
+import { Toolbar } from './toolbar/toolbar';
+import RecentList from './recent-list';
+import FavoriteList from './favorite-list';
 
 const containerStyle = css({
   display: 'flex',

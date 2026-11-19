@@ -8,8 +8,8 @@ import {
   Subtitle,
 } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { ShardKey } from '../store/reducer';
-import toNS from 'mongodb-ns';
 
 const codeBlockContainerStyles = css({
   display: 'flex',

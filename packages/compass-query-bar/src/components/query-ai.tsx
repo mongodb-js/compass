@@ -1,8 +1,11 @@
 import React, { useCallback } from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai/provider';
-import { connect } from '../stores/context';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { connect } from '../stores/context';
 
 import type { RootState } from '../stores/query-bar-store';
 import {
@@ -10,10 +13,7 @@ import {
   changeAIPromptText,
   runAIQuery,
 } from '../stores/ai-query-reducer';
-import { useLogger } from '@mongodb-js/compass-logging/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { isEqualDefaultQuery } from '../utils/query';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
   const logger = useLogger('AI-QUERY-UI');

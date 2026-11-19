@@ -3,8 +3,8 @@
  * Similar to electorn-rebuild this script will resolve modules that might need
  * a rebuild relative to cwd and rebuild them
  */
-const { promises: fs } = require('fs');
-const path = require('path');
+const { promises: fs } = require('node:fs');
+const path = require('node:path');
 const pkgUp = require('pkg-up');
 const { runInDir, withProgress } = require('@mongodb-js/monorepo-tools');
 

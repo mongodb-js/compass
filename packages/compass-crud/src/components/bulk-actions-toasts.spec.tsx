@@ -7,6 +7,9 @@ import {
   waitFor,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
+import { expect } from 'chai';
+import sinon from 'sinon';
+import { MongoNetworkError, MongoServerError } from 'mongodb';
 import {
   openBulkDeleteSuccessToast,
   openBulkDeleteProgressToast,
@@ -15,9 +18,6 @@ import {
   openBulkUpdateProgressToast,
   openBulkUpdateFailureToast,
 } from './bulk-actions-toasts';
-import { expect } from 'chai';
-import sinon from 'sinon';
-import { MongoNetworkError, MongoServerError } from 'mongodb';
 
 function renderToastPortal() {
   return render(<ToastArea></ToastArea>);

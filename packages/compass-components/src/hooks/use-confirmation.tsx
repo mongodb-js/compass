@@ -6,12 +6,12 @@ import React, {
   useState,
 } from 'react';
 import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation-modal';
-import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
-import FormFieldContainer from '../components/form-field-container';
-import { Banner, TextInput } from '../components/leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useId } from '@react-aria/utils';
+import ConfirmationModal from '../components/modals/confirmation-modal';
+import FormFieldContainer from '../components/form-field-container';
+import { Banner, TextInput } from '../components/leafygreen';
 
 export { ConfirmationModalVariant };
 

@@ -1,5 +1,6 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { expect } from 'chai';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   deleteCommonVariedProperties,
@@ -22,7 +23,6 @@ import {
   createNumbersStringCollection,
 } from '../helpers/mongo-clients.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
-import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 async function selectExportFileTypeCSV(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeCSV);

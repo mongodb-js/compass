@@ -10,20 +10,20 @@ import {
 } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
-import { ZeroGraphic } from './zero-graphic';
-import type { Database, DatabasesState } from '../modules/databases';
-import {
-  createDatabase,
-  dropDatabase,
-  refreshDatabases,
-} from '../modules/databases';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
+import {
+  createDatabase,
+  dropDatabase,
+  refreshDatabases,
+} from '../modules/databases';
+import type { Database, DatabasesState } from '../modules/databases';
+import { ZeroGraphic } from './zero-graphic';
 import {
   LoadSampleDataZeroBanner,
   LoadSampleDataZeroState,

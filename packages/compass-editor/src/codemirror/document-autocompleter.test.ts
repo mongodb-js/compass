@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { createDocumentAutocompleter } from './document-autocompleter';
 import { setupCodemirrorCompleter } from '../../test/completer';
+import { createDocumentAutocompleter } from './document-autocompleter';
 
 const fields = ['_id', 'name', 'age'];
 

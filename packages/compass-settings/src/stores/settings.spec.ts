@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { fetchSettings, changeFieldValue, saveSettings } from './settings';
 import configureStore from '../../test/configure-store';
+import { fetchSettings, changeFieldValue, saveSettings } from './settings';
 
 describe('Settings store actions', function () {
   const sinonSandbox = Sinon.createSandbox();

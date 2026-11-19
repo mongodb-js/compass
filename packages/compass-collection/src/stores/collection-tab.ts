@@ -1,8 +1,23 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  DataService,
+  connectionInfoRefLocator,
+} from '@mongodb-js/compass-connections/provider';
 import { createStore, applyMiddleware } from 'redux';
 
 import thunk from 'redux-thunk';
+
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
+import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
+import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
+import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import reducer, {
   selectTab,
   collectionMetadataFetched,
@@ -10,19 +25,6 @@ import reducer, {
   openMockDataGeneratorModal,
   mockDataGeneratorModalClosed,
 } from '../modules/collection-tab';
-import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
-import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
-
-import type { Collection } from '@mongodb-js/compass-app-stores/provider';
-import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
-import type { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
-import { isMockDataGeneratorEligible } from '../mock-data-generator-eligibility';
-import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
   SCHEMA_ANALYSIS_STATE_ERROR,
@@ -221,24 +223,9 @@ export function activatePlugin(
       logger.debug('Failed to fetch collection metadata', { namespace, error });
     });
 
-  // Assign experiment for Search Activation Program P1
+  // Assign experiment for Search Activation Program P2
   // Only assign when we're connected to Atlas
   if (connectionInfoRef.current?.atlasMetadata?.clusterName) {
-    void experimentationServices
-      .assignExperiment(ExperimentTestNames.searchActivationProgramP1, {
-        team: 'Search Web Platform',
-      })
-      .catch((error) => {
-        logger.debug(
-          'Search Activation Program P1 experiment assignment failed',
-          {
-            experiment: ExperimentTestNames.searchActivationProgramP1,
-            namespace: namespace,
-            error: error instanceof Error ? error.message : String(error),
-          }
-        );
-      });
-
     void experimentationServices
       .assignExperiment(ExperimentTestNames.searchActivationProgramP2, {
         team: 'Search Web Platform',

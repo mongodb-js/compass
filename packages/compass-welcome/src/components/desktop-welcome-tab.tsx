@@ -99,7 +99,7 @@ function AtlasHelpSection(): React.ReactElement {
           )}
           onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
           variant={ButtonVariant.PrimaryOutline}
-          href="https://www.mongodb.com/cloud/atlas/lp/try4"
+          href="https://www.mongodb.com/cloud/atlas/register"
           target="_blank"
           size={ButtonSize.Small}
         >
