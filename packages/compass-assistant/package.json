@@ -79,7 +79,8 @@
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
     "throttleit": "^2.1.0",
-    "use-sync-external-store": "^1.5.0"
+    "use-sync-external-store": "^1.5.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@fast-csv/parse": "^5.0.5",
@@ -106,8 +107,7 @@
     "openai": "^6.3.0",
     "sinon": "^22.1.0",
     "typescript": "^6.0.3",
-    "xvfb-maybe": "^0.2.1",
-    "zod": "^4.6.7"
+    "xvfb-maybe": "^0.2.1"
   },
   "is_compass_plugin": true
 }
