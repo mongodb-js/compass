@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useContext, useRef } from 'react';
+import React, {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useContext,
+  useRef,
+} from 'react';
 import {
   LgChatChatWindow,
   LgChatLeafygreenChatProvider,
@@ -41,10 +48,27 @@ import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
 import { AtlasConnectionStatus } from './atlas-connection-status';
 import { AssistantChatMessage } from './assistant-chat-message';
+import type {
+  SkillsInput as SkillsInputType,
+  ThinkingIndicator as ThinkingIndicatorType,
+} from './skills-input';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { InputBar } = LgChatInputBar;
+
+// Loaded on demand so Via's bundle and CSS only ship when skills are enabled.
+// webpack can't resolve the `.js` extension that tsc's nodenext resolution
+// demands for dynamic imports of a `.tsx` file, so we drop it and silence tsc.
+const SkillsInput = lazy((): Promise<{ default: typeof SkillsInputType }> =>
+  // @ts-expect-error TS2835: extensionless dynamic import, see above
+  import('./skills-input').then((m) => ({ default: m.SkillsInput }))
+);
+const ThinkingIndicator = lazy(
+  (): Promise<{ default: typeof ThinkingIndicatorType }> =>
+    // @ts-expect-error TS2835: extensionless dynamic import, see above
+    import('./skills-input').then((m) => ({ default: m.ThinkingIndicator }))
+);
 
 interface AssistantChatProps {
   chat: ThreadedChat;
@@ -236,6 +260,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const track = useTelemetry();
   const darkMode = useDarkMode();
   const isToolCallingEnabled = usePreference('enableToolCalling');
+  const enableSkills = usePreference('enableSkillsInAssistant');
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
     trackIsInSample: false,
   });
@@ -630,6 +655,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   />
                 );
               })}
+              {enableSkills && shouldDisplayThinking && (
+                <Suspense fallback={null}>
+                  <ThinkingIndicator />
+                </Suspense>
+              )}
             </div>
             {messages.length === 0 && (
               <>
@@ -669,23 +699,47 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             </div>
           )}
 
-          <InputBar
-            data-testid="assistant-chat-input"
-            onMessageSend={(text) => void handleMessageSend({ text })}
-            state={shouldDisplayThinking ? 'loading' : undefined}
-            textareaProps={inputBarTextareaProps}
-            onClickStopButton={() => {
-              void handleStopButtonClick();
-            }}
-          >
-            {isToolCallingEnabled && (
-              <InputBar.AdditionalActions>
-                <div className={toolToggleContainerStyles}>
-                  <ToolToggle />
-                </div>
-              </InputBar.AdditionalActions>
-            )}
-          </InputBar>
+          {enableSkills ? (
+            <Suspense fallback={null}>
+              <SkillsInput
+                isStreaming={shouldDisplayThinking}
+                onSend={(text, displayText) =>
+                  handleMessageSend({
+                    text,
+                    metadata:
+                      displayText.trim() === text.trim()
+                        ? undefined
+                        : { displayText: displayText.trim() },
+                  })
+                }
+                onStop={() => void handleStopButtonClick()}
+              >
+                {isToolCallingEnabled && (
+                  <div className={toolToggleContainerStyles}>
+                    <ToolToggle />
+                  </div>
+                )}
+              </SkillsInput>
+            </Suspense>
+          ) : (
+            <InputBar
+              data-testid="assistant-chat-input"
+              onMessageSend={(text) => void handleMessageSend({ text })}
+              state={shouldDisplayThinking ? 'loading' : undefined}
+              textareaProps={inputBarTextareaProps}
+              onClickStopButton={() => {
+                void handleStopButtonClick();
+              }}
+            >
+              {isToolCallingEnabled && (
+                <InputBar.AdditionalActions>
+                  <div className={toolToggleContainerStyles}>
+                    <ToolToggle />
+                  </div>
+                </InputBar.AdditionalActions>
+              )}
+            </InputBar>
+          )}
         </ChatWindow>
       </LeafyGreenChatProvider>
     </div>

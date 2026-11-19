@@ -59,6 +59,7 @@ import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
+import { fetchSkills, type Skill } from './skills-service';
 import {
   getHashedActiveUserId,
   partIsApprovalRequest,
@@ -204,6 +205,7 @@ type AssistantActionsContextType = {
     }) => void
   ) => Promise<void>;
   atlasAdminApi?: AtlasAdminApiService;
+  fetchSkills?: (options?: { signal?: AbortSignal }) => Promise<Skill[]>;
 };
 
 type AssistantActionsType = Omit<
@@ -730,6 +732,7 @@ function activateAssistantPlugin(
     applyMiddleware(
       thunk.withExtraArgument({
         chat,
+        atlasService,
         atlasAiService,
         atlasAdminApi,
         toolsController,
@@ -754,12 +757,20 @@ function getAtlasAdminApi(): AssistantThunkAction<AtlasAdminApiService> {
   return (_dispatch, _getState, { atlasAdminApi }) => atlasAdminApi;
 }
 
+function fetchSkillsThunk(options?: {
+  signal?: AbortSignal;
+}): AssistantThunkAction<Promise<Skill[]>> {
+  return (_dispatch, _getState, { atlasService }) =>
+    fetchSkills(atlasService, options);
+}
+
 // Connected AssistantProvider component
 const AssistantProviderInner: React.FunctionComponent<
   PropsWithChildren<{
     projectId?: string;
     getChat: () => ThreadedChat;
     getAtlasAdminApi: () => AtlasAdminApiService;
+    fetchSkills: (options?: { signal?: AbortSignal }) => Promise<Skill[]>;
     ensureOptInAndSend: (
       message: SendMessage,
       options: SendOptions,
@@ -812,6 +823,7 @@ const AssistantProviderInner: React.FunctionComponent<
   projectId,
   getChat: getChatAction,
   getAtlasAdminApi: getAtlasAdminApiAction,
+  fetchSkills,
   ensureOptInAndSend,
   interpretExplainPlan,
   interpretConnectionError,
@@ -881,6 +893,7 @@ const AssistantProviderInner: React.FunctionComponent<
       );
     },
     atlasAdminApi,
+    fetchSkills: (options) => fetchSkills(options),
   });
 
   return (
@@ -897,6 +910,7 @@ const AssistantProviderInner: React.FunctionComponent<
 const ConnectedAssistantProvider = connect(null, {
   getChat,
   getAtlasAdminApi,
+  fetchSkills: fetchSkillsThunk,
   ensureOptInAndSend: ensureOptInAndSendThunk,
   interpretExplainPlan: interpretExplainPlanThunk,
   interpretConnectionError: interpretConnectionErrorThunk,

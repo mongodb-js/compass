@@ -139,6 +139,15 @@ export const sourceMapLoader = (args: ConfigArgs) => ({
   ],
 });
 
+// @via-ds/components ships strict ESM that imports extensionless subpaths of
+// packages without an `exports` map (e.g. graphql-language-service/esm/...),
+// which webpack rejects when resolving "fully specified".
+export const viaDsResolveLoader = (_args: ConfigArgs) => ({
+  test: /\.m?js$/,
+  include: /node_modules[\\/]@via-ds[\\/]/,
+  resolve: { fullySpecified: false },
+});
+
 export const nodeLoader = (_args: ConfigArgs) => ({
   test: /\.node$/,
   use: [{ loader: require.resolve('node-loader') }],
