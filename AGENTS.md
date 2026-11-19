@@ -1,6 +1,10 @@
 ## Compass Specifics
 
-Compass runs in [Electron desktop](./packages/compass/src/app/components/entrypoint.tsx) and [the browser](./packages/compass-web/src/entrypoint.tsx). Shared feature code must work in the browser. Keep Node, Electron, IPC, and other runtime-specific behavior in entry points or runtime-specific services. See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup; use `npm run start` for desktop or `npm run start-web` for the browser sandbox.
+Compass runs in [Electron desktop](./packages/compass/src/app/components/entrypoint.tsx) and [the browser](./packages/compass-web/src/entrypoint.tsx). Build features for both runtimes by default. Some features, like the [embedded shell](./packages/compass-shell/README.md), are desktop-only; shared feature code must still work in the browser.
+
+Renderer code and its dependencies must work without direct access to Node.js APIs, even for desktop-only features. This lets Electron run with `contextIsolation` enabled and `nodeIntegration` and `nodeIntegrationInWorker` disabled. Use an existing runtime-specific service when available, and keep platform-specific code and IPC in runtime entry points or services.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup; use `npm run start` for desktop or `npm run start-web` for the browser sandbox.
 
 Compass follows the [Redux Style Guide](https://redux.js.org/style-guide/) with two exceptions:
 
