@@ -17,4 +17,45 @@ describe('getMongoshCommand', () => {
       );
     });
   }
+
+  const encodings = [
+    ['$(value)', '%24(value)'],
+    ['`value`', '%60value%60'],
+    ['";value', '%22;value'],
+    ['\\', '%5C'],
+    ['\u201Cvalue\u201D', '%E2%80%9Cvalue%E2%80%9D'],
+    [';', ';'],
+    ["it's", "it's"],
+  ];
+
+  for (const [input, encoded] of encodings) {
+    it(`encodes ${JSON.stringify(input)} as ${encoded}`, () => {
+      const getCommand = (connectionString: string) =>
+        getMongoshCommand({
+          id: 'test',
+          connectionOptions: { connectionString },
+        }).command;
+
+      expect(getCommand(`mongodb://h${input}:27017/`)).to.equal(
+        `mongosh "mongodb://h${encoded}:27017/" --file mockdatascript.js`
+      );
+      expect(getCommand(`mongodb://localhost/db${input}`)).to.equal(
+        `mongosh "mongodb://localhost/db${encoded}" --file mockdatascript.js`
+      );
+      expect(getCommand(`mongodb://localhost/?appName=${input}`)).to.equal(
+        `mongosh "mongodb://localhost/?appName=${encoded}" --file mockdatascript.js`
+      );
+    });
+  }
+
+  it('round-trips to the same URI after decoding', () => {
+    const { command } = getMongoshCommand({
+      id: 'test',
+      connectionOptions: {
+        connectionString: 'mongodb://localhost/db?appName=$(x)%60\\',
+      },
+    });
+    const quoted = command.match(/^mongosh "([^"]*)"/)?.[1] as string;
+    expect(new URL(quoted).searchParams.get('appName')).to.equal('$(x)`\\');
+  });
 });

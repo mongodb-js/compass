@@ -4,6 +4,13 @@ import ConnectionString, {
 } from 'mongodb-connection-string-url';
 import { DEFAULT_CONNECTION_STRING_FALLBACK } from './constants';
 
+// Percent-encodes characters that bash/zsh, PowerShell or cmd.exe treat
+// specially inside double quotes. The argument stays literal in every shell
+// and drivers decode it back to the same URI.
+function encodeShell(uri: string) {
+  return uri.replace(/["$`\\]|[^\x20-\x7e]/gu, encodeURIComponent);
+}
+
 export function getMongoshCommand(connectionInfo: ConnectionInfo) {
   const isAtlas = !!connectionInfo.atlasMetadata;
   const uri =
@@ -42,7 +49,7 @@ export function getMongoshCommand(connectionInfo: ConnectionInfo) {
 
   const command = [
     'mongosh',
-    `"${connectionString}"`,
+    `"${encodeShell(connectionString)}"`,
     ...(needsUsername ? ['--username', '"<your-username>"'] : []),
     '--file',
     'mockdatascript.js',
