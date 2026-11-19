@@ -58,6 +58,7 @@ export function useSkillItems(): SkillItemsState {
 }
 
 export function useToolItems(): SkillItem[] {
+  const isToolCallingEnabled = usePreference('enableToolCalling');
   const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
   const enableGenAIToolCallingAtlasProject = usePreference(
     'enableGenAIToolCallingAtlasProject'
@@ -66,7 +67,9 @@ export function useToolItems(): SkillItem[] {
     'enableAtlasConnectionErrorDebuggerTool'
   );
   const areToolCallsEnabled =
-    !!enableGenAIToolCallingAtlasProject && enableGenAIToolCalling;
+    isToolCallingEnabled &&
+    !!enableGenAIToolCallingAtlasProject &&
+    enableGenAIToolCalling;
 
   return useMemo(
     () =>
