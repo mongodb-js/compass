@@ -1008,6 +1008,95 @@ type SidebarConnectionsActiveConnectionsFilterEvent = CommonEvent<{
   };
 }>;
 
+type FolderCreationEntrypoint =
+  | 'connection_context_menu'
+  | 'connection_actions'
+  | 'connection_form'
+  | 'sidebar_icon';
+// TODO(COMPASS-11306): Fire FolderCreationFormOpenedEvent and FolderCreationFormCancelledEvent when appropriate.
+/**
+ * This event is fired when the creation of a new folder is started.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreationFormOpenedEvent = CommonEvent<{
+  name: 'Folder Creation Form Opened';
+  payload: {
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when the creation of a new folder is cancelled.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreationFormCancelledEvent = CommonEvent<{
+  name: 'Folder Creation Form Cancelled';
+  payload: {
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a new folder is created.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreatedEvent = CommonEvent<{
+  name: 'Folder Created';
+  payload: {
+    num_folders_after: number;
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a new folder is deleted.
+ *
+ * @category ConnectionFolder
+ */
+type FolderDeletedEvent = CommonEvent<{
+  name: 'Folder Deleted';
+  payload: {
+    num_folders_after: number;
+    connections_moved: number;
+  };
+}>;
+
+/**
+ * This event is fired when a folder is renamed.
+ *
+ * @category ConnectionFolder
+ */
+type FolderRenamedEvent = CommonEvent<{
+  name: 'Folder Renamed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a connection is moved to a folder.
+ *
+ * @category ConnectionFolder
+ */
+type ConnectionsFolderChangeEvent = CommonEvent<{
+  name: 'Connections Folder Change';
+  payload: {
+    source:
+      | 'connection_context_menu'
+      | 'connection_actions'
+      | 'drag_and_drop'
+      | 'connection_form'
+      | 'folder_form';
+    from: 'folder' | 'uncategorized' | 'mixed';
+    to: 'folder' | 'uncategorized';
+    num_moved: number;
+    num_connections_in_folders: number;
+    num_connections_uncategorized: number;
+    max_connections_in_folders: number;
+  };
+}>;
+
 /**
  * This event is fired when user copies a document to the clipboard.
  *
@@ -4538,6 +4627,12 @@ export type TelemetryEvent =
   | SearchIndexEditCancelledEvent
   | SidebarConnectionsCollapsedAllEvent
   | SidebarConnectionsActiveConnectionsFilterEvent
+  | FolderCreationFormOpenedEvent
+  | FolderCreationFormCancelledEvent
+  | FolderCreatedEvent
+  | FolderDeletedEvent
+  | FolderRenamedEvent
+  | ConnectionsFolderChangeEvent
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent
