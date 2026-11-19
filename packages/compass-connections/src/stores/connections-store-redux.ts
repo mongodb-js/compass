@@ -2481,17 +2481,20 @@ export const openSettingsModal = (
   };
 };
 
-// Windows-reserved characters, disallowed on all platforms so a name stays
-// portable between machines.
-const WINDOWS_RESERVED_CHARACTERS = ['<', '>', ':', '"', '|', '?', '*'];
+// Windows-reserved characters are rejected everywhere so names stay portable.
+const RESTRICTED_CHARACTERS = ['/', '\\', '<', '>', ':', '"', '|', '?', '*'];
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHARACTERS_REGEX = /[\u0000-\u001F\u007F]/;
-const PATH_SEPARATORS_REGEX = /[/\\]/;
 
-/**
- * `existingNames` must exclude the folder being renamed, so renaming a folder
- * to the name it already has isn't reported as a duplicate.
- */
+// A shared id so folder toasts replace each other instead of stacking.
+const FOLDER_TOAST_ID = 'folder-action';
+
+// The whole set, not just the character used, so one rejection is enough.
+const INVALID_CHARACTERS_MESSAGE = `Folder name can't contain ${RESTRICTED_CHARACTERS.join(
+  ' '
+)}.`;
+
+/** `existingNames` must exclude the folder being renamed. */
 export function validateFolderName(
   name: string,
   existingNames: string[]
@@ -2511,19 +2514,13 @@ export function validateFolderName(
     return 'A folder with this name already exists';
   }
 
-  if (PATH_SEPARATORS_REGEX.test(trimmedName)) {
-    return "Folder name can't contain / or \\";
-  }
-
-  if (CONTROL_CHARACTERS_REGEX.test(trimmedName)) {
-    return "Folder name can't contain control characters";
-  }
-
-  const reservedCharacter = WINDOWS_RESERVED_CHARACTERS.find((character) =>
-    trimmedName.includes(character)
-  );
-  if (reservedCharacter) {
-    return `Folder name can't contain ${reservedCharacter}`;
+  if (
+    RESTRICTED_CHARACTERS.some((character) =>
+      trimmedName.includes(character)
+    ) ||
+    CONTROL_CHARACTERS_REGEX.test(trimmedName)
+  ) {
+    return INVALID_CHARACTERS_MESSAGE;
   }
 
   return undefined;
@@ -2563,9 +2560,18 @@ export const loadFolders = (): ConnectionsThunkAction<
  * save failed; both are reported to the user here.
  */
 export const createFolder = (
-  name: string
+  name: string,
+  source:
+    | 'connection_context_menu'
+    | 'connection_actions'
+    | 'connection_form'
+    | 'sidebar_icon'
 ): ConnectionsThunkAction<Promise<Folder | undefined>, CreateFolderAction> => {
-  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { debug } }
+  ) => {
     const state = getState();
     const folder: Folder = {
       id: new UUID().toString(),
@@ -2588,7 +2594,7 @@ export const createFolder = (
       });
     } catch (err) {
       debug('failed to create folder', err);
-      openToast('create-folder-error', {
+      openToast(FOLDER_TOAST_ID, {
         title: 'Failed to create folder',
         description: (err as Error).message,
         variant: 'warning',
@@ -2597,54 +2603,95 @@ export const createFolder = (
     }
 
     dispatch({ type: ActionTypes.CreateFolder, folder });
+    openToast(FOLDER_TOAST_ID, {
+      title: `New folder ${folder.name} created in sidebar.`,
+      description: 'To organize connections, use the three-dot menu (•••).',
+      variant: 'success',
+    });
+    track('Folder Created', {
+      source,
+      num_folders_after: state.folders.ids.length + 1,
+    });
     return folder;
   };
 };
 
+/** As with `createFolder`, failures are reported here rather than thrown. */
 export const renameFolder = (
   folderId: string,
   name: string
 ): ConnectionsThunkAction<Promise<void>, RenameFolderAction> => {
-  return async (dispatch, getState, { folderStorage }) => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { log, mongoLogId } }
+  ) => {
     const state = getState();
     const existingFolder = state.folders.byId[folderId];
     if (!existingFolder) {
       return;
     }
 
-    const error = validateFolderName(
-      name,
-      getFolderNames(state, { excludeFolderId: folderId })
-    );
-    if (error) {
-      throw new Error(error);
-    }
-
     const trimmedName = name.trim();
-    const folders = state.folders.ids.map((id) =>
-      id === folderId
-        ? { ...state.folders.byId[id], name: trimmedName }
-        : state.folders.byId[id]
-    );
 
-    await folderStorage.save({
-      folderOrganization: { folders, assignments: state.folderAssignments },
-    });
+    try {
+      const error = validateFolderName(
+        name,
+        getFolderNames(state, { excludeFolderId: folderId })
+      );
+      if (error) {
+        throw new Error(error);
+      }
+
+      const folders = state.folders.ids.map((id) =>
+        id === folderId
+          ? { ...state.folders.byId[id], name: trimmedName }
+          : state.folders.byId[id]
+      );
+
+      await folderStorage.save({
+        folderOrganization: { folders, assignments: state.folderAssignments },
+      });
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_458),
+        'Connection UI',
+        'Failed to rename folder',
+        { error: (err as Error).message }
+      );
+      openToast(FOLDER_TOAST_ID, {
+        title: 'Failed to rename folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return;
+    }
 
     dispatch({
       type: ActionTypes.RenameFolder,
       folderId,
       name: trimmedName,
     });
+    openToast(FOLDER_TOAST_ID, {
+      title: `Folder renamed ${existingFolder.name} to ${trimmedName}`,
+      variant: 'success',
+    });
+    track('Folder Renamed', {});
   };
 };
 
+/** As with `createFolder`, a failed save is reported here rather than thrown. */
 export const deleteFolder = (
   folderId: string
 ): ConnectionsThunkAction<Promise<void>, DeleteFolderAction> => {
-  return async (dispatch, getState, { folderStorage }) => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { log, mongoLogId } }
+  ) => {
     const state = getState();
-    if (!state.folders.byId[folderId]) {
+    const folder = state.folders.byId[folderId];
+    if (!folder) {
       return;
     }
 
@@ -2657,9 +2704,36 @@ export const deleteFolder = (
       )
     );
 
-    await folderStorage.save({ folderOrganization: { folders, assignments } });
+    try {
+      await folderStorage.save({
+        folderOrganization: { folders, assignments },
+      });
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_459),
+        'Connection UI',
+        'Failed to delete folder',
+        { error: (err as Error).message }
+      );
+      openToast(FOLDER_TOAST_ID, {
+        title: 'Failed to delete folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return;
+    }
 
     dispatch({ type: ActionTypes.DeleteFolder, folderId });
+    openToast(FOLDER_TOAST_ID, {
+      title: `${folder.name} folder deleted`,
+      variant: 'success',
+    });
+    track('Folder Deleted', {
+      num_folders_after: folders.length,
+      connections_moved:
+        Object.keys(state.folderAssignments).length -
+        Object.keys(assignments).length,
+    });
   };
 };
 
@@ -2667,31 +2741,44 @@ export const deleteFolder = (
  * The whole organization is one document, so a save either applies every valid
  * move or, if it fails, none of them. `failedIds` reports the connections that
  * weren't moved (unknown ids, or all of them on a failed save) so the caller
- * can keep them selected for a retry.
+ * can keep them selected for a retry. Ids already at the destination appear
+ * in neither list.
  */
 export const moveConnectionsToFolder = (
   connectionIds: ConnectionId[],
-  folderId: string | null
+  folderId: string | null,
+  source:
+    | 'connection_context_menu'
+    | 'connection_actions'
+    | 'drag_and_drop'
+    | 'connection_form'
+    | 'folder_form'
 ): ConnectionsThunkAction<
   Promise<{ movedIds: ConnectionId[]; failedIds: ConnectionId[] }>,
   MoveConnectionsToFolderAction
 > => {
-  return async (dispatch, getState, { folderStorage, logger: { debug } }) => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { debug } }
+  ) => {
     const state = getState();
 
     if (folderId !== null && !state.folders.byId[folderId]) {
       return { movedIds: [], failedIds: connectionIds };
     }
 
-    const validIds = connectionIds.filter((connectionId) =>
-      hasConnectionForId(state, connectionId)
+    const validIds = [...new Set(connectionIds)].filter(
+      (connectionId) =>
+        hasConnectionForId(state, connectionId) &&
+        (state.folderAssignments[connectionId] ?? null) !== folderId
     );
     const invalidIds = connectionIds.filter(
       (connectionId) => !hasConnectionForId(state, connectionId)
     );
 
     if (validIds.length === 0) {
-      return { movedIds: [], failedIds: connectionIds };
+      return { movedIds: [], failedIds: invalidIds };
     }
 
     const assignments = { ...state.folderAssignments };
@@ -2729,21 +2816,49 @@ export const moveConnectionsToFolder = (
       folderId,
     });
 
+    const fromFolder = validIds.filter((id) => state.folderAssignments[id]);
+    const perFolder: Record<string, number> = Object.create(null);
+    for (const id of state.connections.ids) {
+      const fid = assignments[id];
+      if (fid && state.folders.byId[fid]) {
+        perFolder[fid] = (perFolder[fid] ?? 0) + 1;
+      }
+    }
+    const inFolders = Object.values(perFolder).reduce((a, b) => a + b, 0);
+    const inUncategorized = state.connections.ids.length - inFolders;
+    const maxInFolders = Math.max(0, ...Object.values(perFolder));
+    track('Connections Folder Change', {
+      source,
+      from:
+        fromFolder.length === 0
+          ? 'uncategorized'
+          : fromFolder.length === validIds.length
+            ? 'folder'
+            : 'mixed',
+      to: folderId ? 'folder' : 'uncategorized',
+      num_moved: validIds.length,
+      num_connections_in_folders: inFolders,
+      num_connections_uncategorized: inUncategorized,
+      max_connections_in_folders: maxInFolders,
+    });
+
     return { movedIds: validIds, failedIds: invalidIds };
   };
 };
 
 export const moveConnectionsToNewFolder = (
   connectionIds: ConnectionId[],
-  name: string
+  name: string,
+  source: Parameters<typeof createFolder>[1] &
+    Parameters<typeof moveConnectionsToFolder>[2]
 ): ConnectionsThunkAction<
   Promise<void>,
   CreateFolderAction | MoveConnectionsToFolderAction
 > => {
   return async (dispatch) => {
-    const folder = await dispatch(createFolder(name));
+    const folder = await dispatch(createFolder(name, source));
     if (folder) {
-      await dispatch(moveConnectionsToFolder(connectionIds, folder.id));
+      await dispatch(moveConnectionsToFolder(connectionIds, folder.id, source));
     }
   };
 };

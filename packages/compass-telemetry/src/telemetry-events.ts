@@ -1008,6 +1008,95 @@ type SidebarConnectionsActiveConnectionsFilterEvent = CommonEvent<{
   };
 }>;
 
+type FolderCreationEntrypoint =
+  | 'connection_context_menu'
+  | 'connection_actions'
+  | 'connection_form'
+  | 'sidebar_icon';
+// TODO(COMPASS-11306): Fire FolderCreationFormOpenedEvent and FolderCreationFormCancelledEvent when appropriate.
+/**
+ * This event is fired when the creation of a new folder is started.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreationFormOpenedEvent = CommonEvent<{
+  name: 'Folder Creation Form Opened';
+  payload: {
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when the creation of a new folder is cancelled.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreationFormCancelledEvent = CommonEvent<{
+  name: 'Folder Creation Form Cancelled';
+  payload: {
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a new folder is created.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreatedEvent = CommonEvent<{
+  name: 'Folder Created';
+  payload: {
+    num_folders_after: number;
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a new folder is deleted.
+ *
+ * @category ConnectionFolder
+ */
+type FolderDeletedEvent = CommonEvent<{
+  name: 'Folder Deleted';
+  payload: {
+    num_folders_after: number;
+    connections_moved: number;
+  };
+}>;
+
+/**
+ * This event is fired when a folder is renamed.
+ *
+ * @category ConnectionFolder
+ */
+type FolderRenamedEvent = CommonEvent<{
+  name: 'Folder Renamed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a connection is moved to a folder.
+ *
+ * @category ConnectionFolder
+ */
+type ConnectionsFolderChangeEvent = CommonEvent<{
+  name: 'Connections Folder Change';
+  payload: {
+    source:
+      | 'connection_context_menu'
+      | 'connection_actions'
+      | 'drag_and_drop'
+      | 'connection_form'
+      | 'folder_form';
+    from: 'folder' | 'uncategorized' | 'mixed';
+    to: 'folder' | 'uncategorized';
+    num_moved: number;
+    num_connections_in_folders: number;
+    num_connections_uncategorized: number;
+    max_connections_in_folders: number;
+  };
+}>;
+
 /**
  * This event is fired when user copies a document to the clipboard.
  *
@@ -3755,15 +3844,16 @@ type MockDataGeneratorCtaButtonViewedEvent = CommonEvent<{
 }>;
 
 /**
- * This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+ * This event is fired when the user selects "Generate mock data script" from Add Data,
+ * before checking AI feature access.
  *
  * @category Mock Data Generator
  */
-type MockDataGeneratorOpenedEvent = CommonEvent<{
-  name: 'Mock Data Generator Opened';
+type MockDataGeneratorClickedEvent = CommonEvent<{
+  name: 'Mock Data Generator Clicked';
   payload: {
-    gen_ai_features_enabled: boolean;
-    send_sample_values_enabled: boolean;
+    /** Whether the user has opted into AI features at the time of the click. */
+    ai_opted_in: boolean;
   };
 }>;
 
@@ -4515,7 +4605,7 @@ export type TelemetryEvent =
   | ContextMenuOpened
   | ContextMenuItemClicked
   | MockDataGeneratorCtaButtonViewedEvent
-  | MockDataGeneratorOpenedEvent
+  | MockDataGeneratorClickedEvent
   | MockDataGeneratorScreenViewedEvent
   | MockDataGeneratorScreenProceededEvent
   | MockDataGeneratorDismissedEvent
@@ -4537,6 +4627,12 @@ export type TelemetryEvent =
   | SearchIndexEditCancelledEvent
   | SidebarConnectionsCollapsedAllEvent
   | SidebarConnectionsActiveConnectionsFilterEvent
+  | FolderCreationFormOpenedEvent
+  | FolderCreationFormCancelledEvent
+  | FolderCreatedEvent
+  | FolderDeletedEvent
+  | FolderRenamedEvent
+  | ConnectionsFolderChangeEvent
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent
