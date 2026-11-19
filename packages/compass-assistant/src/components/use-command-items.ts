@@ -44,7 +44,7 @@ export function useSkillItems(): SkillItemsState {
       .catch((err) => {
         if (controller.signal.aborted) return;
         log.warn(
-          mongoLogId(1_001_000_458),
+          mongoLogId(1_001_000_460),
           'Assistant',
           'Failed to fetch skills',
           { error: (err as Error).message }
