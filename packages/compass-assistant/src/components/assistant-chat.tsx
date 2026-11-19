@@ -57,6 +57,7 @@ const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { InputBar } = LgChatInputBar;
 
+// TODO(COMPASS-11250): Remove lazy loading of SkillsInput and ThinkingIndicator once enabled by default
 // Loaded on demand so Via's bundle and CSS only ship when skills are enabled.
 // webpack can't resolve the `.js` extension that tsc's nodenext resolution
 // demands for dynamic imports of a `.tsx` file, so we drop it and silence tsc.

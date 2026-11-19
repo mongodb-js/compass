@@ -83,6 +83,7 @@ type SkillsInputProps = {
   children?: React.ReactNode;
 };
 
+// TODO(EAI-2610): Skills implementation will be replaced by the assistant frontend SDK (along with other compass components)
 export const SkillsInput: React.FunctionComponent<SkillsInputProps> = ({
   isStreaming,
   onSend,
