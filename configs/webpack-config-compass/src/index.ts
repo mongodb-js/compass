@@ -24,7 +24,6 @@ import {
   sourceMapLoader,
   javascriptLoader,
   nodeLoader,
-  viaDsResolveLoader,
   sourceLoader,
   cssLoader,
   lessLoader,
@@ -124,6 +123,12 @@ const sharedResolveOptions = (
       // Some lg test helpers that are getting bundled due to re-exporting from
       // the actual component packages, never needed in the webpack bundles
       '@lg-tools/test-harnesses': false,
+
+      // Only used by @via-ds/components' code block for GraphQL syntax
+      // highlighting, which we don't use. It is also imported through
+      // extensionless subpaths of a package without an `exports` map, which
+      // webpack refuses to resolve in strict ESM.
+      'graphql-language-service': false,
     },
     modules: [
       // This allows us to find the packages that are not hoisted to the root of
@@ -258,7 +263,6 @@ export function createElectronRendererConfig(
         patchesLoader(opts),
         javascriptLoader(opts),
         nodeLoader(opts),
-        viaDsResolveLoader(opts),
         cssLoader(opts),
         lessLoader(opts),
         fontLoader(opts),
@@ -408,7 +412,6 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
         patchesLoader(opts),
         javascriptLoader(opts, true),
         nodeLoader(opts),
-        viaDsResolveLoader(opts),
         cssLoader(opts, true),
         lessLoader(opts),
         fontLoader(opts),

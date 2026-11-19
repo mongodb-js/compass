@@ -1,24 +1,21 @@
 'use strict';
 const Module = require('node:module');
 
-// @via-ds/components is strict ESM but imports extensionless subpaths of
-// packages without an `exports` map (graphql-language-service/esm/...), which
-// Node refuses to resolve (and so does that package's own ESM build). Same bug the webpack `viaDsResolveLoader` works
-// around; retry those specifiers with the extension so tests can load Via.
+// Same as the `graphql-language-service` alias in webpack-config-compass: Via
+// only uses it for GraphQL highlighting in its code block, and imports it
+// through extensionless subpaths that Node's strict ESM resolution refuses.
+const EMPTY_MODULE = `data:text/javascript,${encodeURIComponent(
+  'export default undefined;'
+)}`;
+
 Module.registerHooks({
   resolve(specifier, context, nextResolve) {
-    try {
-      return nextResolve(specifier, context);
-    } catch (err) {
-      if (
-        err.code === 'ERR_MODULE_NOT_FOUND' &&
-        !specifier.endsWith('.js') &&
-        (specifier.startsWith('graphql-language-service/esm/') ||
-          context.parentURL?.includes('/graphql-language-service/esm/'))
-      ) {
-        return nextResolve(`${specifier}.js`, context);
-      }
-      throw err;
+    if (
+      specifier === 'graphql-language-service' ||
+      specifier.startsWith('graphql-language-service/')
+    ) {
+      return { url: EMPTY_MODULE, format: 'module', shortCircuit: true };
     }
+    return nextResolve(specifier, context);
   },
 });
