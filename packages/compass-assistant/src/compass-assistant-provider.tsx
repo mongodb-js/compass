@@ -47,7 +47,10 @@ import {
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { createOpenAI } from '@ai-sdk/openai';
-import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
+import {
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+  lastAssistantMessageIsCompleteWithToolCalls,
+} from 'ai';
 import type { ToolSet } from 'ai';
 import type {
   CollectionSubtab,
@@ -1006,8 +1009,9 @@ export function createDefaultChat({
             },
           }).responses(modelVersion),
         }),
-      sendAutomaticallyWhen:
-        lastAssistantMessageIsCompleteWithApprovalResponses,
+      sendAutomaticallyWhen: (options) =>
+        lastAssistantMessageIsCompleteWithApprovalResponses(options) ||
+        lastAssistantMessageIsCompleteWithToolCalls(options),
       onError: (err: Error) => {
         logger.log.error(
           logger.mongoLogId(1_001_000_370),
