@@ -1,257 +1,91 @@
-## Performance Red Flags
+## Compass Specifics
 
-- Spot inefficient loops and algorithmic issues
-- Check for memory leaks and resource cleanup
+Compass runs in [Electron desktop](./packages/compass/src/app/components/entrypoint.tsx) and [the browser](./packages/compass-web/src/entrypoint.tsx). Shared feature code must work in the browser. Keep Node, Electron, IPC, and other runtime-specific behavior in entry points or runtime-specific services. See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup; use `npm run start` for desktop or `npm run start-web` for the browser sandbox.
 
-## Code Quality Essentials
+Compass follows the [Redux Style Guide](https://redux.js.org/style-guide/) with two exceptions:
 
-- Functions should be focused and appropriately sized
-- Use clear, descriptive naming conventions
-- Ensure proper error handling throughout
-- Suggest changes to improve code readability and maintainability
+### Compass doesn't use a single Redux store to manage the whole application state
 
-### Comments
+A feature module (called a plugin in the code) owns its UI, state, and business logic. Start at its public entry point and follow `registerCompassPlugin` to `activate`, the store, and the service locators. See [Aggregations](./packages/compass-aggregations/src/index.ts) for an example.
 
-- Comments should be clear and concise. They should explain the "why", not the "what".
-- Before adding comments, consider if they provide additional value - i.e. record a constraint or a rejected alternative,
-  or provide link to an external resource. Do not add comments if they are not bringing additional value.
-- When reviewing - if a comment explains what the code does, consider if the code can be improved to make it self-documenting so that the comment can be removed.
-- TODO comments are ok to use for tracking follow-up work, but they should include ticket number - e.g. `TODO(COMPASS-1234): ...`
+Each Redux-backed plugin instance has its own store. Two tabs can have independent instances, and plugin state can outlive a component mount. Tie subscriptions and resources to the app registry lifecycle with the activation helpers (`on`, `addCleanup`, `cleanup`), not a module-level singleton. See the [app registry guide](./packages/compass-app-registry/README.md).
 
-✅ Records a rejected alternative:
+### Use `connect` instead of Redux hooks inside feature modules
 
-```tsx
-// We use ipc.callQuiet instead of ipc.call because we already
-// print debugging messages below
-void ipc?.callQuiet?.(event, data);
+Use `connect` rather than `useSelector` or `useDispatch` inside a feature module. A connected wrapper passes data and actions as props so the view doesn't need to know about Redux. A module can expose a purpose-built hook to its consumers without exposing its store.
+
+```ts
+export default connect((state: RootState) => ({
+  items: state.items,
+}))(ItemList);
 ```
 
-✅ Records a constraint that isn't visible from here (including a link to the resource that documents the constraint):
+### Service scope and public package boundaries
 
-```tsx
-// Currently, the server does not support batched inserts for FLE2:
-// https://jira.mongodb.org/browse/SERVER-66315
-// We check for this specific error and re-try inserting documents one by one.
-if (bulkWriteError.code === 6371202) {
-```
+- Check what the plugin's position in the provider tree makes available: all connections > all workspaces > workspace > connection > database > collection. A workspace-level plugin can't resolve a collection-level service.
+- Declare locators at plugin registration and use the injected services through thunk extra arguments. Don't reach for a global service or a component hook to work around a missing provider.
+- Use public providers, hooks, actions, or services to cross module boundaries. Check the package's `exports` and `compass:exports`; use an existing `/provider` entry point when you only need the service (see [#8011](https://github.com/mongodb-js/compass/pull/8011)). Avoid deep imports into another plugin and prefer typed APIs over new untyped app-registry events.
+- Give shared data one owner. If another plugin needs access, expose an interface rather than moving or duplicating the state. For example, [the folder-state review](https://github.com/mongodb-js/compass/pull/8671#discussion_r4522831893) asks why sidebar-only state would belong to the connections plugin. For new features, identify the state owner, events, services, and lifetime before implementing. Don't copy legacy patterns or broaden a small fix into a store rewrite.
+- For new structured logs, use `mongoLogId` and run `npm run check-logids` for the next available ID.
 
-✅ Records non-obvious behaviour of a dependency:
+### Shared components should have a single look and feel
 
-```tsx
-// bsonSerialize returns a Buffer which may be a view into a pooled allocation.
-// Wrap in a fresh Uint8Array so that .buffer covers exactly this frame.
-return new Uint8Array(headerBytes);
-```
-
-❌ Restates the code — delete both of these:
-
-```tsx
-// Getter thunk to access the telemetry service from extra args
-function getTelemetry(): AppThunkAction<TelemetryService> {
-  return (_dispatch, _getState, { telemetry }) => telemetry;
-}
-
-// Connected SettingsProvider component
-const SettingsProviderInner: React.FunctionComponent<
-```
+Start with [compass-components](./packages/compass-components/README.md), its LeafyGreen components, and theme tokens rather than hardcoded colors. Don't add props or configuration to a shared component for a one-off visual change. If the design system can't express what the feature needs, raise the gap instead of hiding it in a styling override.
 
 ## Best practices
 
-- Refer to official documentation and best practices for React.js, Redux and Node.js. If you see anti-patterns, highlight them and provide links to the relevant official documentation.
-- Encourage modern JavaScript/TypeScript features and syntax where applicable (e.g. for-of loops, nullish coalescing for Javascript; utility types or satisfies for Typescript..).
+### Comments
+
+- Explain non-obvious constraints or rejected alternatives. For a workaround, link to the source that explains why it's needed.
+- Track follow-up work with a ticket and what remains: `TODO(COMPASS-1234): ...`.
 
 ### Respect component and dependency public APIs
 
-When styling or customizing third-party components (e.g. LeafyGreen) or other dependencies, always use their public API (`className`, `style`, documented props, and documented extension points). Don't target internal DOM elements or undocumented internals — this creates fragile coupling to implementation details that can break silently when the library updates.
-
-```tsx
-// :x: Coupling to internal DOM structure of a third-party component
-const codeStyles = css({
-  '& pre': {
-    maxHeight: '40vh',
-    overflowY: 'auto',
-  },
-});
-<Code className={codeStyles}>...</Code>;
-
-// :white_check_mark: Style through the component's public className prop
-const codeStyles = css({
-  maxHeight: '40vh',
-  overflow: 'auto',
-});
-<Code className={codeStyles}>...</Code>;
-```
+Use documented props and extension points, including `className` or `style` when provided. Don't target undocumented CSS classes or internal DOM structure (for example, `& pre` inside LeafyGreen's `Code` component); those details can change when a dependency updates.
 
 ### Testing
 
-- Follow the official testing guidelines for Redux and React Testing Library.
-- Ensure tests are meaningful, maintainable, and cover edge cases.
-- Avoid false positive tests.
-
 #### Running tests
 
-To run tests for a specific file in a package:
+From the repo root, run a known failing Mocha case by passing a workspace-relative spec path and a title filter:
 
-```bash
-# From the package directory
-cd packages/<package-name>
-npm test src/path/to/file.spec.ts
-
-# Or from the monorepo root
-npm test -w @mongodb-js/<package-name> src/path/to/file.spec.ts
+```sh
+npm test -w packages/compass-indexes -- src/modules/namespace.spec.ts --grep='returns the default state' --bail --forbid-only --fail-zero
 ```
 
-To filter tests by description (describe/it blocks) within all test files:
-
-```bash
-npm test -- --grep="test description pattern"
-```
-
-Note: Use `--grep="pattern"` with equals sign, not `--grep "pattern"` with a space.
+- Keep `--grep='pattern'` as one argument with `=`: the shared Mocha config treats bare arguments as spec paths. `--fail-zero` catches a filter that matches no tests.
+- Once the case passes, drop the filter to run the spec, then run the workspace suite. For changes to public APIs, shared components, services, or runtimes, test affected consumers too. For broad changes, `npm run test-changed` runs changed workspaces and their dependents relative to `origin/HEAD`; root `npm test` runs the monorepo.
+- Check the workspace's scripts before passing Mocha flags. Use `test-electron` where Electron is required. The [e2e runner](./packages/compass-e2e-tests/README.md) expects built workspace dependencies and uses its own flags.
+- For runtime or experiment changes, check whether PR CI exercises the affected environment with any relevant flag enabled. If not, run the corresponding local or Evergreen task.
 
 #### Testing components, not the store
 
-Follow the guiding principles from Redux and Testing Library. See [Redux Guiding Principles](https://redux.js.org/usage/writing-tests#guiding-principles) and [Testing Library Guiding Principles](https://testing-library.com/docs/guiding-principles/).
+Follow the [Redux](https://redux.js.org/usage/writing-tests#guiding-principles) and [Testing Library](https://testing-library.com/docs/guiding-principles) guiding principles. Prefer rendering React and Redux together and asserting what the user sees or can do, not the store's shape, selector calls, or hook usage. Use [testing-library-compass](./configs/testing-library-compass/README.md) (`createPluginTestHelpers` or `renderWithActiveConnection` as needed), semantic queries, and `userEvent`. Don't use `data-testid` in application logic.
 
-The tests should resemble the way the software is used, not the way it's implemented.
-
-- Prefer integration tests with everything working together (React + Redux) over unit tests of individual reducers or selectors.
-- Avoid testing or asserting on Redux internals (store state, selector calls, hook usage). Focus on user-visible behavior.
-- Avoid writing dedicated unit tests for every reducer, selector, or action creator; in many cases they are implementation details already covered by integration tests.
-
-To ease testing fully integrated Compass components, use the helper methods built on top of Testing Library that handle required wiring when rendering components inside plugins. See the docs at [Compass Testing Library helpers documentation](https://github.com/mongodb-js/compass/tree/main/configs/testing-library-compass).
-
-```tsx
-// ❌ Asserting on Redux store internals
-render(<ItemList />);
-userEvent.click(screen.getByText(/buy milk/i));
-expect(store.getState().items.selectedId).toBe('1');
-
-// ✅ Asserting on what the user sees
-render(<ItemList />);
-userEvent.click(screen.getByText(/buy milk/i));
-expect(screen.getByRole('heading')).toHaveTextContent(/buy milk/i);
-```
+- Stub external services at their boundary, not the store or selectors. Use focused unit tests for pure algorithms or edge cases that are difficult to reach through the UI. Make sure a regression test fails for the intended reason before the fix.
+- For a sizable feature, add or extend a happy-path [end-to-end test](./packages/compass-e2e-tests/README.md). Set feature flags explicitly. Exercise the packaged app through `CompassBrowser` and its page objects, and wait for a user-visible result rather than a fixed delay. Don't add production hooks solely for e2e tests.
 
 ### React
 
-- Follow React patterns and naming conventions when designing components, “think in React”.
-  Be careful when using hooks, make sure that all dependencies are listed for callbacks / memos / effect.
-- Be especially careful when adding effects—remember that [you might not need an effect](https://react.dev/learn/you-might-not-need-an-effect).
-- If you're reaching for a useReducer hook, consider if it's time to move this state and business logic to a Redux store instead.
-
-#### Avoid non-primitive values in render
-
-Defining non-primitive values in render (in function body or as component props) nullifies all memoization benefits.
-
-```tsx
-// ❌ Inline object/array props break memoization of child components
-const MyComponent = ({ userId }) => {
-  return (
-    <MemoizedChild
-      options={['edit', 'delete']}
-      onClick={() => handleClick(userId)}
-    />
-  );
-};
-
-// ✅ Memoize or define outside render
-const options = ['edit', 'delete'];
-
-const MyComponent = ({ userId }) => {
-  const handleItemClick = useCallback(() => handleClick(userId), [userId]);
-
-  return <MemoizedChild options={options} onClick={handleItemClick} />;
-};
-```
-
-The same applies to non-primitive properties constructed inside Redux `connect` functions—they remove any benefits of granular connections.
-
-```ts
-// ❌ Creates new array on every render, breaks memoization
-export default connect((state) => ({
-  activeItems: state.items.filter((item) => item.isActive),
-}))(MyComponent);
-
-// ✅ Use memo to ensure the same array instance is returned if the items haven't changed
-const MyComponent = ({ items }) => {
-  const activeItems = useMemo(
-    () => items.filter((item) => item.isActive),
-    [items]
-  );
-};
-
-export default connect((state) => ({
-  items: state.items,
-}))(MyComponent);
-```
+- Handle user actions in event handlers. Use effects to synchronize with external systems, with cleanup as needed. See [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect).
+- Don't mirror props into state. A `default*` prop sets the initial value; use a controlled prop if changes to that prop should take effect after mount.
+- Preserve reference identity where a consumer relies on it, such as props passed to a memoized child or values selected by `connect`. For example, `activeItems: state.items.filter(...)` returns a new array on every evaluation and defeats shallow comparison for that prop. Use a memoized selector or pass the stable `items` reference and derive the filtered list in the component.
 
 ### Redux
 
-- The store state should be normalized, minimal, and based around the data you’re storing, not components.
-- Be especially vigilant deciding whether something is state or a derived value produced from multiple existing sources
-- As much state as possible should be calculated in reducers, reducers should own the state shape
-- Store actions should be modeled around events, should not be dispatched in batches, and should handle all complex feature logic, especially the one requiring state and service access, instead of doing this in UI directly
+- Keep state minimal and organize it around domain data, not components. Normalize relational data by ID to keep updates granular. Derive values in selectors or render instead of storing copies.
+- Reducers own the state shape and calculate synchronous transitions. Model actions as events (`indexCreationFailed`, not `setError`); let slices respond to the same event rather than dispatching a chain of setters. Put orchestration, async work, and service calls in thunks rather than in components.
 
 #### Not all state belongs in Redux
 
-Not all state belongs in the Redux store - see [redux - organizing state FAQ](https://redux.js.org/faq/organizing-state#do-i-have-to-put-all-my-state-into-redux-should-i-ever-use-reacts-usestate-or-usereducer).
-
-State should go in Redux when:
-
-- Other parts of the application care about this data
-- You need to be able to create further derived data based on this original data
-- The same data is being used to drive multiple components
-- There is value in being able to restore this state to a given point in time (i.e., time travel debugging)
-- You want to cache the data (i.e., use what's in state if it's already there instead of re-requesting it)
-- You want to keep this data consistent while hot-reloading UI components (which may lose their internal state when swapped)
-
-If none of these apply, local component state is likely more appropriate.
+Use the feature store when several consumers need the same state, when the feature needs to cache fetched data, or when state must outlive a component mount. Keep transient state local when only one component cares about it. If local `useReducer` starts coordinating feature state or services, reconsider where that logic belongs. See the [Redux state organization FAQ](https://redux.js.org/faq/organizing-state#do-i-have-to-put-all-my-state-into-redux-should-i-ever-use-reacts-usestate-or-usereducer).
 
 ## MongoDB Specifics
 
 ### Performance antipatterns
 
-- Warn about db.stats() performance implications, especially in connection with freeStorage: 1. Provide a reference to the official MongoDB documentation.
-
-## Compass Specifics
-
-- We're trying to stick to Redux style guide as close as possible, with two exceptions
-
-### Compass doesn’t use a single Redux store to manage the whole application state.
-
-### Use `connect` instead of Redux hooks inside feature modules
-
-Components inside feature module boundaries must use the `connect` function to access store data, not Redux hooks like `useSelector` or `useDispatch`.
-
-The `connect` function introduces a deliberate level of indirection, allowing you to write presentational-style components that receive all their values as props without being specifically dependent on Redux. This aligns with the React guidelines for building components (see [Thinking in React](https://react.dev/learn/thinking-in-react)).
-
-```ts
-// ❌ Don't do this inside a feature module
-import { useSelector } from 'react-redux';
-
-const MyComponent = () => {
-  const data = useSelector((state) => state.something);
-  // ...
-};
-
-// ✅ Do this instead
-import { connect } from 'react-redux';
-
-const MyComponent = ({ data }) => {
-  // ...
-};
-
-export default connect((state) => ({
-  data: state.something,
-}))(MyComponent);
-```
-
-### Shared components should have a single look and feel
-
-Shared components in `packages/compass-components` define the baseline design system.
-Avoid adding new props or configuration options to a shared component to satisfy a one-off request for a visual change. If a new feature requires a different look and feel, bring up the discrepancy and ask for feedback on how to move forward.
+- Check the cost of `db.stats()` on frequently executed paths, especially [`dbStats` with `freeStorage: 1`](https://www.mongodb.com/docs/manual/reference/command/dbStats/), which can cause processing delays.
 
 ## Commits and pull requests
 
-When drafting git commit messages or GitHub pull requests for this repository, follow the conventions described in `COMMIT_MESSAGES.md`.
+Follow [COMMIT_MESSAGES.md](./COMMIT_MESSAGES.md) when drafting commit messages or pull requests.
