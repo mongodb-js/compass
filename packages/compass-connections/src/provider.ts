@@ -68,6 +68,8 @@ export {
 
 export type { ConnectionsService } from './stores/store-context';
 
+export { validateFolderName } from './stores/connections-store-redux';
+
 export { useConnectionSupports } from './hooks/use-connection-supports';
 
 export { useConnectable } from './hooks/use-connectable';

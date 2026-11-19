@@ -31,6 +31,7 @@ import {
   connectedConnectionItemActions,
   databaseItemActions,
   databaseContextMenuActions,
+  folderItemActions,
   notConnectedConnectionItemActions,
   connectionContextMenuActions,
 } from './item-actions';
@@ -189,9 +190,16 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
-      if (item.type === 'placeholder' || item.type === 'folder') {
+      if (item.type === 'placeholder') {
         return {
           actions: [],
+        };
+      }
+      // Folders aren't tied to a connection, so they're handled before the
+      // connectable check below.
+      if (item.type === 'folder') {
+        return {
+          actions: folderItemActions(),
         };
       }
       const connectionId = getConnectionId(item);
@@ -268,8 +276,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     ): ContextMenuItemGroup[] {
       switch (item.type) {
         case 'placeholder':
-        case 'folder':
           return [];
+        case 'folder':
+          return itemActionsToContextMenuGroups(
+            'Folder Tree Item',
+            item,
+            onItemAction,
+            folderItemActions()
+          );
         case 'connection':
           return itemActionsToContextMenuGroups(
             'Connection Tree Item',

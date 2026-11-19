@@ -10,7 +10,10 @@ import thunk from 'redux-thunk';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
+import type {
+  ExperimentationServices,
+  TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
@@ -94,6 +97,7 @@ export type CollectionTabServices = {
   connectionInfoRef: ReturnType<typeof connectionInfoRefLocator>;
   logger: Logger;
   preferences: PreferencesAccess;
+  track: TrackFunction;
 };
 
 export function activatePlugin(
@@ -115,6 +119,7 @@ export function activatePlugin(
     connectionInfoRef,
     logger,
     preferences,
+    track,
   } = services;
 
   if (!collectionModel) {
@@ -161,6 +166,7 @@ export function activatePlugin(
         connectionInfoRef,
         logger,
         preferences,
+        track,
         fakerSchemaGenerationAbortControllerRef,
         schemaAnalysisAbortControllerRef,
       })

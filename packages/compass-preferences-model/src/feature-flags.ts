@@ -132,7 +132,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableAutoEmbeddingPrivatePreview',
-    stage: 'development',
+    stage: 'preview',
     atlasCloudFeatureScope: 'group',
     description: {
       short:
@@ -157,7 +157,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableSortedSearchIndexes',
-    stage: 'development',
+    stage: 'preview',
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable sorted syntax for search indexes schema',
@@ -170,7 +170,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableVectorXPrivatePreview',
-    stage: 'development',
+    stage: 'preview',
     atlasCloudFeatureScope: 'group',
     description: {
       short:
@@ -189,7 +189,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableAutoEmbeddingLexicalPrefilter',
-    stage: 'development',
+    stage: 'preview',
     atlasCloudFeatureScope: 'group',
     description: {
       short:
