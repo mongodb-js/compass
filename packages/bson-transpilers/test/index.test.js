@@ -130,8 +130,6 @@ describe('bson transpiler', function () {
       ['"', PWN],
     ];
 
-    // idiomatic must be explicit: passing undefined inherits whatever a
-    // previous test left on the shared transpiler instance.
     const emit = (lang, wrap, key) =>
       transpilers.shell[lang].compile(
         `[{$match: {${wrap}${key}${wrap}: 1}}]`,
