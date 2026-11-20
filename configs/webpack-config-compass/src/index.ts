@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { builtinModules } from 'node:module';
 import {
   type ResolveOptions,
   type WebpackPluginInstance,
@@ -9,9 +11,8 @@ import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error no types exist for this library
 import DuplicatePackageCheckerPlugin from '@cerner/duplicate-package-checker-webpack-plugin';
-import path from 'path';
-import { builtinModules } from 'module';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { WebpackPluginStartElectron } from './webpack-plugin-start-electron';
 import type { ConfigArgs, WebpackConfig } from './args';
 import {
@@ -40,7 +41,6 @@ import {
 } from './util';
 import { sharedExternals, pluginExternals } from './externals';
 import { WebpackPluginMulticompilerProgress } from './webpack-plugin-multicompiler-progress';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
   // Usually caused by published d.ts files pointing to non-existent ts files in
@@ -51,9 +51,6 @@ const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
   /the request of a dependency is an expression/,
   // Optional, platform-specific dependencies (mostly from driver)
   /Module not found.+?(mongo_crypt_v1.(dll|so|dylib)|@mongodb-js\/zstd|aws-crt|gcp-metadata)/,
-  // Optional, comes from emotion trying to (safely) use react apis that we
-  // don't have in React 17
-  /export 'useInsertionEffect'/,
   // Source map format that webpack can't resolve
   /Failed to parse source map: 'umd:/,
 ];
@@ -442,16 +439,16 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
             }) as unknown as WebpackPluginInstance,
           ]
         : opts.analyze
-        ? [
-            // Plugin types are not matching Webpack 5, but they work
-            new BundleAnalyzerPlugin({
-              logLevel: 'silent',
-              analyzerPort: 'auto',
-            }) as unknown as WebpackPluginInstance,
+          ? [
+              // Plugin types are not matching Webpack 5, but they work
+              new BundleAnalyzerPlugin({
+                logLevel: 'silent',
+                analyzerPort: 'auto',
+              }) as unknown as WebpackPluginInstance,
 
-            new DuplicatePackageCheckerPlugin(),
-          ]
-        : []),
+              new DuplicatePackageCheckerPlugin(),
+            ]
+          : []),
     ],
   };
 }

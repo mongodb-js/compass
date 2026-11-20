@@ -28,6 +28,25 @@ urlOptions.forEach(({ key, value }) => {
 describe('UrlOptionsListEditor', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
+  it('labels each value input without accessibility warnings', function () {
+    const consoleError = sinon.spy(console, 'error');
+    try {
+      render(
+        <UrlOptionsListEditor
+          updateConnectionFormField={sinon.spy()}
+          connectionStringUrl={connectionStringUrl}
+        />
+      );
+      expect(consoleError).to.not.have.been.calledWithMatch(
+        /screen-reader accessibility/
+      );
+    } finally {
+      consoleError.restore();
+    }
+    expect(screen.getByRole('textbox', { name: 'w Value' })).to.exist;
+    expect(screen.getByRole('textbox', { name: 'URL Option Value' })).to.exist;
+  });
+
   describe('with SearchParams', function () {
     beforeEach(function () {
       updateConnectionFormFieldSpy = sinon.spy();

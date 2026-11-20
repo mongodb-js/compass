@@ -1,7 +1,7 @@
 import { Decimal128 } from 'bson';
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { Decimal128Editor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('Decimal128Editor', function () {
   describe('#start', function () {

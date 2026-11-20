@@ -1,7 +1,10 @@
 import React from 'react';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
+import {
+  PreferencesProvider,
+  usePreferencesContext,
+} from '@mongodb-js/compass-preferences-model/provider';
 import { CompassAtlasAuthService } from '@mongodb-js/atlas-service/renderer';
 import {
   AtlasAuthServiceProvider,
@@ -25,8 +28,6 @@ import {
 import { createLogger } from '@mongodb-js/compass-logging';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
-import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
-import Home from './home';
 import {
   type TelemetryServiceOptions,
   createIpcSendTrack,
@@ -34,8 +35,11 @@ import {
 import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-data-modeling/renderer';
 import { WorkspacesStorageServiceProviderDesktop } from '@mongodb-js/compass-workspaces';
 import { useInitialValue } from '@mongodb-js/compass-components';
+import Home from './home';
 
-const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
+const WithPreferencesAndLoggerProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const loggerProviderValue = useInitialValue({
     createLogger,
   });
@@ -55,16 +59,22 @@ const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   );
 };
 
-export const WithAtlasProviders: React.FC = ({ children }) => {
+export const WithAtlasProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const authService = useInitialValue(() => new CompassAtlasAuthService());
+  const preferences = usePreferencesContext();
   return (
     <AtlasAuthServiceProvider value={authService}>
       <AtlasServiceProvider
         options={{
           defaultHeaders: {
-            'User-Agent': `${getAppName()}/${getAppVersion()}`,
+            'User-Agent': `${process.env.HADRON_PRODUCT_NAME}/${process.env.HADRON_APP_VERSION}`,
             'X-Request-Origin': 'mongodb-compass',
           },
+          getAtlasServiceBackendPreset: () =>
+            preferences.getPreferences().atlasServiceBackendPreset,
+          getNetworkTraffic: () => preferences.getPreferences().networkTraffic,
         }}
       >
         <AtlasAdminApiServiceProvider>
@@ -77,7 +87,9 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
   );
 };
 
-export const WithStorageProviders: React.FC = ({ children }) => {
+export const WithStorageProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const pipelineStorage = useInitialValue<PipelineStorageAccess>({
     getStorage(options) {
       return createElectronPipelineStorage({ basepath: options?.basePath });

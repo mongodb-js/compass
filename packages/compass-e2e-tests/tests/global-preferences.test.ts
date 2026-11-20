@@ -1,3 +1,6 @@
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
 import { expect } from 'chai';
 import {
   init,
@@ -6,9 +9,6 @@ import {
   positionalArgs,
   skipForWeb,
 } from '../helpers/compass.ts';
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
 import * as Selectors from '../helpers/selectors.ts';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 
@@ -69,7 +69,7 @@ describe('Global preferences', function () {
         expect(value).to.equal('false');
         expect(disabled).to.equal('true');
         expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set at Compass startup.'
+          'This setting cannot be modified as it has been set at startup.'
         );
       }
       {
@@ -100,7 +100,7 @@ describe('Global preferences', function () {
         expect(value).to.equal('false');
         expect(disabled).to.equal('true');
         expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set in the global Compass configuration file.'
+          'This setting cannot be modified as it has been set in the global configuration file.'
         );
       }
       {
@@ -131,7 +131,7 @@ describe('Global preferences', function () {
         expect(value).to.equal('false');
         expect(disabled).to.equal('true');
         expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set in the global Compass configuration file.'
+          'This setting cannot be modified as it has been set in the global configuration file.'
         );
       }
       {
@@ -161,7 +161,7 @@ describe('Global preferences', function () {
       expect(value).to.equal('false');
       expect(disabled).to.equal('true');
       expect(bannerText).to.include(
-        'This setting cannot be modified as it has been set in the global Compass configuration file.'
+        'This setting cannot be modified as it has been set in the global configuration file.'
       );
     } finally {
       await cleanup(compass);
@@ -187,7 +187,7 @@ describe('Global preferences', function () {
         expect(value).to.equal('true');
         expect(disabled).to.equal('true');
         expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set in the global Compass configuration file.'
+          'This setting cannot be modified as it has been set in the global configuration file.'
         );
       }
       {
@@ -198,7 +198,7 @@ describe('Global preferences', function () {
         expect(value).to.equal('false');
         expect(disabled).to.equal('true');
         expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set in the global Compass configuration file.'
+          'This setting cannot be modified as it has been set in the global configuration file.'
         );
       }
     } finally {

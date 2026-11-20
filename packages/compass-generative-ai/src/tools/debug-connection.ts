@@ -19,9 +19,7 @@ export const debugConnectionDescription = `
 `;
 
 export type IpAccessStatus =
-  | 'Client IP Allowed'
-  | 'Client IP Not Allowed'
-  | 'Could not confirm';
+  'Client IP Allowed' | 'Client IP Not Allowed' | 'Could not confirm';
 
 export type NetworkAccessDetails = {
   networkAccessList: AtlasAccessListEntry[];
@@ -116,9 +114,8 @@ async function getClusterInfo(
     }
   | undefined
 > {
-  const result = await atlasAdminApi.getProjectIdAndClusterName(
-    connectionString
-  );
+  const result =
+    await atlasAdminApi.getProjectIdAndClusterName(connectionString);
   if (!result) return;
 
   const { projectId, clusterName } = result;

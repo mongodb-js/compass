@@ -1,0 +1,8 @@
+ignores:
+ - '@mongodb-js/prettier-config-compass'
+ - '@mongodb-js/tsconfig-compass'
+ - '@types/chai'
+ - '@types/mocha'
+ - 'electron-mocha'
+ # resolved on disk by the embedded-shell utility (see its index.mts)
+ - '@mongosh/node-runtime-worker-thread'

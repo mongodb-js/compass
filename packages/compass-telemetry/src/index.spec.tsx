@@ -1,5 +1,5 @@
-import { createIpcTrack } from './';
 import { expect } from 'chai';
+import { createIpcTrack } from './';
 
 // So that we don't need to override types in all tests
 function createTrackFn() {

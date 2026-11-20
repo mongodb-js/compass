@@ -8,11 +8,11 @@ import {
   useRef,
   useCallback,
 } from 'react';
-import { type AllPreferences } from './';
-import type { PreferencesAccess } from './preferences';
-import { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { pick } from 'lodash';
+import type { PreferencesAccess } from './preferences';
+import { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
+import { type AllPreferences } from './';
 
 const PreferencesContext = createContext<PreferencesAccess | null>(null);
 // Lazily initialized to avoid a cyclic dependency.
@@ -71,17 +71,23 @@ export function usePreferences<K extends (keyof AllPreferences)[]>(
   const [values, setValues] = useState(() => {
     return pick(preferences.getPreferences(), keys);
   });
-  const updateValue = useCallback((key: keyof AllPreferences, newValue) => {
-    setValues((values) => {
-      if (newValue === values[key]) {
-        return values;
-      }
-      return {
-        ...values,
-        [key]: newValue,
-      };
-    });
-  }, []);
+  const updateValue = useCallback(
+    (
+      key: keyof AllPreferences,
+      newValue: AllPreferences[keyof AllPreferences]
+    ) => {
+      setValues((values) => {
+        if (newValue === values[key]) {
+          return values;
+        }
+        return {
+          ...values,
+          [key]: newValue,
+        };
+      });
+    },
+    []
+  );
   useEffect(() => {
     const unsubscribe = keysRef.current.map((key) => {
       return preferences.onPreferenceValueChanged(key, (newValue) => {
@@ -105,15 +111,15 @@ export function usePreferences<K extends (keyof AllPreferences)[]>(
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : F extends { new (...args: [infer A, ...any]): any }
-  ? A
-  : never;
+    ? A
+    : never;
 
 type OptionalOmit<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 /** Use as: const WrappedComponent = withPreferences(Component, ['enableMaps', 'trackUsageStatistics'], React); */
 export function withPreferences<
   C extends ((...args: any[]) => any) | { new (...args: any[]): any },
-  K extends keyof AllPreferences
+  K extends keyof AllPreferences,
 >(
   component: C,
   keys: K[]

@@ -5,10 +5,10 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { ActionCardMessage } from './action-card-message';
-import type { ActionCardButton } from './action-card-message';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { ActionCardMessage } from './action-card-message';
+import type { ActionCardButton } from './action-card-message';
 
 describe('ActionCardMessage', function () {
   const defaultButtons: ActionCardButton[] = [

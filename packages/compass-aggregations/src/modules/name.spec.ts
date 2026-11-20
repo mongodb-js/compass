@@ -1,5 +1,5 @@
-import reducer from './name';
 import { expect } from 'chai';
+import reducer from './name';
 
 describe('name module', function () {
   describe('#reducer', function () {

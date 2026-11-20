@@ -8,16 +8,15 @@ import {
   useDarkMode,
   Breadcrumbs,
 } from '@mongodb-js/compass-components';
-import type { BreadcrumbItem } from '@mongodb-js/compass-components';
-import type { Signal } from '@mongodb-js/compass-components';
+import type { BreadcrumbItem, Signal } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
-import toNS from 'mongodb-ns';
-import CollectionHeaderActions from '../collection-header-actions';
-import { CollectionBadge } from './badges';
+import toNS from '@mongodb-js/mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import CollectionHeaderActions from '../collection-header-actions';
 import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-generator-modal';
+import { CollectionBadge } from './badges';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],

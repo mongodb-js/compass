@@ -9,14 +9,14 @@ import {
   type ItemAction,
   type ContextMenuItemGroup,
 } from '@mongodb-js/compass-components';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
 import { NavigationBaseItem } from './base-navigation-item';
 import type { NavigationItemActions } from './item-actions';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
-import type { Actions } from './constants';
+import type { ActionPayload, Actions, OnItemAction } from './constants';
 import { NavigationItemIcon } from './navigation-item-icon';
 
 const nonGenuineBtnStyles = css({
@@ -101,7 +101,7 @@ type NavigationItemProps = {
       collapseAfter: number;
     };
   };
-  onItemAction: (item: SidebarActionableItem, action: Actions) => void;
+  onItemAction: OnItemAction;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
   getContextMenuGroups(item: SidebarTreeItem): ContextMenuItemGroup[];
 };
@@ -117,9 +117,9 @@ export function NavigationItem({
 }: NavigationItemProps) {
   const isDarkMode = useDarkMode();
   const onAction = useCallback(
-    (action: Actions) => {
+    (action: Actions, actionPayload?: unknown) => {
       if (item.type !== 'placeholder') {
-        onItemAction(item, action);
+        onItemAction(item, action, actionPayload as ActionPayload | undefined);
       }
     },
     [item, onItemAction]
@@ -151,6 +151,12 @@ export function NavigationItem({
   const itemDataProps = useMemo(() => {
     if (item.type === 'placeholder') {
       return {};
+    }
+    if (item.type === 'folder') {
+      return {
+        'data-folder-id': item.folderId,
+        'data-folder-name': item.name,
+      };
     }
     if (item.type === 'connection') {
       return {
@@ -242,7 +248,7 @@ export function NavigationItem({
           actionProps={actionProps}
         >
           {!!connectionStaticActions.length && (
-            <ItemActionControls
+            <ItemActionControls<Actions>
               iconSize="xsmall"
               actions={connectionStaticActions}
               onAction={onAction}

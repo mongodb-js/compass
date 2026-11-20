@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
+import { TextInput, TextArea } from '@mongodb-js/compass-components';
 import type {
   DataModelCollection,
   Relationship,
 } from '../../services/data-model-storage';
-import { TextInput, TextArea } from '@mongodb-js/compass-components';
 import {
   createNewRelationship,
   deleteRelationship,
@@ -15,13 +15,13 @@ import {
   updateCollectionNote,
 } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
+import { getNamespaceRelationships } from '../../utils/utils';
 import {
   DMDrawerSection,
   DMFormFieldContainer,
 } from './drawer-section-components';
 import { useChangeOnBlur } from './use-change-on-blur';
 import { RelationshipsSection } from './relationships-section';
-import { getNamespaceRelationships } from '../../utils/utils';
 import { getIsNewNameValid } from './util';
 
 type CollectionDrawerContentProps = {

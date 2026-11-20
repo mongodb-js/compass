@@ -2,10 +2,10 @@ import React from 'react';
 import { FormFieldContainer } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import SchemeInput from './scheme-input';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import HostInput from './host-input';
 import type { ConnectionFormError } from '../../../utils/validation';
+import SchemeInput from './scheme-input';
+import HostInput from './host-input';
 
 function GeneralTab({
   errors,

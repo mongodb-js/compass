@@ -1,4 +1,5 @@
 import { createLogger } from '@mongodb-js/compass-logging';
+
 const { debug, mongoLogId, log } = createLogger('COMPASS-INTERCOM');
 
 const INTERCOM_SCRIPT_ELEM_ID = 'intercom-script';

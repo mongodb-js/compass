@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { toJSString } from 'mongodb-query-parser';
-import toNS from 'mongodb-ns';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
+import toNS from '@mongodb-js/mongodb-ns';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { FormatOptions } from '@mongodb-js/compass-editor';
 

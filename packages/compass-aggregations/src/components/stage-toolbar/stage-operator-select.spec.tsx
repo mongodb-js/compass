@@ -7,9 +7,9 @@ import {
   within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 import type { Stage } from './stage-operator-select';
 import { StageOperatorSelect } from './stage-operator-select';
-import Sinon from 'sinon';
 
 describe('StageOperatorSelect', function () {
   const mockStages: Stage[] = [
@@ -128,9 +128,8 @@ describe('StageOperatorSelect', function () {
       renderCombobox({ stages: [...mockStages, rerankStage] });
       fireEvent.click(screen.getByRole('combobox'));
       const listbox = screen.getByRole('listbox');
-      expect(
-        within(listbox).getByTestId('combobox-option-stage-$rerank')
-      ).to.exist;
+      expect(within(listbox).getByTestId('combobox-option-stage-$rerank')).to
+        .exist;
     });
 
     it('sorts $rerank to the top', function () {

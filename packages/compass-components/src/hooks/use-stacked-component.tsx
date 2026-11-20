@@ -1,4 +1,4 @@
-import type { ComponentType, ForwardedRef } from 'react';
+import type { ForwardedRef } from 'react';
 import React, { createContext, useContext, useMemo } from 'react';
 
 type StackedComponentProviderProps = {
@@ -27,8 +27,8 @@ export const useStackedComponent = () => {
 type StackedComponentProps<T extends boolean> = T extends true
   ? { popoverZIndex?: number }
   : T extends false
-  ? { style?: React.CSSProperties }
-  : Record<string, never>;
+    ? { style?: React.CSSProperties }
+    : Record<string, never>;
 
 // TODO(LG-4109): This should be eventually supported by the LG design system
 export const withStackedComponentStyles = function <ComponentProps>(
@@ -36,7 +36,7 @@ export const withStackedComponentStyles = function <ComponentProps>(
 ): React.FC<ComponentProps> {
   const ComponentWithStackedStyles = (
     props: ComponentProps,
-    ref: ForwardedRef<ComponentType<ComponentProps>>
+    ref: ForwardedRef<unknown>
   ) => {
     const context = useStackedComponent();
     const stackedElementProps = useMemo(() => {
@@ -59,6 +59,9 @@ export const withStackedComponentStyles = function <ComponentProps>(
   ComponentWithStackedStyles.displayName = `WithStackedStyles(${displayName})`;
 
   return React.forwardRef(
-    ComponentWithStackedStyles
-  ) as typeof WrappedComponent;
+    ComponentWithStackedStyles as React.ForwardRefRenderFunction<
+      unknown,
+      React.PropsWithoutRef<ComponentProps>
+    >
+  ) as unknown as typeof WrappedComponent;
 };

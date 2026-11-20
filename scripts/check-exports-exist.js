@@ -1,6 +1,6 @@
 'use strict';
-const path = require('path');
-const { promises: fs } = require('fs');
+const path = require('node:path');
+const { promises: fs } = require('node:fs');
 
 function gatherPathsRec(exports = {}) {
   if (typeof exports === 'string') {

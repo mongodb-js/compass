@@ -1,5 +1,5 @@
 import React from 'react';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
 import {
   render,
@@ -9,12 +9,12 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { DatabasesWorkspaceTab } from './';
 import Sinon from 'sinon';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
+import { DatabasesWorkspaceTab } from './';
 
 describe('Databasees [Plugin]', function () {
   let dataService: any;
@@ -127,8 +127,10 @@ describe('Databasees [Plugin]', function () {
         topologyDescription: { type: 'Unknown' },
       });
 
-      expect(screen.queryByRole('button', { name: /Create database/ })).to.not
-        .exist;
+      await waitFor(() => {
+        expect(screen.queryByRole('button', { name: /Create database/ })).to.not
+          .exist;
+      });
     });
   });
 });

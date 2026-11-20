@@ -1,5 +1,9 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import * as fixtures from '../test/fixtures';
+import { createMongoClientMock } from '../test/helpers';
 import type { InstanceDetails } from './instance-detail-helper';
 import {
   adaptDatabaseInfo,
@@ -10,11 +14,6 @@ import {
   getInstance,
   isNotAuthorized,
 } from './instance-detail-helper';
-
-import * as fixtures from '../test/fixtures';
-import { createMongoClientMock } from '../test/helpers';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
 
 describe('instance-detail-helper', function () {
   const cluster = mochaTestServer();

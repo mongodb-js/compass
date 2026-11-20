@@ -1,8 +1,21 @@
 import React, { useCallback, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import type { ContextMenuItemGroup } from '@mongodb-js/compass-context-menu';
+import {
+  VisuallyHidden,
+  css,
+  isSeparatorMenuAction,
+  isItemActionGroupItem,
+  spacing,
+  useId,
+} from '@mongodb-js/compass-components';
+import { useConnectable } from '@mongodb-js/compass-connections/provider';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import { getConnectionId, getVirtualTreeItems } from './tree-data';
 import { ROW_HEIGHT } from './constants';
-import type { Actions } from './constants';
+import type { OnItemAction } from './constants';
 import { VirtualTree } from './virtual-list/virtual-list';
 import type { OnDefaultAction } from './virtual-list/virtual-list';
 import { NavigationItem } from './navigation-item';
@@ -11,17 +24,6 @@ import type {
   SidebarActionableItem,
   Connection,
 } from './tree-data';
-import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
-import type { ContextMenuItemGroup } from '@mongodb-js/compass-context-menu';
-import {
-  VisuallyHidden,
-  css,
-  spacing,
-  useId,
-} from '@mongodb-js/compass-components';
-import { useConnectable } from '@mongodb-js/compass-connections/provider';
-import type { WorkspaceTab } from '@mongodb-js/workspace-info';
-import { usePreferences } from 'compass-preferences-model/provider';
 import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,
@@ -29,6 +31,7 @@ import {
   connectedConnectionItemActions,
   databaseItemActions,
   databaseContextMenuActions,
+  folderItemActions,
   notConnectedConnectionItemActions,
   connectionContextMenuActions,
 } from './item-actions';
@@ -41,16 +44,20 @@ const ConnectionsNavigationContainerStyles = css({
 });
 export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
+  folders?: Folder[];
+  folderAssignments?: Record<string, string>;
   activeWorkspace: WorkspaceTab | null;
   expanded: Record<string, false | Record<string, boolean>>;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
-  onItemAction(item: SidebarActionableItem, action: Actions): void;
+  onItemAction: OnItemAction;
 }
 
 const ConnectionsNavigationTree: React.FunctionComponent<
   ConnectionsNavigationTreeProps
 > = ({
   connections,
+  folders,
+  folderAssignments,
   activeWorkspace,
   expanded,
   onItemExpand,
@@ -60,7 +67,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     enableShell: preferencesShellEnabled,
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
-  } = usePreferences(['enableShell', 'readOnly', 'readWrite']);
+    enableConnectionFolders: isFoldersEnabled,
+  } = usePreferences([
+    'enableShell',
+    'readOnly',
+    'readWrite',
+    'enableConnectionFolders',
+  ]);
   const isRenameCollectionEnabled = !preferencesReadWrite;
 
   const id = useId();
@@ -69,6 +82,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const treeData = useMemo(() => {
     return getVirtualTreeItems({
       connections,
+      folders,
+      folderAssignments,
       expandedItems: expanded,
       preferencesReadOnly,
       preferencesReadWrite,
@@ -76,6 +91,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     });
   }, [
     connections,
+    folders,
+    folderAssignments,
     expanded,
     preferencesReadOnly,
     preferencesReadWrite,
@@ -84,8 +101,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
+      // A folder has no default action beyond expanding or collapsing itself.
+      if (item.type === 'folder') {
+        onItemExpand(item, !item.isExpanded);
+        return;
+      }
+
       const connectionId = getConnectionId(item);
-      if (!getConnectable(connectionId)) {
+      if (!connectionId || !getConnectable(connectionId)) {
         return;
       }
 
@@ -103,7 +126,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, getConnectable]
+    [onItemAction, getConnectable, onItemExpand]
   );
 
   const activeItemId = useMemo(() => {
@@ -129,12 +152,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       const actionCanBeShownInline = (
         action: NavigationItemActions[number]
       ): boolean => {
-        if (typeof (action as ItemSeparator).separator !== 'undefined') {
+        if (isSeparatorMenuAction(action) || isItemActionGroupItem(action)) {
           return false;
         }
 
-        return ['refresh-databases', 'create-database', 'open-shell'].includes(
-          (action as ItemAction<Actions>).action
+        const { action: name } = action;
+        return (
+          name !== undefined &&
+          ['refresh-databases', 'create-database', 'open-shell'].includes(name)
         );
       };
 
@@ -165,23 +190,34 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
+      if (item.type === 'placeholder') {
+        return {
+          actions: [],
+        };
+      }
+      // Folders aren't tied to a connection, so they're handled before the
+      // connectable check below.
+      if (item.type === 'folder') {
+        return {
+          actions: folderItemActions(),
+        };
+      }
       const connectionId = getConnectionId(item);
-      if (!getConnectable(connectionId)) {
+      if (!connectionId || !getConnectable(connectionId)) {
         return {
           actions: [],
         };
       }
       switch (item.type) {
-        case 'placeholder':
-          return {
-            actions: [],
-          };
         case 'connection': {
           if (item.connectionStatus === 'connected') {
             const actions = connectedConnectionItemActions({
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
+              isFoldersEnabled,
+              folders,
+              folderId: folderAssignments?.[item.connectionInfo.id],
               isPerformanceTabAvailable: item.isPerformanceTabAvailable,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
@@ -195,6 +231,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             return {
               actions: notConnectedConnectionItemActions({
                 connectionInfo: item.connectionInfo,
+                isFoldersEnabled,
+                folders,
+                folderId: folderAssignments?.[item.connectionInfo.id],
                 connectionStatus: item.connectionStatus,
               }),
               config: {
@@ -225,6 +264,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       isRenameCollectionEnabled,
       getCollapseAfterForConnectedItem,
       getConnectable,
+      isFoldersEnabled,
+      folders,
+      folderAssignments,
     ]
   );
 
@@ -235,6 +277,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       switch (item.type) {
         case 'placeholder':
           return [];
+        case 'folder':
+          return itemActionsToContextMenuGroups(
+            'Folder Tree Item',
+            item,
+            onItemAction,
+            folderItemActions()
+          );
         case 'connection':
           return itemActionsToContextMenuGroups(
             'Connection Tree Item',
@@ -245,12 +294,18 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                   hasWriteActionsDisabled: item.hasWriteActionsDisabled,
                   isShellEnabled: item.isShellEnabled,
                   connectionInfo: item.connectionInfo,
+                  isFoldersEnabled,
+                  folders,
+                  folderId: folderAssignments?.[item.connectionInfo.id],
                   isPerformanceTabAvailable: item.isPerformanceTabAvailable,
                   isPerformanceTabSupported: item.isPerformanceTabSupported,
                   isAtlas: !!item.connectionInfo.atlasMetadata,
                 })
               : notConnectedConnectionItemActions({
                   connectionInfo: item.connectionInfo,
+                  isFoldersEnabled,
+                  folders,
+                  folderId: folderAssignments?.[item.connectionInfo.id],
                   connectionStatus: item.connectionStatus,
                 })
           );
@@ -302,7 +357,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, isRenameCollectionEnabled]
+    [
+      onItemAction,
+      isRenameCollectionEnabled,
+      isFoldersEnabled,
+      folders,
+      folderAssignments,
+    ]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';

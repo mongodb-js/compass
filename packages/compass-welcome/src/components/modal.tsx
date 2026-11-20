@@ -8,7 +8,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { WelcomeModalState } from '../stores/welcome-modal-store';
 import { closeModal, openSettings } from '../stores/welcome-modal-store';
 import { WelcomeModalImage } from './welcome-image';

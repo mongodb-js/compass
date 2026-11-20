@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, userEvent } from '@mongodb-js/testing-library-compass';
+import { expect } from 'chai';
 import { CodemirrorInlineEditor, CodemirrorMultilineEditor } from './editor';
 import type { EditorRef } from './types';
-import { expect } from 'chai';
 
 function renderCodemirrorInlineEditor(text: string) {
   const editorRef = React.createRef<EditorRef>();
@@ -53,6 +53,14 @@ describe('Editor', function () {
       expect(lines[2].textContent).to.equal('}');
 
       expect(editorRef.current?.editorContents).to.equal('{\n  \n}');
+    });
+
+    it('hides the scrollbar', function () {
+      const scroller = document.querySelector('.cm-scroller');
+      expect(scroller).to.exist;
+      expect(getComputedStyle(scroller as Element).scrollbarWidth).to.equal(
+        'none'
+      );
     });
   });
 

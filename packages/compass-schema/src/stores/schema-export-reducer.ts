@@ -9,17 +9,14 @@ import type {
 } from '@mongodb-js/mongodb-schema';
 import { openToast } from '@mongodb-js/compass-components';
 
-import type { SchemaThunkAction } from './store';
-import { isAction } from '../utils';
-import { calculateSchemaMetadata } from '../modules/schema-analysis';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { isAction } from '../utils';
+import { calculateSchemaMetadata } from '../modules/schema-analysis';
+import type { SchemaThunkAction } from './store';
 
 export type SchemaFormat =
-  | 'standardJSON'
-  | 'mongoDBJSON'
-  | 'expandedJSON'
-  | 'legacyJSON';
+  'standardJSON' | 'mongoDBJSON' | 'expandedJSON' | 'legacyJSON';
 export type ExportStatus = 'inprogress' | 'complete' | 'error';
 export type SchemaExportState = {
   isOpen: boolean;

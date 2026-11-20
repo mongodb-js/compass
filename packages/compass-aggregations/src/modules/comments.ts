@@ -1,4 +1,5 @@
 import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import type {
@@ -10,7 +11,6 @@ import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import type { ApplySettingsAction } from './settings';
 import { APPLY_SETTINGS } from './settings';
-import { isAction } from '../utils/is-action';
 
 export type CommentsState = boolean;
 

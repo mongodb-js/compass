@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { nativeImage } from 'electron';
 import compassIconPath from '../app/images/compass-dialog-icon.png';
 

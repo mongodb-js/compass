@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import fs from 'node:fs';
+import { execute } from '../execute';
 import {
   assertFileNotQuarantined,
   removeApplicationSupportForApp,
 } from './mac-utils';
 
 import type { InstalledAppInfo, InstallablePackage } from './types';
-import { execute } from '../execute';
 
 export function installMacDMG({
   kind,

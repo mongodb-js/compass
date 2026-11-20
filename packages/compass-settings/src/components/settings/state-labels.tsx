@@ -4,19 +4,18 @@ import { Banner, BannerVariant } from '@mongodb-js/compass-components';
 export const settingStateLabels = {
   'set-cli': (
     <Banner variant={BannerVariant.Info} data-testid="set-cli-banner">
-      This setting cannot be modified as it has been set at Compass startup.
+      This setting cannot be modified as it has been set at startup.
     </Banner>
   ),
   'set-global': (
     <Banner variant={BannerVariant.Info} data-testid="set-global-banner">
-      This setting cannot be modified as it has been set in the global Compass
+      This setting cannot be modified as it has been set in the global
       configuration file.
     </Banner>
   ),
   hardcoded: (
     <Banner variant={BannerVariant.Info} data-testid="hardcoded-banner">
-      This setting cannot be modified as it is disabled for this Compass
-      edition.
+      This setting cannot be modified as it is disabled for this edition.
     </Banner>
   ),
   derived: (
@@ -25,8 +24,12 @@ export const settingStateLabels = {
     </Banner>
   ),
 
-  // We shouldn't run into these as we don't surface settings on web.
-  'set-cloud-user': null,
+  'set-cloud-user': (
+    <Banner variant={BannerVariant.Info} data-testid="set-cloud-user-banner">
+      This setting cannot be modified as it is controlled by your Atlas user
+      role.
+    </Banner>
+  ),
   'set-cloud-project': null,
   'set-cloud-org': null,
 

@@ -130,10 +130,10 @@ type Services<S extends Record<string, () => unknown>> = {
 export type CompassPluginConfig<
   T,
   S extends Record<string, () => unknown>,
-  A extends Plugin
+  A extends Plugin,
 > = {
   name: string;
-  component: React.ComponentType<T>;
+  component: React.JSXElementConstructor<React.PropsWithChildren<T>>;
   /**
    * Plugin activation method, will receive any props passed to the component,
    * and global and local app registry instances to subscribe to any relevant
@@ -181,7 +181,7 @@ const kLocator = Symbol('CompassServiceLocatorFunction');
  * be created with this method.
  */
 export function createServiceLocator<
-  T extends (this: any, ...args: any[]) => any
+  T extends (this: any, ...args: any[]) => any,
 >(fn: T, name = fn.name): T {
   return Object.assign(
     function (this: any, ...args: any[]) {
@@ -209,7 +209,7 @@ export function createServiceProvider<T extends React.FunctionComponent<any>>(
 ): T {
   const displayName = `ServiceProvider(${fn.displayName ?? fn.name})`;
   const Provider = function (props: React.ComponentProps<T>) {
-    let content: React.ReactElement | null;
+    let content: React.ReactNode;
     try {
       serviceLocationInProgress = true;
       content = fn(props);
@@ -229,7 +229,7 @@ function isServiceLocator(val: any): boolean {
 function useCompassPluginActivate<
   T,
   S extends Record<string, () => unknown>,
-  A extends Plugin
+  A extends Plugin,
 >(
   config: CompassPluginConfig<T, S, A>,
   services: S | undefined,
@@ -309,8 +309,8 @@ function useCompassPluginActivate<
 export type CompassPluginComponent<
   T,
   S extends Record<string, () => unknown>,
-  A extends Plugin
-> = React.FunctionComponent<T> & {
+  A extends Plugin,
+> = React.FunctionComponent<React.PropsWithChildren<T>> & {
   displayName: string;
 
   /**
@@ -410,7 +410,7 @@ export type CompassPluginComponent<
 export function registerCompassPlugin<
   T,
   S extends Record<string, () => unknown>,
-  A extends Plugin
+  A extends Plugin,
 >(
   config: CompassPluginConfig<T, S, A>,
   services?: S

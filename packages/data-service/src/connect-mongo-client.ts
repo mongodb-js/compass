@@ -1,3 +1,4 @@
+import EventEmitter from 'node:events';
 import type { MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { connectMongoClient, hookLogger } from '@mongodb-js/devtools-connect';
@@ -6,7 +7,6 @@ import type {
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
-import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';
 
@@ -35,9 +35,9 @@ function matchingAllowedHosts(
     { looseValidation: true }
   );
   const suffixes = connectionString.hosts.map((hostStr) => {
-    // eslint-disable-next-line
-    const { host } = hostStr.match(/^(?<host>.+?)(?<port>:[^:\]\[]+)?$/)
-      ?.groups!;
+    const pattern = /^(?<host>.+?)(?<port>:[^:\][]+)?$/;
+    const { host } = hostStr.match(pattern)?.groups ?? { host: null };
+    if (!host) throw new Error('Unexpected empty host');
     if (host.startsWith('[') && host.endsWith(']')) {
       return host.slice(1, -1); // IPv6
     }
@@ -149,7 +149,7 @@ export async function connectMongoClientDataService({
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
     connectionState: DevtoolsConnectionState,
-    options: { url: string; options: DevtoolsConnectOptions }
+    options: { url: string; options: DevtoolsConnectOptions },
   ]
 > {
   debug(

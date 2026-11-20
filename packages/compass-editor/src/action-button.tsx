@@ -1,5 +1,4 @@
-import { cx } from '@mongodb-js/compass-components';
-import { css } from '@mongodb-js/compass-components';
+import { cx, css } from '@mongodb-js/compass-components';
 import { Button, Icon, type GlyphName } from '@mongodb-js/compass-components';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { EditorView } from '@codemirror/view';

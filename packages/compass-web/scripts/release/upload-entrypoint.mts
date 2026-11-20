@@ -1,6 +1,6 @@
-import path from 'path';
-import { brotliCompressSync } from 'zlib';
-import { inspect } from 'util';
+import path from 'node:path';
+import { brotliCompressSync } from 'node:zlib';
+import { inspect } from 'node:util';
 import {
   ALLOWED_PUBLISH_ENVIRONMENTS,
   DOWNLOADS_BUCKET,
@@ -55,14 +55,12 @@ try {
   assertResponseIsOk(res);
   const manifest = await res.json();
 
-  if (
-    !(
-      Array.isArray(manifest) &&
-      manifest.every((asset) => {
-        return typeof asset === 'string';
-      })
-    )
-  ) {
+  if (!(
+    Array.isArray(manifest) &&
+    manifest.every((asset) => {
+      return typeof asset === 'string';
+    })
+  )) {
     throw new Error(
       `Manifest schema is not matching: expected string[], got ${inspect(
         manifest

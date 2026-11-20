@@ -7,10 +7,14 @@ import {
   createDefaultConnectionInfo,
   wait,
   render,
+  userEvent,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
-import { getDataServiceForConnection } from './connections-store-redux';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  getDataServiceForConnection,
+  validateFolderName,
+} from './connections-store-redux';
 
 const mockConnections = [
   {
@@ -100,7 +104,7 @@ describe('CompassConnections store', function () {
 
       await connectPromise;
 
-      expect(screen.getByText('Connected to localhost:27017')).to.exist;
+      expect(await screen.findByText('Connected to localhost:27017')).to.exist;
 
       // Saved after connect
       const storedConnectionAfterConnect = await connectionStorage.load({
@@ -500,7 +504,9 @@ describe('CompassConnections store', function () {
       ).to.have.property('savedConnectionType', 'recent');
 
       expect(
-        screen.getByText(`Connected to ${mockConnections[0].favorite.name}`)
+        await screen.findByText(
+          `Connected to ${mockConnections[0].favorite.name}`
+        )
       ).to.exist;
     });
 
@@ -555,6 +561,58 @@ describe('CompassConnections store', function () {
       await connectPromise;
 
       expect(track).to.have.been.calledWith('Connection Disconnected');
+      await waitFor(() => {
+        expect(screen.queryByText(/Connecting to/)).to.not.exist;
+      });
+    });
+  });
+
+  describe('#disconnect while connection options are being prepared', function () {
+    it('does not start the driver connection', async function () {
+      const connectFn = sinon.stub().resolves({});
+      const { connectionsStore } = renderCompassConnections({ connectFn });
+
+      const connectionInfo = createDefaultConnectionInfo();
+      // connect runs synchronously up to the async option adjustments, so this
+      // disconnect lands while they are still in progress
+      const connectPromise = connectionsStore.actions.connect(connectionInfo);
+      connectionsStore.actions.disconnect(connectionInfo.id);
+      await connectPromise;
+
+      expect(connectFn).to.not.have.been.called;
+      expect(
+        connectionsStore.getState().connections.byId[connectionInfo.id]?.status
+      ).to.not.equal('connected');
+    });
+
+    it('does not connect when cancelled from the toast while encryption settings are parsed', async function () {
+      const connectFn = sinon.stub().resolves({});
+      const { connectionsStore } = renderCompassConnections({ connectFn });
+
+      const connectionInfo: ConnectionInfo = {
+        ...createDefaultConnectionInfo(),
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+          fleOptions: {
+            storeCredentials: false,
+            autoEncryption: {
+              keyVaultNamespace: 'db.keyVault',
+              kmsProviders: { local: { key: 'A'.repeat(128) } },
+              // Saved as text, so it's parsed again before connecting
+              encryptedFieldsMap: {
+                '$compass.error': null,
+                '$compass.rawText': `{ 'db.coll': { fields: [{ path: 'ssn', keyId: UUID("28bbc608-524e-4717-9246-33633361788e"), bsonType: 'string' }] } }`,
+              },
+            },
+          },
+        },
+      };
+
+      const connectPromise = connectionsStore.actions.connect(connectionInfo);
+      userEvent.click(await screen.findByTestId('cancel-connection-button'));
+      await connectPromise;
+
+      expect(connectFn).to.not.have.been.called;
       await waitFor(() => {
         expect(screen.queryByText(/Connecting to/)).to.not.exist;
       });
@@ -810,6 +868,43 @@ describe('CompassConnections store', function () {
       expect(stored?.connectionOptions.oidc?.serializedState).to.equal(
         'token-data'
       );
+    });
+  });
+
+  describe('validateFolderName', function () {
+    const invalidCharactersMessage =
+      'Folder name can\'t contain / \\ < > : " | ? *.';
+
+    it('rejects an empty or whitespace-only name', function () {
+      expect(validateFolderName('', [])).to.equal("Folder name can't be empty");
+      expect(validateFolderName('   ', [])).to.equal(
+        "Folder name can't be empty"
+      );
+    });
+
+    it('rejects a name that already exists, case-insensitively', function () {
+      expect(validateFolderName('Work', ['work'])).to.equal(
+        'A folder with this name already exists'
+      );
+    });
+
+    it('names the whole restricted set whichever one is used', function () {
+      expect(validateFolderName('a/b', [])).to.equal(invalidCharactersMessage);
+      expect(validateFolderName('a\\b', [])).to.equal(invalidCharactersMessage);
+      expect(validateFolderName('a?b', [])).to.equal(invalidCharactersMessage);
+      expect(validateFolderName('a<b*c', [])).to.equal(
+        invalidCharactersMessage
+      );
+    });
+
+    it('rejects control characters', function () {
+      expect(validateFolderName('a\u0000b', [])).to.equal(
+        invalidCharactersMessage
+      );
+    });
+
+    it('allows unicode and internal spaces', function () {
+      expect(validateFolderName('Проекты 2024', [])).to.be.undefined;
     });
   });
 });

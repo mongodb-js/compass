@@ -3,11 +3,11 @@ import { render, waitFor } from '@mongodb-js/testing-library-compass';
 import { CompletionContext } from '@codemirror/autocomplete';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { EditorView } from '@codemirror/view';
+import { expect } from 'chai';
+import type { JSONSchema7 } from 'json-schema';
 import { CodemirrorMultilineEditor, languages } from './editor';
 import { useJsonSchemaAutocompleter } from './use-json-schema-autocompleter';
 import type { EditorRef } from './types';
-import { expect } from 'chai';
-import type { JSONSchema7 } from 'json-schema';
 import type { Annotation } from './editor';
 
 // Simple JSON schema for testing
@@ -149,7 +149,7 @@ describe('useJsonSchemaAutocompleter', function () {
       });
     });
 
-    it('returns hasErrors=true for missing required field', async function () {
+    it('returns hasErrors=false but annotates a missing required field', async function () {
       const invalidJson = '{"count": 42}'; // missing required 'name'
       const editorRef = React.createRef<EditorRef>();
       let extensionsLoaded = false;
@@ -178,14 +178,14 @@ describe('useJsonSchemaAutocompleter', function () {
         expect(extensionsLoaded).to.equal(true);
       });
 
-      // Verify validation ran and found errors
+      // Schema violations are reported as warnings: annotated, but not blocking
       await waitFor(() => {
-        expect(capturedHasErrors).to.equal(true);
         expect(capturedAnnotations.length).to.be.greaterThan(0);
+        expect(capturedHasErrors).to.equal(false);
       });
     });
 
-    it('returns hasErrors=true for type mismatch', async function () {
+    it('returns hasErrors=false but annotates a type mismatch', async function () {
       const invalidJson = '{"name": 123}'; // name should be string, not number
       const editorRef = React.createRef<EditorRef>();
       let extensionsLoaded = false;
@@ -214,14 +214,14 @@ describe('useJsonSchemaAutocompleter', function () {
         expect(extensionsLoaded).to.equal(true);
       });
 
-      // Verify validation ran and found errors
+      // Schema violations are reported as warnings: annotated, but not blocking
       await waitFor(() => {
-        expect(capturedHasErrors).to.equal(true);
         expect(capturedAnnotations.length).to.be.greaterThan(0);
+        expect(capturedHasErrors).to.equal(false);
       });
     });
 
-    it('returns hasErrors=true for additional properties when not allowed', async function () {
+    it('returns hasErrors=false but annotates additional properties when not allowed', async function () {
       const invalidJson = '{"name": "test", "unknown": true}';
       const editorRef = React.createRef<EditorRef>();
       let extensionsLoaded = false;
@@ -250,10 +250,10 @@ describe('useJsonSchemaAutocompleter', function () {
         expect(extensionsLoaded).to.equal(true);
       });
 
-      // Verify validation ran and found errors
+      // Schema violations are reported as warnings: annotated, but not blocking
       await waitFor(() => {
-        expect(capturedHasErrors).to.equal(true);
         expect(capturedAnnotations.length).to.be.greaterThan(0);
+        expect(capturedHasErrors).to.equal(false);
       });
     });
   });

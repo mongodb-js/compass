@@ -28,6 +28,7 @@ export const ModalStepContainer: React.FunctionComponent<{
   previousLabel: string;
   step: string;
   footerText?: React.ReactNode;
+  children?: React.ReactNode;
 }> = ({
   title,
   description,

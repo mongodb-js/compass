@@ -1,8 +1,10 @@
-import path from 'path';
+import path from 'node:path';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import yargs from 'yargs';
 import createCLI from 'mongodb-js-cli';
+import Target from '../lib/target';
+import { ROOT_DIR } from '../../test/test-helpers';
 import {
   versionId,
   readableVersionName,
@@ -10,8 +12,6 @@ import {
   generateVersionsForAssets,
   uploadCommand,
 } from './upload';
-import Target from '../lib/target';
-import { ROOT_DIR } from '../../test/test-helpers';
 
 async function runUpload(...args: string[]): Promise<void> {
   await yargs(['upload', ...args])

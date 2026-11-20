@@ -1,11 +1,11 @@
 import React from 'react';
 import { FileUserData } from '@mongodb-js/compass-user-data';
+import { DataModelStorageServiceProvider } from '../provider';
 import type {
   DataModelStorage,
   MongoDBDataModelDescription,
 } from './data-model-storage';
 import { MongoDBDataModelDescriptionSchema } from './data-model-storage';
-import { DataModelStorageServiceProvider } from '../provider';
 
 class DataModelStorageElectron implements DataModelStorage {
   private readonly userData: FileUserData<
@@ -45,13 +45,14 @@ class DataModelStorageElectron implements DataModelStorage {
 
 const storage = new DataModelStorageElectron();
 
-export const DataModelStorageServiceProviderElectron: React.FunctionComponent =
-  ({ children }) => {
-    return (
-      <DataModelStorageServiceProvider storage={storage}>
-        {children}
-      </DataModelStorageServiceProvider>
-    );
-  };
+export const DataModelStorageServiceProviderElectron: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
+  return (
+    <DataModelStorageServiceProvider storage={storage}>
+      {children}
+    </DataModelStorageServiceProvider>
+  );
+};
 
 export default storage;

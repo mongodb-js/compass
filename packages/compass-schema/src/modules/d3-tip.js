@@ -171,10 +171,9 @@
     //
     // Returns a tip
     tip.destroy = function () {
-      if (node) {
-        getNodeEl().remove();
-        node = null;
-      }
+      // Keep the detached node (and its class/attrs) so the tip can be
+      // re-attached if the same chart instance is mounted again.
+      d3.select(node).remove();
       return tip;
     };
 

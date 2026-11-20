@@ -8,12 +8,12 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
+import { AtlasGlobalWritesService } from '../services/atlas-global-writes-service';
 import reducer, {
   ShardingStatuses,
   fetchClusterShardingData,
   type RootState,
 } from './reducer';
-import { AtlasGlobalWritesService } from '../services/atlas-global-writes-service';
 
 type GlobalWritesExtraArgs = {
   logger: Logger;

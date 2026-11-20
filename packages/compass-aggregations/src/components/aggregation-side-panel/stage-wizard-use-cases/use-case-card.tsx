@@ -8,8 +8,8 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 
-import type { StageWizardUseCase } from '.';
 import { useDraggable } from '@dnd-kit/core';
+import type { StageWizardUseCase } from '.';
 
 export type DraggedUseCase = Pick<
   StageWizardUseCase,
@@ -58,7 +58,7 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
   ref: React.ForwardedRef<HTMLDivElement>
 ) {
   const handleKeyDown = useCallback(
-    (event) => {
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (event.key === 'Enter' || event.code === 'Enter') {
         onSelect?.();
       }

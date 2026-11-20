@@ -3,28 +3,25 @@ import type { ComponentProps } from 'react';
 import { screen, within, cleanup } from '@mongodb-js/testing-library-compass';
 import { MongoServerError } from 'mongodb';
 import { expect } from 'chai';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import sinon from 'sinon';
 
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../../test/configure-store';
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { renderWithStore } from '../../../../test/configure-store';
 import type { AggregationsPluginServices } from '../../../stores/store';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
-import { PipelineEditor } from './pipeline-editor';
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
+import { PipelineEditor } from './pipeline-editor';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelineEditor>> = {},
   storeOptions: any = {},
   {
-    enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {},
+    enableAtlasSearchIndexes = false,
+  }: { enableAtlasSearchIndexes?: boolean } = {},
   services: Partial<AggregationsPluginServices> = {}
 ) => {
-  let ui = (
+  const ui = (
     <PipelineEditor
       namespace="test.test"
       isTimeSeries={false}
@@ -33,9 +30,8 @@ const renderPipelineEditor = (
       syntaxErrors={[]}
       serverError={null}
       serverVersion="4.2"
-      searchIndexName={null}
-      searchStageOperator={null}
-      showSearchIndexDoesNotExistBanner={false}
+      searchIndexesStatus="READY"
+      searchIndexes={[]}
       onChangePipelineText={() => {}}
       onViewSearchIndexesClick={() => {}}
       onCreateSearchIndexClick={() => {}}
@@ -44,13 +40,10 @@ const renderPipelineEditor = (
       {...props}
     />
   );
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
-  return renderWithStore(ui, storeOptions, undefined, services);
+  return renderWithStore(ui, storeOptions, undefined, {
+    preferences: new ReadOnlyPreferenceAccess({ enableAtlasSearchIndexes }),
+    ...services,
+  });
 };
 
 describe('PipelineEditor', function () {
@@ -88,16 +81,14 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "nonexistent" } }]',
-            searchIndexName: 'nonexistent',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: true,
+            searchIndexes: [],
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
-        expect(screen.getByTestId('search-index-does-not-exist-banner')).to
-          .exist;
+        expect(await screen.findByTestId('search-index-does-not-exist-banner'))
+          .to.exist;
         expect(screen.getByText('View Search Indexes')).to.exist;
         expect(screen.getByText('Create a New Index')).to.exist;
       });
@@ -106,16 +97,14 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $vectorSearch: { index: "nonexistent" } }]',
-            searchIndexName: 'nonexistent',
-            searchStageOperator: '$vectorSearch',
-            showSearchIndexDoesNotExistBanner: true,
+            searchIndexes: [],
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
-        expect(screen.getByTestId('search-index-does-not-exist-banner')).to
-          .exist;
+        expect(await screen.findByTestId('search-index-does-not-exist-banner'))
+          .to.exist;
         expect(screen.getByText('View Search Indexes')).to.exist;
         expect(screen.getByText('Create a New Index')).to.exist;
       });
@@ -123,9 +112,7 @@ describe('PipelineEditor', function () {
       it('should NOT show search index does not exist banner when index exists', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $search: { index: "existing-index" } }]',
-          searchIndexName: 'existing-index',
-          searchStageOperator: '$search',
-          showSearchIndexDoesNotExistBanner: false,
+          searchIndexes: [{ name: 'existing-index' } as SearchIndex],
         });
 
         expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
@@ -135,9 +122,7 @@ describe('PipelineEditor', function () {
       it('should NOT show search index does not exist banner for non-search stages', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $match: { _id: 1 } }]',
-          searchIndexName: null,
-          searchStageOperator: null,
-          showSearchIndexDoesNotExistBanner: false,
+          searchIndexes: [],
         });
 
         expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
@@ -148,13 +133,11 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "nonexistent" } }]',
-            searchIndexName: 'nonexistent',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: true,
+            searchIndexes: [],
             serverError: new MongoServerError({ message: 'Server error' }),
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
@@ -166,13 +149,11 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "nonexistent" } }]',
-            searchIndexName: 'nonexistent',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: true,
+            searchIndexes: [],
             syntaxErrors: [new PipelineParserError('Syntax error')],
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('pipeline-as-text-error-container')).to.exist;
@@ -187,28 +168,24 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "test-index" } }]',
-            searchIndexName: 'test-index',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: false,
+            searchIndexes: [{ name: 'test-index' } as SearchIndex],
             serverError: new MongoServerError({
               message:
                 "geoWithin requires path 'location' to be indexed as 'geo'",
             }),
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
-        expect(screen.getByText('Edit Search Index')).to.exist;
+        expect(await screen.findByText('Edit Search Index')).to.exist;
       });
 
       it('should NOT show edit link for non-definition server errors', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $search: { index: "test-index" } }]',
-          searchIndexName: 'test-index',
-          searchStageOperator: '$search',
-          showSearchIndexDoesNotExistBanner: false,
+          searchIndexes: [{ name: 'test-index' } as SearchIndex],
           serverError: new MongoServerError({
             message: 'Connection timeout',
           }),
@@ -221,9 +198,7 @@ describe('PipelineEditor', function () {
       it('should NOT show edit link when no search index name found', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $match: { _id: 1 } }]',
-          searchIndexName: null,
-          searchStageOperator: null,
-          showSearchIndexDoesNotExistBanner: false,
+          searchIndexes: [],
           serverError: new MongoServerError({
             message:
               "geoWithin requires path 'location' to be indexed as 'geo'",
@@ -239,9 +214,7 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           {
             pipelineText: '[{ $search: { index: "test-index" } }]',
-            searchIndexName: 'test-index',
-            searchStageOperator: '$search',
-            showSearchIndexDoesNotExistBanner: false,
+            searchIndexes: [{ name: 'test-index' } as SearchIndex],
             serverError: new MongoServerError({
               message:
                 "geoWithin requires path 'location' to be indexed as 'geo'",
@@ -249,10 +222,10 @@ describe('PipelineEditor', function () {
             onEditSearchIndexClick,
           },
           {},
-          { enableSearchActivationExperiment: true }
+          { enableAtlasSearchIndexes: true }
         );
 
-        const editLink = screen.getByText('Edit Search Index');
+        const editLink = await screen.findByText('Edit Search Index');
         editLink.click();
 
         expect(onEditSearchIndexClick.calledOnce).to.be.true;
@@ -262,7 +235,10 @@ describe('PipelineEditor', function () {
 
     describe('$rerank version warning', function () {
       const rerankPreferences = {
-        preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }),
+        preferences: new ReadOnlyPreferenceAccess({
+          enableRerank: true,
+          enableAtlasSearchIndexes: false,
+        }),
       };
 
       it('should show warning when server < 8.3 and pipeline has $rerank', async function () {

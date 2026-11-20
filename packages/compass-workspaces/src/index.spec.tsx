@@ -1,9 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import WorkspacesPlugin, { WorkspacesProvider } from './index';
 import Sinon from 'sinon';
-import type { AnyWorkspacePlugin } from './components/workspaces-provider';
-import { useOpenWorkspace } from './provider';
 import {
   renderWithConnections,
   cleanup,
@@ -13,6 +10,9 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { WorkspaceTab } from '@mongodb-js/compass-components';
+import { useOpenWorkspace } from './provider';
+import type { AnyWorkspacePlugin } from './components/workspaces-provider';
+import WorkspacesPlugin, { WorkspacesProvider } from './index';
 
 function mockWorkspace(name: string) {
   return {
@@ -161,7 +161,15 @@ describe('WorkspacesPlugin', function () {
     expect(onTabChangeSpy).to.have.been.calledWith(null);
 
     openFns.openCollectionWorkspace('1', 'db.coll0', { newTab: true });
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'db.coll0' })).to.exist;
+    });
+
     openFns.openCollectionWorkspace('1', 'db.coll1', { newTab: true });
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'db.coll1' })).to.exist;
+    });
+
     openFns.openCollectionWorkspace('1', 'db.coll2', { newTab: true });
 
     await waitFor(() => {

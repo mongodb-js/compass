@@ -3,11 +3,17 @@ import { STAGE_OPERATOR_NAMES } from '@mongodb-js/mongodb-constants';
 import type { CompletionOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
 import type { Token } from './utils';
-import { parents } from './utils';
-import { getPropertyNameFromPropertyToken, isTokenEqual } from './utils';
-import { aggLink, padLines } from './utils';
-import { createCompletionResultForIdPrefix } from './ace-compat-autocompleter';
-import { createAceCompatAutocompleter } from './ace-compat-autocompleter';
+import {
+  parents,
+  getPropertyNameFromPropertyToken,
+  isTokenEqual,
+  aggLink,
+  padLines,
+} from './utils';
+import {
+  createCompletionResultForIdPrefix,
+  createAceCompatAutocompleter,
+} from './ace-compat-autocompleter';
 import { createStageAutocompleter } from './stage-autocompleter';
 
 const StageOperatorNames = new Set(STAGE_OPERATOR_NAMES as string[]);

@@ -6,7 +6,7 @@ import {
   css,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 
 import { exportToLanguage } from '../../modules/export-to-language';
 import { exportAggregationResults } from '../../modules/aggregation';
@@ -95,7 +95,7 @@ export default connect(
     onExportToLanguage: exportToLanguage,
     onExportData: () => {
       return (dispatch: PipelineBuilderThunkDispatch) => {
-        dispatch(exportAggregationResults());
+        void dispatch(exportAggregationResults());
       };
     },
   }

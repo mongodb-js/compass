@@ -11,9 +11,9 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { QueryBar } from '@mongodb-js/compass-query-bar';
 import type { AnalysisState } from '../constants/analysis-states';
 import { ANALYSIS_STATE_COMPLETE } from '../constants/analysis-states';
-import { QueryBar } from '@mongodb-js/compass-query-bar';
 import {
   type SchemaAnalysisError,
   analysisErrorDismissed,

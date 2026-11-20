@@ -1,24 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect, shallowEqual, useSelector } from 'react-redux';
-import type { RootState } from '../../modules';
-import {
-  updateIndex,
-  updateSearchIndexClosed,
-} from '../../modules/search-indexes';
-import {
-  openIndexesListDrawerView,
-  setIsDirty,
-} from '../../modules/indexes-drawer';
-import {
-  useOnAsyncSuccess,
-  useIndexDefinitionChange,
-} from './drawer-view-hooks';
 import {
   Badge,
   BadgeVariant,
@@ -32,8 +13,35 @@ import {
   Body,
   Tooltip,
   useDarkMode,
+  useParsedShellValue,
   cx,
 } from '@mongodb-js/compass-components';
+import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocompleter,
+} from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
+import {
+  useConnectionInfo,
+  useConnectionInfoRef,
+} from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
+import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
+import { useJsonSchema } from '../../utils/use-json-schema';
+import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
+import {
+  openIndexesListDrawerView,
+  setIsDirty,
+} from '../../modules/indexes-drawer';
+import {
+  updateIndex,
+  updateSearchIndexClosed,
+} from '../../modules/search-indexes';
+import type { RootState } from '../../modules';
 import {
   containerStyles,
   contentStyles,
@@ -42,25 +50,10 @@ import {
   editorContainerDarkModeStyles,
   overflowWrapStyles,
 } from './drawer-view-styles';
-import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
 import {
-  CodemirrorMultilineEditor,
-  useJsonSchemaAutocompleter,
-} from '@mongodb-js/compass-editor';
-import type { EditorRef } from '@mongodb-js/compass-editor';
-import type { Document } from 'mongodb';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
-import type { SearchIndex } from 'mongodb-data-service';
-import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
-import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
-import {
-  useConnectionInfo,
-  useConnectionInfoRef,
-} from '@mongodb-js/compass-connections/provider';
-import { usePreferences } from 'compass-preferences-model/provider';
-import { useJsonSchema } from '../../utils/use-json-schema';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+  useOnAsyncSuccess,
+  useIndexDefinitionChange,
+} from './drawer-view-hooks';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',
@@ -81,7 +74,7 @@ type EditSearchIndexViewProps = {
   error?: string;
   onClose: () => void;
   onResetUpdateState: () => void;
-  updateIndex: (index: { name: string; definition: Document }) => void;
+  updateIndex: (index: { name: string; definition: string }) => void;
   onIndexDefinitionEdit: (isDirty: boolean) => void;
 };
 
@@ -132,7 +125,6 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
       enableIndexesManagement,
     }),
     shallowEqual
@@ -145,23 +137,16 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const { completer, extensions, annotations, hasErrors } =
     useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
 
-  const isSaveEnabled = useMemo(() => {
-    if (hasErrors) {
-      return false;
-    }
+  // An invalid definition leaves the value undefined and keeps save disabled.
+  const { value: parsedDefinition, pending: isDefinitionChangedPending } =
+    useParsedShellValue(indexDefinition);
+  const isDefinitionChanged =
+    parsedDefinition !== undefined &&
+    JSON.stringify(parsedDefinition) !==
+      JSON.stringify(searchIndex.latestDefinition);
 
-    try {
-      const currentParsed = parseShellBSON(indexDefinition);
-      const initialParsed = searchIndex.latestDefinition;
-      return (
-        !isBusy &&
-        JSON.stringify(currentParsed) !== JSON.stringify(initialParsed)
-      );
-    } catch {
-      // If current definition is invalid, don't enable save
-      return false;
-    }
-  }, [indexDefinition, searchIndex.latestDefinition, isBusy, hasErrors]);
+  const isSaveEnabled =
+    !hasErrors && !isBusy && !isDefinitionChangedPending && isDefinitionChanged;
 
   // Reset state on unmount
   useEffect(() => {
@@ -185,7 +170,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     });
     updateIndex({
       name: searchIndex.name,
-      definition: parseShellBSON(indexDefinition),
+      definition: indexDefinition,
     });
   }, [searchIndex, indexDefinition, updateIndex, track]);
 

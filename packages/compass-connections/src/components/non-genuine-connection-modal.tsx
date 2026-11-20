@@ -35,7 +35,8 @@ export function showNonGenuineMongoDBWarningModal(
         </Banner>
         <Body className={modalBodyStyles}>
           Some documented MongoDB features may work differently, be entirely
-          missing or incomplete, or have unexpected performance characteristics.{' '}
+          missing or incomplete, or have unexpected performance
+          characteristics.{' '}
         </Body>
         <Link
           href="https://www.mongodb.com/docs/compass/master/faq/#why-am-i-seeing-a-warning-about-a-non-genuine-mongodb-server-"

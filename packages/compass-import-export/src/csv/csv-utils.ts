@@ -1,5 +1,5 @@
+import assert from 'node:assert';
 import _ from 'lodash';
-import assert from 'assert';
 import type { Document } from 'bson';
 import {
   Double,
@@ -16,6 +16,7 @@ import {
   MaxKey,
 } from 'bson';
 
+import { getBsonType } from '@mongodb-js/hadron-type-checker';
 import type {
   Delimiter,
   Linebreak,
@@ -26,7 +27,6 @@ import type {
   CSVValue,
   CSVFieldTypeInfo,
 } from './csv-types';
-import { getBsonType } from 'hadron-type-checker';
 
 export function formatCSVValue(
   value: string,
@@ -813,7 +813,7 @@ export function findBrokenCSVTypeExample(
 ) {
   for (const [type, info] of Object.entries(types) as [
     type: CSVParsableFieldType | 'undefined',
-    info: CSVFieldTypeInfo
+    info: CSVFieldTypeInfo,
   ][]) {
     if (!isCompatibleCSVFieldType(selectedType, type)) {
       return info;

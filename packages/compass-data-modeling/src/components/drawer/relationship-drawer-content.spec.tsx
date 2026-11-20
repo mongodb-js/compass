@@ -7,8 +7,8 @@ import {
   within,
   render,
 } from '@mongodb-js/testing-library-compass';
-import { CardinalitySelect } from './relationship-drawer-content';
 import sinon from 'sinon';
+import { CardinalitySelect } from './relationship-drawer-content';
 
 describe('RelationshipDrawerContent', function () {
   context('CardinalitySelect', function () {

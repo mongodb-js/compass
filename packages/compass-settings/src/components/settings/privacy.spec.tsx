@@ -8,9 +8,9 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import { PrivacySettings } from './privacy';
 import configureStore from '../../../test/configure-store';
 import { fetchSettings } from '../../stores/settings';
+import { PrivacySettings } from './privacy';
 
 function renderPrivacySettings(
   store: ReturnType<typeof configureStore>,

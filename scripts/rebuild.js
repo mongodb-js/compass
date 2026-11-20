@@ -3,8 +3,8 @@
  * Similar to electorn-rebuild this script will resolve modules that might need
  * a rebuild relative to cwd and rebuild them
  */
-const { promises: fs } = require('fs');
-const path = require('path');
+const { promises: fs } = require('node:fs');
+const path = require('node:path');
 const pkgUp = require('pkg-up');
 const { runInDir, withProgress } = require('@mongodb-js/monorepo-tools');
 
@@ -18,8 +18,8 @@ async function getBinPath(pkgName, resolveFrom = process.cwd()) {
       typeof bin === 'string'
         ? bin
         : typeof bin === 'object' && bin !== null
-        ? Object.values(bin)[0]
-        : null;
+          ? Object.values(bin)[0]
+          : null;
 
     return binPath ? path.resolve(path.dirname(pkgJsonFile), binPath) : null;
   } catch {

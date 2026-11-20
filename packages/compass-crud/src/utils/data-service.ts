@@ -1,4 +1,4 @@
-import type { DataService as OriginalDataService } from 'mongodb-data-service';
+import type { DataService as OriginalDataService } from '@mongodb-js/mongodb-data-service';
 
 export type RequiredDataServiceProps =
   | 'find'
@@ -27,9 +27,7 @@ export type RequiredDataServiceProps =
 // { ..., getCSFLEMode(): 'unavailable' } | {  ..., getCSFLEMode(): 'unavailable' | 'enabled' | 'disabled', isUpdateAllowed(): ..., knownSchemaForCollection(): ... }
 // so that either these methods are always present together or always absent
 export type OptionalDataServiceProps =
-  | 'getCSFLEMode'
-  | 'isUpdateAllowed'
-  | 'knownSchemaForCollection';
+  'getCSFLEMode' | 'isUpdateAllowed' | 'knownSchemaForCollection';
 
 export type DataService = Pick<OriginalDataService, RequiredDataServiceProps> &
   Partial<Pick<OriginalDataService, OptionalDataServiceProps>>;

@@ -1,4 +1,4 @@
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
 function getWebBaseUrl(): string {

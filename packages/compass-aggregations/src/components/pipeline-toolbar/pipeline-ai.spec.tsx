@@ -6,9 +6,10 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import PipelineAI from './pipeline-ai';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import type Sinon from 'sinon';
 import {
   MockAtlasAiService,
   renderWithStore,
@@ -19,9 +20,8 @@ import {
   changeAIPromptText,
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { AggregationsStore } from '../../stores/store';
-import type Sinon from 'sinon';
+import PipelineAI from './pipeline-ai';
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 const thumbsUpId = 'ai-feedback-thumbs-up';
@@ -75,12 +75,14 @@ describe('PipelineAI Component', function () {
       store.dispatch(changeAIPromptText('test'));
     });
 
-    it('calls to clear the text when the X is clicked', function () {
+    it('calls to clear the text when the X is clicked', async function () {
       expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
         'test'
       );
 
-      userEvent.click(screen.getByRole('button', { name: 'Clear prompt' }));
+      userEvent.click(
+        await screen.findByRole('button', { name: 'Clear prompt' })
+      );
 
       expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
         ''

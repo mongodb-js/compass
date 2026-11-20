@@ -1,8 +1,11 @@
+import { promisify } from 'node:util';
+import fs from 'node:fs';
+import path from 'node:path';
 import _ from 'lodash';
-import { promisify } from 'util';
-import fs from 'fs';
-import path from 'path';
 import type { Reducer } from 'redux';
+import { getStoragePath } from '@mongodb-js/compass-user-data';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
+import { showErrorDetails } from '@mongodb-js/compass-components';
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
 import type { ProcessStatus } from '../constants/process-status';
@@ -21,7 +24,6 @@ import { analyzeCSVFields } from '../import/analyze-csv-fields';
 import type { AnalyzeCSVFieldsResult } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
-import { getStoragePath } from '@mongodb-js/compass-utils';
 import {
   showBloatedDocumentSignalToast,
   showUnboundArraySignalToast,
@@ -34,8 +36,6 @@ import {
 } from '../components/import-toast';
 import type { ImportThunkAction } from '../stores/import-store';
 import { openFile } from '../utils/open-file';
-import type { DataService } from 'mongodb-data-service';
-import { showErrorDetails } from '@mongodb-js/compass-components';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -315,8 +315,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         bytesProcessed,
         bytesTotal: fileSize,
       });
-    },
-    1000);
+    }, 1000);
 
     let dataService: DataService | undefined;
     let result: ImportResult;
@@ -362,7 +361,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         'Import Completed',
         {
           duration: Date.now() - startTime,
-          delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+          delimiter: fileType === 'csv' ? (delimiter ?? ',') : undefined,
           newline: fileType === 'csv' ? newline : undefined,
           file_type: fileType,
           all_fields: exclude.length === 0,
@@ -406,7 +405,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       'Import Completed',
       {
         duration: Date.now() - startTime,
-        delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+        delimiter: fileType === 'csv' ? (delimiter ?? ',') : undefined,
         newline: fileType === 'csv' ? newline : undefined,
         file_type: fileType,
         all_fields: exclude.length === 0,
@@ -609,8 +608,7 @@ const loadTypes = (
         type: ANALYZE_PROGRESS,
         analyzeBytesProcessed: bytesProcessed,
       });
-    },
-    1000);
+    }, 1000);
 
     try {
       const result = await analyzeCSVFields({

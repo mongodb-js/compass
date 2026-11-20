@@ -1,5 +1,5 @@
-import { exportToLanguage } from './export-to-language';
 import { expect } from 'chai';
+import { exportToLanguage } from './export-to-language';
 
 describe('export-to-language module', function () {
   describe('#exportToLanguage', function () {

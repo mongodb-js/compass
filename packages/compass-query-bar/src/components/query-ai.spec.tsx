@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import {
-  cleanup,
   render,
   screen,
   waitFor,
@@ -10,9 +9,15 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import { Provider } from '../stores/context';
 
-import { QueryAI } from './query-ai';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import {
+  LoggerProvider,
+  createNoopLogger,
+} from '@mongodb-js/compass-logging/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import type { QueryBarExtraArgs } from '../stores/query-bar-store';
 import { configureStore } from '../stores/query-bar-store';
 import {
@@ -21,14 +26,8 @@ import {
 } from '../stores/ai-query-reducer';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { mapQueryToFormFields } from '../utils/query';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
-import {
-  LoggerProvider,
-  createNoopLogger,
-} from '@mongodb-js/compass-logging/provider';
-import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
+import { Provider } from '../stores/context';
+import { QueryAI } from './query-ai';
 
 const noop = () => {
   /* no op */
@@ -47,8 +46,6 @@ describe('QueryAI Component', function () {
       properties: typeof properties === 'function' ? properties() : properties,
     });
   };
-
-  afterEach(cleanup);
 
   const renderQueryAI = ({
     ...props
@@ -88,7 +85,6 @@ describe('QueryAI Component', function () {
 
   afterEach(function () {
     trackingEvents = [];
-    cleanup();
     sinon.restore();
   });
 
@@ -116,12 +112,12 @@ describe('QueryAI Component', function () {
       store.dispatch(changeAIPromptText('test'));
     });
 
-    it('calls to clear the text when the X is clicked', function () {
+    it('calls to clear the text when the X is clicked', async function () {
       expect(store.getState().aiQuery.aiPromptText).to.equal('test');
 
-      const clearTextButton = screen.getByTestId('ai-text-clear-prompt');
+      const clearTextButton = await screen.findByTestId('ai-text-clear-prompt');
       expect(clearTextButton).to.be.visible;
-      clearTextButton.click();
+      userEvent.click(clearTextButton);
 
       expect(store.getState().aiQuery.aiPromptText).to.equal('');
     });
@@ -142,20 +138,20 @@ describe('QueryAI Component', function () {
 
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
-          fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+          fields: await mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
           requestId: 'pineapple',
         });
 
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
-        const thumbsUpButton = screen.getByTestId(thumbsUpId);
+        const thumbsUpButton = await screen.findByTestId(thumbsUpId);
         expect(thumbsUpButton).to.be.visible;
-        thumbsUpButton.click();
+        userEvent.click(thumbsUpButton);
 
-        const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
+        const textArea = await screen.findByTestId(feedbackPopoverTextAreaId);
         expect(textArea).to.be.visible;
         userEvent.type(textArea, 'this is the query I was looking for');
 
-        screen.getByText('Submit').click();
+        userEvent.click(screen.getByText('Submit'));
 
         await waitFor(
           () => {
@@ -187,12 +183,12 @@ describe('QueryAI Component', function () {
         store = renderQueryAI();
       });
 
-      it('should not show the feedback items', function () {
+      it('should not show the feedback items', async function () {
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
 
         store.dispatch({
           type: AIQueryActionTypes.AIQuerySucceeded,
-          fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+          fields: await mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
         });
 
         // No feedback popover is shown.

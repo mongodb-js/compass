@@ -1,5 +1,5 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 
@@ -9,7 +9,7 @@ export type WelcomeModalState = {
 
 export type WelcomeModalThunkAction<
   R,
-  A extends AnyAction = AnyAction
+  A extends AnyAction = AnyAction,
 > = ThunkAction<
   R,
   WelcomeModalState,

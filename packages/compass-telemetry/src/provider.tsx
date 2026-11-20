@@ -1,15 +1,15 @@
 import React, { useRef, useContext } from 'react';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from './types';
-import type { ExperimentTestName } from './growth-experiments';
-import { ExperimentationContext } from './experimentation-provider';
 import type { types } from '@mongodb-js/mdb-experiment-js';
 import {
   useCurrentValueRef,
   useInitialValue,
 } from '@mongodb-js/compass-components';
+import { createTrack, type TelemetryServiceOptions } from './generic-track';
+import type { TrackFunction } from './types';
+import type { ExperimentTestName } from './growth-experiments';
+import { ExperimentationContext } from './experimentation-provider';
 
 const noop = () => {
   // noop
@@ -19,12 +19,12 @@ export function createNoopTrack(): TrackFunction {
   return noop;
 }
 
-export const TelemetryContext = React.createContext<TrackFunction>(
-  createNoopTrack()
-);
+export const TelemetryContext =
+  React.createContext<TrackFunction>(createNoopTrack());
 
 export const TelemetryProvider: React.FC<{
   options: Omit<TelemetryServiceOptions, 'logger'>;
+  children?: React.ReactNode;
 }> = ({ options, children }) => {
   const logger = useLogger('COMPASS-TELEMETRY');
   const trackFn = useInitialValue(() => {
@@ -79,15 +79,15 @@ export const experimentationServiceLocator = createServiceLocator(
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : F extends { new (...args: [infer A, ...any]): any }
-  ? A
-  : never;
+    ? A
+    : never;
 
 /**
  * @deprecated instead of using HOC, refactor class component to functional
  * component
  */
 function withTelemetry<
-  T extends ((...args: any[]) => any) | { new (...args: any[]): any }
+  T extends ((...args: any[]) => any) | { new (...args: any[]): any },
 >(ReactComponent: T): React.FunctionComponent<Omit<FirstArgument<T>, 'track'>> {
   const WithTelemetry = (
     props: Omit<FirstArgument<T>, 'track'> & React.Attributes
@@ -138,7 +138,7 @@ export function useTrackOnChange(
  *
  * @example
  * useFireExperimentViewed({
- *   testName: ExperimentTestName.mockDataGenerator,
+ *   testName: ExperimentTestNames.searchActivationProgramP2,
  *   shouldFire: enableMockDataGenerator,
  * });
  */
@@ -173,9 +173,6 @@ export type {
   ExperimentTestGroup,
 } from './growth-experiments';
 export { useAssignment, useTrackInSample } from './experimentation-provider';
-
-// @experiment Search Activation Program P1  | Jira Epic: CLOUDP-308952
-export { useSearchActivationProgramP1 } from './search-activation-program-p1';
 
 // @experiment Search Activation Program P2 | Jira Epic: CLOUDP-331931
 export { useSearchActivationProgramP2 } from './search-activation-program-p2';

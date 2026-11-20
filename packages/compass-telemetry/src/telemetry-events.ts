@@ -987,6 +987,117 @@ type ConnectionImportedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when the user collapses all connections in the sidebar.
+ *
+ * @category Sidebar
+ */
+type SidebarConnectionsCollapsedAllEvent = CommonEvent<{
+  name: 'Sidebar Connections Collapsed All';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when the user toggles the 'active connections only' filter in the sidebar.
+ *
+ * @category Sidebar
+ */
+type SidebarConnectionsActiveConnectionsFilterEvent = CommonEvent<{
+  name: 'Sidebar Connections Active Connections Filter Toggled';
+  payload: {
+    active_only: boolean;
+  };
+}>;
+
+type FolderCreationEntrypoint =
+  | 'connection_context_menu'
+  | 'connection_actions'
+  | 'connection_form'
+  | 'sidebar_icon';
+// TODO(COMPASS-11306): Fire FolderCreationFormOpenedEvent and FolderCreationFormCancelledEvent when appropriate.
+/**
+ * This event is fired when the creation of a new folder is started.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreationFormOpenedEvent = CommonEvent<{
+  name: 'Folder Creation Form Opened';
+  payload: {
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when the creation of a new folder is cancelled.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreationFormCancelledEvent = CommonEvent<{
+  name: 'Folder Creation Form Cancelled';
+  payload: {
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a new folder is created.
+ *
+ * @category ConnectionFolder
+ */
+type FolderCreatedEvent = CommonEvent<{
+  name: 'Folder Created';
+  payload: {
+    num_folders_after: number;
+    source: FolderCreationEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a new folder is deleted.
+ *
+ * @category ConnectionFolder
+ */
+type FolderDeletedEvent = CommonEvent<{
+  name: 'Folder Deleted';
+  payload: {
+    num_folders_after: number;
+    connections_moved: number;
+  };
+}>;
+
+/**
+ * This event is fired when a folder is renamed.
+ *
+ * @category ConnectionFolder
+ */
+type FolderRenamedEvent = CommonEvent<{
+  name: 'Folder Renamed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a connection is moved to a folder.
+ *
+ * @category ConnectionFolder
+ */
+type ConnectionsFolderChangeEvent = CommonEvent<{
+  name: 'Connections Folder Change';
+  payload: {
+    source:
+      | 'connection_context_menu'
+      | 'connection_actions'
+      | 'drag_and_drop'
+      | 'connection_form'
+      | 'folder_form';
+    from: 'folder' | 'uncategorized' | 'mixed';
+    to: 'folder' | 'uncategorized';
+    num_moved: number;
+    num_connections_in_folders: number;
+    num_connections_uncategorized: number;
+    max_connections_in_folders: number;
+  };
+}>;
+
+/**
  * This event is fired when user copies a document to the clipboard.
  *
  * @category Documents
@@ -1704,8 +1815,35 @@ type DrawerSectionClosedEvent = CommonEvent<{
 type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Prompt Submitted';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     user_input_length?: number;
     request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when a user clicks one of the suggested prompts shown in
+ * an empty assistant chat.
+ *
+ * @category Assistant
+ */
+type AssistantSuggestedPromptSelectedEvent = CommonEvent<{
+  name: 'Assistant Suggested Prompt Selected';
+  payload: {
+    /**
+     * Stable identifier of the suggested prompt, independent of its text.
+     */
+    suggested_prompt_id: string;
+
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
   };
 }>;
 
@@ -1717,6 +1855,11 @@ type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
 type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     source:
       | 'explain plan'
       | 'performance insights'
@@ -1737,10 +1880,16 @@ type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
 type AssistantFeedbackSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Feedback Submitted';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     feedback: 'positive' | 'negative';
     text: string | undefined;
     request_id?: string;
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
+    skills_used?: string[];
   };
 }>;
 
@@ -1752,6 +1901,11 @@ type AssistantFeedbackSubmittedEvent = ConnectionScopedEvent<{
 type AssistantConfirmationSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Confirmation Submitted';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     status: 'confirmed' | 'rejected';
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
     request_id?: string;
@@ -1766,6 +1920,11 @@ type AssistantConfirmationSubmittedEvent = ConnectionScopedEvent<{
 type AssistantResponseGeneratedEvent = ConnectionScopedEvent<{
   name: 'Assistant Response Generated';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     request_id?: string;
   };
 }>;
@@ -1778,6 +1937,11 @@ type AssistantResponseGeneratedEvent = ConnectionScopedEvent<{
 type AssistantResponseFailedEvent = ConnectionScopedEvent<{
   name: 'Assistant Response Failed';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     error_name?: string;
     request_id?: string;
   };
@@ -1804,6 +1968,11 @@ type AssistantFailedEvent = CommonEvent<{
 type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
   name: 'Assistant Tool Call Approval';
   payload: {
+    /**
+     * Identifies the assistant conversation the event belongs to. It is
+     * regenerated when the chat is cleared.
+     */
+    thread_id?: string;
     type: string;
     approved: boolean;
     approval_id: string;
@@ -3656,13 +3825,9 @@ type ContextMenuItemClicked = CommonEvent<{
 
 // Types for the Mock Data Generator events
 type MockDataGeneratorScreen =
-  | 'SCHEMA_CONFIRMATION'
-  | 'PREVIEW_AND_DOC_COUNT'
-  | 'SCRIPT_RESULT';
+  'SCHEMA_CONFIRMATION' | 'PREVIEW_AND_DOC_COUNT' | 'SCRIPT_RESULT';
 type MockDataScriptStep =
-  | 'install fakerjs'
-  | 'create js file'
-  | 'mongosh script';
+  'install fakerjs' | 'create js file' | 'mongosh script';
 
 /**
  * This event is fired when the Mock Data Generator CTA button is viewed.
@@ -3679,15 +3844,16 @@ type MockDataGeneratorCtaButtonViewedEvent = CommonEvent<{
 }>;
 
 /**
- * This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+ * This event is fired when the user selects "Generate mock data script" from Add Data,
+ * before checking AI feature access.
  *
  * @category Mock Data Generator
  */
-type MockDataGeneratorOpenedEvent = CommonEvent<{
-  name: 'Mock Data Generator Opened';
+type MockDataGeneratorClickedEvent = CommonEvent<{
+  name: 'Mock Data Generator Clicked';
   payload: {
-    gen_ai_features_enabled: boolean;
-    send_sample_values_enabled: boolean;
+    /** Whether the user has opted into AI features at the time of the click. */
+    ai_opted_in: boolean;
   };
 }>;
 
@@ -4264,6 +4430,7 @@ export type TelemetryEvent =
   | AggregationUseCaseAddedEvent
   | AggregationUseCaseSavedEvent
   | AssistantPromptSubmittedEvent
+  | AssistantSuggestedPromptSelectedEvent
   | AssistantResponseFailedEvent
   | AssistantFailedEvent
   | AssistantFeedbackSubmittedEvent
@@ -4438,7 +4605,7 @@ export type TelemetryEvent =
   | ContextMenuOpened
   | ContextMenuItemClicked
   | MockDataGeneratorCtaButtonViewedEvent
-  | MockDataGeneratorOpenedEvent
+  | MockDataGeneratorClickedEvent
   | MockDataGeneratorScreenViewedEvent
   | MockDataGeneratorScreenProceededEvent
   | MockDataGeneratorDismissedEvent
@@ -4458,6 +4625,14 @@ export type TelemetryEvent =
   | SearchIndexCreateCancelledEvent
   | SearchIndexEditSubmittedEvent
   | SearchIndexEditCancelledEvent
+  | SidebarConnectionsCollapsedAllEvent
+  | SidebarConnectionsActiveConnectionsFilterEvent
+  | FolderCreationFormOpenedEvent
+  | FolderCreationFormCancelledEvent
+  | FolderCreatedEvent
+  | FolderDeletedEvent
+  | FolderRenamedEvent
+  | ConnectionsFolderChangeEvent
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent

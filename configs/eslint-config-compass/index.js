@@ -1,9 +1,26 @@
 'use strict';
 
 const path = require('path');
+const { execFileSync } = require('child_process');
 const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
 const chaiFriendly = require('eslint-plugin-chai-friendly');
+
+// The import plugin decides which modules are builtin based on this version,
+// so it should match the Node.js bundled with Electron rather than the one
+// running eslint. Electron exposes no version file, so ask the binary itself.
+// If the binary is not downloaded, the plugin falls back to the running Node.js.
+function getElectronNodeVersion() {
+  try {
+    return execFileSync(
+      require('electron'),
+      ['--print', 'process.versions.node'],
+      { env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, encoding: 'utf8' }
+    ).trim();
+  } catch {
+    return undefined;
+  }
+}
 
 // TODO(COMPASS-9459): disabling a bunch of new rules to unblock automatic updates
 const tempNewEslintRulesDisabled = {
@@ -11,6 +28,17 @@ const tempNewEslintRulesDisabled = {
 };
 
 const extraTsRules = {
+  // Same as the shared config, plus: a `using` declaration exists to be
+  // disposed at the end of its scope, so it is often never read
+  '@typescript-eslint/no-unused-vars': [
+    'error',
+    {
+      destructuredArrayIgnorePattern: '^_',
+      argsIgnorePattern: '^_',
+      ignoreRestSiblings: true,
+      ignoreUsingDeclarations: true,
+    },
+  ],
   // Newly converted plugins use `any` quite a lot, we can't enable the rule,
   // but we can warn so we can eventually address this
   '@typescript-eslint/no-unsafe-argument': 'warn',
@@ -42,6 +70,8 @@ const tsRules = {
 
 const tsOverrides = {
   ...common.tsOverrides,
+  // Utility process code is ESM, written as `.mts`
+  files: [...common.tsOverrides.files, '**/*.mts'],
   rules: { ...tsRules },
 };
 
@@ -104,6 +134,8 @@ const testTsOverrides = {
     '**/*.spec.tsx',
     '**/*.test.tsx',
     '**/*.test.ts',
+    '**/*.spec.mts',
+    '**/*.test.mts',
     '**/test/**/*.ts',
   ],
   rules: {
@@ -114,9 +146,19 @@ const testTsOverrides = {
 };
 
 module.exports = {
-  plugins: [...shared.plugins, '@mongodb-js/compass', 'chai-friendly'],
+  plugins: [
+    ...shared.plugins,
+    '@mongodb-js/compass',
+    'chai-friendly',
+    'import',
+  ],
   rules: {
     ...shared.rules,
+    'import/enforce-node-protocol-usage': ['error', 'always'],
+    'import/no-duplicates': ['error', { 'prefer-inline': false }],
+    'import/newline-after-import': 'error',
+    'import/first': 'error',
+    'import/order': 'error',
     '@mongodb-js/compass/no-inline-emotion-css': 'error',
     '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
     '@mongodb-js/compass/unique-mongodb-log-id': [
@@ -149,5 +191,6 @@ module.exports = {
   ],
   settings: {
     ...shared.settings,
+    'import/node-version': getElectronNodeVersion(),
   },
 };

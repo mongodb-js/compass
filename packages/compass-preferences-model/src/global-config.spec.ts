@@ -1,11 +1,11 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { expect } from 'chai';
 import {
   parseAndValidateGlobalPreferences,
   getHelpText,
 } from './global-config';
-import { expect } from 'chai';
 
 describe('Global config file handling', function () {
   let tmpdir: string;
@@ -190,7 +190,7 @@ forceConnectionOptions:
       global: {},
       cli: {},
       preferenceParseErrors: [
-        `enableMaps: Expected boolean, received string (while validating preferences from: Global config file: ${file})`,
+        `enableMaps: Invalid input: expected boolean, received string (while validating preferences from: Global config file: ${file})`,
       ],
     });
   });

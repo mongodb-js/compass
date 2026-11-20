@@ -3,22 +3,22 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 
-import Condition, {
-  LABELS,
-  TEST_IDS,
-  makeCreateCondition,
-} from './match-condition-form';
 import {
   setComboboxValue,
   setInputElementValueByTestId,
   setSelectValue,
 } from '../../../../../test/form-helper';
 import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
 import type {
   MatchConditionFormProps,
   CreateConditionFn,
 } from './match-condition-form';
-import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import Condition, {
+  LABELS,
+  TEST_IDS,
+  makeCreateCondition,
+} from './match-condition-form';
 
 const renderCondition = (props: Partial<MatchConditionFormProps>) => {
   const condition = props.condition ?? makeCreateCondition()();
@@ -78,7 +78,7 @@ describe('condition', function () {
       expect(screen.getByTestId('match-condition-type-select')).to.exist;
     });
 
-    it('should call onConditionChange with updated condition when a field is selected', function () {
+    it('should call onConditionChange with updated condition when a field is selected', async function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
       renderCondition({ condition, onConditionChange: onChangeSpy });
@@ -87,7 +87,7 @@ describe('condition', function () {
         TEST_IDS.condition(condition.id)
       );
 
-      setComboboxValue(
+      await setComboboxValue(
         new RegExp(SINGLE_SELECT_LABEL, 'i'),
         '_id',
         conditionContainer
@@ -98,7 +98,7 @@ describe('condition', function () {
         bsonType: 'ObjectId',
       });
 
-      setComboboxValue(
+      await setComboboxValue(
         new RegExp(SINGLE_SELECT_LABEL, 'i'),
         'age',
         conditionContainer
@@ -110,7 +110,7 @@ describe('condition', function () {
       });
     });
 
-    it('should call onConditionChange with updated condition when an operator is selected', function () {
+    it('should call onConditionChange with updated condition when an operator is selected', async function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
       renderCondition({ condition, onConditionChange: onChangeSpy });
@@ -119,7 +119,7 @@ describe('condition', function () {
         TEST_IDS.condition(condition.id)
       );
 
-      setSelectValue(
+      await setSelectValue(
         new RegExp(LABELS.operatorSelect, 'i'),
         '!=',
         conditionContainer
@@ -129,7 +129,7 @@ describe('condition', function () {
         operator: '$ne',
       });
 
-      setSelectValue(
+      await setSelectValue(
         new RegExp(LABELS.operatorSelect, 'i'),
         '>=',
         conditionContainer
@@ -166,7 +166,7 @@ describe('condition', function () {
       expect(value).to.equal('Compass');
     });
 
-    it('should call onConditionChange with updated condition when a type is selected', function () {
+    it('should call onConditionChange with updated condition when a type is selected', async function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
       renderCondition({ condition, onConditionChange: onChangeSpy });
@@ -175,7 +175,7 @@ describe('condition', function () {
         TEST_IDS.condition(condition.id)
       );
 
-      setSelectValue(
+      await setSelectValue(
         new RegExp(LABELS.typeSelect, 'i'),
         'Double',
         conditionContainer

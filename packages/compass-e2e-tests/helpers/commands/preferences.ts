@@ -1,10 +1,10 @@
-import type { CompassBrowser } from '../compass-browser.ts';
+import { inspect } from 'node:util';
 import type {
   AllPreferences,
   UserPreferences,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
+import type { CompassBrowser } from '../compass-browser.ts';
 import { isTestingWeb } from '../test-runner-context.ts';
-import { inspect } from 'util';
 
 async function _waitUntilPreferencesAccessAvailable(
   browser: CompassBrowser
@@ -114,9 +114,9 @@ export async function setFeature<K extends keyof UserPreferences>(
     const doesPreferenceExists = name in currentPreferences;
     await browser.waitUntil(
       async () => {
-        const newPreferences = await (isTestingWeb()
-          ? _setFeatureWeb
-          : _setFeatureDesktop)(browser, name, value);
+        const newPreferences = await (
+          isTestingWeb() ? _setFeatureWeb : _setFeatureDesktop
+        )(browser, name, value);
         latestValue = newPreferences[name];
         return doesPreferenceExists ? isEqual(latestValue, value) : true;
       },

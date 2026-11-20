@@ -1,9 +1,8 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import { UUID } from 'bson';
-import { isCancelError } from '@mongodb-js/compass-utils';
 
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -13,12 +12,18 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
+import type {
+  experimentationServiceLocator,
+  TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-import { type PreferencesAccess } from 'compass-preferences-model/provider';
+import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
-import { isInternalFieldPath } from 'hadron-document';
-import toNS from 'mongodb-ns';
+import { isInternalFieldPath } from '@mongodb-js/hadron-document';
+import toNS from '@mongodb-js/mongodb-ns';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import type { Document, MongoError } from 'mongodb';
+import { getDefaultFakerMethod } from '@mongodb-js/mock-data-generator';
 import {
   SCHEMA_ANALYSIS_STATE_ANALYZING,
   SCHEMA_ANALYSIS_STATE_COMPLETE,
@@ -33,8 +38,6 @@ import {
   processSchema,
   ProcessSchemaUnsupportedStateError,
 } from '../transform-schema-to-field-info';
-import type { Collection } from '@mongodb-js/compass-app-stores/provider';
-import type { Document, MongoError } from 'mongodb';
 import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import type {
   LlmFakerMapping,
@@ -44,8 +47,10 @@ import type {
 } from '../components/mock-data-generator-modal/types';
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
 
-import { isValidFakerMethod } from '../components/mock-data-generator-modal/utils';
-import { getDefaultFakerMethod } from '../components/mock-data-generator-modal/script-generation-utils';
+import {
+  isValidFakerMethod,
+  MAX_COLLECTION_NESTING_DEPTH,
+} from '../components/mock-data-generator-modal/utils';
 
 const DEFAULT_SAMPLE_SIZE = 100;
 
@@ -66,7 +71,6 @@ function isAction<A extends AnyAction>(
 }
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
-export const UNRECOGNIZED_FAKER_METHOD = 'Unrecognized';
 
 function getErrorDetails(error: Error): SchemaAnalysisError {
   if (error instanceof ProcessSchemaUnsupportedStateError) {
@@ -101,12 +105,14 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
   CollectionState,
   {
     localAppRegistry: AppRegistry;
+    globalAppRegistry: AppRegistry;
     dataService: DataService;
     atlasAiService: AtlasAiService;
     workspaces: ReturnType<typeof workspacesServiceLocator>;
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
+    track: TrackFunction;
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
     schemaAnalysisAbortControllerRef: { current?: AbortController };
@@ -553,6 +559,16 @@ export const mockDataGeneratorNextButtonClicked =
     return { type: CollectionActions.MockDataGeneratorNextButtonClicked };
   };
 
+// The settings modal and the generator modal are both focus-trapping, so the
+// generator has to close before settings opens rather than stacking the two.
+export const openMockDataGeneratorSettings =
+  (): CollectionThunkAction<void> => {
+    return (dispatch, _getState, { globalAppRegistry }) => {
+      dispatch(mockDataGeneratorModalClosed());
+      globalAppRegistry.emit('open-compass-settings', 'ai');
+    };
+  };
+
 export const mockDataGeneratorPreviousButtonClicked = (): CollectionThunkAction<
   void,
   MockDataGeneratorPreviousButtonClickedAction
@@ -588,12 +604,30 @@ export const selectTab = (
 export const openMockDataGeneratorModal = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, _getState, { atlasAiService, logger }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasAiService, logger, preferences, track }
+  ) => {
+    track('Mock Data Generator Clicked', {
+      ai_opted_in: preferences.getPreferences().optInGenAIFeatures,
+    });
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();
       }
       dispatch(mockDataGeneratorModalOpened());
+
+      const { schemaAnalysis } = getState();
+      const hasValidAnalysis =
+        schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE &&
+        Object.keys(schemaAnalysis.processedSchema).length > 0;
+      if (
+        schemaAnalysis.status !== SCHEMA_ANALYSIS_STATE_ANALYZING &&
+        !hasValidAnalysis
+      ) {
+        void dispatch(analyzeCollectionSchema());
+      }
     } catch (error) {
       // if failed or user canceled we just don't show the modal
       logger.log.error(
@@ -640,12 +674,14 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         type: CollectionActions.SchemaAnalysisStarted,
       });
 
-      // Sample documents
+      // Sample documents. Stream the cursor into the analyzer instead of
+      // materializing the whole sample in memory; keep the first document
+      // around for sample-value passing.
       const samplingOptions = { size: DEFAULT_SAMPLE_SIZE };
       const driverOptions = {
         maxTimeMS: preferences.getPreferences().maxTimeMS,
       };
-      const sampleDocuments = await dataService.sample(
+      const sampleCursor = dataService.sampleCursor(
         namespace,
         samplingOptions,
         driverOptions,
@@ -655,12 +691,25 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         }
       );
 
+      let sampleDocument: Document | undefined;
+      const sampleDocuments = (async function* () {
+        for await (const document of sampleCursor) {
+          sampleDocument ??= document;
+          yield document;
+        }
+      })();
+
+      const schemaAccessor = await analyzeDocuments(sampleDocuments, {
+        signal: abortController.signal,
+        storedValuesLengthLimit: 100,
+      });
+
       // Check if analysis was aborted after sampling
       if (abortController.signal.aborted) {
         logger.debug('Schema analysis was aborted during sampling');
         return;
       }
-      if (sampleDocuments.length === 0) {
+      if (!sampleDocument) {
         logger.debug(NO_DOCUMENTS_ERROR);
         dispatch({
           type: CollectionActions.SchemaAnalysisFailed,
@@ -668,9 +717,6 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         });
         return;
       }
-
-      // Analyze sampled documents
-      const schemaAccessor = await analyzeDocuments(sampleDocuments);
 
       // Check if analysis was aborted after document analysis
       if (abortController.signal.aborted) {
@@ -689,12 +735,19 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       const processSchemaResult = processSchema(schema);
 
       const maxNestingDepth = await calculateSchemaDepth(schema);
-      const { database, collection } = toNS(namespace);
-      const collInfo = await dataService.collectionInfo(database, collection);
-      const validationRules = collInfo?.validation?.validator ?? null;
+      if (abortController.signal.aborted) return;
+      // Excessive nesting depth is handled inside the modal rather than
+      // hiding the menu item, since it's only known after analysis runs.
+      if (maxNestingDepth > MAX_COLLECTION_NESTING_DEPTH) {
+        throw new ProcessSchemaUnsupportedStateError(
+          `Schema nesting depth (${maxNestingDepth}) exceeds the maximum supported depth of ${MAX_COLLECTION_NESTING_DEPTH}.`
+        );
+      }
+      const validation = collectionModel.validation as
+        { validator?: Document } | null | undefined;
       const schemaMetadata = {
         maxNestingDepth,
-        validationRules,
+        validationRules: validation?.validator ?? null,
         avgDocumentSize: collectionModel.avg_document_size,
       };
 
@@ -708,12 +761,13 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
         type: CollectionActions.SchemaAnalysisFinished,
         processedSchema: processSchemaResult.fieldInfo,
         arrayLengthMap: processSchemaResult.arrayLengthMap,
-        sampleDocument: sampleDocuments[0],
+        sampleDocument: sampleDocument,
         schemaMetadata,
       });
     } catch (err: any) {
       // Check if the error is due to cancellation
-      if (isCancelError(err) || abortController.signal.aborted) {
+      if (abortController.signal.aborted) return;
+      if (err?.name === 'AbortError') {
         logger.debug('Schema analysis was aborted');
         dispatch({
           type: CollectionActions.SchemaAnalysisCanceled,
@@ -736,14 +790,16 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
       });
     } finally {
       // Clean up abort controller
-      schemaAnalysisAbortControllerRef.current = undefined;
+      if (schemaAnalysisAbortControllerRef.current === abortController) {
+        schemaAnalysisAbortControllerRef.current = undefined;
+      }
     }
   };
 };
 
 export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
   return (
-    _dispatch,
+    dispatch,
     _getState,
     { schemaAnalysisAbortControllerRef, logger }
   ) => {
@@ -751,6 +807,7 @@ export const cancelSchemaAnalysis = (): CollectionThunkAction<void> => {
       logger.debug('Canceling schema analysis');
       schemaAnalysisAbortControllerRef.current.abort();
       schemaAnalysisAbortControllerRef.current = undefined;
+      dispatch({ type: CollectionActions.SchemaAnalysisCanceled });
     }
   };
 };
@@ -918,6 +975,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
       const response = await atlasAiService.getMockDataSchema(
         mockDataSchemaRequest
       );
+      if (abortSignal.aborted) return;
 
       // Transform to keyed object structure
       const transformedFakerSchema = transformFakerSchemaToObject(
@@ -938,7 +996,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
         requestId: requestId,
       });
     } catch (e) {
-      if (isCancelError(e)) {
+      if ((e as Error)?.name === 'AbortError') {
         // abort errors should not produce error logs
         return;
       }

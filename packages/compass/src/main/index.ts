@@ -1,3 +1,6 @@
+/* eslint-disable import/newline-after-import */
+/* eslint-disable import/first */
+/* eslint-disable import/order */
 // THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
 import { setupHadronDistribution } from '../setup-hadron-distribution';
 setupHadronDistribution();
@@ -15,7 +18,7 @@ import {
   parseAndValidateGlobalPreferences,
   getHelpText,
   getExampleConfigFile,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import chalk from 'chalk';
 import { installEarlyLoggingListener } from './logging';
 import { installEarlyOpenUrlListener } from './window-manager';

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { defaultPreferencesInstance } from '@mongodb-js/compass-preferences-model';
 import sinon from 'sinon';
 
 import reducer, {
@@ -9,8 +9,8 @@ import reducer, {
   refreshInputDocuments,
   ActionTypes,
 } from './input-documents';
-import type { RootState } from '.';
 import type { DataService } from './data-service';
+import type { RootState } from '.';
 
 describe('input documents module', function () {
   afterEach(function () {

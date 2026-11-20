@@ -1,13 +1,12 @@
 import { expect } from 'chai';
-import { useSelector } from 'react-redux';
+import { useSelector, Provider } from 'react-redux';
 import { renderHook } from '@mongodb-js/testing-library-compass';
-import { Provider } from 'react-redux';
 import React from 'react';
 import Sinon from 'sinon';
 import type { Document } from 'mongodb';
-import { selectIsViewSearchCompatible } from './is-view-search-compatible';
 import { setupStore, createMockCollection } from '../../test/setup-store';
 import type { IndexesPluginOptions } from '../stores/store';
+import { selectIsViewSearchCompatible } from './is-view-search-compatible';
 
 describe('is-view-search-compatible', function () {
   describe('selectIsViewSearchCompatible', function () {
@@ -29,7 +28,7 @@ describe('is-view-search-compatible', function () {
     ) {
       const collection = createMockCollectionWithPipeline(pipeline);
       const store = setupStore(options, {}, { collection });
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
+      const wrapper = ({ children }: { children?: React.ReactNode }) =>
         React.createElement(Provider, { store, children });
 
       const { result } = renderHook(

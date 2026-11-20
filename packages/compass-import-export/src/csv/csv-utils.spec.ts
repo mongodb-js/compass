@@ -16,8 +16,8 @@ import {
   MinKey,
   MaxKey,
   BSONSymbol,
+  BSONError,
 } from 'bson';
-import { BSONError } from 'bson';
 
 import {
   detectCSVFieldType,
@@ -982,8 +982,7 @@ describe('isCompatibleCSVFieldType', function () {
     it(`works for ${selectedType}`, function () {
       const valid: (CSVParsableFieldType | 'undefined')[] = [];
       for (const type of [...detectableFieldTypes, 'undefined'] as (
-        | CSVDetectableFieldType
-        | 'undefined'
+        CSVDetectableFieldType | 'undefined'
       )[]) {
         if (isCompatibleCSVFieldType(selectedType, type)) {
           valid.push(type);

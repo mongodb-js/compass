@@ -1,10 +1,4 @@
 import React, { useMemo } from 'react';
-import {
-  performSignInAttempt,
-  signOut,
-  type SignInAttemptResult,
-  type AtlasSignInState,
-} from './atlas-signin-reducer';
 import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
 import {
   createDispatchHook,
@@ -13,11 +7,17 @@ import {
 } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { AnyAction } from 'redux';
-import type { AtlasAuthService, AtlasUserInfo } from '../provider';
 import type {
   AtlasSignInEntrypoint,
   TrackFunction,
 } from '@mongodb-js/compass-telemetry';
+import type { AtlasAuthService, AtlasUserInfo } from '../provider';
+import {
+  performSignInAttempt,
+  signOut,
+  type SignInAttemptResult,
+  type AtlasSignInState,
+} from './atlas-signin-reducer';
 
 export const AtlasSignInStoreContext = React.createContext<
   ReactReduxContextValue<AtlasSignInState>

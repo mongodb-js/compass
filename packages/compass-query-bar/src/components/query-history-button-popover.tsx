@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { connect } from '../stores/context';
 import {
   Icon,
   InteractivePopover,
@@ -8,13 +7,14 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import QueryHistory from './query-history';
 import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-import { fetchSavedQueries } from '../stores/query-bar-reducer';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { fetchSavedQueries } from '../stores/query-bar-reducer';
+import { connect } from '../stores/context';
+import QueryHistory from './query-history';
 
 const openQueryHistoryButtonStyles = css(
   {

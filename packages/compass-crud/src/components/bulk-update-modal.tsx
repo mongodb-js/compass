@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import type { UpdatePreview } from 'mongodb-data-service';
+import type { UpdatePreview } from '@mongodb-js/mongodb-data-service';
+import type { MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
-import { toJSString } from 'mongodb-query-parser';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import {
   css,
   cx,
@@ -13,6 +14,7 @@ import {
   KeylineCard,
   Description,
   Link,
+  showErrorDetails,
   useDarkMode,
   Modal,
   ModalFooter,
@@ -33,12 +35,11 @@ import {
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 
+import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { BSONObject } from '../stores/crud-store';
 import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
-
-import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const modalContentStyles = css({
   width: '100%',
@@ -331,8 +332,9 @@ export type BulkUpdateModalProps = {
   updateText: string;
   preview: UpdatePreview;
   syntaxError?: Error & { loc?: { index: number } };
-  serverError?: Error;
+  serverError?: Error & Pick<MongoServerError, 'errInfo'>;
   enablePreview?: boolean;
+  isValidating?: boolean;
   closeBulkUpdateModal: () => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
@@ -349,12 +351,14 @@ export default function BulkUpdateModal({
   syntaxError,
   serverError,
   enablePreview = false,
+  isValidating = false,
   closeBulkUpdateModal,
   updateBulkUpdatePreview,
   runBulkUpdate,
   saveUpdateQuery,
 }: BulkUpdateModalProps) {
   const darkMode = useDarkMode();
+  const errorDetails = serverError?.errInfo;
 
   const [text, setText] = useState(updateText);
 
@@ -411,7 +415,12 @@ export default function BulkUpdateModal({
   }, [count]);
 
   const bulkUpdateUpdateId = useId();
-  const disabled = !!(syntaxError || serverError || violations.length > 0);
+  const disabled = !!(
+    syntaxError ||
+    isValidating ||
+    serverError ||
+    violations.length > 0
+  );
 
   const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
 
@@ -473,6 +482,24 @@ export default function BulkUpdateModal({
                       className={bannerStyles}
                     >
                       {serverError.message}
+                      {errorDetails && (
+                        <>
+                          {' '}
+                          <Link
+                            as="button"
+                            hideExternalIcon
+                            data-testid="bulk-update-error-details-button"
+                            onClick={() => {
+                              void showErrorDetails({
+                                details: errorDetails,
+                                closeAction: 'back',
+                              });
+                            }}
+                          >
+                            View details
+                          </Link>
+                        </>
+                      )}
                     </Banner>
                   )}
                 </div>

@@ -1,10 +1,8 @@
 import React, { createContext, useContext, useEffect, useMemo } from 'react';
-import { AtlasAiService } from './atlas-ai-service';
-import { ToolsController } from './tools-controller';
 import {
   preferencesLocator,
   usePreference,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import {
@@ -13,11 +11,14 @@ import {
 } from '@mongodb-js/compass-app-registry';
 import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { ToolsController } from './tools-controller';
+import { AtlasAiService } from './atlas-ai-service';
 
 const AtlasAiServiceContext = createContext<AtlasAiService | null>(null);
 
 export const AtlasAiServiceProvider: React.FC<{
   apiURLPreset: 'private-api' | 'cloud';
+  children?: React.ReactNode;
 }> = createServiceProvider(function AtlasAiServiceProvider({
   apiURLPreset,
   children,
@@ -58,41 +59,41 @@ export { AtlasAiService } from './atlas-ai-service';
 
 const ToolsControllerContext = createContext<ToolsController | null>(null);
 
-export const ToolsControllerProvider: React.FC = createServiceProvider(
-  function ToolsControllerProvider({ children }) {
-    const logger = useLogger('TOOLS-CONTROLLER');
-    const preferences = preferencesLocator();
-    const atlasAdminApi = atlasAdminApiServiceLocator();
-    const track = telemetryLocator();
+export const ToolsControllerProvider: React.FC<{
+  children?: React.ReactNode;
+}> = createServiceProvider(function ToolsControllerProvider({ children }) {
+  const logger = useLogger('TOOLS-CONTROLLER');
+  const preferences = preferencesLocator();
+  const atlasAdminApi = atlasAdminApiServiceLocator();
+  const track = telemetryLocator();
 
-    const telemetryAnonymousId = usePreference('telemetryAnonymousId');
+  const telemetryAnonymousId = usePreference('telemetryAnonymousId');
 
-    const toolsController = useMemo(() => {
-      return new ToolsController({
-        logger,
-        getTelemetryAnonymousId: () => telemetryAnonymousId ?? '',
-        track,
-        // we will set this later through setContext()
-        enableMCPTelemetry: false,
-        preferences,
-        atlasAdminApi,
-      });
-    }, [logger, telemetryAnonymousId, track, preferences, atlasAdminApi]);
+  const toolsController = useMemo(() => {
+    return new ToolsController({
+      logger,
+      getTelemetryAnonymousId: () => telemetryAnonymousId ?? '',
+      track,
+      // we will set this later through setContext()
+      enableMCPTelemetry: false,
+      preferences,
+      atlasAdminApi,
+    });
+  }, [logger, telemetryAnonymousId, track, preferences, atlasAdminApi]);
 
-    useEffect(() => {
-      return () => {
-        // in case it was ever started
-        void toolsController.stopServer();
-      };
-    }, [toolsController]);
+  useEffect(() => {
+    return () => {
+      // in case it was ever started
+      void toolsController.stopServer();
+    };
+  }, [toolsController]);
 
-    return (
-      <ToolsControllerContext.Provider value={toolsController}>
-        {children}
-      </ToolsControllerContext.Provider>
-    );
-  }
-);
+  return (
+    <ToolsControllerContext.Provider value={toolsController}>
+      {children}
+    </ToolsControllerContext.Provider>
+  );
+});
 
 function useToolsControllerContext(): ToolsController {
   const service = useContext(ToolsControllerContext);
@@ -117,8 +118,13 @@ export {
   READ_ONLY_DATABASE_TOOLS,
   doesToolUseConnection,
   isReadOnlyTool,
+  isAtlasTool,
 } from './available-tools';
-export { AI_MODEL_CHAT_VERSION, AI_MODEL_SLIM_VERSION } from './model-version';
+export {
+  AI_MODEL_AGENT_VERSION,
+  AI_MODEL_CHAT_VERSION,
+  AI_MODEL_SLIM_VERSION,
+} from './model-version';
 
 export {
   AIExperienceEntry,
@@ -131,12 +137,6 @@ export {
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
 
-export type {
-  MockDataSchemaRequest,
-  MockDataSchemaRawField,
-  MockDataSchemaToolOutput,
-} from './atlas-ai-service';
-
-export { mockDataSchemaToolSchema } from './atlas-ai-service';
+export type { MockDataSchemaRequest } from './atlas-ai-service';
 
 export type { AtlasConnectionDebugResult } from './tools/debug-connection';

@@ -1,5 +1,5 @@
-const path = require('path');
-const { promises: fs } = require('fs');
+const path = require('node:path');
+const { promises: fs } = require('node:fs');
 const prompts = require('prompts');
 const pacote = require('pacote');
 
@@ -372,8 +372,8 @@ module.exports = {
     isPlugin
       ? '@mongodb-js/mocha-config-compass/compass-plugin'
       : isReact
-      ? '@mongodb-js/mocha-config-compass/react'
-      : '@mongodb-js/mocha-config-compass'
+        ? '@mongodb-js/mocha-config-compass/react'
+        : '@mongodb-js/mocha-config-compass'
   }');`;
 
   const indexSrcDir = path.join(packagePath, 'src');

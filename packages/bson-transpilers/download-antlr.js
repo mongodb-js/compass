@@ -2,9 +2,9 @@
 /* eslint-disable no-console */
 /* eslint-disable no-sync */
 
-const fs = require('fs');
-const path = require('path');
-const https = require('https');
+const fs = require('node:fs');
+const path = require('node:path');
+const https = require('node:https');
 
 const downloadUrl = 'https://www.antlr.org/download/antlr-4.7.2-complete.jar';
 const outputFile = path.resolve(__dirname, 'antlr-4.7.2-complete.jar');

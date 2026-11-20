@@ -4,7 +4,7 @@ import type {
   WorkspaceTab,
   CollectionSubtab,
 } from '@mongodb-js/workspace-info';
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import React, { useEffect } from 'react';
 
 export type ActiveConnectionInfo = ConnectionInfo & {
@@ -37,9 +37,9 @@ const AssistantGlobalSetStateContext = React.createContext<
   React.Dispatch<React.SetStateAction<GlobalState>>
 >(() => undefined);
 
-export const AssistantGlobalStateProvider: React.FunctionComponent = ({
-  children,
-}) => {
+export const AssistantGlobalStateProvider: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const [globalState, setGlobalState] = React.useState({ ...INITIAL_STATE });
   return (
     <AssistantGlobalStateContext.Provider value={globalState}>

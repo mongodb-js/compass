@@ -1,6 +1,8 @@
+import { URL, URLSearchParams } from 'node:url';
+import type { Agent } from 'node:https';
+import { spawn } from 'node:child_process';
 import { shell, app } from 'electron';
 import type Electron from 'electron';
-import { URL, URLSearchParams } from 'url';
 import type {
   AuthFlowType,
   MongoDBOIDCError,
@@ -8,30 +10,30 @@ import type {
   MongoDBOIDCPluginOptions,
 } from '@mongodb-js/oidc-plugin';
 import {
-  throwIfNotOk,
-  throwIfNetworkTrafficDisabled,
-  throwIfAtlasSignInDisabled,
-  getTrackingUserInfo,
-  getJWTTokenPayload,
-} from './util';
-import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
-import type { Agent } from 'https';
-import type { AtlasUserInfo, AtlasServiceConfig } from './util';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { HadronIpcMain } from 'hadron-ipc';
-import { ipcMain } from 'hadron-ipc';
+import type { HadronIpcMain } from '@mongodb-js/hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { SecretStore } from './secret-store';
-import { OidcPluginLogger } from './oidc-plugin-logger';
-import { spawn } from 'child_process';
-import { getAtlasConfig } from './util';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
+import { SecretStore } from './secret-store';
+import { OidcPluginLogger } from './oidc-plugin-logger';
+import type {
+  AtlasServiceBackendPreset,
+  AtlasUserInfo,
+  AtlasServiceConfig,
+} from './util';
+import {
+  throwIfNotOk,
+  throwIfNetworkTrafficDisabled,
+  throwIfAtlasSignInDisabled,
+  getAtlasConfigForPreset,
+  getTrackingUserInfo,
+  getJWTTokenPayload,
+} from './util';
 import { ATLAS_ADMIN_API_AUTH_ENDPOINTS } from './atlas-admin-api-auth-endpoints';
 
 const { log } = createLogger('COMPASS-ATLAS-SERVICE');
@@ -53,6 +55,14 @@ interface CompassAuthHTTPClient {
   agent: Agent | undefined;
   fetch: (url: string, init: RequestInit) => Promise<Response>;
 }
+
+export type CompassAuthServiceOptions = {
+  getAtlasServiceBackendPreset(): AtlasServiceBackendPreset | undefined;
+  isNetworkTrafficAllowed(): boolean;
+  isAtlasSignInEnabled(): boolean;
+  getBrowserCommandForOIDCAuth(): string | undefined;
+  onSignIn(auid: string): Promise<void>;
+};
 
 export class CompassAuthService {
   private constructor() {
@@ -78,7 +88,8 @@ export class CompassAuthService {
     init: RequestInit = {}
   ): Promise<Response> => {
     this.throwIfNetworkTrafficDisabled();
-    throwIfAborted(init.signal ?? undefined);
+    // @ts-expect-error node-fetch types `signal` without throwIfAborted; remove once devtools-proxy-support exports a RequestInit with the global AbortSignal
+    init.signal?.throwIfAborted();
     log.info(
       mongoLogId(1_001_000_299),
       'AtlasService',
@@ -107,14 +118,15 @@ export class CompassAuthService {
   private static secretStore = new SecretStore();
 
   private static ipcMain:
-    | Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'>
-    | undefined = ipcMain;
+    Pick<HadronIpcMain, 'createHandle' | 'handle' | 'broadcast'> | undefined =
+    ipcMain;
 
-  private static preferences: PreferencesAccess;
+  private static options: CompassAuthServiceOptions;
   private static config: AtlasServiceConfig;
 
   private static openExternal(url: string) {
-    const { browserCommandForOIDCAuth } = this.preferences.getPreferences();
+    const browserCommandForOIDCAuth =
+      this.options.getBrowserCommandForOIDCAuth();
     if (browserCommandForOIDCAuth) {
       // NB: While it's possible to pass `openBrowser.command` option directly
       // to oidc-plugin properties, it's not possible to do dynamically. To
@@ -177,12 +189,14 @@ export class CompassAuthService {
   }
 
   static init(
-    preferences: PreferencesAccess,
+    options: CompassAuthServiceOptions,
     httpClient: CompassAuthHTTPClient
   ): Promise<void> {
     this.httpClient = httpClient;
-    this.preferences = preferences;
-    this.config = getAtlasConfig(preferences);
+    this.options = options;
+    this.config = getAtlasConfigForPreset(
+      options.getAtlasServiceBackendPreset() ?? 'atlas'
+    );
     return (this.initPromise ??= (async () => {
       if (this.ipcMain) {
         this.ipcMain.createHandle('AtlasService', this, [
@@ -201,24 +215,21 @@ export class CompassAuthService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
-      if (
-        serializedState &&
-        this.preferences.getPreferences().enableAtlasSignIn
-      )
+      if (serializedState && this.options.isAtlasSignInEnabled())
         await this.restoreCurrentUser();
     })());
   }
 
   private static throwIfNetworkTrafficDisabled() {
-    throwIfNetworkTrafficDisabled(this.preferences);
+    throwIfNetworkTrafficDisabled(this.options.isNetworkTrafficAllowed());
   }
 
   private static throwIfAtlasSignInDisabled() {
-    throwIfAtlasSignInDisabled(this.preferences);
+    throwIfAtlasSignInDisabled(this.options.isAtlasSignInEnabled());
   }
 
   private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     this.throwIfNetworkTrafficDisabled();
     // Even if we still have a usable token stored, we should not to use it
     // when Atlas sign in is disabled for the organization
@@ -267,8 +278,8 @@ export class CompassAuthService {
   static async isAuthenticated({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
-    throwIfAborted(signal);
-    if (!this.preferences.getPreferences().enableAtlasSignIn) {
+    signal?.throwIfAborted();
+    if (!this.options.isAtlasSignInEnabled()) {
       return false;
     }
     await this.initPromise;
@@ -316,7 +327,7 @@ export class CompassAuthService {
     }
     try {
       this.signInPromise = (async () => {
-        throwIfAborted(signal);
+        signal?.throwIfAborted();
         this.throwIfNetworkTrafficDisabled();
         this.throwIfAtlasSignInDisabled();
 
@@ -335,9 +346,7 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
-          await this.preferences.savePreferences({
-            telemetryAtlasUserId: auid,
-          });
+          await this.options.onSignIn(auid);
           track('Atlas Sign In Success', {
             auid,
             duration: Date.now() - startedAt,

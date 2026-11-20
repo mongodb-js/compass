@@ -1,10 +1,11 @@
 import React from 'react';
 import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
-import type Document from 'hadron-document';
-import type { TypeCastMap } from 'hadron-type-checker';
+import type Document from '@mongodb-js/hadron-document';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
+import { DocumentEvents } from '@mongodb-js/hadron-document';
 import { getInsightsForDocument } from '../utils';
-import { DocumentEvents } from 'hadron-document';
 import type { CopyDocumentFormat } from '../stores/crud-store';
+
 type BSONObject = TypeCastMap['Object'];
 
 export const documentStyles = css({

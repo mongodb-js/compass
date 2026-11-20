@@ -8,10 +8,10 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 
-import ProxyAndSshTunnelTab from './proxy-and-ssh-tunnel-tab';
 import type { ProxyOptions } from 'mongodb';
+import ProxyAndSshTunnelTab from './proxy-and-ssh-tunnel-tab';
 
 const renderWithOptionsAndUrl = (
   connectionOptions: ConnectionOptions,

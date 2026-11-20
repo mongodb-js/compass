@@ -1,5 +1,7 @@
 import type { AnyAction } from 'redux';
 import { combineReducers } from 'redux';
+import type { ThunkAction } from 'redux-thunk';
+import { type openToast as _openToast } from '@mongodb-js/compass-components';
 import type {
   GenerateDiagramWizardActions,
   GenerateDiagramWizardActionTypes,
@@ -12,20 +14,18 @@ import type {
 import { analysisProcessReducer } from './analysis-process';
 import type { DiagramActions, DiagramActionTypes } from './diagram';
 import { diagramReducer } from './diagram';
-import type { ThunkAction } from 'redux-thunk';
 import { stepReducer } from './step';
-import type { DataModelingStoreServices } from '.';
 import type {
   ExportDiagramActionTypes,
   ExportDiagramActions,
 } from './export-diagram';
 import { exportDiagramReducer } from './export-diagram';
-import { type openToast as _openToast } from '@mongodb-js/compass-components';
 import type {
   ReselectCollectionsWizardActions,
   ReselectCollectionsWizardActionTypes,
 } from './reselect-collections-wizard';
 import { reselectCollectionsWizardReducer } from './reselect-collections-wizard';
+import type { DataModelingStoreServices } from '.';
 
 const reducer = combineReducers({
   step: stepReducer,

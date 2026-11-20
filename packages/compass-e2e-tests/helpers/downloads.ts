@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import { DOWNLOADS_PATH } from './test-runner-paths.ts';
 
 export const waitForFileDownload = async (

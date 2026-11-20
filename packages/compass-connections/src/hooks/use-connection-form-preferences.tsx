@@ -1,4 +1,4 @@
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useMemo } from 'react';
 
 export function useConnectionFormPreferences() {

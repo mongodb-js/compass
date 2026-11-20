@@ -1,17 +1,16 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import {
   createSearchIndexClosed,
   createIndex,
   createSearchIndexErrorCleared,
 } from '../../modules/search-indexes';
-import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import type { Document } from 'mongodb';
+import { isAtlasVectorSearchSupportedForServerVersion } from '../../utils/vector-search-indexes';
 import {
   BaseSearchIndexModal,
   DEFAULT_INDEX_DEFINITION,
 } from './base-search-index-modal';
-import { isAtlasVectorSearchSupportedForServerVersion } from '../../utils/vector-search-indexes';
 
 type CreateSearchIndexModalProps = {
   namespace: string;
@@ -22,7 +21,7 @@ type CreateSearchIndexModalProps = {
   onCreateIndexClick: (index: {
     name: string;
     type?: string;
-    definition: Document;
+    definition: string;
   }) => void;
   onCloseModalClick: () => void;
   onClearError: () => void;

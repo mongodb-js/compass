@@ -64,6 +64,19 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /*
+   * Feature flag for AI Assistant's skills feature.
+   */
+
+  {
+    name: 'enableSkillsInAssistant',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable Skills in AI Assistant',
+    },
+  },
+
+  /*
    * Feature flag for AI Assistant's tool calling feature.
    */
   {
@@ -81,6 +94,15 @@ export const FEATURE_FLAG_DEFINITIONS = [
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable restoring previous workspace tabs on startup',
+    },
+  },
+
+  {
+    name: 'enableMockDataGenerator',
+    stage: 'released',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable generating mock data scripts with AI',
     },
   },
 
@@ -142,12 +164,57 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
+  /*
+   * Feature flag for VectorX private preview support in the
+   * vector search index schema.
+   */
+  {
+    name: 'enableVectorXPrivatePreview',
+    stage: 'preview',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short:
+        'Enable VectorX support for vector search indexes (private preview)',
+    },
+  },
+
+  /*
+   * Feature flag for auto-embedding lexical prefilter support in the
+   * search index schema.
+   *
+   * Desktop Compass has no project-entitlement sync (that only exists in
+   * Compass Web), so this is exposed under Feature Preview settings and
+   * enabled manually there, matching how enableAutoEmbeddingPublicPreview
+   * works on desktop.
+   */
+  {
+    name: 'enableAutoEmbeddingLexicalPrefilter',
+    stage: 'preview',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short:
+        'Enable auto-embedding lexical prefilter syntax in search index editor',
+    },
+  },
+
   {
     name: 'enableCompassWebSettings',
     stage: 'development',
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable settings in compass web',
+    },
+  },
+
+  /*
+   * Feature flag for connection folders in the sidebar.
+   */
+  {
+    name: 'enableConnectionFolders',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable connection folders in the sidebar',
     },
   },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
@@ -175,7 +242,7 @@ function featureFlagToPreferenceDefinition(
     cli: true,
     global: true,
     ui: true,
-    exposedInSettingsUI: '*',
+    exposedInSettingsUI: ['desktop', 'web'],
     description: featureFlag.description,
     // Only show feature flags in 'preview' stage in --help output
     omitFromHelp: featureFlag.stage !== 'preview',

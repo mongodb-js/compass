@@ -1,14 +1,5 @@
-import { findQueries } from './find-query';
-import { aggregateQueries } from './aggregate-query';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { UUID } from 'bson';
-
-export type GenAiUsecase = {
-  namespace: string;
-  userInput: string;
-  expectedOutput: string;
-  name: string;
-};
 
 import airbnbListings from '../fixtures/airbnb.listingsAndReviews';
 import berlinBars from '../fixtures/berlin.cocktailbars';
@@ -21,6 +12,15 @@ import {
   buildAggregateQueryPrompt,
   buildFindQueryPrompt,
 } from '../../../src/utils/gen-ai-prompt';
+import { aggregateQueries } from './aggregate-query';
+import { findQueries } from './find-query';
+
+export type GenAiUsecase = {
+  namespace: string;
+  userInput: string;
+  expectedOutput: string;
+  name: string;
+};
 
 type DatasetSamples = {
   [key: string]: {
@@ -31,9 +31,8 @@ type DatasetSamples = {
 
 async function getDatasets(): Promise<DatasetSamples> {
   return {
-    'airbnb.listingsAndReviews': await getSampleAndSchemaFromDataset(
-      airbnbListings
-    ),
+    'airbnb.listingsAndReviews':
+      await getSampleAndSchemaFromDataset(airbnbListings),
     'berlin.cocktailbars': await getSampleAndSchemaFromDataset(berlinBars),
     'netflix.movies': await getSampleAndSchemaFromDataset(netflixMovies),
     'netflix.comments': await getSampleAndSchemaFromDataset(netflixComments),

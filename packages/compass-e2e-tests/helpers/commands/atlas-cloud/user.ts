@@ -1,8 +1,9 @@
-import { promises as fs } from 'fs';
-import os from 'os';
-import path from 'path';
-import { randomBytes } from 'crypto';
+import { promises as fs } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { randomBytes } from 'node:crypto';
 import lodash from 'lodash';
+import { UUID } from 'mongodb';
 import type { CompassBrowser } from '../../compass-browser.ts';
 import {
   ATLAS_CLOUD_TEST_UTILS,
@@ -10,9 +11,8 @@ import {
 } from '../../test-runner-context.ts';
 import type { AtlasEnvironment } from '../../test-runner-context.ts';
 import { FIXTURES_PATH } from '../../test-runner-paths.ts';
-import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
 import { createExternalBrowser, screenshotPathName } from '../../compass.ts';
-import { UUID } from 'mongodb';
+import { isAtlasCloudPage, doCloudFetch, doAccountFetch } from './utils.ts';
 
 const { template } = lodash;
 
@@ -48,7 +48,7 @@ export async function fillAtlasLoginForm(
         }
         return authenticated;
       },
-      { interval: 500 }
+      { interval: 500, timeout: 30_000 }
     );
 
   const [, , authenticationPromiseSettled] = await Promise.allSettled([
@@ -84,14 +84,14 @@ export async function signInToAtlas(
    * is not shown. We are doing this before every login, because these values
    * can reset between sessions
    */
-  await doCloudFetch(
+  await doAccountFetch(
     browser,
     ATLAS_CLOUD_TEST_UTILS.bypassEncouragement,
     { method: 'PATCH' },
     { form: { username } }
   );
 
-  await doCloudFetch(
+  await doAccountFetch(
     browser,
     ATLAS_CLOUD_TEST_UTILS.verifyEmail,
     { method: 'POST' },
@@ -172,13 +172,13 @@ export async function signInToAtlasDesktop(
       `${accountUrl}/account/login?signedOut=true`
     );
 
-    await doCloudFetch(
+    await doAccountFetch(
       loginSessionBrowser,
       ATLAS_CLOUD_TEST_UTILS.bypassEncouragement,
       { method: 'PATCH' },
       { form: { username } }
     );
-    await doCloudFetch(
+    await doAccountFetch(
       loginSessionBrowser,
       ATLAS_CLOUD_TEST_UTILS.verifyEmail,
       { method: 'POST' },
@@ -218,7 +218,7 @@ export async function createAtlasUser(
 
   await browser.navigateTo(`${accountUrl}/account/login?signedOut=true`);
 
-  await doCloudFetch(
+  await doAccountFetch(
     browser,
     ATLAS_CLOUD_TEST_UTILS.registerUser,
     { method: 'POST' },

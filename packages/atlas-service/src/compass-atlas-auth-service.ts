@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'hadron-ipc';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 import type { CompassAuthService as AtlasServiceMain } from './main';
 import { AtlasAuthService } from './atlas-auth-service';
 import type { ArgsWithSignal } from './atlas-auth-service';

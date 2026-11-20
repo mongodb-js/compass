@@ -1,16 +1,16 @@
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
+import type { AnyAction } from 'redux';
+import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import {
   getPipelineFromBuilderState,
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
-import type { PipelineBuilderThunkAction } from '.';
-import { isAction } from '../utils/is-action';
-import type { AnyAction } from 'redux';
-import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
 import { namespaceHasSearchIndexes } from './search-indexes';
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import type { PipelineBuilderThunkAction } from '.';
 
 export type UpdateViewState = null | string;
 
@@ -35,8 +35,7 @@ interface DismissViewUpdateErrorAction {
 }
 
 export type UpdateViewAction =
-  | ErrorUpdatingViewAction
-  | DismissViewUpdateErrorAction;
+  ErrorUpdatingViewAction | DismissViewUpdateErrorAction;
 
 export default function reducer(
   state: UpdateViewState = INITIAL_STATE,
@@ -109,7 +108,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
 
     const connectionInfo = connectionInfoRef.current;
 
-    const viewPipeline = getPipelineFromBuilderState(
+    const viewPipeline = await getPipelineFromBuilderState(
       getState(),
       pipelineBuilder
     );

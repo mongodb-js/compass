@@ -6,8 +6,8 @@ import {
   defaultSidebarWidth,
 } from '@mongodb-js/compass-components';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import MultipleConnectionSidebar from './components/multiple-connections/sidebar';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import MultipleConnectionSidebar from './components/multiple-connections/sidebar';
 
 const errorBoundaryStyles = css({
   width: defaultSidebarWidth,

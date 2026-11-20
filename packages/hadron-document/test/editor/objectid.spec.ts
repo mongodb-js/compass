@@ -1,7 +1,7 @@
 import { ObjectId } from 'bson';
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { ObjectIdEditor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('ObjectIdEditor', function () {
   describe('#start', function () {

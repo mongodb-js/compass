@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect, useContext, useRef } from 'react';
-import type { AssistantMessage } from '../compass-assistant-provider';
-import { AssistantActionsContext } from '../compass-assistant-provider';
-import type { Chat } from '../@ai-sdk/react/chat-react';
-import { useChat } from '../@ai-sdk/react/use-chat';
 import {
   LgChatChatWindow,
   LgChatLeafygreenChatProvider,
-  LgChatMessage,
   LgChatInputBar,
   spacing,
   css,
@@ -18,39 +13,41 @@ import {
   Icon,
   usePersistedState,
 } from '@mongodb-js/compass-components';
-import { ConfirmationMessage } from './confirmation-message';
-import { ToolCallMessage } from './tool-call-message';
-import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import {
   useTelemetry,
   useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
-import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
-import { SuggestedPrompts } from './suggested-prompts';
-import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
-import type { ToolUIPart } from 'ai';
-import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import { ToolToggle } from './tool-toggle';
-import { ToolsIntroCard } from './tools-intro-card';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
+import type {
+  AssistantMessage,
+  ThreadedChat,
+} from '../compass-assistant-provider';
+import { AssistantActionsContext } from '../compass-assistant-provider';
+import { useChat } from '../@ai-sdk/react/use-chat';
+import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
+import { useAssistantGlobalState } from '../assistant-global-state';
 import {
   isAssistantThinking,
   partIsApprovalRequest,
   partIsToolUI,
   stopChat,
 } from '../utils';
+import { TOOL_DENIAL_REASONS } from '../prompts';
+import { SuggestedPrompts } from './suggested-prompts';
+import { ToolToggle } from './tool-toggle';
+import { ToolsIntroCard } from './tools-intro-card';
 import { AtlasConnectionStatus } from './atlas-connection-status';
+import { AssistantChatMessage } from './assistant-chat-message';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
-const { Message } = LgChatMessage;
 const { InputBar } = LgChatInputBar;
 
 interface AssistantChatProps {
-  chat: Chat<AssistantMessage>;
+  chat: ThreadedChat;
   hasNonGenuineConnections: boolean;
 }
 
@@ -174,11 +171,6 @@ const welcomeMessageStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
 });
-// On small screens, many components end up breaking words which we don't want.
-// This is a general temporary fix for all components that we want to prevent from wrapping.
-const noWrapFixesStyles = css({
-  whiteSpace: 'nowrap',
-});
 
 function makeErrorMessage() {
   return `An error occurred. Try clearing the chat if the error persists.`;
@@ -236,9 +228,6 @@ const toolToggleContainerStyles = css({
 
 const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedAssistantToolsIntro' as const;
-
-const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
-  'tool-atlas-connection-error-debugger';
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
@@ -343,11 +332,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         message.metadata?.connectionInfo !== undefined
           ? message.metadata.connectionInfo
           : activeConnection
-          ? {
-              id: activeConnection.id,
-              name: getConnectionTitle(activeConnection),
-            }
-          : null;
+            ? {
+                id: activeConnection.id,
+                name: getConnectionTitle(activeConnection),
+              }
+            : null;
 
       // Collect tool call IDs from this message's parts
       const toolCallIds = message.parts
@@ -414,6 +403,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             void addToolApprovalResponse({
               id: part.approval.id,
               approved: false,
+              reason: TOOL_DENIAL_REASONS.toolCallingDisabled,
             });
           }
         }
@@ -439,6 +429,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
               {
                 user_input_length: trimmedMessageBody.length,
                 request_id: requestId,
+                thread_id: chat.threadId,
               },
               connectionInfo
             );
@@ -480,11 +471,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           text: textFeedback,
           request_id: message.metadata?.requestId,
           source: message.metadata?.source ?? 'chat response',
+          skills_used: message.metadata?.skillsUsed ?? [],
+          thread_id: chat.threadId,
         },
         message.metadata?.connectionInfo ?? undefined
       );
     },
-    [track]
+    [track, chat]
   );
 
   const handleConfirmation = useCallback(
@@ -531,6 +524,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           status: newState,
           source: confirmedMessage.metadata?.source ?? 'chat response',
           request_id: confirmedMessage.metadata?.requestId,
+          thread_id: chat.threadId,
         },
         confirmedMessage.metadata?.connectionInfo ?? undefined
       );
@@ -539,7 +533,17 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         void ensureOptInAndSend?.(undefined, {}, () => {});
       }
     },
-    [ensureOptInAndSend, setMessages, track]
+    [ensureOptInAndSend, setMessages, track, chat]
+  );
+
+  const handleFollowUpPromptSend = useCallback(
+    (text: string) => {
+      void handleMessageSend({
+        text,
+        metadata: { source: 'follow-up prompt' },
+      });
+    },
+    [handleMessageSend]
   );
 
   const handleToolApproval = useCallback(
@@ -548,15 +552,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       type,
       approvalId,
       approved,
+      reason,
     }: {
       message: AssistantMessage;
       type: string;
       approvalId: string;
       approved: boolean;
+      reason?: string;
     }) => {
       void addToolApprovalResponse({
         id: approvalId,
         approved,
+        reason,
       });
 
       track(
@@ -566,11 +573,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           type,
           approval_id: approvalId,
           request_id: message.metadata?.requestId,
+          thread_id: chat.threadId,
         },
         message.metadata?.connectionInfo ?? undefined
       );
     },
-    [addToolApprovalResponse, track]
+    [addToolApprovalResponse, track, chat]
   );
 
   const handleStopButtonClick = useCallback(async () => {
@@ -603,179 +611,23 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           >
             <div className={messagesWrapStyles}>
               {visibleMessages.map((message, index) => {
-                const { id, role, metadata, parts } = message;
-                const seenTitles = new Set<string>();
-                const sources = [];
-                const toolCalls: ToolUIPart[] = [];
                 const isLastMessage = index === visibleMessages.length - 1;
 
-                for (const part of parts) {
-                  // Related sources are type source-url. We want to only
-                  // include url_citation (has url and title), not file_citation
-                  // (no url or title).
-                  if (part.type === 'source-url' && part.url && part.title) {
-                    if (!seenTitles.has(part.title)) {
-                      seenTitles.add(part.title);
-                      sources.push({
-                        children: part.title,
-                        href: part.url,
-                        variant: 'Docs',
-                      });
-                    }
-                  }
-
-                  // Detect tool call parts (they have a "tool-" prefix or a toolCallId)
-                  if (partIsToolUI(part)) {
-                    toolCalls.push(part);
-                  }
-                }
-
-                // Handle confirmation messages
-                if (metadata?.confirmation) {
-                  const { description, state } = metadata.confirmation;
-
-                  return (
-                    <ConfirmationMessage
-                      key={`${id}-confirmation`}
-                      // Show as rejected if it's not the last message
-                      state={
-                        !isLastMessage && state === 'pending'
-                          ? 'rejected'
-                          : state
-                      }
-                      title="Please confirm your request"
-                      description={description}
-                      onConfirm={() => handleConfirmation(message, 'confirmed')}
-                      onReject={() => handleConfirmation(message, 'rejected')}
-                    />
-                  );
-                }
-
-                const rawDisplayText =
-                  message.metadata?.displayText ||
-                  message.parts
-                    ?.filter((part) => part.type === 'text')
-                    .map((part) => part.text)
-                    .join('');
-
-                const isSender = role === 'user';
-
-                const parsedMessage =
-                  !isSender && rawDisplayText && enableSearchActivationProgramP2
-                    ? parseFollowUpQuestions(rawDisplayText, {
-                        isLastMessage,
-                        isResponseComplete,
-                      })
-                    : null;
-                const displayText = parsedMessage
-                  ? parsedMessage.strippedText
-                  : rawDisplayText;
-                const followUpQuestions = parsedMessage?.questions ?? [];
-
-                const messageConnection =
-                  message.metadata?.connectionInfo ?? null;
-
-                // Render tool calls and text content together
                 return (
-                  <React.Fragment key={`${id}-${index}`}>
-                    {/* Show tool calls if present */}
-                    {toolCalls.map((toolCall, index) => {
-                      const toolCallId =
-                        toolCall.toolCallId || `${id}-${toolCall.type}`;
-
-                      if (
-                        toolCall.type ===
-                        ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE
-                      ) {
-                        return (
-                          <AtlasToolCallMessage
-                            key={`${toolCallId}-${index}`}
-                            toolCall={toolCall}
-                            onApprove={(approvalId, approved) =>
-                              handleToolApproval({
-                                message,
-                                type: toolCall.type,
-                                approvalId,
-                                approved,
-                              })
-                            }
-                            onDeny={(approvalId) =>
-                              handleToolApproval({
-                                message,
-                                type: toolCall.type,
-                                approvalId,
-                                approved: false,
-                              })
-                            }
-                          />
-                        );
-                      }
-
-                      return (
-                        <ToolCallMessage
-                          connection={messageConnection}
-                          key={`${toolCallId}-${index}`}
-                          toolCall={toolCall}
-                          onApprove={(approvalId) =>
-                            handleToolApproval({
-                              message,
-                              type: toolCall.type,
-                              approvalId,
-                              approved: true,
-                            })
-                          }
-                          onDeny={(approvalId) =>
-                            handleToolApproval({
-                              message,
-                              type: toolCall.type,
-                              approvalId,
-                              approved: false,
-                            })
-                          }
-                        />
-                      );
-                    })}
-                    {/* Show text message if there's text content */}
-                    {displayText && (
-                      <Message
-                        key={`${id}-text`}
-                        sourceType="markdown"
-                        isSender={isSender}
-                        messageBody={displayText}
-                        data-role={message.role}
-                        data-testid={`assistant-message-${id}`}
-                      >
-                        {isSender === false && (
-                          <Message.Actions
-                            onRatingChange={(event, state) =>
-                              handleFeedback({ message, state })
-                            }
-                            onSubmitFeedback={(event, state) =>
-                              handleFeedback({ message, state })
-                            }
-                            className={noWrapFixesStyles}
-                          />
-                        )}
-                        {sources.length > 0 && (
-                          <Message.Links
-                            className={noWrapFixesStyles}
-                            links={sources}
-                          />
-                        )}
-                      </Message>
-                    )}
-                    {followUpQuestions.length > 0 && (
-                      <FollowUpPrompts
-                        questions={followUpQuestions}
-                        onSend={(text) =>
-                          void handleMessageSend({
-                            text,
-                            metadata: { source: 'follow-up prompt' },
-                          })
-                        }
-                      />
-                    )}
-                  </React.Fragment>
+                  <AssistantChatMessage
+                    key={message.id}
+                    message={message}
+                    onConfirmation={handleConfirmation}
+                    onFeedback={handleFeedback}
+                    onFollowUpSend={handleFollowUpPromptSend}
+                    onToolApproval={handleToolApproval}
+                    enableSearchActivationProgramP2={
+                      enableSearchActivationProgramP2
+                    }
+                    isLastMessage={isLastMessage}
+                    // Only the last message cares about if the response is complete.
+                    isResponseComplete={isLastMessage && isResponseComplete}
+                  />
                 );
               })}
             </div>

@@ -4,8 +4,8 @@ import {
   type screen,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import type { DatabaseProps } from 'mongodb-database-model';
-import type { CollectionProps } from 'mongodb-collection-model';
+import type { DatabaseProps } from '@mongodb-js/mongodb-database-model';
+import type { CollectionProps } from '@mongodb-js/mongodb-collection-model';
 
 export function createDatabase(
   overrides?: Partial<DatabaseProps>

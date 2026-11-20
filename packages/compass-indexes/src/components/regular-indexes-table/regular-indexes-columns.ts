@@ -1,6 +1,7 @@
-import type {
-  LGColumnDef,
-  LeafyGreenTableRow,
+import {
+  nbsp,
+  type LGColumnDef,
+  type LeafyGreenTableRow,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -8,6 +9,7 @@ import {
   type MergedIndex,
   type IndexInfo,
 } from './use-regular-indexes-table';
+import { getUsageRateSortValue } from './usage-rate-field';
 
 function mergedIndexPropertyValue(index: MergedIndex): string {
   // TODO(COMPASS-8335): right now only regular indexes have properties &
@@ -33,7 +35,8 @@ function sortByProperties(a: MergedIndex, b: MergedIndex) {
   return 0;
 }
 
-type SortableField = 'name' | 'type' | 'size' | 'usageCount' | 'status';
+type SortableField =
+  'name' | 'type' | 'size' | 'usageCount' | 'usageRate' | 'status';
 
 function mergedIndexFieldValue(
   index: MergedIndex,
@@ -44,14 +47,15 @@ function mergedIndexFieldValue(
       // TODO(COMPASS-8335): type should be supported by in-progress-index
       return 'unknown';
     }
-    if (field === 'size' || field === 'usageCount') {
+    // In-progress indexes have no stats yet, so they sort as unused.
+    if (field === 'size' || field === 'usageCount' || field === 'usageRate') {
       return 0;
     }
     return index[field];
   }
 
   if (index.compassIndexType === 'rolling-index') {
-    if (field === 'size' || field === 'usageCount') {
+    if (field === 'size' || field === 'usageCount' || field === 'usageRate') {
       return 0;
     }
     if (field === 'name') {
@@ -70,17 +74,23 @@ function mergedIndexFieldValue(
     return determineRegularIndexStatus(index);
   }
 
+  if (field === 'usageRate') {
+    return getUsageRateSortValue(index.usageCount, index.usageSince);
+  }
+
   return index[field];
 }
 
-function isSupportedSortField(
-  field: string
-): field is 'name' | 'type' | 'size' | 'usageCount' | 'properties' | 'status' {
+function isSupportedSortField(field: string): field is
+  | SortableField
+  // Properties is sorted through sortByProperties rather than a field value.
+  | 'properties' {
   return [
     'name',
     'type',
     'size',
     'usageCount',
+    'usageRate',
     'properties',
     'status',
   ].includes(field);
@@ -120,7 +130,10 @@ export const COLUMNS: LGColumnDef<IndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name & Definition',
-    cell: (info) => info.row.original.displayName,
+    cell: (info) => {
+      const { displayName } = info.row.original;
+      return typeof displayName === 'string' ? nbsp(displayName) : displayName;
+    },
     enableSorting: true,
   },
   {
@@ -144,7 +157,15 @@ export const COLUMNS: LGColumnDef<IndexInfo>[] = [
     sortingFn: sortFn,
     // The usage contains the date string so we
     // want it to have a good amount of space.
-    size: 300,
+    size: 320,
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'usageRate',
+    header: 'Avg. rate of usage',
+    cell: (info) => info.getValue(),
+    sortingFn: sortFn,
+    size: 320,
     enableSorting: true,
   },
   {
@@ -177,7 +198,10 @@ export const COLUMNS_FOR_DRAWER: LGColumnDef<IndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
-    cell: (info) => info.row.original.displayName,
+    cell: (info) => {
+      const { displayName } = info.row.original;
+      return typeof displayName === 'string' ? nbsp(displayName) : displayName;
+    },
     enableSorting: true,
   },
   {

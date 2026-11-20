@@ -52,8 +52,7 @@ export function isRerankNotEnabledError(errorMessage: string): boolean {
 }
 
 export type VoyageRateLimitInfo =
-  | { type: 'rpm' | 'tpm'; limit: string }
-  | { type: 'billing'; limits: string };
+  { type: 'rpm' | 'tpm'; limit: string } | { type: 'billing'; limits: string };
 
 const VOYAGE_API_ERROR = 'Voyage API error';
 const EMBEDDING_PROVIDER_RATE_LIMIT = 'EmbeddingProviderRateLimitException';

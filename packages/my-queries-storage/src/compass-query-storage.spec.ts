@@ -1,7 +1,7 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
 import { expect } from 'chai';
-import fs from 'fs/promises';
-import path from 'path';
-import os from 'os';
 import { EJSON, UUID } from 'bson';
 import Sinon from 'sinon';
 import { recentQueries, favoriteQueries } from '../test/fixtures/index';

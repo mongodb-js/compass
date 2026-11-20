@@ -1,11 +1,6 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
-  activateIndexesPlugin,
-  type IndexesDataServiceProps,
-} from './stores/store';
-import Indexes from './components/indexes/indexes';
-import {
   connectionInfoRefLocator,
   type DataServiceLocator,
   dataServiceLocator,
@@ -15,15 +10,17 @@ import {
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import {
-  telemetryLocator,
-  experimentationServiceLocator,
-} from '@mongodb-js/compass-telemetry/provider';
-import { IndexesTabTitle } from './plugin-title';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
-import { IndexesDrawer } from './plugin-drawer';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import { IndexesDrawer } from './plugin-drawer';
+import { IndexesTabTitle } from './plugin-title';
+import Indexes from './components/indexes/indexes';
+import {
+  activateIndexesPlugin,
+  type IndexesDataServiceProps,
+} from './stores/store';
 
 export const CompassIndexesPluginProvider = registerCompassPlugin(
   {
@@ -45,7 +42,6 @@ export const CompassIndexesPluginProvider = registerCompassPlugin(
     atlasService: atlasServiceLocator,
     preferences: preferencesLocator,
     workspaces: workspacesServiceLocator,
-    experimentationServices: experimentationServiceLocator,
   }
 );
 

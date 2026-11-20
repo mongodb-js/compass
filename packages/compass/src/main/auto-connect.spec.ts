@@ -1,13 +1,13 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { dialog } from 'electron';
+import type { MessageBoxReturnValue } from 'electron';
 import type { AutoConnectPreferences } from './auto-connect';
 import {
   resetForTesting,
   registerMongoDbUrlForBrowserWindow,
   getWindowAutoConnectPreferences,
 } from './auto-connect';
-import { dialog } from 'electron';
-import type { MessageBoxReturnValue } from 'electron';
 
 const USER_CONFIRMED_CONNECTION_ATTEMPT = 0;
 

@@ -10,17 +10,17 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import type { Document } from 'mongodb';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import { type RegularIndex } from '../../modules/regular-indexes';
 import type {
   IndexesDataService,
   IndexesPluginOptions,
 } from '../../stores/store';
-import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
-import type { Document } from 'mongodb';
-import type { AllPreferences } from 'compass-preferences-model';
+import Indexes from './indexes';
 
 const renderIndexes = async (
   options: Partial<IndexesPluginOptions> = {},
@@ -367,9 +367,8 @@ describe('Indexes Component', function () {
           collectionStats: mockCollectionStats,
         });
 
-        expect(
-          screen.getByTestId('view-not-search-compatible-banner')
-        ).to.exist;
+        expect(screen.getByTestId('view-not-search-compatible-banner')).to
+          .exist;
       });
 
       it('renders search indexes list if 8.1+ and has indexes', async function () {

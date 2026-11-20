@@ -1,6 +1,8 @@
-import type { MockDataSchemaToolOutput } from '@mongodb-js/compass-generative-ai/provider';
-import type { FakerArg } from './script-generation-utils';
-import type { MongoDBFieldType } from '../../schema-analysis-types';
+import type {
+  MockDataSchemaToolOutput,
+  FakerFieldMapping,
+  FakerSchema,
+} from '@mongodb-js/mock-data-generator';
 
 export const MockDataGeneratorSteps = {
   SCHEMA_CONFIRMATION: 'SCHEMA_CONFIRMATION',
@@ -40,14 +42,7 @@ export type MockDataGeneratorState =
 
 export type LlmFakerMapping = MockDataSchemaToolOutput['fields'][number];
 
-export interface FakerFieldMapping {
-  mongoType: MongoDBFieldType;
-  fakerMethod: string;
-  fakerArgs: FakerArg[];
-  probability?: number; // 0.0 - 1.0 frequency of field (defaults to 1.0)
-}
-
-export type FakerSchema = Record<string, FakerFieldMapping>;
+export type { FakerFieldMapping, FakerSchema };
 
 export const DataGenerationSteps = {
   INSTALL_FAKERJS: 'install fakerjs',

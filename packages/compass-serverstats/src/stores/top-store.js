@@ -1,10 +1,10 @@
 'use strict';
 const Reflux = require('reflux');
-const Actions = require('../actions');
-const toNS = require('mongodb-ns');
+const toNS = require('@mongodb-js/mongodb-ns');
 const { round, isEmpty } = require('lodash');
 
 const debug = require('debug')('mongodb-compass:server-stats:top-store');
+const Actions = require('../actions');
 
 /* eslint complexity:0 */
 
@@ -13,7 +13,7 @@ const debug = require('debug')('mongodb-compass:server-stats:top-store');
  * 'topComplete' action, fetches the top data, and
  * triggers with the result of the command.
  *
- * @type {Reflux.Store & {onActivated(ds: import('mongodb-data-service').DataService, instance: import('@mongodb-js/compass-app-stores/provider').MongoDBInstance)}}
+ * @type {Reflux.Store & {onActivated(ds: import('@mongodb-js/mongodb-data-service').DataService, instance: import('@mongodb-js/compass-app-stores/provider').MongoDBInstance)}}
  */
 const TopStore = Reflux.createStore({
   /**

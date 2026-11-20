@@ -9,10 +9,10 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import AuthenticationGssapi from './authentication-gssapi';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import { ConnectionFormSettingsContext } from '../../../hooks/use-connect-form-settings';
+import AuthenticationGssapi from './authentication-gssapi';
 
 function renderComponent({
   errors = [],

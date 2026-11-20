@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
@@ -68,11 +68,12 @@ export function activatePlugin(
     });
     if (confirmed) {
       try {
-        const method = isCollection ? 'dropCollection' : 'dropDatabase';
         const dataService =
           connections.getDataServiceForConnection(connectionId);
 
-        await dataService[method](ns);
+        await (isCollection
+          ? dataService.dropCollection(ns)
+          : dataService.dropDatabase(ns));
         track(
           isCollection ? 'Collection Dropped' : 'Database Dropped',
           {},
@@ -115,9 +116,9 @@ export function activatePlugin(
  * Drop namespace plugin doesn't render anything on it's own, but requires
  * compass-component toast and confirmation modal areas to be present
  */
-export const DropNamespaceComponent: React.FunctionComponent = ({
-  children,
-}) => {
+export const DropNamespaceComponent: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   return (
     <ConfirmationModalArea>
       <ToastArea>{children}</ToastArea>

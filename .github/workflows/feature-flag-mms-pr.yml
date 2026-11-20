@@ -27,9 +27,9 @@ jobs:
           fetch-depth: 0
           show-progress: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.15.0
+          node-version: 24.22.2
           cache: 'npm'
 
       - name: Install npm@11.16.0
@@ -38,7 +38,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm ci -w compass-preferences-model --ignore-scripts
+          npm ci -w @mongodb-js/compass-preferences-model --ignore-scripts
 
       - name: Detect new feature flags
         id: detect
@@ -60,16 +60,16 @@ jobs:
         with:
           show-progress: false
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.15.0
+          node-version: 24.22.2
       - name: Install npm@11.16.0
         run: |
           npm install -g npm@11.16.0
 
       - name: Install Dependencies
         run: |
-          npm ci -w compass-preferences-model --ignore-scripts
+          npm ci -w @mongodb-js/compass-preferences-model --ignore-scripts
 
       - name: Post or update comment on PR
         run: node packages/compass-preferences-model/scripts/post-feature-flag-comment-on-pr.mts
@@ -103,6 +103,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           path: mms
           show-progress: false
+          persist-credentials: false
       - name: Setup PR info
         id: pull-request-info
         env:
@@ -118,7 +119,8 @@ jobs:
           # Branch Name
           REPO_SANITIZED="${{ github.repository }}"
           REPO_SANITIZED="${REPO_SANITIZED//\//-}"
-          BRANCH_NAME="${TICKET}/${REPO_SANITIZED}-${{ github.sha }}"
+          # Prefix with repo, not ticket: a bare "${TICKET}" branch in mms would conflict with "${TICKET}/..."
+          BRANCH_NAME="${REPO_SANITIZED}/${TICKET}-${{ github.sha }}"
           echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
           # Assign the PR to the author of the commit, fallback to empty if not available

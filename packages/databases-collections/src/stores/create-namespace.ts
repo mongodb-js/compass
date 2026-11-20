@@ -1,19 +1,13 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import {} from '@mongodb-js/compass-connections/provider';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { Action, AnyAction } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import reducer, {
-  kmsProvidersRetrieved,
-  serverVersionRetrieved,
-  open,
-  topologyChanged,
-} from '../modules/create-namespace';
-import type toNS from 'mongodb-ns';
+import type toNS from '@mongodb-js/mongodb-ns';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import {
@@ -21,6 +15,12 @@ import {
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import reducer, {
+  kmsProvidersRetrieved,
+  serverVersionRetrieved,
+  open,
+  topologyChanged,
+} from '../modules/create-namespace';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -46,7 +46,7 @@ export type CreateNamespaceRootState = ReturnType<
 
 export type CreateNamespaceThunkAction<
   R,
-  A extends Action = AnyAction
+  A extends Action = AnyAction,
 > = ThunkAction<R, CreateNamespaceRootState, CreateNamespaceServices, A>;
 
 export function activatePlugin(

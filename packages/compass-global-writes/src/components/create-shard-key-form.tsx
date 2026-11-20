@@ -18,13 +18,13 @@ import {
   Subtitle,
   TextInput,
 } from '@mongodb-js/compass-components';
+import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { connect } from 'react-redux';
 import {
   createShardKey,
   type RootState,
   type CreateShardKeyData,
 } from '../store/reducer';
-import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { connect } from 'react-redux';
 import { containerStyles } from './common-styles';
 
 const listStyles = css({

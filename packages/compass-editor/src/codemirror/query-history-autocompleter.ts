@@ -8,9 +8,9 @@ import {
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import { toJSString } from 'mongodb-query-parser';
-import { languages } from '../editor';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { highlightCode } from '@lezer/highlight';
+import { languages } from '../editor';
 import { type CodemirrorThemeType, highlightStyles } from '../editor';
 
 export type SavedQuery = {

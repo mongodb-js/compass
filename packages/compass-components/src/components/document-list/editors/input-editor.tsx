@@ -1,5 +1,6 @@
 import React from 'react';
 import { cx } from '@leafygreen-ui/emotion';
+import { useDarkMode } from '../../../hooks/use-theme';
 import {
   editorInvalidStyles,
   editorInvalidLightModeStyles,
@@ -7,7 +8,6 @@ import {
   editorStyles,
 } from './shared';
 import type { EditorProps } from './shared';
-import { useDarkMode } from '../../../hooks/use-theme';
 
 // Base single-line editor shared by the default, date and UUID editors. Callers
 // only need to provide the value handling and their own width / placeholder.

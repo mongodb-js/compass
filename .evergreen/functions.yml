@@ -32,7 +32,7 @@ variables:
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
     EVERGREEN_CREATED_AT: ${created_at}
-    NODE_JS_VERSION: '24.15.0'
+    NODE_JS_VERSION: '24.22.2'
     NPM_VERSION: '11.16.0'
     # Deprecated String::Value declaration in Electron 43 doesn't parse under
     # GCC 12, breaking every native module on the Linux builders.
@@ -64,6 +64,7 @@ variables:
     E2E_TESTS_DATA_LAKE_HOST: ${e2e_tests_data_lake_host}
     E2E_TESTS_ANALYTICS_NODE_HOST: ${e2e_tests_analytics_node_host}
     E2E_TESTS_FREE_TIER_HOST: ${e2e_tests_free_tier_host}
+    E2E_TESTS_DISAGG_HOST: ${e2e_tests_disagg_host}
     E2E_TESTS_ATLAS_USERNAME: ${e2e_tests_atlas_username}
     E2E_TESTS_ATLAS_PASSWORD: ${e2e_tests_atlas_password}
     E2E_TESTS_ATLAS_X509_PEM_BASE64: ${e2e_tests_atlas_x509_pem_base64}
@@ -85,8 +86,20 @@ parameters:
   - key: compass_web_release_commit
     description: Exact commit that will be deployed as a latest release for provided compass_web_publish_environment
 
+pre:
+  - command: ec2.assume_role
+    display_name: Assume IAM role with permissions to read private -latest server artifacts
+    params:
+      role_arn: ${private_atlas_artifacts_role_arn}
+      duration_seconds: 3600
+
 # This is here with the variables because anchors aren't supported across includes
 post:
+  - command: shell.exec
+    params:
+      shell: bash
+      script: |
+        rm -f "$HOME/.aws/credentials"
   - command: archive.targz_pack
     params:
       target: src/all-e2e-logs.tgz
@@ -161,12 +174,30 @@ functions:
       type: system
       params:
         directory: src
+    - command: subprocess.exec
+      display_name: Persist assumed-role credentials for the AWS SDK
+      params:
+        working_dir: src
+        binary: bash .evergreen/persist-assumed-role-credentials.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
 
   prepare:
     - command: git.get_project
       type: system
       params:
         directory: src
+    - command: subprocess.exec
+      display_name: Persist assumed-role credentials for the AWS SDK
+      params:
+        working_dir: src
+        binary: bash .evergreen/persist-assumed-role-credentials.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+          AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
 
     - command: shell.exec
       type: setup
@@ -724,6 +755,8 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
           COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_WITH_ATLAS_USER: ${test_with_atlas_user|false}
+          E2E_COVERAGE_TEST_ARGS: '${e2e_coverage_test_args|}'
           ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
@@ -735,7 +768,7 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- $E2E_COVERAGE_TEST_ARGS
 
           tar czf coverage.tgz packages/compass-e2e-tests/coverage
 
@@ -804,10 +837,7 @@ functions:
             npm run --workspace @mongodb-js/compass-smoke-tests start -- dispatch --ref ${branch_name}
           fi
 
-  # Creating the webpack compass-web bundle ensures
-  # that the bundle size does not grow too large for.
-  # The webpack compile fails when it exceeds the size limit.
-  compile-compass-web:
+  test-can-bundle-compass-web:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
       timeout_secs: 600
@@ -818,7 +848,12 @@ functions:
           DEBUG: ${debug|}
         script: |
           set -e
+          # Creating the webpack compass-web bundle ensures that the bundle size
+          # does not grow too large for. The webpack compile fails when it
+          # exceeds the size limit.
           npm run --workspace @mongodb-js/compass-web compile
+          # Test that all generated assets are uploadable
+          npm run --workspace @mongodb-js/compass-web upload-dist -- --dry-run
 
   test-web-sandbox:
     - command: shell.exec
@@ -854,9 +889,13 @@ functions:
           <<: [*compass-env, *compass-e2e-secrets]
           DEBUG: ${debug|}
           COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: '${compass_web_publish_environment}'
-          # CCS connection / op running time is slower than default timeouts
-          COMPASS_E2E_MOCHA_TIMEOUT: '1440000' # 24 min
-          COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '960000' # 16 min
+          # CCS connection / op running time is slower than the local defaults,
+          # but a stuck waitFor burns the full timeout per element and a few of
+          # those overrun the 1 hour step budget, killing the task with no test
+          # results attached. Call sites that legitimately need to wait longer
+          # pass an explicit timeout (see helpers/commands/atlas-cloud/cluster.ts)
+          COMPASS_E2E_MOCHA_TIMEOUT: '360000' # 6 min, longer than the waitFor timeout
+          COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '180000' # 3 min
           COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups|1}
           COMPASS_E2E_TEST_GROUP: ${e2e_test_group|1}
           ATLAS_CLOUD_TEST_ARGS: '${atlas_cloud_test_args|}'
@@ -866,7 +905,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           echo "Starting atlas cloud e2e tests..."
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- web \
-            --test-atlas-cloud \
+            --test-in-atlas-cloud \
             $ATLAS_CLOUD_TEST_ARGS
 
   test-connectivity:
@@ -907,7 +946,7 @@ functions:
             curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version continuous) | \
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
-          npm run test-csfle --workspace mongodb-data-service
+          npm run test-csfle --workspace @mongodb-js/mongodb-data-service
 
   verify-artifacts:
     - command: shell.exec

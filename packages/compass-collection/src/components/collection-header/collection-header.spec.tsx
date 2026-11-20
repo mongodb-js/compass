@@ -10,14 +10,14 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import CollectionHeader from './collection-header';
 import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
+import Sinon from 'sinon';
 import { MockDataGeneratorSteps } from '../mock-data-generator-modal/types';
 
-import Sinon from 'sinon';
+import CollectionHeader from './collection-header';
 
 function renderCollectionHeader(
   props: Partial<ComponentProps<typeof CollectionHeader>> = {},

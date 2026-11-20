@@ -6,28 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { connect } from 'react-redux';
-import type { DataModelingState } from '../store/reducer';
-import {
-  addNewFieldToCollection,
-  moveCollection,
-  moveMultipleCollections,
-  onAddNestedField,
-  selectCollection,
-  selectRelationship,
-  selectBackground,
-  type DiagramState,
-  selectCurrentModelFromState,
-  createNewRelationship,
-  addCollection,
-  selectField,
-  deleteCollection,
-  deleteRelationship,
-  removeField,
-  renameField,
-  changeFieldType,
-  toggleCollectionExpanded,
-  toggleFieldExpanded,
-} from '../store/diagram';
 import type {
   EdgeProps,
   NodeProps,
@@ -51,19 +29,41 @@ import {
   useFocusStateIncludingUnfocused,
   FocusStates,
 } from '@mongodb-js/compass-components';
+import toNS from '@mongodb-js/mongodb-ns';
+import type { DataModelingState } from '../store/reducer';
+import {
+  addNewFieldToCollection,
+  moveCollection,
+  moveMultipleCollections,
+  onAddNestedField,
+  selectCollection,
+  selectRelationship,
+  selectBackground,
+  type DiagramState,
+  selectCurrentModelFromState,
+  createNewRelationship,
+  addCollection,
+  selectField,
+  deleteCollection,
+  deleteRelationship,
+  removeField,
+  renameField,
+  changeFieldType,
+  toggleCollectionExpanded,
+  toggleFieldExpanded,
+} from '../store/diagram';
 import { retryAnalysis } from '../store/analysis-process';
 import type { FieldPath, StaticModel } from '../services/data-model-storage';
-import DiagramEditorToolbar from './diagram-editor-toolbar';
-import ExportDiagramModal from './export-diagram-modal';
-import { DATA_MODELING_DRAWER_ID } from './drawer/diagram-editor-side-panel';
 import {
   collectionToDiagramNode,
   getHighlightedFields,
   relationshipToDiagramEdge,
 } from '../utils/nodes-and-edges';
-import toNS from 'mongodb-ns';
 import { FIELD_TYPES } from '../utils/field-types';
 import { getNamespaceRelationships } from '../utils/utils';
+import DiagramEditorToolbar from './diagram-editor-toolbar';
+import ExportDiagramModal from './export-diagram-modal';
+import { DATA_MODELING_DRAWER_ID } from './drawer/diagram-editor-side-panel';
 import AnalysisProgressStatus from './analysis-progress-status';
 
 const errorBannerStyles = css({
@@ -93,6 +93,7 @@ const diagramStyles = css({
 
 const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
+  children?: React.ReactNode;
 }> = ({ children, onRetryClick }) => {
   return (
     <Banner variant="danger" className={errorBannerStyles}>
@@ -363,8 +364,8 @@ const DiagramContent: React.FunctionComponent<{
       const fieldPath = Array.isArray(id)
         ? id
         : typeof id === 'string'
-        ? [id]
-        : undefined;
+          ? [id]
+          : undefined;
       if (!fieldPath) {
         return;
       }
@@ -497,7 +498,7 @@ const DiagramContent: React.FunctionComponent<{
         onNodeExpandToggle: handleNodeExpandedToggle,
         onFieldExpandToggle: handleFieldExpandedToggle,
         fieldTypes: FIELD_TYPES,
-      } satisfies DiagramProps),
+      }) satisfies DiagramProps,
     [
       isDarkMode,
       diagramLabel,

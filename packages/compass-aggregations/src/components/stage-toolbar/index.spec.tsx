@@ -1,41 +1,32 @@
 import React from 'react';
 import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import {
-  renderWithStore,
-  wrapWithExperimentProvider,
-} from '../../../test/configure-store';
-import type { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-import StageToolbar from './';
+import { ReadOnlyPreferenceAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { renderWithStore } from '../../../test/configure-store';
 import {
   changeStageCollapsed,
   changeStageDisabled,
 } from '../../modules/pipeline-builder/stage-editor';
+import StageToolbar from './';
 
 const renderStageToolbar = async (
   pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
   preferences?: InstanceType<typeof ReadOnlyPreferenceAccess>,
   {
-    enableSearchActivationExperiment = false,
+    enableAtlasSearchIndexes = false,
     services = {},
     stageIndex = 0,
   }: {
-    enableSearchActivationExperiment?: boolean;
+    enableAtlasSearchIndexes?: boolean;
     services?: Parameters<typeof renderWithStore>[3];
     stageIndex?: number;
   } = {}
 ) => {
-  let ui = <StageToolbar index={stageIndex} />;
-  if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
+  const ui = <StageToolbar index={stageIndex} />;
   const result = await renderWithStore(ui, { pipeline }, undefined, {
     ...services,
-    ...(preferences ? { preferences } : {}),
+    preferences:
+      preferences ?? new ReadOnlyPreferenceAccess({ enableAtlasSearchIndexes }),
   });
   return result.plugin.store;
 };
@@ -62,14 +53,16 @@ describe('StageToolbar', function () {
       const store = await renderStageToolbar();
       store.dispatch(changeStageDisabled(0, true));
       expect(
-        screen.getByText('Stage disabled. Results not passed in the pipeline.')
+        await screen.findByText(
+          'Stage disabled. Results not passed in the pipeline.'
+        )
       ).to.exist;
     });
     it('when stage is collapsed', async function () {
       const store = await renderStageToolbar();
       store.dispatch(changeStageCollapsed(0, true));
       expect(
-        screen.getByText(
+        await screen.findByText(
           'A sample of the aggregated results from this stage will be shown below.'
         )
       ).to.exist;
@@ -82,59 +75,55 @@ describe('StageToolbar', function () {
   context('View token usage link', function () {
     it('does not render when stage is not $rerank', async function () {
       await renderStageToolbar([{ $match: { _id: 1 } }]);
-      expect(
-        screen.queryByTestId('stage-toolbar-view-token-usage-link')
-      ).to.not.exist;
+      expect(screen.queryByTestId('stage-toolbar-view-token-usage-link')).to.not
+        .exist;
     });
 
     it('renders when stage is $rerank', async function () {
       await renderStageToolbar([{ $rerank: {} }]);
-      expect(
-        screen.getByTestId('stage-toolbar-view-token-usage-link')
-      ).to.exist;
+      expect(screen.getByTestId('stage-toolbar-view-token-usage-link')).to
+        .exist;
       expect(screen.getByText('View $rerank Usage and Rate Limits')).to.exist;
     });
   });
 
   context('View Indexes button', function () {
-    it('does not render when experiment is not in variant', async function () {
+    it('does not render when Atlas search indexes are disabled', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
-      expect(
-        screen.queryByTestId('stage-toolbar-view-indexes-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('stage-toolbar-view-indexes-button')).to.not
+        .exist;
     });
     it('does not render when stage is not a search stage', async function () {
       await renderStageToolbar([{ $match: { _id: 1 } }], undefined, {
-        enableSearchActivationExperiment: true,
+        enableAtlasSearchIndexes: true,
       });
-      expect(
-        screen.queryByTestId('stage-toolbar-view-indexes-button')
-      ).to.not.exist;
+      expect(screen.queryByTestId('stage-toolbar-view-indexes-button')).to.not
+        .exist;
     });
-    it('renders when experiment is in variant and stage is $search', async function () {
+    it('renders when Atlas search indexes are enabled and stage is $search', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }], undefined, {
-        enableSearchActivationExperiment: true,
+        enableAtlasSearchIndexes: true,
       });
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
-    it('renders when experiment is in variant and stage is $searchMeta', async function () {
+    it('renders when Atlas search indexes are enabled and stage is $searchMeta', async function () {
       await renderStageToolbar(
         [{ $searchMeta: { index: 'default' } }],
         undefined,
         {
-          enableSearchActivationExperiment: true,
+          enableAtlasSearchIndexes: true,
         }
       );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
-    it('renders when experiment is in variant and stage is $vectorSearch', async function () {
+    it('renders when Atlas search indexes are enabled and stage is $vectorSearch', async function () {
       await renderStageToolbar(
         [{ $vectorSearch: { index: 'default' } }],
         undefined,
         {
-          enableSearchActivationExperiment: true,
+          enableAtlasSearchIndexes: true,
         }
       );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;

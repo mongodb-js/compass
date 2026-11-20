@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -9,7 +10,6 @@ import {
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
-import { expect } from 'chai';
 import { isTestingWebAtlasCloud } from '../helpers/test-runner-context.ts';
 
 describe('Global Tabs', function () {

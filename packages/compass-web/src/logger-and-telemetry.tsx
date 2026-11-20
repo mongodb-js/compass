@@ -1,13 +1,13 @@
+import type { Writable } from 'node:stream';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { MongoLogWriter } from 'mongodb-log-writer/mongo-log-writer';
-import type { Writable } from 'stream';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import {
   useCurrentValueRef,
   useInitialValue,
 } from '@mongodb-js/compass-components';
 import type { TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 
 /** @public */
 export type TrackFunction = (
@@ -97,10 +97,8 @@ export class CompassWebLogger implements Logger {
     this.component = component;
     this.callbackRef = callbackRef;
     const target = {
-      write(line: string, callback: () => void) {
-        const parsedLine = JSON.parse(line);
-        compassWebLoggingAndTrackingEvents.logging?.push(parsedLine);
-        callbackRef.current.onLog?.(parsedLine);
+      write: (line: string, callback: () => void) => {
+        this.writeLine(line);
         callback();
       },
       end(callback: () => void) {
@@ -114,6 +112,13 @@ export class CompassWebLogger implements Logger {
   }
 
   mongoLogId = mongoLogId;
+
+  /** Writes a line another logger formatted, e.g. one from a utility */
+  writeLine = (line: string): void => {
+    const parsedLine = JSON.parse(line);
+    compassWebLoggingAndTrackingEvents.logging?.push(parsedLine);
+    this.callbackRef.current.onLog?.(parsedLine);
+  };
 
   createLogger = (component: string): Logger => {
     return new CompassWebLogger(component, this.callbackRef);

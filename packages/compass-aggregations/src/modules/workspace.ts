@@ -1,14 +1,14 @@
 import type { Action, Reducer } from 'redux';
+import { isAction } from '../utils/is-action';
 import type { RunAggregation } from './aggregation';
 import {
   ActionTypes as AggregationActionTypes,
   cancelAggregation,
 } from './aggregation';
-import type { PipelineBuilderThunkAction } from '.';
 import { cancelCount } from './count-documents';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { isAction } from '../utils/is-action';
+import type { PipelineBuilderThunkAction } from '.';
 
 export type Workspace = 'builder' | 'results';
 

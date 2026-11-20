@@ -1,5 +1,5 @@
 import type { Logger } from '@mongodb-js/compass-logging';
-import parse, { toJSString } from 'mongodb-query-parser';
+import { toJSString, parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 
 type ParsedXmlJsonResponse = {
   content: {
@@ -16,7 +16,7 @@ type ParsedXmlJsonResponse = {
   };
 };
 
-export function parseXmlToJsonResponse(
+export async function parseXmlToJsonResponse(
   xmlString: string,
   {
     logger,
@@ -25,7 +25,7 @@ export function parseXmlToJsonResponse(
     logger: Logger;
     type: 'find' | 'aggregate';
   }
-): ParsedXmlJsonResponse {
+): Promise<ParsedXmlJsonResponse> {
   const expectedTags = [
     'filter',
     'project',
@@ -52,11 +52,16 @@ export function parseXmlToJsonResponse(
     limit: null,
     aggregation: null,
   };
-  for (const tag of expectedTags) {
-    const value = xmlDoc.querySelector(tag)?.textContent?.trim();
-    if (value) {
+  await Promise.all(
+    expectedTags.map(async (tag) => {
+      const value = xmlDoc.querySelector(tag)?.textContent?.trim();
+      if (!value) {
+        return;
+      }
       try {
-        const tagValue = parse(value);
+        const tagValue = await parse(value, {
+          mode: ParseMode.Loose,
+        });
         if (
           !tagValue ||
           (typeof tagValue === 'object' && Object.keys(tagValue).length === 0)
@@ -73,10 +78,11 @@ export function parseXmlToJsonResponse(
           `Failed to parse value for tag <${tag}>: ${value}`,
           { error: e }
         );
-        result[tag] = null;
+        // Keep the unparseable value so the user can see and fix it in the editor
+        result[tag] = value;
       }
-    }
-  }
+    })
+  );
 
   const { aggregation: pipeline, ...query } = result;
 

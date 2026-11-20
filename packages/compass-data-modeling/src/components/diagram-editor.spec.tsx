@@ -6,7 +6,7 @@ import {
   screen,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import DiagramEditor from './diagram-editor';
+import { DrawerAnchor, DiagramProvider } from '@mongodb-js/compass-components';
 import type { DataModelingStore } from '../../test/setup-store';
 import type {
   Edit,
@@ -14,8 +14,8 @@ import type {
 } from '../services/data-model-storage';
 import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
-import { DrawerAnchor, DiagramProvider } from '@mongodb-js/compass-components';
 import { type AnalysisOptions, startAnalysis } from '../store/analysis-process';
+import DiagramEditor from './diagram-editor';
 
 const mockConnections = [
   { ...createDefaultConnectionInfo(), id: 'connection1' },

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { serialize, runInfoCommand } from './info';
 import { getTarget } from '../../test/test-helpers';
+import { serialize, runInfoCommand } from './info';
 
 describe('commands/info', function () {
   describe('serialize', function () {

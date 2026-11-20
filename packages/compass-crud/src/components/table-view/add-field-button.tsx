@@ -6,9 +6,9 @@ import {
   Menu,
   MenuItem,
 } from '@mongodb-js/compass-components';
+import type Document from '@mongodb-js/hadron-document';
+import type { Element } from '@mongodb-js/hadron-document';
 import type { CellEditorProps } from './cell-editor';
-import type Document from 'hadron-document';
-import type { Element } from 'hadron-document';
 
 /**
  * The default text.
@@ -42,13 +42,7 @@ const ADD_FIELD_ICON = 'PlusWithCircle';
 
 export type AddFieldButtonProps = Pick<
   CellEditorProps,
-  | 'value'
-  | 'addColumn'
-  | 'node'
-  | 'context'
-  | 'column'
-  | 'columnApi'
-  | 'drillDown'
+  'value' | 'addColumn' | 'node' | 'context' | 'column' | 'api' | 'drillDown'
 > & {
   displace: number;
 };
@@ -105,7 +99,10 @@ class AddFieldButton extends React.Component<
 
     if (isArray) {
       const lastIndex = parent.elements?.lastElement?.currentKey;
-      if (this.props.columnApi.getColumn(lastIndex) !== null) {
+      if (
+        lastIndex !== undefined &&
+        this.props.api.getColumn(String(lastIndex)) !== null
+      ) {
         editOnly = true;
       }
     }

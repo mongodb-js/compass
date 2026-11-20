@@ -73,7 +73,9 @@ const WorkspaceTabIdContext = React.createContext<string | null>(null);
  * Exported for testing purposes only
  * @internal
  */
-export const TabStoreProvider: React.FunctionComponent = ({ children }) => {
+export const TabStoreProvider: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   return (
     <Provider context={TabStateStoreContext} store={tabStateStore}>
       {children}

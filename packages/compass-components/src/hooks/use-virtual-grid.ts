@@ -40,7 +40,7 @@ function getItemIndex(node: HTMLElement): number {
  * {@link https://www.w3.org/TR/wai-aria-practices-1.1/#kbd_roving_tabindex}
  */
 export function useVirtualGridArrowNavigation<
-  T extends HTMLElement = HTMLElement
+  T extends HTMLElement = HTMLElement,
 >({
   colCount,
   rowCount,

@@ -1,3 +1,4 @@
+import type { Document } from 'bson';
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import { getStageOperator } from '../../utils/stage';
 import type { PipelineBuilder } from './pipeline-builder';
@@ -19,21 +20,23 @@ export const updatePipelinePreview =
     }
   };
 
-export function getStagesFromBuilderState(
+export async function getStagesFromBuilderState(
   state: RootState,
   pipelineBuilder: PipelineBuilder
-) {
+): Promise<(Document | null)[]> {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
-    return pipelineBuilder.stages.map((stage) => stage.toBSON());
+    return await Promise.all(
+      pipelineBuilder.stages.map((stage) => stage.toBSON())
+    );
   } else {
     return pipelineBuilder.getPipelineFromSource();
   }
 }
 
-export function getPipelineFromBuilderState(
+export async function getPipelineFromBuilderState(
   state: RootState,
   pipelineBuilder: PipelineBuilder
-) {
+): Promise<Document[]> {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return pipelineBuilder.getPipelineFromStages();
   } else {
@@ -129,6 +132,25 @@ export function getIsRerankFirstStageBannerVisible(
   return previewDocs !== null && previewDocs.length > 0;
 }
 
+/**
+ * Whether the pipeline is already in the state that creating a new pipeline
+ * would leave it in: nothing was edited and there are no stages or name to
+ * clear. Note that a pipeline can be unmodified and still have content, for
+ * example right after it was saved or opened from the saved pipelines list.
+ */
+export function getIsNewPipelineFromBuilderState(state: RootState): boolean {
+  if (state.isModified || state.name !== '') {
+    return false;
+  }
+  if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
+    return state.pipelineBuilder.stageEditor.stages.every(
+      (stage) => stage.type === 'stage' && stage.empty
+    );
+  }
+  const { pipelineText } = state.pipelineBuilder.textEditor.pipeline;
+  return ['', '[]'].includes(pipelineText.trim());
+}
+
 export function getIsPipelineInvalidFromBuilderState(
   state: RootState,
   includeServerErrors = true
@@ -156,6 +178,6 @@ export function mapPipelineModeToEditorViewType(
   return state.focusMode.isEnabled
     ? 'focus'
     : state.pipelineBuilder.pipelineMode === 'builder-ui'
-    ? 'stage'
-    : 'text';
+      ? 'stage'
+      : 'text';
 }

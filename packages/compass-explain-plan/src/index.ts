@@ -1,5 +1,3 @@
-import ExplainPlanModal from './components/explain-plan-modal';
-import { activatePlugin } from './stores';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
 import {
@@ -8,7 +6,9 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
+import { activatePlugin } from './stores';
+import ExplainPlanModal from './components/explain-plan-modal';
 
 const ExplainPlanModalPlugin = registerCompassPlugin(
   {

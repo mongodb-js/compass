@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'hadron-ipc';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 
 export const TOGGLE_STATUS = 'TOGGLE_STATUS';
 export const SEARCH_TERM = 'SEARCH_TERM';
@@ -33,10 +33,7 @@ type ToggleStatusAction = {
   type: 'TOGGLE_STATUS';
 };
 type FindInPageActions =
-  | SetSearchTermAction
-  | StopFindAction
-  | ToggleStatusAction
-  | FindAction;
+  SetSearchTermAction | StopFindAction | ToggleStatusAction | FindAction;
 
 function find(state: State, action: FindAction): State {
   const opts = {

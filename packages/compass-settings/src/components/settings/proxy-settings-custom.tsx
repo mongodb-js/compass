@@ -6,7 +6,7 @@ import {
   TextInput,
   useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
-import type { DevtoolsProxyOptions } from 'compass-preferences-model';
+import type { DevtoolsProxyOptions } from '@mongodb-js/compass-preferences-model';
 import type { ChangeEvent } from 'react';
 import React, { useCallback, useState } from 'react';
 

@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import createDebug from 'debug';
 
-import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
+import type { InstalledAppInfo, InstallablePackage } from './types';
 import * as apt from './apt';
 
 const debug = createDebug('compass:smoketests:linux-deb');

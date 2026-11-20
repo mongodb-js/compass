@@ -17,7 +17,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { WelcomeTabImage } from './welcome-image';
 import { ConnectionPlug } from './connection-plug';
 import ConnectionList, { useActiveConnectionIds } from './connection-list';
@@ -99,7 +99,7 @@ function AtlasHelpSection(): React.ReactElement {
           )}
           onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
           variant={ButtonVariant.PrimaryOutline}
-          href="https://www.mongodb.com/cloud/atlas/lp/try4"
+          href="https://www.mongodb.com/cloud/atlas/register"
           target="_blank"
           size={ButtonSize.Small}
         >

@@ -1,20 +1,17 @@
 import { cloneDeep } from 'lodash';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import type {
   AutoEncryptionOptions,
   ClientEncryptionTlsOptions,
   Document,
 } from 'mongodb';
+import parse, { toJSString, ParseMode } from '@mongodb-js/shell-bson-parser';
 import type {
   KMSProviderName,
   KMSProviderType,
   KMSTLSProviderName,
   KMSTLSProviderType,
 } from './csfle-kms-fields';
-import { toJSString } from 'mongodb-query-parser';
-import parseShellStringToEJSON, {
-  ParseMode,
-} from '@mongodb-js/shell-bson-parser';
 
 const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
   storeCredentials: false,
@@ -34,20 +31,20 @@ export interface UpdateCsfleAction {
   value?: AutoEncryptionOptions[keyof AutoEncryptionOptions];
 }
 export interface AddCsfleProviderAction<
-  T extends KMSProviderType = KMSProviderType
+  T extends KMSProviderType = KMSProviderType,
 > {
   type: 'add-new-csfle-kms-provider';
   name: KMSProviderName<T>;
 }
 export interface RenameCsfleProviderAction<
-  T extends KMSProviderType = KMSProviderType
+  T extends KMSProviderType = KMSProviderType,
 > {
   type: 'rename-csfle-kms-provider';
   name: KMSProviderName<T>;
   newName: KMSProviderName<T>;
 }
 export interface RemoveCsfleProviderAction<
-  T extends KMSProviderType = KMSProviderType
+  T extends KMSProviderType = KMSProviderType,
 > {
   type: 'remove-csfle-kms-provider';
   name: KMSProviderName<T>;
@@ -55,7 +52,7 @@ export interface RemoveCsfleProviderAction<
 
 type KMSProviders = NonNullable<AutoEncryptionOptions['kmsProviders']>;
 export interface UpdateCsfleKmsAction<
-  T extends KMSProviderType = KMSProviderType
+  T extends KMSProviderType = KMSProviderType,
 > {
   type: 'update-csfle-kms-param';
   kmsProviderName: KMSProviderName<T>;
@@ -64,7 +61,7 @@ export interface UpdateCsfleKmsAction<
 }
 
 export interface UpdateCsfleKmsTlsAction<
-  T extends KMSTLSProviderType = KMSTLSProviderType
+  T extends KMSTLSProviderType = KMSTLSProviderType,
 > {
   type: 'update-csfle-kms-tls-param';
   kmsProviderName: KMSTLSProviderName<T>;
@@ -279,7 +276,9 @@ export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {
   );
 }
 
-export function textToEncryptedFieldConfig(text: string): Document | undefined {
+export async function textToEncryptedFieldConfig(
+  text: string
+): Promise<Document | undefined> {
   if (!text.trim()) {
     return undefined;
   }
@@ -290,17 +289,10 @@ export function textToEncryptedFieldConfig(text: string): Document | undefined {
 
   let parsed: Document = {};
   try {
-    parsed = parseShellStringToEJSON(text, {
+    parsed = await parse(text, {
       mode: ParseMode.Strict,
     });
     if (!parsed || typeof parsed !== 'object') {
-      // XXX(COMPASS-5689): We've hit the condition in
-      // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
-      // in which instead of returning a parsed value or throwing an error,
-      // the query parser just returns an empty string when encountering
-      // input that can be parsed as JS but not as a valid query.
-      // Unfortunately, this also means that all context around what
-      // caused this error is unavailable here.
       parsed = {};
       throw new Error('Field contained invalid input');
     }
@@ -311,6 +303,16 @@ export function textToEncryptedFieldConfig(text: string): Document | undefined {
 
   parsed['$compass.rawText'] = text;
   return parsed;
+}
+
+// Same shape that saved connections use, adjustCSFLEParams parses it later
+export function textToUnparsedEncryptedFieldConfig(
+  text: string
+): Document | undefined {
+  if (!text.trim()) {
+    return undefined;
+  }
+  return { '$compass.error': null, '$compass.rawText': text };
 }
 
 export function encryptedFieldConfigToText(
@@ -332,18 +334,18 @@ export function encryptedFieldConfigToText(
 // UUIDs, which are not serialized correctly by the connection model.
 // To account for this, we regenerate the actual values from its
 // text representation on connection form load.
-export function adjustCSFLEParams(
+export async function adjustCSFLEParams(
   connectionOptions: Readonly<ConnectionOptions>
-): ConnectionOptions {
+): Promise<ConnectionOptions> {
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryptionOptions = connectionOptions.fleOptions?.autoEncryption;
   if (autoEncryptionOptions?.schemaMap?.['$compass.error'] === null) {
-    autoEncryptionOptions.schemaMap = textToEncryptedFieldConfig(
+    autoEncryptionOptions.schemaMap = await textToEncryptedFieldConfig(
       autoEncryptionOptions.schemaMap['$compass.rawText']
     );
   }
   if (autoEncryptionOptions?.encryptedFieldsMap?.['$compass.error'] === null) {
-    autoEncryptionOptions.encryptedFieldsMap = textToEncryptedFieldConfig(
+    autoEncryptionOptions.encryptedFieldsMap = await textToEncryptedFieldConfig(
       autoEncryptionOptions.encryptedFieldsMap['$compass.rawText']
     );
   }

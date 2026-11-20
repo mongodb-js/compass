@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { ItemsTable, VirtualItemsTable } from './items-table';
-import type { DatabaseProps } from 'mongodb-database-model';
-import { usePreference } from 'compass-preferences-model/provider';
+import type { DatabaseProps } from '@mongodb-js/mongodb-database-model';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { LGColumnDef } from '@mongodb-js/compass-components';
 import {
   css,
@@ -18,6 +17,7 @@ import {
   compactBytes,
   compactNumber,
 } from '@mongodb-js/compass-components';
+import { ItemsTable, VirtualItemsTable } from './items-table';
 
 const databaseNameWrapStyles = css({
   display: 'flex',
@@ -205,6 +205,7 @@ const DatabasesList: React.FunctionComponent<{
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
+  isRefreshing?: boolean;
   renderLoadSampleDataBanner?: () => React.ReactNode;
 }> = ({
   databases,
@@ -212,6 +213,7 @@ const DatabasesList: React.FunctionComponent<{
   onDeleteDatabaseClick,
   onCreateDatabaseClick,
   onRefreshClick,
+  isRefreshing,
   renderLoadSampleDataBanner,
 }) => {
   let virtual = true;
@@ -238,6 +240,7 @@ const DatabasesList: React.FunctionComponent<{
       onDeleteItemClick={onDeleteDatabaseClick}
       onCreateItemClick={onCreateDatabaseClick}
       onRefreshClick={onRefreshClick}
+      isRefreshing={isRefreshing}
       renderLoadSampleDataBanner={renderLoadSampleDataBanner}
     ></TableComponent>
   );

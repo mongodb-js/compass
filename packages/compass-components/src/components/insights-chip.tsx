@@ -1,9 +1,9 @@
 import React from 'react';
-import { Chip, Icon } from './leafygreen';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { fontWeights } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
+import { Chip, Icon } from './leafygreen';
 
 const chipLightModeStyles = css({
   '--chipBackgroundColor': palette.blue.light3,

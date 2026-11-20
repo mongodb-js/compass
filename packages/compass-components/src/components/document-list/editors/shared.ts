@@ -1,7 +1,7 @@
 import type React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
 
 const editorReset = css({
   padding: 0,

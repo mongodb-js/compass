@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import { useInitialValue } from '@mongodb-js/compass-components';
+import type { CollectionTabPluginMetadata } from '../modules/collection-tab';
 
 export interface CollectionTabPlugin {
   name: CollectionSubtab;
@@ -28,7 +28,7 @@ const CollectionTabComponentsContext =
   React.createContext<CollectionTabComponentsProviderValue>(defaultComponents);
 
 export const CollectionTabsProvider: React.FunctionComponent<
-  Partial<CollectionTabComponentsProviderValue>
+  React.PropsWithChildren<Partial<CollectionTabComponentsProviderValue>>
 > = ({ children, ...props }) => {
   const valueRef = useInitialValue({ ...defaultComponents, ...props });
   return (

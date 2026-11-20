@@ -1,18 +1,18 @@
+import type { Readable } from 'node:stream';
 import type { Document } from 'bson';
-import type { Readable } from 'stream';
 import Papa from 'papaparse';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 
 import { makeDocFromCSV, parseCSVHeaderName } from '../csv/csv-utils';
-import { doImport } from './import-utils';
 import type {
   Delimiter,
   Linebreak,
   IncludedFields,
   PathPart,
 } from '../csv/csv-types';
-import type { ImportResult, ImportOptions } from './import-types';
 import { createDebug } from '../utils/logger';
+import { doImport } from './import-utils';
+import type { ImportResult, ImportOptions } from './import-types';
 
 const debug = createDebug('import-csv');
 
@@ -24,10 +24,18 @@ type ImportCSVOptions = ImportOptions & {
   fields: IncludedFields; // the type chosen by the user to make each field
 };
 
+// papaparse keys each row object by the value returned from transformHeader.
+// Appending the column index keeps those keys unique (so papaparse doesn't
+// rename duplicated CSV headers itself) while keeping them readable.
+function columnKey(header: string, index: number): string {
+  return `${header}_${index}`;
+}
+
 class CSVTransformer {
   fields: IncludedFields;
   ignoreEmptyStrings?: boolean;
   headerFields: string[];
+  columnKeys: string[];
   parsedHeader?: Record<string, PathPart[]>;
 
   constructor({
@@ -40,10 +48,15 @@ class CSVTransformer {
     this.fields = fields;
     this.ignoreEmptyStrings = ignoreEmptyStrings;
     this.headerFields = [];
+    this.columnKeys = [];
   }
 
-  addHeaderField(field: string) {
+  addHeaderField(field: string, key: string) {
     this.headerFields.push(field);
+    // Stored verbatim: papaparse keys rows using exactly the string returned
+    // from transformHeader, which can differ from `columnKey(field, index)`
+    // if the header name is fixed up below.
+    this.columnKeys.push(key);
   }
 
   transform(row: Record<string, string>): Document {
@@ -70,8 +83,18 @@ class CSVTransformer {
       // edge case.
     }
 
+    // papaparse renames duplicated headers and keys the row by the renamed
+    // headers, so we address columns by the key we returned from
+    // transformHeader and map them back to the original header name. Assigning
+    // in header order keeps the previous behaviour where the last column wins
+    // when there are duplicate field names.
+    const rowByName: Record<string, string> = Object.create(null);
+    for (const [index, name] of this.headerFields.entries()) {
+      rowByName[name] = row[this.columnKeys[index]];
+    }
+
     return makeDocFromCSV(
-      row,
+      rowByName,
       this.headerFields,
       this.parsedHeader,
       this.fields,
@@ -115,8 +138,9 @@ export async function importCSV({
     header: true,
     transformHeader: function (header: string, index: number): string {
       debug('importCSV:transformHeader', header, index);
-      transformer.addHeaderField(header);
-      return header;
+      const key = columnKey(header, index);
+      transformer.addHeaderField(header, key);
+      return key;
     },
   });
 

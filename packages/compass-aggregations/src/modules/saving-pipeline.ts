@@ -1,9 +1,9 @@
+import type { AnyAction } from 'redux';
+import { isAction } from '../utils/is-action';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilderThunkAction } from '.';
-import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
 
 export const SAVING_PIPELINE_NAME_CHANGED =
   'aggregations/saving-pipeline/NAME_CHANGED' as const;
@@ -162,15 +162,15 @@ export const savingPipelineOpen = ({
  * @emits open-create-view {meta: {source, pipeline}}
  * @see create-view src/stores/create-view.js
  */
-export const openCreateView = (): PipelineBuilderThunkAction<void> => {
-  return (
+export const openCreateView = (): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (
     _dispatch,
     getState,
     { pipelineBuilder, globalAppRegistry, connectionInfoRef }
   ) => {
     const state = getState();
     const sourceNs = state.namespace;
-    const sourcePipeline = getPipelineFromBuilderState(
+    const sourcePipeline = await getPipelineFromBuilderState(
       getState(),
       pipelineBuilder
     );

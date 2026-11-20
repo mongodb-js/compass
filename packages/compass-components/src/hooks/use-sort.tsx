@@ -29,8 +29,7 @@ export type SortOrder = 1 | -1;
 type SortState<T> = { name: T | null; order: SortOrder };
 
 type SortAction<T> =
-  | { type: 'change-name'; name: T | null }
-  | { type: 'change-order' };
+  { type: 'change-name'; name: T | null } | { type: 'change-order' };
 
 type SortOptions<T> = {
   isDisabled?: boolean;
@@ -38,9 +37,8 @@ type SortOptions<T> = {
   onChange?: (state: SortState<T>) => void;
 };
 
-type Unwrap<T extends ArrayLike<unknown>> = T extends ArrayLike<infer V>
-  ? V
-  : never;
+type Unwrap<T extends ArrayLike<unknown>> =
+  T extends ArrayLike<infer V> ? V : never;
 
 export function useSortControls<T extends string>(
   items: readonly { name: T; label: string }[],
@@ -79,8 +77,8 @@ export function useSortControls<T extends string>(
       sortState.order === -1
         ? 'SortDescending'
         : sortState.order === 1
-        ? 'SortAscending'
-        : 'Unsorted';
+          ? 'SortAscending'
+          : 'Unsorted';
 
     const longestLabel = Math.max(...items.map((item) => item.label.length));
 

@@ -1,15 +1,13 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback, useMemo } from 'react';
-import { changeFieldValue } from '../../stores/settings';
-import type { RootState } from '../../stores';
 import type {
   PreferenceStateInformation,
   DevtoolsProxyOptions,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import {
   Description,
@@ -19,6 +17,8 @@ import {
   RadioBoxGroup,
   TextInput,
 } from '@mongodb-js/compass-components';
+import type { RootState } from '../../stores';
+import { changeFieldValue } from '../../stores/settings';
 import { settingStateLabels } from './state-labels';
 import { ProxySettingsCustom } from './proxy-settings-custom';
 
@@ -56,8 +56,8 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
     typeof proxyOptions.proxy === 'string'
       ? 'custom'
       : proxyOptions.useEnvironmentVariableProxies
-      ? 'env'
-      : 'no-proxy';
+        ? 'env'
+        : 'no-proxy';
   const setProxyType = useCallback(
     (ev: ChangeEvent<HTMLInputElement>) => {
       const type = ev.target.value as ProxyType;

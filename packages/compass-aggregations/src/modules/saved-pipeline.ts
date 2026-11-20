@@ -1,19 +1,20 @@
-import { openToast } from '@mongodb-js/compass-components';
-import { createId } from './id';
-import type { PipelineBuilderThunkAction } from '.';
+import {
+  openToast,
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import type { AnyAction } from 'redux';
+import { createId } from './id';
 import {
   getPipelineFromBuilderState,
   getPipelineStringFromBuilderState,
   mapPipelineModeToEditorViewType,
+  updatePipelinePreview,
 } from './pipeline-builder/builder-helpers';
-import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
-import {
-  showConfirmation,
-  ConfirmationModalVariant,
-} from '@mongodb-js/compass-components';
+import { collationStringChanged } from './collation-string';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
-import type { AnyAction } from 'redux';
+import type { PipelineBuilderThunkAction } from '.';
 
 const PREFIX = 'aggregations/saved-pipeline';
 
@@ -26,8 +27,7 @@ export interface SavedPipelineAddAction {
 }
 export type RestorePipelineAction = ReturnType<typeof restorePipeline>;
 export type SavedPipelineAction =
-  | SavedPipelineAddAction
-  | RestorePipelineAction;
+  SavedPipelineAddAction | RestorePipelineAction;
 
 export type SavedPipelineState = {
   pipelines: SavedPipeline[];
@@ -133,11 +133,14 @@ function restorePipeline(
 export const openStoredPipeline = (
   pipelineData: SavedPipeline,
   updatePreview = true
-): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelineBuilder, logger: { debug } }) => {
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder, logger: { debug } }) => {
     try {
-      pipelineBuilder.reset(pipelineData.pipelineText);
+      await pipelineBuilder.reset(pipelineData.pipelineText);
       dispatch(restorePipeline(pipelineData, pipelineBuilder));
+      await dispatch(
+        collationStringChanged(pipelineData.collationString ?? '')
+      );
       if (updatePreview) {
         dispatch(updatePipelinePreview());
       }
@@ -163,7 +166,7 @@ export const openStoredPipeline = (
  * Save the current state of your pipeline
  */
 export const saveCurrentPipeline =
-  (): PipelineBuilderThunkAction<void> =>
+  (): PipelineBuilderThunkAction<Promise<void>> =>
   async (
     dispatch,
     getState,
@@ -200,14 +203,14 @@ export const saveCurrentPipeline =
 
     await pipelineStorage?.createOrUpdate(savedPipeline.id, savedPipeline);
 
-    const stagesLength = (() => {
-      try {
-        return getPipelineFromBuilderState(getState(), pipelineBuilder).length;
-      } catch {
-        // For the case where pipeline contains syntax errors
-        return undefined;
-      }
-    })();
+    const stagesLength = await getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    ).then(
+      (stages) => stages.length,
+      // For the case where pipeline contains syntax errors
+      () => undefined
+    );
 
     track(
       'Aggregation Saved',

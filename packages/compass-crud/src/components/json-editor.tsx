@@ -12,20 +12,19 @@ import {
   Link,
   palette,
   spacing,
-  useCurrentValueRef,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import type { Document } from '@mongodb-js/hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import {
   CodemirrorMultilineEditor,
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { CrudActions } from '../stores/crud-store';
 import { useDocumentAutocompleter } from '../hooks/use-document-autocompleter';
 import { getSafeIntegerViolationMessage } from '../utils';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -97,21 +96,6 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   const [docValidationError, setDocValidationError] = useState<Error | null>(
     null
   );
-  const setModifiedEJSONStringRef = useCurrentValueRef<
-    (value: string | null) => void
-  >(doc.setModifiedEJSONString.bind(doc));
-
-  useEffect(() => {
-    const setModifiedEJSONString = setModifiedEJSONStringRef.current;
-    return () => {
-      // When this component is used in virtualized list, the editor is
-      // unmounted on scroll and if the user is editing the document, the
-      // editor value is lost. This is a way to keep track of the editor
-      // value when the it's unmounted and is restored on next mount.
-      setModifiedEJSONString(editing ? value : null);
-    };
-  }, [value, editing, setModifiedEJSONStringRef]);
-
   const handleCopy = useCallback(() => {
     copyToClipboard?.(doc, 'ejson');
   }, [copyToClipboard, doc]);
@@ -123,16 +107,20 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     void openInsertDocumentDialog?.(clonedDoc, true);
   }, [doc, openInsertDocumentDialog]);
 
-  const onChange = useCallback((value: string) => {
-    try {
-      HadronDocument.FromEJSON(value);
-      setDocValidationError(null);
-    } catch (error) {
-      setDocValidationError(error as Error);
-    } finally {
-      setValue(value);
-    }
-  }, []);
+  const onChange = useCallback(
+    (value: string) => {
+      try {
+        HadronDocument.FromEJSON(value);
+        setDocValidationError(null);
+      } catch (error) {
+        setDocValidationError(error as Error);
+      } finally {
+        setValue(value);
+        doc.setModifiedEJSONString(value);
+      }
+    },
+    [doc]
+  );
 
   const onCancel = useCallback(() => {
     if (editing) {

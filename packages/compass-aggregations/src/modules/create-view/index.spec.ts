@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   reset,
@@ -8,7 +9,6 @@ import reducer, {
   clearError,
   changeViewName,
 } from './';
-import { expect } from 'chai';
 
 describe('create view module', function () {
   it('handles the open and close actions', function () {

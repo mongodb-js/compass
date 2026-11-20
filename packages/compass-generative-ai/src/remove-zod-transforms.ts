@@ -103,7 +103,7 @@ export function removeZodTransforms(schema: unknown): z.ZodType {
       def.options.map(removeZodTransforms) as [
         z.ZodType,
         z.ZodType,
-        ...z.ZodType[]
+        ...z.ZodType[],
       ]
     );
   }

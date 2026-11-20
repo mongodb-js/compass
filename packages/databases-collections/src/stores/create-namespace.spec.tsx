@@ -1,6 +1,5 @@
 import React from 'react';
 import Sinon from 'sinon';
-import { CreateNamespacePlugin } from '../index';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import { expect } from 'chai';
 import { type DataService } from '@mongodb-js/compass-connections/provider';
@@ -17,6 +16,7 @@ import {
   createDefaultConnectionInfo,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
+import { CreateNamespacePlugin } from '../index';
 
 const mockConnections = [
   { ...createDefaultConnectionInfo(), id: '1' },
@@ -126,7 +126,8 @@ describe('CreateNamespacePlugin', function () {
       );
       appRegistry.emit('open-create-database', { connectionId: '1' });
 
-      expect(screen.getByRole('heading', { name: 'Create Database' })).to.exist;
+      expect(await screen.findByRole('heading', { name: 'Create Database' })).to
+        .exist;
 
       userEvent.type(
         screen.getByRole('textbox', { name: 'Database Name' }),
@@ -185,13 +186,11 @@ describe('CreateNamespacePlugin', function () {
         { connectionId: '2' }
       );
 
-      expect(
-        screen.getByRole('heading', { name: 'Create Collection' })
-      ).to.exist;
+      expect(await screen.findByRole('heading', { name: 'Create Collection' }))
+        .to.exist;
 
-      expect(
-        screen.queryByRole('textbox', { name: 'Database Name' })
-      ).to.not.exist;
+      expect(screen.queryByRole('textbox', { name: 'Database Name' })).to.not
+        .exist;
 
       userEvent.type(
         screen.getByRole('textbox', { name: 'Collection Name' }),

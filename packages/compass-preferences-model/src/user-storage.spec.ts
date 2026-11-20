@@ -1,11 +1,11 @@
+import os from 'node:os';
+import path from 'node:path';
+import fs from 'node:fs/promises';
 import { z } from '@mongodb-js/compass-user-data';
 import { expect } from 'chai';
-import os from 'os';
-import path from 'path';
-import fs from 'fs/promises';
+import { users as UserFixtures } from '../test/fixtures';
 import type { UserStorage, User } from './user-storage';
 import { UserStorageImpl } from './user-storage';
-import { users as UserFixtures } from '../test/fixtures';
 
 describe('UserStorage', function () {
   let tmpDir: string;
@@ -50,7 +50,7 @@ describe('UserStorage', function () {
       try {
         await userStorage.updateUser(storedUser.id, {
           lastUsed: 'something-unacceptable',
-        } as any);
+        });
         expect.fail('Expected lastUsed prop to fail due to date validation');
       } catch (e) {
         expect(e).to.be.an.instanceOf(z.ZodError);
@@ -61,7 +61,7 @@ describe('UserStorage', function () {
       try {
         await userStorage.updateUser(storedUser.id, {
           createdAt: 'something-unacceptable',
-        } as any);
+        });
         expect.fail('Expected createdAt prop to fail due to date validation');
       } catch (e) {
         expect(e).to.be.an.instanceOf(z.ZodError);

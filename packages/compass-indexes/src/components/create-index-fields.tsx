@@ -1,6 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { hasColumnstoreIndexesSupport } from '../utils/columnstore-indexes';
-
 import {
   ComboboxWithCustomOption,
   ComboboxOption,
@@ -11,9 +9,10 @@ import {
   ListEditor,
   Badge,
 } from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { hasColumnstoreIndexesSupport } from '../utils/columnstore-indexes';
 
 import type { Field } from '../modules/create-index';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 /**
  * Current allowed types for indexes.

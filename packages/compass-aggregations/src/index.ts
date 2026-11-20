@@ -1,11 +1,5 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { AggregationsPlugin } from './plugin';
-import { activateAggregationsPlugin } from './stores/store';
-import { Aggregations } from './components/aggregations';
-import { activateCreateViewPlugin } from './stores/create-view';
-import StageEditor from './components/stage-editor';
-import CreateViewModal from './components/create-view-modal';
 import {
   connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
@@ -17,18 +11,24 @@ import {
   telemetryLocator,
   experimentationServiceLocator,
 } from '@mongodb-js/compass-telemetry/provider';
-import type {
-  OptionalDataServiceProps,
-  RequiredDataServiceProps,
-} from './modules/data-service';
 import {
   collectionModelLocator,
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
+import type {
+  OptionalDataServiceProps,
+  RequiredDataServiceProps,
+} from './modules/data-service';
+import CreateViewModal from './components/create-view-modal';
+import StageEditor from './components/stage-editor';
+import { activateCreateViewPlugin } from './stores/create-view';
+import { Aggregations } from './components/aggregations';
+import { activateAggregationsPlugin } from './stores/store';
+import { AggregationsPlugin } from './plugin';
 import { AggregationsTabTitle } from './plugin-title';
 
 const CompassAggregationsPluginProvider = registerCompassPlugin(
@@ -69,7 +69,9 @@ export const CompassAggregationsPlugin = {
 export const CreateViewPlugin = registerCompassPlugin(
   {
     name: 'CreateView',
-    component: CreateViewModal,
+    component: CreateViewModal as React.JSXElementConstructor<{
+      children?: React.ReactNode;
+    }>,
     activate: activateCreateViewPlugin,
   },
   {

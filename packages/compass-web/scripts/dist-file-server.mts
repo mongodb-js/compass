@@ -3,13 +3,15 @@
  * distribution. Can be used for e2e / local dev when compass-web in MMS needs
  * to be replaced with the local resource
  */
-import http from 'http';
-import fs from 'fs';
-import path from 'path';
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const distDir = path.resolve(import.meta.dirname, '..', 'dist');
 
 const contentTypeMap: Record<string, string> = {
+  //@ts-expect-error: typescript doesn't support setting proto to null
+  __proto__: null,
   '.js': 'text/javascript',
   '.mjs': 'text/javascript',
   '.json': 'application/json',
@@ -23,7 +25,7 @@ const corsHeaders = {
   'access-control-allow-origin': '*',
 };
 
-const server = http.createServer(async (req, res) => {
+const server = http.createServer((req, res) => {
   res.on('close', () => {
     console.debug(
       '[compass-web-dist-file-server] "%s %s HTTP/%s" %s (%s)',
@@ -48,10 +50,7 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'GET' || req.method === 'HEAD') {
     try {
-      if (
-        fs.existsSync(requestedPath) &&
-        (await fs.promises.stat(requestedPath)).isFile()
-      ) {
+      if (fs.statSync(requestedPath, { throwIfNoEntry: false })?.isFile()) {
         res.writeHead(200, {
           ...corsHeaders,
           'content-type':

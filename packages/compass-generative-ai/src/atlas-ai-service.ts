@@ -2,7 +2,7 @@ import type { SimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import {
   type PreferencesAccess,
   isAIFeatureEnabled,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -17,15 +17,15 @@ import {
   mergeChunkResponses,
   validateSchemaSize,
   needsBatching,
-} from './mock-data-generator';
+} from '@mongodb-js/mock-data-generator';
+import { createOpenAI } from '@ai-sdk/openai';
+import { streamText, tool, type LanguageModel } from 'ai';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 import {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
-import { createOpenAI } from '@ai-sdk/openai';
-import { streamText, tool, type LanguageModel } from 'ai';
 import type { AiQueryPrompt } from './utils/gen-ai-prompt';
 import {
   buildAggregateQueryPrompt,
@@ -489,7 +489,7 @@ export class AtlasAiService {
       message,
       options.signal
     );
-    const parsedResponse = parseXmlToJsonResponse(response, {
+    const parsedResponse = await parseXmlToJsonResponse(response, {
       logger: this.logger,
       type: options.type,
     });

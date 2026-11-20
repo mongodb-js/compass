@@ -65,7 +65,7 @@ describe('formatQuery [Utils]', function () {
   describe('when the property has a Decimal128', function () {
     const value = new bson.Decimal128('0.00');
     const filter = { field: value };
-    const expected = "{\n  field: NumberDecimal('0.00')\n}";
+    const expected = "{\n  field: Decimal128('0.00')\n}";
 
     it('returns the shell syntax string', function () {
       expect(formatQuery(filter)).to.equal(expected);
@@ -75,7 +75,7 @@ describe('formatQuery [Utils]', function () {
   describe('when the property has a Long', function () {
     const value = bson.Long.fromNumber(1);
     const filter = { field: value };
-    const expected = "{\n  field: NumberLong('1')\n}";
+    const expected = "{\n  field: Long('1')\n}";
 
     it('returns the shell syntax string', function () {
       expect(formatQuery(filter)).to.equal(expected);

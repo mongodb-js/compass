@@ -1,6 +1,8 @@
 import chai from 'chai';
 import clipboard from 'clipboardy';
 import { EJSON } from 'bson';
+import type { ChainablePromiseElement } from 'webdriverio';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   deleteCommonVariedProperties,
@@ -25,10 +27,8 @@ import {
   isTestingWebAtlasCloud,
   context as testRunnerContext,
 } from '../helpers/test-runner-context.ts';
-import type { ChainablePromiseElement } from 'webdriverio';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
-import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 
@@ -438,8 +438,8 @@ describe('Collection documents tab', function () {
 
     expect(normalizedText).to
       .equal(`import static com.mongodb.client.model.Filters.eq;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.conversions.Bson;
@@ -451,14 +451,13 @@ import com.mongodb.client.FindIterable;
  * https://mongodb.github.io/mongo-java-driver
  */
 Bson filter = eq("i", 5L);
-MongoClient mongoClient = new MongoClient(
-    new MongoClientURI(
-        "${connectionString}"
-    )
+MongoClient mongoClient = MongoClients.create(
+    "${connectionString}"
 );
 MongoDatabase database = mongoClient.getDatabase("test");
 MongoCollection<Document> collection = database.getCollection("numbers");
-FindIterable<Document> result = collection.find(filter);`);
+FindIterable<Document> result = collection.find(filter)
+    .maxTime(60000L, TimeUnit.MILLISECONDS);`);
   });
 
   it('supports view/edit via list view', async function () {
@@ -667,11 +666,12 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);
 
-    const document = browser.$('.ag-center-cols-clipper .ag-row-first');
-    const text = (await document.getText()).replace(/\s+/g, ' ');
-    expect(text).to.match(
-      /^ObjectId\('[a-f0-9]{24}('\))? 33 0$/ // ') now gets cut off. sometimes.
+    const document = browser.$('.ag-grid-scrolling-container .ag-row-first');
+    expect(await document.$('[col-id="_id"]').getText()).to.match(
+      /^ObjectId\('[a-f0-9]{24}('\))?$/ // ') now gets cut off. sometimes.
     );
+    expect(await document.$('[col-id="i"]').getText()).to.equal('33');
+    expect(await document.$('[col-id="j"]').getText()).to.equal('0');
 
     const value = document.$('[col-id="j"] .element-value');
     await value.doubleClick();
@@ -691,10 +691,11 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);
 
-    const modifiedDocument = browser.$('.ag-center-cols-clipper .ag-row-first');
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^ObjectId\('[a-f0-9]{24}('\))? 33 -100$/
+    const modifiedDocument = browser.$(
+      '.ag-grid-scrolling-container .ag-row-first'
     );
+    expect(await modifiedDocument.$('[col-id="i"]').getText()).to.equal('33');
+    expect(await modifiedDocument.$('[col-id="j"]').getText()).to.equal('-100');
   });
 
   it('can copy a document from the contextual toolbar', async function () {
@@ -1032,7 +1033,9 @@ FindIterable<Document> result = collection.find(filter);`);
         await browser.clickVisible(Selectors.SelectTableView);
         await browser.$(Selectors.DocumentTableContainer).waitForDisplayed();
 
-        const document = browser.$('.ag-center-cols-clipper .ag-row-first');
+        const document = browser.$(
+          '.ag-grid-scrolling-container .ag-row-first'
+        );
         await document.waitForDisplayed();
 
         // enter edit mode
@@ -1266,7 +1269,28 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.InsertDocumentOption);
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
+    const editorTextBeforeViewSwitch = await browser.getCodemirrorEditorText(
+      Selectors.InsertDocumentEditor
+    );
+
     await browser.clickVisible(Selectors.InsertDialogJSONView);
+
+    // Switching views is applied asynchronously and replaces the editor content
+    // with the document re-serialized in the new syntax. Typing before that
+    // lands gets overwritten when the switch arrives.
+    await browser.waitUntil(
+      async () => {
+        const text = await browser.getCodemirrorEditorText(
+          Selectors.InsertDocumentEditor
+        );
+        return text !== editorTextBeforeViewSwitch;
+      },
+      {
+        timeoutMsg:
+          'Expected the insert dialog to re-serialize the document for the JSON view',
+      }
+    );
+
     await browser.setCodemirrorEditorValue(
       Selectors.InsertDocumentEditor,
       `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
@@ -1331,8 +1355,8 @@ FindIterable<Document> result = collection.find(filter);`);
       `{
         i: 10142,
         _id: ObjectId(),
-        long: NumberLong('9223372036854775807'),
-        decimal: NumberDecimal('123.45'),
+        long: Long('9223372036854775807'),
+        decimal: Decimal128('123.45'),
         date: ISODate('2023-01-01T00:00:00.000Z'),
         regex: /foo.*bar/i,
         ts: Timestamp(1234, 5),
@@ -1400,7 +1424,7 @@ FindIterable<Document> result = collection.find(filter);`);
     expect(converted).to.include(
       `objectId: ObjectId('642d766c7300158b1f22e975')`
     );
-    expect(converted).to.include(`'long': NumberLong('123456789123456789')`);
+    expect(converted).to.include(`'long': Long('123456789123456789')`);
     expect(converted).to.not.include('$numberLong');
 
     const insertConfirm = browser.$(Selectors.InsertConfirm);

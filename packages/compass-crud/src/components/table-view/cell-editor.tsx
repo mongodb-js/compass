@@ -1,15 +1,13 @@
 import React from 'react';
-import { type TypeCastTypes } from 'hadron-type-checker';
-import type { Editor, Element } from 'hadron-document';
-import type Document from 'hadron-document';
+import { type TypeCastTypes } from '@mongodb-js/hadron-type-checker';
+import type { Editor, Element } from '@mongodb-js/hadron-document';
+import type Document from '@mongodb-js/hadron-document';
 import {
   ElementEditor as initEditors,
   getEditorNameByType,
   getDefaultValueForType,
   getDisplayType,
-} from 'hadron-document';
-import TypesDropdown from './types-dropdown';
-import AddFieldButton from './add-field-button';
+} from '@mongodb-js/hadron-document';
 import {
   Button,
   css,
@@ -20,14 +18,15 @@ import {
   TextInput,
 } from '@mongodb-js/compass-components';
 import type {
-  ColumnApi,
   GridApi,
   ICellEditorParams,
-  RowNode,
+  IRowNode,
+  ICellEditor,
 } from 'ag-grid-community';
-import type { ICellEditorReactComp } from 'ag-grid-react';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
+import AddFieldButton from './add-field-button';
+import TypesDropdown from './types-dropdown';
 import type { GridContext } from './document-table-view';
 
 /**
@@ -51,7 +50,7 @@ const actionsStyle = css({
   gap: spacing[100] / 2,
 });
 
-export interface DocumentTableRowNode extends RowNode {
+export interface DocumentTableRowNode extends IRowNode {
   data: {
     hadronDocument: Document;
     state: 'editing' | 'deleting' | undefined;
@@ -65,7 +64,6 @@ export type CellEditorProps = Omit<ICellEditorParams, 'node' | 'context'> & {
   value: Element;
   node: DocumentTableRowNode;
   api: GridApi;
-  columnApi: ColumnApi;
   context: GridContext;
   addColumn: GridActions['addColumn'];
   removeColumn: GridActions['removeColumn'];
@@ -89,7 +87,7 @@ type CellEditorState = {
  */
 class CellEditor
   extends React.Component<CellEditorProps, CellEditorState>
-  implements ICellEditorReactComp
+  implements ICellEditor
 {
   element: Element | undefined;
   changed = false;
@@ -362,7 +360,7 @@ class CellEditor
   }
 
   isDuplicateKey(value: string) {
-    const cols = this.props.columnApi.getAllColumns();
+    const cols = this.props.api.getColumns() ?? [];
     for (let i = 0; i < cols.length; i++) {
       if (cols[i].getColDef().colId === value) {
         return true;

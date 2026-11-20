@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
-import type { BadgeVariant, GlyphName } from '@mongodb-js/compass-components';
 import {
+  type BadgeVariant,
+  type GlyphName,
   Badge,
   cx,
   css,
@@ -14,10 +15,11 @@ import {
   compactBytes,
   compactNumber,
   InlineDefinition,
+  nbsp,
 } from '@mongodb-js/compass-components';
+import type { CollectionProps } from '@mongodb-js/mongodb-collection-model';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { ItemsTable, VirtualItemsTable } from './items-table';
-import type { CollectionProps } from 'mongodb-collection-model';
-import { usePreference } from 'compass-preferences-model/provider';
 
 type BadgeProp = {
   id: string;
@@ -35,7 +37,9 @@ const collectionBadgesStyles = css({
   minHeight: 20,
 });
 
-const CollectionBadges: React.FunctionComponent = ({ children }) => {
+const CollectionBadges: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   return <div className={collectionBadgesStyles}>{children}</div>;
 };
 
@@ -64,7 +68,11 @@ const CollectionBadge: React.FunctionComponent<BadgeProp> = ({
   hint,
 }) => {
   const badge = useCallback(
-    ({ className, children, ...props } = {}) => {
+    ({
+      className,
+      children,
+      ...props
+    }: { className?: string; children?: React.ReactNode } = {}) => {
       return (
         <Badge
           data-testid={`collection-badge-${id}`}
@@ -109,13 +117,11 @@ function collectionPropertyToBadge(
         hint: (
           <>
             {Object.entries(options ?? {}).map(([key, val]) => {
-              return (
-                val && (
-                  <div key={key}>
-                    <strong>{key}:</strong>&nbsp;{val.toString()}
-                  </div>
-                )
-              );
+              return val ? (
+                <div key={key}>
+                  <strong>{key}:</strong>&nbsp;{String(val)}
+                </div>
+              ) : null;
             })}
           </>
         ),
@@ -234,7 +240,7 @@ function collectionColumns({
       minSize: 250,
       cell: (info) => {
         const collection = info.row.original;
-        const name = collection.name;
+        const name = nbsp(collection.name);
 
         return (
           <div className={collectionNameWrapStyles}>
@@ -478,6 +484,7 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
+  isRefreshing?: boolean;
 }> = ({
   namespace,
   collections,
@@ -485,6 +492,7 @@ const CollectionsList: React.FunctionComponent<{
   onDeleteCollectionClick,
   onCreateCollectionClick,
   onRefreshClick,
+  isRefreshing,
 }) => {
   let virtual = true;
   if (process.env.COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING === 'true') {
@@ -510,6 +518,7 @@ const CollectionsList: React.FunctionComponent<{
       onDeleteItemClick={onDeleteCollectionClick}
       onCreateItemClick={onCreateCollectionClick}
       onRefreshClick={onRefreshClick}
+      isRefreshing={isRefreshing}
     ></TableComponent>
   );
 };

@@ -7,7 +7,6 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { AtlasConnectionStatus } from './atlas-connection-status';
 import type {
   AtlasAuthService,
   AtlasUserInfo,
@@ -15,6 +14,7 @@ import type {
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
+import { AtlasConnectionStatus } from './atlas-connection-status';
 
 class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;

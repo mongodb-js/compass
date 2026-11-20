@@ -1,12 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
-import { DiagramEditorToolbar } from './diagram-editor-toolbar';
 import sinon from 'sinon';
 import {
   type WorkspacesService,
   WorkspacesServiceProvider,
 } from '@mongodb-js/compass-workspaces/provider';
+import { DiagramEditorToolbar } from './diagram-editor-toolbar';
 
 const workspacesService = {
   openDataModelingWorkspace: () => {},
@@ -59,9 +59,8 @@ describe('DiagramEditorToolbar', function () {
       const diagrams = screen.getByRole('button', { name: 'diagrams' });
       expect(diagrams).to.be.visible;
       userEvent.click(diagrams);
-      expect(
-        workspacesService.openDataModelingWorkspace
-      ).to.have.been.calledOnce;
+      expect(workspacesService.openDataModelingWorkspace).to.have.been
+        .calledOnce;
     });
 
     it('includes diagram name breadcrumb', function () {

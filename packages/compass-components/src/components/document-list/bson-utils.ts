@@ -1,4 +1,4 @@
-import type { TypeCastMap } from 'hadron-type-checker';
+import type { TypeCastMap } from '@mongodb-js/hadron-type-checker';
 import { useMemo } from 'react';
 import { variantColors } from '@leafygreen-ui/code';
 
@@ -6,6 +6,9 @@ import type { Theme } from '../../hooks/use-theme';
 import { Themes, useDarkMode } from '../../hooks/use-theme';
 
 type BSONValueType = keyof TypeCastMap | 'DBRef';
+
+// Set by containers laying values out inline, see `elementContentInline`.
+export const bsonValueDisplayVar = '--bson-value-display';
 
 // Colors used to render bson values both in the read-only and the editing
 // state of a document.

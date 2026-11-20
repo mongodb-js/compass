@@ -70,4 +70,99 @@ describe('AtlasCloudConnectionStorage', function () {
       );
     });
   });
+
+  describe('#save', function () {
+    function createStorage(connectionString: { current: string }) {
+      const atlasService = {
+        cloudEndpoint(path: string) {
+          return path;
+        },
+        authenticatedFetch() {
+          return Promise.resolve({
+            json() {
+              return [
+                {
+                  id: 'foo',
+                  connectionOptions: {
+                    connectionString: connectionString.current,
+                  },
+                  atlasMetadata: {
+                    clusterName: 'Cluster0',
+                    clusterState: 'IDLE',
+                  },
+                },
+              ];
+            },
+          });
+        },
+      };
+      return new AtlasCloudConnectionStorage(
+        atlasService as any,
+        '123',
+        'abc',
+        createNoopLogger()
+      );
+    }
+
+    async function loadConnectionString(
+      storage: AtlasCloudConnectionStorage
+    ): Promise<string | undefined> {
+      return (await storage.load({ id: 'foo' }))?.connectionOptions
+        .connectionString;
+    }
+
+    it('keeps the edited read preference when connections are reloaded', async function () {
+      const connectionString = {
+        current:
+          'mongodb+srv://cluster0.mongodb.net/?tls=true&readPreference=secondaryPreferred',
+      };
+      const storage = createStorage(connectionString);
+
+      await storage.save({
+        connectionInfo: {
+          id: 'foo',
+          connectionOptions: {
+            connectionString:
+              'mongodb+srv://cluster0.mongodb.net/?tls=true&readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS&readPreferenceTags=&maxStalenessSeconds=120',
+          },
+        },
+      });
+
+      // Changes Atlas makes to other options still come through
+      connectionString.current =
+        'mongodb+srv://cluster0.mongodb.net/?tls=true&appName=Cluster0&readPreference=secondaryPreferred';
+
+      expect(await loadConnectionString(storage)).to.equal(
+        'mongodb+srv://cluster0.mongodb.net/?tls=true&appName=Cluster0&readPreference=secondary&readPreferenceTags=nodeType%3AANALYTICS&readPreferenceTags=&maxStalenessSeconds=120'
+      );
+    });
+
+    it('removes the Atlas read preference when the edit clears it', async function () {
+      const storage = createStorage({
+        current:
+          'mongodb+srv://cluster0.mongodb.net/?tls=true&readPreference=secondaryPreferred',
+      });
+
+      await storage.save({
+        connectionInfo: {
+          id: 'foo',
+          connectionOptions: {
+            connectionString: 'mongodb+srv://cluster0.mongodb.net/?tls=true',
+          },
+        },
+      });
+
+      expect(await loadConnectionString(storage)).to.equal(
+        'mongodb+srv://cluster0.mongodb.net/?tls=true'
+      );
+    });
+
+    it('leaves connections that were not edited untouched', async function () {
+      const connectionString =
+        'mongodb+srv://cluster0.mongodb.net/?tls=true&readPreference=secondaryPreferred';
+      const storage = createStorage({ current: connectionString });
+
+      expect(await loadConnectionString(storage)).to.equal(connectionString);
+    });
+  });
 });

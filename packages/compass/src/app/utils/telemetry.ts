@@ -1,11 +1,16 @@
-import { configuredKMSProviders } from 'mongodb-data-service';
+import { configuredKMSProviders } from '@mongodb-js/mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
+import {
+  isLocalhost,
+  isDigitalOcean,
+  isAtlas,
+} from '@mongodb-js/mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { KMSProviders, MongoClientOptions } from 'mongodb';
 import { createLogger } from '@mongodb-js/compass-logging';
+
 const { debug, log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
 type HostInformation = {
@@ -26,10 +31,10 @@ async function getPublicCloudInfo(host: string): Promise<{
     const public_cloud_name = isAws
       ? 'AWS'
       : isAzure
-      ? 'Azure'
-      : isGcp
-      ? 'GCP'
-      : undefined;
+        ? 'Azure'
+        : isGcp
+          ? 'GCP'
+          : undefined;
 
     if (public_cloud_name === undefined) {
       return { is_public_cloud: false };
@@ -207,8 +212,8 @@ async function getConnectionData(
   const authType = authMechanism
     ? authMechanism
     : connectionStringData.username
-    ? 'DEFAULT'
-    : 'NONE';
+      ? 'DEFAULT'
+      : 'NONE';
   const proxyHost = searchParams.get('proxyHost');
 
   const connectionData = {
@@ -217,8 +222,8 @@ async function getConnectionData(
     tunnel: proxyHost
       ? ('socks5' as const)
       : sshTunnel
-      ? ('ssh' as const)
-      : ('none' as const),
+        ? ('ssh' as const)
+        : ('none' as const),
     is_srv: connectionStringData.isSRV,
     ...getCsfleInformation(fleOptions),
   };

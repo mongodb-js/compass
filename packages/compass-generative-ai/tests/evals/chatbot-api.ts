@@ -1,10 +1,10 @@
-import { streamText } from 'ai';
+import { streamText, toUIMessageStream } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
+import { AI_MODEL_SLIM_VERSION } from '../../src/model-version';
 import type {
   ConversationEvalCaseInput,
   ConversationTaskOutput,
 } from './types';
-import { AI_MODEL_SLIM_VERSION } from '../../src/model-version';
 
 export async function makeChatbotCall(
   input: ConversationEvalCaseInput
@@ -32,7 +32,7 @@ export async function makeChatbotCall(
   });
 
   const chunks: string[] = [];
-  for await (const chunk of result.toUIMessageStream()) {
+  for await (const chunk of toUIMessageStream({ stream: result.stream })) {
     if (chunk.type === 'text-delta') {
       chunks.push(chunk.delta);
     }

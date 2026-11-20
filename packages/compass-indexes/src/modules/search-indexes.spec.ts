@@ -1,6 +1,12 @@
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import sinon from 'sinon';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
+import { searchIndexes } from '../../test/fixtures/search-indexes';
+import { setupStoreAndWait } from '../../test/setup-store';
 import { FetchStatuses } from '../utils/fetch-status';
+import type { IndexesDataService, IndexesStore } from '../stores/store';
 import {
   createSearchIndexClosed,
   createSearchIndexOpened,
@@ -15,12 +21,6 @@ import {
   createSearchIndexErrorCleared,
   updateSearchIndexErrorCleared,
 } from './search-indexes';
-import { setupStoreAndWait } from '../../test/setup-store';
-import { searchIndexes } from '../../test/fixtures/search-indexes';
-import sinon from 'sinon';
-import type { SearchIndex } from 'mongodb-data-service';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import type { IndexesDataService, IndexesStore } from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
 // Importing this to stub showConfirmation
@@ -173,18 +173,16 @@ describe('search-indexes module', function () {
     it('closes an open modal for creation', function () {
       store.dispatch(createSearchIndexOpened());
       store.dispatch(createSearchIndexClosed());
-      expect(
-        store.getState().searchIndexes.createIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be
+        .false;
     });
 
     it('creates the index when data is valid', async function () {
       await store.dispatch(
-        createIndex({ name: 'indexName', definition: {}, type: 'search' })
+        createIndex({ name: 'indexName', definition: '{}', type: 'search' })
       );
-      expect(
-        store.getState().searchIndexes.createIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be
+        .false;
       expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
     });
 
@@ -192,7 +190,7 @@ describe('search-indexes module', function () {
       await store.dispatch(
         createIndex({
           name: 'indexName',
-          definition: {},
+          definition: '{}',
           type: 'search',
         })
       );
@@ -200,7 +198,7 @@ describe('search-indexes module', function () {
     });
 
     it('clears the create index error on createSearchIndexErrorCleared', async function () {
-      await store.dispatch(createIndex({ name: '', definition: {} }));
+      await store.dispatch(createIndex({ name: '', definition: '{}' }));
       expect(store.getState().searchIndexes.createIndex.error).to.equal(
         'Please enter the name of the index.'
       );
@@ -208,6 +206,67 @@ describe('search-indexes module', function () {
       store.dispatch(createSearchIndexErrorCleared());
 
       expect(store.getState().searchIndexes.createIndex.error).to.be.undefined;
+    });
+
+    it('creates the index once when submitted repeatedly', async function () {
+      await Promise.all([
+        store.dispatch(createIndex({ name: 'indexName', definition: '{}' })),
+        store.dispatch(createIndex({ name: 'indexName', definition: '{}' })),
+      ]);
+      expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
+    });
+
+    it('shows an error when the definition cannot be parsed', async function () {
+      await store.dispatch(
+        createIndex({ name: 'indexName', definition: '{ invalid' })
+      );
+      expect(store.getState().searchIndexes.createIndex.error).to.be.a(
+        'string'
+      );
+      expect(store.getState().searchIndexes.createIndex.isBusy).to.be.false;
+      expect(dataProvider.createSearchIndex).to.not.have.been.called;
+    });
+
+    it('does not create the index when closed while parsing', async function () {
+      const created = store.dispatch(
+        createIndex({ name: 'indexName', definition: '{}' })
+      );
+      store.dispatch(createSearchIndexClosed());
+      await created;
+      expect(dataProvider.createSearchIndex).to.not.have.been.called;
+    });
+
+    it('does not create the cancelled index after reopening and resubmitting', async function () {
+      const stale = store.dispatch(
+        createIndex({ name: 'staleIndex', definition: '{}' })
+      );
+      store.dispatch(createSearchIndexClosed());
+      store.dispatch(createSearchIndexOpened());
+      const current = store.dispatch(
+        createIndex({ name: 'currentIndex', definition: '{}' })
+      );
+      await Promise.all([stale, current]);
+
+      expect(createSearchIndexStub).to.have.been.calledOnce;
+      expect(createSearchIndexStub.firstCall.args[1]).to.have.property(
+        'name',
+        'currentIndex'
+      );
+    });
+
+    it('does not let a cancelled parse error affect a newer submission', async function () {
+      const stale = store.dispatch(
+        createIndex({ name: 'staleIndex', definition: '{ invalid' })
+      );
+      store.dispatch(createSearchIndexClosed());
+      store.dispatch(createSearchIndexOpened());
+      const current = store.dispatch(
+        createIndex({ name: 'currentIndex', definition: '{}' })
+      );
+      await Promise.all([stale, current]);
+
+      expect(store.getState().searchIndexes.createIndex.error).to.be.undefined;
+      expect(createSearchIndexStub).to.have.been.calledOnce;
     });
   });
 
@@ -219,22 +278,20 @@ describe('search-indexes module', function () {
     });
     it('closes an open modal for update', function () {
       store.dispatch(updateSearchIndexClosed());
-      expect(
-        store.getState().searchIndexes.updateIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be
+        .false;
     });
 
     it('updates the index when data is valid and does not match existing definition', async function () {
       await store.dispatch(
         updateIndex({
           name: UPDATE_INDEX.name,
-          definition: { something: 'else' },
+          definition: "{ something: 'else' }",
           type: 'search',
         })
       );
-      expect(
-        store.getState().searchIndexes.updateIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be
+        .false;
       expect(
         (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
       ).to.equal(1);
@@ -253,13 +310,12 @@ describe('search-indexes module', function () {
       await store.dispatch(
         updateIndex({
           name: UPDATE_INDEX.name,
-          definition: UPDATE_INDEX.latestDefinition,
+          definition: JSON.stringify(UPDATE_INDEX.latestDefinition),
           type: 'search',
         })
       );
-      expect(
-        store.getState().searchIndexes.updateIndex.isModalOpen
-      ).to.be.false;
+      expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be
+        .false;
       expect(
         (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
       ).to.equal(0);
@@ -271,7 +327,7 @@ describe('search-indexes module', function () {
       await store.dispatch(
         updateIndex({
           name: UPDATE_INDEX.name,
-          definition: { something: 'else' },
+          definition: "{ something: 'else' }",
           type: 'search',
         })
       );
@@ -282,6 +338,79 @@ describe('search-indexes module', function () {
       store.dispatch(updateSearchIndexErrorCleared());
 
       expect(store.getState().searchIndexes.updateIndex.error).to.be.undefined;
+    });
+
+    it('updates the index once when submitted repeatedly', async function () {
+      const update = () =>
+        store.dispatch(
+          updateIndex({
+            name: UPDATE_INDEX.name,
+            definition: "{ something: 'else' }",
+          })
+        );
+      await Promise.all([update(), update()]);
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
+      ).to.equal(1);
+    });
+
+    it('shows an error when the definition cannot be parsed', async function () {
+      await store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ invalid' })
+      );
+      expect(store.getState().searchIndexes.updateIndex.error).to.be.a(
+        'string'
+      );
+      expect(store.getState().searchIndexes.updateIndex.isBusy).to.be.false;
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
+      ).to.equal(0);
+    });
+
+    it('does not update the cancelled index after reopening and resubmitting', async function () {
+      const stale = store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ stale: 1 }' })
+      );
+      store.dispatch(updateSearchIndexClosed());
+      store.dispatch(updateSearchIndexOpened(UPDATE_INDEX.name));
+      const current = store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ current: 1 }' })
+      );
+      await Promise.all([stale, current]);
+
+      expect(updateSearchIndexStub.callCount).to.equal(1);
+      expect(updateSearchIndexStub.firstCall.args[2]).to.deep.equal({
+        current: 1,
+      });
+    });
+
+    it('does not let a cancelled parse error affect a newer submission', async function () {
+      const stale = store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ invalid' })
+      );
+      store.dispatch(updateSearchIndexClosed());
+      store.dispatch(updateSearchIndexOpened(UPDATE_INDEX.name));
+      const current = store.dispatch(
+        updateIndex({ name: UPDATE_INDEX.name, definition: '{ current: 1 }' })
+      );
+      await Promise.all([stale, current]);
+
+      expect(store.getState().searchIndexes.updateIndex.error).to.be.undefined;
+      expect(updateSearchIndexStub.callCount).to.equal(1);
+    });
+
+    it('does not update the index when closed while parsing', async function () {
+      const updated = store.dispatch(
+        updateIndex({
+          name: UPDATE_INDEX.name,
+          definition: "{ something: 'else' }",
+        })
+      );
+      store.dispatch(updateSearchIndexClosed());
+      await updated;
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
+      ).to.equal(0);
     });
   });
 
@@ -447,7 +576,6 @@ describe('search-indexes module', function () {
 
       store.dispatch(startPollingSearchIndexes());
 
-      // poll (tickAsync processes microtasks/promises from experimentationServices)
       await clock.tickAsync(pollInterval);
       expect(getSearchIndexesStub.callCount).to.equal(2);
       expect(store.getState().searchIndexes.status).to.equal('READY');

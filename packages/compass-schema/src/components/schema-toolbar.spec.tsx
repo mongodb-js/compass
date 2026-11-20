@@ -3,13 +3,13 @@ import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { AllPreferences } from 'compass-preferences-model';
-import { SchemaToolbar } from './schema-toolbar';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
   createElectronFavoriteQueryStorage,
   createElectronRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/electron';
+import { SchemaToolbar } from './schema-toolbar';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   dataService: {

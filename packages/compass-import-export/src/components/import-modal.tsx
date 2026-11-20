@@ -17,11 +17,12 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 import { FINISHED_STATUSES, STARTED } from '../constants/process-status';
 import type { ProcessStatus } from '../constants/process-status';
-import { ImportPreview } from './import-preview';
-import ImportPreviewLoader from './import-preview-loader';
-import { ImportOptions } from './import-options';
 import type { AcceptedFileType } from '../constants/file-types';
 import {
   startImport,
@@ -37,12 +38,11 @@ import {
 } from '../modules/import';
 import type { RootImportState } from '../stores/import-store';
 import type { FieldFromCSV } from '../modules/import';
-import { ImportFileInput } from './import-file-input';
 import type { Delimiter, CSVParsableFieldType } from '../csv/csv-types';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { ImportFileInput } from './import-file-input';
+import { ImportOptions } from './import-options';
+import ImportPreviewLoader from './import-preview-loader';
+import { ImportPreview } from './import-preview';
 
 const footerStyles = css({
   display: 'flex',

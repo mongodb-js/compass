@@ -101,15 +101,13 @@ describe('search-stage-errors', function () {
       });
 
       it('returns false for null', function () {
-        expect(
-          isSearchIndexDefinitionError(null as unknown as string)
-        ).to.be.false;
+        expect(isSearchIndexDefinitionError(null as unknown as string)).to.be
+          .false;
       });
 
       it('returns false for undefined', function () {
-        expect(
-          isSearchIndexDefinitionError(undefined as unknown as string)
-        ).to.be.false;
+        expect(isSearchIndexDefinitionError(undefined as unknown as string)).to
+          .be.false;
       });
     });
   });

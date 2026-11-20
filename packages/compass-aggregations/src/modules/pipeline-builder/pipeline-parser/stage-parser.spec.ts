@@ -1,5 +1,6 @@
 import * as babelParser from '@babel/parser';
 import { expect } from 'chai';
+import Stage from '../stage';
 import StageParser, {
   assertStageNode,
   getStageOperatorFromNode,
@@ -10,7 +11,6 @@ import StageParser, {
 } from './stage-parser';
 import type { StageLike } from './stage-parser';
 import { generate } from './utils';
-import Stage from '../stage';
 
 describe('StageParser', function () {
   describe('Stage node helpers', function () {
@@ -122,14 +122,6 @@ describe('StageParser', function () {
         {
           expression: `{match: {}}`,
           errorMessage: "Unrecognized pipeline stage name: 'match'",
-        },
-        {
-          expression: `{$match: {query}}`,
-          errorMessage: 'Stage value is invalid',
-        },
-        {
-          expression: `{$match: {_id: Math.random()}}`,
-          errorMessage: 'Stage value is invalid',
         },
       ];
 

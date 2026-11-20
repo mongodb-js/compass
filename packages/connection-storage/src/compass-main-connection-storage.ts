@@ -1,6 +1,6 @@
-import { type HadronIpcMain, ipcMain } from 'hadron-ipc';
+import fsPromises from 'node:fs/promises';
+import { type HadronIpcMain, ipcMain } from '@mongodb-js/hadron-ipc';
 import { safeStorage } from 'electron';
-import fsPromises from 'fs/promises';
 import ConnectionString from 'mongodb-connection-string-url';
 
 import type {
@@ -9,8 +9,8 @@ import type {
 } from '@mongodb-js/connection-info';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
+import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import { deleteCompassAppNameParam } from './utils';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
 import {
   serializeConnections,
   deserializeConnections,
@@ -19,7 +19,6 @@ import type {
   ImportConnectionOptions,
   ExportConnectionOptions,
 } from './import-export-connection';
-import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import type {
   ConnectionStorage,
   AutoConnectPreferences,
@@ -49,12 +48,12 @@ export type ConnectionWithLegacyProps = ConnectionProps & ConnectionLegacyProps;
 
 const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
   .object({
-    _id: z.string().uuid().optional(),
+    _id: z.uuid().optional(),
     isFavorite: z.boolean().optional(),
     name: z.string().optional(),
     connectionInfo: z
       .object({
-        id: z.string().uuid(),
+        id: z.uuid(),
         lastUsed: z.coerce
           .date()
           .optional()
@@ -76,7 +75,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
     version: z.number().optional(),
     connectionSecrets: z.string().optional(),
   })
-  .passthrough();
+  .loose();
 
 class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly userData: FileUserData<typeof ConnectionSchema>;
@@ -108,7 +107,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
   async loadAll({ signal }: { signal?: AbortSignal } = {}): Promise<
     ConnectionInfo[]
   > {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     try {
       const connections = await this.getConnections();
       const loadedConnections = connections
@@ -138,7 +137,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     id: string;
     signal?: AbortSignal;
   }): Promise<ConnectionInfo | undefined> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     if (!id) {
       return undefined;
     }
@@ -153,7 +152,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     connectionInfo: ConnectionInfo;
     signal?: AbortSignal;
   }): Promise<void> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     try {
       const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
         extractSecrets(connectionInfo);
@@ -195,7 +194,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     id: string;
     signal?: AbortSignal;
   }): Promise<void> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     if (!id) {
       return;
     }
@@ -318,7 +317,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     options: ImportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<ConnectionInfo[]> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
 
     const { passphrase, trackingProps, filterConnectionIds } = options;
     const connections = await deserializeConnections(content, {
@@ -339,7 +338,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     options?: ImportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<void> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
 
     const connections = await this.deserializeConnections({
       content,
@@ -377,7 +376,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     options?: ExportConnectionOptions;
     signal?: AbortSignal;
   } = {}): Promise<string> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
 
     const { filterConnectionIds, ...restOfOptions } = options;
     const connections = await this.loadAll({ signal });

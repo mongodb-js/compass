@@ -1,10 +1,10 @@
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import { cloneDeep } from 'lodash';
 
 export type OIDCOptions = NonNullable<ConnectionOptions['oidc']>;
 
 export interface UpdateOIDCAction<
-  K extends keyof OIDCOptions = keyof OIDCOptions
+  K extends keyof OIDCOptions = keyof OIDCOptions,
 > {
   type: 'update-oidc-param';
   key: K;

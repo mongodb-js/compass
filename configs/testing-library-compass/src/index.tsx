@@ -1,25 +1,28 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import {
   createNoopLogger,
   LoggerProvider,
 } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionStorage,
+  FolderStorage,
+} from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
+  FolderStorageProvider,
+  InMemoryFolderStorage,
 } from '@mongodb-js/connection-storage/provider';
 import type {
+  RenderOptions,
+  RenderResult,
   RenderHookOptions,
   RenderHookResult,
-} from '@testing-library/react-hooks';
-import {
-  renderHook,
-  cleanup as rtlCleanupHook,
-} from '@testing-library/react-hooks';
-import type { RenderOptions, RenderResult } from '@testing-library/react';
+} from '@testing-library/react';
 import {
   render,
+  renderHook,
   cleanup as rtlCleanup,
   screen,
   waitFor,
@@ -33,18 +36,18 @@ import type {
   ConnectionOptions,
   DataService,
   InstanceDetails,
-} from 'mongodb-data-service';
-import { identifyServerName } from 'mongodb-build-info';
+} from '@mongodb-js/mongodb-data-service';
+import { identifyServerName } from '@mongodb-js/mongodb-build-info';
 import Sinon from 'sinon';
 import React from 'react';
 import type {
   AllPreferences,
   PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import {
   PreferencesProvider,
   ReadOnlyPreferenceAccess,
-} from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import type { ExperimentTestGroup } from '@mongodb-js/compass-telemetry';
@@ -54,8 +57,10 @@ import {
   ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/src/connection-info-provider';
 import type { State } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { createDefaultConnectionInfo } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { getDataServiceForConnection } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
+import {
+  createDefaultConnectionInfo,
+  getDataServiceForConnection,
+} from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
 import {
   useConnectionActions,
   useStore,
@@ -114,6 +119,10 @@ type TestConnectionsOptions = {
    * Connection storage mock
    */
   connectionStorage?: ConnectionStorage;
+  /**
+   * Folder storage mock
+   */
+  folderStorage?: FolderStorage;
   /**
    * Simulates the entity being assigned to a given experiment variant (or
    * `null` for not being in any variant, the default).
@@ -278,18 +287,18 @@ class InMemoryPreferencesAccess
   }
 }
 
-type ComponentWithChildren = React.ComponentType<{
-  children: React.ReactElement;
+type ComponentWithChildren = React.JSXElementConstructor<{
+  children?: React.ReactNode;
 }>;
 
-const EmptyWrapper = ({ children }: { children: React.ReactElement }) => {
+const EmptyWrapper = ({ children }: { children?: React.ReactNode }) => {
   return <>{children}</>;
 };
 
 function getConnectionsFromConnectionsOption(
   connections: TestConnectionsOptions['connections']
 ): Exclude<TestConnectionsOptions['connections'], 'no-preload'> {
-  return connections === 'no-preload' ? undefined : connections ?? [];
+  return connections === 'no-preload' ? undefined : (connections ?? []);
 }
 
 const TEST_ENV_CURRENT_CONNECTION = {
@@ -325,6 +334,7 @@ function createWrapper(
     atlasAuthService: new EventEmitter() as unknown as AtlasAuthService,
     connectionStorage:
       options.connectionStorage ?? new InMemoryConnectionStorage(connections),
+    folderStorage: options.folderStorage ?? new InMemoryFolderStorage(),
     connectionsStore: {
       getState: undefined as unknown as () => State,
       actions: {} as ReturnType<typeof useConnectionActions>,
@@ -359,7 +369,9 @@ function createWrapper(
     },
     getDataServiceForConnection,
   };
-  const StoreGetter: React.FunctionComponent = ({ children }) => {
+  const StoreGetter: React.FunctionComponent<{
+    children?: React.ReactNode;
+  }> = ({ children }) => {
     const store = useStore();
     const actions = useConnectionActions();
     // We're breaking the rules of hooks on purpose here to expose the values
@@ -439,34 +451,38 @@ function createWrapper(
                           <ConnectionStorageProvider
                             value={wrapperState.connectionStorage}
                           >
-                            <ConnectFnProvider connect={wrapperState.connect}>
-                              <CompassConnections
-                                appName={options.appName ?? 'TEST'}
-                                onExtraConnectionDataRequest={
-                                  options.onExtraConnectionDataRequest ??
-                                  (() => {
-                                    return Promise.resolve([{}, null] as [
-                                      any,
-                                      null
-                                    ]);
-                                  })
-                                }
-                                onAutoconnectInfoRequest={
-                                  options.onAutoconnectInfoRequest
-                                }
-                                preloadStorageConnectionInfos={connections}
-                              >
-                                <StoreGetter>
-                                  <TestEnvCurrentConnectionContext.Provider
-                                    value={TEST_ENV_CURRENT_CONNECTION}
-                                  >
-                                    <TestingLibraryWrapper {...props}>
-                                      {children}
-                                    </TestingLibraryWrapper>
-                                  </TestEnvCurrentConnectionContext.Provider>
-                                </StoreGetter>
-                              </CompassConnections>
-                            </ConnectFnProvider>
+                            <FolderStorageProvider
+                              value={wrapperState.folderStorage}
+                            >
+                              <ConnectFnProvider connect={wrapperState.connect}>
+                                <CompassConnections
+                                  appName={options.appName ?? 'TEST'}
+                                  onExtraConnectionDataRequest={
+                                    options.onExtraConnectionDataRequest ??
+                                    (() => {
+                                      return Promise.resolve([{}, null] as [
+                                        any,
+                                        null,
+                                      ]);
+                                    })
+                                  }
+                                  onAutoconnectInfoRequest={
+                                    options.onAutoconnectInfoRequest
+                                  }
+                                  preloadStorageConnectionInfos={connections}
+                                >
+                                  <StoreGetter>
+                                    <TestEnvCurrentConnectionContext.Provider
+                                      value={TEST_ENV_CURRENT_CONNECTION}
+                                    >
+                                      <TestingLibraryWrapper {...props}>
+                                        {children}
+                                      </TestingLibraryWrapper>
+                                    </TestEnvCurrentConnectionContext.Provider>
+                                  </StoreGetter>
+                                </CompassConnections>
+                              </ConnectFnProvider>
+                            </FolderStorageProvider>
                           </ConnectionStorageProvider>
                         </CompassExperimentationProvider>
                       </TelemetryProvider>
@@ -506,8 +522,9 @@ function unwrapContextMenuContainer(result: RenderResult) {
   }
 }
 
-export type RenderConnectionsOptions = RenderOptions &
+export type RenderConnectionsOptions = Omit<RenderOptions, 'wrapper'> &
   TestConnectionsOptions & {
+    wrapper?: ComponentWithChildren;
     /**
      * Whether to include the context menu container and menu in the container of the returned result.
      */
@@ -569,9 +586,9 @@ export type RenderHookConnectionsOptions<HookProps> = Omit<
 
 export type RenderWithConnectionsHookResult<
   HookProps = unknown,
-  HookResult = unknown
+  HookResult = unknown,
 > = ReturnType<typeof createWrapper>['wrapperState'] &
-  RenderHookResult<HookProps, HookResult>;
+  RenderHookResult<HookResult, HookProps>;
 
 function renderHookWithConnections<HookProps, HookResult>(
   cb: (props: HookProps) => HookResult,
@@ -681,7 +698,7 @@ async function renderHookWithActiveConnection<HookProps, HookResult>(
 function createPluginWrapper<
   Props,
   ServiceLocators extends Record<string, () => unknown>,
-  PluginContext extends CompassPlugin
+  PluginContext extends CompassPlugin,
 >(
   Plugin: CompassPluginComponent<Props, ServiceLocators, PluginContext>,
   initialPluginProps?: Props,
@@ -707,7 +724,7 @@ function createPluginWrapper<
 }
 
 export type RenderPluginWithConnectionsResult<
-  T extends CompassPluginComponent<any, any, any>
+  T extends CompassPluginComponent<any, any, any>,
 > = RenderWithConnectionsResult & {
   plugin: ReturnType<T['useActivate']>;
 };
@@ -715,7 +732,7 @@ export type RenderPluginWithConnectionsResult<
 function createPluginTestHelpers<
   Props,
   ServiceLocators extends Record<string, () => unknown>,
-  PluginContext extends CompassPlugin
+  PluginContext extends CompassPlugin,
 >(
   Plugin: CompassPluginComponent<Props, ServiceLocators, PluginContext>,
   defaultInitialPluginProps?: Props
@@ -887,11 +904,6 @@ const fireEvent = testingLibraryFireEvent;
 const cleanup = rtlCleanup;
 
 /**
- * @deprecated @testing-library/react-hooks installs these hooks automatically
- */
-const cleanupHook = rtlCleanupHook;
-
-/**
  * In some cases we still want to just render something without all the
  * wrappers, for these cases we provide access to the original methods, but this
  * is not the default behavior
@@ -909,7 +921,6 @@ export {
   renderWithConnections as render,
   renderHookWithConnections as renderHook,
   cleanup,
-  cleanupHook,
   screen,
   wait,
   waitFor,

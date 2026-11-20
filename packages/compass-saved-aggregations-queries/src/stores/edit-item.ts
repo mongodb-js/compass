@@ -1,6 +1,6 @@
 import type { Action, Reducer } from 'redux';
-import type { SavedQueryAggregationThunkAction } from '.';
 import { fetchItems } from './aggregations-queries-items';
+import type { SavedQueryAggregationThunkAction } from '.';
 
 function isAction<A extends Action>(
   action: Action,
@@ -45,9 +45,7 @@ type EditItemUpdatedAction = {
 };
 
 export type Actions =
-  | EditItemClickedAction
-  | EditItemCancelledAction
-  | EditItemUpdatedAction;
+  EditItemClickedAction | EditItemCancelledAction | EditItemUpdatedAction;
 
 const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<EditItemClickedAction>(action, ActionTypes.EditItemClicked)) {

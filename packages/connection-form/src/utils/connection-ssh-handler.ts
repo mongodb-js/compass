@@ -1,15 +1,11 @@
 import { cloneDeep } from 'lodash';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import { defaultSshPort } from '../constants/default-connection';
 
 export type SSHConnectionOptions = NonNullable<ConnectionOptions['sshTunnel']>;
 
 export type TunnelType =
-  | 'none'
-  | 'ssh-password'
-  | 'ssh-identity'
-  | 'socks'
-  | 'app-proxy';
+  'none' | 'ssh-password' | 'ssh-identity' | 'socks' | 'app-proxy';
 
 export interface UpdateSshOptions {
   type: 'update-ssh-options';

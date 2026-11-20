@@ -1,6 +1,6 @@
 'use strict';
-const net = require('net');
-const tls = require('tls');
+const net = require('node:net');
+const tls = require('node:tls');
 const { WebSocketServer } = require('ws');
 const { serialize, deserialize } = require('bson');
 

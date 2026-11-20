@@ -29,6 +29,9 @@ import {
   syntaxTree,
   foldInside,
   foldEffect,
+  LanguageSupport,
+  syntaxHighlighting,
+  HighlightStyle,
 } from '@codemirror/language';
 import {
   cursorDocEnd,
@@ -65,11 +68,6 @@ import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension, TransactionSpec } from '@codemirror/state';
 import { Facet, Compartment, EditorState } from '@codemirror/state';
-import {
-  LanguageSupport,
-  syntaxHighlighting,
-  HighlightStyle,
-} from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
 
@@ -83,15 +81,6 @@ const editorStyle = css({
   fontFamily: fontFamilies.code,
 });
 
-const disabledContainerStyles = css({
-  borderRadius: spacing[100],
-  boxShadow: `0 0 0 1px ${palette.gray.light1}`,
-});
-
-const disabledContainerDarkModeStyles = css({
-  boxShadow: `0 0 0 1px ${palette.gray.dark2}`,
-});
-
 const readOnlyStyle = css({
   // We hide the blinking cursor in read only mode
   // as it can appear to users like the editor is editable.
@@ -102,7 +91,7 @@ const readOnlyStyle = css({
 
 const hiddenScrollStyle = css({
   '& .cm-scroller': {
-    overflow: '-moz-scrollbars-none',
+    scrollbarWidth: 'none',
     msOverflowStyle: 'none',
   },
   '& .cm-scroller::-webkit-scrollbar': {
@@ -217,6 +206,21 @@ const cmFontStyles = {
   fontFamily: fontFamilies.code,
 };
 
+const disabledContainerStyles = css({
+  borderRadius: spacing[100],
+  overflow: 'hidden',
+  boxShadow: `0 0 0 1px ${palette.gray.light1}`,
+  backgroundColor: editorPalette.light.disabledBackgroundColor,
+  '& .cm-editor, & .cm-gutters, & .cm-content[contenteditable="false"]': {
+    backgroundColor: 'transparent',
+  },
+});
+
+const disabledContainerDarkModeStyles = css({
+  boxShadow: `0 0 0 1px ${palette.gray.dark2}`,
+  backgroundColor: editorPalette.dark.disabledBackgroundColor,
+});
+
 function getStylesForTheme(theme: CodemirrorThemeType) {
   return EditorView.theme(
     {
@@ -234,13 +238,9 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         paddingBottom: `${spacing[100]}px`,
         caretColor: editorPalette[theme].cursorColor,
       },
-      '[contenteditable="false"] ': {
-        borderRadius: `${spacing[100]}px`,
-      },
       '.cm-content[contenteditable="false"] ': {
         cursor: 'not-allowed',
         color: editorPalette[theme].disabledColor,
-        backgroundColor: editorPalette[theme].disabledBackgroundColor,
       },
       '& .cm-activeLine': {
         background: 'none',
@@ -627,8 +627,7 @@ type EditorProps = {
   initialJSONFoldAll?: boolean;
   autoFocus?: boolean;
 } & (
-  | { text: string; initialText?: never }
-  | { text?: never; initialText: string }
+  { text: string; initialText?: never } | { text?: never; initialText: string }
 ) &
   Pick<
     React.HTMLProps<HTMLDivElement>,
@@ -810,73 +809,69 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   });
   const initialJSONFoldAll = useRef(_initialJSONFoldAll);
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        foldAll() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return foldAll(editorViewRef.current);
-        },
-        unfoldAll() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return unfoldAll(editorViewRef.current);
-        },
-        copyAll() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return copyAll(editorViewRef.current);
-        },
-        prettify() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return prettify(editorViewRef.current);
-        },
-        applySnippet(template: string) {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return applySnippet(editorViewRef.current, template);
-        },
-        focus() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          editorViewRef.current.focus();
-          return true;
-        },
-        cursorDocEnd() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return cursorDocEnd(editorViewRef.current);
-        },
-        startCompletion() {
-          if (!editorViewRef.current) {
-            return false;
-          }
-          return startCompletion(editorViewRef.current);
-        },
-        get editorContents() {
-          if (!editorViewRef.current) {
-            return null;
-          }
+  useImperativeHandle(ref, () => {
+    return {
+      foldAll() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return foldAll(editorViewRef.current);
+      },
+      unfoldAll() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return unfoldAll(editorViewRef.current);
+      },
+      copyAll() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return copyAll(editorViewRef.current);
+      },
+      prettify() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return prettify(editorViewRef.current);
+      },
+      applySnippet(template: string) {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return applySnippet(editorViewRef.current, template);
+      },
+      focus() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        editorViewRef.current.focus();
+        return true;
+      },
+      cursorDocEnd() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return cursorDocEnd(editorViewRef.current);
+      },
+      startCompletion() {
+        if (!editorViewRef.current) {
+          return false;
+        }
+        return startCompletion(editorViewRef.current);
+      },
+      get editorContents() {
+        if (!editorViewRef.current) {
+          return null;
+        }
 
-          return getEditorContents(editorViewRef.current);
-        },
-        get editor() {
-          return editorViewRef.current ?? null;
-        },
-      };
-    },
-    []
-  );
+        return getEditorContents(editorViewRef.current);
+      },
+      get editor() {
+        return editorViewRef.current ?? null;
+      },
+    };
+  }, []);
 
   const languageExtension = useCodemirrorExtensionCompartment(
     () => {
@@ -1321,10 +1316,10 @@ function isTopNode(node?: any): boolean {
   return !node
     ? true
     : node.name === 'Array' || node.name === 'Property'
-    ? false
-    : node.name === 'JsonText'
-    ? true
-    : isTopNode(node.parent);
+      ? false
+      : node.name === 'JsonText'
+        ? true
+        : isTopNode(node.parent);
 }
 
 const applySnippet = (editor: EditorView, template: string): boolean => {
@@ -1456,7 +1451,10 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
         showAnnotationsGutter={Boolean(showAnnotationsGutter)}
         showScroll={false}
         highlightActiveLine={false}
-        className={cx(!darkMode && inlineStylesLightMode, className)}
+        className={cx(
+          !darkMode && !props.disabled && inlineStylesLightMode,
+          className
+        )}
         language="javascript-expression"
         {...props}
       ></BaseEditor>
@@ -1523,45 +1521,41 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
 
     const onCopyRef = useCurrentValueRef(onCopy);
 
-    useImperativeHandle(
-      ref,
-      () => {
-        return {
-          foldAll() {
-            return editorRef.current?.foldAll() ?? false;
-          },
-          unfoldAll() {
-            return editorRef.current?.unfoldAll() ?? false;
-          },
-          copyAll() {
-            onCopyRef.current?.();
-            return editorRef.current?.copyAll() ?? false;
-          },
-          prettify() {
-            return editorRef.current?.prettify() ?? false;
-          },
-          focus() {
-            return editorRef.current?.focus() ?? false;
-          },
-          applySnippet(template: string) {
-            return editorRef.current?.applySnippet(template) ?? false;
-          },
-          cursorDocEnd() {
-            return editorRef.current?.cursorDocEnd() ?? false;
-          },
-          startCompletion() {
-            return editorRef.current?.startCompletion() ?? false;
-          },
-          get editorContents() {
-            return editorRef.current?.editorContents ?? null;
-          },
-          get editor() {
-            return editorRef.current?.editor ?? null;
-          },
-        };
-      },
-      []
-    );
+    useImperativeHandle(ref, () => {
+      return {
+        foldAll() {
+          return editorRef.current?.foldAll() ?? false;
+        },
+        unfoldAll() {
+          return editorRef.current?.unfoldAll() ?? false;
+        },
+        copyAll() {
+          onCopyRef.current?.();
+          return editorRef.current?.copyAll() ?? false;
+        },
+        prettify() {
+          return editorRef.current?.prettify() ?? false;
+        },
+        focus() {
+          return editorRef.current?.focus() ?? false;
+        },
+        applySnippet(template: string) {
+          return editorRef.current?.applySnippet(template) ?? false;
+        },
+        cursorDocEnd() {
+          return editorRef.current?.cursorDocEnd() ?? false;
+        },
+        startCompletion() {
+          return editorRef.current?.startCompletion() ?? false;
+        },
+        get editorContents() {
+          return editorRef.current?.editorContents ?? null;
+        },
+        get editor() {
+          return editorRef.current?.editor ?? null;
+        },
+      };
+    }, []);
 
     const hasCustomActions = customActions && customActions.length > 0;
     const hasActions = copyable || formattable || hasCustomActions;

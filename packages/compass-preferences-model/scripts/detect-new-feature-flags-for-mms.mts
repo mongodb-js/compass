@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+import { spawnSync } from 'node:child_process';
+import { appendFileSync } from 'node:fs';
 import ts from 'typescript';
-import { spawnSync } from 'child_process';
-import { appendFileSync } from 'fs';
 
 const FILEPATH = 'packages/compass-preferences-model/src/feature-flags.ts';
 
@@ -44,7 +44,6 @@ phases:
   local: enabled
   local-gov: disabled
   test: controlled
-  test-gov: disabled
   dev: controlled
   dev-gov: disabled
   qa: controlled
@@ -131,7 +130,7 @@ function extractFlags(source: string): Map<string, FlagInfo> {
           flags.set(name, {
             name,
             scope,
-            description: descObj ? getStringProp(descObj, 'short') ?? '' : '',
+            description: descObj ? (getStringProp(descObj, 'short') ?? '') : '',
           });
         }
         return;

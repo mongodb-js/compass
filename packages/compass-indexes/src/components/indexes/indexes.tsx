@@ -10,10 +10,9 @@ import {
   usePersistedState,
   Body,
 } from '@mongodb-js/compass-components';
-import {
-  useTelemetry,
-  useSearchActivationProgramP1,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
@@ -29,14 +28,13 @@ import {
   UpdateSearchIndexModal,
 } from '../search-indexes-modals';
 import type { IndexView } from '../../modules/index-view';
-import { usePreferences } from 'compass-preferences-model/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';
 import ViewSearchIncompatibleBanner from '../view-incompatible-components/view-pipeline-incompatible-banner';
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import IndexStatsNodeBanner from './index-stats-node-banner';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -57,13 +55,14 @@ const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
 const AtlasIndexesBanner = ({
   namespace,
   dismissed,
+  searchManagementEnabled,
   onDismissClick,
 }: {
   namespace: string;
   dismissed: boolean;
+  searchManagementEnabled: boolean;
   onDismissClick: () => void;
 }) => {
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
 
@@ -73,10 +72,10 @@ const AtlasIndexesBanner = ({
 
   return (
     <Banner variant="info" dismissible onClose={onDismissClick}>
-      {!enableSearchActivationProgramP1 && (
+      {!searchManagementEnabled && (
         <Body weight="medium">Looking for search indexes?</Body>
       )}
-      {enableSearchActivationProgramP1
+      {searchManagementEnabled
         ? 'View index sizes, queryability status, and per-node build progress in '
         : 'These indexes can be created and viewed under '}
       <Link
@@ -169,7 +168,6 @@ export function Indexes({
     'enableAtlasSearchIndexes',
     'enableIndexesManagement',
   ]);
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
     useSelector(selectIsViewSearchCompatible, shallowEqual);
   const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
@@ -177,11 +175,13 @@ export function Indexes({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     }),
     shallowEqual
   );
+  const showRegularIndexes =
+    isRegularIndexesReadable && currentIndexesView === 'regular-indexes';
+
   const getBanner = () => {
     if (isReadonlyView) {
       if (!isViewVersionSearchCompatible) {
@@ -192,14 +192,12 @@ export function Indexes({
       }
     }
 
-    if (
-      !isReadonlyView ||
-      !(enableAtlasSearchIndexes || enableSearchActivationProgramP1)
-    ) {
+    if (!isReadonlyView || !enableAtlasSearchIndexes) {
       return (
         <AtlasIndexesBanner
           namespace={namespace}
           dismissed={atlasBannerDismissed}
+          searchManagementEnabled={enableAtlasSearchIndexes}
           onDismissClick={() => {
             setDismissed(true);
           }}
@@ -220,7 +218,7 @@ export function Indexes({
             onRefreshIndexes={onRefreshIndexes}
             showAtlasSearchLink={
               !isReadonlyView &&
-              !(enableAtlasSearchIndexes || enableSearchActivationProgramP1) &&
+              !enableAtlasSearchIndexes &&
               atlasBannerDismissed
             }
           />
@@ -229,8 +227,9 @@ export function Indexes({
         <div className={indexesContainersStyles}>
           {getBanner()}
 
-          {isRegularIndexesReadable &&
-            currentIndexesView === 'regular-indexes' && <RegularIndexesTable />}
+          {showRegularIndexes && !errorMessage && <IndexStatsNodeBanner />}
+
+          {showRegularIndexes && <RegularIndexesTable />}
           {isSearchIndexesReadable &&
             currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
           {isReadonlyView && !isSearchIndexesReadable && (

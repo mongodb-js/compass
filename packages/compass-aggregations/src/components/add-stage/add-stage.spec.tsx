@@ -1,13 +1,13 @@
 import React, { type ComponentProps } from 'react';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { AddStage } from './add-stage';
 import {
   cleanup,
   render,
   screen,
   within,
 } from '@mongodb-js/testing-library-compass';
+import { AddStage } from './add-stage';
 
 const renderAddStage = (
   props: Partial<ComponentProps<typeof AddStage>> = {}
@@ -46,9 +46,8 @@ describe('AddStage', function () {
 
     it('renders help link when stage is not last', function () {
       renderAddStage();
-      expect(
-        screen.getByText('Learn more about aggregation pipeline stages')
-      ).to.exist;
+      expect(screen.getByText('Learn more about aggregation pipeline stages'))
+        .to.exist;
     });
 
     it('calls onAddStage with index when clicked', function () {

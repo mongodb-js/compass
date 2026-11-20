@@ -7,8 +7,8 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
-import { SavedPipelines } from './saved-pipelines';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
+import { SavedPipelines } from './saved-pipelines';
 
 const savedPipelines = [
   {

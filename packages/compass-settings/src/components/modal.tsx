@@ -1,14 +1,18 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
-import type { UserConfigurablePreferences } from 'compass-preferences-model';
+import type { UserConfigurablePreferences } from '@mongodb-js/compass-preferences-model';
 
 import {
   FormModal,
+  SpinLoader,
   css,
   spacing,
   focusRing,
 } from '@mongodb-js/compass-components';
 
+import type { SettingsTabId } from '../stores/settings';
+import { saveSettings, closeModal, selectTab } from '../stores/settings';
+import type { RootState } from '../stores';
 import GeneralSettings, { generalFields } from './settings/general';
 import { ProxySettings, proxyFields } from './settings/proxy-settings';
 import OIDCSettings, { oidcFields } from './settings/oidc-settings';
@@ -17,11 +21,10 @@ import PrivacySettings, { privacyFields } from './settings/privacy';
 import ThemeSettings, { themeFields } from './settings/theme';
 import FeaturePreviewSettings, {
   useShouldShowFeaturePreviewSettings,
+  previewFeatureFlagFields,
+  developmentFeatureFlagFields,
 } from './settings/feature-preview';
 import Sidebar from './sidebar';
-import type { SettingsTabId } from '../stores/settings';
-import { saveSettings, closeModal, selectTab } from '../stores/settings';
-import type { RootState } from '../stores';
 
 type Settings = {
   tabId: SettingsTabId;
@@ -38,6 +41,7 @@ type SettingsModalProps = {
   onSave: () => void;
   onSelectTab: (tab: SettingsTabId) => void;
   hasChangedSettings: boolean;
+  isSaving: boolean;
   userConfigurableSettings: Partial<{
     [key in keyof UserConfigurablePreferences]: unknown;
   }>;
@@ -76,6 +80,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onSave,
   onSelectTab,
   hasChangedSettings,
+  isSaving,
   userConfigurableSettings,
 }) => {
   const onMountRef = useRef(onMount);
@@ -123,25 +128,29 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
         name: 'Artificial Intelligence',
         component: GenAISettings,
       },
+      ...(hasFeaturePreviewSettings
+        ? [
+            {
+              tabId: 'preview' as SettingsTabId,
+              name: 'Feature Preview',
+              preferences: [
+                ...previewFeatureFlagFields,
+                ...developmentFeatureFlagFields,
+              ] as (keyof UserConfigurablePreferences)[],
+              component: FeaturePreviewSettings,
+            },
+          ]
+        : []),
     ].filter((setting) => {
       return setting.preferences.some((pref) =>
         Object.hasOwn(userConfigurableSettings, pref)
       );
     });
 
-    if (hasFeaturePreviewSettings) {
-      settings.push({
-        tabId: 'preview',
-        name: 'Feature Preview',
-        preferences: [],
-        component: FeaturePreviewSettings,
-      });
-    }
-
     return settings;
   }, [userConfigurableSettings, hasFeaturePreviewSettings]);
 
-  selectedTab ??= settings[0].tabId;
+  selectedTab ??= settings[0]?.tabId;
   const SettingComponent =
     settings.find((x) => x.tabId === selectedTab)?.component ?? null;
 
@@ -152,7 +161,10 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       open={isOpen}
       submitButtonText="Save"
       onSubmit={onSave}
-      submitDisabled={!hasChangedSettings}
+      submitDisabled={!hasChangedSettings || isSaving}
+      submitButtonLeftGlyph={
+        isSaving ? <SpinLoader title="Saving settings" /> : undefined
+      }
       onCancel={onClose}
       data-testid="settings-modal"
       minBodyHeight={spacing[1600] * 2}
@@ -188,6 +200,7 @@ export default connect(
       isOpen:
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
       hasChangedSettings: state.settings.updatedFields.length > 0,
+      isSaving: state.settings.isSaving,
       selectedTab: state.settings.tab,
       userConfigurableSettings: state.settings.settings,
     };

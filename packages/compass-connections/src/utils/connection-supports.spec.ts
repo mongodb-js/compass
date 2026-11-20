@@ -1,6 +1,6 @@
-import { connectionSupports } from './connection-supports';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { expect } from 'chai';
+import { connectionSupports } from './connection-supports';
 
 const mockConnections: ConnectionInfo[] = [
   {

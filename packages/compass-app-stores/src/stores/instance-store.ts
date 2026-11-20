@@ -1,6 +1,6 @@
-import type { MongoDBInstanceProps } from 'mongodb-instance-model';
-import { MongoDBInstance } from 'mongodb-instance-model';
-import toNS from 'mongodb-ns';
+import type { MongoDBInstanceProps } from '@mongodb-js/mongodb-instance-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
+import toNS from '@mongodb-js/mongodb-ns';
 import type {
   ConnectionInfo,
   ConnectionsService,
@@ -12,8 +12,8 @@ import type {
 } from '@mongodb-js/compass-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { MongoDBInstancesManager } from '../instances-manager';
-import type { PreferencesAccess } from 'compass-preferences-model';
 
 type InstanceDetails = Awaited<ReturnType<DataService['instance']>>;
 
@@ -286,14 +286,13 @@ export function createInstancesStore(
     }
   );
 
-  preferences.onPreferenceValueChanged('inferNamespacesFromPrivileges', () => {
-    const connectedConnectionIds = Array.from(
-      instancesManager.listMongoDBInstances().keys()
-    );
-    for (const connectionId of connectedConnectionIds) {
+  function reload() {
+    for (const [connectionId] of instancesManager.listMongoDBInstances())
       void refreshDatabases({ connectionId });
-    }
-  });
+  }
+
+  preferences.onPreferenceValueChanged('inferNamespacesFromPrivileges', reload);
+  preferences.onPreferenceValueChanged('showHiddenNamespaces', reload);
 
   on(connections, 'disconnected', function (connectionInfoId: string) {
     try {

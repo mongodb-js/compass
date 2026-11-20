@@ -2,7 +2,7 @@ import type {
   PreferencesAccess,
   UserConfigurablePreferences,
   PreferenceStateInformation,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import { pick } from '../utils/pick';
 
 // Wrapper class for preferences to be able to pass it as a thunk extra arg

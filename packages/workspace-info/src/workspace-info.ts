@@ -69,7 +69,7 @@ export type CollectionsWorkspace = z.output<typeof CollectionsWorkspaceSchema>;
 const CollectionWorkspaceSchema = z.object({
   type: z.literal('Collection'),
   subTab: CollectionSubtabSchema,
-  initialQuery: z.record(z.any()).optional(),
+  initialQuery: z.record(z.string(), z.any()).optional(),
   initialPipeline: z.array(z.unknown()).optional(),
   initialPipelineText: z.string().optional(),
   initialAggregation: z.unknown().optional(),
@@ -151,8 +151,8 @@ export type PluginHeaderProps<T extends AnyWorkspace['type']> =
 export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;
   provider: CompassPluginComponent<any, any, any>;
-  content: (props: WorkspacePluginProps<T>) => React.ReactElement | null;
-  header: (props: PluginHeaderProps<T>) => React.ReactElement | null;
+  content: (props: WorkspacePluginProps<T>) => React.ReactNode;
+  header: (props: PluginHeaderProps<T>) => React.ReactNode;
 };
 
 export type CollectionTabInfo = {

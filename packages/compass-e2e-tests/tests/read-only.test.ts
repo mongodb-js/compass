@@ -1,10 +1,10 @@
+import { expect } from 'chai';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
 } from '../helpers/compass.ts';
-import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import type { Compass } from '../helpers/compass.ts';
@@ -154,6 +154,7 @@ describe('readOnly: true / Read-Only Edition', function () {
   });
 
   it('shows and hides the create database button on the instance tab', async function () {
+    await createNumbersCollection();
     await browser.connectToDefaults();
 
     await browser.navigateToConnectionTab(

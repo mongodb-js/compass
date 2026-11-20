@@ -6,8 +6,8 @@ import {
   createServiceLocator,
   createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
-import type { MongoDBInstanceProps } from 'mongodb-instance-model';
-import { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstanceProps } from '@mongodb-js/mongodb-instance-model';
+import { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import React, {
   createContext,
   useCallback,
@@ -17,14 +17,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { MongoDBInstancesManager } from './instances-manager';
-import toNS from 'mongodb-ns';
-import type Collection from 'mongodb-collection-model';
-import type Database from 'mongodb-database-model';
+import toNS from '@mongodb-js/mongodb-ns';
+import type Collection from '@mongodb-js/mongodb-collection-model';
+import type Database from '@mongodb-js/mongodb-database-model';
 import type {
   AllPreferences,
   PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
+import { MongoDBInstancesManager } from './instances-manager';
 
 export {
   MongoDBInstancesManagerEvents,
@@ -43,7 +43,7 @@ export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
     super();
     if (!instanceProps.preferences) {
       instanceProps.preferences = {
-        getPreferences: () => ({} as AllPreferences),
+        getPreferences: () => ({}) as AllPreferences,
         setPreferences: () => Promise.resolve(),
         onPreferenceValueChanged: () => () => {
           /* no-op */

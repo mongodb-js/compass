@@ -7,20 +7,21 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { CollectionsList } from './index';
 import Sinon from 'sinon';
 import {
   type PreferencesAccess,
   PreferencesProvider,
-} from 'compass-preferences-model/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import type { CollectionProps } from 'mongodb-collection-model';
+} from '@mongodb-js/compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import type { CollectionProps } from '@mongodb-js/mongodb-collection-model';
 import {
   inspectTable,
   testSortColumn,
   createCollection,
   createTimeSeries,
 } from '../test/utils';
+import { CollectionsList } from './index';
+
 const colls: CollectionProps[] = [
   createCollection({
     name: 'foo',

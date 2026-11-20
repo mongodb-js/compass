@@ -13,18 +13,18 @@ import {
   openToast,
   HorizontalRule,
 } from '@mongodb-js/compass-components';
-import { SidebarHeader } from './header/sidebar-header';
-import { type RootState, type SidebarThunkAction } from '../../modules';
-import { Navigation } from './navigation/navigation';
-import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
-import ConnectionsNavigation from './connections-navigation';
+import ConnectionInfoModal from '../connection-info-modal';
+import { type RootState, type SidebarThunkAction } from '../../modules';
 import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,
 } from '../csfle-connection-modal';
 import type { ConnectionsFilter } from '../use-filtered-connections';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
+import ConnectionsNavigation from './connections-navigation';
+import { Navigation } from './navigation/navigation';
+import { SidebarHeader } from './header/sidebar-header';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -116,6 +116,11 @@ export function MultipleConnectionSidebar({
     duplicateConnection,
     toggleFavoritedConnectionStatus,
     showNonGenuineMongoDBWarningModal,
+    createFolder,
+    renameFolder,
+    deleteFolder,
+    moveConnectionsToFolder,
+    moveConnectionsToNewFolder,
   } = useConnectionActions();
 
   const findActiveConnection = (id: string) => {
@@ -208,6 +213,11 @@ export function MultipleConnectionSidebar({
             showNonGenuineMongoDBWarningModal(connectionId);
           }}
           onOpenConnectViaModal={onOpenConnectViaModal}
+          onCreateFolder={createFolder}
+          onRenameFolder={renameFolder}
+          onDeleteFolder={deleteFolder}
+          onMoveConnectionsToFolder={moveConnectionsToFolder}
+          onMoveConnectionsToNewFolder={moveConnectionsToNewFolder}
         />
         <MappedCsfleModal
           connectionId={csfleModalConnectionId}

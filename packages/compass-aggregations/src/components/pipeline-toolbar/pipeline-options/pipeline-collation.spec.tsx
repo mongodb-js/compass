@@ -1,10 +1,14 @@
 import React from 'react';
-import { screen, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../../test/configure-store';
-import PipelineCollation from './pipeline-collation';
 import type { AggregationsStore } from '../../../stores/store';
+import PipelineCollation from './pipeline-collation';
 
 describe('PipelineCollation', function () {
   let store: AggregationsStore;
@@ -17,14 +21,34 @@ describe('PipelineCollation', function () {
     expect(screen.getByTestId('collation-toolbar')).to.exist;
   });
 
-  it('updates the store when a new collation value is typed', function () {
+  it('updates the store when a new collation value is typed', async function () {
     userEvent.tab();
     expect(screen.getByTestId('collation-string')).to.eq(
       document.activeElement
     );
     userEvent.keyboard('8');
     const storeState = store.getState();
-    expect(storeState.collationString.value).to.equal(8);
+    expect(storeState.collationString.value).to.equal(null);
+    await waitFor(() => {
+      expect(screen.getByTestId('collation-string')).to.have.attribute(
+        'aria-invalid',
+        'true'
+      );
+    });
+  });
+
+  it('keeps every typed character of the collation', async function () {
+    // `{{` is user-event's escape for a literal `{`
+    userEvent.type(screen.getByTestId('collation-string'), "{{locale: 'fr'}");
+    await waitFor(() => {
+      expect(screen.getByTestId('collation-string')).to.have.value(
+        "{locale: 'fr'}"
+      );
+      expect(screen.getByTestId('collation-string')).to.have.attribute(
+        'aria-invalid',
+        'false'
+      );
+    });
   });
 
   it('updates the store when a new max time ms value is typed', function () {

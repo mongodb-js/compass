@@ -3,8 +3,8 @@ const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
 const {
   Collection: MongoDbCollectionCollection,
-} = require('mongodb-collection-model');
-const toNS = require('mongodb-ns');
+} = require('@mongodb-js/mongodb-collection-model');
+const toNS = require('@mongodb-js/mongodb-ns');
 
 function mergeInit(...init) {
   return {
@@ -124,7 +124,7 @@ const DatabaseModel = AmpersandModel.extend(
         fn() {
           return ['ready', 'refreshing'].includes(this.collectionsStatus)
             ? this.collections.length
-            : this.collection_count ?? 0;
+            : (this.collection_count ?? 0);
         },
       },
     },
@@ -133,7 +133,7 @@ const DatabaseModel = AmpersandModel.extend(
     },
     /**
      * @param {{
-     *    dataService: import('mongodb-data-service').DataService,
+     *    dataService: import('@mongodb-js/mongodb-data-service').DataService,
      *    force: boolean
      * }} options
      * @param force
@@ -171,7 +171,7 @@ const DatabaseModel = AmpersandModel.extend(
 
     /**
      * @param {{
-     *    dataService: import('mongodb-data-service').DataService,
+     *    dataService: import('@mongodb-js/mongodb-data-service').DataService,
      *    force: boolean
      * }} options
      * @returns {Promise<void>}
@@ -240,7 +240,7 @@ const DatabaseCollection = AmpersandCollection.extend(
     model: DatabaseModel,
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetch({ dataService }) {
@@ -262,15 +262,11 @@ const DatabaseCollection = AmpersandCollection.extend(
         roles: instanceModel.auth.roles,
       });
 
+      const showHiddenNamespaces = instanceModel.shouldShowHiddenNamespaces();
+
       this.set(
         dbs
-          .filter((db) => {
-            const ns = toNS(db._id);
-            // TODO(COMPASS-10954): This is indisputably the wrong way and place to handle namespace filtering.
-            // There is a namespace that now _must_ be revealed again to users so they can repair it in unfortunate circumstances.
-            // We will instead reveal all internal namespaces under a setting removing this filter altogether in COMPASS-10954.
-            return !ns.internal || ns.database === '__mdb_internal_search';
-          })
+          .filter((db) => showHiddenNamespaces || !toNS(db._id).specialish)
           .map(({ _id, name, inferred_from_privileges }) => ({
             _id,
             name,

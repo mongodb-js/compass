@@ -2,8 +2,8 @@
 import sinon from 'sinon';
 import { app } from 'electron';
 import { expect } from 'chai';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { setupProtocolHandlers } from './protocol-handling';
 
 describe('auto connect management', function () {

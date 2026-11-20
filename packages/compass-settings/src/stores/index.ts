@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'hadron-ipc';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
@@ -6,13 +6,13 @@ import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import { PreferencesSandbox } from './preferences-sandbox';
-import type { SettingsTabId } from './settings';
-import { openModal, reducer as settingsReducer } from './settings';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import { openModal, reducer as settingsReducer } from './settings';
+import type { SettingsTabId } from './settings';
+import { PreferencesSandbox } from './preferences-sandbox';
 
 export type Public<T> = { [K in keyof T]: T[K] };
 
@@ -67,7 +67,7 @@ export type RootState = ReturnType<
 
 export type SettingsThunkAction<
   R,
-  A extends AnyAction = AnyAction
+  A extends AnyAction = AnyAction,
 > = ThunkAction<R, RootState, SettingsThunkExtraArgs, A>;
 
 const onActivated = (

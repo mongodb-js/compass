@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { WorkspaceTab } from '@mongodb-js/compass-components';
-import type { DataModelingState } from './store/reducer';
 import type { PluginHeaderProps } from '@mongodb-js/workspace-info';
+import type { DataModelingState } from './store/reducer';
 
 export const WorkspaceName = 'Data Modeling' as const;
 
@@ -27,6 +27,6 @@ export const PluginTabTitleComponent = connect((state: DataModelingState) => {
     tabTitle:
       state.step === 'NO_DIAGRAM_SELECTED'
         ? WorkspaceName
-        : state.diagram?.name ?? WorkspaceName,
+        : (state.diagram?.name ?? WorkspaceName),
   };
 })(_TabTitle);

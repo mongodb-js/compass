@@ -1,5 +1,4 @@
 import React from 'react';
-import { DMDrawerSection } from './drawer-section-components';
 import {
   Badge,
   Button,
@@ -15,6 +14,7 @@ import {
 import type { Relationship } from '../../services/data-model-storage';
 import { getDefaultRelationshipName } from '../../utils';
 import { isRelationshipValid } from '../../utils/utils';
+import { DMDrawerSection } from './drawer-section-components';
 
 const titleBtnStyles = css({
   marginLeft: 'auto',

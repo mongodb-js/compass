@@ -8,6 +8,8 @@ const container = css({
   display: 'flex',
   gap: spacing[200],
   paddingTop: spacing[200],
+  // Not a part of the document, keep it out of selectable/copied text.
+  userSelect: 'none',
 });
 
 const linkButtonStyles = css({

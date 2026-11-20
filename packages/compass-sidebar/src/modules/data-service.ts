@@ -1,5 +1,5 @@
-import type { SidebarThunkAction } from '.';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { SidebarThunkAction } from '.';
 
 export const setConnectionIsCSFLEEnabled = (
   connectionId: ConnectionInfo['id'],

@@ -149,7 +149,11 @@ interface RunDiagnosticsCommand {
     spec: { serverStatus: 1 },
     options?: RunCommandOptions
   ): Promise<Document>;
-  (db: Db, spec: { top: 1 }, options?: RunCommandOptions): Promise<{
+  (
+    db: Db,
+    spec: { top: 1 },
+    options?: RunCommandOptions
+  ): Promise<{
     totals: Record<string, unknown>;
   }>;
 }
@@ -241,7 +245,7 @@ interface RunAdministrationCommand {
   ): Promise<Omit<Parameters, 'getParameter' | 'comment'>>;
   <
     Parameters extends Record<string, unknown>,
-    Options = Record<string, unknown>
+    Options = Record<string, unknown>,
   >(
     db: Db,
     spec: { getParameter: '*'; comment?: string } & Options,
@@ -303,9 +307,7 @@ interface RunSessionCommand {
 }
 
 interface RunCommand
-  extends RunDiagnosticsCommand,
-    RunAdministrationCommand,
-    RunSessionCommand {}
+  extends RunDiagnosticsCommand, RunAdministrationCommand, RunSessionCommand {}
 
 /**
  * Runs command against provided database using db.command. Provides a better

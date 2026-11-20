@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import type { Logger } from './logger';
 import type {
   MongoLogId,
   MongoLogWriter,
 } from 'mongodb-log-writer/mongo-log-writer';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
+import type { Logger } from './logger';
 
 export type { Logger } from './logger';
 
@@ -59,11 +59,11 @@ export function useLogger(component: string): Logger {
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : F extends { new (...args: [infer A, ...any]): any }
-  ? A
-  : never;
+    ? A
+    : never;
 
 export function withLogger<
-  T extends ((...args: any[]) => any) | { new (...args: any[]): any }
+  T extends ((...args: any[]) => any) | { new (...args: any[]): any },
 >(
   ReactComponent: T,
   component: string

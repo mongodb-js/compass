@@ -1,9 +1,9 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const util = require('node:util');
+const exec = util.promisify(require('node:child_process').exec);
 const { createWorkspace } = require('./create-workspace');
 const { collectWorkspacesMeta } = require('./workspace-dependencies');
 const { runInDir } = require('./run-in-dir');

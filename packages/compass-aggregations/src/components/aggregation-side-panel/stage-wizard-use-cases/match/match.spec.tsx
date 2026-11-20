@@ -3,8 +3,11 @@ import { expect } from 'chai';
 import { render, cleanup } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { Double } from 'bson';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastTypes } from '@mongodb-js/hadron-type-checker';
 
+import { setComboboxValue } from '../../../../../test/form-helper';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
 import { makeCreateCondition } from './match-condition-form';
 import MatchForm, {
   areUniqueExpressions,
@@ -15,10 +18,7 @@ import MatchForm, {
   toMatchConditionExpression,
   toMatchGroupExpression,
 } from './match';
-import { setComboboxValue } from '../../../../../test/form-helper';
-import { SINGLE_SELECT_LABEL } from '../field-combobox';
 import { makeCreateGroup } from './match-group-form';
-import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
 
 import type { MatchCondition } from './match';
 import type { CreateConditionFn } from './match-condition-form';
@@ -589,20 +589,20 @@ describe('match', function () {
   describe('#component', function () {
     afterEach(cleanup);
 
-    it('should call onChange with converted stage value', function () {
+    it('should call onChange with converted stage value', async function () {
       const onChangeSpy = Sinon.spy();
       render(<MatchForm fields={SAMPLE_FIELDS} onChange={onChangeSpy} />);
-      setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'name');
+      await setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'name');
       expect(onChangeSpy.lastCall.args).deep.equal(["{\n  name: ''\n}", null]);
     });
 
-    it('should call onChange with an error if there was an error during the conversion to stage', function () {
+    it('should call onChange with an error if there was an error during the conversion to stage', async function () {
       const onChangeSpy = Sinon.spy();
       render(<MatchForm fields={SAMPLE_FIELDS} onChange={onChangeSpy} />);
       // Setting the field to age will set the type to Double and without a
       // correct value the conversion will fail which is why we will get an
       // error
-      setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'age');
+      await setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'age');
       const [jsString, error] = onChangeSpy.lastCall.args;
       expect(jsString).to.equal('{}');
       expect(error.message).to.equal("Value '' is not a valid Double value");

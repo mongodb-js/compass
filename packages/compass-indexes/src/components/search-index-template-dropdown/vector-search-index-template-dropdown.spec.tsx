@@ -1,11 +1,11 @@
 import { ATLAS_VECTOR_SEARCH_TEMPLATE } from '@mongodb-js/mongodb-constants';
 import { expect } from 'chai';
-import { VectorSearchIndexTemplateDropdown } from './vector-search-index-template-dropdown';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
+import { VectorSearchIndexTemplateDropdown } from './vector-search-index-template-dropdown';
 
 describe('Vector Search Index Template Dropdown', function () {
   describe('when rendered', function () {

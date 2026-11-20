@@ -1,8 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect } from 'react';
-import { useCallback } from 'react';
-import type { HadronIpcRenderer } from 'hadron-ipc';
-import { ipcRenderer } from 'hadron-ipc';
+import { useEffect, useCallback } from 'react';
+import type { HadronIpcRenderer } from '@mongodb-js/hadron-ipc';
+import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 
 export type ImportExportResult = 'canceled' | 'succeeded';
 
@@ -13,7 +12,7 @@ export type ConnectionShortInfo = {
 };
 
 export type CommonImportExportState<
-  ConnectionInfoType extends ConnectionShortInfo
+  ConnectionInfoType extends ConnectionShortInfo,
 > = {
   filename: string;
   passphrase: string;

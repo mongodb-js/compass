@@ -1,6 +1,6 @@
+import { expect } from 'chai';
 import { Element } from '../../src';
 import { NullEditor } from '../../src/editor';
-import { expect } from 'chai';
 
 describe('NullEditor', function () {
   describe('#size', function () {

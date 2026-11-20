@@ -1,22 +1,21 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
 import { expect } from 'chai';
-
-import fs from 'fs/promises';
-import path from 'path';
-import os from 'os';
 import { UUID } from 'bson';
 import { sortBy } from 'lodash';
 
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import Sinon from 'sinon';
+
+import connection1310 from '../test/fixtures/favorite_connection_1.31.0.json';
+import connection1380 from '../test/fixtures/favorite_connection_1.38.0.json';
 import {
   initCompassMainConnectionStorage,
   type CompassMainConnectionStorage,
   type ConnectionWithLegacyProps,
   type ConnectionStorageIPCMain,
 } from './compass-main-connection-storage';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import Sinon from 'sinon';
-
-import connection1310 from '../test/fixtures/favorite_connection_1.31.0.json';
-import connection1380 from '../test/fixtures/favorite_connection_1.38.0.json';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
@@ -294,7 +293,7 @@ describe('ConnectionStorage', function () {
           },
         });
       } catch (e) {
-        expect(e).to.have.nested.property('errors[0].message', 'Invalid uuid');
+        expect(e).to.have.nested.property('issues[0].message', 'Invalid UUID');
       }
     });
 
@@ -309,7 +308,7 @@ describe('ConnectionStorage', function () {
           },
         });
       } catch (e) {
-        expect(e).to.have.nested.property('errors[0].message', 'Invalid uuid');
+        expect(e).to.have.nested.property('issues[0].message', 'Invalid UUID');
       }
     });
 

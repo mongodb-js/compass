@@ -1,7 +1,17 @@
 import React, { useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 
+import {
+  Body,
+  Button,
+  css,
+  EmptyContent,
+  IndexKeysBadge,
+  InlineDefinition,
+  nbsp,
+  spacing,
+} from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import { IndexesTable } from '../indexes-table';
 
@@ -18,26 +28,15 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
+import { createIndexOpened } from '../../modules/create-index';
 import { useRegularIndexesTable } from './use-regular-indexes-table';
-import type { CommonIndexInfo } from './use-regular-indexes-table';
-import type { MergedIndex } from './use-regular-indexes-table';
+import type { CommonIndexInfo, MergedIndex } from './use-regular-indexes-table';
 import TypeField from './type-field';
 import {
   COLUMNS_FOR_DRAWER,
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './regular-indexes-columns';
-import {
-  Body,
-  Button,
-  css,
-  EmptyContent,
-  IndexKeysBadge,
-  InlineDefinition,
-  spacing,
-} from '@mongodb-js/compass-components';
-import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
-import { createIndexOpened } from '../../modules/create-index';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 
 const indexDetailsForDrawerStyles = css({
   display: 'flex',
@@ -46,17 +45,18 @@ const indexDetailsForDrawerStyles = css({
   padding: spacing[200],
 });
 
-function renderNameOverride(name: string): React.ReactNode {
-  if (name.length > 8) {
+export function renderNameOverride(name: string): React.ReactNode {
+  const preserved = nbsp(name);
+  if (preserved.length > 8) {
     return (
-      <InlineDefinition definition={name}>{`${name.slice(
+      <InlineDefinition definition={preserved}>{`${preserved.slice(
         0,
         8
       )}…`}</InlineDefinition>
     );
   }
 
-  return name;
+  return preserved;
 }
 
 function renderTypeOverride(index: MergedIndex): React.ReactNode {
@@ -82,7 +82,7 @@ function renderExpandedContentOverride(
     <Body className={indexDetailsForDrawerStyles}>
       <div>
         <b>Index Name: </b>
-        {indexData.name}
+        {nbsp(indexData.name)}
       </div>
       <IndexKeysBadge
         keys={index.fields}
@@ -176,13 +176,11 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     'enableAtlasSearchIndexes',
     'enableIndexesManagement',
   ]);
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isRegularIndexesWritable } = useSelector(
     selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     }),
     shallowEqual

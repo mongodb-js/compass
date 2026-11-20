@@ -12,18 +12,18 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import type { Document } from 'mongodb';
-import type { AllPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from '@mongodb-js/compass-preferences-model';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
-import { SearchIndexesTable } from './search-indexes-table';
 import { FetchStatuses } from '../../utils/fetch-status';
+import { mockSearchIndex } from '../../../test/helpers';
+import { setupStore } from '../../../test/setup-store';
+import type { RootState } from '../../modules';
 import {
   searchIndexes as indexes,
   vectorSearchIndexes,
 } from './../../../test/fixtures/search-indexes';
-import { mockSearchIndex } from '../../../test/helpers';
-import { setupStore } from '../../../test/setup-store';
-import type { RootState } from '../../modules';
+import { SearchIndexesTable } from './search-indexes-table';
 
 function createTestWorkspacesService(
   openCollectionWorkspace: SinonSpy
@@ -253,7 +253,38 @@ describe('SearchIndexesTable Component', function () {
       }
     });
 
-    it('passes auto-embed pipeline text when opening aggregate and enableAutoEmbeddingPublicPreview is on', function () {
+    it('passes auto-embed pipeline text when opening aggregate on an autoEmbed index and enableAutoEmbeddingPublicPreview is on', function () {
+      const autoEmbedIndex = mockSearchIndex({
+        name: 'autoEmbedding123',
+        type: 'vectorSearch',
+        latestDefinition: {
+          fields: [{ type: 'autoEmbed', path: 'plot', model: 'voyage-3' }],
+        },
+      });
+      const { openCollectionWorkspace } = renderIndexList(
+        { indexes: [autoEmbedIndex] },
+        undefined,
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+
+      const indexRow = screen
+        .getByText('autoEmbedding123')
+        .closest('tr') as HTMLElement;
+      userEvent.click(
+        within(indexRow).getByTestId('search-index-actions-aggregate-action')
+      );
+
+      expect(openCollectionWorkspace.callCount).to.equal(1);
+      const workspaceOpts = openCollectionWorkspace.firstCall.args[2] as {
+        initialPipelineText?: string;
+      };
+      expect(workspaceOpts?.initialPipelineText).to.include('exact: false');
+      expect(workspaceOpts?.initialPipelineText).to.include(
+        'index: "autoEmbedding123"'
+      );
+    });
+
+    it('passes standard vector pipeline text for a non-autoEmbed index even when enableAutoEmbeddingPublicPreview is on', function () {
       const { openCollectionWorkspace } = renderIndexList(
         { indexes: vectorSearchIndexes },
         undefined,
@@ -271,9 +302,8 @@ describe('SearchIndexesTable Component', function () {
       const workspaceOpts = openCollectionWorkspace.firstCall.args[2] as {
         initialPipelineText?: string;
       };
-      expect(workspaceOpts?.initialPipelineText).to.include('exact: false');
       expect(workspaceOpts?.initialPipelineText).to.include(
-        'index: "vectorSearching123"'
+        '"queryVector": []'
       );
     });
 

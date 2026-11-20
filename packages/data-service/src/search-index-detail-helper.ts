@@ -1,12 +1,7 @@
 import type { Document } from 'mongodb';
 
 export type SearchIndexStatus =
-  | 'BUILDING'
-  | 'FAILED'
-  | 'PENDING'
-  | 'READY'
-  | 'STALE'
-  | 'DELETING';
+  'BUILDING' | 'FAILED' | 'PENDING' | 'READY' | 'STALE' | 'DELETING';
 
 export type SearchIndex = {
   id: string;

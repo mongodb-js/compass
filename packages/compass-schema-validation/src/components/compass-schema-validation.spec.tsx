@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 
-import { CompassSchemaValidation } from './compass-schema-validation';
 import { configureStore } from '../stores/store';
+import { CompassSchemaValidation } from './compass-schema-validation';
 
 describe('CompassSchemaValidation [Component]', function () {
   let store: ReturnType<typeof configureStore> | null;

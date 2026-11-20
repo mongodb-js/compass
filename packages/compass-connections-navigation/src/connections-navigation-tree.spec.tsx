@@ -10,16 +10,17 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { ConnectionsNavigationTree } from './connections-navigation-tree';
-import type { ConnectedConnection, Connection } from './tree-data';
 import type {
   AllPreferences,
   PreferencesAccess,
-} from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
 import { type WorkspaceTab } from '@mongodb-js/workspace-info';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectedConnection, Connection } from './tree-data';
+import { ConnectionsNavigationTree } from './connections-navigation-tree';
 
 const connections: Connection[] = [
   {
@@ -1012,6 +1013,36 @@ describe('ConnectionsNavigationTree', function () {
           'Remove connection',
         ]);
       });
+
+      it('should show context menu for disconnected Atlas connection', async function () {
+        await renderConnectionsNavigationTree({
+          connections: [
+            {
+              connectionInfo: {
+                id: 'connection_atlas',
+                connectionOptions: {
+                  connectionString: 'mongodb+srv://cluster0.mongodb.net',
+                },
+                atlasMetadata: {
+                  clusterName: 'Cluster0',
+                } as ConnectionInfo['atlasMetadata'],
+              },
+              name: 'Cluster0',
+              connectionStatus: ConnectionStatus.Disconnected,
+            },
+          ],
+        });
+
+        const connectionElement = within(
+          screen.getByTestId('connection_atlas')
+        ).getByTestId('base-navigation-item');
+
+        await assertContextMenuItems(connectionElement, [
+          'Connect',
+          'Edit connection',
+          'Connect via …',
+        ]);
+      });
     });
 
     describe('database context menu', function () {
@@ -1222,6 +1253,115 @@ describe('ConnectionsNavigationTree', function () {
         expect(item.namespace).to.equal('db_ready.meow');
         expect(action).to.equal('open-in-new-tab');
       });
+    });
+  });
+
+  describe('folders', function () {
+    const folders = [
+      { id: 'folder_b', name: 'Beta' },
+      { id: 'folder_a', name: 'alpha' },
+    ];
+    const folderAssignments = {
+      connection_ready: 'folder_a',
+      connection_disconnected: 'folder_b',
+    };
+    const folderProps = { folders, folderAssignments };
+
+    const renderedItemIds = (): string[] =>
+      screen
+        .getAllByRole('treeitem')
+        .map((item) => item.dataset.id)
+        .filter((id): id is string => id !== undefined);
+
+    it('should render folders alphabetically before uncategorized connections', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      // 'alpha' sorts before 'Beta' only case-insensitively, and 'peaches'
+      // (connection_initial) is the only connection left uncategorized.
+      expect(renderedItemIds()).to.deep.equal([
+        'folder_a',
+        'folder_b',
+        'connection_initial',
+      ]);
+    });
+
+    it('should not render the connections of a collapsed folder', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      expect(screen.queryByTestId('connection_ready')).not.to.exist;
+    });
+
+    it('should render the connections of an expanded folder one level deeper', async function () {
+      await renderConnectionsNavigationTree({
+        ...folderProps,
+        expanded: { folder_a: {} },
+      });
+
+      expect(renderedItemIds()).to.deep.equal([
+        'folder_a',
+        'connection_ready',
+        'folder_b',
+        'connection_initial',
+      ]);
+      expect(screen.getByTestId('connection_ready')).to.have.attribute(
+        'aria-level',
+        '2'
+      );
+    });
+
+    it('should render the databases of a connection inside a folder one level deeper', async function () {
+      await renderConnectionsNavigationTree({
+        ...folderProps,
+        expanded: { folder_a: {}, connection_ready: {} },
+      });
+
+      expect(
+        screen.getByTestId('connection_ready.db_initial')
+      ).to.have.attribute('aria-level', '3');
+    });
+
+    it('should render a connection assigned to a folder that does not exist as uncategorized', async function () {
+      await renderConnectionsNavigationTree({
+        folders: [],
+        folderAssignments: { connection_ready: 'folder_gone' },
+      });
+
+      expect(renderedItemIds()).to.deep.equal([
+        'connection_ready',
+        'connection_initial',
+        'connection_disconnected',
+      ]);
+    });
+
+    it('should expand a folder when its title is clicked', async function () {
+      const onItemExpand = Sinon.spy();
+      await renderConnectionsNavigationTree({ ...folderProps, onItemExpand });
+
+      userEvent.click(screen.getByText('alpha'));
+
+      expect(onItemExpand).to.be.calledOnce;
+      const [[item, isExpanded]] = onItemExpand.args;
+      expect(item.type).to.equal('folder');
+      expect(item.folderId).to.equal('folder_a');
+      expect(isExpanded).to.equal(true);
+    });
+
+    it('should not render a folder row as an inactive item', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      const styledRow = screen.getByTestId('folder_a').firstElementChild;
+      expect(
+        (styledRow as HTMLElement).style.getPropertyValue('--item-color')
+      ).to.equal('');
+    });
+
+    it('should show rename and delete in the folder context menu', async function () {
+      await renderConnectionsNavigationTree(folderProps);
+
+      userEvent.click(screen.getByText('alpha'), { button: 2 });
+
+      expect(screen.getByText('Rename folder')).to.exist;
+      expect(screen.getByText('Delete folder')).to.exist;
     });
   });
 });

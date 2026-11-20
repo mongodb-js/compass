@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs from 'node:fs';
+import path from 'node:path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import path from 'path';
 
 export function toCommonJsExternal(deps: string[]): Record<string, string> {
   return Object.fromEntries(
@@ -16,13 +16,13 @@ export function entriesToNamedEntries(
   return typeof entry === 'string'
     ? { [path.basename(entry).replace(/\.(jsx?|tsx?)$/, '')]: entry }
     : Array.isArray(entry)
-    ? Object.fromEntries(
-        entry.map((entryPath) => [
-          path.basename(entryPath).replace(/\.(jsx?|tsx?)$/, ''),
-          entryPath,
-        ])
-      )
-    : entry;
+      ? Object.fromEntries(
+          entry.map((entryPath) => [
+            path.basename(entryPath).replace(/\.(jsx?|tsx?)$/, ''),
+            entryPath,
+          ])
+        )
+      : entry;
 }
 
 export function entriesToHtml(

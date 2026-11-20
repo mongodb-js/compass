@@ -1,12 +1,13 @@
 import type { AnyAction } from 'redux';
 import { isEqual } from 'lodash';
+import { UUID } from 'bson';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
 import { isAction } from '../utils/is-action';
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
@@ -15,16 +16,13 @@ import type { FetchStatus } from '../utils/fetch-status';
 import { FetchReasons } from '../utils/fetch-reason';
 import type { FetchReason } from '../utils/fetch-reason';
 
-import type { IndexesThunkAction } from '.';
-import { switchToSearchIndexes } from './index-view';
-import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
 import { isAutoEmbedIndex } from '../utils/is-auto-embed-index';
 import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
-import {
-  ExperimentTestGroups,
-  ExperimentTestNames,
-} from '@mongodb-js/compass-telemetry/provider';
+import { parseShellBSON } from '../utils/parse-shell-bson';
+import type { IndexViewChangedAction } from './index-view';
+import { switchToSearchIndexes } from './index-view';
+import type { IndexesThunkAction } from '.';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -91,6 +89,7 @@ export type CreateSearchIndexOpenedAction = {
 
 type CreateSearchIndexStartedAction = {
   type: typeof ActionTypes.CreateSearchIndexStarted;
+  requestId: string;
 };
 
 type CreateSearchIndexFailedAction = {
@@ -117,6 +116,7 @@ type UpdateSearchIndexOpenedAction = {
 
 type UpdateSearchIndexStartedAction = {
   type: typeof ActionTypes.UpdateSearchIndexStarted;
+  requestId: string;
 };
 
 type UpdateSearchIndexFailedAction = {
@@ -139,6 +139,7 @@ export type UpdateSearchIndexClosedAction = {
 type CreateSearchIndexState = {
   isModalOpen: boolean;
   isBusy: boolean;
+  requestId?: string;
   error?: string;
 };
 
@@ -146,6 +147,7 @@ type UpdateSearchIndexState = {
   isModalOpen: boolean;
   isBusy: boolean;
   indexName: string;
+  requestId?: string;
   error?: string;
 };
 
@@ -217,6 +219,7 @@ export default function reducer(
       createIndex: {
         ...state.createIndex,
         isBusy: true,
+        requestId: action.requestId,
         error: undefined,
       },
     };
@@ -234,6 +237,7 @@ export default function reducer(
         ...state.createIndex,
         error: action.error,
         isBusy: false,
+        requestId: undefined,
       },
     };
   }
@@ -296,6 +300,7 @@ export default function reducer(
         ...state.updateIndex,
         error: undefined,
         isBusy: true,
+        requestId: action.requestId,
       },
     };
   }
@@ -312,6 +317,7 @@ export default function reducer(
         ...state.updateIndex,
         error: action.error,
         isBusy: false,
+        requestId: undefined,
       },
     };
   }
@@ -329,6 +335,7 @@ export default function reducer(
         // Modal as it closes.
         ...state.updateIndex,
         isBusy: false,
+        requestId: undefined,
         isModalOpen: false,
         error: undefined,
       },
@@ -347,6 +354,7 @@ export default function reducer(
         ...state.updateIndex,
         isModalOpen: false,
         isBusy: false,
+        requestId: undefined,
         error: undefined,
       },
     };
@@ -379,8 +387,8 @@ export default function reducer(
         action.reason === FetchReasons.POLL
           ? FetchStatuses.POLLING
           : action.reason === FetchReasons.REFRESH
-          ? FetchStatuses.REFRESHING
-          : FetchStatuses.FETCHING,
+            ? FetchStatuses.REFRESHING
+            : FetchStatuses.FETCHING,
     };
   }
 
@@ -468,6 +476,7 @@ const fetchSearchIndexesFailed = (
 
 const createSearchIndexStarted = (): CreateSearchIndexStartedAction => ({
   type: ActionTypes.CreateSearchIndexStarted,
+  requestId: new UUID().toString(),
 });
 
 const createSearchIndexFailed = (
@@ -488,6 +497,7 @@ export const createSearchIndexErrorCleared =
 
 const updateSearchIndexStarted = (): UpdateSearchIndexStartedAction => ({
   type: ActionTypes.UpdateSearchIndexStarted,
+  requestId: new UUID().toString(),
 });
 
 const updateSearchIndexFailed = (
@@ -535,11 +545,11 @@ export const stopPollingSearchIndexes = (): IndexesThunkAction<void, never> => {
 export const createIndex = ({
   name,
   type,
-  definition,
+  definition: definitionSource,
 }: {
   name: string;
   type?: string;
-  definition: Document;
+  definition: string;
 }): IndexesThunkAction<
   Promise<void>,
   | CreateSearchIndexStartedAction
@@ -554,7 +564,13 @@ export const createIndex = ({
   ) {
     const { namespace, searchIndexes } = getState();
 
-    dispatch(createSearchIndexStarted());
+    if (searchIndexes.createIndex.isBusy) {
+      return;
+    }
+
+    const { requestId } = dispatch(createSearchIndexStarted());
+    const isCancelled = () =>
+      getState().searchIndexes.createIndex.requestId !== requestId;
 
     if (name === '') {
       dispatch(createSearchIndexFailed('Please enter the name of the index.'));
@@ -567,6 +583,20 @@ export const createIndex = ({
           ATLAS_SEARCH_SERVER_ERRORS['IndexAlreadyExists']
         )
       );
+      return;
+    }
+
+    let definition: Document;
+    try {
+      definition = (await parseShellBSON(definitionSource)) as Document;
+    } catch (ex) {
+      if (!isCancelled()) {
+        dispatch(createSearchIndexFailed((ex as Error).message));
+      }
+      return;
+    }
+
+    if (isCancelled()) {
       return;
     }
 
@@ -583,9 +613,6 @@ export const createIndex = ({
     } catch (ex) {
       const error = (ex as Error).message;
 
-      dispatch(
-        createSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
-      );
       track(
         'Index Create Failed',
         {
@@ -594,10 +621,14 @@ export const createIndex = ({
         },
         connectionInfoRef.current
       );
+      if (!isCancelled()) {
+        dispatch(
+          createSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
+        );
+      }
       return;
     }
 
-    dispatch(createSearchIndexSucceeded());
     track(
       'Index Created',
       {
@@ -606,6 +637,10 @@ export const createIndex = ({
       },
       connectionInfoRef.current
     );
+    if (isCancelled()) {
+      return;
+    }
+    dispatch(createSearchIndexSucceeded());
 
     openToast('search-index-creation-in-progress', {
       title: `Your index ${name} is in progress.`,
@@ -621,11 +656,11 @@ export const createIndex = ({
 
 export const updateIndex = ({
   name,
-  definition,
+  definition: definitionSource,
 }: {
   name: string;
   type?: string;
-  definition: Document;
+  definition: string;
 }): IndexesThunkAction<
   Promise<void>,
   | UpdateSearchIndexClosedAction
@@ -640,8 +675,30 @@ export const updateIndex = ({
   ) {
     const {
       namespace,
-      searchIndexes: { indexes },
+      searchIndexes: { indexes, updateIndex },
     } = getState();
+
+    if (updateIndex.isBusy) {
+      return;
+    }
+
+    const { requestId } = dispatch(updateSearchIndexStarted());
+    const isCancelled = () =>
+      getState().searchIndexes.updateIndex.requestId !== requestId;
+
+    let definition: Document;
+    try {
+      definition = (await parseShellBSON(definitionSource)) as Document;
+    } catch (e) {
+      if (!isCancelled()) {
+        dispatch(updateSearchIndexFailed((e as Error).message));
+      }
+      return;
+    }
+
+    if (isCancelled()) {
+      return;
+    }
 
     const currentIndexDefinition = indexes.find(
       (x) => x.name === name
@@ -652,30 +709,35 @@ export const updateIndex = ({
     }
 
     try {
-      dispatch(updateSearchIndexStarted());
       await dataService.updateSearchIndex(namespace, name, definition);
-      dispatch(updateSearchIndexSucceeded());
-      track(
-        'Index Edited',
-        {
-          atlas_search: true,
-        },
-        connectionInfoRef.current
-      );
-      openToast('search-index-update-in-progress', {
-        title: `Your index ${name} is being updated.`,
-        dismissible: true,
-        timeout: 5000,
-        variant: 'progress',
-      });
-      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (e) {
       const error = (e as Error).message;
-      dispatch(
-        updateSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
-      );
+      if (!isCancelled()) {
+        dispatch(
+          updateSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
+        );
+      }
       return;
     }
+
+    track(
+      'Index Edited',
+      {
+        atlas_search: true,
+      },
+      connectionInfoRef.current
+    );
+    if (isCancelled()) {
+      return;
+    }
+    dispatch(updateSearchIndexSucceeded());
+    openToast('search-index-update-in-progress', {
+      title: `Your index ${name} is being updated.`,
+      dismissible: true,
+      timeout: 5000,
+      variant: 'progress',
+    });
+    await dispatch(fetchIndexes(FetchReasons.REFRESH));
   };
 };
 
@@ -690,13 +752,7 @@ const fetchIndexes = (
   return async (
     dispatch,
     getState,
-    {
-      dataService,
-      preferences,
-      connectionInfoRef,
-      experimentationServices,
-      track,
-    }
+    { dataService, preferences, connectionInfoRef, track }
   ) => {
     const {
       isWritable,
@@ -711,18 +767,10 @@ const fetchIndexes = (
       enableIndexesManagement,
     } = preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
-    const assignment = await experimentationServices.getAssignment(
-      ExperimentTestNames.searchActivationProgramP1,
-      false
-    );
-    const enableSearchActivationProgramP1 =
-      assignment?.assignmentData?.variant ===
-      ExperimentTestGroups.searchActivationProgramP1Variant;
     const { isSearchIndexesReadable } = selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     })(getState());
 
@@ -746,10 +794,7 @@ const fetchIndexes = (
       dispatch(fetchSearchIndexesSucceeded(indexes));
 
       // Show toasts for status changes (only on poll and refresh, not initial fetch)
-      if (
-        enableSearchActivationProgramP1 &&
-        reason !== FetchReasons.INITIAL_FETCH
-      ) {
+      if (reason !== FetchReasons.INITIAL_FETCH) {
         showSearchIndexStatusChangeToasts(
           previousIndexes,
           indexes,

@@ -7,8 +7,8 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import TypeField, { IndexTypeTooltip, canRenderTooltip } from './type-field';
 import getIndexHelpLink from '../../utils/index-link-helper';
+import TypeField, { IndexTypeTooltip, canRenderTooltip } from './type-field';
 
 describe('TypeField', function () {
   before(cleanup);

@@ -1,8 +1,8 @@
 import React, { type RefObject } from 'react';
 
+import { css, cx, spacing } from '@mongodb-js/compass-components';
 import { type Action, ActionButton, FormatIcon } from './action-button';
 import type { EditorRef } from './types';
-import { css, cx, spacing } from '@mongodb-js/compass-components';
 
 type ActionsContainerProps = {
   copyable: boolean;

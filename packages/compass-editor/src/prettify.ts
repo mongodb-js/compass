@@ -7,9 +7,7 @@ export type FormatOptions = Omit<PrettierFormatOptions, 'plugin' | 'parser'>;
 export function prettify(
   code: string,
   parser:
-    | 'javascript-expression'
-    | 'javascript'
-    | 'json' = 'javascript-expression',
+    'javascript-expression' | 'javascript' | 'json' = 'javascript-expression',
   formatOptions: FormatOptions = {}
 ) {
   return prettier
@@ -25,8 +23,8 @@ export function prettify(
             // parser instead of default `babel` for this case
             '__js_expression'
           : parser === 'json'
-          ? 'json'
-          : 'babel',
+            ? 'json'
+            : 'babel',
       trailingComma: 'none',
       ...formatOptions,
     })

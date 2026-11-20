@@ -10,31 +10,6 @@ import {
   createDispatchHook,
   createSelectorHook,
 } from 'react-redux';
-import type {
-  configureStore,
-  ConnectionId,
-  ConnectionState,
-  State,
-} from './connections-store-redux';
-import {
-  cancelEditConnection,
-  connect as connectionsConnect,
-  connectInNewWindow,
-  saveAndConnect,
-  connectionsEventEmitter,
-  createNewConnection,
-  disconnect,
-  duplicateConnection,
-  editConnection,
-  getDataServiceForConnection,
-  removeAllRecentConnections,
-  removeConnection,
-  saveEditedConnectionInfo,
-  showNonGenuineMongoDBWarningModal,
-  toggleConnectionFavoritedStatus,
-  importConnections,
-  refreshConnections,
-} from './connections-store-redux';
 import type { Store } from 'redux';
 import {
   getConnectionTitle,
@@ -42,15 +17,48 @@ import {
 } from '@mongodb-js/connection-info';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { isEqual, memoize } from 'lodash';
-import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
+import type {
+  Folder,
+  ImportConnectionOptions,
+} from '@mongodb-js/connection-storage/provider';
 import { useInitialValue } from '@mongodb-js/compass-components';
+import {
+  cancelEditConnection,
+  connect as connectionsConnect,
+  connectInNewWindow,
+  saveAndConnect,
+  connectionsEventEmitter,
+  createFolder,
+  createNewConnection,
+  deleteFolder,
+  disconnect,
+  duplicateConnection,
+  editConnection,
+  getDataServiceForConnection,
+  moveConnectionsToFolder,
+  moveConnectionsToNewFolder,
+  removeAllRecentConnections,
+  removeConnection,
+  renameFolder,
+  saveEditedConnectionInfo,
+  showNonGenuineMongoDBWarningModal,
+  toggleConnectionFavoritedStatus,
+  importConnections,
+  refreshConnections,
+} from './connections-store-redux';
+import type {
+  configureStore,
+  ConnectionId,
+  ConnectionState,
+  State,
+} from './connections-store-redux';
 
-type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
-  infer S,
-  infer A
-> & { dispatch: infer D }
-  ? { state: S; actions: A; dispatch: D }
-  : never;
+type ConnectionsStore =
+  ReturnType<typeof configureStore> extends Store<infer S, infer A> & {
+    dispatch: infer D;
+  }
+    ? { state: S; actions: A; dispatch: D }
+    : never;
 
 export const ConnectionsStoreContext = React.createContext<
   ReactReduxContextValue<ConnectionsStore['state']>
@@ -143,6 +151,32 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     refreshConnections: () => {
       return dispatch(refreshConnections());
     },
+    createFolder: (
+      name: string,
+      source: Parameters<typeof createFolder>[1]
+    ) => {
+      return dispatch(createFolder(name, source));
+    },
+    renameFolder: (folderId: string, name: string) => {
+      return dispatch(renameFolder(folderId, name));
+    },
+    deleteFolder: (folderId: string) => {
+      return dispatch(deleteFolder(folderId));
+    },
+    moveConnectionsToFolder: (
+      connectionIds: ConnectionId[],
+      folderId: string | null,
+      source: Parameters<typeof moveConnectionsToFolder>[2]
+    ) => {
+      return dispatch(moveConnectionsToFolder(connectionIds, folderId, source));
+    },
+    moveConnectionsToNewFolder: (
+      connectionIds: ConnectionId[],
+      name: string,
+      source: Parameters<typeof moveConnectionsToNewFolder>[2]
+    ) => {
+      return dispatch(moveConnectionsToNewFolder(connectionIds, name, source));
+    },
   };
 }
 
@@ -156,9 +190,9 @@ const ConnectionActionsContext = createContext<ReturnType<
  * spy on the actions if test requires it. Should not be exported from this
  * package
  */
-export const ConnectionActionsProvider: React.FunctionComponent = ({
-  children,
-}) => {
+export const ConnectionActionsProvider: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const dispatch = useDispatch();
   const [actions] = useState(() => {
     return getConnectionsActions(dispatch);
@@ -387,6 +421,24 @@ export function useConnectionsListLoadingStatus() {
       status,
       error: state.connections.error?.message ?? null,
       isInitialLoad: status === 'initial' || status === 'loading',
+    };
+  }, isEqual);
+}
+
+/**
+ * Returns the folders and the connection-to-folder assignments. Callers that
+ * render the sidebar tree need both: a connection is uncategorized when it has
+ * no assignment, and an assignment pointing at a missing folder is treated the
+ * same way, so resolving membership requires the folder list too.
+ */
+export function useFolders(): {
+  folders: Folder[];
+  folderAssignments: Record<ConnectionId, string>;
+} {
+  return useSelector((state) => {
+    return {
+      folders: state.folders.ids.map((id) => state.folders.byId[id]),
+      folderAssignments: state.folderAssignments,
     };
   }, isEqual);
 }

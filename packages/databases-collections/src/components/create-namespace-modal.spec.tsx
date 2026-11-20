@@ -6,14 +6,12 @@ import {
   cleanup,
   waitFor,
   userEvent,
+  createDefaultConnectionInfo,
+  renderWithConnections,
 } from '@mongodb-js/testing-library-compass';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 
 import { CreateNamespacePlugin } from '../..';
-import {
-  createDefaultConnectionInfo,
-  renderWithConnections,
-} from '@mongodb-js/testing-library-compass';
 
 describe('CreateNamespaceModal [Component]', function () {
   const connectionId = '12345';

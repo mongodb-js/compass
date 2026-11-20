@@ -1,10 +1,10 @@
-import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { expect } from 'chai';
-import type { DataService, DataServiceImpl } from './data-service';
 import type { AutoEncryptionOptions, MongoClient } from 'mongodb';
 import type { Binary } from 'bson';
-import connect from './connect';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import connect from './connect';
+import type { DataService, DataServiceImpl } from './data-service';
+import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 
 // Security-relevant test -- see in-use-encryption e2e tests for description.
 // (In particular, the tests here verify that decrypted data is always encrypted

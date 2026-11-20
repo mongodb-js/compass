@@ -10,16 +10,16 @@ import {
   TextInput,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { useConnectionInfoForId } from '@mongodb-js/compass-connections/provider';
 import { renameDiagram } from '../../store/diagram';
 import type { DataModelingState } from '../../store/reducer';
+import { useDataModelSavedItems } from '../../provider';
 import {
   DMDrawerSection,
   DMFormFieldContainer,
 } from './drawer-section-components';
 import { useChangeOnBlur } from './use-change-on-blur';
 import { getIsNewNameValid } from './util';
-import { useConnectionInfoForId } from '@mongodb-js/compass-connections/provider';
-import { useDataModelSavedItems } from '../../provider';
 
 const infoContainerStyles = css({
   marginTop: spacing[400],

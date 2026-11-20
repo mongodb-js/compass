@@ -42,6 +42,7 @@ describe('SettingsModal', function () {
             onSelectTab={onSelectTabSpy}
             selectedTab={undefined}
             hasChangedSettings={false}
+            isSaving={false}
             userConfigurableSettings={{ autoUpdates: true }}
             {...props}
           />
@@ -73,6 +74,21 @@ describe('SettingsModal', function () {
     });
   });
 
+  it('shows a spinner and disables the save button while saving', function () {
+    renderSettingsModal({
+      isOpen: true,
+      hasChangedSettings: true,
+      isSaving: true,
+    });
+
+    const saveButton = within(screen.getByTestId('settings-modal')).getByTestId(
+      'submit-button'
+    );
+
+    expect(within(saveButton).getByTitle('Saving settings')).to.exist;
+    expect(saveButton.getAttribute('aria-disabled')).to.equal('true');
+  });
+
   it('does not show empty categories', async function () {
     renderSettingsModal({ isOpen: true, userConfigurableSettings: {} });
 
@@ -83,7 +99,7 @@ describe('SettingsModal', function () {
       expect(sidebar).to.exist;
     });
 
-    for (const option of ['privacy']) {
+    for (const option of ['privacy', 'ai', 'preview']) {
       const button = within(sidebar).queryByTestId(`sidebar-${option}-item`);
       expect(button, `it renders ${option} button`).to.not.exist;
     }

@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import { UnconnectedExportSelectFields as ExportSelectFields } from './export-select-fields';
 import { getIdForSchemaPath } from '../modules/export';
 import type { FieldsToExport } from '../modules/export';
+import { UnconnectedExportSelectFields as ExportSelectFields } from './export-select-fields';
 
 const retryButtonText = 'Retry';
 const addNewFieldButtonId = 'export-add-new-field-button';

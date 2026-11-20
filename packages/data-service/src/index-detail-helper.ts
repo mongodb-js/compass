@@ -1,4 +1,4 @@
-import { isDeepStrictEqual } from 'util';
+import { isDeepStrictEqual } from 'node:util';
 import { EJSON } from 'bson';
 import type { IndexDescriptionInfo } from 'mongodb';
 
@@ -77,12 +77,7 @@ export type IndexDefinition = {
     | 'columnstore';
   cardinality: 'single' | 'compound';
   properties: (
-    | 'unique'
-    | 'sparse'
-    | 'partial'
-    | 'ttl'
-    | 'collation'
-    | 'shardKey'
+    'unique' | 'sparse' | 'partial' | 'ttl' | 'collation' | 'shardKey'
   )[];
   extra: Record<string, string | number | boolean | Record<string, any>>;
   size: IndexSize;

@@ -1,4 +1,4 @@
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 import type { CompassBrowser } from '../compass-browser.ts';
 import { isTestingDesktop } from '../test-runner-context.ts';
 

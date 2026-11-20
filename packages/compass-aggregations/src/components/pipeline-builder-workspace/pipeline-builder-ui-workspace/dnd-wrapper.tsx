@@ -9,15 +9,15 @@ import {
 } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import {
   indexFromDroppableId,
   isValidDroppableId,
 } from '../../use-case-droppable-area';
 import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
-import type { PipelineBuilderUIWorkspaceProps } from '.';
 import type { DraggedUseCase } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { PipelineBuilderUIWorkspaceProps } from '.';
 
 // Types
 type PipelineBuilderDndWrapperProps = {
@@ -99,7 +99,7 @@ const PipelineBuilderDndWrapper = ({
   );
 
   const handleSortEnd = useCallback(
-    ({ oldIndex, newIndex }) => {
+    ({ oldIndex, newIndex }: { oldIndex: number; newIndex: number }) => {
       const from = stagesIdAndType.findIndex(({ id }) => id + 1 === oldIndex);
       const to = stagesIdAndType.findIndex(({ id }) => id + 1 === newIndex);
       onStageMoveEnd(from, to);

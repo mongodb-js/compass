@@ -88,7 +88,6 @@ async function pollToCompletion({
   for (
     const start = new Date();
     new Date().getTime() - start.getTime() < watchTimeoutMs;
-
   ) {
     const {
       data: { status, conclusion },

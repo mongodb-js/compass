@@ -1,4 +1,6 @@
 import Sinon from 'sinon';
+import { expect } from 'chai';
+import * as compassComponents from '@mongodb-js/compass-components';
 import {
   restoreSignInState,
   signIn,
@@ -9,9 +11,7 @@ import {
   signOut,
   SIGN_IN_TIMEOUT_MS,
 } from './atlas-signin-reducer';
-import { expect } from 'chai';
 import { configureStore } from './atlas-signin-store';
-import * as compassComponents from '@mongodb-js/compass-components';
 
 describe('atlasSignInReducer', function () {
   const sandbox = Sinon.createSandbox();

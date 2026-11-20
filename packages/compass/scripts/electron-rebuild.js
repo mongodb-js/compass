@@ -1,6 +1,6 @@
 'use strict';
+const path = require('node:path');
 const spawn = require('cross-spawn');
-const path = require('path');
 
 const modulesToRebuild =
   require('../package.json').config.hadron.rebuild.onlyModules;

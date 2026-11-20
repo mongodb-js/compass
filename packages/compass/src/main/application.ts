@@ -1,29 +1,23 @@
 import './disable-node-deprecations'; // Separate module so it runs first
-import path from 'path';
-import { EventEmitter } from 'events';
+import path from 'node:path';
+import { EventEmitter } from 'node:events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
-import { app, safeStorage, session } from 'electron';
-import { ipcMain } from 'hadron-ipc';
-import type { AutoUpdateManagerState } from './auto-update-manager';
-import { CompassAutoUpdateManager } from './auto-update-manager';
-import { CompassLogging } from './logging';
-import { CompassTelemetry } from './telemetry';
-import { CompassWindowManager } from './window-manager';
-import { CompassMenu } from './menu';
-import { setupCSFLELibrary } from './setup-csfle-library';
+import { app, safeStorage, session, utilityProcess } from 'electron';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import {
   proxyPreferenceToProxyOptions,
   setupPreferencesAndUser,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { setupTheme } from './theme';
-import { setupProtocolHandlers } from './protocol-handling';
-import { initCompassMainConnectionStorage } from '@mongodb-js/connection-storage/main';
+import {
+  initCompassMainConnectionStorage,
+  initCompassMainFolderStorage,
+} from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type {
   AgentWithInitialize,
@@ -36,10 +30,22 @@ import {
   extractProxySecrets,
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
+import { utilityPortChannel } from '@mongodb-js/compass-events';
+import { setupProtocolHandlers } from './protocol-handling';
+import { setupTheme } from './theme';
+import type { AutoUpdateManagerState } from './auto-update-manager';
+import { CompassAutoUpdateManager } from './auto-update-manager';
+import { CompassLogging } from './logging';
+import { CompassTelemetry } from './telemetry';
+import { CompassWindowManager } from './window-manager';
+import { CompassMenu } from './menu';
+import { setupCSFLELibrary } from './setup-csfle-library';
 import { handleSquirrelWindowsStartup } from './squirrel-startup';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
+
+const UTILITIES = ['embedded-shell', 'ai-assistant'];
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
@@ -153,6 +159,7 @@ class CompassApplication {
     );
 
     initCompassMainConnectionStorage();
+    initCompassMainFolderStorage();
 
     if (mode === 'CLI') {
       return;
@@ -164,6 +171,7 @@ class CompassApplication {
     setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
+    this.setupUtilityProcesses();
     this.setupApplicationMenu();
     this.setupWindowManager();
     this.setupAutoUpdate();
@@ -178,10 +186,78 @@ class CompassApplication {
   }
 
   private static async setupCompassAuthService() {
-    await CompassAuthService.init(this.preferences, this.httpClient);
+    const preferences = this.preferences;
+    await CompassAuthService.init(
+      {
+        getAtlasServiceBackendPreset: () =>
+          preferences.getPreferences().atlasServiceBackendPreset,
+        isNetworkTrafficAllowed: () =>
+          preferences.getPreferences().networkTraffic,
+        isAtlasSignInEnabled: () =>
+          preferences.getPreferences().enableAtlasSignIn,
+        getBrowserCommandForOIDCAuth: () =>
+          preferences.getPreferences().browserCommandForOIDCAuth,
+        onSignIn: async (auid: string) => {
+          await preferences.savePreferences({ telemetryAtlasUserId: auid });
+        },
+      },
+      this.httpClient
+    );
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
     });
+  }
+
+  private static setupUtilityProcesses(): void {
+    app.on('child-process-gone', (_event, details) => {
+      if (details.reason === 'clean-exit') {
+        log.info(
+          mongoLogId(1_001_000_443),
+          'Application',
+          'Child process gone',
+          details
+        );
+      } else {
+        log.error(
+          mongoLogId(1_001_000_444),
+          'Application',
+          'Child process crashed',
+          details
+        );
+      }
+    });
+
+    for (const name of UTILITIES) {
+      const child = utilityProcess.fork(
+        path.join(__dirname, `${name}.mjs`),
+        [],
+        {
+          serviceName: `Compass ${name}`,
+          env: {
+            ...process.env,
+            NODE_OPTIONS: [
+              process.env.NODE_OPTIONS,
+              '--disable-proto=throw',
+              name === 'embedded-shell'
+                ? ''
+                : '--disallow-code-generation-from-strings',
+            ]
+              .filter(Boolean)
+              .join(' '),
+          },
+        }
+      );
+      child.on('message', ({ channel, data }) => {
+        if (channel === 'compass:log') {
+          // @ts-expect-error electron types conflict with Node.js ones
+          process.emit('compass:log', data);
+        }
+      });
+      // Relay ports a renderer hands over (see src/preload/utility-ports.ts)
+      ipcMain?.on(utilityPortChannel(name), (event, message) => {
+        child.postMessage(message, event.ports);
+      });
+    }
   }
 
   private static setupJavaScriptArguments(): void {
@@ -531,8 +607,7 @@ class CompassApplication {
           Object.entries(
             // Types are not matching documentation
             (details.responseHeaders as
-              | Record<string, string | string[]>
-              | undefined) ?? {}
+              Record<string, string | string[]> | undefined) ?? {}
           ).filter(([name]) => {
             return !RESPONSE_CORS_HEADERS.includes(name.toLowerCase());
           })

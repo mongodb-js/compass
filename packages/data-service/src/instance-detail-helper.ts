@@ -11,8 +11,8 @@ import {
   getDataLake,
   isAtlas as checkIsAtlas,
   isLocalAtlas as checkIsLocalAtlas,
-} from 'mongodb-build-info';
-import toNS from 'mongodb-ns';
+} from '@mongodb-js/mongodb-build-info';
+import toNS from '@mongodb-js/mongodb-ns';
 
 import type {
   BuildInfo,

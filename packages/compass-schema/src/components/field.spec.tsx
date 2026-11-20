@@ -13,12 +13,12 @@ import {
   type SchemaType,
 } from '@mongodb-js/mongodb-schema';
 import { BSON, Decimal128 } from 'bson';
-import Field, { shouldShowUnboundArrayInsight } from './field';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 import {
   createElectronFavoriteQueryStorage,
   createElectronRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/electron';
+import Field, { shouldShowUnboundArrayInsight } from './field';
 
 const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   dataService: {

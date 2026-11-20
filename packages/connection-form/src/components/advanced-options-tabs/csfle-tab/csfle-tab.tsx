@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback, useMemo } from 'react';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import {
   Accordion,
   Banner,
@@ -18,11 +18,6 @@ import type { Document, AutoEncryptionOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-import KMSProviderStatusIndicator from './kms-provider-status-indicator';
-import KMSProviderContent, {
-  getNextKmsProviderName,
-} from './kms-provider-content';
-import EncryptedFieldConfigInput from './encrypted-field-config-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorsByFieldTab,
@@ -36,6 +31,11 @@ import type {
 } from '../../../utils/csfle-kms-fields';
 import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
 import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
+import EncryptedFieldConfigInput from './encrypted-field-config-input';
+import KMSProviderContent, {
+  getNextKmsProviderName,
+} from './kms-provider-content';
+import KMSProviderStatusIndicator from './kms-provider-status-indicator';
 
 const kmsProviderComponentWrapperStyles = css({
   paddingLeft: spacing[400],
@@ -149,14 +149,17 @@ function CSFLETab({
   const kmsProviders = useMemo(() => {
     return Object.keys(
       connectionOptions.fleOptions?.autoEncryption?.kmsProviders ?? {}
-    ).reduce((acc, kmsProvider) => {
-      const type = kmsProvider.split(':')[0] as KMSProviderType;
-      if (!acc[type]) {
-        acc[type] = [];
-      }
-      acc[type].push(kmsProvider as KMSProviderName<KMSProviderType>);
-      return acc;
-    }, {} as Partial<Record<KMSProviderType, KMSProviderName<KMSProviderType>[]>>);
+    ).reduce(
+      (acc, kmsProvider) => {
+        const type = kmsProvider.split(':')[0] as KMSProviderType;
+        if (!acc[type]) {
+          acc[type] = [];
+        }
+        acc[type].push(kmsProvider as KMSProviderName<KMSProviderType>);
+        return acc;
+      },
+      {} as Partial<Record<KMSProviderType, KMSProviderName<KMSProviderType>[]>>
+    );
   }, [connectionOptions.fleOptions?.autoEncryption?.kmsProviders]);
 
   return (

@@ -14,11 +14,7 @@ import type { RootState } from '../modules';
 import type { Database } from '../modules/databases';
 
 type RefreshingStatus =
-  | 'initial'
-  | 'fetching'
-  | 'refreshing'
-  | 'ready'
-  | 'error';
+  'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
 
 const dbStats = css({
   display: 'flex',

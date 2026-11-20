@@ -1,8 +1,7 @@
 import React from 'react';
 import Sinon from 'sinon';
-import { DropNamespacePlugin } from '../index';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { expect } from 'chai';
 import {
   renderWithConnections,
@@ -13,6 +12,7 @@ import {
   createDefaultConnectionInfo,
 } from '@mongodb-js/testing-library-compass';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
+import { DropNamespacePlugin } from '../index';
 
 const mockConnectionInfo = createDefaultConnectionInfo();
 
@@ -56,7 +56,7 @@ describe('DropNamespacePlugin', function () {
     });
 
     expect(
-      screen.getByText(
+      await screen.findByText(
         'Are you sure you want to drop collection "test.to-drop"?'
       )
     ).to.exist;
@@ -93,7 +93,9 @@ describe('DropNamespacePlugin', function () {
     });
 
     expect(
-      screen.getByText('Are you sure you want to drop database "db-to-drop"?')
+      await screen.findByText(
+        'Are you sure you want to drop database "db-to-drop"?'
+      )
     ).to.exist;
 
     const input = screen.getByRole('textbox', {

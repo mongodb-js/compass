@@ -2,14 +2,15 @@
  * A high-level wrapper around electron's builtin [BrowserWindow][0] class.
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
-import { pathToFileURL } from 'url';
-import path from 'path';
-import type { HadronIpcMainEvent } from 'hadron-ipc';
-import { ipcMain } from 'hadron-ipc';
-import { once } from 'events';
+import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+import { once } from 'node:events';
+import type { HadronIpcMainEvent } from '@mongodb-js/hadron-ipc';
+import { ipcMain } from '@mongodb-js/hadron-ipc';
 import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,
+  WebPreferences,
 } from 'electron';
 import {
   app as electronApp,
@@ -210,6 +211,15 @@ function showConnectWindow(
   // Get saved window bounds
   const { isMaximized, isFullScreen, ...bounds } =
     getSavedWindowBounds(compassApp);
+
+  const webPreferences: WebPreferences = {
+    nodeIntegration: true,
+    contextIsolation: false,
+    nodeIntegrationInWorker: false,
+    preload: path.join(__dirname, 'preload.js'),
+    ...opts.webPreferences,
+  };
+
   const windowOpts = {
     ...bounds,
     minWidth: Number(MIN_WIDTH),
@@ -224,19 +234,7 @@ function showConnectWindow(
     show: !!process.env.DEBUG_MAIN_WINDOW,
     backgroundColor: '#ffffff',
     ...opts,
-    webPreferences: {
-      'subpixel-font-scaling': true,
-      'direct-write': true,
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true,
-      nodeIntegrationInWorker: true,
-      // For local dev, electron can not load @mongosh/node-runtime-worker-thread
-      // worker (file:///) from the filesystem due to same-origin policy. For this
-      // reason we disable the webSecurity.
-      webSecurity: process.env.DISABLE_ELECTRON_WEB_SECURITY !== '1',
-      ...(opts && opts.webPreferences),
-    },
+    webPreferences,
   };
 
   const primaryDisplay = electronScreen.getPrimaryDisplay();
@@ -393,9 +391,8 @@ async function onAppReady() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
-    const { default: installDevtools, REACT_DEVELOPER_TOOLS } = await import(
-      'electron-devtools-installer'
-    );
+    const { default: installDevtools, REACT_DEVELOPER_TOOLS } =
+      await import('electron-devtools-installer');
     try {
       // @ts-expect-error typescript is right and default export from
       // electron-devtools-installer is not a function, but because we're

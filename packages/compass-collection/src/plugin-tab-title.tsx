@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import {
   useConnectionInfo,
   useConnectionsListRef,
@@ -35,8 +35,8 @@ function PluginTitle({
   const collectionType = isTimeSeries
     ? 'timeseries'
     : isReadonly
-    ? 'view'
-    : 'collection';
+      ? 'view'
+      : 'collection';
   // Similar to what we have in the collection breadcrumbs.
   const tooltip: [string, string][] = [
     ['Connection', connectionName || ''],
@@ -63,10 +63,10 @@ function PluginTitle({
         collectionType === 'view'
           ? 'Visibility'
           : collectionType === 'timeseries'
-          ? 'TimeSeries'
-          : inferredFromPrivileges
-          ? 'EmptyFolder'
-          : 'Folder'
+            ? 'TimeSeries'
+            : inferredFromPrivileges
+              ? 'EmptyFolder'
+              : 'Folder'
       }
       data-namespace={ns}
       inferredFromPrivileges={inferredFromPrivileges}

@@ -75,7 +75,7 @@ const CurrentOpComponent: React.FunctionComponent<{
   const connectionInfoRef = useConnectionInfoRef();
 
   const showOperationDetails = useCallback(
-    (data) => {
+    (data: unknown) => {
       track('CurrentOp showOperationDetails', {}, connectionInfoRef.current);
       Actions.showOperationDetails(data);
     },

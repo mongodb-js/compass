@@ -2,6 +2,7 @@ import type {
   ConnectionScopedProperties,
   TelemetryEvent,
 } from './telemetry-events';
+
 export type { TelemetryEvent, ExtraConnectionData } from './telemetry-events';
 
 type TelemetryConnectionInfo = {
@@ -16,7 +17,7 @@ export type TrackFunctionPayload<TPayload extends TelemetryEvent['payload']> =
 export interface TrackFunction {
   <
     TName extends TelemetryEvent['name'],
-    TPayload extends Extract<TelemetryEvent, { name: TName }>['payload']
+    TPayload extends Extract<TelemetryEvent, { name: TName }>['payload'],
   >(
     eventName: TName,
     payload: TrackFunctionPayload<TPayload>,

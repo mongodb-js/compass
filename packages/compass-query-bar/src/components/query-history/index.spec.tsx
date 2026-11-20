@@ -1,5 +1,7 @@
-import React from 'react';
-import { expect } from 'chai';
+import { promises as fs } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import Sinon from 'sinon';
 import {
   render,
   screen,
@@ -7,12 +9,8 @@ import {
   within,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { Provider } from '../../stores/context';
-import Sinon from 'sinon';
-import { promises as fs } from 'fs';
-import os from 'os';
-import path from 'path';
-import QueryHistory from '.';
+import { expect } from 'chai';
+import React from 'react';
 import {
   FavoriteQueryStorageProvider,
   RecentQueryStorageProvider,
@@ -21,15 +19,17 @@ import {
   createElectronFavoriteQueryStorage,
   createElectronRecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/electron';
-import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
-import { configureStore } from '../../stores/query-bar-store';
 import { UUID } from 'bson';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import { Provider } from '../../stores/context';
+import { configureStore } from '../../stores/query-bar-store';
+import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
+import QueryHistory from '.';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },
@@ -155,17 +155,15 @@ describe('query-history', function () {
     it('in recents', async function () {
       await renderQueryHistory(tmpDir);
       userEvent.click(screen.getByText(/recents/i));
-      expect(
-        screen.getByText(/your recent queries will appear here\./i)
-      ).to.exist;
+      expect(screen.getByText(/your recent queries will appear here\./i)).to
+        .exist;
     });
 
     it('in favorites', async function () {
       await renderQueryHistory(tmpDir);
       userEvent.click(screen.getByText(/favorites/i));
-      expect(
-        screen.getByText(/your favorite queries will appear here\./i)
-      ).to.exist;
+      expect(screen.getByText(/your favorite queries will appear here\./i)).to
+        .exist;
     });
   });
 

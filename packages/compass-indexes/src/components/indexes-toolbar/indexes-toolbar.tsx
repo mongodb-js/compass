@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
-import { usePreferences } from 'compass-preferences-model/provider';
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
 import {
   Button,
   css,
@@ -20,18 +20,15 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import semver from 'semver';
 
+import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../../modules';
 import { createSearchIndexOpened } from '../../modules/search-indexes';
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import { shouldShowIndexesToolbarButtons } from '../../utils/should-show-indexes-toolbar-buttons';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -122,9 +119,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     'enableAtlasSearchIndexes',
     'enableIndexesManagement',
   ]);
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
-  const isSearchManagementActive =
-    enableAtlasSearchIndexes || enableSearchActivationProgramP1;
+  const isSearchManagementActive = enableAtlasSearchIndexes;
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
   // `readWrite` (Atlas "Project Data Access Read Write") normally hides index

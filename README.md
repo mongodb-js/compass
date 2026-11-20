@@ -48,6 +48,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-context-menu**](packages/compass-context-menu): Context menu hooks and provider for Compass
 - [**@mongodb-js/compass-data-modeling**](packages/compass-data-modeling): Data modeling diagram workspace and all related services
 - [**@mongodb-js/compass-editor**](packages/compass-editor): Reusable Compass editor component based on codemirror editor, themes, and autocompleters
+- [**@mongodb-js/compass-events**](packages/compass-events): Listen to and await events from DOM EventTargets and Node.js EventEmitters alike
 - [**@mongodb-js/compass-generative-ai**](packages/compass-generative-ai): Generative AI aspects for Compass
 - [**@mongodb-js/compass-global-writes**](packages/compass-global-writes): Compass Global Sharding management
 - [**@mongodb-js/compass-intercom**](packages/compass-intercom): Intercom scripts and utils for Compass
@@ -58,7 +59,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-telemetry**](packages/compass-telemetry): Compass telemetry
 - [**@mongodb-js/compass-test-server**](packages/compass-test-server): Wrapper around mongodb-runner to manage test servers for Compass
 - [**@mongodb-js/compass-user-data**](packages/compass-user-data): undefined
-- [**@mongodb-js/compass-utils**](packages/compass-utils): Utilities for MongoDB Compass Development
 - [**@mongodb-js/compass-web**](packages/compass-web): Compass application packaged for the browser environment
 - [**@mongodb-js/compass-welcome**](packages/compass-welcome): The welcome modal
 - [**@mongodb-js/compass-workspaces**](packages/compass-workspaces): Compass plugin responsible for rendering and managing state of current namespace / workspace

@@ -9,6 +9,7 @@
   "d3dcompiler_47.dll",
   "dxcompiler.dll",
   "dxil.dll",
+  "electron_wer.dll",
   "ffmpeg.dll",
   "icudtl.dat",
   "libEGL.dll",

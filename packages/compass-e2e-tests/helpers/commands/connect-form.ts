@@ -1,14 +1,15 @@
 import _ from 'lodash';
 import { expect } from 'chai';
+import Debug from 'debug';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 import type { CompassBrowser } from '../compass-browser.ts';
 import * as Selectors from '../selectors.ts';
 import type { ConnectFormState } from '../connect-form-state.ts';
-import Debug from 'debug';
 import {
   DEFAULT_CONNECTIONS,
   isTestingWebAtlasCloud,
 } from '../test-runner-context.ts';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
+
 const debug = Debug('compass-e2e-tests');
 
 export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
@@ -42,9 +43,8 @@ export async function getConnectFormState(
     Selectors.ConnectionFormAdvancedToggle
   );
 
-  const connectionString = await browser.getConnectFormConnectionString(
-    isFocused
-  );
+  const connectionString =
+    await browser.getConnectFormConnectionString(isFocused);
 
   // General
   const initialTab = await browser.navigateToConnectTab('General');

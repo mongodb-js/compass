@@ -1,5 +1,7 @@
+import { promises as fs } from 'node:fs';
 import chai from 'chai';
-import { promises as fs } from 'fs';
+import type { ChainablePromiseElement } from 'webdriverio';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -17,14 +19,12 @@ import {
   createNumbersCollection,
 } from '../helpers/mongo-clients.ts';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline.ts';
-import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode.ts';
 import {
   isTestingWeb,
   isTestingWebAtlasCloud,
 } from '../helpers/test-runner-context.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
-import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 
@@ -154,8 +154,15 @@ describe('Collection aggregations tab', function () {
       'Aggregations'
     );
     // Get us back to the empty stage every time. Also test the Create New
-    // Pipeline flow while at it.
-    await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    // Pipeline flow while at it. The button is only disabled when the pipeline
+    // is already empty and unnamed, which is exactly the state we want.
+    if (
+      (await browser
+        .$(Selectors.CreateNewPipelineButton)
+        .getAttribute('aria-disabled')) !== 'true'
+    ) {
+      await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    }
 
     // This is kinda superfluous for the nested beforeEach hooks below where we
     // immediately navigate away anyway, but most tests expect there to already
@@ -686,7 +693,7 @@ describe('Collection aggregations tab', function () {
       });
     });
 
-    let unsubscribeAllowWarnings: () => void;
+    let unsubscribeAllowWarnings: (() => void) | undefined;
 
     before(function () {
       unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
@@ -698,7 +705,7 @@ describe('Collection aggregations tab', function () {
     });
 
     after(function () {
-      unsubscribeAllowWarnings();
+      unsubscribeAllowWarnings?.();
     });
 
     it('Shows error info when inserting', async function () {
@@ -1256,6 +1263,9 @@ describe('Collection aggregations tab', function () {
   it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
     await browser.selectStageOperator(0, '$match');
     await browser.clickConfirmationAction(Selectors.CreateNewPipelineButton);
+
+    // The pipeline is now empty, so there is nothing left to create anew.
+    await browser.waitForAriaDisabled(Selectors.CreateNewPipelineButton, true);
   });
 
   describe('aggregation builder in text mode', function () {

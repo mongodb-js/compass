@@ -1,5 +1,6 @@
 import {
   cloneDeep,
+  escape,
   isArray,
   isNumber,
   isString,
@@ -116,7 +117,7 @@ export function mergeSchema(
   fields: Record<string, SchemaFieldSubset>,
   schemaFields: SchemaField[]
 ): { fields: Record<string, SchemaFieldSubset>; topLevelFields: string[] } {
-  fields = cloneDeep(fields);
+  fields = Object.assign(Object.create(null), cloneDeep(fields));
 
   const topLevelFields = [];
 
@@ -148,7 +149,7 @@ export function schemaFieldsToAutocompleteItems(
       score: 1,
       meta: 'field',
       version: '0.0.0',
-      description: stringifyType(field.type),
+      description: escape(stringifyType(field.type)),
     };
   });
 }

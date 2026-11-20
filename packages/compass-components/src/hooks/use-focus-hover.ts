@@ -25,18 +25,18 @@ function getFocusState(
   return isFocused && isFocusVisible
     ? FocusStates.FocusVisible
     : isFocused
-    ? FocusStates.Focus
-    : isFocusWithin && isFocusVisible
-    ? FocusStates.FocusWithinVisible
-    : isFocusWithin
-    ? FocusStates.FocusWithin
-    : FocusStates.NoFocus;
+      ? FocusStates.Focus
+      : isFocusWithin && isFocusVisible
+        ? FocusStates.FocusWithinVisible
+        : isFocusWithin
+          ? FocusStates.FocusWithin
+          : FocusStates.NoFocus;
 }
 
 export function useFocusState(): [
   React.HTMLAttributes<HTMLElement>,
   FocusState,
-  React.MutableRefObject<FocusState>
+  React.MutableRefObject<FocusState>,
 ] {
   const focusStateRef = useRef<FocusState>(FocusStates.NoFocus);
   const [isFocused, setIsFocused] = useState(false);
@@ -95,7 +95,7 @@ function useIsDocumentUnfocused() {
 export function useFocusStateIncludingUnfocused(): [
   React.HTMLAttributes<HTMLElement>,
   FocusState | 'Unfocused',
-  React.MutableRefObject<FocusState | 'Unfocused'>
+  React.MutableRefObject<FocusState | 'Unfocused'>,
 ] {
   const focusStateRef = useRef<FocusState | 'Unfocused'>(FocusStates.NoFocus);
   const [props, state] = useFocusState();
@@ -109,7 +109,7 @@ export function useFocusStateIncludingUnfocused(): [
 export function useHoverState(): [
   React.HTMLAttributes<HTMLElement>,
   boolean,
-  React.Dispatch<React.SetStateAction<boolean>>
+  React.Dispatch<React.SetStateAction<boolean>>,
 ] {
   const [isHovered, setIsHovered] = useState(false);
   const hoverProps = {

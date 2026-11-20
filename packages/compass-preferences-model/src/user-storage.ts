@@ -1,9 +1,8 @@
-import { z } from '@mongodb-js/compass-user-data';
+import { z, FileUserData } from '@mongodb-js/compass-user-data';
 import { UUID } from 'bson';
-import { FileUserData } from '@mongodb-js/compass-user-data';
 
 const UserSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   createdAt: z
     .union([z.coerce.date(), z.number()])
     .transform((x) => new Date(x)),

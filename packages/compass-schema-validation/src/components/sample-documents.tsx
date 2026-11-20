@@ -10,10 +10,10 @@ import {
   Button,
   ButtonVariant,
 } from '@mongodb-js/compass-components';
-import { fetchSampleDocuments } from '../modules/sample-documents';
-import { DocumentPreview } from './document-preview';
 import { connect } from 'react-redux';
+import { fetchSampleDocuments } from '../modules/sample-documents';
 import type { RootState } from '../modules';
+import { DocumentPreview } from './document-preview';
 
 /**
  * The Sample Documents editor component.

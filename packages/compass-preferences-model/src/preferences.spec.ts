@@ -1,8 +1,9 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
-import { Preferences } from './preferences';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
 import { expect } from 'chai';
+import { createLogger } from '@mongodb-js/compass-logging';
+import { Preferences } from './preferences';
 import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { allPreferencesProps } from './preferences-schema';
@@ -10,7 +11,6 @@ import type {
   UserConfigurablePreferences,
   CompassRunningEnvironment,
 } from './preferences-schema';
-import { createLogger } from '@mongodb-js/compass-logging';
 
 const releasedFeatureFlags = FEATURE_FLAG_DEFINITIONS.filter(
   (v) => v.stage === 'released'
@@ -288,6 +288,28 @@ describe('Preferences class', function () {
     expect(allAtlas).to.be.true;
   });
 
+  it('hides AI, feature flag and Compass-only settings in Data Explorer', async function () {
+    const atlas = await setupPreferences(tmpdir, {}, 'atlas');
+    const atlasPreferences = atlas.getSettingsUIPreferences();
+
+    for (const name of [
+      'enableGenAIFeatures',
+      'enableGenAISampleDocumentPassing',
+      'enableGenAIToolCalling',
+      'enableAutoEmbeddingPublicPreview',
+      'inferNamespacesFromPrivileges',
+      'timezone',
+    ]) {
+      expect(atlasPreferences).to.not.have.property(name);
+    }
+
+    const desktop = await setupPreferences(tmpdir, {}, 'desktop');
+    expect(desktop.getSettingsUIPreferences()).to.include({
+      enableGenAIFeatures: true,
+      timezone: 'UTC',
+    });
+  });
+
   it('allows hardcoding some options and derive other option values based on that', async function () {
     const preferences = await setupPreferences(tmpdir, {
       cli: {
@@ -409,5 +431,22 @@ describe('Preferences class', function () {
       'set-cloud-project'
     );
     expect(states).to.have.a.property('readOnly', 'set-cloud-user');
+  });
+
+  it('applies cloud preferences and lets the user override them', async function () {
+    const preferences = await setupPreferences(tmpdir, {
+      atlasCloudUser: { timezone: 'America/New_York' },
+      atlasCloudProject: { enableRollingIndexes: true },
+      atlasCloudOrg: { enableGenAIFeaturesAtlasOrg: true },
+    });
+
+    const resolved = preferences.getPreferences();
+    expect(resolved.timezone).to.equal('America/New_York');
+    expect(resolved.enableRollingIndexes).to.equal(true);
+    expect(resolved.enableGenAIFeaturesAtlasOrg).to.equal(true);
+
+    await preferences.savePreferences({ timezone: 'Europe/Madrid' });
+    expect(preferences.getPreferences().timezone).to.equal('Europe/Madrid');
+    expect(preferences.getPreferenceStates()).to.not.have.property('timezone');
   });
 });

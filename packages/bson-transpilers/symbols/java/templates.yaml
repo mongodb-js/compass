@@ -25,10 +25,8 @@ Templates:
         const exportMode = spec.exportMode;
         delete spec.exportMode;
 
-        const connection = `MongoClient mongoClient = new MongoClient(
-        new MongoClientURI(
-            ${uri}
-        )
+        const connection = `MongoClient mongoClient = MongoClients.create(
+        ${uri}
     );
 
     MongoDatabase database = mongoClient.getDatabase(${this.toStringLiteral(spec.options.database)});
@@ -72,7 +70,7 @@ Templates:
                     return s;
                 case 'maxTimeMS':
                     return `${s}
-        .maxTime(${spec[k]}, TimeUnit.MICROSECONDS)`;
+        .maxTime(${spec[k]}, TimeUnit.MILLISECONDS)`;
                 case 'skip':
                 case 'limit':
                     return `${s}
@@ -1003,8 +1001,8 @@ Templates:
   ImportTemplate: &ImportTemplate null
   DriverImportTemplate: !!js/function &DriverImportTemplate >
     (_, mode) => {
-        let imports = 'import com.mongodb.MongoClient;\n' +
-            'import com.mongodb.MongoClientURI;\n' +
+        let imports = 'import com.mongodb.client.MongoClient;\n' +
+            'import com.mongodb.client.MongoClients;\n' +
             'import com.mongodb.client.MongoCollection;\n' +
             'import com.mongodb.client.MongoDatabase;\n' +
             'import org.bson.conversions.Bson;\n' +

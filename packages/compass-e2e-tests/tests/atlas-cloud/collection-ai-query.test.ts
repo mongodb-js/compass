@@ -5,6 +5,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  screenshotPathName,
   getDefaultConnectionNames,
 } from '../../helpers/compass.ts';
 import type { Compass } from '../../helpers/compass.ts';
@@ -30,6 +31,49 @@ async function resetAIInputVisibleState(browser: CompassBrowser) {
       localStorage.removeItem(key);
     }
   }, AI_INPUT_VISIBLE_STORAGE_KEYS);
+}
+
+const GENERATE_ATTEMPTS = 3;
+
+/**
+ * The real AI backend is non-deterministic and can transiently fail (network
+ * errors, slow responses), so the generate step is retried a few times before
+ * giving up.
+ */
+async function generateWithRetry(
+  browser: CompassBrowser,
+  userInput: string,
+  waitForResult: () => Promise<boolean>
+) {
+  for (let attempt = 1; attempt <= GENERATE_ATTEMPTS; attempt++) {
+    await browser.clickVisible(Selectors.GenAITextInput);
+    await browser.setValueVisible(Selectors.GenAITextInput, userInput);
+
+    // Click generate.
+    await browser.clickVisible(Selectors.GenAIGenerateQueryButton);
+
+    try {
+      // The backend normally responds within seconds: a short per-attempt
+      // timeout leaves room to retry instead of stalling for the full
+      // waitforTimeout on a hopeless attempt.
+      await browser.waitUntil(waitForResult, { timeout: 20_000 });
+      return;
+    } catch (err) {
+      await browser.screenshot(
+        screenshotPathName(`ai-generate-attempt-${attempt}-${Date.now()}`)
+      );
+      if (attempt === GENERATE_ATTEMPTS) {
+        const errorBanner = await browser
+          .$(Selectors.GenAIErrorMessageBanner)
+          .isExisting();
+        throw new Error(
+          `AI generation did not produce a result after ${attempt} attempts${
+            errorBanner ? ' (error banner shown)' : ''
+          }: ${(err as Error).message}`
+        );
+      }
+    }
+  }
 }
 
 describe('Collection ai query (with real Cloud backend)', function () {
@@ -90,26 +134,21 @@ describe('Collection ai query (with real Cloud backend)', function () {
         // Click the ai entry button.
         await browser.clickVisible(Selectors.GenAIEntryButton);
 
-        // Enter the ai prompt.
-        await browser.clickVisible(Selectors.GenAITextInput);
-
-        const testUserInput = 'find all documents where i is greater than 50';
-        await browser.setValueVisible(Selectors.GenAITextInput, testUserInput);
-
-        // Click generate.
-        await browser.clickVisible(Selectors.GenAIGenerateQueryButton);
-
         // Wait for the ipc events to succeed.
-        await browser.waitUntil(async function () {
-          // Make sure the query bar was updated.
-          const queryBarFilterContent = await browser.getCodemirrorEditorText(
-            Selectors.queryBarOptionInputFilter('Documents')
-          );
-          return (
-            queryBarFilterContent.includes('$gt') &&
-            queryBarFilterContent.includes('50')
-          );
-        });
+        await generateWithRetry(
+          browser,
+          'find all documents where i is greater than 50',
+          async function () {
+            // Make sure the query bar was updated.
+            const queryBarFilterContent = await browser.getCodemirrorEditorText(
+              Selectors.queryBarOptionInputFilter('Documents')
+            );
+            return (
+              queryBarFilterContent.includes('$gt') &&
+              queryBarFilterContent.includes('50')
+            );
+          }
+        );
 
         // Run it and check that the correct documents are shown.
         await browser.runFind('Documents', true);
@@ -134,20 +173,15 @@ describe('Collection ai query (with real Cloud backend)', function () {
         // Click the ai entry button.
         await browser.clickVisible(Selectors.GenAIOpenButton);
 
-        // Enter the ai prompt.
-        await browser.clickVisible(Selectors.GenAITextInput);
-
-        const testUserInput = 'find all documents where i is 99';
-        await browser.setValueVisible(Selectors.GenAITextInput, testUserInput);
-
-        // Click generate.
-        await browser.clickVisible(Selectors.GenAIGenerateQueryButton);
-
-        await browser.waitUntil(async function () {
-          const textEditor = browser.$(Selectors.AggregationAsTextEditor);
-          const textContent = await textEditor.getText();
-          return textContent.includes('$match');
-        });
+        await generateWithRetry(
+          browser,
+          'find all documents where i is 99',
+          async function () {
+            const textEditor = browser.$(Selectors.AggregationAsTextEditor);
+            const textContent = await textEditor.getText();
+            return textContent.includes('$match');
+          }
+        );
 
         // Run it and check that the correct documents are shown.
         await browser.clickVisible(Selectors.RunPipelineButton);

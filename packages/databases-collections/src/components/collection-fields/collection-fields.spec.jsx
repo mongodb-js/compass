@@ -27,9 +27,8 @@ describe('CollectionFields [Component]', function () {
   context('when withDatabase prop is false', function () {
     it('does not render a database name input field', function () {
       render(<CollectionFields onChange={() => {}} serverVersion="5.0" />);
-      expect(
-        screen.queryByRole('textbox', { name: /Database Name/i })
-      ).to.not.exist;
+      expect(screen.queryByRole('textbox', { name: /Database Name/i })).to.not
+        .exist;
     });
   });
 
@@ -163,9 +162,8 @@ describe('CollectionFields [Component]', function () {
           serverVersion="4.3.0"
         />
       );
-      expect(
-        screen.queryByRole('checkbox', { name: /Time-Series/i })
-      ).to.not.exist;
+      expect(screen.queryByRole('checkbox', { name: /Time-Series/i })).to.not
+        .exist;
     });
   });
 

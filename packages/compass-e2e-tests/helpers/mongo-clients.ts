@@ -16,8 +16,8 @@ import {
   Timestamp,
   UUID,
 } from 'bson';
-import { getDefaultConnectionStrings } from './test-runner-context.ts';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+import { getDefaultConnectionStrings } from './test-runner-context.ts';
 import { noServerWarningsCheckpoint } from './test-runner-global-fixtures.ts';
 
 // This is a list of all the known database names that get created by tests so
@@ -274,6 +274,23 @@ export async function createNumbersStringCollection(
           j: 0,
         }))
       );
+    })
+  );
+}
+
+export const BSON_VALIDATION_UUID = new UUID(
+  '48b481f0-31c7-4b2d-81d4-987ac69262a9'
+);
+
+export async function createBsonValidationCollection(
+  name: string
+): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      await db.createCollection(name, {
+        validator: { uuid: { $ne: BSON_VALIDATION_UUID.toBinary() } },
+      });
+      await db.collection(name).insertOne({ i: 1 });
     })
   );
 }

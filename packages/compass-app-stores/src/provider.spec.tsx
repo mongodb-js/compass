@@ -1,9 +1,4 @@
 import React from 'react';
-import {
-  NamespaceProvider,
-  MongoDBInstancesManagerProvider,
-  TestMongoDBInstanceManager,
-} from './provider';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import {
@@ -15,8 +10,13 @@ import {
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
-} from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+} from '@mongodb-js/compass-preferences-model';
+import { PreferencesProvider } from '@mongodb-js/compass-preferences-model/provider';
+import {
+  NamespaceProvider,
+  MongoDBInstancesManagerProvider,
+  TestMongoDBInstanceManager,
+} from './provider';
 
 describe('NamespaceProvider', function () {
   const sandbox = Sinon.createSandbox();

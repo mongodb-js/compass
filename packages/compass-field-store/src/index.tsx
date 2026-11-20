@@ -1,10 +1,12 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { activatePlugin } from './stores/store';
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { activatePlugin } from './stores/store';
 
-const FieldStoreComponent: React.FunctionComponent = ({ children }) => {
+const FieldStoreComponent: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   // FieldStore plugin doesn't render anything, but keeps track of changes to
   // the namespace documents and maintains a schema to be used with
   // autocompleters

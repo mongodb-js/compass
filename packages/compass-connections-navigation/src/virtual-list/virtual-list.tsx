@@ -1,11 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import {
-  isPlaceholderItem,
-  useVirtualNavigationTree,
-  type VirtualTreeItem,
-  type VirtualItem,
-} from './use-virtual-navigation-tree';
-import {
   FixedSizeList as List,
   type ListChildComponentProps,
 } from 'react-window';
@@ -18,8 +12,14 @@ import {
   useId,
 } from '@mongodb-js/compass-components';
 import { type SidebarActionableItem, type SidebarTreeItem } from '../tree-data';
-import { type Actions } from '../constants';
+import { type OnItemAction } from '../constants';
 import { type NavigationItemActions } from '../item-actions';
+import {
+  isPlaceholderItem,
+  useVirtualNavigationTree,
+  type VirtualTreeItem,
+  type VirtualItem,
+} from './use-virtual-navigation-tree';
 
 function useDefaultAction<T extends VirtualTreeItem>(
   item: T,
@@ -60,7 +60,7 @@ type RenderItem<T> = (props: {
   isActive: boolean;
   isFocused: boolean;
   item: T;
-  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  onItemAction: OnItemAction;
   onItemExpand(
     this: void,
     item: SidebarActionableItem,
@@ -100,7 +100,7 @@ type VirtualTreeProps<T extends VirtualItem> = {
     item: SidebarActionableItem,
     isExpanded: boolean
   ): void;
-  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  onItemAction: OnItemAction;
   getItemActions(
     this: void,
     item: SidebarTreeItem
@@ -238,7 +238,7 @@ type VirtualItemData<T extends VirtualItem> = {
   activeItemId?: string;
   renderItem: RenderItem<T>;
   onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
-  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  onItemAction: OnItemAction;
   onItemExpand(
     this: void,
     item: SidebarActionableItem,

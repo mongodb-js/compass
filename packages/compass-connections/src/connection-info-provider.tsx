@@ -4,6 +4,7 @@ import {
   createServiceLocator,
   createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
+import { useCurrentValueRef } from '@mongodb-js/compass-components';
 import {
   useConnectionForId,
   useConnectionInfoForId,
@@ -13,7 +14,6 @@ import type {
   ConnectionId,
   ConnectionState,
 } from './stores/connections-store-redux';
-import { useCurrentValueRef } from '@mongodb-js/compass-components';
 
 export type { ConnectionInfo };
 
@@ -29,8 +29,7 @@ export const TestEnvCurrentConnectionContext =
 export const ConnectionInfoProvider: React.FC<{
   connectionInfoId: string;
   children?:
-    | ((connectionInfo: ConnectionInfo) => React.ReactNode)
-    | React.ReactNode;
+    ((connectionInfo: ConnectionInfo) => React.ReactNode) | React.ReactNode;
 }> = createServiceProvider(function ConnectionInfoProvider({
   connectionInfoId,
   children,

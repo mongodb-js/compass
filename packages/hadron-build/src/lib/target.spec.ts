@@ -1,10 +1,10 @@
 import chai from 'chai';
-import Target from './target';
 import { getTarget } from '../../test/test-helpers';
 import * as darwinFixture from '../../test/fixtures/darwin';
 import * as linuxFixture from '../../test/fixtures/linux';
 import * as win32Fixture from '../../test/fixtures/win32';
 import { getExpectedTargetProps } from '../../test/fixtures/target-props';
+import Target from './target';
 
 const { expect } = chai;
 

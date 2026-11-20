@@ -20,14 +20,14 @@ import {
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
-import { ViewSwitcher } from './view-switcher';
-import { type DocumentView } from '../stores/crud-store';
-import { AddDataMenu } from './add-data-menu';
-import { usePreference } from 'compass-preferences-model/provider';
-import { BulkActionsMenu } from './bulk-actions-menu';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { type DocumentView } from '../stores/crud-store';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
+import { BulkActionsMenu } from './bulk-actions-menu';
+import { AddDataMenu } from './add-data-menu';
+import { ViewSwitcher } from './view-switcher';
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -144,7 +144,7 @@ export type CrudToolbarProps = {
   instanceDescription: string;
   isWritable: boolean;
   isFetching: boolean;
-  isMockDataGeneratorEligibleAndSchemaReady?: boolean;
+  isMockDataGeneratorEligible?: boolean;
   lastCountRunMaxTimeMS: number;
   loadingCount: boolean;
   onApplyClicked: () => void;
@@ -179,7 +179,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   instanceDescription,
   isWritable,
   isFetching,
-  isMockDataGeneratorEligibleAndSchemaReady,
+  isMockDataGeneratorEligible,
   lastCountRunMaxTimeMS,
   loadingCount,
   onApplyClicked,
@@ -337,9 +337,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               insertDataHandler={insertDataHandler}
               isWritable={isWritable}
               instanceDescription={instanceDescription}
-              isMockDataGeneratorEligibleAndSchemaReady={
-                isMockDataGeneratorEligibleAndSchemaReady
-              }
+              isMockDataGeneratorEligible={isMockDataGeneratorEligible}
             />
           )}
           {!readonly && (

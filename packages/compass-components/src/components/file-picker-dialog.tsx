@@ -11,6 +11,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useDarkMode } from '../hooks/use-theme';
 
+import { useInitialValue } from '../hooks/use-initial-value';
 import {
   Button,
   Icon,
@@ -19,7 +20,6 @@ import {
   Link,
   Description,
 } from './leafygreen';
-import { useInitialValue } from '../hooks/use-initial-value';
 
 const { base: redBaseColor } = palette.red;
 
@@ -204,6 +204,7 @@ export type ElectronWebUtilsProvider = {
 
 export const FileInputBackendProvider: React.FunctionComponent<{
   createFileInputBackend: (() => FileInputBackend) | null;
+  children?: React.ReactNode;
 }> = ({ children, createFileInputBackend }) => {
   const initialCreateFileInputBackend = useInitialValue(() => {
     return createFileInputBackend;
@@ -293,10 +294,10 @@ export function createElectronFileInputBackend<ElectronWindow>(
             const files = result.canceled
               ? []
               : 'filePaths' in result
-              ? result.filePaths
-              : result.filePath
-              ? [result.filePath]
-              : [];
+                ? result.filePaths
+                : result.filePath
+                  ? [result.filePath]
+                  : [];
             for (const listener of listeners) listener(files);
           })
           .catch(() => {

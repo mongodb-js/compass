@@ -6,11 +6,14 @@ import {
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
-import type HadronDocument from 'hadron-document';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import type HadronDocument from '@mongodb-js/hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
+import { connect } from 'react-redux';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
-import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import OutputStagePreview from '../stage-preview/output-stage-preview';
 import { AtlasStagePreview } from '../stage-preview/atlas-stage-preview';
@@ -19,8 +22,11 @@ import {
   isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
-  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
+import {
+  isSearchIndexStale,
+  useSearchIndexNameFromStage,
+} from '../../utils/use-search-index-name';
 import {
   collapsePreviewDocsForStage,
   expandPreviewDocsForStage,
@@ -29,7 +35,6 @@ import {
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { disableFocusMode } from '../../modules/focus-mode';
 import SearchNoResults from '../search-no-results';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 import {
   SearchStageDiagnoseButton,
@@ -40,7 +45,6 @@ import {
   buildAnalyzeOutputContext,
   useShouldShowAnalyzeOutput,
 } from '../search-analyze-output-button';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 const containerStyles = css({
@@ -110,6 +114,7 @@ type FocusModePreviewProps = {
   isMissingAtlasOnlyStageSupport?: boolean;
   showSearchIndexStaleResultsBanner?: boolean;
   searchIndexName?: string | null;
+  searchIndexes?: SearchIndex[];
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
   onCloseFocusMode?: () => void;
@@ -147,7 +152,7 @@ export const FocusModePreview = ({
     [onExpand, onCollapse, stageIndex]
   );
 
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
 
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -187,14 +192,13 @@ export const FocusModePreview = ({
           copyToClipboard={copyToClipboard}
           className={documentListStyles}
         />
-        {enableSearchActivationProgramP1 &&
-          showSearchIndexStaleResultsBanner && (
-            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
-          )}
+        {enableAtlasSearchIndexes && showSearchIndexStaleResultsBanner && (
+          <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+        )}
       </>
     );
   } else if (
-    !enableSearchActivationProgramP1 &&
+    !enableAtlasSearchIndexes &&
     isSearchStage(stageOperator) &&
     !emptyStateAction
   ) {
@@ -236,20 +240,53 @@ export const FocusModePreview = ({
   );
 };
 
+const NO_SEARCH_INDEXES: SearchIndex[] = [];
+
+// The connected previews pass the raw stage value and index list; the search
+// index name comes from parsing the value, which happens in a worker.
+function useSearchIndexBannerProps({
+  stageOperator,
+  stageValue,
+  searchIndexes = NO_SEARCH_INDEXES,
+}: Pick<
+  FocusModePreviewProps,
+  'stageOperator' | 'stageValue' | 'searchIndexes'
+>) {
+  const searchIndexName = useSearchIndexNameFromStage(
+    stageOperator,
+    stageValue
+  );
+  return {
+    searchIndexName,
+    showSearchIndexStaleResultsBanner: isSearchIndexStale(
+      searchIndexName,
+      searchIndexes
+    ),
+  };
+}
+
 export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  return <FocusModePreview {...props} title="Stage Input" />;
+  const searchIndexBannerProps = useSearchIndexBannerProps(props);
+  return (
+    <FocusModePreview
+      {...props}
+      {...searchIndexBannerProps}
+      title="Stage Input"
+    />
+  );
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
   const {
     onCloseFocusMode,
     stageOperator,
-    searchIndexName,
     stageValue,
     stageMetadata = null,
     pipeline = null,
     documents,
   } = props;
+  const searchIndexBannerProps = useSearchIndexBannerProps(props);
+  const { searchIndexName } = searchIndexBannerProps;
   const { diagnoseSearchStage, interpretAnalyzeOutput } = useAssistantActions();
   const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
     stageOperator,
@@ -298,6 +335,7 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
   return (
     <FocusModePreview
       {...props}
+      {...searchIndexBannerProps}
       title="Stage Output"
       emptyStateAction={
         showDiagnoseSearchStage ? (
@@ -366,24 +404,14 @@ export const FocusModeStageInput = connect(
       return {};
     }
 
-    const searchIndexName = getSearchIndexNameFromSearchStage(
-      previousStage.stageOperator,
-      previousStage.value
-    );
-    const showSearchIndexStaleResultsBanner =
-      !!searchIndexName &&
-      searchIndexes.indexes.some(
-        (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
-      );
-
     return {
       isLoading: previousStage.loading,
       documents: previousStage.previewDocs,
       stageIndex: previousStageIndex,
       stageOperator: previousStage.stageOperator,
+      stageValue: previousStage.value,
       isMissingAtlasOnlyStageSupport,
-      showSearchIndexStaleResultsBanner,
-      searchIndexName,
+      searchIndexes: searchIndexes.indexes,
     };
   },
   {
@@ -412,16 +440,6 @@ export const FocusModeStageOutput = connect(
       stage.serverError
     );
 
-    const searchIndexName = getSearchIndexNameFromSearchStage(
-      stage.stageOperator,
-      stage.value
-    );
-    const showSearchIndexStaleResultsBanner =
-      !!searchIndexName &&
-      searchIndexes.indexes.some(
-        (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
-      );
-
     const pipeline = getPipelineStringForStage(stages, stageIndex);
 
     return {
@@ -433,8 +451,7 @@ export const FocusModeStageOutput = connect(
       stageMetadata: stage.stageMetadata,
       pipeline,
       isMissingAtlasOnlyStageSupport,
-      showSearchIndexStaleResultsBanner,
-      searchIndexName,
+      searchIndexes: searchIndexes.indexes,
     };
   },
   {

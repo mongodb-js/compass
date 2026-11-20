@@ -6,11 +6,11 @@ import {
   TextInput,
   Option,
 } from '@mongodb-js/compass-components';
-import TypeChecker from 'hadron-type-checker';
-import type { TypeCastTypes } from 'hadron-type-checker';
-import type { MatchCondition } from './match';
+import TypeChecker from '@mongodb-js/hadron-type-checker';
+import type { TypeCastTypes } from '@mongodb-js/hadron-type-checker';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
+import type { MatchCondition } from './match';
 
 // Types
 export type MatchConditionFormProps = {

@@ -1,6 +1,6 @@
 'use strict';
-const { promisify } = require('util');
-const { exec } = require('child_process');
+const { promisify } = require('node:util');
+const { exec } = require('node:child_process');
 
 const ONE_HOUR = 1000 * 60 * 60;
 

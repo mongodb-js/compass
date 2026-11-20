@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-09-14. Do not edit manually.
+> Auto-generated on 2026-11-20. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -43,6 +43,7 @@
   - [Render Process Gone](#render-process-gone)
 - [Assistant](#assistant)
   - [Assistant Prompt Submitted](#assistant-prompt-submitted)
+  - [Assistant Suggested Prompt Selected](#assistant-suggested-prompt-selected)
   - [Assistant Response Failed](#assistant-response-failed)
   - [Assistant Failed](#assistant-failed)
   - [Assistant Feedback Submitted](#assistant-feedback-submitted)
@@ -84,6 +85,13 @@
   - [Connection Imported](#connection-imported)
   - [Connection Removed](#connection-removed)
   - [New Connection](#new-connection)
+- [ConnectionFolder](#connectionfolder)
+  - [Folder Creation Form Opened](#folder-creation-form-opened)
+  - [Folder Creation Form Cancelled](#folder-creation-form-cancelled)
+  - [Folder Created](#folder-created)
+  - [Folder Deleted](#folder-deleted)
+  - [Folder Renamed](#folder-renamed)
+  - [Connections Folder Change](#connections-folder-change)
 - [Context Menu](#context-menu)
   - [Context Menu Opened](#context-menu-opened)
   - [Context Menu Item Clicked](#context-menu-item-clicked)
@@ -189,7 +197,7 @@
   - [Manage Search Indexes Link Clicked](#manage-search-indexes-link-clicked)
 - [Mock Data Generator](#mock-data-generator)
   - [Mock Data Generator CTA Button Viewed](#mock-data-generator-cta-button-viewed)
-  - [Mock Data Generator Opened](#mock-data-generator-opened)
+  - [Mock Data Generator Clicked](#mock-data-generator-clicked)
   - [Mock Data Generator Screen Viewed](#mock-data-generator-screen-viewed)
   - [Mock Data Generator Screen Proceeded](#mock-data-generator-screen-proceeded)
   - [Mock Data Generator Dismissed](#mock-data-generator-dismissed)
@@ -257,6 +265,9 @@
 - [Shell](#shell)
   - [Open Shell](#open-shell)
   - [`Shell ${string}`](#shell-string)
+- [Sidebar](#sidebar)
+  - [Sidebar Connections Collapsed All](#sidebar-connections-collapsed-all)
+  - [Sidebar Connections Active Connections Filter Toggled](#sidebar-connections-active-connections-filter-toggled)
 - [Web Vitals](#web-vitals)
   - [First Contentful Paint](#first-contentful-paint)
   - [Largest Contentful Paint](#largest-contentful-paint)
@@ -638,23 +649,36 @@ Normal clean exits are excluded.
 This event is fired when user enters a prompt in the assistant chat
 and hits "enter".
 
-| Property            | Type                  | Required | Description                                        |
-| ------------------- | --------------------- | -------- | -------------------------------------------------- |
-| `user_input_length` | `number \| undefined` | No       |                                                    |
-| `request_id`        | `string \| undefined` | No       |                                                    |
-| `is_compass_web`    | `true \| undefined`   | No       |                                                    |
-| `connection_id`     | `string \| undefined` | No       | The id of the connection associated to this event. |
+| Property            | Type                  | Required | Description                                                                                             |
+| ------------------- | --------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `thread_id`         | `string \| undefined` | No       | Identifies the assistant conversation the event belongs to. It is regenerated when the chat is cleared. |
+| `user_input_length` | `number \| undefined` | No       |                                                                                                         |
+| `request_id`        | `string \| undefined` | No       |                                                                                                         |
+| `is_compass_web`    | `true \| undefined`   | No       |                                                                                                         |
+| `connection_id`     | `string \| undefined` | No       | The id of the connection associated to this event.                                                      |
+
+### Assistant Suggested Prompt Selected
+
+This event is fired when a user clicks one of the suggested prompts shown in
+an empty assistant chat.
+
+| Property              | Type                  | Required | Description                                                                                             |
+| --------------------- | --------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `suggested_prompt_id` | `string`              | Yes      | Stable identifier of the suggested prompt, independent of its text.                                     |
+| `thread_id`           | `string \| undefined` | No       | Identifies the assistant conversation the event belongs to. It is regenerated when the chat is cleared. |
+| `is_compass_web`      | `true \| undefined`   | No       |                                                                                                         |
 
 ### Assistant Response Failed
 
 This event is fired when the AI response encounters an error.
 
-| Property         | Type                  | Required | Description                                        |
-| ---------------- | --------------------- | -------- | -------------------------------------------------- |
-| `error_name`     | `string \| undefined` | No       |                                                    |
-| `request_id`     | `string \| undefined` | No       |                                                    |
-| `is_compass_web` | `true \| undefined`   | No       |                                                    |
-| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
+| Property         | Type                  | Required | Description                                                                                             |
+| ---------------- | --------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `thread_id`      | `string \| undefined` | No       | Identifies the assistant conversation the event belongs to. It is regenerated when the chat is cleared. |
+| `error_name`     | `string \| undefined` | No       |                                                                                                         |
+| `request_id`     | `string \| undefined` | No       |                                                                                                         |
+| `is_compass_web` | `true \| undefined`   | No       |                                                                                                         |
+| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                                      |
 
 ### Assistant Failed
 
@@ -669,47 +693,52 @@ This event is fired when the AI fails due to any error.
 
 This event is fired when a user submits feedback for the assistant.
 
-| Property         | Type                                                                                                                                                                             | Required | Description                                        |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
-| `feedback`       | `"positive" \| "negative"`                                                                                                                                                       | Yes      |                                                    |
-| `text`           | `string \| undefined`                                                                                                                                                            | No       |                                                    |
-| `request_id`     | `string \| undefined`                                                                                                                                                            | No       |                                                    |
-| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose" \| "chat response"` | Yes      |                                                    |
-| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |                                                    |
-| `connection_id`  | `string \| undefined`                                                                                                                                                            | No       | The id of the connection associated to this event. |
+| Property         | Type                                                                                                                                                                             | Required | Description                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `thread_id`      | `string \| undefined`                                                                                                                                                            | No       | Identifies the assistant conversation the event belongs to. It is regenerated when the chat is cleared. |
+| `feedback`       | `"positive" \| "negative"`                                                                                                                                                       | Yes      |                                                                                                         |
+| `text`           | `string \| undefined`                                                                                                                                                            | No       |                                                                                                         |
+| `request_id`     | `string \| undefined`                                                                                                                                                            | No       |                                                                                                         |
+| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose" \| "chat response"` | Yes      |                                                                                                         |
+| `skills_used`    | `{} \| undefined`                                                                                                                                                                | No       |                                                                                                         |
+| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |                                                                                                         |
+| `connection_id`  | `string \| undefined`                                                                                                                                                            | No       | The id of the connection associated to this event.                                                      |
 
 ### Assistant Entry Point Used
 
 This event is fired when a user uses an assistant entry point.
 
-| Property         | Type                                                                                                                                                          | Required | Description                                        |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
-| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose"` | Yes      |                                                    |
-| `request_id`     | `string \| undefined`                                                                                                                                         | No       |                                                    |
-| `is_compass_web` | `true \| undefined`                                                                                                                                           | No       |                                                    |
-| `connection_id`  | `string \| undefined`                                                                                                                                         | No       | The id of the connection associated to this event. |
+| Property         | Type                                                                                                                                                          | Required | Description                                                                                             |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `thread_id`      | `string \| undefined`                                                                                                                                         | No       | Identifies the assistant conversation the event belongs to. It is regenerated when the chat is cleared. |
+| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose"` | Yes      |                                                                                                         |
+| `request_id`     | `string \| undefined`                                                                                                                                         | No       |                                                                                                         |
+| `is_compass_web` | `true \| undefined`                                                                                                                                           | No       |                                                                                                         |
+| `connection_id`  | `string \| undefined`                                                                                                                                         | No       | The id of the connection associated to this event.                                                      |
 
 ### Assistant Confirmation Submitted
 
 This event is fired when a user confirms a confirmation message in the assistant chat.
 
-| Property         | Type                                                                                                                                                                             | Required | Description                                        |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
-| `status`         | `"confirmed" \| "rejected"`                                                                                                                                                      | Yes      |                                                    |
-| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose" \| "chat response"` | Yes      |                                                    |
-| `request_id`     | `string \| undefined`                                                                                                                                                            | No       |                                                    |
-| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |                                                    |
-| `connection_id`  | `string \| undefined`                                                                                                                                                            | No       | The id of the connection associated to this event. |
+| Property         | Type                                                                                                                                                                             | Required | Description                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `thread_id`      | `string \| undefined`                                                                                                                                                            | No       | Identifies the assistant conversation the event belongs to. It is regenerated when the chat is cleared. |
+| `status`         | `"confirmed" \| "rejected"`                                                                                                                                                      | Yes      |                                                                                                         |
+| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose" \| "chat response"` | Yes      |                                                                                                         |
+| `request_id`     | `string \| undefined`                                                                                                                                                            | No       |                                                                                                         |
+| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |                                                                                                         |
+| `connection_id`  | `string \| undefined`                                                                                                                                                            | No       | The id of the connection associated to this event.                                                      |
 
 ### Assistant Response Generated
 
 This event is fired when the AI response is generated.
 
-| Property         | Type                  | Required | Description                                        |
-| ---------------- | --------------------- | -------- | -------------------------------------------------- |
-| `request_id`     | `string \| undefined` | No       |                                                    |
-| `is_compass_web` | `true \| undefined`   | No       |                                                    |
-| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
+| Property         | Type                  | Required | Description                                                                                             |
+| ---------------- | --------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `thread_id`      | `string \| undefined` | No       | Identifies the assistant conversation the event belongs to. It is regenerated when the chat is cleared. |
+| `request_id`     | `string \| undefined` | No       |                                                                                                         |
+| `is_compass_web` | `true \| undefined`   | No       |                                                                                                         |
+| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                                      |
 
 ### Atlas Connection Troubleshooting Success
 
@@ -1057,6 +1086,67 @@ This event is fired when user successfully connects to a new server/cluster.
 | `count_kms_azure`          | `number \| undefined`  | No       | Specifies the number of Azure KMS providers used.                                                                                                             |
 | `is_compass_web`           | `true \| undefined`    | No       |                                                                                                                                                               |
 | `connection_id`            | `string \| undefined`  | No       | The id of the connection associated to this event.                                                                                                            |
+
+## ConnectionFolder
+
+### Folder Creation Form Opened
+
+This event is fired when the creation of a new folder is started.
+
+| Property         | Type                       | Required | Description |
+| ---------------- | -------------------------- | -------- | ----------- |
+| `source`         | `FolderCreationEntrypoint` | Yes      |             |
+| `is_compass_web` | `true \| undefined`        | No       |             |
+
+### Folder Creation Form Cancelled
+
+This event is fired when the creation of a new folder is cancelled.
+
+| Property         | Type                       | Required | Description |
+| ---------------- | -------------------------- | -------- | ----------- |
+| `source`         | `FolderCreationEntrypoint` | Yes      |             |
+| `is_compass_web` | `true \| undefined`        | No       |             |
+
+### Folder Created
+
+This event is fired when a new folder is created.
+
+| Property            | Type                       | Required | Description |
+| ------------------- | -------------------------- | -------- | ----------- |
+| `num_folders_after` | `number`                   | Yes      |             |
+| `source`            | `FolderCreationEntrypoint` | Yes      |             |
+| `is_compass_web`    | `true \| undefined`        | No       |             |
+
+### Folder Deleted
+
+This event is fired when a new folder is deleted.
+
+| Property            | Type                | Required | Description |
+| ------------------- | ------------------- | -------- | ----------- |
+| `num_folders_after` | `number`            | Yes      |             |
+| `connections_moved` | `number`            | Yes      |             |
+| `is_compass_web`    | `true \| undefined` | No       |             |
+
+### Folder Renamed
+
+This event is fired when a folder is renamed.
+
+_No additional properties._
+
+### Connections Folder Change
+
+This event is fired when a connection is moved to a folder.
+
+| Property                        | Type                                                                                                         | Required | Description |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------ | -------- | ----------- |
+| `source`                        | `"drag_and_drop" \| "connection_context_menu" \| "connection_actions" \| "connection_form" \| "folder_form"` | Yes      |             |
+| `from`                          | `"folder" \| "uncategorized" \| "mixed"`                                                                     | Yes      |             |
+| `to`                            | `"folder" \| "uncategorized"`                                                                                | Yes      |             |
+| `num_moved`                     | `number`                                                                                                     | Yes      |             |
+| `num_connections_in_folders`    | `number`                                                                                                     | Yes      |             |
+| `num_connections_uncategorized` | `number`                                                                                                     | Yes      |             |
+| `max_connections_in_folders`    | `number`                                                                                                     | Yes      |             |
+| `is_compass_web`                | `true \| undefined`                                                                                          | No       |             |
 
 ## Context Menu
 
@@ -2078,15 +2168,15 @@ This event is fired when the Mock Data Generator CTA button is viewed.
 | `send_sample_values_enabled` | `boolean`           | Yes      |             |
 | `is_compass_web`             | `true \| undefined` | No       |             |
 
-### Mock Data Generator Opened
+### Mock Data Generator Clicked
 
-This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+This event is fired when the user selects "Generate mock data script" from Add Data,
+before checking AI feature access.
 
-| Property                     | Type                | Required | Description |
-| ---------------------------- | ------------------- | -------- | ----------- |
-| `gen_ai_features_enabled`    | `boolean`           | Yes      |             |
-| `send_sample_values_enabled` | `boolean`           | Yes      |             |
-| `is_compass_web`             | `true \| undefined` | No       |             |
+| Property         | Type                | Required | Description                                                           |
+| ---------------- | ------------------- | -------- | --------------------------------------------------------------------- |
+| `ai_opted_in`    | `boolean`           | Yes      | Whether the user has opted into AI features at the time of the click. |
+| `is_compass_web` | `true \| undefined` | No       |                                                                       |
 
 ### Mock Data Generator Screen Viewed
 
@@ -2220,14 +2310,15 @@ _No additional properties._
 
 ### Assistant Tool Call Approval
 
-| Property         | Type                  | Required | Description                                        |
-| ---------------- | --------------------- | -------- | -------------------------------------------------- |
-| `type`           | `string`              | Yes      |                                                    |
-| `approved`       | `boolean`             | Yes      |                                                    |
-| `approval_id`    | `string`              | Yes      |                                                    |
-| `request_id`     | `string \| undefined` | No       |                                                    |
-| `is_compass_web` | `true \| undefined`   | No       |                                                    |
-| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
+| Property         | Type                  | Required | Description                                                                                             |
+| ---------------- | --------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `thread_id`      | `string \| undefined` | No       | Identifies the assistant conversation the event belongs to. It is regenerated when the chat is cleared. |
+| `type`           | `string`              | Yes      |                                                                                                         |
+| `approved`       | `boolean`             | Yes      |                                                                                                         |
+| `approval_id`    | `string`              | Yes      |                                                                                                         |
+| `request_id`     | `string \| undefined` | No       |                                                                                                         |
+| `is_compass_web` | `true \| undefined`   | No       |                                                                                                         |
+| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                                      |
 
 ### Screen
 
@@ -2652,6 +2743,23 @@ tracking plan for details about single events.
 | `session_id`      | `string`              | Yes      | The shell session_id.                              |
 | `is_compass_web`  | `true \| undefined`   | No       |                                                    |
 | `connection_id`   | `string \| undefined` | No       | The id of the connection associated to this event. |
+
+## Sidebar
+
+### Sidebar Connections Collapsed All
+
+This event is fired when the user collapses all connections in the sidebar.
+
+_No additional properties._
+
+### Sidebar Connections Active Connections Filter Toggled
+
+This event is fired when the user toggles the 'active connections only' filter in the sidebar.
+
+| Property         | Type                | Required | Description |
+| ---------------- | ------------------- | -------- | ----------- |
+| `active_only`    | `boolean`           | Yes      |             |
+| `is_compass_web` | `true \| undefined` | No       |             |
 
 ## Web Vitals
 

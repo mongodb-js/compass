@@ -1,25 +1,24 @@
-import { inspect } from 'util';
-import { ObjectId, EJSON } from 'bson';
-import { promises as fs, rmdirSync } from 'fs';
+import { inspect, promisify } from 'node:util';
+import { promises as fs, closeSync, rmdirSync } from 'node:fs';
+import os from 'node:os';
+import { execFile } from 'node:child_process';
+import type { ExecFileOptions, ExecFileException } from 'node:child_process';
+import zlib from 'node:zlib';
+import path from 'node:path';
 import type Mocha from 'mocha';
-import os from 'os';
-import { execFile } from 'child_process';
-import type { ExecFileOptions, ExecFileException } from 'child_process';
-import { promisify } from 'util';
-import zlib from 'zlib';
+import { ObjectId, EJSON } from 'bson';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import { packageCompass } from 'hadron-build';
+import { packageCompass } from '@mongodb-js/hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-export * as Selectors from './selectors.ts';
-export * as Commands from './commands/index.ts';
+import Debug from 'debug';
+import semver from 'semver';
+import treeKill from 'tree-kill';
 import * as Commands from './commands/index.ts';
 import type { CompassBrowser } from './compass-browser.ts';
 import type { LogEntry } from './telemetry.ts';
-import Debug from 'debug';
-import semver from 'semver';
 import { CHROME_STARTUP_FLAGS, CI_FLAGS } from './chrome-startup-flags.ts';
 import {
   DEFAULT_CONNECTIONS_SERVER_INFO,
@@ -30,6 +29,7 @@ import {
   isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
   getAtlasCloudEnvironmentFromContext,
+  COMPASS_WEB_ENTRYPOINT_HOST,
 } from './test-runner-context.ts';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -44,12 +44,12 @@ import {
   DOWNLOADS_PATH,
   MONOREPO_ROOT_PATH,
 } from './test-runner-paths.ts';
-import treeKill from 'tree-kill';
-import path from 'path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures.ts';
 import { dialogOpenLocator } from './dialog-open-locator-strategy.ts';
 import { getExtension } from './redirect-extension.ts';
-import { COMPASS_WEB_ENTRYPOINT_HOST } from './test-runner-context.ts';
+
+export * as Selectors from './selectors.ts';
+export * as Commands from './commands/index.ts';
 
 export {
   getDefaultConnectionStrings,
@@ -109,7 +109,13 @@ export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
 ) => {
-  const { version, enterprise } = DEFAULT_CONNECTIONS_SERVER_INFO[0];
+  const serverInfo = DEFAULT_CONNECTIONS_SERVER_INFO[0];
+  if (!serverInfo) {
+    throw new Error(
+      `Cannot check serverSatisfies('${semverCondition}'): MongoDB server info is not available`
+    );
+  }
+  const { version, enterprise } = serverInfo;
   return (
     semver.satisfies(version, semverCondition, {
       includePrerelease: true,
@@ -347,7 +353,10 @@ export class Compass {
         };
       }
     } catch (err) {
-      debug('Failed to update application logs', err);
+      // This is expected whenever the application is already gone, and the
+      // WebDriver error would dump the whole browser object graph if inspected
+      const message = err instanceof Error ? err.message : String(err);
+      debug('Failed to update application logs: %s', message);
     }
     return this.logs;
   }
@@ -467,10 +476,9 @@ export class Compass {
     // coverage
     debug('Writing coverage');
     const coverage: Coverage = await this.browser.execute(async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const mainCoverage = await require('electron').ipcRenderer.invoke(
-        'coverage'
-      );
+      const mainCoverage =
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        await require('electron').ipcRenderer.invoke('coverage');
       return {
         main: JSON.stringify(mainCoverage, null, 4),
         renderer: JSON.stringify((window as any).__coverage__, null, 4),
@@ -1366,6 +1374,16 @@ const SENSITIVE_ENV_VARS = [
   'E2E_TESTS_ATLAS_IAM_ACCESS_KEY_ID',
   'E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY',
 ];
+
+let webdriverTraceFd: number | undefined;
+
+export function closeWebdriverTrace(): void {
+  if (webdriverTraceFd === undefined) {
+    return;
+  }
+  closeSync(webdriverTraceFd);
+  webdriverTraceFd = undefined;
+}
 
 function redact(value: string): string {
   for (const field of SENSITIVE_ENV_VARS) {

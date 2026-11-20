@@ -1,4 +1,5 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+
 export type ConnectionFeature = 'rollingIndexCreation' | 'globalWrites';
 
 function supportsRollingIndexCreation(connectionInfo: ConnectionInfo) {

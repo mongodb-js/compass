@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
-import { CreateIndexForm } from './create-index-form';
-import type { Field } from '../../modules/create-index';
 import { expect } from 'chai';
+import type { Field } from '../../modules/create-index';
 import { setupStore } from '../../../test/setup-store';
+import { CreateIndexForm } from './create-index-form';
 
 describe('CreateIndexForm', () => {
   const defaultProps = {

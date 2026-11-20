@@ -1,17 +1,17 @@
 import React from 'react';
-import { onActivated } from './stores';
-import { CompassSchemaValidation } from './components/compass-schema-validation';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { SchemaValidationTabTitle } from './plugin-title';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import { SchemaValidationTabTitle } from './plugin-title';
+import { CompassSchemaValidation } from './components/compass-schema-validation';
+import { onActivated } from './stores';
 import type { RequiredDataServiceProps } from './modules';
 
 const CompassSchemaValidationPluginProvider = registerCompassPlugin(

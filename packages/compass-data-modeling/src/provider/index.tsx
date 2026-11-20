@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import type {
   DataModelStorage,
   MongoDBDataModelDescription,
 } from '../services/data-model-storage';
-import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 
 export type DataModelStorageServiceState = {
   status: 'INITIAL' | 'LOADING' | 'REFRESHING' | 'READY' | 'ERROR';
@@ -36,6 +36,7 @@ const DataModelStorageServiceContext = React.createContext<
 
 export const DataModelStorageServiceProvider: React.FunctionComponent<{
   storage: DataModelStorage;
+  children?: React.ReactNode;
 }> = ({ storage, children }) => {
   const storageRef = useRef(storage);
   const [serviceState, setServiceState] =

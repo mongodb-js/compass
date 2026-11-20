@@ -6,9 +6,9 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
+import type { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type { ExplainTreeNodeData } from './explain-tree-data';
 import { executionStatsToTreeData } from './explain-tree-data';
-import type { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import TreeLayout from './tree-layout';
 import {
   defaultCardHeight,

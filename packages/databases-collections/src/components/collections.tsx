@@ -7,21 +7,21 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import type Collection from '@mongodb-js/mongodb-collection-model';
+import toNS from '@mongodb-js/mongodb-ns';
+import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 import {
   refreshCollections,
   type CollectionsState,
   deleteCollection,
   createNewCollection,
 } from '../modules/collections';
-import type Collection from 'mongodb-collection-model';
-import toNS from 'mongodb-ns';
-import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
 
 const ERROR_WARNING = 'An error occurred while loading collections';
 
@@ -34,6 +34,7 @@ type CollectionsListProps = {
   collections: ReturnType<Collection['toJSON']>[];
   collectionsLoadingStatus: string;
   collectionsLoadingError?: string | null;
+  isRefreshing: boolean;
   isEditable: boolean;
   onDeleteCollectionClick(connectionId: string, ns: string): void;
   onCreateCollectionClick(connectionId: string, dbName: string): void;
@@ -45,6 +46,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   collections,
   collectionsLoadingStatus,
   collectionsLoadingError,
+  isRefreshing,
   isEditable: isInstanceWritable,
   onDeleteCollectionClick: _onDeleteCollectionClick,
   onCreateCollectionClick: _onCreateCollectionClick,
@@ -109,6 +111,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
     <CollectionsList
       namespace={namespace}
       collections={collections}
+      isRefreshing={isRefreshing}
       {...actions}
     />
   );
@@ -122,6 +125,7 @@ const ConnectedCollections = connect(
       collections: state.collections,
       collectionsLoadingStatus: state.collectionsLoadingStatus.status,
       collectionsLoadingError: state.collectionsLoadingStatus.error,
+      isRefreshing: state.collectionsLoadingStatus.status === 'refreshing',
       isEditable,
     };
   },

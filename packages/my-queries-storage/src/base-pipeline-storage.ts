@@ -3,9 +3,9 @@ import type { SavedPipeline } from './pipeline-storage-schema';
 import type { PipelineStorageInterface } from './storage-interfaces';
 
 // Generic base class for pipeline storage that works with any IUserData implementation
-export class BaseCompassPipelineStorage<TSchema extends z.Schema>
-  implements PipelineStorageInterface
-{
+export class BaseCompassPipelineStorage<
+  TSchema extends z.ZodType<SavedPipeline, unknown>,
+> implements PipelineStorageInterface {
   private readonly userData: IUserData<TSchema>;
 
   constructor(userData: IUserData<TSchema>) {
@@ -43,7 +43,7 @@ export class BaseCompassPipelineStorage<TSchema extends z.Schema>
       await this.userData.write(data.id, {
         ...data,
         lastModified: Date.now(),
-      });
+      } as z.input<TSchema>);
       return true;
     } catch {
       return false;
@@ -59,7 +59,7 @@ export class BaseCompassPipelineStorage<TSchema extends z.Schema>
         ...(await this.userData.readOne(id)),
         ...attributes,
         lastModified: Date.now(),
-      });
+      } as z.input<TSchema>);
       return true;
     } catch {
       return false;

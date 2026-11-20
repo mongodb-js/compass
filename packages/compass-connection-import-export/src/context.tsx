@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useState } from 'react';
+import { useInitialValue } from '@mongodb-js/compass-components';
 import { ImportConnectionsModal } from './components/import-modal';
 import { ExportConnectionsModal } from './components/export-modal';
-import { useInitialValue } from '@mongodb-js/compass-components';
 
 type ConnectionImportExportService = {
   getHandlers(): {
@@ -13,7 +13,9 @@ type ConnectionImportExportService = {
 const ConnectionImportExportServiceContext =
   React.createContext<ConnectionImportExportService | null>(null);
 
-export const ConnectionImportExportProvider: React.FC = ({ children }) => {
+export const ConnectionImportExportProvider: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const [importModalState, setImportModalState] = useState<{
     opened: boolean;
     // trackingProps are passed to deserializeConnections implementation in
@@ -103,8 +105,7 @@ export const ConnectionImportExportProvider: React.FC = ({ children }) => {
 };
 
 export type ConnectionImportExportAction =
-  | 'import-saved-connections'
-  | 'export-saved-connections';
+  'import-saved-connections' | 'export-saved-connections';
 
 export const useOpenConnectionImportExportModal = (
   trackingProps?: Record<string, unknown>

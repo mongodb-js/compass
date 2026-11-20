@@ -4,15 +4,16 @@ import {
   render,
   screen,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { configureStore } from '../stores/export-store';
-import { ExportModal } from './export-modal';
 import { Provider } from 'react-redux';
-import { closeExport, openExport } from '../modules/export';
 
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import { closeExport, openExport } from '../modules/export';
+import { configureStore } from '../stores/export-store';
+import { ExportModal } from './export-modal';
 
 function renderModal(exportState: any = {}) {
   // TODO: mutating state directly doesn't guarantee that we are testing the
@@ -113,7 +114,7 @@ describe('ExportModal Component', function () {
     });
   });
 
-  it('should reset modal state when closed and re-opened', function () {
+  it('should reset modal state when closed and re-opened', async function () {
     const { store } = renderModal();
 
     const openExportOptions = {
@@ -126,36 +127,45 @@ describe('ExportModal Component', function () {
 
     store.dispatch(openExport(openExportOptions));
 
-    expect(screen.getByTestId('select-file-type-json')).to.have.attribute(
-      'aria-checked',
-      'true'
-    );
-    expect(screen.getByTestId('select-file-type-csv')).to.have.attribute(
-      'aria-checked',
-      'false'
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('select-file-type-json')).to.have.attribute(
+        'aria-checked',
+        'true'
+      );
+      expect(screen.getByTestId('select-file-type-csv')).to.have.attribute(
+        'aria-checked',
+        'false'
+      );
+    });
 
     userEvent.click(screen.getByTestId('select-file-type-csv', {}), undefined, {
       // leafygreen adds pointer-events: none on actually clickable elements
       skipPointerEventsCheck: true,
     });
 
-    expect(screen.getByTestId('select-file-type-csv')).to.have.attribute(
-      'aria-checked',
-      'true'
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('select-file-type-csv')).to.have.attribute(
+        'aria-checked',
+        'true'
+      );
+    });
 
-    // Re-open the modal to reset state
     store.dispatch(closeExport());
+    await waitFor(() => {
+      expect(screen.queryByTestId('select-file-type-json')).to.not.exist;
+    });
+
     store.dispatch(openExport(openExportOptions));
 
-    expect(screen.getByTestId('select-file-type-json')).to.have.attribute(
-      'aria-checked',
-      'true'
-    );
-    expect(screen.getByTestId('select-file-type-csv')).to.have.attribute(
-      'aria-checked',
-      'false'
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('select-file-type-json')).to.have.attribute(
+        'aria-checked',
+        'true'
+      );
+      expect(screen.getByTestId('select-file-type-csv')).to.have.attribute(
+        'aria-checked',
+        'false'
+      );
+    });
   });
 });

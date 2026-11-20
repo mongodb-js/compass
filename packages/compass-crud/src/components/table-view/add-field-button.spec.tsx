@@ -13,7 +13,6 @@ import {
   getApi,
   getColumn,
   getActions,
-  getColumnApi,
   getContext,
 } from '../../../test/aggrid-helper';
 import AddFieldButton from './add-field-button';
@@ -22,14 +21,12 @@ function renderButtonAndOpenMenu(props) {
   const actions = getActions();
   const api = getApi();
   const column = getColumn('field1', { headerName: 'field1', colId: 'field1' });
-  const columnApi = getColumnApi([]);
   const context = getContext([]);
   const defaultProps = {
     api: api,
     column: column,
     addColumn: actions.addColumn,
     drillDown: actions.drillDown,
-    columnApi: columnApi,
     context: context,
   };
 
@@ -78,7 +75,7 @@ describe('<AddFieldButton />', function () {
         headerName: 'field1',
         colId: 'field1',
       });
-      const columnApi = getColumnApi([]);
+      const api = getApi();
       const context = getContext([]);
       const rowNode = getNode({ field1: 'value', field3: 'value3' });
       const value = rowNode.data.hadronDocument.get('field1');
@@ -90,7 +87,7 @@ describe('<AddFieldButton />', function () {
           value={value}
           addColumn={actions.addColumn}
           drillDown={actions.drillDown}
-          columnApi={columnApi}
+          api={api}
           displace={20}
           context={context}
         />
@@ -117,7 +114,7 @@ describe('<AddFieldButton />', function () {
         headerName: 'field1',
         colId: 'field1',
       });
-      const columnApi = getColumnApi([]);
+      const api = getApi();
       const context = getContext([]);
       const rowNode = getNode({ field1: 'value', field3: 'value3' });
       const value = rowNode.data.hadronDocument.get('field1');
@@ -129,7 +126,7 @@ describe('<AddFieldButton />', function () {
           value={value}
           addColumn={actions.addColumn}
           drillDown={actions.drillDown}
-          columnApi={columnApi}
+          api={api}
           displace={20}
           context={context}
         />
@@ -147,7 +144,7 @@ describe('<AddFieldButton />', function () {
         headerName: 'field1',
         colId: 'field1',
       });
-      const columnApi = getColumnApi([]);
+      const api = getApi();
       const context = getContext(['field0']);
       const rowNode = getNode({ field0: { field1: 'value' } });
       const value = rowNode.data.hadronDocument.getChild(['field0', 'field1']);
@@ -159,7 +156,7 @@ describe('<AddFieldButton />', function () {
           value={value}
           addColumn={actions.addColumn}
           drillDown={actions.drillDown}
-          columnApi={columnApi}
+          api={api}
           displace={20}
           context={context}
         />
@@ -189,7 +186,7 @@ describe('<AddFieldButton />', function () {
         headerName: 'field0',
         colId: 'field0',
       });
-      const columnApi = getColumnApi([]);
+      const api = getApi();
       const context = getContext([]);
       const rowNode = getNode({ field0: { field1: 'value' } });
       const value = rowNode.data.hadronDocument.get('field0');
@@ -201,7 +198,7 @@ describe('<AddFieldButton />', function () {
           value={value}
           addColumn={actions.addColumn}
           drillDown={actions.drillDown}
-          columnApi={columnApi}
+          api={api}
           displace={20}
           context={context}
         />
@@ -232,7 +229,7 @@ describe('<AddFieldButton />', function () {
         headerName: 'field0',
         colId: 'field0',
       });
-      const columnApi = getColumnApi([]);
+      const api = getApi();
       const context = getContext([]);
       const rowNode = getNode({ field0: ['value0', 'value1', 'value2'] });
       const value = rowNode.data.hadronDocument.get('field0');
@@ -244,7 +241,7 @@ describe('<AddFieldButton />', function () {
           value={value}
           addColumn={actions.addColumn}
           drillDown={actions.drillDown}
-          columnApi={columnApi}
+          api={api}
           displace={20}
           context={context}
         />

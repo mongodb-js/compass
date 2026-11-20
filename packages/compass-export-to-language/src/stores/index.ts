@@ -1,11 +1,10 @@
-import type { Action } from 'redux';
-import { createStore, type Reducer } from 'redux';
-import type { QueryExpression, InputExpression } from '../modules/transpiler';
-import { isValidExportMode } from '../modules/transpiler';
+import { type Action, createStore, type Reducer } from 'redux';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
+import { isValidExportMode } from '../modules/transpiler';
+import type { QueryExpression, InputExpression } from '../modules/transpiler';
 
 function isAction<A extends Action>(
   action: Action,

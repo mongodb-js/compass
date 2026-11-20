@@ -2,10 +2,10 @@ import type {
   Server as HTTPServer,
   IncomingMessage,
   ServerResponse,
-} from 'http';
-import { request } from 'http';
-import type { Socket } from 'net';
-import { connect } from 'net';
+} from 'node:http';
+import { request } from 'node:http';
+import type { Socket } from 'node:net';
+import { connect } from 'node:net';
 
 export interface ProxyHandlersResult {
   connectRequests: IncomingMessage[];

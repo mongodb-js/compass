@@ -4,8 +4,8 @@ import fs from 'node:fs';
 
 import createDebug from 'debug';
 
-import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute, ExecuteFailure } from '../execute';
+import type { InstalledAppInfo, InstallablePackage } from './types';
 
 const debug = createDebug('compass:smoketests:windows-msi');
 

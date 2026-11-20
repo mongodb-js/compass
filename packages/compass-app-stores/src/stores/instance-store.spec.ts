@@ -1,14 +1,14 @@
 import type AppRegistry from '@mongodb-js/compass-app-registry';
-import { CompassInstanceStorePlugin } from '../plugin';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import type { MongoDBInstance } from 'mongodb-instance-model';
-import { type MongoDBInstancesManager } from '../instances-manager';
+import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import {
   createDefaultConnectionInfo,
   createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
+import { type MongoDBInstancesManager } from '../instances-manager';
+import { CompassInstanceStorePlugin } from '../plugin';
 
 const mockConnections = [
   createDefaultConnectionInfo(),

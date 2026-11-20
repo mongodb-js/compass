@@ -29,9 +29,8 @@ describe('TimeSeriesFields [Component]', function () {
       expect(screen.getByRole('textbox', { name: /timeField/i })).to.exist;
       expect(screen.getByRole('textbox', { name: /metaField/i })).to.exist;
       expect(screen.getByRole('button', { name: /granularity/i })).to.exist;
-      expect(
-        screen.getByRole('spinbutton', { name: /expireAfterSeconds/i })
-      ).to.exist;
+      expect(screen.getByRole('spinbutton', { name: /expireAfterSeconds/i })).to
+        .exist;
     });
   });
 
@@ -50,12 +49,10 @@ describe('TimeSeriesFields [Component]', function () {
         />
       );
       // When collapsed, the text inputs should not be visible
-      expect(
-        screen.queryByRole('textbox', { name: /timeField/i })
-      ).to.not.exist;
-      expect(
-        screen.queryByRole('textbox', { name: /metaField/i })
-      ).to.not.exist;
+      expect(screen.queryByRole('textbox', { name: /timeField/i })).to.not
+        .exist;
+      expect(screen.queryByRole('textbox', { name: /metaField/i })).to.not
+        .exist;
     });
 
     it('has the time-series checkbox enabled', function () {

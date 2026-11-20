@@ -1,15 +1,15 @@
-import assert from 'assert';
-import asyncHooks from 'async_hooks';
+import assert from 'node:assert';
+import asyncHooks from 'node:async_hooks';
 import { expect } from 'chai';
 import type { MongoClientOptions } from 'mongodb';
 
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import ConnectionString from 'mongodb-connection-string-url';
 import {
   connectMongoClientDataService as connectMongoClient,
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import ConnectionString from 'mongodb-connection-string-url';
 
 const defaultOptions = {
   productDocsLink: 'https://www.mongodb.com/docs/compass/',
@@ -319,6 +319,17 @@ describe('prepareOIDCOptions', function () {
     expect(actual('mongodb://2130706433:12345/')).to.deep.equal(
       expected(['2130706433'])
     ); // decimal IPv4
+  });
+
+  it('throws on an empty host when enableUntrustedEndpoints is true', function () {
+    expect(() =>
+      prepareOIDCOptions({
+        connectionOptions: {
+          connectionString: 'mongodb:///',
+          oidc: { enableUntrustedEndpoints: true },
+        },
+      })
+    ).to.throw(Error, 'Unexpected empty host');
   });
 
   it('does not set ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is not set', function () {

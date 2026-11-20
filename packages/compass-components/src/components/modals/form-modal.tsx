@@ -1,11 +1,11 @@
 import React from 'react';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
-import { Modal } from './modal';
 import { Button, ModalFooter } from '../leafygreen';
+import { css, spacing } from '../..';
+import { Modal } from './modal';
 
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
-import { css, spacing } from '../..';
 
 const footerStyles = css({
   display: 'flex',
@@ -27,6 +27,7 @@ type FormModalProps = React.ComponentProps<typeof Modal> & {
   submitButtonText: string;
   cancelButtonText?: string;
   submitDisabled?: boolean;
+  submitButtonLeftGlyph?: React.ReactElement;
   scroll?: boolean;
   minBodyHeight?: number;
   bodyClassName?: string;
@@ -40,6 +41,7 @@ function FormModal({
   submitButtonText,
   cancelButtonText = 'Cancel',
   submitDisabled = false,
+  submitButtonLeftGlyph,
   variant = Variant.Default,
   scroll = true,
   minBodyHeight,
@@ -79,6 +81,7 @@ function FormModal({
             variant={variant}
             type="submit"
             disabled={submitDisabled}
+            leftGlyph={submitButtonLeftGlyph}
           >
             {submitButtonText}
           </Button>

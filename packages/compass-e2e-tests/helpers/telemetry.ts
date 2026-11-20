@@ -1,11 +1,11 @@
-import { once } from 'events';
-import http from 'http';
-import type { AddressInfo } from 'net';
+import { once } from 'node:events';
+import http from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { EJSON } from 'bson';
 import type { MongoLogEntry } from 'mongodb-log-writer';
+import { expect } from 'chai';
 import { TEST_COMPASS_WEB } from './compass.ts';
 import type { CompassBrowser } from './compass-browser.ts';
-import { expect } from 'chai';
 
 export type Telemetry = {
   requests: any[];

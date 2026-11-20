@@ -1,8 +1,13 @@
 import { expect } from 'chai';
+import HadronDocument from '@mongodb-js/hadron-document';
+import { SAVING_PIPELINE_APPLY } from '../saving-pipeline';
+import configureStore from '../../../test/configure-store';
+import type { AggregationsStore } from '../../stores/store';
 import {
   getPipelineStageOperatorsFromBuilderState,
   getIsRerankFirstStage,
   getIsRerankFirstStageBannerVisible,
+  getIsNewPipelineFromBuilderState,
 } from './builder-helpers';
 import {
   addStage,
@@ -11,9 +16,6 @@ import {
 } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
 import { changeEditorValue, EditorActionTypes } from './text-editor-pipeline';
-import configureStore from '../../../test/configure-store';
-import type { AggregationsStore } from '../../stores/store';
-import HadronDocument from 'hadron-document';
 
 async function createStore(
   pipelineText = `[{$match: {_id: 1}}, {$limit: 10}]`
@@ -23,6 +25,34 @@ async function createStore(
 }
 
 describe('builder-helpers', function () {
+  describe('changePipelineMode', function () {
+    it('switches immediately and publishes the parsed pipeline afterward', async function () {
+      const store = await createStore();
+      store.dispatch(changeStageDisabled(0, true));
+
+      const switched = store.dispatch(changePipelineMode('as-text'));
+
+      expect(store.getState().pipelineBuilder.pipelineMode).to.eq('as-text');
+      await switched;
+      expect(
+        store.getState().pipelineBuilder.textEditor.pipeline.pipeline
+      ).to.deep.eq([{ $limit: 10 }]);
+    });
+
+    it('does not overwrite a text edit made while the switch is being parsed', async function () {
+      const store = await createStore();
+      const switched = store.dispatch(changePipelineMode('as-text'));
+      const edited = store.dispatch(changeEditorValue('[{$limit: 20}]'));
+
+      await Promise.all([switched, edited]);
+
+      const { pipelineText, pipeline } =
+        store.getState().pipelineBuilder.textEditor.pipeline;
+      expect(pipelineText).to.eq('[{$limit: 20}]');
+      expect(pipeline).to.deep.eq([{ $limit: 20 }]);
+    });
+  });
+
   describe('getPipelineStageOperatorsFromBuilderState', function () {
     let store: AggregationsStore;
     beforeEach(async function () {
@@ -44,8 +74,8 @@ describe('builder-helpers', function () {
       });
     });
     describe('in text editor mode', function () {
-      it('should return filtered stage names', function () {
-        store.dispatch(changePipelineMode('as-text'));
+      it('should return filtered stage names', async function () {
+        await store.dispatch(changePipelineMode('as-text'));
         store.dispatch(addStage());
         expect(
           getPipelineStageOperatorsFromBuilderState(store.getState())
@@ -82,33 +112,33 @@ describe('builder-helpers', function () {
     describe('text mode (no index)', function () {
       it('returns true when $rerank is the first stage in the parsed pipeline', async function () {
         const store = await createStore('[{ $rerank: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsRerankFirstStage(store.getState())).to.equal(true);
       });
 
       it('returns false when any stage precedes $rerank in the parsed pipeline', async function () {
         const store = await createStore('[{ $match: {} }, { $rerank: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
 
       it('returns false when parsed pipeline has no $rerank', async function () {
         const store = await createStore('[{ $match: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
 
       it('returns true when text has syntax errors and $rerank is the first operator', async function () {
         const store = await createStore('[]');
-        store.dispatch(changePipelineMode('as-text'));
-        store.dispatch(changeEditorValue('[{ $rerank: '));
+        await store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changeEditorValue('[{ $rerank: '));
         expect(getIsRerankFirstStage(store.getState())).to.equal(true);
       });
 
       it('returns false when text has syntax errors and any stage precedes $rerank', async function () {
         const store = await createStore('[]');
-        store.dispatch(changePipelineMode('as-text'));
-        store.dispatch(changeEditorValue('[{ $match: {} }, { $rerank: '));
+        await store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changeEditorValue('[{ $match: {} }, { $rerank: '));
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
     });
@@ -147,7 +177,7 @@ describe('builder-helpers', function () {
     describe('text mode', function () {
       it('returns false when $rerank is first but previewDocs is null', async function () {
         const store = await createStore('[{ $rerank: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         expect(getIsRerankFirstStageBannerVisible(store.getState())).to.equal(
           false
         );
@@ -155,13 +185,62 @@ describe('builder-helpers', function () {
 
       it('returns true when $rerank is first and previewDocs has results', async function () {
         const store = await createStore('[{ $rerank: {} }]');
-        store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changePipelineMode('as-text'));
         store.dispatch({
           type: EditorActionTypes.EditorPreviewFetchSuccess,
           previewDocs: [new HadronDocument({ _id: 1 })],
         });
         expect(getIsRerankFirstStageBannerVisible(store.getState())).to.equal(
           true
+        );
+      });
+    });
+  });
+
+  describe('getIsNewPipelineFromBuilderState', function () {
+    it('returns true for an empty, unmodified pipeline', async function () {
+      const store = await createStore('[]');
+      expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(true);
+    });
+
+    it('returns false once a stage is added', async function () {
+      const store = await createStore('[]');
+      store.dispatch(addStage());
+      expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+        false
+      );
+    });
+
+    it('returns false when the pipeline has stages but was not modified', async function () {
+      const store = await createStore('[{ $match: { _id: 1 } }]');
+      expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+        false
+      );
+    });
+
+    it('returns false when an unmodified empty pipeline has a name', async function () {
+      const store = await createStore('[]');
+      store.dispatch({ type: SAVING_PIPELINE_APPLY, name: 'test agg' });
+      expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+        false
+      );
+    });
+
+    describe('in text editor mode', function () {
+      it('returns true for an empty pipeline text', async function () {
+        const store = await createStore('[]');
+        await store.dispatch(changePipelineMode('as-text'));
+        expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+          true
+        );
+      });
+
+      it('returns false once the editor value changes', async function () {
+        const store = await createStore('[]');
+        await store.dispatch(changePipelineMode('as-text'));
+        await store.dispatch(changeEditorValue('[{ $match: { _id: 1 } }]'));
+        expect(getIsNewPipelineFromBuilderState(store.getState())).to.equal(
+          false
         );
       });
     });

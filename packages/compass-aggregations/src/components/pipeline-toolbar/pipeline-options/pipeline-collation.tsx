@@ -11,11 +11,11 @@ import {
   Tooltip,
 } from '@mongodb-js/compass-components';
 
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
 import { maxTimeMSChanged } from '../../../modules/max-time-ms';
 import { DEFAULT_MAX_TIME_MS } from '../../../constants';
-import { usePreference } from 'compass-preferences-model/provider';
 
 const pipelineOptionsContainerStyles = css({
   paddingTop: spacing[100],
@@ -128,7 +128,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
         state={collationHasError ? 'error' : 'none'}
         value={`${collationValue}`}
         onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-          collationStringChanged(evt.target.value)
+          void collationStringChanged(evt.target.value)
         }
         placeholder="{ locale: 'simple' }"
       />

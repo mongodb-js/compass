@@ -86,10 +86,10 @@ export const TIMEZONE_OPTIONS = Object.fromEntries(
       tz === 'UTC'
         ? 'Coordinated Universal Time'
         : tz === SYSTEM_TIMEZONE
-        ? "Your system's timezone"
-        : observesDaylightSavings
-        ? 'Observes daylight savings.'
-        : undefined;
+          ? "Your system's timezone"
+          : observesDaylightSavings
+            ? 'Observes daylight savings.'
+            : undefined;
 
     return [
       tz,

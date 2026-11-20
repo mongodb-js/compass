@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import cp from 'node:child_process';
 import createDebug from 'debug';
 
-import type { InstalledAppInfo, InstallablePackage } from './types';
 import { execute } from '../execute';
+import type { InstalledAppInfo, InstallablePackage } from './types';
 import * as windowsRegistry from './windows-registry';
 
 const debug = createDebug('compass:smoketests:windows-setup');

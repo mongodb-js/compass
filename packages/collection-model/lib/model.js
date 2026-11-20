@@ -1,11 +1,15 @@
 'use strict';
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
-const toNs = require('mongodb-ns');
+const toNs = require('@mongodb-js/mongodb-ns');
 const { getProperties } = require('./collection-properties');
 
 const NamespaceCache = new Map();
 
+/**
+ * @param {string} ns
+ * @returns {import('@mongodb-js/mongodb-ns')}
+ */
 function getNamespaceInfo(ns) {
   if (!NamespaceCache.has(ns)) {
     NamespaceCache.set(ns, toNs(ns));
@@ -257,7 +261,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
 
   /**
    * @param {{
-   *    dataService: import('mongodb-data-service').DataService,
+   *    dataService: import('@mongodb-js/mongodb-data-service').DataService,
    *    fetchInfo: boolean,
    *    force: boolean
    * }} options
@@ -308,7 +312,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
    * Fetches collection info and returns a special format of collection metadata
    * that events like open-in-new-tab, select-namespace, edit-view require
    * @param {{
-   *    dataService: import('mongodb-data-service').DataService,
+   *    dataService: import('@mongodb-js/mongodb-data-service').DataService,
    * }} options
    */
   async fetchMetadata({ dataService }) {
@@ -381,7 +385,7 @@ const CollectionCollection = AmpersandCollection.extend(
     model: CollectionModel,
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetch({ dataService }) {
@@ -417,18 +421,14 @@ const CollectionCollection = AmpersandCollection.extend(
         }
       );
 
+      const showHiddenNamespaces = instanceModel.shouldShowHiddenNamespaces();
+
       this.set(
         collections
-          .filter((coll) => {
-            // TODO: This is not the best place to do this kind of
-            // filtering, but for now this preserves the current behavior
-            // and changing it right away will expand the scope of the
-            // refactor significantly. We can address this in COMPASS-5211
-            return (
-              getNamespaceInfo(coll._id).system === false ||
-              getNamespaceInfo(coll._id).collection === 'system.profile'
-            );
-          })
+          .filter(
+            (coll) =>
+              showHiddenNamespaces || !getNamespaceInfo(coll._id).specialish
+          )
           .map(({ _id, ...rest }) => {
             return {
               _id,

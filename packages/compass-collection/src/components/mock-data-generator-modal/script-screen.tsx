@@ -16,30 +16,23 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import toNS from 'mongodb-ns';
-import { generateScript } from './script-generation-utils';
-import type { DataGenerationStep } from './types';
-import { DataGenerationSteps, type FakerSchema } from './types';
-import type { ArrayLengthMap } from './script-generation-utils';
-import type { CollectionState } from '../../modules/collection-tab';
-import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
+import toNS from '@mongodb-js/mongodb-ns';
+import { generateScript } from '@mongodb-js/mock-data-generator';
+import type { ArrayLengthMap } from '@mongodb-js/mock-data-generator';
 import {
   type TrackFunction,
   useTelemetry,
   useTrackOnChange,
 } from '@mongodb-js/compass-telemetry/provider';
+import type { CollectionState } from '../../modules/collection-tab';
+import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../../schema-analysis-types';
 import {
-  DEFAULT_CONNECTION_STRING_FALLBACK,
-  DEFAULT_DOCUMENT_COUNT,
-} from './constants';
-import { redactConnectionString } from 'mongodb-connection-string-url';
-
-const RUN_SCRIPT_COMMAND = (connectionString: string) => `
-mongosh "${redactConnectionString(connectionString)}" \\
-  --username <your-username> \\
-  --password "<your-password>" \\
-  mockdatascript.js
-`;
+  type DataGenerationStep,
+  DataGenerationSteps,
+  type FakerSchema,
+} from './types';
+import { DEFAULT_DOCUMENT_COUNT } from './constants';
+import { getMongoshCommand } from './mongosh-command';
 
 const outerSectionStyles = css({
   display: 'flex',
@@ -104,9 +97,10 @@ const ScriptScreen = ({
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
 
-  const connectionString: string =
-    connectionInfo?.atlasMetadata?.userConnectionString ??
-    DEFAULT_CONNECTION_STRING_FALLBACK;
+  const { command, needsUsername, promptsForPassword } = useMemo(
+    () => getMongoshCommand(connectionInfo),
+    [connectionInfo]
+  );
 
   const { database, collection } = toNS(namespace);
 
@@ -191,7 +185,7 @@ const ScriptScreen = ({
           </li>
         </ul>
       </section>
-      <section>
+      <section data-testid="mock-data-script">
         <Body as="h2" baseFontSize={16} weight="medium">
           1. Create a .js file with the following script
         </Body>
@@ -214,14 +208,15 @@ const ScriptScreen = ({
             : '// Script generation failed.'}
         </Code>
       </section>
-      <section>
+      <section data-testid="mock-data-run-command">
         <Body as="h2" baseFontSize={16} weight="medium">
           2. Run the script with <InlineCode>mongosh</InlineCode>
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the same working directory run the command below. Please{' '}
-          <strong>paste in your username and password</strong> where there are
-          placeholders.{' '}
+          In the same working directory, run the command below.
+          {needsUsername &&
+            ' Please replace <your-username> with your database username.'}
+          {promptsForPassword && ' mongosh will prompt for your password.'}{' '}
           <em>
             Note that this will add data to your cluster and will not be
             reversible.
@@ -231,8 +226,17 @@ const ScriptScreen = ({
           language={Language.Bash}
           onCopy={() => onScriptCopy({ step: DataGenerationSteps.RUN_SCRIPT })}
         >
-          {RUN_SCRIPT_COMMAND(connectionString)}
+          {command}
         </Code>
+        {!connectionInfo.atlasMetadata && (
+          <Body className={sectionInstructionStyles}>
+            If you have trouble connecting, see the{' '}
+            <Link href="https://www.mongodb.com/docs/mongodb-shell/connect/">
+              mongosh connection guide
+            </Link>
+            .
+          </Body>
+        )}
       </section>
       <section
         className={cx(

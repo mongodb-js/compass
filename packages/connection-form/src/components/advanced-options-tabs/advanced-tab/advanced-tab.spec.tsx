@@ -4,7 +4,8 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import AdvancedTab, { readPreferences } from './advanced-tab';
+import AdvancedTab from './advanced-tab';
+import { readPreferences } from './read-preference-form';
 
 let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
@@ -37,9 +38,10 @@ describe('AdvancedTab', function () {
         fireEvent.click(screen.getByTestId(`${id}-preference-button`));
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-          type: 'update-search-param',
-          currentKey: 'readPreference',
-          value: id,
+          type: 'update-read-preference',
+          mode: id,
+          tagSets: [],
+          maxStalenessSeconds: '',
         });
       });
     });
@@ -48,8 +50,10 @@ describe('AdvancedTab', function () {
       fireEvent.click(screen.getByTestId('default-preference-button'));
       expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
       expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'delete-search-param',
-        key: 'readPreference',
+        type: 'update-read-preference',
+        mode: undefined,
+        tagSets: [],
+        maxStalenessSeconds: '',
       });
     });
 

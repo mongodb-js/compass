@@ -1,6 +1,7 @@
 import type { KMSProviders } from 'mongodb';
 import type { ConnectionFormError } from './validation';
 import { errorMessageByFieldName, fieldNameHasError } from './validation';
+
 export type {
   ClientEncryptionTlsOptions,
   KMSProviders,
@@ -32,9 +33,7 @@ export interface KMSField<T extends KMSProviderType> {
     kmsProviderName: KMSProviderName<T>
   ) => string | undefined;
   state:
-    | 'error'
-    | 'none'
-    | ((errors: ConnectionFormError[]) => 'error' | 'none');
+    'error' | 'none' | ((errors: ConnectionFormError[]) => 'error' | 'none');
   description?: string;
 }
 

@@ -10,11 +10,10 @@ describe('UsageField', function () {
 
   describe('UsageField Component', function () {
     it('renders usage and since', function () {
-      const since = new Date();
+      const since = new Date('2026-10-07T07:02:56Z');
       render(<UsageField usage={20} since={since} />);
 
-      const renderedText = `20 (since ${since.toDateString()})`;
-      expect(screen.getByText(renderedText)).to.exist;
+      expect(screen.getByText('20 (since Wed Oct 07 2026)')).to.exist;
     });
 
     it('renders usage unavailable when usage is not defined', function () {

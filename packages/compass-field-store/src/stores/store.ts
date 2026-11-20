@@ -1,10 +1,10 @@
 import { applyMiddleware, createStore } from 'redux';
-import reducer, { connectionDisconnected } from '../modules';
-import { FieldStoreContext } from './context';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import thunk from 'redux-thunk';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import reducer, { connectionDisconnected } from '../modules';
+import { FieldStoreContext } from './context';
 
 export function activatePlugin(
   _initialProps: unknown,

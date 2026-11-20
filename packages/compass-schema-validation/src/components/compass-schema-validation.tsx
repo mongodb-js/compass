@@ -1,6 +1,6 @@
 import React from 'react';
-import ValidationStates from './validation-states';
 import { WorkspaceContainer } from '@mongodb-js/compass-components';
+import ValidationStates from './validation-states';
 
 /**
  * The core schema validation component.

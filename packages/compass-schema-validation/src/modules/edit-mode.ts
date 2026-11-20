@@ -1,4 +1,3 @@
-import type { RootAction } from '.';
 import { isAction } from '../util';
 import {
   type EmptyValidationFetchedAction,
@@ -6,6 +5,7 @@ import {
   type ValidationCanceledAction,
   type ValidationFetchedAction,
 } from './validation';
+import type { RootAction } from '.';
 
 /**
  * The edit mode changed action.
@@ -31,9 +31,7 @@ type DisableModeChangedAction = {
 };
 
 export type EditModeAction =
-  | EditModeChangedAction
-  | EnableEditRulesAction
-  | DisableModeChangedAction;
+  EditModeChangedAction | EnableEditRulesAction | DisableModeChangedAction;
 
 /**
  * Whether the collection is locked by the "constraint" validation level, which
@@ -113,8 +111,8 @@ export default function reducer(
         action.validationLevel === 'constraint'
           ? 'active'
           : action.prepareConstraintValidationLevel
-          ? 'prepared'
-          : 'none',
+            ? 'prepared'
+            : 'none',
       isEditingEnabledByUser: false,
     };
   }

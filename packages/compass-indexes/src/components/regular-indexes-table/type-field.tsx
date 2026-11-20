@@ -1,5 +1,4 @@
 import React from 'react';
-import getIndexHelpLink from '../../utils/index-link-helper';
 import {
   Tooltip,
   Body,
@@ -10,6 +9,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import getIndexHelpLink from '../../utils/index-link-helper';
 
 import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';

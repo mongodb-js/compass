@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
 import { createLogger } from '@mongodb-js/compass-logging';
-import path from 'path';
-import { promises as fs } from 'fs';
 
 const { log, mongoLogId } = createLogger('COMPASS-MAIN');
 

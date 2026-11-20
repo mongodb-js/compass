@@ -5,17 +5,18 @@ import {
   InlineDefinition,
   ServerIcon,
 } from '@mongodb-js/compass-components';
-import { getToolDescription } from '../utils';
 import type { ToolUIPart } from 'ai';
-import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
 import {
+  getToolDescription,
   cleanToolCallOutput,
   getToolState,
   getToolDisplayName,
   getExpandableContentText,
   toolHasOutput,
 } from '../utils';
+import type { BasicConnectionInfo } from '../compass-assistant-provider';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 import { ActionCardMessage } from './action-card-message';
 import { getToolCallTitle } from './tool-call-title';
 
@@ -23,7 +24,7 @@ interface ToolCallMessageProps {
   connection: BasicConnectionInfo | null;
   toolCall: ToolUIPart;
   onApprove?: (approvalId: string) => void;
-  onDeny?: (approvalId: string) => void;
+  onDeny?: (approvalId: string, reason: string) => void;
 }
 
 const expandableContentStyles = css({
@@ -99,7 +100,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
           {
             label: 'Cancel',
             variant: 'default',
-            onClick: () => onDeny?.(approvalId),
+            onClick: () => onDeny?.(approvalId, TOOL_DENIAL_REASONS.userDenied),
           },
           {
             label: 'Run',

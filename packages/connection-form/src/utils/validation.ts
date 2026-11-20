@@ -1,9 +1,10 @@
 import type { MongoClientOptions, AutoEncryptionOptions } from 'mongodb';
-import { isLocalhost } from 'mongodb-build-info';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import { isLocalhost } from '@mongodb-js/mongodb-build-info';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ConnectionStringParsingOptions } from 'mongodb-connection-string-url';
 import { hasAnyCsfleOption } from '../utils/csfle-handler';
+import { supportsReadPreferenceOptions } from './read-preference-handler';
 
 export type FieldName =
   | 'connectionString'
@@ -13,12 +14,14 @@ export type FieldName =
   | 'kerberosPrincipal'
   | 'keyVaultNamespace'
   | 'kmip.endpoint'
+  | 'maxStalenessSeconds'
   | `kmip:${string}.endpoint`
   | 'local.key'
   | `local:${string}.key`
   | 'password'
   | 'schema'
   | 'proxyHostname'
+  | 'readPreferenceTags'
   | 'schemaMap'
   | 'encryptedFieldsMap'
   | 'sshHostname'
@@ -30,12 +33,7 @@ export type FieldName =
   | 'username';
 
 export type TabId =
-  | 'general'
-  | 'authentication'
-  | 'tls'
-  | 'proxy'
-  | 'csfle'
-  | 'advanced';
+  'general' | 'authentication' | 'tls' | 'proxy' | 'csfle' | 'advanced';
 
 type ConnectionFormErrorWithField = {
   fieldName: FieldName;
@@ -50,8 +48,7 @@ type ConnectionFormErrorWithoutField = {
   message: string;
 };
 export type ConnectionFormError =
-  | ConnectionFormErrorWithField
-  | ConnectionFormErrorWithoutField;
+  ConnectionFormErrorWithField | ConnectionFormErrorWithoutField;
 export interface ConnectionFormWarning {
   message: string;
 }
@@ -89,7 +86,8 @@ export function errorMessageByFieldNameAndIndex(
 
 export function validateConnectionOptionsErrors(
   connectionOptions: ConnectionOptions,
-  parsingOptions?: ConnectionStringParsingOptions
+  parsingOptions?: ConnectionStringParsingOptions,
+  { isAtlas = false }: { isAtlas?: boolean } = {}
 ): ConnectionFormError[] {
   const connectionString = new ConnectionString(
     connectionOptions.connectionString,
@@ -97,16 +95,71 @@ export function validateConnectionOptionsErrors(
   );
 
   return [
-    ...validateAuthMechanismErrors(connectionString),
+    ...validateAuthMechanismErrors(connectionString, { isAtlas }),
     ...validateCSFLEErrors(connectionOptions.fleOptions?.autoEncryption ?? {}),
     ...(connectionOptions.sshTunnel
       ? validateSSHTunnelErrors(connectionOptions.sshTunnel)
       : validateSocksProxyErrors(connectionString)),
+    ...validateReadPreferenceErrors(connectionString),
   ];
 }
 
-function validateAuthMechanismErrors(
+// https://www.mongodb.com/docs/manual/core/read-preference-staleness/
+const MIN_MAX_STALENESS_SECONDS = 90;
+const TAG_SET_PATTERN = /^[^:,]+:[^:,]*(,[^:,]+:[^:,]*)*$/;
+
+function validateReadPreferenceErrors(
   connectionString: ConnectionString
+): ConnectionFormError[] {
+  const searchParams = connectionString.typedSearchParams<MongoClientOptions>();
+  const mode = searchParams.get('readPreference');
+  const tagSets = searchParams.getAll('readPreferenceTags');
+  const maxStalenessSeconds = searchParams.get('maxStalenessSeconds');
+
+  if (!supportsReadPreferenceOptions(mode)) {
+    return tagSets.length > 0 || maxStalenessSeconds
+      ? [
+          {
+            message:
+              'Read preference tags and max staleness can only be used with a read preference other than primary.',
+          },
+        ]
+      : [];
+  }
+
+  const errors: ConnectionFormError[] = [];
+  tagSets.forEach((tagSet, index) => {
+    if (tagSet !== '' && !TAG_SET_PATTERN.test(tagSet)) {
+      errors.push({
+        fieldTab: 'advanced',
+        fieldName: 'readPreferenceTags',
+        fieldIndex: index,
+        message: 'Tag sets must be in the format key0:value0,key1:value1.',
+      });
+    }
+  });
+
+  if (maxStalenessSeconds) {
+    const value = Number(maxStalenessSeconds);
+    // -1 is the driver's way of explicitly saying "no maximum".
+    if (
+      !Number.isInteger(value) ||
+      (value !== -1 && value < MIN_MAX_STALENESS_SECONDS)
+    ) {
+      errors.push({
+        fieldTab: 'advanced',
+        fieldName: 'maxStalenessSeconds',
+        message: `Max staleness must be at least ${MIN_MAX_STALENESS_SECONDS} seconds.`,
+      });
+    }
+  }
+
+  return errors;
+}
+
+function validateAuthMechanismErrors(
+  connectionString: ConnectionString,
+  { isAtlas }: { isAtlas: boolean }
 ): ConnectionFormError[] {
   const authMechanism = connectionString
     .typedSearchParams<MongoClientOptions>()
@@ -115,7 +168,7 @@ function validateAuthMechanismErrors(
     case '':
       return validateDefaultAuthMechanismErrors(connectionString);
     case 'MONGODB-X509':
-      return validateX509Errors(connectionString);
+      return validateX509Errors(connectionString, { isAtlas });
     case 'GSSAPI':
       return validateKerberosErrors(connectionString);
     case 'PLAIN':
@@ -167,7 +220,8 @@ function validateUsernameAndPasswordErrors(
   return errors;
 }
 function validateX509Errors(
-  connectionString: ConnectionString
+  connectionString: ConnectionString,
+  { isAtlas }: { isAtlas: boolean }
 ): ConnectionFormError[] {
   const errors: ConnectionFormError[] = [];
   if (!isSecure(connectionString)) {
@@ -177,7 +231,9 @@ function validateX509Errors(
       message: 'TLS must be enabled in order to use x509 authentication.',
     });
   }
-  if (!connectionString.searchParams.has('tlsCertificateKeyFile')) {
+  // Connection info from Atlas always uses X.509 but never includes a
+  // certificate, so requiring one would block every Data Explorer connection.
+  if (!isAtlas && !connectionString.searchParams.has('tlsCertificateKeyFile')) {
     errors.push({
       fieldTab: 'tls',
       fieldName: 'tlsCertificateKeyFile',

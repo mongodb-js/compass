@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { useDarkMode } from '../../hooks/use-theme';
 import { palette } from '@leafygreen-ui/palette';
+import { useDarkMode } from '../../hooks/use-theme';
 
 export function PngIcon() {
   const darkMode = useDarkMode();

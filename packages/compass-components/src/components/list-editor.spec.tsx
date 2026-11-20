@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import { ListEditor } from './list-editor';
 
 function renderListEditor(
-  props: Partial<React.ComponentProps<typeof ListEditor>>
+  props: Partial<React.ComponentProps<typeof ListEditor<string>>>
 ) {
   const onAddItemSpy = sinon.spy();
   const onRemoveItemSpy = sinon.spy();

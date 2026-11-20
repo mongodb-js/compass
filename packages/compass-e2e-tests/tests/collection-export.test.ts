@@ -1,5 +1,6 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import { expect } from 'chai';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   deleteCommonVariedProperties,
@@ -22,7 +23,6 @@ import {
   createNumbersStringCollection,
 } from '../helpers/mongo-clients.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
-import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 async function selectExportFileTypeCSV(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeCSV);
@@ -594,9 +594,8 @@ describe('Collection export', function () {
       });
 
       it('can abort an in progress CSV export', async function () {
-        const telemetryEntry = await browser.listenForTelemetryEvents(
-          telemetry
-        );
+        const telemetryEntry =
+          await browser.listenForTelemetryEvents(telemetry);
 
         // Set a query that we'll use.
         await browser.runFindOperation(
@@ -695,9 +694,8 @@ describe('Collection export', function () {
       });
 
       it('can abort an in progress JSON export', async function () {
-        const telemetryEntry = await browser.listenForTelemetryEvents(
-          telemetry
-        );
+        const telemetryEntry =
+          await browser.listenForTelemetryEvents(telemetry);
 
         // Set a query that we'll use.
         await browser.runFindOperation(
@@ -786,9 +784,8 @@ describe('Collection export', function () {
       });
 
       it('aborts an in progress CSV export when disconnected', async function () {
-        const telemetryEntry = await browser.listenForTelemetryEvents(
-          telemetry
-        );
+        const telemetryEntry =
+          await browser.listenForTelemetryEvents(telemetry);
 
         // Set a query that we'll use.
         await browser.runFindOperation(

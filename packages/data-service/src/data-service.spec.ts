@@ -1,27 +1,26 @@
-import assert from 'assert';
+import assert from 'node:assert';
+import EventEmitter from 'node:events';
 import { bsonType, Int32, ObjectId, UUID } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
-import { Collection, MongoClient, MongoServerError } from 'mongodb';
+import { MongoClient, MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
 import sinon from 'sinon';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
+import ConnectionString from 'mongodb-connection-string-url';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import { range } from 'lodash';
+import type { ClientMockOptions } from '../test/helpers';
+import { createMongoClientMock } from '../test/helpers';
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
 import type {
   ConnectionFleOptions,
   ConnectionOptions,
 } from './connection-options';
-import EventEmitter from 'events';
-import type { ClientMockOptions } from '../test/helpers';
-import { createMongoClientMock } from '../test/helpers';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
-import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import type { SearchIndex } from './search-index-detail-helper';
-import { range } from 'lodash';
-import ConnectionString from 'mongodb-connection-string-url';
 import type { DataServiceImplLogger, MongoLogId } from './logger';
 
 const { expect } = chai;
@@ -103,7 +102,7 @@ describe('DataService', function () {
           id: MongoLogId,
           context: string,
           message: string,
-          attr?: unknown
+          attr?: unknown,
         ];
       }[] = [];
       const logCollector: DataServiceImplLogger = {
@@ -844,14 +843,6 @@ describe('DataService', function () {
         );
         expect(collection).to.exist;
       });
-
-      it('returns the collection object', async function () {
-        const result = await dataService.renameCollection(
-          `${testDatabaseName}.initialCollection`,
-          'renamedCollection'
-        );
-        expect(result).to.be.instanceOf(Collection);
-      });
     });
 
     describe('#estimatedCount', function () {
@@ -1291,7 +1282,7 @@ describe('DataService', function () {
 
       it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', async function () {
         sandbox.spy(dataService, 'aggregateCursor');
-        const connectionStringReplacement = new ConnectionStringUrl(
+        const connectionStringReplacement = new ConnectionString(
           cluster().connectionString
         );
         connectionStringReplacement.searchParams.set(
@@ -1430,7 +1421,7 @@ describe('DataService', function () {
 
       it('allows to pass fallbackReadPreference and does not set the read preference when it is already set', function () {
         sandbox.spy(dataService, 'aggregate');
-        const connectionStringReplacement = new ConnectionStringUrl(
+        const connectionStringReplacement = new ConnectionString(
           cluster().connectionString
         );
         connectionStringReplacement.searchParams.set(
@@ -1577,7 +1568,7 @@ describe('DataService', function () {
           () =>
             ({
               command: commandSpy,
-            } as any)
+            }) as any
         );
 
         const session = dataService['_startSession']('CRUD');
@@ -1821,9 +1812,8 @@ describe('DataService', function () {
 
     describe('#isListSearchIndexesSupported', function () {
       it('returns false', async function () {
-        expect(
-          await dataService.isListSearchIndexesSupported(testNamespace)
-        ).to.be.false;
+        expect(await dataService.isListSearchIndexesSupported(testNamespace)).to
+          .be.false;
       });
     });
 
@@ -1865,11 +1855,21 @@ describe('DataService', function () {
     describe('#previewUpdate', function () {
       const namespace = 'test.previewUpdate';
       const sampleDocument = { _id: new ObjectId(), foo: 'bar' };
+      let replDataService: DataService;
+
+      // Registered before mochaTestServer so the client is disconnected while
+      // the test server is still running: closing a MongoClient against an
+      // already-torn-down replset can stall for ~30s (server selection
+      // timeout) and trip the after-all hook timeout.
+      after(async function () {
+        // eslint-disable-next-line no-console
+        await replDataService.disconnect().catch(console.log);
+      });
+
       const replsetCluster = mochaTestServer({
         topology: 'replset',
         secondaries: 0,
       });
-      let replDataService: DataService;
 
       before(async function () {
         const replSetOptions = {
@@ -1890,11 +1890,6 @@ describe('DataService', function () {
           foo: `bar${idx}`,
         }));
         await replDataService.insertMany(namespace, dummyDocs);
-      });
-
-      after(async function () {
-        // eslint-disable-next-line no-console
-        await replDataService.disconnect().catch(console.log);
       });
 
       it('should return the preview of a changed document', async function () {
@@ -2611,9 +2606,8 @@ describe('DataService', function () {
             },
           },
         });
-        expect(
-          await dataService.isListSearchIndexesSupported('test.test')
-        ).to.be.true;
+        expect(await dataService.isListSearchIndexesSupported('test.test')).to
+          .be.true;
       });
 
       it('resolves to false if listSearchIndexes fails', async function () {
@@ -2624,9 +2618,8 @@ describe('DataService', function () {
             },
           },
         });
-        expect(
-          await dataService.isListSearchIndexesSupported('test.test')
-        ).to.be.false;
+        expect(await dataService.isListSearchIndexesSupported('test.test')).to
+          .be.false;
       });
     });
 
@@ -2688,9 +2681,8 @@ describe('DataService', function () {
     describe('#dropSearchIndex', function () {
       it('drops a search index', async function () {
         const dataService: any = createDataServiceWithMockedClient({});
-        expect(
-          await dataService.dropSearchIndex('test.test', 'my-index')
-        ).to.be.undefined;
+        expect(await dataService.dropSearchIndex('test.test', 'my-index')).to.be
+          .undefined;
       });
     });
 

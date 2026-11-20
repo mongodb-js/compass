@@ -13,9 +13,9 @@ export const PrivacySettings: React.FunctionComponent = () => {
   return (
     <div data-testid="privacy-settings">
       <div>
-        To enhance the user experience, Compass can integrate with 3rd party
-        services, which requires external network requests. Please choose from
-        the settings below:
+        To enhance the user experience, you can enable integration with 3rd
+        party services, which requires external network requests. Please choose
+        from the settings below:
       </div>
       <SettingsList fields={privacyFields} />
       <div>

@@ -1,2 +1,3 @@
-import { promises } from 'fs';
+import { promises } from 'node:fs';
+
 export default promises;

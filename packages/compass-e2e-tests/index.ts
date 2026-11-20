@@ -1,8 +1,11 @@
-import path from 'path';
+import util from 'node:util';
+import path from 'node:path';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
 import Mocha from 'mocha';
 import Debug from 'debug';
+// @ts-expect-error no types for this package
+import logRunning from 'why-is-node-running';
 import { context } from './helpers/test-runner-context.ts';
 import {
   abortRunner,
@@ -10,8 +13,6 @@ import {
   mochaGlobalTeardown,
 } from './helpers/test-runner-global-fixtures.ts';
 import { mochaRootHooks } from './helpers/mongo-clients.ts';
-// @ts-expect-error no types for this package
-import logRunning from 'why-is-node-running';
 import {
   E2E_WORKSPACE_PATH,
   MOCHA_REPORTER_PATH,
@@ -168,9 +169,17 @@ process.once('SIGTERM', () => {
   })();
 });
 
+// WebDriver errors reference the whole browser object graph, so inspecting them
+// deeply drowns the message and the frames that actually say what broke
+function formatError(err: unknown): string {
+  return err instanceof Error
+    ? (err.stack ?? err.message)
+    : util.inspect(err, { depth: 2, colors: true });
+}
+
 process.once('uncaughtException', (err: Error) => {
   debug('Uncaught exception:');
-  console.error(err.stack || err.message || err);
+  console.error(formatError(err));
   debug('Waiting for mocha to abort and clean-up ...');
   process.exitCode = 1;
   void cleanupOnInterrupt();
@@ -178,7 +187,7 @@ process.once('uncaughtException', (err: Error) => {
 
 process.on('unhandledRejection', (err: Error) => {
   debug('Unhandled exception:');
-  console.error(err.stack || err.message || err);
+  console.error(formatError(err));
   debug('Waiting for mocha to abort and clean-up ...');
   process.exitCode = 1;
   void cleanupOnInterrupt();

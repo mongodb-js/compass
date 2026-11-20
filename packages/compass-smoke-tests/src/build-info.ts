@@ -4,7 +4,7 @@ import path from 'node:path';
 import createDebug from 'debug';
 import { pick } from 'lodash';
 
-import { generateBuildInfo } from 'hadron-build';
+import { generateBuildInfo } from '@mongodb-js/hadron-build';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContextWithSandbox } from './context';
@@ -18,7 +18,7 @@ export type Channel = (typeof SUPPORTED_CHANNELS)[number];
 
 function assertObjectHasKeys<
   Keys extends readonly string[],
-  Obj extends Record<Keys[number], unknown>
+  Obj extends Record<Keys[number], unknown>,
 >(obj: unknown, name: string, keys: Keys): asserts obj is Obj {
   assert(
     typeof obj === 'object' && obj !== null,

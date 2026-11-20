@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import TypeChecker from 'hadron-type-checker';
-import { toJSString } from 'mongodb-query-parser';
+import TypeChecker from '@mongodb-js/hadron-type-checker';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { css, spacing } from '@mongodb-js/compass-components';
+import type { TypeCastTypes } from '@mongodb-js/hadron-type-checker';
+import type { WizardComponentProps } from '..';
 import MatchGroupForm, { createGroup } from './match-group-form';
 
-import type { WizardComponentProps } from '..';
-import type { TypeCastTypes } from 'hadron-type-checker';
 import type { MatchOperator } from './match-condition-form';
 
 // Types
@@ -31,13 +31,11 @@ export type MatchConditionExpression =
   | { [field: string]: unknown }
   | { [field: string]: { [operator in MatchOperator]: unknown } };
 
-export type MatchGroupExpression =
-  | {
-      [$andOr in LogicalOperator]?: (
-        | MatchConditionExpression
-        | MatchGroupExpression
-      )[];
-    };
+export type MatchGroupExpression = {
+  [$andOr in LogicalOperator]?: (
+    MatchConditionExpression | MatchGroupExpression
+  )[];
+};
 
 export type MatchExpression = MatchConditionExpression | MatchGroupExpression;
 

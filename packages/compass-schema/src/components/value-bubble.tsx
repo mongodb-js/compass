@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { isString } from 'lodash';
-import { hasDistinctValue } from 'mongodb-query-util';
+import { hasDistinctValue } from '@mongodb-js/mongodb-query-util';
 import {
   Body,
   css,
@@ -11,8 +11,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ChangeQueryFn } from '@mongodb-js/compass-query-bar';
 
+import { getBsonType, type BSONTypeTag } from '@mongodb-js/hadron-type-checker';
 import constants from '../constants/schema';
-import { getBsonType, type BSONTypeTag } from 'hadron-type-checker';
 
 const { DECIMAL_128, DOUBLE, LONG, INT_32 } = constants;
 

@@ -9,6 +9,7 @@ import {
   spacing,
   ListEditor,
   useSyncStateOnPropChange,
+  VisuallyHidden,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -169,6 +170,10 @@ function UrlOptionsListEditor({
               </OptionGroup>
             ))}
           </Select>
+          {/* TextInput ignores aria-label and requires a label or aria-labelledby */}
+          <VisuallyHidden id={`url-option-value-label-${index}`}>
+            {uriOption.name ? `${uriOption.name} Value` : 'URL Option Value'}
+          </VisuallyHidden>
           <TextInput
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               event.preventDefault();
@@ -186,9 +191,7 @@ function UrlOptionsListEditor({
             spellCheck={false}
             type={'text'}
             placeholder={'Value'}
-            aria-label={
-              uriOption.name ? `${uriOption.name} Value` : 'URL Option Value'
-            }
+            aria-labelledby={`url-option-value-label-${index}`}
             value={uriOption.value}
             className={valueInputStyles}
           />

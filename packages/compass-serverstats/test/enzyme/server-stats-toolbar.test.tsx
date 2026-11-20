@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import React from 'react';
 import d3 from 'd3';
-import { render, screen } from '@mongodb-js/testing-library-compass';
+import { render, screen, waitFor } from '@mongodb-js/testing-library-compass';
 import realTimeDispatcher from '../../src/d3/real-time-dispatcher';
 import { ServerStatsToolbar } from '../../src/components/server-stats-toolbar';
 
@@ -26,10 +26,12 @@ describe('<ServerStatsToolbar />', function () {
         this.dispatcher.newXValue(this.date);
       });
 
-      it('shows the correct time', function () {
-        expect(screen.getByTestId('server-stats-time').textContent).to.equal(
-          (d3 as any).time.format.utc('%X')(this.date)
-        );
+      it('shows the correct time', async function () {
+        await waitFor(() => {
+          expect(screen.getByTestId('server-stats-time').textContent).to.equal(
+            (d3 as any).time.format.utc('%X')(this.date)
+          );
+        });
       });
     });
   });

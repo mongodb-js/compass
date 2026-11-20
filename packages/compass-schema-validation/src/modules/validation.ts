@@ -1,23 +1,24 @@
-import type { RootAction, SchemaValidationThunkAction } from '.';
-import { type Document, EJSON } from 'bson';
-import { parseFilter } from 'mongodb-query-parser';
-import { stringify as javascriptStringify } from 'javascript-stringify';
+import type { Document } from 'bson';
+import { toJSString, parse, ParseMode } from '@mongodb-js/shell-bson-parser';
 import { openToast } from '@mongodb-js/compass-components';
 import { VALIDATION_TEMPLATE } from '@mongodb-js/mongodb-constants';
 import { isEqual, pick } from 'lodash';
-import { disableEditRules } from './edit-mode';
+import semver from 'semver';
 import { isAction } from '../util';
+import { disableEditRules } from './edit-mode';
 import {
   IS_ZERO_STATE_CHANGED,
   type IsZeroStateChangedAction,
 } from './zero-state';
-import semver from 'semver';
+import type { RootAction, SchemaValidationThunkAction } from '.';
 
 export type ValidationServerAction = 'error' | 'warn' | 'errorAndLog';
 export type ValidationLevel = 'off' | 'moderate' | 'strict' | 'constraint';
 
 export const ValidationActions = {
   ValidatorChanged: 'compass-schema-validation/validation/ValidatorChanged',
+  ValidatorSyntaxChecked:
+    'compass-schema-validation/validation/ValidatorSyntaxChecked',
   ValidationCanceled: 'compass-schema-validation/validation/ValidationCanceled',
   ValidationSaveStarted:
     'compass-schema-validation/validation/ValidationSaveStarted',
@@ -39,6 +40,12 @@ export const ValidationActions = {
 interface ValidatorChangedAction {
   type: typeof ValidationActions.ValidatorChanged;
   validator: string;
+}
+
+interface ValidatorSyntaxCheckedAction {
+  type: typeof ValidationActions.ValidatorSyntaxChecked;
+  validator: string;
+  syntaxError: null | { message: string };
 }
 
 export interface ValidationCanceledAction {
@@ -87,6 +94,7 @@ interface ValidationLevelChangedAction {
 
 export type ValidationAction =
   | ValidatorChangedAction
+  | ValidatorSyntaxCheckedAction
   | ValidationCanceledAction
   | ValidationSaveFailedAction
   | ValidationFetchedAction
@@ -136,12 +144,12 @@ const DEFAULT_VALIDATION: Pick<
 /**
  * Check validator as a simple query.
  */
-export const checkValidator = (
+export const checkValidator = async (
   validator: string
-): {
+): Promise<{
   syntaxError: null | { message: string };
   validator: Record<string, unknown> | string;
-} => {
+}> => {
   const validation: {
     syntaxError: null | { message: string };
     validator: Record<string, unknown> | string;
@@ -153,7 +161,9 @@ export const checkValidator = (
     };
   } else {
     try {
-      validation.validator = parseFilter(validator);
+      validation.validator = await parse(validator, {
+        mode: ParseMode.Loose,
+      });
     } catch (error) {
       validation.syntaxError = error as Error;
     }
@@ -169,11 +179,9 @@ export default function reducer(
   if (
     isAction<ValidatorChangedAction>(action, ValidationActions.ValidatorChanged)
   ) {
-    const checkedValidator = checkValidator(action.validator);
     const newState = {
       ...state,
       validator: action.validator,
-      syntaxError: checkedValidator.syntaxError,
       error: null,
     };
 
@@ -184,6 +192,16 @@ export default function reducer(
         state.prevValidation
       ),
     };
+  }
+
+  if (
+    isAction<ValidatorSyntaxCheckedAction>(
+      action,
+      ValidationActions.ValidatorSyntaxChecked
+    ) &&
+    action.validator === state.validator
+  ) {
+    return { ...state, syntaxError: action.syntaxError };
   }
 
   if (
@@ -266,16 +284,7 @@ export default function reducer(
       ValidationActions.ValidationFetched
     )
   ) {
-    // TODO(COMPASS-4989): EJSON??
-    const checkedValidator = checkValidator(
-      EJSON.stringify(action.validator, undefined, 2)
-    );
-    // TODO(COMPASS-4989): javascriptStringify??
-    const validator = javascriptStringify(
-      checkedValidator.validator,
-      null,
-      2
-    ) as string;
+    const validator = toJSString(action.validator, 2) ?? '{}';
 
     return {
       ...state,
@@ -386,10 +395,17 @@ export const validationLevelChanged = (
 
 export const validatorChanged = (
   validator: string
-): ValidatorChangedAction => ({
-  type: ValidationActions.ValidatorChanged,
-  validator,
-});
+): SchemaValidationThunkAction<Promise<void>> => {
+  return async (dispatch) => {
+    dispatch({ type: ValidationActions.ValidatorChanged, validator });
+    const { syntaxError } = await checkValidator(validator);
+    dispatch({
+      type: ValidationActions.ValidatorSyntaxChecked,
+      validator,
+      syntaxError,
+    });
+  };
+};
 
 export const validationFetched = ({
   validator,
@@ -490,7 +506,7 @@ export const saveValidation = (
   ) => {
     const state = getState();
     const namespace = state.namespace;
-    const checkedValidator = checkValidator(validation.validator);
+    const checkedValidator = await checkValidator(validation.validator);
     const savedValidation = {
       validator: checkedValidator.validator,
       validationAction: validation.validationAction,

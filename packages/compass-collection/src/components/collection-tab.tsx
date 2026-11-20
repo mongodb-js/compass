@@ -1,18 +1,9 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
-import CollectionHeader from './collection-header';
-import toNS from 'mongodb-ns';
+import toNS from '@mongodb-js/mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import {
-  useCollectionQueryBar,
-  useCollectionScopedModals,
-  useCollectionSubTabs,
-} from './collection-tab-provider';
-import type { CollectionTabOptions } from '../stores/collection-tab';
-import { selectHasSchemaAnalysisData } from '../stores/collection-tab';
-import type { CollectionMetadata } from 'mongodb-collection-model';
+import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
@@ -20,21 +11,29 @@ import {
   useConnectionInfoRef,
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
 import {
   useGlobalAppRegistry,
   useLocalAppRegistry,
 } from '@mongodb-js/compass-app-registry';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
-import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../schema-analysis-types';
-import { MAX_COLLECTION_NESTING_DEPTH } from './mock-data-generator-modal/utils';
+import type { CollectionTabOptions } from '../stores/collection-tab';
+import { type CollectionState, selectTab } from '../modules/collection-tab';
+import { isMockDataGeneratorEligible as isMockDataGeneratorEligiblePredicate } from '../mock-data-generator-eligibility';
+import {
+  useCollectionQueryBar,
+  useCollectionScopedModals,
+  useCollectionSubTabs,
+} from './collection-tab-provider';
+import CollectionHeader from './collection-header';
 
-type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
-  ? U extends string
-    ? ReplaceSpacesWithUnderscores<U>
-    : never
-  : never;
+type CollectionSubtabTrackingId =
+  Lowercase<CollectionSubtab> extends infer U
+    ? U extends string
+      ? ReplaceSpacesWithUnderscores<U>
+      : never
+    : never;
 
 type ReplaceSpacesWithUnderscores<S extends string> =
   S extends `${infer Head} ${infer Tail}`
@@ -68,8 +67,6 @@ const collectionModalContainerStyles = css({
 type ConnectionTabConnectedProps = {
   collectionMetadata: CollectionMetadata;
   onTabClick: (tab: CollectionSubtab) => void;
-  hasSchemaAnalysisData: boolean;
-  analyzedSchemaDepth: number;
 };
 
 // TODO(COMPASS-7937): Wrong place for these types and type descriptions
@@ -196,12 +193,9 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   collectionMetadata,
   subTab: currentTab,
   onTabClick,
-  hasSchemaAnalysisData,
-  analyzedSchemaDepth,
 }) => {
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
-  const connectionInfo = useConnectionInfo();
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)
@@ -220,31 +214,21 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   const pluginModals = useCollectionScopedModals();
 
   // Compute Mock Data Generator eligibility
-  const { isReadonly, isTimeSeries, sourceName } = collectionMetadata;
-  const atlasMetadata = connectionInfo.atlasMetadata;
-  const isMockDataGeneratorEligible = Boolean(
-    atlasMetadata && // Only show in Atlas
-      !isReadonly && // Don't show for readonly collections (views)
-      !isTimeSeries && // Don't show for time series collections
-      !sourceName // sourceName indicates it's a view
+  const enableGenAIFeatures = usePreference('enableGenAIFeatures');
+  const enableGenAIFeaturesAtlasOrg = usePreference(
+    'enableGenAIFeaturesAtlasOrg'
   );
-
-  const exceedsMaxNestingDepth =
-    analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
-
-  // True when prerequisites for the Mock Data Generator menu item are met
-  // Independent of experiment variant assignment
-  const isMockDataGeneratorEligibleAndSchemaReady = useMemo(() => {
-    return (
-      isMockDataGeneratorEligible &&
-      hasSchemaAnalysisData &&
-      !exceedsMaxNestingDepth
-    );
-  }, [
-    isMockDataGeneratorEligible,
-    hasSchemaAnalysisData,
-    exceedsMaxNestingDepth,
-  ]);
+  const readOnly = usePreference('readOnly');
+  const enableMockDataGenerator = usePreference('enableMockDataGenerator');
+  const isMockDataGeneratorEligible = isMockDataGeneratorEligiblePredicate(
+    collectionMetadata,
+    {
+      enableGenAIFeatures,
+      enableGenAIFeaturesAtlasOrg,
+      readOnly,
+      enableMockDataGenerator,
+    }
+  );
 
   const pluginProps = {
     ...collectionMetadata,
@@ -255,7 +239,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     query: initialQuery,
     editViewName: editViewName,
     subTab: currentTab,
-    isMockDataGeneratorEligibleAndSchemaReady,
+    isMockDataGeneratorEligible,
   };
 
   const tabs = useCollectionTabs(pluginProps);
@@ -404,15 +388,9 @@ const CollectionTab = ({
 
 const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
-    const analyzedSchemaDepth =
-      state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
-        ? state.schemaAnalysis.schemaMetadata.maxNestingDepth
-        : 0;
     return {
       namespace: state.namespace,
       collectionMetadata: state.metadata,
-      hasSchemaAnalysisData: selectHasSchemaAnalysisData(state),
-      analyzedSchemaDepth,
     };
   },
   {

@@ -1,6 +1,6 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
+import { inspect } from 'node:util';
 import createDebug from 'debug';
-import { inspect } from 'util';
 
 const debug = createDebug('hadron-build:run');
 

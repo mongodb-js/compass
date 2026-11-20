@@ -9,6 +9,7 @@ import {
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import React from 'react';
+import { connect } from 'react-redux';
 import ShardKeyMarkup from '../shard-key-markup';
 import {
   resumeManagedNamespace,
@@ -16,7 +17,6 @@ import {
   type RootState,
   type ShardKey,
 } from '../../store/reducer';
-import { connect } from 'react-redux';
 import ExampleCommandsMarkup from '../example-commands-markup';
 import { ShardZonesTable } from '../shard-zones-table';
 import { bannerBtnStyles } from '../common-styles';

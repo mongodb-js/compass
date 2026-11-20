@@ -1,28 +1,15 @@
 import React from 'react';
-import type { DocumentProps } from './components/document';
-import Document from './components/document';
-import type { DocumentListProps } from './components/document-list';
-import DocumentList from './components/document-list';
-import InsertDocumentDialog from './components/insert-document-dialog';
-import {
-  type EmittedAppRegistryEvents,
-  activateDocumentsPlugin,
-} from './stores/crud-store';
 import {
   connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
   dataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import type {
-  OptionalDataServiceProps,
-  RequiredDataServiceProps,
-} from './utils/data-service';
 import {
   collectionModelLocator,
   mongoDBInstanceLocator,
 } from '@mongodb-js/compass-app-stores/provider';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { preferencesLocator } from 'compass-preferences-model/provider';
+import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import {
   favoriteQueryStorageAccessLocator,
@@ -31,6 +18,19 @@ import {
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import type {
+  OptionalDataServiceProps,
+  RequiredDataServiceProps,
+} from './utils/data-service';
+import {
+  type EmittedAppRegistryEvents,
+  activateDocumentsPlugin,
+} from './stores/crud-store';
+import InsertDocumentDialog from './components/insert-document-dialog';
+import DocumentList from './components/document-list';
+import type { DocumentListProps } from './components/document-list';
+import Document from './components/document';
+import type { DocumentProps } from './components/document';
 import { CrudTabTitle } from './plugin-title';
 
 const CompassDocumentsPluginProvider = registerCompassPlugin(

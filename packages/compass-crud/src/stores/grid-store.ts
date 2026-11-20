@@ -2,8 +2,8 @@
 import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
 import { isEmpty, cloneDeep, forEach } from 'lodash';
-import type { TypeCastTypes } from 'hadron-type-checker';
-import TypeChecker from 'hadron-type-checker';
+import type { TypeCastTypes } from '@mongodb-js/hadron-type-checker';
+import TypeChecker from '@mongodb-js/hadron-type-checker';
 import { BaseRefluxStore } from './base-reflux-store';
 import type { BSONObject } from './crud-store';
 

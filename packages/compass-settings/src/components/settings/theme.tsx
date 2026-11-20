@@ -11,13 +11,16 @@ import {
   RadioBox,
   palette,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../stores';
-import { changeFieldValue } from '../../stores/settings';
 import type {
   PreferenceStateInformation,
   THEMES,
-} from 'compass-preferences-model';
+} from '@mongodb-js/compass-preferences-model';
+import type { RootState } from '../../stores';
+import { changeFieldValue } from '../../stores/settings';
 import { settingStateLabels } from './state-labels';
+import SettingsList from './settings-list';
+
+const shellThemeFields = ['shellFollowsCompassTheme'] as const;
 
 type ThemeSettingsProps = {
   onChange: (field: 'theme', value: THEMES) => void;
@@ -105,7 +108,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
 
   return (
     <div data-testid="theme-settings">
-      <div>Change the appearance of Compass.</div>
+      <div>Change the appearance of the application.</div>
 
       <FormFieldContainer>
         <Checkbox
@@ -157,6 +160,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           </RadioBox>
         </RadioBoxGroup>
       </FormFieldContainer>
+      <SettingsList fields={shellThemeFields} />
     </div>
   );
 };
@@ -170,5 +174,5 @@ const mapDispatch = {
   onChange: changeFieldValue,
 };
 
-export const themeFields = ['theme'] as const;
+export const themeFields = ['theme', ...shellThemeFields] as const;
 export default connect(mapState, mapDispatch)(ThemeSettings);

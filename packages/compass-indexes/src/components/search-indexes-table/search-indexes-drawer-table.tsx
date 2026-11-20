@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import {
   Body,
   css,
@@ -8,9 +8,12 @@ import {
   EmptyContent,
   InlineDefinition,
   Link,
+  nbsp,
   spacing,
 } from '@mongodb-js/compass-components';
 
+import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { isReadyStatus } from '../../utils/fetch-status';
 import { dropSearchIndex } from '../../modules/search-indexes';
 import {
@@ -21,14 +24,10 @@ import {
 import type { SearchIndexType } from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
-import SearchIndexActions from './search-index-actions';
 import type { RootState } from '../../modules';
-import { usePreferences } from 'compass-preferences-model/provider';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { ZeroSearchIndexesGraphic } from '../icons/zero-search-indexes-graphic';
+import SearchIndexActions from './search-index-actions';
 import {
   getIndexFields,
   useSearchIndexesTable,
@@ -37,7 +36,6 @@ import {
   COLUMNS_FOR_DRAWER,
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './search-indexes-columns';
-import { ZeroSearchIndexesGraphic } from '../icons/zero-search-indexes-graphic';
 
 const searchIndexDetailsForDrawerStyles = css({
   display: 'flex',
@@ -46,17 +44,18 @@ const searchIndexDetailsForDrawerStyles = css({
   padding: spacing[200],
 });
 
-function renderNameOverride(name: string): React.ReactNode {
-  if (name.length > 10) {
+export function renderNameOverride(name: string): React.ReactNode {
+  const preserved = nbsp(name);
+  if (preserved.length > 10) {
     return (
-      <InlineDefinition definition={name}>{`${name.slice(
+      <InlineDefinition definition={preserved}>{`${preserved.slice(
         0,
         10
       )}…`}</InlineDefinition>
     );
   }
 
-  return name;
+  return preserved;
 }
 
 function renderTypeOverride(index: SearchIndex): React.ReactNode {
@@ -71,7 +70,7 @@ function renderExpandedContentOverride(
     <Body className={searchIndexDetailsForDrawerStyles}>
       <div>
         <b>Index Name: </b>
-        {index.name}
+        {nbsp(index.name)}
       </div>
       <div>
         <b>Status: </b>
@@ -199,13 +198,11 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     'enableAtlasSearchIndexes',
     'enableIndexesManagement',
   ]);
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     }),
     shallowEqual

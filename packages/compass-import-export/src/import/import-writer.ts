@@ -7,7 +7,7 @@ import type {
   BulkWriteResult,
   MongoServerError,
 } from 'mongodb';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type { ErrorJSON } from '../import/import-types';
 
 import { createDebug } from '../utils/logger';
@@ -120,11 +120,9 @@ export class ImportWriter {
     try {
       bulkWriteResult = await this.dataService.bulkWrite(
         this.ns,
-        documents.map(
-          (document: any): AnyBulkWriteOperation<Document> => ({
-            insertOne: { document },
-          })
-        ),
+        documents.map((document: any): AnyBulkWriteOperation<Document> => ({
+          insertOne: { document },
+        })),
         {
           ordered: this.stopOnErrors,
           checkKeys: false,

@@ -1,13 +1,14 @@
-import schemaFixture from '../../test/fixtures/array_of_docs.fixture.json';
-import type { activatePlugin } from './store';
 import { expect } from 'chai';
-import { schemaFieldsToAutocompleteItems } from '../modules/fields';
 import {
   createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
+import { schemaFieldsToAutocompleteItems } from '../modules/fields';
+import type { SchemaFieldSubset } from '../modules/fields';
+import schemaFixture from '../../test/fixtures/array_of_docs.fixture.json';
 import FieldStorePlugin from '..';
 import { documentsUpdated, schemaUpdated } from '../modules';
+import type { activatePlugin } from './store';
 
 describe('FieldStore', function () {
   let store: ReturnType<typeof activatePlugin>['store'];
@@ -60,6 +61,39 @@ describe('FieldStore', function () {
       expect(store.getState()).to.have.keys(['1234']);
       connectionsStore.actions.disconnect('1234');
       expect(Object.keys(store.getState())).to.be.of.length(0);
+    });
+  });
+
+  context('when a document has a field named __proto__', function () {
+    // JSON.parse creates an own "__proto__" key, an object literal would not
+    const doc = JSON.parse('{"__proto__": 1, "name": "Compass"}');
+
+    afterEach(function () {
+      for (const key of ['name', 'path', 'count', 'type']) {
+        delete (Object.prototype as Record<string, unknown>)[key];
+      }
+    });
+
+    it('does not pollute Object.prototype', async function () {
+      await updateFieldsFromDocuments('test.test', [doc]);
+      // eslint-disable-next-line @mongodb-js/devtools/no-plain-object-records
+      const plain: Record<string, unknown> = {};
+      expect(plain.name).to.equal(undefined);
+      expect(plain.path).to.equal(undefined);
+      expect(plain.count).to.equal(undefined);
+      expect(plain.type).to.equal(undefined);
+    });
+
+    it('keeps the __proto__ field', async function () {
+      await updateFieldsFromDocuments('test.test', [doc]);
+      const state = store.getState()[connectionInfo.id]['test.test'];
+      expect(Object.keys(state.fields)).to.have.all.members([
+        '__proto__',
+        'name',
+      ]);
+      expect(
+        schemaFieldsToAutocompleteItems(state.fields).map(({ name }) => name)
+      ).to.have.all.members(['__proto__', 'name']);
     });
   });
 
@@ -164,6 +198,72 @@ describe('FieldStore', function () {
           description: 'Boolean',
         },
       ]);
+    });
+
+    describe('autocomplete descriptions', function () {
+      const getDescriptions = (types: SchemaFieldSubset['type'][]) => {
+        const fields = Object.assign(
+          Object.create(null) as Record<string, SchemaFieldSubset>,
+          Object.fromEntries(
+            types.map((type, i) => [
+              `f${i}`,
+              { name: `f${i}`, path: [`f${i}`], count: 1, type },
+            ])
+          )
+        );
+        return schemaFieldsToAutocompleteItems(fields).map(
+          (item) => item.description
+        );
+      };
+
+      it('does not change regular type names', function () {
+        expect(
+          getDescriptions(['String', ['Number', 'Undefined'], 'ObjectId'])
+        ).to.deep.equal(['String', 'Number | Undefined', 'ObjectId']);
+      });
+
+      it('escapes markup in a type', function () {
+        expect(
+          getDescriptions(['<img src=x onerror="alert(1)">', '<b>x</b>'])
+        ).to.deep.equal([
+          '&lt;img src=x onerror=&quot;alert(1)&quot;&gt;',
+          '&lt;b&gt;x&lt;/b&gt;',
+        ]);
+      });
+
+      it('escapes every special character', function () {
+        expect(getDescriptions([`&<>"'`])).to.deep.equal([
+          '&amp;&lt;&gt;&quot;&#39;',
+        ]);
+      });
+
+      it('escapes markup in a list of types', function () {
+        expect(getDescriptions([['Number', '<b>x</b>']])).to.deep.equal([
+          'Number | &lt;b&gt;x&lt;/b&gt;',
+        ]);
+      });
+
+      it('escapes markup in a list of types and removes duplicates', function () {
+        expect(
+          getDescriptions([['<b>x</b>', 'Number', '<b>x</b>']])
+        ).to.deep.equal(['&lt;b&gt;x&lt;/b&gt; | Number']);
+      });
+
+      it('does not render a user-defined _bsontype value as a type', async function () {
+        await updateFieldsFromDocuments('test.test', [
+          { a: { _bsontype: '<img src=x onerror="alert(1)">' } },
+        ]);
+        const state = store.getState()[connectionInfo.id]['test.test'];
+        expect(
+          schemaFieldsToAutocompleteItems(state.fields).map((item) => [
+            item.name,
+            item.description,
+          ])
+        ).to.deep.equal([
+          ['a', 'Document'],
+          ['a._bsontype', 'String'],
+        ]);
+      });
     });
 
     it('samples many documents', async function () {

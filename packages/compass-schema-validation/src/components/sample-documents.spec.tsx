@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { SampleDocuments } from './sample-documents';
 import { Provider } from 'react-redux';
 import { configureStore } from '../stores/store';
 import { INITIAL_STATE } from '../modules';
+import { SampleDocuments } from './sample-documents';
 
 describe('SampleDocuments [Component]', function () {
   it('initial state : renders the CTA', function () {

@@ -1,25 +1,31 @@
 import React from 'react';
 import thunk from 'redux-thunk';
-import { HistoryStorage } from './modules/history-storage';
 import { type Logger } from '@mongodb-js/compass-logging/provider';
 import type {
   ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import TabShell from './components/compass-shell/tab-compass-shell';
 import { applyMiddleware, createStore } from 'redux';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import {
+  Themes,
+  ThemeProvider,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import reducer, {
   createAndStoreRuntime,
   createRuntime,
   destroyCurrentRuntime,
   loadHistory,
 } from './stores/store';
-import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import { Themes, ThemeProvider } from '@mongodb-js/compass-components';
+import TabShell from './components/compass-shell/tab-compass-shell';
+import { HistoryStorage } from './modules/history-storage';
 
-const SHELL_THEME = { theme: Themes.Dark, enabled: true };
+const DARK_SHELL_THEME = { theme: Themes.Dark, enabled: true };
+const LIGHT_SHELL_THEME = { theme: Themes.Light, enabled: true };
 
 type ShellPluginProps = {
   runtimeId?: string;
@@ -28,8 +34,11 @@ type ShellPluginProps = {
 };
 
 export function ShellPlugin(props: ShellPluginProps) {
+  const followsCompassTheme = usePreference('shellFollowsCompassTheme');
+  const compassDarkMode = useDarkMode();
+  const isLightTheme = followsCompassTheme && !compassDarkMode;
   return (
-    <ThemeProvider theme={SHELL_THEME}>
+    <ThemeProvider theme={isLightTheme ? LIGHT_SHELL_THEME : DARK_SHELL_THEME}>
       <TabShell {...props} />
     </ThemeProvider>
   );
@@ -60,14 +69,14 @@ export function onActivated(
     reducer,
     {
       runtimeId: preferences.getPreferences().enableShell
-        ? initialProps.runtimeId ??
+        ? (initialProps.runtimeId ??
           createAndStoreRuntime(
             dataService,
             logger,
             track,
             connectionInfo,
             deviceId
-          ).id
+          ).id)
         : null,
       history: null,
     },

@@ -1,5 +1,7 @@
 import { expect } from 'chai';
-import { stringify as javascriptStringify } from 'javascript-stringify';
+import { Binary, UUID } from 'bson';
+import { toJSString } from '@mongodb-js/shell-bson-parser';
+import { configureStore } from '../stores/store';
 
 import reducer, {
   checkValidator,
@@ -10,15 +12,23 @@ import reducer, {
   validationSaveFailed,
 } from './validation';
 
+const services = {} as Parameters<typeof configureStore>[1];
+const createStore = () => configureStore({}, services);
+
 describe('validation module', function () {
   describe('#checkValidator', function () {
-    it('returns parsed JS validation query and error information', function () {
+    it('returns parsed JS validation query and error information', async function () {
       expect(
-        checkValidator("{ $jsonSchema: { bsonType: 'object' } }")
+        await checkValidator("{ $jsonSchema: { bsonType: 'object' } }")
       ).to.deep.equal({
         syntaxError: null,
         validator: { $jsonSchema: { bsonType: 'object' } },
       });
+    });
+
+    it('returns a syntax error for invalid input', async function () {
+      const { syntaxError } = await checkValidator('{ $jsonSchema: ');
+      expect(syntaxError).to.not.equal(null);
     });
   });
 
@@ -62,22 +72,22 @@ describe('validation module', function () {
     });
 
     context('when the action is validatorChanged', function () {
-      it('returns the new state for the simple object', function () {
-        const validation = reducer(
-          undefined,
+      it('returns the new state for the simple object', async function () {
+        const store = createStore();
+        await store.dispatch(
           validatorChanged(`{
           $jsonSchema: { bsonType: 'object', required: [ 'name' ] }
         }`)
         );
 
-        expect(validation.validator).to.equal(`{
+        expect(store.getState().validation.validator).to.equal(`{
           $jsonSchema: { bsonType: 'object', required: [ 'name' ] }
         }`);
       });
 
-      it('returns the new state for the object with regex', function () {
-        const validation = reducer(
-          undefined,
+      it('returns the new state for the object with regex', async function () {
+        const store = createStore();
+        await store.dispatch(
           validatorChanged(`{
           'name': 'test',
           'options': {
@@ -95,7 +105,7 @@ describe('validation module', function () {
         }`)
         );
 
-        expect(validation.validator).to.equal(`{
+        expect(store.getState().validation.validator).to.equal(`{
           'name': 'test',
           'options': {
             'validator': {
@@ -123,12 +133,7 @@ describe('validation module', function () {
             validationLevel: 'off',
           })
         );
-        const checkedValidator = checkValidator('{ name: { $exists: true } }');
-        const validator = javascriptStringify(
-          checkedValidator.validator,
-          null,
-          2
-        );
+        const validator = toJSString({ name: { $exists: true } }, 2);
 
         expect(validation).to.deep.equal({
           isChanged: false,
@@ -144,6 +149,63 @@ describe('validation module', function () {
           syntaxError: null,
           error: null,
         });
+      });
+
+      it('preserves BSON types so that the validator stays queryable (COMPASS-4989)', async function () {
+        const keyId = new UUID(
+          '48b481f0-31c7-4b2d-81d4-987ac69262a9'
+        ).toBinary();
+        const encrypt = {
+          encrypt: {
+            keyId: [keyId],
+            algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic',
+          },
+        };
+        const validation = reducer(
+          undefined,
+          validationFetched({
+            validator: {
+              $jsonSchema: {
+                bsonType: 'object',
+                properties: {
+                  some_item_needing_encryption: encrypt,
+                  anArrayNeedingEncyrptionInside: {
+                    bsonType: 'array',
+                    items: {
+                      bsonType: 'object',
+                      properties: { encryptId: encrypt },
+                    },
+                  },
+                },
+              },
+            },
+            validationAction: 'error',
+            validationLevel: 'strict',
+          })
+        );
+
+        expect(validation.validator).to.include(
+          "UUID('48b481f0-31c7-4b2d-81d4-987ac69262a9')"
+        );
+        expect(validation.validator).to.not.include('$binary');
+
+        const { syntaxError, validator } = await checkValidator(
+          validation.validator
+        );
+        expect(syntaxError).to.equal(null);
+
+        const properties = (validator as any).$jsonSchema.properties;
+        for (const parsedKeyId of [
+          properties.some_item_needing_encryption.encrypt.keyId[0],
+          properties.anArrayNeedingEncyrptionInside.items.properties.encryptId
+            .encrypt.keyId[0],
+        ]) {
+          expect(parsedKeyId).to.be.instanceOf(Binary);
+          expect(parsedKeyId.sub_type).to.equal(Binary.SUBTYPE_UUID);
+          expect(parsedKeyId.toString('base64')).to.equal(
+            keyId.toString('base64')
+          );
+        }
       });
     });
 

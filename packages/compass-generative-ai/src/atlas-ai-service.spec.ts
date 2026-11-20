@@ -1,12 +1,12 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { AtlasAiService, type GenerativeAiInput } from './atlas-ai-service';
-import { AtlasAiServiceApiResponseParseError } from './atlas-ai-errors';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ObjectId } from 'mongodb';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import { AtlasAiServiceApiResponseParseError } from './atlas-ai-errors';
+import { AtlasAiService, type GenerativeAiInput } from './atlas-ai-service';
 
 const ATLAS_USER = {
   firstName: 'John',
@@ -158,6 +158,8 @@ describe('AtlasAiService', function () {
                 type: 'response.created',
                 response: {
                   id: responseId,
+                  created_at: 0,
+                  model: 'gpt-test',
                   object: 'realtime.response',
                   status: 'in_progress',
                   output: [],
@@ -288,9 +290,8 @@ describe('AtlasAiService', function () {
             );
           global.fetch = fetchStub;
 
-          const result = await atlasAiService.getMockDataSchema(
-            mockSchemaInput
-          );
+          const result =
+            await atlasAiService.getMockDataSchema(mockSchemaInput);
 
           expect(fetchStub).to.have.been.calledOnce;
           expect(result).to.deep.equal(mockToolOutput);
@@ -503,6 +504,8 @@ describe('AtlasAiService', function () {
                 type: 'response.created',
                 response: {
                   id: responseId,
+                  created_at: 0,
+                  model: 'gpt-test',
                   object: 'realtime.response',
                   status: 'in_progress',
                   output: [],
@@ -613,6 +616,8 @@ describe('AtlasAiService', function () {
             type: 'response.created',
             response: {
               id: responseId,
+              created_at: 0,
+              model: 'gpt-test',
               object: 'realtime.response',
               status: 'in_progress',
               output: [],

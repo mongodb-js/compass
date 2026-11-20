@@ -1,4 +1,4 @@
-import v8 from 'v8';
+import v8 from 'node:v8';
 
 type SerializedError = { $$error: Error & { statusCode?: number } };
 

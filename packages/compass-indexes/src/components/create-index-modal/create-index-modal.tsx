@@ -7,6 +7,12 @@ import {
   ModalBody,
 } from '@mongodb-js/compass-components';
 import {
+  useTrackOnChange,
+  type TrackFunction,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
   fieldAdded,
   fieldRemoved,
   fieldTypeUpdated,
@@ -18,12 +24,6 @@ import {
 import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import type { RootState } from '../../modules';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -47,7 +47,7 @@ function CreateIndexModal({
   const track = useTelemetry();
 
   const onSetOpen = useCallback(
-    (open) => {
+    (open: boolean) => {
       if (!open) {
         onCancelCreateIndexClick();
         track('Create Index Modal Closed', {

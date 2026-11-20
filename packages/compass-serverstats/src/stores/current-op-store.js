@@ -1,9 +1,9 @@
 'use strict';
 const Reflux = require('reflux');
-const Actions = require('../actions');
-const toNS = require('mongodb-ns');
+const toNS = require('@mongodb-js/mongodb-ns');
 const { round } = require('lodash');
 const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
+const Actions = require('../actions');
 
 /* eslint complexity:0 */
 
@@ -12,7 +12,7 @@ const debug = require('debug')('mongodb-compass:server-stats:current-op-store');
  * 'currentOpComplete' action, fetches the current op data, and
  * triggers with the result of the command.
  *
- * @type {Reflux.Store & {onActivated(ds: import('mongodb-data-service').DataService)}}
+ * @type {Reflux.Store & {onActivated(ds: import('@mongodb-js/mongodb-data-service').DataService)}}
  */
 const CurrentOpStore = Reflux.createStore({
   /**

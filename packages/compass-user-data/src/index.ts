@@ -1,8 +1,14 @@
-export type { ReadAllResult, UserDataType } from './user-data';
+export type {
+  ReadAllResult,
+  UserDataType,
+  AtlasServiceLike,
+} from './user-data';
 export {
   IUserData,
   FileUserData,
   AtlasUserData,
   assertsUserDataType,
+  isUserScopedUserDataType,
 } from './user-data';
 export { z } from 'zod';
+export { getStoragePath } from './storage-path';

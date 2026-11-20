@@ -10,8 +10,8 @@ import {
   spacing,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import {
-  useSearchActivationProgramP1,
   useSearchActivationProgramP2,
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
@@ -25,6 +25,7 @@ import {
   type SearchExtensionType,
 } from '../utils/search-stage-errors';
 import RateLimitExceededBanner from './rate-limit-exceeded-banner';
+
 const bannerButtonStyles = css({
   flexShrink: 0,
   whiteSpace: 'nowrap',
@@ -65,7 +66,7 @@ export default function ServerErrorBanner({
   stageValue,
   onCloseFocusMode,
 }: ServerErrorBannerProps) {
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
     trackIsInSample: false,
   });
@@ -103,8 +104,10 @@ export default function ServerErrorBanner({
     );
   }
 
+  // Do not show this link for Phase 2, show the Debug button instead.
   const showEditSearchIndexLink =
-    enableSearchActivationProgramP1 &&
+    enableAtlasSearchIndexes &&
+    !enableSearchActivationProgramP2 &&
     !!searchIndexName &&
     isSearchIndexDefinitionError(message) &&
     !!onEditSearchIndexClick;
