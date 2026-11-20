@@ -83,8 +83,8 @@
     "react-refresh": "^0.10.0",
     "source-map-loader": "^5.0.0",
     "style-loader": "^4.0.0",
-    "webpack": "^5.112.2",
-    "webpack-bundle-analyzer": "^5.4.2",
+    "webpack": "^5.113.0",
+    "webpack-bundle-analyzer": "^5.4.3",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.2",
     "webpack-merge": "^6.0.1"
