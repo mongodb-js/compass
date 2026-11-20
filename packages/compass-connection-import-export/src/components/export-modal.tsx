@@ -1,16 +1,19 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 import {
   Banner,
   Checkbox,
   css,
   FormFieldContainer,
+  FolderIcon,
   FormModal,
   openToast,
   SelectList,
+  SelectListWithGroups,
   ToastBody,
 } from '@mongodb-js/compass-components';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useFolders } from '@mongodb-js/compass-connections/provider';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export-connections';
@@ -18,13 +21,13 @@ import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
 
 const tableStyles = css({
-  maxHeight: '24vh',
+  maxHeight: '50vh',
   overflow: 'auto',
 });
 
 const SelectListLabel = {
   displayLabelKey: 'name',
-  name: 'Connection Name',
+  name: 'Folder & connection Name',
 } as const;
 
 export function ExportConnectionsModal({
@@ -91,6 +94,38 @@ export function ExportConnectionsModal({
     trackingProps,
   });
 
+  const enableConnectionFolders = usePreference('enableConnectionFolders');
+  const { folders, folderAssignments } = useFolders();
+  const groups = useMemo(() => {
+    if (!enableConnectionFolders || folders.length === 0) {
+      return null;
+    }
+    // Same order as the sidebar.
+    const sortedFolders = folders
+      .slice()
+      .sort((a, b) =>
+        a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
+      );
+    const folderIds = new Set(folders.map((folder) => folder.id));
+    return [
+      ...sortedFolders.map((folder) => ({
+        id: folder.id,
+        name: folder.name,
+        icon: <FolderIcon />,
+        items: connectionList.filter(
+          (item) => folderAssignments[item.id] === folder.id
+        ),
+      })),
+      {
+        id: 'uncategorized',
+        name: 'Uncategorized',
+        items: connectionList.filter(
+          (item) => !folderIds.has(folderAssignments[item.id])
+        ),
+      },
+    ].filter((group) => group.items.length > 0);
+  }, [enableConnectionFolders, folders, folderAssignments, connectionList]);
+
   return (
     <FormModal
       open={open}
@@ -106,13 +141,23 @@ export function ExportConnectionsModal({
       }
       data-testid="connection-export-modal"
     >
-      <SelectList
-        className={tableStyles}
-        items={connectionList}
-        label={SelectListLabel}
-        disabled={inProgress}
-        onChange={onChangeConnectionList}
-      />
+      {groups ? (
+        <SelectListWithGroups
+          className={tableStyles}
+          groups={groups}
+          label={SelectListLabel}
+          disabled={inProgress}
+          onChange={onChangeConnectionList}
+        />
+      ) : (
+        <SelectList
+          className={tableStyles}
+          items={connectionList}
+          label={SelectListLabel}
+          disabled={inProgress}
+          onChange={onChangeConnectionList}
+        />
+      )}
       <FormFieldContainer>
         <FileInput
           label="Target File"

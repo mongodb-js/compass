@@ -66,10 +66,10 @@ describe('SelectListWithGroups', function () {
     expect(screen.getByLabelText('B')).to.be.visible;
     expect(
       screen.getByTestId('select-list-group-g1-count').textContent
-    ).to.equal('1/2');
+    ).to.equal('1 / 2');
     expect(
       screen.getByTestId('select-list-group-g2-count').textContent
-    ).to.equal('1/1');
+    ).to.equal('1 / 1');
   });
 
   it('reflects selection state on the all and group checkboxes', function () {

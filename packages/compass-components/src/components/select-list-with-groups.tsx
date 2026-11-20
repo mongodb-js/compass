@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
+import { useDarkMode } from '../hooks/use-theme';
 import { Checkbox } from './leafygreen';
 import {
   checkboxStyles,
@@ -9,28 +10,62 @@ import {
   containerStyles,
   listHeaderStyles,
   listBodyStyles,
-  listItemStyles,
   selectAllLabelStyles,
 } from './select-list';
 import type { SelectItem } from './select-list';
 
+const groupsStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[300] + spacing[100],
+  paddingTop: spacing[200],
+});
+
+const groupStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  border: `1px solid ${palette.gray.light2}`,
+  borderRadius: spacing[200],
+  overflow: 'hidden',
+  flexShrink: 0,
+});
+const groupStylesDark = css({ borderColor: palette.gray.dark2 });
+
 const groupHeaderStyles = css({
   display: 'flex',
   alignItems: 'center',
-  fontWeight: 600,
-  padding: `${spacing[100]}px 0px`,
+  // Matches the LG checkbox-to-label gap.
+  gap: spacing[200],
+  padding: `${spacing[200]}px ${spacing[300]}px`,
+  fontWeight: 700,
+  backgroundColor: palette.gray.light3,
+});
+const groupHeaderStylesDark = css({ backgroundColor: palette.gray.dark3 });
+
+const groupNameStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+  flex: 1,
 });
 
 const groupCountStyles = css({
-  marginLeft: 'auto',
-  paddingRight: spacing[200],
-  fontWeight: 400,
+  fontSize: 11,
+  fontWeight: 600,
   color: palette.gray.dark1,
 });
+
+const groupItemStyles = css({
+  padding: `${spacing[200]}px ${spacing[300]}px`,
+  paddingLeft: spacing[300] + spacing[600],
+  borderTop: `1px solid ${palette.gray.light2}`,
+});
+const groupItemStylesDark = css({ borderColor: palette.gray.dark2 });
 
 export type SelectGroup<T extends SelectItem> = {
   id: string;
   name: string | JSX.Element;
+  icon?: React.ReactNode;
   items: T[];
 };
 
@@ -60,6 +95,7 @@ export function SelectListWithGroups<T extends SelectItem>(
   props: SelectListWithGroupsProps<T>
 ): React.ReactElement {
   const { groups, label, disabled, onChange } = props;
+  const isDarkMode = useDarkMode();
 
   const items = groups.flatMap((group) => group.items);
   const allState = selectionState(items);
@@ -90,7 +126,7 @@ export function SelectListWithGroups<T extends SelectItem>(
         />
         <div className={selectAllLabelStyles}>{label.name}</div>
       </div>
-      <div className={listBodyStyles}>
+      <div className={cx(listBodyStyles, groupsStyles)}>
         {groups.map((group) => {
           const groupState = selectionState(group.items);
           const groupItemIds = new Set(group.items.map((item) => item.id));
@@ -101,10 +137,15 @@ export function SelectListWithGroups<T extends SelectItem>(
             <div
               key={`select-list-group-${group.id}`}
               data-testid={`select-list-group-${group.id}`}
+              className={cx(groupStyles, isDarkMode && groupStylesDark)}
             >
-              <div className={groupHeaderStyles}>
+              <div
+                className={cx(
+                  groupHeaderStyles,
+                  isDarkMode && groupHeaderStylesDark
+                )}
+              >
                 <Checkbox
-                  className={cx(checkboxStyles, checkboxSelectAllStyles)}
                   id={`select-list-group-${group.id}`}
                   data-testid={`select-list-group-${group.id}-checkbox`}
                   aria-label={
@@ -122,22 +163,27 @@ export function SelectListWithGroups<T extends SelectItem>(
                   indeterminate={groupState.indeterminate}
                   disabled={disabled || groupState.allDisabled}
                 />
-                <div className={selectAllLabelStyles}>{group.name}</div>
+                <div className={groupNameStyles}>
+                  {group.icon}
+                  {group.name}
+                </div>
                 <div
                   className={groupCountStyles}
                   data-testid={`select-list-group-${group.id}-count`}
                 >
-                  {selectedCount}/{group.items.length}
+                  {selectedCount} / {group.items.length}
                 </div>
               </div>
               {group.items.map((item) => (
                 <div
-                  className={listItemStyles}
+                  className={cx(
+                    groupItemStyles,
+                    isDarkMode && groupItemStylesDark
+                  )}
                   key={`select-list-item-${item.id}`}
                   data-testid={`select-list-item-${item.id}`}
                 >
                   <Checkbox
-                    className={checkboxStyles}
                     id={`select-${item.id}`}
                     name={`select-${item.id}`}
                     data-testid={`select-${item.id}`}
