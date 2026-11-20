@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { type MapStateToProps, connect } from 'react-redux';
 import {
   ConnectionStatus,
@@ -166,20 +166,19 @@ export function MultipleConnectionSidebar({
     setCsfleModalConnectionId(undefined);
   }, []);
 
-  // A hidden folder id whose folder is gone keeps the filter active with
-  // nothing hidden, so the filter never holds ids the folder list does not.
-  useEffect(() => {
-    setConnectionsFilter((filter) => {
-      if (!filter.hiddenFolderIds?.length) {
-        return filter;
-      }
-      const folderIds = new Set(folders.map(({ id }) => id));
-      const pruned = filter.hiddenFolderIds.filter((id) => folderIds.has(id));
-      return pruned.length === filter.hiddenFolderIds.length
-        ? filter
-        : { ...filter, hiddenFolderIds: pruned };
-    });
-  }, [folders]);
+  // A deleted folder's id shouldn't linger and keep the filter active hiding nothing.
+  const effectiveConnectionsFilter = useMemo<ConnectionsFilter>(() => {
+    if (!connectionsFilter.hiddenFolderIds?.length) {
+      return connectionsFilter;
+    }
+    const folderIds = new Set(folders.map(({ id }) => id));
+    const hiddenFolderIds = connectionsFilter.hiddenFolderIds.filter((id) =>
+      folderIds.has(id)
+    );
+    return hiddenFolderIds.length === connectionsFilter.hiddenFolderIds.length
+      ? connectionsFilter
+      : { ...connectionsFilter, hiddenFolderIds };
+  }, [connectionsFilter, folders]);
 
   const onCsfleChanged = useCallback(
     (isEnabled: boolean) => {
@@ -204,7 +203,7 @@ export function MultipleConnectionSidebar({
         <ConnectionsNavigation
           connectionsWithStatus={connectionsWithStatus}
           activeWorkspace={activeWorkspace}
-          filter={connectionsFilter}
+          filter={effectiveConnectionsFilter}
           onFilterChange={setConnectionsFilter}
           onConnect={(connectionInfo) => {
             void connect(connectionInfo);

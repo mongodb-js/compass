@@ -49,8 +49,7 @@ const isConnectionInactive = (connection: SidebarConnection): boolean =>
   connection.connectionStatus !== 'connected' &&
   connection.connectionStatus !== 'connecting';
 
-/** `includeAll` keeps the connection even when nothing about it matches, which
- * is what a folder matching by name needs: it shows all of its connections. */
+/** `includeAll` keeps a connection with no match of its own — what a folder matched by name needs. */
 const filterConnection = (
   connection: SidebarConnection,
   regex: RegExp | null,
@@ -137,8 +136,7 @@ const filterConnections = (
       .map((connection) => filterConnection(connection, regex, nameMatches))
       .filter((connection): connection is FilteredConnection => !!connection);
 
-    // Empty folders only hide while a narrowing filter is on, so a folder the
-    // user just created stays visible.
+    // Empty folders hide only under a narrowing filter, so a newly created one stays visible.
     if (
       !nameMatches &&
       !connectionsToShow.length &&
@@ -150,10 +148,7 @@ const filterConnections = (
     filteredFolders.push(folder);
     filteredConnections.push(...connectionsToShow);
 
-    // Matches connections and databases: only a child match opens the parent,
-    // a folder that matched by its own name stays closed. A connection can be
-    // the match through its own children, so its subtree counts too. Expanded
-    // during search only; the user's own state returns when cleared.
+    // Mirrors connections/databases: a name match on the folder itself doesn't expand it, only a match in its subtree does.
     if (
       regex &&
       !nameMatches &&
@@ -580,30 +575,22 @@ export type ConnectionsFilter = {
   /** The search text as typed; compiled to a regex for the tree. */
   search: string;
   excludeInactive: boolean;
-  /**
-   * Folder ids hidden from the tree. Folders that are not listed stay visible,
-   * so a folder created while a filter is set shows up by default. The filter
-   * only changes what is displayed, never which folder a connection belongs to.
-   */
+  /** Folder ids hidden from the tree; a folder not listed stays visible, so a new one defaults to shown. */
   hiddenFolderIds?: string[];
   hideUncategorizedConnections?: boolean;
 };
 
-/** The one default for the filter: the store starts with it and Reset returns
- * to it, so the two can not diverge. */
+/** The one default for the filter: the store starts with it, Reset returns to it. */
 export const INITIAL_CONNECTIONS_FILTER: ConnectionsFilter = {
   search: '',
   excludeInactive: false,
 };
 
-// A search that can not match anything — unparseable as a regex, or holding
-// a character below — leaves the tree to its empty state.
 const NEVER_MATCHING_REGEX = /(?!)/;
 
-// Windows-reserved characters — rejected in folder names, forbidden in
-// database names — can not be in what the tree shows, so a search holding
-// one matches nothing. The regex escape stays legal, for dot-notation searches.
-const RESTRICTED_CHARACTERS_REGEX = /[/<>:"|?*]/;
+// Windows-reserved characters, excluding `| ? *` since those are regex
+// operators searches rely on (e.g. `Work|Personal`), not literal characters.
+const RESTRICTED_CHARACTERS_REGEX = /[/<>:"]/;
 
 function createRegExp(search: string): RegExp | null {
   try {
@@ -685,16 +672,20 @@ export const useFilteredConnections = ({
   // connections change often, but the effect only uses connections if the filter is active
   // so we use this conditional dependency to avoid too many calls
   const connectionsWhenFiltering = isFilterActive && connections;
+  // A folder-only change filters by assignment, not by collection, so it shouldn't pay to fetch every one.
+  const shouldFetchCollections = !!filter.search || filter.excludeInactive;
   useEffect(() => {
     if (!isFilterActive) {
       dispatch({ type: CLEAR_FILTER });
     } else if (connectionsWhenFiltering) {
       // the above check is extra just to please TS
 
-      // When filtering, emit an event so that we can fetch all collections. This
-      // is required as a workaround for the synchronous nature of the current
-      // filtering feature
-      fetchAllCollections();
+      if (shouldFetchCollections) {
+        // When filtering, emit an event so that we can fetch all collections. This
+        // is required as a workaround for the synchronous nature of the current
+        // filtering feature
+        fetchAllCollections();
+      }
 
       dispatch({
         type: FILTER_CONNECTIONS,
@@ -709,6 +700,7 @@ export const useFilteredConnections = ({
     }
   }, [
     isFilterActive,
+    shouldFetchCollections,
     filter.search,
     filter.excludeInactive,
     hiddenFolderIds,
@@ -757,8 +749,6 @@ export const useFilteredConnections = ({
     []
   );
 
-  // While a filter is active the tree only gets the folders that survived it;
-  // otherwise it gets the full list.
   const foldersToRender = filteredFolders ?? folders;
 
   const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =

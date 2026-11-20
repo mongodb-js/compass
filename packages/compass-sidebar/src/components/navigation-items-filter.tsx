@@ -18,8 +18,7 @@ import ConnectionsFilterPopover from './connections-filter-popover';
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  // Matches the connections container's gap, so the caption keeps its spacing
-  // whether or not it is rendered.
+  // Matches the connections container's gap, so spacing holds whether or not the caption renders.
   gap: spacing[200],
 });
 

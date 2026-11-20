@@ -157,6 +157,7 @@ describe('useFilteredConnections', function () {
   let mockSidebarConnections: SidebarConnection[];
   beforeEach(function () {
     mockSidebarConnections = _.cloneDeep(sidebarConnections);
+    fetchAllCollectionsStub.resetHistory();
   });
 
   context('when not filtering', function () {
@@ -1156,8 +1157,7 @@ describe('useFilteredConnections', function () {
           expect(result.current.filteredFolders).to.deep.equal([
             folderPersonal,
           ]);
-          // The filed connection is hidden with its folder; the uncategorized
-          // ones stay, since the filter never changes membership.
+          // Uncategorized connections stay; the filter never changes membership.
           expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[1],
             sidebarConnections[2],
@@ -1179,6 +1179,33 @@ describe('useFilteredConnections', function () {
           ]);
         });
       });
+
+      it('should not fetch collections for a folder-only filter change', async function () {
+        const { result } = renderWithFolders({
+          search: '',
+          excludeInactive: false,
+          hiddenFolderIds: [folderWork.id],
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredFolders).to.deep.equal([
+            folderPersonal,
+          ]);
+        });
+        expect(fetchAllCollectionsStub).not.to.have.been.called;
+      });
+
+      it('should fetch collections for a name search', async function () {
+        const { result } = renderWithFolders({
+          search: 'work',
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
+        });
+        expect(fetchAllCollectionsStub).to.have.been.called;
+      });
     });
 
     context('when the active-only filter is on', function () {
@@ -1189,7 +1216,6 @@ describe('useFilteredConnections', function () {
         });
 
         await waitFor(() => {
-          // The empty folder hides; the one holding an active connection stays.
           expect(result.current.filteredFolders).to.deep.equal([folderWork]);
           expect(result.current.filteredConnections).to.deep.equal([
             sidebarConnections[0],

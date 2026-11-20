@@ -1068,9 +1068,6 @@ describe('Multiple Connections Sidebar Component', function () {
       const { connectionsStore } = await renderWithFolders(true);
       await waitFor(() => screen.getByText('Work'));
 
-      // Hide the only folder there is, then delete it through the store, as
-      // another surface would: the tree row is gone, but the id lingers in
-      // the filter.
       userEvent.click(screen.getByLabelText('Filter connections'));
       userEvent.click(screen.getByTestId('folder-filter-folder_1'), undefined, {
         skipPointerEventsCheck: true,
@@ -1080,10 +1077,9 @@ describe('Multiple Connections Sidebar Component', function () {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
 
+      // The row is hidden, so delete it the way another surface would instead of via the UI.
       await connectionsStore.actions.deleteFolder('folder_1');
 
-      // With the folder gone, nothing is hidden anymore: the filter is back
-      // to its initial value and says so.
       await waitFor(() => {
         expect(screen.queryByText('Filter applied')).not.to.exist;
       });
@@ -1103,6 +1099,28 @@ describe('Multiple Connections Sidebar Component', function () {
           'false'
         );
       });
+    });
+
+    it('should keep a folder hidden by search available as a move destination', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+      // Matches only the uncategorized connection, so "Work" drops out entirely.
+      userEvent.type(searchInput, '27020');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('folder_1')).not.to.exist;
+      });
+
+      const connectionItem = screen.getByTestId(savedRecentConnection.id);
+      userEvent.hover(
+        within(connectionItem).getByTestId('base-navigation-item')
+      );
+      userEvent.click(within(connectionItem).getByLabelText('Show actions'));
+      userEvent.click(screen.getByText('Move to folder'));
+
+      expect(await screen.findByText('Work')).to.be.visible;
     });
 
     it('should expand the parent folder of a matching connection and collapse it again when the search is cleared', async function () {
@@ -1133,7 +1151,6 @@ describe('Multiple Connections Sidebar Component', function () {
           'false'
         );
       });
-      // The folder is collapsed again, so its connection is hidden once more.
       expect(screen.queryByTestId(savedFavoriteConnection.id)).not.to.exist;
     });
 
@@ -1142,8 +1159,7 @@ describe('Multiple Connections Sidebar Component', function () {
       await waitFor(() => screen.getByText('Work'));
 
       userEvent.click(screen.getByLabelText('Filter connections'));
-      // The checkboxes are visually hidden inputs, so the pointer events check
-      // has to be skipped to click them.
+      // The checkboxes are visually hidden inputs, so skip the pointer events check.
       userEvent.click(screen.getByTestId('folder-filter-folder_1'), undefined, {
         skipPointerEventsCheck: true,
       });
@@ -1152,8 +1168,7 @@ describe('Multiple Connections Sidebar Component', function () {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
       expect(within(screen.getByRole('tree')).queryByText('Work')).not.to.exist;
-      // Uncategorized connections stay reachable; the filter only changes what
-      // is shown, never which folder a connection belongs to.
+      // The filter only changes what's shown, never which folder a connection belongs to.
       expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
     });
 
@@ -1203,8 +1218,6 @@ describe('Multiple Connections Sidebar Component', function () {
         { skipPointerEventsCheck: true }
       );
 
-      // Neither saved connection is connected, so the folder empties out and
-      // hides along with the uncategorized connections.
       await waitFor(() => {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
@@ -1238,8 +1251,6 @@ describe('Multiple Connections Sidebar Component', function () {
       await renderWithFolders(true);
       expect(screen.queryByText('Filter applied')).not.to.exist;
 
-      // Search alone does not turn the caption on; the input has its own
-      // clear button.
       const searchInput = screen.getByRole('searchbox', { name: 'Search' });
       userEvent.type(searchInput, 'localhost');
       expect(screen.queryByText('Filter applied')).not.to.exist;
@@ -1275,8 +1286,7 @@ describe('Multiple Connections Sidebar Component', function () {
       const caption = await screen.findByText('Filter applied');
       const styles = getComputedStyle(caption);
 
-      // The caption sits inside a LeafyGreen typography component that sets its
-      // own color, so a color on a wrapping element would be silently ignored.
+      // LeafyGreen's Description sets its own color; a wrapper's color would be ignored.
       expect(styles.color).to.equal(toRgb(palette.gray.dark1));
       expect(styles.fontSize).to.equal('12px');
     });
@@ -1344,7 +1354,6 @@ describe('Multiple Connections Sidebar Component', function () {
       await renderWithFolders(true);
       const searchInput = screen.getByRole('searchbox', { name: 'Search' });
 
-      // An unparseable regex filters everything out, like any no-match search.
       userEvent.type(searchInput, 'enron(');
 
       expect(
@@ -1363,8 +1372,6 @@ describe('Multiple Connections Sidebar Component', function () {
       await renderWithFolders(true);
       const searchInput = screen.getByRole('searchbox', { name: 'Search' });
 
-      // Restricted characters can not be in folder or database names, so they
-      // match nothing, whatever the regex engine makes of them.
       userEvent.type(searchInput, 'happy/*<>');
 
       expect(

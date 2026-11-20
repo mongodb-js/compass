@@ -113,7 +113,7 @@ const connectionCountDisabledStyles = css({
   opacity: 0.6,
 });
 
-// Description for the theme-aware secondary text color; centered per the mockup.
+// Centered per the mockup; color comes from the Description component itself.
 const noSearchResultsStyles = css({
   padding: spacing[400],
   textAlign: 'center',
@@ -449,9 +449,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     onDatabaseExpand,
   });
 
-  // The filter is on and nothing survived it — folders or connections. The
-  // hook computes its result in an effect, so falling back to `connections`
-  // keeps the message from flashing before the first result arrives.
+  // Falls back to `connections` so the message doesn't flash before the hook's effect computes a result.
   const isTreeEmpty =
     isConnectionsFilterActive(filter) &&
     (filteredConnections ?? connections).length === 0 &&
@@ -858,6 +856,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         <ConnectionsNavigationTree
           connections={filteredConnections || connections}
           folders={filteredFolders}
+          allFolders={sidebarFolders}
           folderAssignments={sidebarFolderAssignments}
           activeWorkspace={activeWorkspace}
           onItemAction={onItemAction}
