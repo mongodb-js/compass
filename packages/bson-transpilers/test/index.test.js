@@ -33,18 +33,18 @@ describe('bson transpiler', function () {
     });
   });
 
-  describe('quoting of collection names', function () {
-    // The delimiter each language's DriverTemplate wraps string literals in.
-    const DELIMITERS = {
-      python: "'",
-      javascript: "'",
-      ruby: "'",
-      php: "'",
-      java: '"',
-      go: '"',
-      rust: '"',
-    };
+  // The delimiter each language's DriverTemplate wraps string literals in.
+  const DELIMITERS = {
+    python: "'",
+    javascript: "'",
+    ruby: "'",
+    php: "'",
+    java: '"',
+    go: '"',
+    rust: '"',
+  };
 
+  describe('quoting of collection names', function () {
     const NAMES = [
       "a'b]c",
       'a"b]c',
@@ -107,6 +107,41 @@ describe('bson transpiler', function () {
         result.includes("'a\\'b'"),
         `expected an escaped single quote, got:\n${result}`
       );
+    });
+  });
+
+  describe('quoting of object keys', function () {
+    const PWN = String.raw`a': 1}}]; __import__('os').system('echo PWNED'); y=[{ 'm': { 'X`;
+    // [quote wrapping the key in the shell input, key text inside those quotes]
+    const KEYS = [
+      ['"', String.raw`a'b`],
+      ["'", String.raw`a"b`],
+      ['"', String.raw`a\\b`],
+      ['"', String.raw`a\'b`],
+      ['"', String.raw`a\"b'c`],
+      ['"', PWN],
+    ];
+
+    // idiomatic must be explicit: passing undefined inherits whatever a
+    // previous test left on the shared transpiler instance.
+    const emit = (lang, wrap, key) =>
+      transpilers.shell[lang].compile(
+        `[{$match: {${wrap}${key}${wrap}: 1}}]`,
+        false
+      );
+
+    // Keys reach the emitter as raw source text, not as decoded values, so an
+    // escape the user wrote is passed through. Only a bare delimiter is escaped.
+    Object.entries({ ...DELIMITERS }).forEach(([lang, quote]) => {
+      KEYS.forEach(([wrap, key]) => {
+        it(`${lang}: quotes key ${JSON.stringify(key)}`, function () {
+          const want = `${quote}${key.replace(/\\[\s\S]|['"]/g, (m) =>
+            m.length === 2 || m !== quote ? m : `\\${m}`
+          )}${quote}`;
+          const got = emit(lang, wrap, key);
+          assert.ok(got.includes(want), `want ${want} in:\n${got}`);
+        });
+      });
     });
   });
 });
