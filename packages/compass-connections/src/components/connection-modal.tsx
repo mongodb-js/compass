@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import type { ConnectionFormFolderOption } from '@mongodb-js/connection-form';
+import type {
+  ConnectionInfo,
+  Folder,
+} from '@mongodb-js/connection-storage/provider';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import { connect as reduxConnect } from '../stores/store-context';
 import {
   connect,
@@ -9,6 +14,7 @@ import {
   saveEditedConnectionInfo,
   saveAndConnect,
   openSettingsModal,
+  moveConnectionsToFolder,
 } from '../stores/connections-store-redux';
 
 import { useConnectionFormPreferences } from '../hooks/use-connection-form-preferences';
@@ -22,17 +28,30 @@ function shouldDisableConnectionEditing(connection: ConnectionState): boolean {
   return connection.status === 'connected';
 }
 
+function sortFolders(folders: Folder[]): ConnectionFormFolderOption[] {
+  return folders
+    .map(({ id, name }) => ({ id, name }))
+    .sort((a, b) =>
+      a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
+    );
+}
+
 function mapState({
   isEditingNewConnection,
   isEditingConnectionInfoModalOpen,
   editingConnectionInfoId,
   connections,
+  folders,
 }: {
   isEditingNewConnection: boolean;
   isEditingConnectionInfoModalOpen: boolean;
   editingConnectionInfoId?: ConnectionId;
   connections: {
     byId: Record<ConnectionId, ConnectionState>;
+  };
+  folders: {
+    ids: string[];
+    byId: Record<string, Folder>;
   };
 }) {
   const editingConnection = editingConnectionInfoId
@@ -51,6 +70,7 @@ function mapState({
     disableEditingConnectedConnection,
     editingConnectionInfoId,
     isEditingNewConnection,
+    folders: folders.ids.map((id) => folders.byId[id]),
   };
 }
 
@@ -61,6 +81,7 @@ const mapDispatch = {
   saveEditedConnectionInfo,
   saveAndConnect,
   openSettingsModal,
+  moveConnectionsToFolder,
 };
 
 type ConnectionModalProps = {
@@ -70,12 +91,18 @@ type ConnectionModalProps = {
   disableEditingConnectedConnection: boolean;
   editingConnectionInfoId?: ConnectionId;
   isEditingNewConnection: boolean;
+  folders: Folder[];
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   disconnect: (id: string) => void;
   cancelEditConnection: (id: string) => void;
   saveEditedConnectionInfo: (connectionInfo: ConnectionInfo) => Promise<void>;
   saveAndConnect: (connectionInfo: ConnectionInfo) => Promise<void>;
   openSettingsModal: (tab?: string) => void;
+  moveConnectionsToFolder: (
+    connectionIds: ConnectionId[],
+    folderId: string | null,
+    source: 'connection_form'
+  ) => Promise<unknown>;
 };
 
 const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
@@ -86,9 +113,11 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
   // because they aren't known to ConnectionFormModal and only get used here.
   editingConnectionInfoId,
   isEditingNewConnection,
+  folders,
   ...props
 }) => {
   const formPreferences = useConnectionFormPreferences();
+  const isFoldersEnabled = usePreference('enableConnectionFolders');
 
   const {
     disableEditingConnectedConnection,
@@ -97,7 +126,32 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
     cancelEditConnection,
     saveEditedConnectionInfo,
     saveAndConnect,
+    moveConnectionsToFolder,
   } = props;
+
+  // Filing a connection into a folder at creation time only makes sense for
+  // the New Connection modal: editing an existing connection's folder is
+  // handled by "Move to folder" in the sidebar.
+  const folderOptions = useMemo(
+    () =>
+      isFoldersEnabled && isEditingNewConnection
+        ? sortFolders(folders)
+        : undefined,
+    [isFoldersEnabled, isEditingNewConnection, folders]
+  );
+
+  const assignFolderAfterSave = (
+    connectionInfo: ConnectionInfo,
+    folderId: string | null
+  ) => {
+    if (isEditingNewConnection && folderId) {
+      void moveConnectionsToFolder(
+        [connectionInfo.id],
+        folderId,
+        'connection_form'
+      );
+    }
+  };
 
   if (!(editingConnectionInfoId && initialConnectionInfo)) {
     return null;
@@ -109,6 +163,7 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
       {...props}
       {...formPreferences}
       enableOidc={true}
+      folders={folderOptions}
       onDisconnectClicked={() => disconnect(editingConnectionInfoId)}
       setOpen={(newOpen) => {
         // This is how leafygreen propagates `X` button click
@@ -119,8 +174,9 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
       onCancel={() => {
         cancelEditConnection(editingConnectionInfoId);
       }}
-      onSaveClicked={(connectionInfo) => {
-        return saveEditedConnectionInfo(connectionInfo);
+      onSaveClicked={async (connectionInfo, folderId) => {
+        await saveEditedConnectionInfo(connectionInfo);
+        assignFolderAfterSave(connectionInfo, folderId);
       }}
       onConnectClicked={
         isEditingNewConnection || disableEditingConnectedConnection
@@ -132,8 +188,10 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
       onSaveAndConnectClicked={
         disableEditingConnectedConnection
           ? undefined
-          : (connectionInfo) => {
-              void saveAndConnect(connectionInfo);
+          : (connectionInfo, folderId) => {
+              void saveAndConnect(connectionInfo).then(() => {
+                assignFolderAfterSave(connectionInfo, folderId);
+              });
             }
       }
     />
