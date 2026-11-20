@@ -166,9 +166,9 @@ describe('ImportConnectionsModal', function () {
       )
     ).to.exist;
     expect(
-      within(screen.getByTestId('select-list-group-uncategorized')).getByTestId(
-        'select-id2'
-      )
+      within(
+        screen.getByTestId('select-list-group-select-list-no-group')
+      ).getByTestId('select-id2')
     ).to.exist;
   });
 
@@ -183,9 +183,9 @@ describe('ImportConnectionsModal', function () {
     await selectFile();
 
     expect(
-      within(screen.getByTestId('select-list-group-uncategorized')).getByTestId(
-        'select-id1'
-      )
+      within(
+        screen.getByTestId('select-list-group-select-list-no-group')
+      ).getByTestId('select-id1')
     ).to.exist;
   });
 

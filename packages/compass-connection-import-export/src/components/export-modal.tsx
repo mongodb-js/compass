@@ -27,6 +27,11 @@ const tableStyles = css({
 
 const SelectListLabel = {
   displayLabelKey: 'name',
+  name: 'Connection Name',
+} as const;
+
+const SelectListWithGroupsLabel = {
+  ...SelectListLabel,
   name: 'Folder & connection Name',
 } as const;
 
@@ -98,7 +103,7 @@ export function ExportConnectionsModal({
   const { folders, folderAssignments } = useFolders();
   const groups = useMemo(
     () =>
-      enableConnectionFolders && folders.length > 0
+      enableConnectionFolders
         ? groupByFolder(connectionList, folders, folderAssignments)
         : null,
     [enableConnectionFolders, folders, folderAssignments, connectionList]
@@ -106,7 +111,7 @@ export function ExportConnectionsModal({
 
   const listProps = {
     className: tableStyles,
-    label: SelectListLabel,
+    label: groups ? SelectListWithGroupsLabel : SelectListLabel,
     disabled: inProgress,
     onChange: onChangeConnectionList,
   };
