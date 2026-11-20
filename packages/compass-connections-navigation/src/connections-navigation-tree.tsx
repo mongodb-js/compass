@@ -45,6 +45,8 @@ const ConnectionsNavigationContainerStyles = css({
 export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   folders?: Folder[];
+  /** The complete folder list for "Move to folder" destinations; defaults to `folders`. */
+  allFolders?: Folder[];
   folderAssignments?: Record<string, string>;
   activeWorkspace: WorkspaceTab | null;
   expanded: Record<string, false | Record<string, boolean>>;
@@ -57,6 +59,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 > = ({
   connections,
   folders,
+  allFolders = folders,
   folderAssignments,
   activeWorkspace,
   expanded,
@@ -216,7 +219,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
               isFoldersEnabled,
-              folders,
+              folders: allFolders,
               folderId: folderAssignments?.[item.connectionInfo.id],
               isPerformanceTabAvailable: item.isPerformanceTabAvailable,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
@@ -232,7 +235,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               actions: notConnectedConnectionItemActions({
                 connectionInfo: item.connectionInfo,
                 isFoldersEnabled,
-                folders,
+                folders: allFolders,
                 folderId: folderAssignments?.[item.connectionInfo.id],
                 connectionStatus: item.connectionStatus,
               }),
@@ -265,7 +268,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       getCollapseAfterForConnectedItem,
       getConnectable,
       isFoldersEnabled,
-      folders,
+      allFolders,
       folderAssignments,
     ]
   );
@@ -295,7 +298,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                   isShellEnabled: item.isShellEnabled,
                   connectionInfo: item.connectionInfo,
                   isFoldersEnabled,
-                  folders,
+                  folders: allFolders,
                   folderId: folderAssignments?.[item.connectionInfo.id],
                   isPerformanceTabAvailable: item.isPerformanceTabAvailable,
                   isPerformanceTabSupported: item.isPerformanceTabSupported,
@@ -304,7 +307,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               : notConnectedConnectionItemActions({
                   connectionInfo: item.connectionInfo,
                   isFoldersEnabled,
-                  folders,
+                  folders: allFolders,
                   folderId: folderAssignments?.[item.connectionInfo.id],
                   connectionStatus: item.connectionStatus,
                 })
@@ -361,7 +364,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       onItemAction,
       isRenameCollectionEnabled,
       isFoldersEnabled,
-      folders,
+      allFolders,
       folderAssignments,
     ]
   );
