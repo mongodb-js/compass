@@ -187,6 +187,52 @@ describe('Collection tab mock data generator integration', function () {
     expect(screen.queryByTestId('schema-analysis-error-banner')).not.to.exist;
   });
 
+  for (const aiOptedIn of [false, true]) {
+    it(`tracks entry before AI access completes with opt-in status ${aiOptedIn}`, async function () {
+      let allowAccess!: () => void;
+      ensureAiFeatureAccess.returns(
+        new Promise<void>((resolve) => {
+          allowAccess = resolve;
+        })
+      );
+      const { track, preferences } = await renderCollection({
+        optInGenAIFeatures: aiOptedIn,
+      });
+      const entryEvent = track.withArgs('Mock Data Generator Clicked');
+      const firstScreenEvent = track.withArgs(
+        'Mock Data Generator Screen Viewed',
+        { screen: 'SCHEMA_CONFIRMATION' }
+      );
+
+      await expectEntry();
+      expect(entryEvent).not.to.have.been.called;
+      userEvent.click(await expectEntry());
+      await waitFor(() => {
+        expect(entryEvent).to.have.been.calledOnceWithExactly(
+          'Mock Data Generator Clicked',
+          { ai_opted_in: aiOptedIn }
+        );
+      });
+      expect(ensureAiFeatureAccess).to.have.been.calledOnce;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed;
+      expect(firstScreenEvent).not.to.have.been.called;
+
+      await act(async () => {
+        await preferences.savePreferences({ optInGenAIFeatures: true });
+        allowAccess();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
+        expect(firstScreenEvent).to.have.been.calledOnce;
+      });
+      expect(entryEvent).to.have.been.calledOnceWithExactly(
+        'Mock Data Generator Clicked',
+        { ai_opted_in: aiOptedIn }
+      );
+      expect(entryEvent).to.have.been.calledBefore(firstScreenEvent);
+    });
+  }
+
   it('reuses completed analysis when the generator reopens', async function () {
     await renderCollection();
     await openGenerator();
@@ -202,14 +248,31 @@ describe('Collection tab mock data generator integration', function () {
     expect(sampleCursor).to.have.been.calledOnce;
   });
 
-  it('keeps the generator closed and does not sample when AI access is denied', async function () {
-    ensureAiFeatureAccess.rejects(new Error('Access denied'));
-    await renderCollection();
-    userEvent.click(await expectEntry());
-    await waitFor(() => expect(ensureAiFeatureAccess).to.have.been.calledOnce);
-    expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed;
-    expect(sampleCursor).not.to.have.been.called;
-  });
+  for (const error of [
+    new DOMException('The operation was aborted', 'AbortError'),
+    new Error('Access denied'),
+  ]) {
+    it(`tracks entry without a first-screen event when AI access fails with ${error.name}`, async function () {
+      ensureAiFeatureAccess.rejects(error);
+      const { track, logger } = await renderCollection({
+        optInGenAIFeatures: false,
+      });
+      const logError = sandbox.spy(logger.log, 'error');
+      userEvent.click(await expectEntry());
+      await waitFor(() => {
+        expect(logError).to.have.been.called;
+        expect(
+          track.withArgs('Mock Data Generator Clicked')
+        ).to.have.been.calledOnceWithExactly('Mock Data Generator Clicked', {
+          ai_opted_in: false,
+        });
+      });
+      expect(track.withArgs('Mock Data Generator Screen Viewed')).not.to.have
+        .been.called;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed;
+      expect(sampleCursor).not.to.have.been.called;
+    });
+  }
 
   it('preserves Search Activation assignments on Atlas', async function () {
     await renderCollection(

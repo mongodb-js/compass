@@ -65,7 +65,11 @@ export type {
   ItemSeparator,
   MenuAction,
 } from './components/actions/types';
-export { splitBySeparator } from './components/actions/utils';
+export {
+  splitBySeparator,
+  isSeparatorMenuAction,
+  isItemActionGroupItem,
+} from './components/actions/utils';
 export type { GroupedItemAction } from './components/actions/item-action-group';
 
 export { ItemActionControls } from './components/actions/item-action-controls';
@@ -77,6 +81,7 @@ export { AssistantAvatar as AssistantSparkleIcon } from '@leafygreen-ui/avatar';
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { FolderIcon } from './components/icons/folder-icon';
+export { FolderPlusIcon } from './components/icons/folder-plus-icon';
 export { ServerIcon } from './components/icons/server-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
 export { PngIcon } from './components/icons/png-icon';

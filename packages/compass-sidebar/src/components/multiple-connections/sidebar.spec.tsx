@@ -1,7 +1,10 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { RenderWithConnectionsHookResult } from '@mongodb-js/testing-library-compass';
+import type {
+  RenderConnectionsOptions,
+  RenderWithConnectionsHookResult,
+} from '@mongodb-js/testing-library-compass';
 import {
   createPluginTestHelpers,
   screen,
@@ -16,6 +19,10 @@ import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provid
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  InMemoryFolderStorage,
+  type Folder,
+} from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import {
   AtlasClusterConnectionsOnlyProvider,
@@ -94,7 +101,8 @@ describe('Multiple Connections Sidebar Component', function () {
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
     connections: ConnectionInfo[] | 'no-preload' = [savedFavoriteConnection],
-    atlasClusterConnectionsOnly: boolean | undefined = undefined
+    atlasClusterConnectionsOnly: boolean | undefined = undefined,
+    renderOptions: Partial<RenderConnectionsOptions> = {}
   ) {
     workspace = sinon.spy({
       openMyQueriesWorkspace: () => undefined,
@@ -140,6 +148,7 @@ describe('Multiple Connections Sidebar Component', function () {
     }
 
     const result = renderWithConnections(component, {
+      ...renderOptions,
       connections,
       connectFn() {
         return {
@@ -720,6 +729,327 @@ describe('Multiple Connections Sidebar Component', function () {
           });
         });
       });
+
+      context('folders', function () {
+        let folderStorage: InMemoryFolderStorage;
+
+        beforeEach(async function () {
+          folderStorage = new InMemoryFolderStorage();
+          doRender(undefined, [savedFavoriteConnection], undefined, {
+            folderStorage,
+            preferences: { enableConnectionFolders: true },
+          });
+          await waitFor(() => screen.getByRole('tree'));
+        });
+
+        const addConnectionToNewFolder = async (name: string) => {
+          const item = screen.getByTestId(savedFavoriteConnection.id);
+          userEvent.hover(within(item).getByTestId('base-navigation-item'));
+          userEvent.click(within(item).getByLabelText('Show actions'));
+          userEvent.click(screen.getByText('Move to folder'));
+          userEvent.click(screen.getByText('New folder'));
+
+          const input = await screen.findByLabelText('Folder name');
+          userEvent.type(input, name);
+          userEvent.click(screen.getByTestId('submit-button'));
+        };
+
+        it('creates a folder and moves the connection into it', async function () {
+          await addConnectionToNewFolder('Work');
+
+          const folderItem = await screen.findByText('Work');
+          expect(folderItem).to.be.visible;
+
+          const { folders, assignments } = await folderStorage.load();
+          expect(folders).to.have.lengthOf(1);
+          expect(folders[0].name).to.equal('Work');
+          expect(assignments).to.deep.equal({
+            [savedFavoriteConnection.id]: folders[0].id,
+          });
+        });
+
+        it('shows an error and keeps the tree unchanged when the folder can not be saved', async function () {
+          sinon.stub(folderStorage, 'save').rejects(new Error('disk full'));
+
+          await addConnectionToNewFolder('Work');
+
+          expect(await screen.findByText('Failed to create folder')).to.be
+            .visible;
+          expect(screen.getByText('disk full')).to.be.visible;
+          expect(screen.getAllByRole('treeitem')).to.have.lengthOf(1);
+          expect((await folderStorage.load()).folders).to.be.empty;
+        });
+
+        it('keeps the new folder and shows an error when the connection can not be moved', async function () {
+          // First save creates the folder, second one moves the connection
+          sinon
+            .stub(folderStorage, 'save')
+            .callThrough()
+            .onSecondCall()
+            .rejects(new Error('disk full'));
+
+          await addConnectionToNewFolder('Work');
+
+          expect(
+            await screen.findByText('Failed to move connection(s) to folder')
+          ).to.be.visible;
+          expect(screen.getByText('disk full')).to.be.visible;
+
+          const { folders, assignments } = await folderStorage.load();
+          expect(folders.map(({ name }) => name)).to.deep.equal(['Work']);
+          expect(assignments).to.deep.equal({});
+          expect(screen.getByTestId(folders[0].id)).to.have.text('Work');
+        });
+      });
+    });
+  });
+
+  describe('connection folders', function () {
+    const folders: Folder[] = [{ id: 'folder_1', name: 'Work' }];
+    const assignments = { [savedFavoriteConnection.id]: 'folder_1' };
+
+    let folderStorage: InMemoryFolderStorage;
+
+    const renderWithFolders = async (enableConnectionFolders: boolean) => {
+      folderStorage = new InMemoryFolderStorage({ folders, assignments });
+      doRender(
+        null,
+        [savedFavoriteConnection, savedRecentConnection],
+        undefined,
+        {
+          folderStorage,
+          ...(enableConnectionFolders && {
+            preferences: { enableConnectionFolders: true },
+          }),
+        }
+      );
+      await waitFor(() => screen.getByRole('tree'));
+    };
+
+    const openFolderAction = async (action: string) => {
+      await waitFor(() => screen.getByText('Work'));
+      userEvent.hover(screen.getByText('Work'));
+      userEvent.click(
+        within(screen.getByTestId('folder_1')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText(action));
+    };
+
+    it('should group connections under folders when the feature flag is enabled', async function () {
+      await renderWithFolders(true);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-level',
+          '1'
+        );
+      });
+      expect(screen.getByText('Work')).to.be.visible;
+      // The filed connection appears only once expanded; the other stays at the
+      // top level.
+      expect(screen.queryByTestId(savedFavoriteConnection.id)).not.to.exist;
+      expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
+    });
+
+    it('should show the folder contents when the folder is expanded', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByText('Work'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+      });
+    });
+
+    it('should leave the tree unchanged when the feature flag is disabled', async function () {
+      await renderWithFolders(false);
+
+      expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+      expect(screen.getByTestId(savedRecentConnection.id)).to.be.visible;
+      expect(screen.queryByTestId('folder_1')).not.to.exist;
+      expect(screen.queryByText('Work')).not.to.exist;
+    });
+
+    it('should collapse a folder when collapse all is triggered', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.click(screen.getByText('Work'));
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'true'
+        );
+      });
+
+      userEvent.click(screen.getByLabelText('Collapse all connections'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('folder_1')).to.have.attribute(
+          'aria-expanded',
+          'false'
+        );
+      });
+    });
+
+    it('should not offer the create folder action when the feature flag is disabled', async function () {
+      await renderWithFolders(false);
+
+      expect(screen.queryByLabelText('Create folder')).not.to.exist;
+    });
+
+    it('should create a folder from the "Create folder" action', async function () {
+      await renderWithFolders(true);
+
+      userEvent.click(screen.getByLabelText('Create folder'));
+
+      const input = await screen.findByLabelText('Folder name');
+      userEvent.type(input, 'Production');
+      userEvent.click(screen.getByTestId('submit-button'));
+
+      expect(
+        await screen.findByText('New folder Production created in sidebar.')
+      ).to.be.visible;
+      expect(screen.getByText('Production')).to.be.visible;
+    });
+
+    it('should not create a folder whose name duplicates an existing one', async function () {
+      await renderWithFolders(true);
+
+      userEvent.click(screen.getByLabelText('Create folder'));
+
+      const input = await screen.findByLabelText('Folder name');
+      // Folder names are compared case-insensitively.
+      userEvent.type(input, 'work');
+
+      expect(screen.getByText('A folder with this name already exists')).to.be
+        .visible;
+      expect(screen.getByTestId('submit-button')).to.have.attribute(
+        'aria-disabled',
+        'true'
+      );
+
+      userEvent.click(screen.getByTestId('submit-button'));
+
+      expect(screen.queryByText(/folder .* created in sidebar/)).not.to.exist;
+    });
+
+    it('should name the whole restricted set when one character is used', async function () {
+      await renderWithFolders(true);
+
+      userEvent.click(screen.getByLabelText('Create folder'));
+      userEvent.type(await screen.findByLabelText('Folder name'), 'a?b');
+
+      expect(screen.getByText('Folder name can\'t contain / \\ < > : " | ? *.'))
+        .to.be.visible;
+    });
+
+    it('should rename a folder from its actions menu', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.hover(screen.getByText('Work'));
+      userEvent.click(
+        within(screen.getByTestId('folder_1')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText('Rename folder'));
+
+      const input = (await screen.findByLabelText(
+        'Folder name'
+      )) as HTMLInputElement;
+      expect(input.value).to.equal('Work');
+
+      userEvent.clear(input);
+      userEvent.type(input, 'Personal');
+      userEvent.click(screen.getByTestId('submit-button'));
+
+      expect(await screen.findByText('Folder renamed Work to Personal')).to.be
+        .visible;
+      expect(screen.getByText('Personal')).to.be.visible;
+      expect(screen.queryByText('Work')).not.to.exist;
+    });
+
+    it('should delete a folder after the user confirms', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.hover(screen.getByText('Work'));
+      userEvent.click(
+        within(screen.getByTestId('folder_1')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText('Delete folder'));
+
+      const confirmationModal = await screen.findByTestId('confirmation-modal');
+      expect(within(confirmationModal).getByText('Delete "Work"?')).to.be
+        .visible;
+      // The count is called out so the user knows the connection survives.
+      expect(
+        within(confirmationModal).getByText(
+          '1 connection(s) inside will move back to the top-level list instead.'
+        )
+      ).to.be.visible;
+
+      userEvent.click(
+        within(confirmationModal).getByRole('button', {
+          name: 'Delete folder',
+        })
+      );
+
+      expect(await screen.findByText('Work folder deleted')).to.be.visible;
+      // The folder is gone but its connection isn't: it returns to the top
+      // level.
+      expect(screen.queryByText('Work')).not.to.exist;
+      expect(screen.getByTestId(savedFavoriteConnection.id)).to.be.visible;
+    });
+
+    it('should report a failed rename and leave the folder alone', async function () {
+      await renderWithFolders(true);
+      sinon.stub(folderStorage, 'save').rejects(new Error('disk full'));
+
+      await openFolderAction('Rename folder');
+      const input = await screen.findByLabelText('Folder name');
+      userEvent.clear(input);
+      userEvent.type(input, 'Personal');
+      userEvent.click(screen.getByTestId('submit-button'));
+
+      expect(await screen.findByText('Failed to rename folder')).to.be.visible;
+      expect(screen.getByText('disk full')).to.be.visible;
+      expect(screen.getByText('Work')).to.be.visible;
+    });
+
+    it('should report a failed delete and keep the folder', async function () {
+      await renderWithFolders(true);
+      sinon.stub(folderStorage, 'save').rejects(new Error('disk full'));
+
+      await openFolderAction('Delete folder');
+      const confirmationModal = await screen.findByTestId('confirmation-modal');
+      userEvent.click(
+        within(confirmationModal).getByRole('button', { name: 'Delete folder' })
+      );
+
+      expect(await screen.findByText('Failed to delete folder')).to.be.visible;
+      expect(screen.getByText('disk full')).to.be.visible;
+      expect(screen.getByText('Work')).to.be.visible;
+    });
+
+    it('should not delete a folder when the user cancels the confirmation', async function () {
+      await renderWithFolders(true);
+      await waitFor(() => screen.getByText('Work'));
+
+      userEvent.hover(screen.getByText('Work'));
+      userEvent.click(
+        within(screen.getByTestId('folder_1')).getByTitle('Show actions')
+      );
+      userEvent.click(screen.getByText('Delete folder'));
+
+      const confirmationModal = await screen.findByTestId('confirmation-modal');
+      userEvent.click(
+        within(confirmationModal).getByRole('button', { name: 'Cancel' })
+      );
+
+      expect(screen.getByText('Work')).to.be.visible;
+      expect(screen.queryByText('Work folder deleted')).not.to.exist;
     });
   });
 });
