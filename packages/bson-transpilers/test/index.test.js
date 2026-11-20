@@ -44,6 +44,10 @@ describe('bson transpiler', function () {
     rust: '"',
   };
 
+  /**
+   * A collection name arrives as a decoded string (Compass hands it the real namespace),
+   * so a literal backslash must be escaped to survive.
+   */
   describe('quoting of collection names', function () {
     const NAMES = [
       "a'b]c",
@@ -110,6 +114,10 @@ describe('bson transpiler', function () {
     });
   });
 
+  /**
+   * An object key arrives as raw source text the user typed, where \b is already a JS
+   * escape pair and re-escaping it would change the field being queried.
+   */
   describe('quoting of object keys', function () {
     const PWN = String.raw`a': 1}}]; __import__('os').system('echo PWNED'); y=[{ 'm': { 'X`;
     // [quote wrapping the key in the shell input, key text inside those quotes]
