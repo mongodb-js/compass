@@ -126,6 +126,13 @@ export function ImportConnectionsModal({
     [enableConnectionFolders, displayConnectionList, fileFolders]
   );
 
+  const listProps = {
+    className: tableStyles,
+    label: SelectListLabel,
+    disabled: inProgress,
+    onChange: onChangeConnectionList,
+  };
+
   return (
     <FormModal
       open={open}
@@ -162,21 +169,9 @@ export function ImportConnectionsModal({
       </FormFieldContainer>
       {connectionList.length > 0 &&
         (groups ? (
-          <SelectListWithGroups
-            className={tableStyles}
-            groups={groups}
-            label={SelectListLabel}
-            disabled={inProgress}
-            onChange={onChangeConnectionList}
-          />
+          <SelectListWithGroups groups={groups} {...listProps} />
         ) : (
-          <SelectList
-            className={tableStyles}
-            items={displayConnectionList}
-            label={SelectListLabel}
-            disabled={inProgress}
-            onChange={onChangeConnectionList}
-          />
+          <SelectList items={displayConnectionList} {...listProps} />
         ))}
       {(error && !passphraseRequired && (
         <Banner variant="danger">Error: {error}</Banner>

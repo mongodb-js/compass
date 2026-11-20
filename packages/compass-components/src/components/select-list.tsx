@@ -30,7 +30,7 @@ export const listHeaderStyles = css({
 export const listBodyStyles = css({
   overflow: 'auto',
 });
-export const listItemStyles = css({
+const listItemStyles = css({
   padding: `${spacing[100]}px 0px`,
 });
 

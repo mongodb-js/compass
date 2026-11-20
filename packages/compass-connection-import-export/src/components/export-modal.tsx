@@ -104,6 +104,13 @@ export function ExportConnectionsModal({
     [enableConnectionFolders, folders, folderAssignments, connectionList]
   );
 
+  const listProps = {
+    className: tableStyles,
+    label: SelectListLabel,
+    disabled: inProgress,
+    onChange: onChangeConnectionList,
+  };
+
   return (
     <FormModal
       open={open}
@@ -120,21 +127,9 @@ export function ExportConnectionsModal({
       data-testid="connection-export-modal"
     >
       {groups ? (
-        <SelectListWithGroups
-          className={tableStyles}
-          groups={groups}
-          label={SelectListLabel}
-          disabled={inProgress}
-          onChange={onChangeConnectionList}
-        />
+        <SelectListWithGroups groups={groups} {...listProps} />
       ) : (
-        <SelectList
-          className={tableStyles}
-          items={connectionList}
-          label={SelectListLabel}
-          disabled={inProgress}
-          onChange={onChangeConnectionList}
-        />
+        <SelectList items={connectionList} {...listProps} />
       )}
       <FormFieldContainer>
         <FileInput

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -88,6 +88,7 @@ function selectionState<T extends SelectItem>(items: T[]) {
     checked: all,
     indeterminate: !all && !none,
     allDisabled: items.every((item) => item.disabled),
+    selectedCount: items.filter((item) => item.selected).length,
   };
 }
 
@@ -100,16 +101,13 @@ export function SelectListWithGroups<T extends SelectItem>(
   const items = groups.flatMap((group) => group.items);
   const allState = selectionState(items);
 
-  const setSelected = useCallback(
-    (predicate: (item: T) => boolean, selected: boolean) => {
-      onChange(
-        items.map((item) =>
-          predicate(item) && !item.disabled ? { ...item, selected } : item
-        )
-      );
-    },
-    [items, onChange]
-  );
+  const setSelected = (predicate: (item: T) => boolean, selected: boolean) => {
+    onChange(
+      items.map((item) =>
+        predicate(item) && !item.disabled ? { ...item, selected } : item
+      )
+    );
+  };
 
   return (
     <div className={cx(props.className, containerStyles)}>
@@ -129,10 +127,6 @@ export function SelectListWithGroups<T extends SelectItem>(
       <div className={cx(listBodyStyles, groupsStyles)}>
         {groups.map((group) => {
           const groupState = selectionState(group.items);
-          const groupItemIds = new Set(group.items.map((item) => item.id));
-          const selectedCount = group.items.filter(
-            (item) => item.selected
-          ).length;
           return (
             <div
               key={`select-list-group-${group.id}`}
@@ -155,7 +149,7 @@ export function SelectListWithGroups<T extends SelectItem>(
                   }
                   onChange={(e) =>
                     setSelected(
-                      (item) => groupItemIds.has(item.id),
+                      (item) => group.items.some((i) => i.id === item.id),
                       e.target.checked
                     )
                   }
@@ -171,7 +165,7 @@ export function SelectListWithGroups<T extends SelectItem>(
                   className={groupCountStyles}
                   data-testid={`select-list-group-${group.id}-count`}
                 >
-                  {selectedCount} / {group.items.length}
+                  {groupState.selectedCount} / {group.items.length}
                 </div>
               </div>
               {group.items.map((item) => (
