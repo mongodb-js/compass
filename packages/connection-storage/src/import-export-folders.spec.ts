@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { mergeImportedFolders } from './import-export-folders';
+import {
+  deserializeFolders,
+  mergeImportedFolders,
+} from './import-export-folders';
 
 describe('mergeImportedFolders', function () {
   const imported = {
@@ -39,4 +42,18 @@ describe('mergeImportedFolders', function () {
     expect(merged.folders.map(({ name }) => name)).to.deep.equal(['Work']);
     expect(Object.keys(merged.assignments)).to.deep.equal(['c1']);
   });
+});
+
+describe('deserializeFolders', function () {
+  for (const [name, content] of Object.entries({
+    'folders is not an array': { folders: {} },
+    'a folder has no name': { folders: [{ id: 'f1' }] },
+    'an assignment is not a string': { folderAssignments: { c1: 1 } },
+  })) {
+    it(`throws when ${name}`, function () {
+      expect(() => deserializeFolders(JSON.stringify(content))).to.throw(
+        'Input file contains invalid folders'
+      );
+    });
+  }
 });

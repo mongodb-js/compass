@@ -697,6 +697,28 @@ describe('ConnectionStorage', function () {
         [CONNECTIONS[0].id]: folders[0].id,
       });
     });
+
+    it('aborts the import without saving connections when folders are invalid', async function () {
+      const exported = JSON.parse(await connectionStorage.exportConnections());
+      await Promise.all(
+        CONNECTIONS.map(({ id }) => connectionStorage.delete({ id }))
+      );
+      const importingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        new InMemoryFolderStorage()
+      );
+
+      const error = await importingStorage
+        .importConnections({
+          content: JSON.stringify({ ...exported, folders: [{ id: 'f1' }] }),
+        })
+        .catch((e) => e);
+
+      expect(error.message).to.equal('Input file contains invalid folders');
+      expect(await importingStorage.loadAll()).to.deep.equal([]);
+    });
   });
 
   describe('supports connections from older version of compass', function () {

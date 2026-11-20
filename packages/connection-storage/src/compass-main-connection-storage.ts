@@ -366,18 +366,20 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       }
     );
 
+    const folderOrganization =
+      this.folderStorage &&
+      mergeImportedFolders(
+        await this.folderStorage.load(),
+        deserializeFolders(content),
+        connections.map(({ id }) => id)
+      );
+
     await Promise.all(
       connections.map((connectionInfo) => this.save({ connectionInfo, signal }))
     );
 
-    if (this.folderStorage) {
-      await this.folderStorage.save({
-        folderOrganization: mergeImportedFolders(
-          await this.folderStorage.load(),
-          deserializeFolders(content),
-          connections.map(({ id }) => id)
-        ),
-      });
+    if (folderOrganization) {
+      await this.folderStorage.save({ folderOrganization });
     }
 
     log.info(

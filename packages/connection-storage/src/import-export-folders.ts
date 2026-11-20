@@ -1,4 +1,5 @@
 import { UUID } from 'bson';
+import { z } from 'zod';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { Folder, FolderOrganization } from './folder';
 
@@ -26,10 +27,18 @@ export function pickExportedFolders(
   };
 }
 
+const ExportedFoldersSchema = z.object({
+  folders: z.array(z.object({ id: z.string(), name: z.string() })).default([]),
+  folderAssignments: z.record(z.string(), z.string()).default({}),
+});
+
 /** Files exported before folders existed have neither key. */
 export function deserializeFolders(content: string): ExportedFolders {
-  const { folders = [], folderAssignments = {} } = JSON.parse(content);
-  return { folders, folderAssignments };
+  const result = ExportedFoldersSchema.safeParse(JSON.parse(content));
+  if (!result.success) {
+    throw new Error('Input file contains invalid folders');
+  }
+  return result.data;
 }
 
 export function mergeImportedFolders(
