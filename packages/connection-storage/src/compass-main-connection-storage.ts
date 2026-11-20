@@ -88,14 +88,14 @@ class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
   private readonly ipcMain: ConnectionStorageIPCMain;
-  private readonly folderStorage?: FolderStorage;
+  private readonly getFolderStorage: () => FolderStorage | undefined;
   constructor(
     ipcMain: ConnectionStorageIPCMain,
     basePath?: string,
-    folderStorage?: FolderStorage
+    getFolderStorage: () => FolderStorage | undefined = () => undefined
   ) {
     this.ipcMain = ipcMain;
-    this.folderStorage = folderStorage;
+    this.getFolderStorage = getFolderStorage;
     this.userData = new FileUserData(ConnectionSchema, 'Connections', {
       basePath,
     });
@@ -366,10 +366,11 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       }
     );
 
+    const folderStorage = this.getFolderStorage();
     const folderOrganization =
-      this.folderStorage &&
+      folderStorage &&
       mergeImportedFolders(
-        await this.folderStorage.load(),
+        await folderStorage.load(),
         deserializeFolders(content),
         connections.map(({ id }) => id)
       );
@@ -378,8 +379,19 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       connections.map((connectionInfo) => this.save({ connectionInfo, signal }))
     );
 
-    if (folderOrganization) {
-      await this.folderStorage.save({ folderOrganization });
+    // Connections are already saved at this point, so failing the import here
+    // would report an error for an import that has mostly succeeded.
+    try {
+      if (folderOrganization) {
+        await folderStorage?.save({ folderOrganization });
+      }
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_460),
+        'Connection Import',
+        'Failed to save imported folders',
+        { message: (err as Error).message }
+      );
     }
 
     log.info(
@@ -409,7 +421,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
 
     return serializeConnections(exportConnections, {
       ...restOfOptions,
-      folderOrganization: await this.folderStorage?.load(),
+      folderOrganization: await this.getFolderStorage()?.load(),
     });
   }
 
@@ -496,7 +508,8 @@ export const initCompassMainConnectionStorage = (
   basePath?: string,
   __TEST_IPC_MAIN?: ConnectionStorageIPCMain,
   __TEST_IGNORE_SINGLETON?: boolean,
-  folderStorage?: FolderStorage
+  /** Returns undefined while folders are disabled. */
+  getFolderStorage?: () => FolderStorage | undefined
 ): CompassMainConnectionStorage => {
   let ipcMainToBeUsed: ConnectionStorageIPCMain | undefined = ipcMain;
   if (process.env.NODE_ENV === 'test' && __TEST_IPC_MAIN) {
@@ -513,7 +526,7 @@ export const initCompassMainConnectionStorage = (
     mainConnectionStorage = new CompassMainConnectionStorage(
       ipcMainToBeUsed,
       basePath,
-      folderStorage
+      getFolderStorage
     );
   }
 

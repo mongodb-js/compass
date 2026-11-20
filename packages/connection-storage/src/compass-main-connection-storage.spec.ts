@@ -674,10 +674,11 @@ describe('ConnectionStorage', function () {
         tmpDir,
         ipcMain,
         true,
-        new InMemoryFolderStorage({
-          folders: [workFolder],
-          assignments: { [CONNECTIONS[0].id]: workFolder.id },
-        })
+        () =>
+          new InMemoryFolderStorage({
+            folders: [workFolder],
+            assignments: { [CONNECTIONS[0].id]: workFolder.id },
+          })
       );
       const exported = await exportingStorage.exportConnections();
 
@@ -686,7 +687,7 @@ describe('ConnectionStorage', function () {
         tmpDir,
         ipcMain,
         true,
-        importingFolders
+        () => importingFolders
       );
       await importingStorage.importConnections({ content: exported });
 
@@ -698,6 +699,27 @@ describe('ConnectionStorage', function () {
       });
     });
 
+    it('keeps imported connections when saving folders fails', async function () {
+      const exported = await connectionStorage.exportConnections();
+      await Promise.all(
+        CONNECTIONS.map(({ id }) => connectionStorage.delete({ id }))
+      );
+      const folderStorage = new InMemoryFolderStorage();
+      Sinon.stub(folderStorage, 'save').rejects(new Error('disk full'));
+      const importingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        () => folderStorage
+      );
+
+      await importingStorage.importConnections({ content: exported });
+
+      expect(sortBy(await importingStorage.loadAll(), 'id')).to.deep.equal(
+        sortBy(CONNECTIONS, 'id')
+      );
+    });
+
     it('aborts the import without saving connections when folders are invalid', async function () {
       const exported = JSON.parse(await connectionStorage.exportConnections());
       await Promise.all(
@@ -707,7 +729,7 @@ describe('ConnectionStorage', function () {
         tmpDir,
         ipcMain,
         true,
-        new InMemoryFolderStorage()
+        () => new InMemoryFolderStorage()
       );
 
       const error = await importingStorage
