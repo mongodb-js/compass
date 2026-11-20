@@ -11,6 +11,7 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
 import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import { deleteCompassAppNameParam } from './utils';
+import type { FolderStorage } from './folder-storage';
 import {
   serializeConnections,
   deserializeConnections,
@@ -83,8 +84,14 @@ class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
   private readonly ipcMain: ConnectionStorageIPCMain;
-  constructor(ipcMain: ConnectionStorageIPCMain, basePath?: string) {
+  private readonly folderStorage?: FolderStorage;
+  constructor(
+    ipcMain: ConnectionStorageIPCMain,
+    basePath?: string,
+    folderStorage?: FolderStorage
+  ) {
     this.ipcMain = ipcMain;
+    this.folderStorage = folderStorage;
     this.userData = new FileUserData(ConnectionSchema, 'Connections', {
       basePath,
     });
@@ -384,7 +391,10 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       ? connections.filter((x) => filterConnectionIds.includes(x.id))
       : connections.filter((x) => x.favorite?.name);
 
-    return serializeConnections(exportConnections, restOfOptions);
+    return serializeConnections(exportConnections, {
+      ...restOfOptions,
+      folderOrganization: await this.folderStorage?.load(),
+    });
   }
 
   private async getConnections(): Promise<ConnectionWithLegacyProps[]> {
@@ -469,7 +479,8 @@ let mainConnectionStorage: CompassMainConnectionStorage | null = null;
 export const initCompassMainConnectionStorage = (
   basePath?: string,
   __TEST_IPC_MAIN?: ConnectionStorageIPCMain,
-  __TEST_IGNORE_SINGLETON?: boolean
+  __TEST_IGNORE_SINGLETON?: boolean,
+  folderStorage?: FolderStorage
 ): CompassMainConnectionStorage => {
   let ipcMainToBeUsed: ConnectionStorageIPCMain | undefined = ipcMain;
   if (process.env.NODE_ENV === 'test' && __TEST_IPC_MAIN) {
@@ -485,7 +496,8 @@ export const initCompassMainConnectionStorage = (
   if (!mainConnectionStorage || __TEST_IGNORE_SINGLETON) {
     mainConnectionStorage = new CompassMainConnectionStorage(
       ipcMainToBeUsed,
-      basePath
+      basePath,
+      folderStorage
     );
   }
 

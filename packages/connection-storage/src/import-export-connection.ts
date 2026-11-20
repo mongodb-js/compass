@@ -8,6 +8,7 @@ import { extractSecrets, mergeSecrets } from '@mongodb-js/connection-info';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import { Decrypter, Encrypter } from './encrypt';
+import type { FolderOrganization } from './folder';
 
 type ConfigurableOptionsSpec = {
   [key: string]: true | ConfigurableOptionsSpec;
@@ -74,6 +75,31 @@ export interface ImportConnectionOptions {
 
 export interface ExportConnectionOptions extends ImportConnectionOptions {
   removeSecrets?: boolean;
+  folderOrganization?: FolderOrganization;
+}
+
+export type ExportedFolder = Pick<
+  FolderOrganization['folders'][number],
+  'id' | 'name'
+>;
+
+function pickExportedFolders(
+  { folders, assignments }: FolderOrganization,
+  connections: ConnectionInfo[]
+): { folders: ExportedFolder[]; folderAssignments: Record<string, string> } {
+  const folderAssignments: Record<string, string> = Object.create(null);
+  for (const { id } of connections) {
+    if (assignments[id]) {
+      folderAssignments[id] = assignments[id];
+    }
+  }
+  const usedFolderIds = new Set(Object.values(folderAssignments));
+  return {
+    folders: folders
+      .filter(({ id }) => usedFolderIds.has(id))
+      .map(({ id, name }) => ({ id, name })),
+    folderAssignments,
+  };
 }
 
 export async function serializeConnections(
@@ -84,6 +110,7 @@ export async function serializeConnections(
     passphrase = '',
     removeSecrets = false,
     trackingProps = undefined,
+    folderOrganization,
   } = options;
 
   if (passphrase && removeSecrets) {
@@ -131,6 +158,8 @@ export async function serializeConnections(
     type: kFileTypeDescription,
     version: kCurrentVersion,
     connections: exportConnections,
+    ...(folderOrganization &&
+      pickExportedFolders(folderOrganization, exportConnections)),
   };
 
   return EJSON.stringify(exportResult, undefined, 2, { relaxed: false });

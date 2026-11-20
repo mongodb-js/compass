@@ -158,8 +158,13 @@ class CompassApplication {
       }
     );
 
-    initCompassMainConnectionStorage();
-    initCompassMainFolderStorage();
+    const folderStorage = initCompassMainFolderStorage();
+    initCompassMainConnectionStorage(
+      undefined,
+      undefined,
+      false,
+      folderStorage
+    );
 
     if (mode === 'CLI') {
       return;
