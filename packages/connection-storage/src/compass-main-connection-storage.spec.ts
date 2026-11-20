@@ -16,6 +16,7 @@ import {
   type ConnectionWithLegacyProps,
   type ConnectionStorageIPCMain,
 } from './compass-main-connection-storage';
+import { InMemoryFolderStorage } from './in-memory-folder-storage';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
@@ -665,6 +666,36 @@ describe('ConnectionStorage', function () {
 
       const expectedConnections = await connectionStorage.loadAll();
       expect(expectedConnections).to.deep.equal([CONNECTIONS[1]]);
+    });
+
+    it('exports and imports folders', async function () {
+      const workFolder = { id: new UUID().toString(), name: 'Work' };
+      const exportingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        new InMemoryFolderStorage({
+          folders: [workFolder],
+          assignments: { [CONNECTIONS[0].id]: workFolder.id },
+        })
+      );
+      const exported = await exportingStorage.exportConnections();
+
+      const importingFolders = new InMemoryFolderStorage();
+      const importingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        importingFolders
+      );
+      await importingStorage.importConnections({ content: exported });
+
+      const { folders, assignments } = await importingFolders.load();
+      expect(folders.map(({ name }) => name)).to.deep.equal(['Work']);
+      expect(folders[0].id).to.not.equal(workFolder.id);
+      expect({ ...assignments }).to.deep.equal({
+        [CONNECTIONS[0].id]: folders[0].id,
+      });
     });
   });
 

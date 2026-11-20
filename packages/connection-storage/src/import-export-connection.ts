@@ -9,6 +9,7 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import { Decrypter, Encrypter } from './encrypt';
 import type { FolderOrganization } from './folder';
+import { pickExportedFolders } from './import-export-folders';
 
 type ConfigurableOptionsSpec = {
   [key: string]: true | ConfigurableOptionsSpec;
@@ -76,30 +77,6 @@ export interface ImportConnectionOptions {
 export interface ExportConnectionOptions extends ImportConnectionOptions {
   removeSecrets?: boolean;
   folderOrganization?: FolderOrganization;
-}
-
-export type ExportedFolder = Pick<
-  FolderOrganization['folders'][number],
-  'id' | 'name'
->;
-
-function pickExportedFolders(
-  { folders, assignments }: FolderOrganization,
-  connections: ConnectionInfo[]
-): { folders: ExportedFolder[]; folderAssignments: Record<string, string> } {
-  const folderAssignments: Record<string, string> = Object.create(null);
-  for (const { id } of connections) {
-    if (assignments[id]) {
-      folderAssignments[id] = assignments[id];
-    }
-  }
-  const usedFolderIds = new Set(Object.values(folderAssignments));
-  return {
-    folders: folders
-      .filter(({ id }) => usedFolderIds.has(id))
-      .map(({ id, name }) => ({ id, name })),
-    folderAssignments,
-  };
 }
 
 export async function serializeConnections(

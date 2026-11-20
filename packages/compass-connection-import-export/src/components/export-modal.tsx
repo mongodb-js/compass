@@ -5,7 +5,6 @@ import {
   Checkbox,
   css,
   FormFieldContainer,
-  FolderIcon,
   FormModal,
   openToast,
   SelectList,
@@ -19,6 +18,7 @@ import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export-connections';
 import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
+import { groupByFolder } from './group-by-folder';
 
 const tableStyles = css({
   maxHeight: '50vh',
@@ -96,35 +96,13 @@ export function ExportConnectionsModal({
 
   const enableConnectionFolders = usePreference('enableConnectionFolders');
   const { folders, folderAssignments } = useFolders();
-  const groups = useMemo(() => {
-    if (!enableConnectionFolders || folders.length === 0) {
-      return null;
-    }
-    // Same order as the sidebar.
-    const sortedFolders = folders
-      .slice()
-      .sort((a, b) =>
-        a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
-      );
-    const folderIds = new Set(folders.map((folder) => folder.id));
-    return [
-      ...sortedFolders.map((folder) => ({
-        id: folder.id,
-        name: folder.name,
-        icon: <FolderIcon />,
-        items: connectionList.filter(
-          (item) => folderAssignments[item.id] === folder.id
-        ),
-      })),
-      {
-        id: 'uncategorized',
-        name: 'Uncategorized',
-        items: connectionList.filter(
-          (item) => !folderIds.has(folderAssignments[item.id])
-        ),
-      },
-    ].filter((group) => group.items.length > 0);
-  }, [enableConnectionFolders, folders, folderAssignments, connectionList]);
+  const groups = useMemo(
+    () =>
+      enableConnectionFolders && folders.length > 0
+        ? groupByFolder(connectionList, folders, folderAssignments)
+        : null,
+    [enableConnectionFolders, folders, folderAssignments, connectionList]
+  );
 
   return (
     <FormModal

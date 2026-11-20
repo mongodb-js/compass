@@ -2456,6 +2456,7 @@ export const importConnections = (options: {
       if (connectionStorage.importConnections) {
         await connectionStorage.importConnections(options);
         connections = await connectionStorage.loadAll();
+        await dispatch(loadFolders());
       }
     } catch (err) {
       error = err;

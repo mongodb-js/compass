@@ -13,6 +13,10 @@ import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import { deleteCompassAppNameParam } from './utils';
 import type { FolderStorage } from './folder-storage';
 import {
+  deserializeFolders,
+  mergeImportedFolders,
+} from './import-export-folders';
+import {
   serializeConnections,
   deserializeConnections,
 } from './import-export-connection';
@@ -365,6 +369,16 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     await Promise.all(
       connections.map((connectionInfo) => this.save({ connectionInfo, signal }))
     );
+
+    if (this.folderStorage) {
+      await this.folderStorage.save({
+        folderOrganization: mergeImportedFolders(
+          await this.folderStorage.load(),
+          deserializeFolders(content),
+          connections.map(({ id }) => id)
+        ),
+      });
+    }
 
     log.info(
       mongoLogId(1_001_000_150),
