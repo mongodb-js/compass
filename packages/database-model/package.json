@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@mongodb-js/mongodb-collection-model": "^5.44.1",
-    "@mongodb-js/mongodb-ns": "^3.2.9",
+    "@mongodb-js/mongodb-ns": "^3.2.11",
     "ampersand-collection": "^2.0.2",
     "ampersand-model": "^8.0.1",
     "@mongodb-js/mongodb-data-service": "^22.42.1"
