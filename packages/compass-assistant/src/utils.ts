@@ -222,6 +222,13 @@ export function isAssistantThinking(
       return true;
     }
 
+    if (part.type === 'reasoning') {
+      // reasoning parts (including the "Using skill" step we create from the
+      // server's skill calls) are not rendered, and the server can stay silent
+      // for a while after one, so keep showing the thinking state
+      return true;
+    }
+
     // enough text should have arrived for us to at least start showing
     // something to the user, so we can stop showing the thinking state now
     return false;
