@@ -3,6 +3,8 @@ import { promises as fs } from 'node:fs';
 import { useCallback, useEffect, useState } from 'react';
 import {
   type ConnectionStorage,
+  type ExportedFolders,
+  deserializeFolders,
   useConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
 // This plugin is an exception from the rule
@@ -28,12 +30,14 @@ type ConnectionImportInfo = ConnectionShortInfo & {
 type ImportConnectionsState = CommonImportExportState<ConnectionImportInfo> & {
   passphraseRequired: boolean;
   fileContents: string;
+  fileFolders: ExportedFolders;
 };
 
 const INITIAL_STATE: Readonly<ImportConnectionsState> = Object.freeze({
   ...COMMON_INITIAL_STATE,
   passphraseRequired: false,
   fileContents: '',
+  fileFolders: { folders: [], folderAssignments: {} },
 });
 
 async function loadFile(
@@ -78,12 +82,14 @@ async function loadFile(
     return {
       fileContents,
       connectionList,
+      fileFolders: deserializeFolders(fileContents),
       error: '',
     };
   } catch (err: any) {
     return {
       fileContents: '',
       connectionList: [],
+      fileFolders: INITIAL_STATE.fileFolders,
       error: err.message,
       ...(err.passphraseRequired && { passphraseRequired: true }),
     };

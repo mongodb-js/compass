@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { cloneDeep } from 'lodash';
+import { EJSON } from 'bson';
 import {
   serializeConnections,
   deserializeConnections,
@@ -38,6 +39,54 @@ describe('Connection serialization', function () {
     expect(await deserializeConnections(serializedConnections)).to.deep.equal(
       CONNECTIONS
     );
+  });
+
+  it('exports only folders and assignments used by exported connections', async function () {
+    const serialized = await serializeConnections([CONNECTIONS[0]], {
+      folderOrganization: {
+        folders: [
+          { id: 'f1', name: 'used', lastModifiedAt: new Date() },
+          { id: 'f2', name: 'unused' },
+        ],
+        assignments: { id1: 'f1', id2: 'f2' },
+      },
+    });
+    const { folders, folderAssignments } = EJSON.parse(serialized);
+    expect(folders).to.deep.equal([{ id: 'f1', name: 'used' }]);
+    expect(folderAssignments).to.deep.equal({ id1: 'f1' });
+  });
+
+  it('writes no folder keys without a folder organization', async function () {
+    const parsed = EJSON.parse(await serializeConnections(CONNECTIONS));
+    expect(parsed).to.not.have.property('folders');
+    expect(parsed).to.not.have.property('folderAssignments');
+  });
+
+  describe('version compatibility - folders', function () {
+    const folderOrganization = {
+      folders: [{ id: 'f1', name: 'one' }],
+      assignments: { id1: 'f1' },
+    };
+
+    it('supports both file formats with and without folder keys', async function () {
+      const withFolders = await serializeConnections(CONNECTIONS, {
+        folderOrganization,
+      });
+      const withoutFolders = await serializeConnections(CONNECTIONS);
+      expect(await deserializeConnections(withFolders)).to.deep.equal(
+        await deserializeConnections(withoutFolders)
+      );
+    });
+
+    it('reads files from versions that predate folders', async function () {
+      const legacyFile = EJSON.stringify(
+        { type: 'Compass Connections', version: 1, connections: CONNECTIONS },
+        { relaxed: false }
+      );
+      expect(await deserializeConnections(legacyFile)).to.deep.equal(
+        CONNECTIONS
+      );
+    });
   });
 
   it('without secrets', async function () {

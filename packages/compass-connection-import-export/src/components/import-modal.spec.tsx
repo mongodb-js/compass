@@ -13,6 +13,7 @@ import {
   userEvent,
   waitFor,
   fireEvent,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import { ImportConnectionsModal } from './import-modal';
 
@@ -36,9 +37,15 @@ describe('ImportConnectionsModal', function () {
   function renderModal({
     open = true,
     connections = [],
-  }: { open?: boolean; connections?: ConnectionInfo[] } = {}) {
+    enableConnectionFolders = false,
+  }: {
+    open?: boolean;
+    connections?: ConnectionInfo[];
+    enableConnectionFolders?: boolean;
+  } = {}) {
     return render(<ImportConnectionsModal open={open} setOpen={setOpen} />, {
       connections,
+      preferences: { enableConnectionFolders },
       wrapper: ({ children }) => (
         <FileInputBackendProvider
           createFileInputBackend={() =>
@@ -134,6 +141,52 @@ describe('ImportConnectionsModal', function () {
     expect(screen.getByText('name1')).to.exist;
     expect(screen.getByText('name2')).to.exist;
     expect(screen.getByTestId('select-id1')).to.have.property('checked', true);
+  });
+
+  it("groups connections by the file's folders", async function () {
+    await fs.writeFile(
+      exampleFile,
+      JSON.stringify({
+        folders: [{ id: 'f1', name: 'Work' }],
+        folderAssignments: { id1: 'f1' },
+      })
+    );
+    const { connectionStorage } = renderModal({
+      enableConnectionFolders: true,
+    });
+    sandbox
+      .stub(connectionStorage, 'deserializeConnections')
+      .resolves([connection('id1', 'name1'), connection('id2', 'name2')]);
+
+    await selectFile();
+
+    expect(
+      within(screen.getByTestId('select-list-group-f1')).getByTestId(
+        'select-id1'
+      )
+    ).to.exist;
+    expect(
+      within(
+        screen.getByTestId('select-list-group-select-list-no-group')
+      ).getByTestId('select-id2')
+    ).to.exist;
+  });
+
+  it('lists everything as uncategorized when the file has no folders', async function () {
+    const { connectionStorage } = renderModal({
+      enableConnectionFolders: true,
+    });
+    sandbox
+      .stub(connectionStorage, 'deserializeConnections')
+      .resolves([connection('id1', 'name1')]);
+
+    await selectFile();
+
+    expect(
+      within(
+        screen.getByTestId('select-list-group-select-list-no-group')
+      ).getByTestId('select-id1')
+    ).to.exist;
   });
 
   it('marks already saved connections and warns when they are selected', async function () {

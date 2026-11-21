@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { ipcRenderer } from '@mongodb-js/hadron-ipc';
 import {
   Banner,
@@ -8,23 +8,31 @@ import {
   FormModal,
   openToast,
   SelectList,
+  SelectListWithGroups,
   ToastBody,
 } from '@mongodb-js/compass-components';
 import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
+import { useFolders } from '@mongodb-js/compass-connections/provider';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export-connections';
 import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
+import { groupByFolder } from './group-by-folder';
 
 const tableStyles = css({
-  maxHeight: '24vh',
+  maxHeight: '50vh',
   overflow: 'auto',
 });
 
 const SelectListLabel = {
   displayLabelKey: 'name',
   name: 'Connection Name',
+} as const;
+
+const SelectListWithGroupsLabel = {
+  ...SelectListLabel,
+  name: 'Folder & connection Name',
 } as const;
 
 export function ExportConnectionsModal({
@@ -91,6 +99,23 @@ export function ExportConnectionsModal({
     trackingProps,
   });
 
+  const enableConnectionFolders = usePreference('enableConnectionFolders');
+  const { folders, folderAssignments } = useFolders();
+  const groups = useMemo(
+    () =>
+      enableConnectionFolders
+        ? groupByFolder(connectionList, folders, folderAssignments)
+        : null,
+    [enableConnectionFolders, folders, folderAssignments, connectionList]
+  );
+
+  const listProps = {
+    className: tableStyles,
+    label: groups ? SelectListWithGroupsLabel : SelectListLabel,
+    disabled: inProgress,
+    onChange: onChangeConnectionList,
+  };
+
   return (
     <FormModal
       open={open}
@@ -106,13 +131,11 @@ export function ExportConnectionsModal({
       }
       data-testid="connection-export-modal"
     >
-      <SelectList
-        className={tableStyles}
-        items={connectionList}
-        label={SelectListLabel}
-        disabled={inProgress}
-        onChange={onChangeConnectionList}
-      />
+      {groups ? (
+        <SelectListWithGroups groups={groups} {...listProps} />
+      ) : (
+        <SelectList items={connectionList} {...listProps} />
+      )}
       <FormFieldContainer>
         <FileInput
           label="Target File"

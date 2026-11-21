@@ -8,17 +8,20 @@ import {
   spacing,
   openToast,
   SelectList,
+  SelectListWithGroups,
 } from '@mongodb-js/compass-components';
+import { usePreference } from '@mongodb-js/compass-preferences-model/provider';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import-connections';
 import { Passphrase } from './passphrase';
 import { FileInput } from './file-input';
+import { groupByFolder } from './group-by-folder';
 
 const TOAST_TIMEOUT_MS = 5000;
 
 const tableStyles = css({
-  maxHeight: '24vh',
+  maxHeight: '50vh',
   overflow: 'auto',
 });
 
@@ -79,6 +82,7 @@ export function ImportConnectionsModal({
       connectionList,
       filename,
       passphrase,
+      fileFolders,
     },
   } = useImportConnections({
     finish,
@@ -108,6 +112,26 @@ export function ImportConnectionsModal({
       connectionList.some((conn) => conn.isExistingConnection && conn.selected),
     ];
   }, [connectionList]);
+
+  const enableConnectionFolders = usePreference('enableConnectionFolders');
+  const groups = useMemo(
+    () =>
+      enableConnectionFolders
+        ? groupByFolder(
+            displayConnectionList,
+            fileFolders.folders,
+            fileFolders.folderAssignments
+          )
+        : null,
+    [enableConnectionFolders, displayConnectionList, fileFolders]
+  );
+
+  const listProps = {
+    className: tableStyles,
+    label: SelectListLabel,
+    disabled: inProgress,
+    onChange: onChangeConnectionList,
+  };
 
   return (
     <FormModal
@@ -143,15 +167,12 @@ export function ImportConnectionsModal({
           value={passphrase}
         />
       </FormFieldContainer>
-      {connectionList.length > 0 && (
-        <SelectList
-          className={tableStyles}
-          items={displayConnectionList}
-          label={SelectListLabel}
-          disabled={inProgress}
-          onChange={onChangeConnectionList}
-        />
-      )}
+      {connectionList.length > 0 &&
+        (groups ? (
+          <SelectListWithGroups groups={groups} {...listProps} />
+        ) : (
+          <SelectList items={displayConnectionList} {...listProps} />
+        ))}
       {(error && !passphraseRequired && (
         <Banner variant="danger">Error: {error}</Banner>
       )) ||

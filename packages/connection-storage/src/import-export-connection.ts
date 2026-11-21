@@ -8,6 +8,8 @@ import { extractSecrets, mergeSecrets } from '@mongodb-js/connection-info';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import { Decrypter, Encrypter } from './encrypt';
+import type { FolderOrganization } from './folder';
+import { pickExportedFolders } from './import-export-folders';
 
 type ConfigurableOptionsSpec = {
   [key: string]: true | ConfigurableOptionsSpec;
@@ -74,6 +76,7 @@ export interface ImportConnectionOptions {
 
 export interface ExportConnectionOptions extends ImportConnectionOptions {
   removeSecrets?: boolean;
+  folderOrganization?: FolderOrganization;
 }
 
 export async function serializeConnections(
@@ -84,6 +87,7 @@ export async function serializeConnections(
     passphrase = '',
     removeSecrets = false,
     trackingProps = undefined,
+    folderOrganization,
   } = options;
 
   if (passphrase && removeSecrets) {
@@ -131,6 +135,8 @@ export async function serializeConnections(
     type: kFileTypeDescription,
     version: kCurrentVersion,
     connections: exportConnections,
+    ...(folderOrganization &&
+      pickExportedFolders(folderOrganization, exportConnections)),
   };
 
   return EJSON.stringify(exportResult, undefined, 2, { relaxed: false });
