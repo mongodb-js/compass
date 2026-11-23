@@ -95,6 +95,33 @@ describe('utils', function () {
       });
     });
 
+    describe('when the last part is reasoning', function () {
+      it('should return true while streaming', function () {
+        const messages: AssistantMessage[] = [
+          {
+            id: '1',
+            role: 'assistant',
+            parts: [{ type: 'reasoning', text: 'Using skill: x' }],
+          },
+        ];
+        expect(isAssistantThinking('streaming', messages)).to.be.true;
+      });
+
+      it('should return false once text has arrived', function () {
+        const messages: AssistantMessage[] = [
+          {
+            id: '1',
+            role: 'assistant',
+            parts: [
+              { type: 'reasoning', text: 'Using skill: x' },
+              { type: 'text', text: 'Here is the answer' },
+            ],
+          },
+        ];
+        expect(isAssistantThinking('streaming', messages)).to.be.false;
+      });
+    });
+
     describe('when tools are running', function () {
       it('should return true when a tool is in approval-responded state', function () {
         const status: ChatStatus = 'streaming';
