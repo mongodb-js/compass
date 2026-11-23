@@ -39,6 +39,10 @@ const activatedIndicatorStyles = css({
   right: spacing[50],
 });
 
+const overlineStyles = css({
+  marginBottom: spacing[200],
+});
+
 const dividerStyles = css({
   width: '100%',
   marginTop: spacing[200],
@@ -224,7 +228,7 @@ export default function ConnectionsFilterPopover({
           </>
         )}
       >
-        <Overline>Filters</Overline>
+        <Overline className={overlineStyles}>Filters</Overline>
         <Checkbox
           id={excludeInactiveCheckboxId}
           checked={filter.excludeInactive}

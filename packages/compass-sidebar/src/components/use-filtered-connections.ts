@@ -83,16 +83,26 @@ interface FilteredTree {
   temporarilyExpandedFolderIds: string[];
 }
 
-/** Folder assignments are read, never written. */
-const filterConnections = (
-  connections: SidebarConnection[],
-  folders: Folder[],
-  folderAssignments: Record<string, string>,
-  regex: RegExp | null,
-  excludeInactive: boolean,
-  hiddenFolderIds: string[],
-  hideUncategorizedConnections: boolean
-): FilteredTree => {
+interface FilterConnectionsParams {
+  connections: SidebarConnection[];
+  folders: Folder[];
+  /** Read, never written. */
+  folderAssignments: Record<string, string>;
+  regex: RegExp | null;
+  excludeInactive: boolean;
+  hiddenFolderIds: string[];
+  hideUncategorizedConnections: boolean;
+}
+
+const filterConnections = ({
+  connections,
+  folders,
+  folderAssignments,
+  regex,
+  excludeInactive,
+  hiddenFolderIds,
+  hideUncategorizedConnections,
+}: FilterConnectionsParams): FilteredTree => {
   const hiddenFolders = new Set(hiddenFolderIds);
   const foldersById = new Map(folders.map((folder) => [folder.id, folder]));
 
@@ -439,15 +449,15 @@ const connectionsReducer = (
         connections: filteredConnections,
         filteredFolders,
         temporarilyExpandedFolderIds,
-      } = filterConnections(
+      } = filterConnections({
         connections,
         folders,
         folderAssignments,
-        filterRegex,
+        regex: filterRegex,
         excludeInactive,
         hiddenFolderIds,
-        hideUncategorizedConnections
-      );
+        hideUncategorizedConnections,
+      });
       const persistingExpanded = revertTemporaryExpanded(state.expanded);
       const persistingFolders = revertTemporaryExpandedFolders(
         state.expandedFolders

@@ -113,7 +113,6 @@ const connectionCountDisabledStyles = css({
   opacity: 0.6,
 });
 
-// Centered per the mockup; color comes from the Description component itself.
 const noSearchResultsStyles = css({
   padding: spacing[400],
   textAlign: 'center',
@@ -374,21 +373,20 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const onFolderModalSubmit = useCallback(
     (name: string) => {
-      let request: Promise<unknown>;
+      onCloseFolderModal();
       switch (folderModalTarget.mode) {
         case 'rename':
-          request = onRenameFolder(folderModalTarget.folderId, name);
+          void onRenameFolder(folderModalTarget.folderId, name);
           break;
         case 'create-and-move':
-          request = onMoveConnectionsToNewFolder(
+          void onMoveConnectionsToNewFolder(
             [folderModalTarget.connectionId],
             name
           );
           break;
         default:
-          request = onCreateFolder(name);
+          void onCreateFolder(name);
       }
-      void request.then(onCloseFolderModal);
     },
     [
       onCreateFolder,
@@ -850,7 +848,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           className={noSearchResultsStyles}
           data-testid="no-search-results"
         >
-          No matching folders, connections or databases
+          No matching folders, connections, or databases
         </Description>
       ) : connections.length > 0 ? (
         <ConnectionsNavigationTree

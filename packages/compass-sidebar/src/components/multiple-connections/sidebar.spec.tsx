@@ -501,7 +501,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
           await waitFor(() => {
             expect(
-              screen.getByText('No matching folders, connections or databases')
+              screen.getByText('No matching folders, connections, or databases')
             ).to.be.visible;
           });
           expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
@@ -1203,7 +1203,7 @@ describe('Multiple Connections Sidebar Component', function () {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
       expect(screen.queryByTestId(savedRecentConnection.id)).not.to.exist;
-      expect(screen.getByText('No matching folders, connections or databases'))
+      expect(screen.getByText('No matching folders, connections, or databases'))
         .to.be.visible;
     });
 
@@ -1221,7 +1221,7 @@ describe('Multiple Connections Sidebar Component', function () {
       await waitFor(() => {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
-      expect(screen.getByText('No matching folders, connections or databases'))
+      expect(screen.getByText('No matching folders, connections, or databases'))
         .to.be.visible;
     });
 
@@ -1273,7 +1273,7 @@ describe('Multiple Connections Sidebar Component', function () {
       });
     });
 
-    it('should render the filter caption in the secondary text color, sized like the tree labels', async function () {
+    it('should render the filter caption in the secondary text color', async function () {
       await renderWithFolders(true);
 
       userEvent.click(screen.getByLabelText('Filter connections'));
@@ -1286,9 +1286,9 @@ describe('Multiple Connections Sidebar Component', function () {
       const caption = await screen.findByText('Filter applied');
       const styles = getComputedStyle(caption);
 
-      // LeafyGreen's Description sets its own color; a wrapper's color would be ignored.
+      // LeafyGreen's Disclaimer sets its own color; a wrapper's color would be ignored.
       expect(styles.color).to.equal(toRgb(palette.gray.dark1));
-      expect(styles.fontSize).to.equal('12px');
+      expect(styles.fontSize).to.equal('11px');
     });
 
     it('should say a filter is applied while the folder filter hides a folder', async function () {
@@ -1357,7 +1357,9 @@ describe('Multiple Connections Sidebar Component', function () {
       userEvent.type(searchInput, 'enron(');
 
       expect(
-        await screen.findByText('No matching folders, connections or databases')
+        await screen.findByText(
+          'No matching folders, connections, or databases'
+        )
       ).to.be.visible;
       expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
 
@@ -1375,7 +1377,9 @@ describe('Multiple Connections Sidebar Component', function () {
       userEvent.type(searchInput, 'happy/*<>');
 
       expect(
-        await screen.findByText('No matching folders, connections or databases')
+        await screen.findByText(
+          'No matching folders, connections, or databases'
+        )
       ).to.be.visible;
 
       userEvent.clear(searchInput);

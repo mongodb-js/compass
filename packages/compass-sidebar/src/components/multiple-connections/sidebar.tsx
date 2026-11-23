@@ -166,7 +166,8 @@ export function MultipleConnectionSidebar({
     setCsfleModalConnectionId(undefined);
   }, []);
 
-  // A deleted folder's id shouldn't linger and keep the filter active hiding nothing.
+  // Folders can be deleted while the filter hides them. We remove those
+  // ids so the filter doesn't show as active while hiding nothing.
   const effectiveConnectionsFilter = useMemo<ConnectionsFilter>(() => {
     if (!connectionsFilter.hiddenFolderIds?.length) {
       return connectionsFilter;

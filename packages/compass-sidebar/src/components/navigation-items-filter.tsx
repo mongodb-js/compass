@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import {
   css,
-  cx,
-  Description,
+  Disclaimer,
   Link,
   spacing,
   TextInput,
@@ -33,12 +32,6 @@ const filterRowStyles = css({
 
 const textInputStyles = css({
   flexGrow: 1,
-});
-
-const captionTextStyles = css({
-  // Matches the tree labels below it.
-  fontSize: '12px',
-  lineHeight: '16px',
 });
 
 const captionRowStyles = css({
@@ -113,10 +106,8 @@ export default function NavigationItemsFilter({
         />
       </form>
       {areConnectionsFiltersActive(filter) && (
-        <div className={cx(captionTextStyles, captionRowStyles)}>
-          <Description className={captionTextStyles}>
-            Filter applied
-          </Description>
+        <div className={captionRowStyles}>
+          <Disclaimer>Filter applied</Disclaimer>
           <Link as="button" hideExternalIcon onClick={onReset}>
             Reset
           </Link>
