@@ -14,7 +14,6 @@ import {
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from '@mongodb-js/hadron-ipc';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
@@ -89,7 +88,8 @@ export class CompassAuthService {
     init: RequestInit = {}
   ): Promise<Response> => {
     this.throwIfNetworkTrafficDisabled();
-    throwIfAborted(init.signal ?? undefined);
+    // @ts-expect-error node-fetch types `signal` without throwIfAborted; remove once devtools-proxy-support exports a RequestInit with the global AbortSignal
+    init.signal?.throwIfAborted();
     log.info(
       mongoLogId(1_001_000_299),
       'AtlasService',
@@ -229,7 +229,7 @@ export class CompassAuthService {
   }
 
   private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     this.throwIfNetworkTrafficDisabled();
     // Even if we still have a usable token stored, we should not to use it
     // when Atlas sign in is disabled for the organization
@@ -278,7 +278,7 @@ export class CompassAuthService {
   static async isAuthenticated({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
-    throwIfAborted(signal);
+    signal?.throwIfAborted();
     if (!this.options.isAtlasSignInEnabled()) {
       return false;
     }
@@ -327,7 +327,7 @@ export class CompassAuthService {
     }
     try {
       this.signInPromise = (async () => {
-        throwIfAborted(signal);
+        signal?.throwIfAborted();
         this.throwIfNetworkTrafficDisabled();
         this.throwIfAtlasSignInDisabled();
 

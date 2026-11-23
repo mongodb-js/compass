@@ -16,7 +16,7 @@ import {
   WarningSummary,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastTypes } from '@mongodb-js/hadron-type-checker';
 import { useFieldsSchema } from '@mongodb-js/compass-field-store';
 import type { StageWizardUseCase } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { STAGE_WIZARD_USE_CASES } from '../aggregation-side-panel/stage-wizard-use-cases';

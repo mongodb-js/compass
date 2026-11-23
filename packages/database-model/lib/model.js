@@ -133,7 +133,7 @@ const DatabaseModel = AmpersandModel.extend(
     },
     /**
      * @param {{
-     *    dataService: import('mongodb-data-service').DataService,
+     *    dataService: import('@mongodb-js/mongodb-data-service').DataService,
      *    force: boolean
      * }} options
      * @param force
@@ -171,7 +171,7 @@ const DatabaseModel = AmpersandModel.extend(
 
     /**
      * @param {{
-     *    dataService: import('mongodb-data-service').DataService,
+     *    dataService: import('@mongodb-js/mongodb-data-service').DataService,
      *    force: boolean
      * }} options
      * @returns {Promise<void>}
@@ -240,7 +240,7 @@ const DatabaseCollection = AmpersandCollection.extend(
     model: DatabaseModel,
 
     /**
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
+     * @param {{ dataService: import('@mongodb-js/mongodb-data-service').DataService }} dataService
      * @returns {Promise<void>}
      */
     async fetch({ dataService }) {

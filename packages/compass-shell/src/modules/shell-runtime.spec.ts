@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { waitUntil } from '@mongodb-js/compass-utils';
+import { waitUntil } from '@mongodb-js/compass-events';
 import { ShellRuntime } from './shell-runtime';
 
 describe('ShellRuntime', function () {

@@ -1,6 +1,6 @@
 import type { MongoClientOptions, AutoEncryptionOptions } from 'mongodb';
 import { isLocalhost } from '@mongodb-js/mongodb-build-info';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ConnectionStringParsingOptions } from 'mongodb-connection-string-url';
 import { hasAnyCsfleOption } from '../utils/csfle-handler';

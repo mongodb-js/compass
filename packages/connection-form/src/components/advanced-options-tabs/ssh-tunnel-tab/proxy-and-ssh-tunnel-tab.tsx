@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 import React, { useState, useCallback, useMemo } from 'react';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import {
   Label,
   RadioBox,

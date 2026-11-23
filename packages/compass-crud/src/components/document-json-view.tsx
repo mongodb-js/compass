@@ -1,7 +1,7 @@
 import React from 'react';
 import { css, cx, KeylineCard, spacing } from '@mongodb-js/compass-components';
 
-import type Document from 'hadron-document';
+import type Document from '@mongodb-js/hadron-document';
 import type { JSONEditorProps } from './json-editor';
 import JSONEditor from './json-editor';
 

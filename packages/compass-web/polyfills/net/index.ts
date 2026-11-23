@@ -1,6 +1,6 @@
 import { Duplex } from 'node:stream';
 import { ipVersion } from 'is-ip';
-import { getMultiplexLink } from '../../src/multiplex-link';
+import { getLink } from '../../src/multiplex-link';
 
 type ConnectOptions = {
   host: string;
@@ -25,7 +25,7 @@ class Socket extends Duplex {
   }
 
   connect(options: ConnectOptions) {
-    const link = getMultiplexLink();
+    const link = getLink();
     if (!link) {
       throw new Error('Link is not available');
     }
@@ -76,7 +76,7 @@ class Socket extends Duplex {
     _encoding: BufferEncoding,
     cb: (error?: Error) => void
   ) {
-    const link = getMultiplexLink();
+    const link = getLink();
     if (!link || this._localPort === 0) {
       queueMicrotask(() => {
         cb(new Error('Socket not connected: link unavailable'));
@@ -96,7 +96,7 @@ class Socket extends Duplex {
   }
   private _teardown(errorMessage?: string): void {
     if (this._localPort === 0) return;
-    const link = getMultiplexLink();
+    const link = getLink();
     if (errorMessage && link) {
       link.sendError(
         this._localPort,

@@ -170,11 +170,30 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableVectorXPrivatePreview',
-    stage: 'development',
+    stage: 'preview',
     atlasCloudFeatureScope: 'group',
     description: {
       short:
         'Enable VectorX support for vector search indexes (private preview)',
+    },
+  },
+
+  /*
+   * Feature flag for auto-embedding lexical prefilter support in the
+   * search index schema.
+   *
+   * Desktop Compass has no project-entitlement sync (that only exists in
+   * Compass Web), so this is exposed under Feature Preview settings and
+   * enabled manually there, matching how enableAutoEmbeddingPublicPreview
+   * works on desktop.
+   */
+  {
+    name: 'enableAutoEmbeddingLexicalPrefilter',
+    stage: 'preview',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short:
+        'Enable auto-embedding lexical prefilter syntax in search index editor',
     },
   },
 

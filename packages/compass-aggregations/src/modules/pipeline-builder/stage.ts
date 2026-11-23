@@ -13,7 +13,7 @@ import {
 import {
   generate,
   parseShellBSON,
-  PipelineParserError,
+  type PipelineParserError,
 } from './pipeline-parser/utils';
 import { getId } from './stage-ids';
 
@@ -104,8 +104,14 @@ export default class Stage {
       return;
     }
     const { operator, value } = this;
+    // If there's no operator, we show that warning, so let's
+    // skip the validation part.
+    if (!value || !this.operator) {
+      return;
+    }
     try {
-      await parseShellBSON(this.toString());
+      // Parse only the value so error positions match the stage editor text
+      await parseShellBSON(value);
     } catch (e) {
       // Stage might have been edited while parsing
       if (
@@ -113,11 +119,7 @@ export default class Stage {
         this.value === value &&
         !this.syntaxError
       ) {
-        this.syntaxError = new PipelineParserError(
-          (e as Error).message,
-          undefined,
-          StageAssertionErrorCodes.InvalidStageValue
-        );
+        this.syntaxError = e as PipelineParserError;
       }
     }
   }
@@ -126,7 +128,10 @@ export default class Stage {
     this.operator = operator;
     try {
       if (!isStageLike(this.node, true)) {
-        this.node = createStageNode({ key: operator });
+        this.node = createStageNode({
+          key: operator,
+          value: this.value ?? undefined,
+        });
       } else {
         this.node.properties[0].key = { type: 'Identifier', name: operator };
       }

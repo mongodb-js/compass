@@ -1,5 +1,8 @@
 import { isEqual, pick } from 'lodash';
-import type { IndexBuildProgress, IndexDefinition } from 'mongodb-data-service';
+import type {
+  IndexBuildProgress,
+  IndexDefinition,
+} from '@mongodb-js/mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,
@@ -434,7 +437,6 @@ const fetchIndexes = (
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1: false, // regular indexes are not affected by the experiment
       enableIndexesManagement,
     })(getState());
 

@@ -1,4 +1,4 @@
-export type { Actions } from './constants';
+export type { Actions, ActionPayload, OnItemAction } from './constants';
 export type {
   Connection as SidebarConnection,
   ConnectedConnection as SidebarConnectedConnection,
@@ -10,6 +10,7 @@ export type {
   NotConnectedConnectionTreeItem as SidebarNotConnectedConnectionTreeItem,
   DatabaseTreeItem as SidebarDatabaseTreeItem,
   CollectionTreeItem as SidebarCollectionTreeItem,
+  FolderTreeItem as SidebarFolderTreeItem,
 } from './tree-data';
 export {
   ConnectionsNavigationTree,

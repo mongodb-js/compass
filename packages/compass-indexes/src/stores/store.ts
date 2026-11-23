@@ -1,7 +1,7 @@
 import type { Store } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type {
@@ -10,7 +10,6 @@ import type {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
@@ -73,7 +72,6 @@ export type IndexesPluginServices = {
   atlasService: AtlasService;
   preferences: PreferencesAccess;
   workspaces: WorkspacesService;
-  experimentationServices: ExperimentationServices;
 };
 
 export type IndexesPluginOptions = {
@@ -101,7 +99,6 @@ export function activateIndexesPlugin(
     atlasService,
     preferences,
     workspaces,
-    experimentationServices,
   }: IndexesPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -137,7 +134,6 @@ export function activateIndexesPlugin(
         ),
         pollingIntervalRef,
         preferences,
-        experimentationServices,
       })
     )
   );

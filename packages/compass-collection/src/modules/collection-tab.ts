@@ -1,7 +1,6 @@
 import type { Reducer, AnyAction, Action } from 'redux';
 import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import { UUID } from 'bson';
-import { isCancelError } from '@mongodb-js/compass-utils';
 
 import type { CollectionMetadata } from '@mongodb-js/mongodb-collection-model';
 import type { ThunkAction } from 'redux-thunk';
@@ -13,11 +12,14 @@ import type {
 } from '@mongodb-js/compass-connections/provider';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { experimentationServiceLocator } from '@mongodb-js/compass-telemetry/provider';
+import type {
+  experimentationServiceLocator,
+  TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { type PreferencesAccess } from '@mongodb-js/compass-preferences-model/provider';
 import type { MockDataSchemaRequest } from '@mongodb-js/compass-generative-ai';
-import { isInternalFieldPath } from 'hadron-document';
+import { isInternalFieldPath } from '@mongodb-js/hadron-document';
 import toNS from '@mongodb-js/mongodb-ns';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { Document, MongoError } from 'mongodb';
@@ -110,6 +112,7 @@ type CollectionThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
     experimentationServices: ReturnType<typeof experimentationServiceLocator>;
     logger: Logger;
     preferences: PreferencesAccess;
+    track: TrackFunction;
     connectionInfoRef: ConnectionInfoRef;
     fakerSchemaGenerationAbortControllerRef: { current?: AbortController };
     schemaAnalysisAbortControllerRef: { current?: AbortController };
@@ -601,7 +604,14 @@ export const selectTab = (
 export const openMockDataGeneratorModal = (): CollectionThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState, { atlasAiService, logger }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasAiService, logger, preferences, track }
+  ) => {
+    track('Mock Data Generator Clicked', {
+      ai_opted_in: preferences.getPreferences().optInGenAIFeatures,
+    });
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();
@@ -757,7 +767,7 @@ export const analyzeCollectionSchema = (): CollectionThunkAction<
     } catch (err: any) {
       // Check if the error is due to cancellation
       if (abortController.signal.aborted) return;
-      if (isCancelError(err)) {
+      if (err?.name === 'AbortError') {
         logger.debug('Schema analysis was aborted');
         dispatch({
           type: CollectionActions.SchemaAnalysisCanceled,
@@ -986,7 +996,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
         requestId: requestId,
       });
     } catch (e) {
-      if (isCancelError(e)) {
+      if ((e as Error)?.name === 'AbortError') {
         // abort errors should not produce error logs
         return;
       }

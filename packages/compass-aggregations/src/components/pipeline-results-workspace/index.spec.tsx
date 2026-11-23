@@ -1,4 +1,4 @@
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import type { ComponentProps } from 'react';
 import React from 'react';
 import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';

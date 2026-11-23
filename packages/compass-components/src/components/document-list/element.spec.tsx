@@ -7,8 +7,8 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import HadronDocument from 'hadron-document';
-import type { Element } from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
+import type { Element } from '@mongodb-js/hadron-document';
 import { BSON } from 'bson';
 import { HadronElement, getNestedKeyPathForElement } from './element';
 import { getDraggedDocumentField } from './field-drag';

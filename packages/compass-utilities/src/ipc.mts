@@ -1,4 +1,4 @@
-import { listen, type EventSource } from '@mongodb-js/compass-utils';
+import { listen, type EventSource } from '@mongodb-js/compass-events';
 
 /**
  * What a utility talks to its host through: Electron's `process.parentPort`

@@ -1,4 +1,4 @@
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { capMaxTimeMSAtPreferenceLimit } from '@mongodb-js/compass-preferences-model/provider';
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';

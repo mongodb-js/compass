@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 import {
   Body,
   css,
@@ -13,10 +13,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { usePreferences } from '@mongodb-js/compass-preferences-model/provider';
-import {
-  useSearchActivationProgramP1,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { isReadyStatus } from '../../utils/fetch-status';
 import { dropSearchIndex } from '../../modules/search-indexes';
 import {
@@ -201,13 +198,11 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     'enableAtlasSearchIndexes',
     'enableIndexesManagement',
   ]);
-  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
       enableIndexesManagement,
     }),
     shallowEqual

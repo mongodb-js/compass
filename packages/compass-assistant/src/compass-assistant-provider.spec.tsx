@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import type { UIMessageChunk } from 'ai';
 
 import {
   DrawerAnchor,
@@ -350,6 +351,7 @@ describe('CompassAssistantProvider', function () {
       enableToolCalling = true,
       enableGenAIToolCallingAtlasProject = true,
       enableGenAIToolCalling = true,
+      trackUsageStatistics,
       maxTimeMS,
       query,
       pipeline,
@@ -365,6 +367,7 @@ describe('CompassAssistantProvider', function () {
       enableToolCalling?: boolean;
       enableGenAIToolCallingAtlasProject?: boolean;
       enableGenAIToolCalling?: boolean;
+      trackUsageStatistics?: boolean;
       maxTimeMS?: number;
       query?: string;
       pipeline?: string;
@@ -395,6 +398,9 @@ describe('CompassAssistantProvider', function () {
             enableToolCalling,
             enableGenAIToolCallingAtlasProject,
             enableGenAIToolCalling,
+            ...(trackUsageStatistics !== undefined
+              ? { trackUsageStatistics }
+              : {}),
             maxTimeMS,
           },
         }
@@ -693,6 +699,41 @@ describe('CompassAssistantProvider', function () {
         connections: [],
         query,
         pipeline,
+      });
+    });
+
+    it('disables MCP telemetry when usage statistics are off', async function () {
+      const mockChat = createChat({ messages: [] });
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        trackUsageStatistics: false,
+      });
+
+      userEvent.type(
+        screen.getByPlaceholderText('Ask a question'),
+        'Hello assistant'
+      );
+      userEvent.click(screen.getByLabelText('Send message'));
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+      });
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.include({
+        enableMCPTelemetry: false,
       });
     });
 
@@ -1343,6 +1384,95 @@ describe('CompassAssistantProvider', function () {
     expect(fetchStub.lastCall.args[0]).to.eq(
       'https://example.com/assistant/api/v1/responses'
     );
+  });
+
+  describe('sending automatically after tool calls', function () {
+    function createScriptedTransport(responses: UIMessageChunk[][]) {
+      const sendMessages = sinon.stub();
+      responses.forEach((chunks, i) => {
+        sendMessages.onCall(i).callsFake(() =>
+          Promise.resolve(
+            new ReadableStream<UIMessageChunk>({
+              start(controller) {
+                chunks.forEach((chunk) => controller.enqueue(chunk));
+                controller.close();
+              },
+            })
+          )
+        );
+      });
+      return {
+        sendMessages,
+        reconnectToStream: () => Promise.resolve(null),
+      };
+    }
+
+    const toolStep: UIMessageChunk[] = [
+      { type: 'start' },
+      { type: 'start-step' },
+      {
+        type: 'tool-input-available',
+        toolCallId: 'call-1',
+        toolName: 'list-databases',
+        input: {},
+      },
+      {
+        type: 'tool-output-available',
+        toolCallId: 'call-1',
+        output: { databases: [] },
+      },
+      { type: 'finish-step' },
+      { type: 'finish' },
+    ];
+
+    const answerStep: UIMessageChunk[] = [
+      { type: 'start' },
+      { type: 'start-step' },
+      { type: 'text-start', id: 't1' },
+      { type: 'text-delta', id: 't1', delta: 'No databases found' },
+      { type: 'text-end', id: 't1' },
+      { type: 'finish-step' },
+      { type: 'finish' },
+    ];
+
+    function createChat(transport: ReturnType<typeof createScriptedTransport>) {
+      return createDefaultChat({
+        options: { transport },
+        originForPrompt: 'foo',
+        appNameForPrompt: 'bar',
+        atlasService: {
+          assistantApiEndpoint: () => 'https://example.com/assistant/api/v1',
+        } as unknown as AtlasService,
+        logger: createNoopLogger(),
+        track: () => undefined,
+      });
+    }
+
+    it('asks the model to respond after a tool that needed no approval ran', async function () {
+      const transport = createScriptedTransport([toolStep, answerStep]);
+      const chat = createChat(transport);
+
+      await chat.sendMessage({ text: 'list my databases' });
+
+      await waitFor(() => {
+        expect(transport.sendMessages).to.have.been.calledTwice;
+      });
+      await waitFor(() => {
+        expect(chat.status).to.equal('ready');
+        const last = chat.messages[chat.messages.length - 1];
+        expect(last.parts.some((p) => p.type === 'text')).to.be.true;
+      });
+    });
+
+    it('does not send again after a plain text response', async function () {
+      const transport = createScriptedTransport([answerStep]);
+      const chat = createChat(transport);
+
+      await chat.sendMessage({ text: 'hello' });
+      await waitFor(() => expect(chat.status).to.equal('ready'));
+
+      expect(transport.sendMessages).to.have.been.calledOnce;
+    });
   });
 
   describe('model selection', function () {

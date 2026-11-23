@@ -849,7 +849,7 @@ describe('addField', function () {
 
     it('add a field to a nested array [properties, items]', function () {
       const schema = {
-        type: 'object',
+        type: 'object' as const,
         properties: {
           parent: {
             bsonType: 'object',
@@ -905,7 +905,7 @@ describe('addField', function () {
 
     it('add a field to an array of objects [items, properties]', function () {
       const schema = {
-        type: 'object',
+        type: 'object' as const,
         properties: {
           arrayOfObjects: {
             bsonType: 'array',
@@ -943,7 +943,7 @@ describe('addField', function () {
 
     it('add a field to a touple containing object [items, properties]', function () {
       const schema = {
-        type: 'object',
+        type: 'object' as const,
         properties: {
           tupleWithObject: {
             bsonType: 'array',
@@ -988,7 +988,7 @@ describe('addField', function () {
 
     it('add a field to a mixed type with object [anyOf, properties]', function () {
       const schema = {
-        type: 'object',
+        type: 'object' as const,
         properties: {
           mixedField: {
             anyOf: [
@@ -1032,7 +1032,7 @@ describe('addField', function () {
 
     it('add a field to a mixed array with objects [items, anyOf, properties]', function () {
       const schema = {
-        type: 'object',
+        type: 'object' as const,
         properties: {
           mixedArrayField: {
             bsonType: 'array',
@@ -1095,7 +1095,7 @@ describe('addField', function () {
 
     it('add a field to a mixed type [anyOf, items, properties]', function () {
       const schema = {
-        type: 'object',
+        type: 'object' as const,
         properties: {
           maybeArrayField: {
             anyOf: [

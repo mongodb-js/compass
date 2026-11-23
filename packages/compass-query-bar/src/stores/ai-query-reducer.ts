@@ -12,6 +12,7 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { QueryFormFields } from '../constants/query-properties';
 import {
+  isQueryValid,
   mapQueryToFormFields,
   parseQueryAttributesToFormFields,
 } from '../utils/query';
@@ -387,12 +388,14 @@ export const runAIQuery = (
       return;
     }
 
+    const syntaxErrors = !isQueryValid(queryFields);
     log.info(
       mongoLogId(1_001_000_199),
       'AIQuery',
       'AI query request succeeded',
       {
         requestId,
+        syntaxErrors,
         shape: Object.keys(generatedFields),
       }
     );
@@ -400,6 +403,7 @@ export const runAIQuery = (
       'AI Response Generated',
       () => ({
         editor_view_type: 'find' as const,
+        syntax_errors: syntaxErrors,
         query_shape: Object.keys(generatedFields),
         request_id: requestId,
       }),

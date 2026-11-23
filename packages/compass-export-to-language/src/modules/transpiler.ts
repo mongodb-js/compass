@@ -1,5 +1,5 @@
 import toNS from '@mongodb-js/mongodb-ns';
-import compiler from 'bson-transpilers';
+import compiler from '@mongodb-js/bson-transpilers';
 import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 
 import type { OutputLanguage } from './languages';

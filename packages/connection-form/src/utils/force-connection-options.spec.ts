@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import { applyForceConnectionOptions } from './force-connection-options';
 
 describe('applyForceConnectionOptions', function () {

@@ -6,8 +6,8 @@ import {
   Menu,
   MenuItem,
 } from '@mongodb-js/compass-components';
-import type Document from 'hadron-document';
-import type { Element } from 'hadron-document';
+import type Document from '@mongodb-js/hadron-document';
+import type { Element } from '@mongodb-js/hadron-document';
 import type { CellEditorProps } from './cell-editor';
 
 /**

@@ -16,7 +16,7 @@ import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import {
   type ConnectionStorage,
   FolderStorageProvider,
-  type FolderStorageService,
+  type FolderStorage,
 } from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import React from 'react';
@@ -101,7 +101,7 @@ type HomeWithConnectionsProps = HomeProps &
     'onAutoconnectInfoRequest'
   > & {
     connectionStorage: ConnectionStorage;
-    folderStorage: FolderStorageService;
+    folderStorage: FolderStorage;
     createFileInputBackend: () => FileInputBackend;
   };
 
@@ -193,7 +193,7 @@ export default function ThemedHome(
       onContextMenuItemClick={(itemGroup, item) => {
         track('Context Menu Item Clicked', {
           item_group: itemGroup.telemetryLabel,
-          item_label: item.label,
+          item_label: item.trackingLabel ?? item.label,
         });
       }}
       onDrawerSectionOpen={(drawerSectionId) => {

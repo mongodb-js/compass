@@ -20,7 +20,9 @@ export const ALLOWED_PUBLISH_ENVIRONMENTS = ['dev', 'qa', 'staging', 'prod'];
 
 export const PUBLISH_ENVIRONMENT = process.env.COMPASS_WEB_PUBLISH_ENVIRONMENT;
 
-export const DRY_RUN = process.env.COMPASS_WEB_PUBLISH_DRY_RUN === 'true';
+export const DRY_RUN =
+  process.env.COMPASS_WEB_PUBLISH_DRY_RUN === 'true' ||
+  process.argv.includes('--dry-run');
 
 export const RELEASE_COMMIT =
   process.env.COMPASS_WEB_RELEASE_COMMIT ||

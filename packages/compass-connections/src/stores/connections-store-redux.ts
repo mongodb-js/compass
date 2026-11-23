@@ -11,6 +11,8 @@ import {
 } from '@mongodb-js/connection-info';
 import type {
   ConnectionStorage,
+  Folder,
+  FolderStorage,
   ImportConnectionOptions,
 } from '@mongodb-js/connection-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
@@ -21,8 +23,8 @@ import type {
   ConnectionOptions,
   DataService,
   InstanceDetails,
-} from 'mongodb-data-service';
-import { createConnectionAttempt } from 'mongodb-data-service';
+} from '@mongodb-js/mongodb-data-service';
+import { createConnectionAttempt } from '@mongodb-js/mongodb-data-service';
 import { UUID } from 'bson';
 import { assign, cloneDeep, isEqual, merge } from 'lodash';
 import {
@@ -197,12 +199,20 @@ export type State = {
 
   editingConnectionInfoId: ConnectionId | null;
   isEditingConnectionInfoModalOpen: boolean;
+
+  folders: {
+    ids: string[];
+    byId: Record<string, Folder>;
+  };
+  // Absent means uncategorized.
+  folderAssignments: Record<ConnectionId, string>;
 };
 
 type ThunkExtraArg = {
   appName: string;
   preferences: PreferencesAccess;
   connectionStorage: ConnectionStorage;
+  folderStorage: FolderStorage;
   track: TrackFunction;
   logger: Logger;
   getExtraConnectionData: (
@@ -273,6 +283,13 @@ export const ActionTypes = {
   SaveConnectionInfo: 'SaveConnectionInfo',
   RemoveConnection: 'RemoveConnection',
   RemoveAllRecentConnections: 'RemoveAllRecentConnections',
+
+  // Folders
+  FoldersLoadSuccess: 'FoldersLoadSuccess',
+  CreateFolder: 'CreateFolder',
+  RenameFolder: 'RenameFolder',
+  DeleteFolder: 'DeleteFolder',
+  MoveConnectionsToFolder: 'MoveConnectionsToFolder',
 } as const;
 
 type ConnectionsLoadStartAction = {
@@ -409,6 +426,34 @@ type RemoveAllRecentConnectionsActions = {
   type: typeof ActionTypes.RemoveAllRecentConnections;
 };
 
+type FoldersLoadSuccessAction = {
+  type: typeof ActionTypes.FoldersLoadSuccess;
+  folders: Folder[];
+  folderAssignments: Record<ConnectionId, string>;
+};
+
+type CreateFolderAction = {
+  type: typeof ActionTypes.CreateFolder;
+  folder: Folder;
+};
+
+type RenameFolderAction = {
+  type: typeof ActionTypes.RenameFolder;
+  folderId: string;
+  name: string;
+};
+
+type DeleteFolderAction = {
+  type: typeof ActionTypes.DeleteFolder;
+  folderId: string;
+};
+
+type MoveConnectionsToFolderAction = {
+  type: typeof ActionTypes.MoveConnectionsToFolder;
+  connectionIds: ConnectionId[];
+  folderId: string | null;
+};
+
 function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']
@@ -475,6 +520,11 @@ const INITIAL_STATE: State = {
   },
   editingConnectionInfoId: null,
   isEditingConnectionInfoModalOpen: false,
+  folders: {
+    ids: [],
+    byId: {},
+  },
+  folderAssignments: {},
 };
 
 export function getInitialConnectionsStateForConnectionInfos(
@@ -499,6 +549,13 @@ export function getInitialConnectionsStateForConnectionInfos(
     ids: getSortedIdsForConnections(Object.values(byId)),
     status: 'ready',
     error: null,
+  };
+}
+
+function foldersToNormalizedState(folders: Folder[]): State['folders'] {
+  return {
+    ids: folders.map((folder) => folder.id),
+    byId: Object.fromEntries(folders.map((folder) => [folder.id, folder])),
   };
 }
 
@@ -1204,6 +1261,78 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
           newConnection?.info.id ?? state.editingConnectionInfoId,
         isEditingConnectionInfoModalOpen: false,
       }),
+    };
+  }
+  if (
+    isAction<FoldersLoadSuccessAction>(action, ActionTypes.FoldersLoadSuccess)
+  ) {
+    return {
+      ...state,
+      folders: foldersToNormalizedState(action.folders),
+      folderAssignments: action.folderAssignments,
+    };
+  }
+  if (isAction<CreateFolderAction>(action, ActionTypes.CreateFolder)) {
+    return {
+      ...state,
+      folders: {
+        ids: [...state.folders.ids, action.folder.id],
+        byId: {
+          ...state.folders.byId,
+          [action.folder.id]: action.folder,
+        },
+      },
+    };
+  }
+  if (isAction<RenameFolderAction>(action, ActionTypes.RenameFolder)) {
+    const folder = state.folders.byId[action.folderId];
+    if (!folder) {
+      return state;
+    }
+    return {
+      ...state,
+      folders: {
+        ...state.folders,
+        byId: {
+          ...state.folders.byId,
+          [action.folderId]: { ...folder, name: action.name },
+        },
+      },
+    };
+  }
+  if (isAction<DeleteFolderAction>(action, ActionTypes.DeleteFolder)) {
+    const { [action.folderId]: _removed, ...byId } = state.folders.byId;
+    const folderAssignments = Object.fromEntries(
+      Object.entries(state.folderAssignments).filter(
+        ([, folderId]) => folderId !== action.folderId
+      )
+    );
+    return {
+      ...state,
+      folders: {
+        ids: state.folders.ids.filter((id) => id !== action.folderId),
+        byId,
+      },
+      folderAssignments,
+    };
+  }
+  if (
+    isAction<MoveConnectionsToFolderAction>(
+      action,
+      ActionTypes.MoveConnectionsToFolder
+    )
+  ) {
+    const folderAssignments = { ...state.folderAssignments };
+    for (const connectionId of action.connectionIds) {
+      if (action.folderId === null) {
+        delete folderAssignments[connectionId];
+      } else {
+        folderAssignments[connectionId] = action.folderId;
+      }
+    }
+    return {
+      ...state,
+      folderAssignments,
     };
   }
   return state;
@@ -2349,6 +2478,388 @@ export const openSettingsModal = (
 ): ConnectionsThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
     globalAppRegistry.emit('open-compass-settings', tab);
+  };
+};
+
+// Windows-reserved characters are rejected everywhere so names stay portable.
+const RESTRICTED_CHARACTERS = ['/', '\\', '<', '>', ':', '"', '|', '?', '*'];
+// eslint-disable-next-line no-control-regex
+const CONTROL_CHARACTERS_REGEX = /[\u0000-\u001F\u007F]/;
+
+// A shared id so folder toasts replace each other instead of stacking.
+const FOLDER_TOAST_ID = 'folder-action';
+
+// The whole set, not just the character used, so one rejection is enough.
+const INVALID_CHARACTERS_MESSAGE = `Folder name can't contain ${RESTRICTED_CHARACTERS.join(
+  ' '
+)}.`;
+
+/** `existingNames` must exclude the folder being renamed. */
+export function validateFolderName(
+  name: string,
+  existingNames: string[]
+): string | undefined {
+  const trimmedName = name.trim();
+
+  if (!trimmedName) {
+    return "Folder name can't be empty";
+  }
+
+  if (
+    existingNames.some(
+      (existingName) =>
+        existingName.toLocaleLowerCase() === trimmedName.toLocaleLowerCase()
+    )
+  ) {
+    return 'A folder with this name already exists';
+  }
+
+  if (
+    RESTRICTED_CHARACTERS.some((character) =>
+      trimmedName.includes(character)
+    ) ||
+    CONTROL_CHARACTERS_REGEX.test(trimmedName)
+  ) {
+    return INVALID_CHARACTERS_MESSAGE;
+  }
+
+  return undefined;
+}
+
+function getFolderNames(
+  state: State,
+  options: { excludeFolderId?: string } = {}
+): string[] {
+  return state.folders.ids
+    .filter((id) => id !== options.excludeFolderId)
+    .map((id) => state.folders.byId[id].name);
+}
+
+export const loadFolders = (): ConnectionsThunkAction<
+  Promise<void>,
+  FoldersLoadSuccessAction
+> => {
+  return async (dispatch, _getState, { folderStorage, logger: { debug } }) => {
+    try {
+      const { folders, assignments } = await folderStorage.load();
+      dispatch({
+        type: ActionTypes.FoldersLoadSuccess,
+        folders,
+        folderAssignments: assignments,
+      });
+    } catch (err) {
+      // Folders are secondary to connections, so a failed load leaves the app
+      // usable with an empty folder list rather than blocking startup.
+      debug('failed to load folders', err);
+    }
+  };
+};
+
+/**
+ * Resolves with the new folder, or `undefined` if the name is invalid or the
+ * save failed; both are reported to the user here.
+ */
+export const createFolder = (
+  name: string,
+  source:
+    | 'connection_context_menu'
+    | 'connection_actions'
+    | 'connection_form'
+    | 'sidebar_icon'
+): ConnectionsThunkAction<Promise<Folder | undefined>, CreateFolderAction> => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { debug } }
+  ) => {
+    const state = getState();
+    const folder: Folder = {
+      id: new UUID().toString(),
+      name: name.trim(),
+    };
+
+    try {
+      const error = validateFolderName(name, getFolderNames(state));
+      if (error) {
+        throw new Error(error);
+      }
+      await folderStorage.save({
+        folderOrganization: {
+          folders: [
+            ...state.folders.ids.map((id) => state.folders.byId[id]),
+            folder,
+          ],
+          assignments: state.folderAssignments,
+        },
+      });
+    } catch (err) {
+      debug('failed to create folder', err);
+      openToast(FOLDER_TOAST_ID, {
+        title: 'Failed to create folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return;
+    }
+
+    dispatch({ type: ActionTypes.CreateFolder, folder });
+    openToast(FOLDER_TOAST_ID, {
+      title: `New folder ${folder.name} created in sidebar.`,
+      description: 'To organize connections, use the three-dot menu (•••).',
+      variant: 'success',
+    });
+    track('Folder Created', {
+      source,
+      num_folders_after: state.folders.ids.length + 1,
+    });
+    return folder;
+  };
+};
+
+/** As with `createFolder`, failures are reported here rather than thrown. */
+export const renameFolder = (
+  folderId: string,
+  name: string
+): ConnectionsThunkAction<Promise<void>, RenameFolderAction> => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { log, mongoLogId } }
+  ) => {
+    const state = getState();
+    const existingFolder = state.folders.byId[folderId];
+    if (!existingFolder) {
+      return;
+    }
+
+    const trimmedName = name.trim();
+
+    try {
+      const error = validateFolderName(
+        name,
+        getFolderNames(state, { excludeFolderId: folderId })
+      );
+      if (error) {
+        throw new Error(error);
+      }
+
+      const folders = state.folders.ids.map((id) =>
+        id === folderId
+          ? { ...state.folders.byId[id], name: trimmedName }
+          : state.folders.byId[id]
+      );
+
+      await folderStorage.save({
+        folderOrganization: { folders, assignments: state.folderAssignments },
+      });
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_458),
+        'Connection UI',
+        'Failed to rename folder',
+        { error: (err as Error).message }
+      );
+      openToast(FOLDER_TOAST_ID, {
+        title: 'Failed to rename folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return;
+    }
+
+    dispatch({
+      type: ActionTypes.RenameFolder,
+      folderId,
+      name: trimmedName,
+    });
+    openToast(FOLDER_TOAST_ID, {
+      title: `Folder renamed ${existingFolder.name} to ${trimmedName}`,
+      variant: 'success',
+    });
+    track('Folder Renamed', {});
+  };
+};
+
+/** As with `createFolder`, a failed save is reported here rather than thrown. */
+export const deleteFolder = (
+  folderId: string
+): ConnectionsThunkAction<Promise<void>, DeleteFolderAction> => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { log, mongoLogId } }
+  ) => {
+    const state = getState();
+    const folder = state.folders.byId[folderId];
+    if (!folder) {
+      return;
+    }
+
+    const folders = state.folders.ids
+      .filter((id) => id !== folderId)
+      .map((id) => state.folders.byId[id]);
+    const assignments = Object.fromEntries(
+      Object.entries(state.folderAssignments).filter(
+        ([, assignedFolderId]) => assignedFolderId !== folderId
+      )
+    );
+
+    try {
+      await folderStorage.save({
+        folderOrganization: { folders, assignments },
+      });
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_459),
+        'Connection UI',
+        'Failed to delete folder',
+        { error: (err as Error).message }
+      );
+      openToast(FOLDER_TOAST_ID, {
+        title: 'Failed to delete folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return;
+    }
+
+    dispatch({ type: ActionTypes.DeleteFolder, folderId });
+    openToast(FOLDER_TOAST_ID, {
+      title: `${folder.name} folder deleted`,
+      variant: 'success',
+    });
+    track('Folder Deleted', {
+      num_folders_after: folders.length,
+      connections_moved:
+        Object.keys(state.folderAssignments).length -
+        Object.keys(assignments).length,
+    });
+  };
+};
+
+/**
+ * The whole organization is one document, so a save either applies every valid
+ * move or, if it fails, none of them. `failedIds` reports the connections that
+ * weren't moved (unknown ids, or all of them on a failed save) so the caller
+ * can keep them selected for a retry. Ids already at the destination appear
+ * in neither list.
+ */
+export const moveConnectionsToFolder = (
+  connectionIds: ConnectionId[],
+  folderId: string | null,
+  source:
+    | 'connection_context_menu'
+    | 'connection_actions'
+    | 'drag_and_drop'
+    | 'connection_form'
+    | 'folder_form'
+): ConnectionsThunkAction<
+  Promise<{ movedIds: ConnectionId[]; failedIds: ConnectionId[] }>,
+  MoveConnectionsToFolderAction
+> => {
+  return async (
+    dispatch,
+    getState,
+    { folderStorage, track, logger: { debug } }
+  ) => {
+    const state = getState();
+
+    if (folderId !== null && !state.folders.byId[folderId]) {
+      return { movedIds: [], failedIds: connectionIds };
+    }
+
+    const validIds = [...new Set(connectionIds)].filter(
+      (connectionId) =>
+        hasConnectionForId(state, connectionId) &&
+        (state.folderAssignments[connectionId] ?? null) !== folderId
+    );
+    const invalidIds = connectionIds.filter(
+      (connectionId) => !hasConnectionForId(state, connectionId)
+    );
+
+    if (validIds.length === 0) {
+      return { movedIds: [], failedIds: invalidIds };
+    }
+
+    const assignments = { ...state.folderAssignments };
+    for (const connectionId of validIds) {
+      if (folderId === null) {
+        delete assignments[connectionId];
+      } else {
+        assignments[connectionId] = folderId;
+      }
+    }
+
+    try {
+      await folderStorage.save({
+        folderOrganization: {
+          folders: state.folders.ids.map((id) => state.folders.byId[id]),
+          assignments,
+        },
+      });
+    } catch (err) {
+      // Unlike the single-folder actions, this one reports failures through its
+      // return value instead of throwing, so a caller can retry just the moves
+      // that didn't apply.
+      debug('failed to save folder organization', err);
+      openToast('failed-to-save-folder-organization', {
+        title: 'Failed to move connection(s) to folder',
+        description: (err as Error).message,
+        variant: 'warning',
+      });
+      return { movedIds: [], failedIds: connectionIds };
+    }
+
+    dispatch({
+      type: ActionTypes.MoveConnectionsToFolder,
+      connectionIds: validIds,
+      folderId,
+    });
+
+    const fromFolder = validIds.filter((id) => state.folderAssignments[id]);
+    const perFolder: Record<string, number> = Object.create(null);
+    for (const id of state.connections.ids) {
+      const fid = assignments[id];
+      if (fid && state.folders.byId[fid]) {
+        perFolder[fid] = (perFolder[fid] ?? 0) + 1;
+      }
+    }
+    const inFolders = Object.values(perFolder).reduce((a, b) => a + b, 0);
+    const inUncategorized = state.connections.ids.length - inFolders;
+    const maxInFolders = Math.max(0, ...Object.values(perFolder));
+    track('Connections Folder Change', {
+      source,
+      from:
+        fromFolder.length === 0
+          ? 'uncategorized'
+          : fromFolder.length === validIds.length
+            ? 'folder'
+            : 'mixed',
+      to: folderId ? 'folder' : 'uncategorized',
+      num_moved: validIds.length,
+      num_connections_in_folders: inFolders,
+      num_connections_uncategorized: inUncategorized,
+      max_connections_in_folders: maxInFolders,
+    });
+
+    return { movedIds: validIds, failedIds: invalidIds };
+  };
+};
+
+export const moveConnectionsToNewFolder = (
+  connectionIds: ConnectionId[],
+  name: string,
+  source: Parameters<typeof createFolder>[1] &
+    Parameters<typeof moveConnectionsToFolder>[2]
+): ConnectionsThunkAction<
+  Promise<void>,
+  CreateFolderAction | MoveConnectionsToFolderAction
+> => {
+  return async (dispatch) => {
+    const folder = await dispatch(createFolder(name, source));
+    if (folder) {
+      await dispatch(moveConnectionsToFolder(connectionIds, folder.id, source));
+    }
   };
 };
 

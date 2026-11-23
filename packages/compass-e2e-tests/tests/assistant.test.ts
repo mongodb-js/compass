@@ -121,98 +121,37 @@ describe('MongoDB Assistant (with real backend)', function () {
     }
   });
 
-  /**
-   * Sends a message and waits for the tool call approval UI to appear.
-   * The real AI backend is non-deterministic and may respond with text
-   * instead of calling a tool, so this retries up to 3 times.
-   */
-  async function sendAndWaitForToolCall(message: string) {
+  it('sends a message that results in a tool call, which runs without approval and renders the response', async function () {
     const chatMessages = browser.$(Selectors.AssistantChatMessages);
-
+    // The real AI backend is non-deterministic and may respond with text
+    // instead of calling a tool, so the whole flow is retried.
     for (let attempt = 1; attempt <= 3; attempt++) {
+      const message = `Use the list-collections tool to list all collections in the ${dbName} database`;
       const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
       await chatInput.waitForDisplayed();
       await chatInput.setValue(message);
       await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
-      // Wait for user message to appear
-      await browser.waitUntil(async () => {
-        const messages = await browser.getDisplayedMessages();
-        expectSome(messages, (m) => m.role === 'user' && m.text === message);
-        return true;
-      });
-
-      // Wait for tool call approval UI (Run button indicates tool call)
       try {
-        await chatMessages
-          .$('button=Run')
-          .waitForDisplayed({ timeout: 20_000 });
-        return chatMessages;
-      } catch {
-        const screenshotName = `sendAndWaitForToolCall-attempt-${attempt}-${Date.now()}`;
-        await browser.screenshot(screenshotPathName(screenshotName));
-        if (attempt < 3) {
-          await browser.clearChat();
-          continue;
-        }
-        throw new Error(
-          `Tool call approval UI did not appear after ${attempt} attempts`
-        );
-      }
-    }
-
-    throw new Error('Unreachable');
-  }
-
-  it('sends a message that results in a tool call request, approves it and renders the response', async function () {
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      const chatMessages = await sendAndWaitForToolCall(
-        'Use the list-databases tool to list all databases'
-      );
-
-      // Approve the tool call
-      await browser.clickVisible(chatMessages.$('button=Run'));
-
-      // The tool only executes after the approval round-trips through the
-      // real assistant backend, which can transiently hang or error, so the
-      // whole flow is retried when that happens.
-      try {
-        // Wait for the tool to finish running: the "Ran" text indicates
-        // completion
         await browser.waitUntil(
           async () => {
             const text = await chatMessages.getText();
-            expect(text).to.include('Ran list-databases');
-            return true;
-          },
-          { timeout: 20_000 }
-        );
-
-        // Expand the tool call card to see the response
-        const expandButton = chatMessages.$(
-          'button[aria-label="Expand additional content"]'
-        );
-        await expandButton.waitForDisplayed();
-        await browser.clickVisible(expandButton);
-
-        // Wait for the expanded content to include the response with structuredContent.databases
-        await browser.waitUntil(
-          async () => {
-            // TODO: pick out just the pre tabparse this as JSON rather and then check the object
-            const text = await chatMessages.getText();
+            expect(text).to.include('Ran list-collections');
             expect(text).to.include('structuredContent');
-            expect(text).to.include('databases');
+            expect(text).to.include('totalCount');
             return true;
           },
-          {
-            timeout: 30_000,
-          }
+          { timeout: 50_000 }
+        );
+        // list-collections is read-only, so no approval prompt is shown
+        expect(await chatMessages.$('button=Run').isDisplayed()).to.equal(
+          false
         );
         return;
       } catch (err) {
         await browser.screenshot(
           screenshotPathName(
-            `assistant-approve-attempt-${attempt}-${Date.now()}`
+            `assistant-tool-call-attempt-${attempt}-${Date.now()}`
           )
         );
         if (attempt === 3) {
@@ -222,33 +161,4 @@ describe('MongoDB Assistant (with real backend)', function () {
       }
     }
   });
-
-  it('sends a message that results in a tool call request, denies it and renders the response', async function () {
-    const chatMessages = await sendAndWaitForToolCall(
-      'Use the list-databases tool to list all databases'
-    );
-
-    // Deny the tool call
-    await browser.clickVisible(chatMessages.$('button=Cancel'));
-
-    // Wait for the tool to be cancelled: the "Cancelled" text indicates completion
-    await browser.waitUntil(
-      async () => {
-        const text = await chatMessages.getText();
-        expect(text).to.include('Cancelled list-databases');
-        return true;
-      },
-      { timeout: 30_000 }
-    );
-  });
 });
-
-function expectSome<T>(array: T[], predicate: (item: T) => boolean) {
-  if (!array.some(predicate)) {
-    throw new Error(
-      `Expected some item in array to satisfy ${predicate.toString()}, but got: ${JSON.stringify(
-        array
-      )}`
-    );
-  }
-}

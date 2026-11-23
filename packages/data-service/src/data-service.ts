@@ -58,11 +58,7 @@ import type {
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from '@mongodb-js/mongodb-ns';
-import {
-  raceWithAbort,
-  createCancelError,
-  isCancelError,
-} from '@mongodb-js/compass-utils';
+import { abortable } from '@mongodb-js/compass-events';
 import type {
   DevtoolsConnectionState,
   DevtoolsConnectOptions,
@@ -2720,9 +2716,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       return await start();
     }
 
-    if (abortSignal.aborted) {
-      throw abortSignal.reason ?? createCancelError();
-    }
+    abortSignal.throwIfAborted();
 
     const session = this._startSession('CRUD');
 
@@ -2740,9 +2734,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
     };
 
     try {
-      result = await raceWithAbort(start(session, abortSignal), abortSignal);
+      result = await abortable(start(session, abortSignal), {
+        signal: abortSignal,
+      });
     } catch (err) {
-      if (isCancelError(err)) {
+      if (this.isCancelError(err)) {
         await abort();
       }
       throw err;
@@ -2752,7 +2748,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   isCancelError(error: unknown): error is Error {
-    return isCancelError(error);
+    return (error as Error)?.name === 'AbortError';
   }
 
   private _setupListeners(client: MongoClient): void {

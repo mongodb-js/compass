@@ -28,7 +28,6 @@ import {
 import { createLogger } from '@mongodb-js/compass-logging';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
-import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import {
   type TelemetryServiceOptions,
   createIpcSendTrack,
@@ -70,7 +69,7 @@ export const WithAtlasProviders: React.FC<{
       <AtlasServiceProvider
         options={{
           defaultHeaders: {
-            'User-Agent': `${getAppName()}/${getAppVersion()}`,
+            'User-Agent': `${process.env.HADRON_PRODUCT_NAME}/${process.env.HADRON_APP_VERSION}`,
             'X-Request-Origin': 'mongodb-compass',
           },
           getAtlasServiceBackendPreset: () =>

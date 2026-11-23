@@ -14,11 +14,11 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
 
-import type { DataService } from 'mongodb-data-service';
-import { connect } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
+import { connect } from '@mongodb-js/mongodb-data-service';
 
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { getBsonType } from 'hadron-type-checker';
+import { getBsonType } from '@mongodb-js/hadron-type-checker';
 import { fixtures } from '../../test/fixtures';
 
 import { formatCSVHeaderName } from '../csv/csv-utils';

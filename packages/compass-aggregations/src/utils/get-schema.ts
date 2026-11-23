@@ -1,7 +1,10 @@
-import TypeChecker from 'hadron-type-checker';
+import TypeChecker from '@mongodb-js/hadron-type-checker';
 import { sortedUniqBy, sortBy } from 'lodash';
 
-import { type TypeCastTypes, getBsonType } from 'hadron-type-checker';
+import {
+  type TypeCastTypes,
+  getBsonType,
+} from '@mongodb-js/hadron-type-checker';
 import type { Document } from 'mongodb';
 
 export type FieldSchema = {

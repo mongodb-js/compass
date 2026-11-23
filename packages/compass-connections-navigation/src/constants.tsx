@@ -1,3 +1,5 @@
+import type { SidebarActionableItem } from './tree-data';
+
 // TODO: Currently we show placeholder for every collection/database item in the list, but
 // do we want to / need to?
 export const MAX_COLLECTION_PLACEHOLDER_ITEMS = Infinity;
@@ -28,6 +30,9 @@ export type Actions =
   | 'open-non-genuine-mongodb-modal'
   | 'open-csfle-modal'
   | 'refresh-databases'
+  // folder item related actions
+  | 'rename-folder'
+  | 'delete-folder'
   // database item related actions
   | 'select-database'
   | 'create-database'
@@ -39,4 +44,15 @@ export type Actions =
   | 'open-in-new-tab'
   | 'duplicate-view'
   | 'modify-view'
-  | 'rename-collection';
+  | 'rename-collection'
+  | 'move-to-folder'
+  | 'remove-from-folder'
+  | 'add-to-new-folder';
+
+export type ActionPayload = { folderId: string };
+
+export type OnItemAction = (
+  item: SidebarActionableItem,
+  action: Actions,
+  actionPayload?: ActionPayload
+) => void;

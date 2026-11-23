@@ -1,6 +1,6 @@
 import { EJSON } from 'bson';
 
-import { getBsonType } from 'hadron-type-checker';
+import { getBsonType } from '@mongodb-js/hadron-type-checker';
 import { getValueShape } from './shape-utils';
 
 export function stringifyBSON(value: any) {

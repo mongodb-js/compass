@@ -1,8 +1,8 @@
 import type { Signal } from '@mongodb-js/compass-components';
 import { PerformanceSignals } from '@mongodb-js/compass-components';
 import { parse, ParseMode } from '@mongodb-js/shell-bson-parser';
-import type Document from 'hadron-document';
-import type { Element } from 'hadron-document';
+import type Document from '@mongodb-js/hadron-document';
+import type { Element } from '@mongodb-js/hadron-document';
 
 export { countDocuments, fetchShardingKeys } from './cancellable-queries';
 

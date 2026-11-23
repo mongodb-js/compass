@@ -13,7 +13,7 @@ const Actions = require('../actions');
  * 'topComplete' action, fetches the top data, and
  * triggers with the result of the command.
  *
- * @type {Reflux.Store & {onActivated(ds: import('mongodb-data-service').DataService, instance: import('@mongodb-js/compass-app-stores/provider').MongoDBInstance)}}
+ * @type {Reflux.Store & {onActivated(ds: import('@mongodb-js/mongodb-data-service').DataService, instance: import('@mongodb-js/compass-app-stores/provider').MongoDBInstance)}}
  */
 const TopStore = Reflux.createStore({
   /**

@@ -1,26 +1,9 @@
-import type { Folder, FolderAssignment } from './folder';
+import type { Folder, FolderOrganization } from './folder';
 
-export type { Folder, FolderAssignment };
+export type { Folder, FolderOrganization };
 
 export interface FolderStorage {
-  loadAll(options?: { signal?: AbortSignal }): Promise<Folder[]>;
+  load(): Promise<FolderOrganization>;
 
-  save(options: { folder: Folder; signal?: AbortSignal }): Promise<void>;
-
-  delete(options: { id: string; signal?: AbortSignal }): Promise<void>;
-}
-
-export interface FolderAssignmentStorage {
-  loadAll(options?: { signal?: AbortSignal }): Promise<FolderAssignment[]>;
-
-  save(options: {
-    assignment: FolderAssignment;
-    signal?: AbortSignal;
-  }): Promise<void>;
-
-  delete(options: {
-    itemType: FolderAssignment['itemType'];
-    itemId: string;
-    signal?: AbortSignal;
-  }): Promise<void>;
+  save(options: { folderOrganization: FolderOrganization }): Promise<void>;
 }

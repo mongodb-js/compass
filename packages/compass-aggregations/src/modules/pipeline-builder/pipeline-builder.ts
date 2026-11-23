@@ -103,7 +103,7 @@ export class PipelineBuilder {
       pipeline = Array.isArray(parsed) ? parsed : null;
     } catch (e) {
       pipeline = null;
-      parseError = new PipelineParserError((e as Error).message);
+      parseError = e as PipelineParserError;
     }
     // The source might have changed again while this was parsing
     if (this.source !== source) {

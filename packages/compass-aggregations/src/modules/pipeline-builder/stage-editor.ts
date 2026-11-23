@@ -1,12 +1,12 @@
 import type { Action, Reducer } from 'redux';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
-import { cancellableWait } from '@mongodb-js/compass-utils';
 import {
   ExperimentTestGroups,
   ExperimentTestNames,
 } from '@mongodb-js/compass-telemetry/provider';
+import { cancellableWait } from '@mongodb-js/compass-events';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
@@ -128,6 +128,7 @@ export type ChangeStageValueAction = {
   type: typeof StageEditorActionTypes.StageValueChange;
   id: number;
   stage: Stage;
+  syntaxError: PipelineParserError | null;
 };
 
 export type ChangeStageOperatorAction = {
@@ -400,7 +401,8 @@ export const loadStagePreview = (
 
                 await cancellableWait(
                   DEFAULT_PREVIEW_DEBOUNCE_MS,
-                  metadataAbortController.signal
+                  undefined,
+                  metadataAbortController
                 );
                 const previewOptions = await getPreviewOptions();
 
@@ -639,9 +641,17 @@ export const changeStageValue = (
       return;
     }
 
+    const previousSyntaxError = stageInStore.syntaxError;
     stage.changeValue(newVal);
     // Value and babel errors land right away so the editor never lags
-    dispatch({ type: StageEditorActionTypes.StageValueChange, id, stage });
+    dispatch({
+      type: StageEditorActionTypes.StageValueChange,
+      id,
+      stage,
+      // Avoid flicker - if there's previous error, show it
+      // until we have parse results.
+      syntaxError: stage.syntaxError ?? previousSyntaxError ?? null,
+    });
 
     await stage.validateWithParser();
     if (stage.value !== newVal) {
@@ -654,13 +664,12 @@ export const changeStageValue = (
     if (currentIdx === -1 || stage.value !== newVal) {
       return;
     }
-    if (stage.syntaxError) {
-      dispatch({
-        type: StageEditorActionTypes.StageValueChange,
-        id: currentIdx,
-        stage,
-      });
-    }
+    dispatch({
+      type: StageEditorActionTypes.StageValueChange,
+      id: currentIdx,
+      stage,
+      syntaxError: stage.syntaxError ?? null,
+    });
     dispatch(loadPreviewForStagesFrom(currentIdx));
     void dispatch(fetchExplainForPipeline());
   };
@@ -1438,7 +1447,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           previewDocs: null,
           value: action.stage.value,
-          syntaxError: action.stage.syntaxError,
+          syntaxError: action.syntaxError,
           empty: action.stage.isEmpty,
           fromSnippet: false,
         },

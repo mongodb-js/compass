@@ -1,5 +1,5 @@
 import React from 'react';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 

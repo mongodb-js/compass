@@ -1,5 +1,11 @@
 import React from 'react';
-import { css, Icon, ServerIcon, Tooltip } from '@mongodb-js/compass-components';
+import {
+  css,
+  FolderIcon,
+  Icon,
+  ServerIcon,
+  Tooltip,
+} from '@mongodb-js/compass-components';
 import type { GlyphName } from '@mongodb-js/compass-components';
 import { isLocalhost } from '@mongodb-js/mongodb-build-info';
 import { WithStatusMarker } from './with-status-marker';
@@ -34,6 +40,9 @@ const IconWithTooltip = ({
 };
 
 export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
+  if (item.type === 'folder') {
+    return <FolderIcon />;
+  }
   if (item.type === 'database') {
     if (item.inferredFromPrivileges) {
       return (

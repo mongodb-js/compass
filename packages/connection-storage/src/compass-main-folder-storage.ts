@@ -1,22 +1,15 @@
 import { type HadronIpcMain, ipcMain } from '@mongodb-js/hadron-ipc';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
 import { FileUserData, z } from '@mongodb-js/compass-user-data';
-import type {
-  Folder,
-  FolderAssignment,
-  FolderStorage,
-  FolderAssignmentStorage,
-} from './folder-storage';
-import { RecordWriteQueue } from './record-write-queue';
+import type { IUserData } from '@mongodb-js/compass-user-data';
+import type { FolderOrganization, FolderStorage } from './folder-storage';
+import { reconcileFolderOrganization } from './folder-recovery';
 
 const { log, mongoLogId } = createLogger('FOLDER-STORAGE');
 
 export type FolderStorageIPCMain = Pick<HadronIpcMain, 'createHandle'>;
 
-// Both schemas are loose so that fields added by a later version (for example
-// a folder's parent reference) survive a read/write round trip here.
-const FolderSchema: z.Schema<Folder> = z
+const FolderSchema = z
   .object({
     id: z.uuid(),
     name: z.string(),
@@ -31,137 +24,93 @@ const FolderSchema: z.Schema<Folder> = z
   })
   .loose();
 
-// An assignment can name an item kind this version does not know, written by a
-// later version that added one. Such a record is not corrupt, so it has to
-// parse: reporting it as data we dropped would raise an error on every launch
-// of a downgraded Compass about a file that is perfectly fine. It also has to
-// stay on disk untouched, for the version that understands it.
-type StoredFolderAssignment = Omit<FolderAssignment, 'itemType'> & {
-  itemType: string;
-};
-
-const FolderAssignmentSchema: z.Schema<StoredFolderAssignment> = z
+const FolderOrganizationSchema: z.Schema<FolderOrganization> = z
   .object({
-    itemType: z.string(),
-    itemId: z.string(),
-    folderId: z.uuid(),
+    folders: z.array(FolderSchema),
+    assignments: z.record(z.string(), z.string()),
   })
   .loose();
 
-function isAssignmentForKnownItemType(
-  stored: StoredFolderAssignment
-): stored is FolderAssignment {
-  return stored.itemType === 'connection';
-}
+// The folder organization document is a singleton: there's one per user, so
+// it's always read and written under this same fixed id rather than one per
+// folder. The id is qualified with "folder" because this value reaches
+// FileUserData, where a bare "organization" would read as an Atlas org id.
+const FOLDER_ORGANIZATION_ID = 'folder-organization';
 
-/**
- * An assignment is stored in a file named after the item it points at, so ids
- * from different item kinds can never collide.
- */
-export function getFolderAssignmentFileId({
-  itemType,
-  itemId,
-}: Pick<FolderAssignment, 'itemType' | 'itemId'>): string {
-  return `${itemType}-${itemId}`;
-}
+const EMPTY_FOLDER_ORGANIZATION: FolderOrganization = {
+  folders: [],
+  assignments: {},
+};
 
 class CompassMainFolderStorage implements FolderStorage {
-  private readonly userData: FileUserData<typeof FolderSchema>;
-  private readonly ipcMain: FolderStorageIPCMain;
-  private readonly saveQueue = new RecordWriteQueue();
+  private readonly userData: IUserData<typeof FolderOrganizationSchema>;
 
-  constructor(ipcMain: FolderStorageIPCMain, basePath?: string) {
-    this.ipcMain = ipcMain;
-    this.userData = new FileUserData(FolderSchema, 'Folders', { basePath });
-    this.ipcMain.createHandle<FolderStorage>('FolderStorage', this, [
-      'loadAll',
+  constructor(
+    userData: IUserData<typeof FolderOrganizationSchema>,
+    ipcMain: FolderStorageIPCMain
+  ) {
+    this.userData = userData;
+    ipcMain.createHandle<FolderStorage>('FolderStorage', this, [
+      'load',
       'save',
-      'delete',
     ]);
   }
 
-  async loadAll({ signal }: { signal?: AbortSignal } = {}): Promise<Folder[]> {
-    throwIfAborted(signal);
+  async load(): Promise<FolderOrganization> {
+    let folderOrganization: FolderOrganization;
     try {
-      // ignoreErrors: false collects the files that could not be read instead
-      // of swallowing them, so we can report how much data was dropped.
-      const { data, errors } = await this.userData.readAll({
-        ignoreErrors: false,
-      });
-      if (errors.length > 0) {
-        log.error(
-          mongoLogId(1_001_000_467),
-          'Folder Storage',
-          'Skipped folders that could not be read',
-          { count: errors.length }
-        );
-      }
-      return data;
+      // ignoreMissing: there being no folder organization yet is the normal
+      // state for a user who hasn't created a folder, not a read failure.
+      folderOrganization =
+        (await this.userData.readOne(FOLDER_ORGANIZATION_ID, {
+          ignoreErrors: true,
+          ignoreMissing: true,
+        })) ?? EMPTY_FOLDER_ORGANIZATION;
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_461),
+        mongoLogId(1_001_000_456),
         'Folder Storage',
-        'Failed to load folders',
+        'Failed to load folder organization',
         { message: (err as Error).message }
       );
-      return [];
+      return EMPTY_FOLDER_ORGANIZATION;
     }
+
+    const { folderOrganization: reconciled, danglingAssignments } =
+      reconcileFolderOrganization(folderOrganization);
+    const danglingCount = Object.keys(danglingAssignments).length;
+    if (danglingCount > 0) {
+      log.warn(
+        mongoLogId(1_001_000_458),
+        'Folder Storage',
+        'Dropped assignments pointing at a folder that no longer exists',
+        { count: danglingCount }
+      );
+    }
+    return reconciled;
   }
 
   async save({
-    folder,
-    signal,
+    folderOrganization,
   }: {
-    folder: Folder;
-    signal?: AbortSignal;
+    folderOrganization: FolderOrganization;
   }): Promise<void> {
-    throwIfAborted(signal);
     try {
-      await this.saveQueue.run(folder.id, async () => {
-        // Merge into the stored folder rather than replacing it: the schemas
-        // are loose so that a newer Compass can add fields, and a version that
-        // does not know about them still has to carry them through a save.
-        // A key this call omits keeps the stored value; a key it passes as
-        // undefined overwrites the stored value with undefined, same as
-        // InMemoryFolderStorage and FileUserData.updateAttributes.
-        const stored = await this.userData.readOne(folder.id, {
-          ignoreErrors: true,
-          ignoreMissing: true,
-        });
-        await this.userData.write(folder.id, { ...stored, ...folder });
-      });
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_462),
-        'Folder Storage',
-        'Failed to save folder',
-        { message: (err as Error).message }
+      const ok = await this.userData.write(
+        FOLDER_ORGANIZATION_ID,
+        folderOrganization
       );
-      throw err;
-    }
-  }
-
-  async delete({
-    id,
-    signal,
-  }: {
-    id: string;
-    signal?: AbortSignal;
-  }): Promise<void> {
-    throwIfAborted(signal);
-    if (!id) {
-      return;
-    }
-    try {
-      // Goes through the same queue as save: a save already reading this
-      // record when the delete runs would otherwise write its merged result
-      // after the delete, recreating the record it just removed.
-      await this.saveQueue.run(id, () => this.userData.delete(id));
+      // write() reports file system / network failures by returning false
+      // rather than throwing, so a failed save has to be checked explicitly
+      // or it looks identical to a successful one to the caller.
+      if (!ok) {
+        throw new Error('Failed to write folder organization');
+      }
     } catch (err) {
       log.error(
-        mongoLogId(1_001_000_463),
+        mongoLogId(1_001_000_457),
         'Folder Storage',
-        'Failed to delete folder',
+        'Failed to save folder organization',
         { message: (err as Error).message }
       );
       throw err;
@@ -169,129 +118,18 @@ class CompassMainFolderStorage implements FolderStorage {
   }
 }
 
-class CompassMainFolderAssignmentStorage implements FolderAssignmentStorage {
-  private readonly userData: FileUserData<typeof FolderAssignmentSchema>;
-  private readonly ipcMain: FolderStorageIPCMain;
-  private readonly saveQueue = new RecordWriteQueue();
-
-  constructor(ipcMain: FolderStorageIPCMain, basePath?: string) {
-    this.ipcMain = ipcMain;
-    this.userData = new FileUserData(
-      FolderAssignmentSchema,
-      'FolderAssignments',
-      { basePath }
-    );
-    this.ipcMain.createHandle<FolderAssignmentStorage>(
-      'FolderAssignmentStorage',
-      this,
-      ['loadAll', 'save', 'delete']
-    );
-  }
-
-  async loadAll({ signal }: { signal?: AbortSignal } = {}): Promise<
-    FolderAssignment[]
-  > {
-    throwIfAborted(signal);
-    try {
-      const { data, errors } = await this.userData.readAll({
-        ignoreErrors: false,
-      });
-      if (errors.length > 0) {
-        log.error(
-          mongoLogId(1_001_000_468),
-          'Folder Storage',
-          'Skipped folder assignments that could not be read',
-          { count: errors.length }
-        );
-      }
-      // Assignments for other kinds of items are left on disk rather than
-      // returned or reported: this version cannot act on them, and removing
-      // them is not its call to make.
-      return data.filter(isAssignmentForKnownItemType);
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_464),
-        'Folder Storage',
-        'Failed to load folder assignments',
-        { message: (err as Error).message }
-      );
-      return [];
-    }
-  }
-
-  async save({
-    assignment,
-    signal,
-  }: {
-    assignment: FolderAssignment;
-    signal?: AbortSignal;
-  }): Promise<void> {
-    throwIfAborted(signal);
-    try {
-      const fileId = getFolderAssignmentFileId(assignment);
-      await this.saveQueue.run(fileId, async () => {
-        // See CompassMainFolderStorage.save: a key this call omits keeps the
-        // stored value, a key it passes as undefined clears it.
-        const stored = await this.userData.readOne(fileId, {
-          ignoreErrors: true,
-          ignoreMissing: true,
-        });
-        await this.userData.write(fileId, { ...stored, ...assignment });
-      });
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_465),
-        'Folder Storage',
-        'Failed to save folder assignment',
-        { message: (err as Error).message }
-      );
-      throw err;
-    }
-  }
-
-  async delete({
-    itemType,
-    itemId,
-    signal,
-  }: {
-    itemType: FolderAssignment['itemType'];
-    itemId: string;
-    signal?: AbortSignal;
-  }): Promise<void> {
-    throwIfAborted(signal);
-    if (!itemId) {
-      return;
-    }
-    try {
-      const fileId = getFolderAssignmentFileId({ itemType, itemId });
-      // Goes through the same queue as save; see CompassMainFolderStorage.delete.
-      await this.saveQueue.run(fileId, () => this.userData.delete(fileId));
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_466),
-        'Folder Storage',
-        'Failed to delete folder assignment',
-        { message: (err as Error).message }
-      );
-      throw err;
-    }
-  }
-}
-
-export type { CompassMainFolderStorage, CompassMainFolderAssignmentStorage };
+// Exported as a value, not just a type, so the injected-userData constructor
+// can be exercised directly in tests without going through the
+// IPC-registering singleton factory below.
+export { CompassMainFolderStorage };
 
 let mainFolderStorage: CompassMainFolderStorage | null = null;
-let mainFolderAssignmentStorage: CompassMainFolderAssignmentStorage | null =
-  null;
 
 export const initCompassMainFolderStorage = (
   basePath?: string,
   __TEST_IPC_MAIN?: FolderStorageIPCMain,
   __TEST_IGNORE_SINGLETON?: boolean
-): {
-  folders: CompassMainFolderStorage;
-  assignments: CompassMainFolderAssignmentStorage;
-} => {
+): CompassMainFolderStorage => {
   let ipcMainToBeUsed: FolderStorageIPCMain | undefined = ipcMain;
   if (process.env.NODE_ENV === 'test' && __TEST_IPC_MAIN) {
     ipcMainToBeUsed = __TEST_IPC_MAIN;
@@ -304,20 +142,13 @@ export const initCompassMainFolderStorage = (
   }
 
   if (!mainFolderStorage || __TEST_IGNORE_SINGLETON) {
-    mainFolderStorage = new CompassMainFolderStorage(ipcMainToBeUsed, basePath);
-  }
-
-  if (!mainFolderAssignmentStorage || __TEST_IGNORE_SINGLETON) {
-    mainFolderAssignmentStorage = new CompassMainFolderAssignmentStorage(
-      ipcMainToBeUsed,
-      basePath
+    mainFolderStorage = new CompassMainFolderStorage(
+      new FileUserData(FolderOrganizationSchema, 'Folders', { basePath }),
+      ipcMainToBeUsed
     );
   }
 
-  return {
-    folders: mainFolderStorage,
-    assignments: mainFolderAssignmentStorage,
-  };
+  return mainFolderStorage;
 };
 
 export const getCompassMainFolderStorage = (): CompassMainFolderStorage => {
@@ -328,13 +159,3 @@ export const getCompassMainFolderStorage = (): CompassMainFolderStorage => {
   }
   return mainFolderStorage;
 };
-
-export const getCompassMainFolderAssignmentStorage =
-  (): CompassMainFolderAssignmentStorage => {
-    if (!mainFolderAssignmentStorage) {
-      throw new Error(
-        'FolderAssignmentStorage not initialized, did you forget to call initCompassMainFolderStorage'
-      );
-    }
-    return mainFolderAssignmentStorage;
-  };

@@ -11,11 +11,13 @@ export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {
     enableAutoEmbeddingPrivatePreview,
     enableSortedSearchIndexes,
     enableVectorXPrivatePreview,
+    enableAutoEmbeddingLexicalPrefilter,
   } = usePreferences([
     'enableAutoEmbeddingPublicPreview',
     'enableAutoEmbeddingPrivatePreview',
     'enableSortedSearchIndexes',
     'enableVectorXPrivatePreview',
+    'enableAutoEmbeddingLexicalPrefilter',
   ]);
 
   return useMemo(
@@ -35,6 +37,9 @@ export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {
           enableVectorXPrivatePreview
             ? ('vectorXPrivatePreview' satisfies FeatureFlag)
             : undefined,
+          enableAutoEmbeddingLexicalPrefilter
+            ? ('autoEmbeddingLexicalPrefilter' satisfies FeatureFlag)
+            : undefined,
         ].filter((f): f is FeatureFlag => Boolean(f))
       ) as JSONSchema7,
     [
@@ -43,6 +48,7 @@ export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {
       enableAutoEmbeddingPrivatePreview,
       enableAutoEmbeddingPublicPreview,
       enableVectorXPrivatePreview,
+      enableAutoEmbeddingLexicalPrefilter,
     ]
   );
 }

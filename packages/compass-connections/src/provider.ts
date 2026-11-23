@@ -1,5 +1,5 @@
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import type { DataService } from 'mongodb-data-service';
+import type { DataService } from '@mongodb-js/mongodb-data-service';
 import { useConnectionInfo } from './connection-info-provider';
 import { getDataServiceForConnection } from './stores/connections-store-redux';
 
@@ -61,11 +61,14 @@ export {
   useConnectionInfoRefForId,
   useConnectionsList,
   useConnectionsListRef,
+  useFolders,
   connectionsLocator,
   useConnectionsListLoadingStatus,
 } from './stores/store-context';
 
 export type { ConnectionsService } from './stores/store-context';
+
+export { validateFolderName } from './stores/connections-store-redux';
 
 export { useConnectionSupports } from './hooks/use-connection-supports';
 

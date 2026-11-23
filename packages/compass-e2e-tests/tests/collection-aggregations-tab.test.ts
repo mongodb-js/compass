@@ -696,12 +696,6 @@ describe('Collection aggregations tab', function () {
     let unsubscribeAllowWarnings: (() => void) | undefined;
 
     before(function () {
-      // TODO(COMPASS-11346): fix the test for web sandbox chrome 3. Skipping
-      // in `before` (not `beforeEach`) so the afterEach validator reset, which
-      // also times out there, doesn't run either.
-      if (process.env.EVERGREEN_TASK_NAME === 'test-web-sandbox-chrome-3') {
-        this.skip();
-      }
       unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
         return (
           l.id === 23799 &&

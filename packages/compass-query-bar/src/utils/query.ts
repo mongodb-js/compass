@@ -40,7 +40,7 @@ export function formatQueryValueForEditor(value: unknown): string {
   return prettify(valueAsString, 'javascript-expression');
 }
 
-// Returns true if any fields that aren't filter have non-default values.
+// Returns true if any fields that aren't filter have non-default or invalid values.
 export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
   if (!fields) {
     return false;
@@ -52,8 +52,9 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
     }
 
     if (
-      !isEqual(fields[property].value, DEFAULT_QUERY_VALUES[property]) &&
-      !isEqual(fields[property].value, DEFAULT_FIELD_VALUES[property])
+      !fields[property].valid ||
+      (!isEqual(fields[property].value, DEFAULT_QUERY_VALUES[property]) &&
+        !isEqual(fields[property].value, DEFAULT_FIELD_VALUES[property]))
     ) {
       return true;
     }
@@ -139,5 +140,8 @@ function isQueryProperty(field: string): field is QueryProperty {
 }
 
 export function isEqualDefaultQuery(fields: QueryFormFields): boolean {
-  return isEqual(mapFormFieldsToQuery(fields), DEFAULT_QUERY_VALUES);
+  return (
+    isQueryValid(fields) &&
+    isEqual(mapFormFieldsToQuery(fields), DEFAULT_QUERY_VALUES)
+  );
 }

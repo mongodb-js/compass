@@ -130,4 +130,59 @@ describe('ServerErrorBanner', function () {
       });
     });
   });
+
+  describe('Edit Search Index link (Phase 1) vs Debug button (Phase 2)', function () {
+    it('shows the Edit Search Index link for index definition errors when only P1 is enabled', async function () {
+      const onEditSearchIndexClick = sinon.spy();
+      const element = (
+        <AssistantActionsContext.Provider
+          value={{ debugSearchError: sinon.stub() }}
+        >
+          <ServerErrorBanner
+            message={ERROR_MESSAGE}
+            searchIndexName="test-index"
+            dataTestId="test-banner"
+            onEditSearchIndexClick={onEditSearchIndexClick}
+          />
+        </AssistantActionsContext.Provider>
+      );
+
+      await renderWithActiveConnection(element, CONNECTION, {
+        preferences: { ...AI_PREFERENCES, enableAtlasSearchIndexes: true },
+      });
+
+      expect(screen.getByText('Edit Search Index')).to.exist;
+      expect(screen.queryByTestId('server-error-banner-debug-button')).to.not
+        .exist;
+    });
+
+    it('shows the Debug button instead of the Edit Search Index link when P2 is enabled, even if the P1 whitelist also matches', async function () {
+      const debugSearchError = sinon.stub();
+      const onEditSearchIndexClick = sinon.spy();
+      const element = (
+        <AssistantActionsContext.Provider value={{ debugSearchError }}>
+          <ServerErrorBanner
+            message={ERROR_MESSAGE}
+            searchIndexName="test-index"
+            dataTestId="test-banner"
+            onEditSearchIndexClick={onEditSearchIndexClick}
+            stageOperator="$search"
+            stageValue='{ "index": "default" }'
+          />
+        </AssistantActionsContext.Provider>
+      );
+
+      await renderWithActiveConnection(
+        wrapWithExperimentProvider(
+          element,
+          ExperimentTestGroups.searchActivationProgramP2Variant
+        ),
+        CONNECTION,
+        { preferences: { ...AI_PREFERENCES, enableAtlasSearchIndexes: true } }
+      );
+
+      expect(screen.queryByText('Edit Search Index')).to.not.exist;
+      expect(screen.getByTestId('server-error-banner-debug-button')).to.exist;
+    });
+  });
 });

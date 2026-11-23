@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import HadronDocument from 'hadron-document';
+import HadronDocument from '@mongodb-js/hadron-document';
 import {
   css,
   spacing,

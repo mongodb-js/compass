@@ -1,5 +1,5 @@
 import { useReducer, type Dispatch, useCallback, useEffect } from 'react';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type {
   MongoClientOptions,

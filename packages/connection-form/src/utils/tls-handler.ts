@@ -1,5 +1,5 @@
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
-import type { ConnectionOptions } from 'mongodb-data-service';
+import type { ConnectionOptions } from '@mongodb-js/mongodb-data-service';
 import type { MongoClientOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
 

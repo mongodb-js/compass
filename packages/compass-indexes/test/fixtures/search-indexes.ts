@@ -1,4 +1,4 @@
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex } from '@mongodb-js/mongodb-data-service';
 
 export const searchIndexes: SearchIndex[] = [
   {

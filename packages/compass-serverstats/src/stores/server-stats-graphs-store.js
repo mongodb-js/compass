@@ -5,7 +5,7 @@ const Actions = require('../actions');
 // const debug = require('debug')('mongodb-compass:server-stats:graphs-store');
 
 /**
- * @type {Reflux.Store & {onActivated(ds: import('mongodb-data-service').DataService)}}
+ * @type {Reflux.Store & {onActivated(ds: import('@mongodb-js/mongodb-data-service').DataService)}}
  */
 const ServerStatsStore = Reflux.createStore({
   init: function () {

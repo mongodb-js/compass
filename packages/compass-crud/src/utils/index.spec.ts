@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import Document from 'hadron-document';
+import Document from '@mongodb-js/hadron-document';
 import { BSON } from 'bson';
 import {
   objectContainsRegularExpression,
