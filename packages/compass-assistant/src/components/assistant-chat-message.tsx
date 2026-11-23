@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { LgChatMessage, css } from '@mongodb-js/compass-components';
-import type { ToolUIPart } from 'ai';
 import { isAtlasTool } from '@mongodb-js/compass-generative-ai/provider';
 import type { AssistantMessage } from '../compass-assistant-provider';
-import { partIsToolUI, getToolDisplayName } from '../utils';
+import { getToolDisplayName, getReasoningSteps, partIsToolUI } from '../utils';
+import type { ThinkingIndicator as ThinkingIndicatorType } from './skills-input';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
@@ -11,11 +11,29 @@ import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
 
 const { Message } = LgChatMessage;
 
+// TODO(COMPASS-11250): Remove lazy loading once skills are enabled by default
+// Loaded on demand so Via's bundle and CSS only ship when skills are enabled.
+// webpack can't resolve the `.js` extension that tsc's nodenext resolution
+// demands for dynamic imports of a `.tsx` file, so we drop it and silence tsc.
+export const ThinkingIndicator = lazy(
+  (): Promise<{ default: typeof ThinkingIndicatorType }> =>
+    // @ts-expect-error TS2835: extensionless dynamic import, see above
+    import('./skills-input').then((m) => ({ default: m.ThinkingIndicator }))
+);
+
 // On small screens, many components end up breaking words which we don't want.
 // This is a general temporary fix for all components that we want to prevent from wrapping.
 const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
 });
+
+export function hasThinkingBlock(message?: AssistantMessage): boolean {
+  return (
+    !!message &&
+    !message.metadata?.confirmation &&
+    getReasoningSteps(message).length > 0
+  );
+}
 
 export type FeedbackState = { rating: string; feedback?: string } | undefined;
 
@@ -23,6 +41,7 @@ interface AssistantChatMessageProps {
   message: AssistantMessage;
   isLastMessage: boolean;
   isResponseComplete: boolean;
+  isThinking: boolean;
   enableSearchActivationProgramP2: boolean;
   onFeedback: (options: {
     message: AssistantMessage;
@@ -50,6 +69,7 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
     message,
     isLastMessage,
     isResponseComplete,
+    isThinking,
     enableSearchActivationProgramP2,
     onFeedback,
     onConfirmation,
@@ -75,7 +95,6 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
 
     const seenTitles = new Set<string>();
     const sources = [];
-    const toolCalls: ToolUIPart[] = [];
 
     for (const part of parts) {
       // file_citation sources have no url or title, so are not renderable.
@@ -89,11 +108,10 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
           });
         }
       }
-
-      if (partIsToolUI(part)) {
-        toolCalls.push(part);
-      }
     }
+
+    const reasoningSteps = getReasoningSteps(message);
+    const toolCalls = parts.filter(partIsToolUI);
 
     const rawDisplayText =
       metadata?.displayText ||
@@ -121,6 +139,11 @@ export const AssistantChatMessage: React.FunctionComponent<AssistantChatMessageP
 
     return (
       <>
+        {reasoningSteps.length > 0 && (
+          <Suspense fallback={null}>
+            <ThinkingIndicator steps={reasoningSteps} isThinking={isThinking} />
+          </Suspense>
+        )}
         {toolCalls.map((toolCall, index) => {
           const toolCallId = toolCall.toolCallId || `${id}-${toolCall.type}`;
 

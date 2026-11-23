@@ -14,6 +14,7 @@ import {
   type LanguageModelV4StreamPart,
 } from '@ai-sdk/provider';
 import type { AssistantMessage } from './compass-assistant-provider';
+import { toDisplayName } from './skill-directives';
 
 function parseSkillName(input: string): string | undefined {
   try {
@@ -24,14 +25,30 @@ function parseSkillName(input: string): string | undefined {
   }
 }
 
+function enqueueStep(
+  controller: TransformStreamDefaultController<LanguageModelV4StreamPart>,
+  id: string,
+  text: string
+) {
+  controller.enqueue({ type: 'reasoning-start', id });
+  controller.enqueue({ type: 'reasoning-delta', id, delta: text });
+  controller.enqueue({ type: 'reasoning-end', id });
+}
+
 /**
+ * Surfaces what the assistant is doing as reasoning steps, so the UI can show
+ * them live.
+ *
  * The server runs skills itself, but streams each one as a `skill`
  * function_call. Compass has no `skill` tool, so the AI SDK would treat these
  * as failed tool calls (logging NoSuchToolError, rendering them, and sending
- * them back in the history). This removes them from the model stream before
- * the SDK sees them and reports the skill names instead.
+ * them back in the history). They are removed from the model stream before
+ * the SDK sees them and reported as steps instead.
+ *
+ * Tool calls are run by Compass, so they are kept as they are and get a step
+ * ahead of them.
  */
-export function createSkillsMiddleware(
+export function createStepsMiddleware(
   onSkillUsed: (skillName: string) => void
 ): LanguageModelMiddleware {
   return {
@@ -50,6 +67,11 @@ export function createSkillsMiddleware(
                 skillToolCallIds.add(part.id);
                 return;
               }
+              enqueueStep(
+                controller,
+                `step-${part.id}`,
+                `Calling ${part.toolName} tool`
+              );
               break;
             case 'tool-input-delta':
             case 'tool-input-end':
@@ -62,20 +84,11 @@ export function createSkillsMiddleware(
                 const skillName = parseSkillName(part.input);
                 if (skillName) {
                   onSkillUsed(skillName);
-                  // Surfaced as reasoning so the UI can show it live.
-                  controller.enqueue({
-                    type: 'reasoning-start',
-                    id: part.toolCallId,
-                  });
-                  controller.enqueue({
-                    type: 'reasoning-delta',
-                    id: part.toolCallId,
-                    delta: `Using skill: ${skillName}`,
-                  });
-                  controller.enqueue({
-                    type: 'reasoning-end',
-                    id: part.toolCallId,
-                  });
+                  enqueueStep(
+                    controller,
+                    part.toolCallId,
+                    `Calling ${toDisplayName(skillName)} skill`
+                  );
                 }
                 return;
               }
@@ -212,7 +225,7 @@ export class DocsProviderTransport implements ChatTransport<AssistantMessage> {
     const result = streamText({
       model: wrapLanguageModel({
         model: this.model,
-        middleware: createSkillsMiddleware((skillName) =>
+        middleware: createStepsMiddleware((skillName) =>
           usedSkills.add(skillName)
         ),
       }),
