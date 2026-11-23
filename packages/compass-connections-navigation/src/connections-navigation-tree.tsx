@@ -6,7 +6,6 @@ import {
   css,
   isSeparatorMenuAction,
   isItemActionGroupItem,
-  spacing,
   useId,
 } from '@mongodb-js/compass-components';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
@@ -39,8 +38,10 @@ import { itemActionsToContextMenuGroups } from './context-menus';
 
 const ConnectionsNavigationContainerStyles = css({
   display: 'flex',
-  flex: '1 0 auto',
-  height: `calc(100% - ${spacing[1600]}px - ${spacing[100]}px)`,
+  flex: '1 1 auto',
+  // Lets the tree shrink to the space its siblings actually take, instead of
+  // a fixed height assumption that breaks whenever a sibling row's height changes.
+  minHeight: 0,
 });
 export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
