@@ -69,6 +69,7 @@
     "@mongodb-js/mongodb-collection-model": "^5.44.1",
     "@mongodb-js/workspace-info": "^1.15.1",
     "@mongosh/service-provider-node-driver": "^5.6.9",
+    "@via-ds/components": "0.17.2",
     "ai": "^7.0.0",
     "bson": "^7.3.2",
     "lodash": "^4.18.1",
@@ -78,7 +79,8 @@
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
     "throttleit": "^2.1.0",
-    "use-sync-external-store": "^1.5.0"
+    "use-sync-external-store": "^1.5.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@fast-csv/parse": "^5.0.5",
@@ -97,6 +99,7 @@
     "braintrust": "^3.35.0",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
+    "lexical": "^0.52.0",
     "mocha": "^10.2.0",
     "mongodb": "^7.5.0",
     "mongodb-assistant-eval": "^0.1.1",
@@ -104,8 +107,7 @@
     "openai": "^6.3.0",
     "sinon": "^22.1.0",
     "typescript": "^6.0.3",
-    "xvfb-maybe": "^0.2.1",
-    "zod": "^4.6.7"
+    "xvfb-maybe": "^0.2.1"
   },
   "is_compass_plugin": true
 }

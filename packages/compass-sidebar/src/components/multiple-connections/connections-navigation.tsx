@@ -46,6 +46,7 @@ import {
 } from '@mongodb-js/connection-info';
 import {
   type useConnectionsWithStatus,
+  type useConnectionActions,
   ConnectionStatus,
   useConnectionsListLoadingStatus,
   useFolders,
@@ -157,6 +158,8 @@ type FolderModalTarget =
   | { mode: 'rename'; folderId: string; name: string }
   | { mode: 'create-and-move'; connectionId: string };
 
+type ConnectionActions = ReturnType<typeof useConnectionActions>;
+
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
   activeWorkspace: WorkspaceTab | null;
@@ -179,16 +182,21 @@ type ConnectionsNavigationComponentProps = {
   onOpenConnectViaModal?: (
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;
-  onCreateFolder(name: string): Promise<unknown>;
+  onCreateFolder(
+    name: string,
+    source: Parameters<ConnectionActions['createFolder']>[1]
+  ): Promise<unknown>;
   onRenameFolder(folderId: string, name: string): Promise<unknown>;
   onDeleteFolder(folderId: string): Promise<unknown>;
   onMoveConnectionsToFolder(
     connectionIds: string[],
-    folderId: string | null
+    folderId: string | null,
+    source: Parameters<ConnectionActions['moveConnectionsToFolder']>[2]
   ): Promise<unknown>;
   onMoveConnectionsToNewFolder(
     connectionIds: string[],
-    name: string
+    name: string,
+    source: Parameters<ConnectionActions['moveConnectionsToNewFolder']>[2]
   ): Promise<unknown>;
 };
 
@@ -381,11 +389,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'create-and-move':
           void onMoveConnectionsToNewFolder(
             [folderModalTarget.connectionId],
-            name
+            name,
+            'connection_context_menu'
           );
           break;
         default:
           void onCreateFolder(name);
+          request = onCreateFolder(name, 'sidebar_icon');
       }
     },
     [
@@ -555,12 +565,17 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           if (actionPayload?.folderId) {
             void onMoveConnectionsToFolder(
               [connectionId],
-              actionPayload.folderId
+              actionPayload.folderId,
+              'connection_context_menu'
             );
           }
           return;
         case 'remove-from-folder':
-          void onMoveConnectionsToFolder([connectionId], null);
+          void onMoveConnectionsToFolder(
+            [connectionId],
+            null,
+            'connection_context_menu'
+          );
           return;
         case 'add-to-new-folder':
           onAddToNewFolder(connectionId);
