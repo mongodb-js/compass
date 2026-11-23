@@ -2456,11 +2456,15 @@ export const importConnections = (options: {
     try {
       if (connectionStorage.importConnections) {
         await connectionStorage.importConnections(options);
-        connections = await connectionStorage.loadAll();
-        await dispatch(loadFolders());
       }
     } catch (err) {
       error = err;
+    }
+    // Reload even on failure: connections may have been saved before the
+    // folder step threw, and the sidebar should show them.
+    if (connectionStorage.importConnections) {
+      connections = await connectionStorage.loadAll();
+      await dispatch(loadFolders());
     }
     dispatch({
       type: ActionTypes.ConnectionsImportFinish,

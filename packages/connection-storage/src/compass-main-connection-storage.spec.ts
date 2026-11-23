@@ -699,7 +699,7 @@ describe('ConnectionStorage', function () {
       });
     });
 
-    it('keeps imported connections when saving folders fails', async function () {
+    it('keeps imported connections but reports the error when saving folders fails', async function () {
       const exported = await connectionStorage.exportConnections();
       await Promise.all(
         CONNECTIONS.map(({ id }) => connectionStorage.delete({ id }))
@@ -713,8 +713,13 @@ describe('ConnectionStorage', function () {
         () => folderStorage
       );
 
-      await importingStorage.importConnections({ content: exported });
+      const error = await importingStorage
+        .importConnections({ content: exported })
+        .catch((err) => err);
 
+      expect(error.message).to.equal(
+        'Connections were imported, but their folders could not be saved: disk full'
+      );
       expect(sortBy(await importingStorage.loadAll(), 'id')).to.deep.equal(
         sortBy(CONNECTIONS, 'id')
       );

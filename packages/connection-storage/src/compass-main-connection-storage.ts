@@ -379,8 +379,8 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       connections.map((connectionInfo) => this.save({ connectionInfo, signal }))
     );
 
-    // Connections are already saved at this point, so failing the import here
-    // would report an error for an import that has mostly succeeded.
+    // Connections are already saved at this point, so the error has to say
+    // which part failed rather than reading as a failed import.
     try {
       if (folderOrganization) {
         await folderStorage?.save({ folderOrganization });
@@ -391,6 +391,11 @@ class CompassMainConnectionStorage implements ConnectionStorage {
         'Connection Import',
         'Failed to save imported folders',
         { message: (err as Error).message }
+      );
+      throw new Error(
+        `Connections were imported, but their folders could not be saved: ${
+          (err as Error).message
+        }`
       );
     }
 
@@ -508,7 +513,6 @@ export const initCompassMainConnectionStorage = (
   basePath?: string,
   __TEST_IPC_MAIN?: ConnectionStorageIPCMain,
   __TEST_IGNORE_SINGLETON?: boolean,
-  /** Returns undefined while folders are disabled. */
   getFolderStorage?: () => FolderStorage | undefined
 ): CompassMainConnectionStorage => {
   let ipcMainToBeUsed: ConnectionStorageIPCMain | undefined = ipcMain;
