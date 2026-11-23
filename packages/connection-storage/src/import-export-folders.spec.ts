@@ -33,6 +33,20 @@ describe('mergeImportedFolders', function () {
     });
   });
 
+  it('reuses a folder whose name differs only by case', function () {
+    const merged = mergeImportedFolders(
+      {
+        folders: [{ id: 'local-work', name: 'work' }],
+        assignments: {},
+      },
+      imported,
+      ['c1']
+    );
+
+    expect(merged.folders).to.have.lengthOf(1);
+    expect({ ...merged.assignments }).to.deep.equal({ c1: 'local-work' });
+  });
+
   it('only assigns the imported connections', function () {
     const merged = mergeImportedFolders(
       { folders: [], assignments: {} },

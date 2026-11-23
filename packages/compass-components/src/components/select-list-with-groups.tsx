@@ -63,7 +63,8 @@ const groupItemStyles = css({
 const groupItemStylesDark = css({ borderColor: palette.gray.dark2 });
 
 export type SelectGroup<T extends SelectItem> = {
-  id: string;
+  /** Omitted for the items that belong to no group. */
+  id?: string;
   name: string | JSX.Element;
   icon?: React.ReactNode;
   items: T[];
@@ -127,10 +128,13 @@ export function SelectListWithGroups<T extends SelectItem>(
       <div className={cx(listBodyStyles, groupsStyles)}>
         {groups.map((group) => {
           const groupState = selectionState(group.items);
+          const groupTestId = group.id
+            ? `select-list-group-${group.id}`
+            : 'select-list-no-group';
           return (
             <div
-              key={`select-list-group-${group.id}`}
-              data-testid={`select-list-group-${group.id}`}
+              key={groupTestId}
+              data-testid={groupTestId}
               className={cx(groupStyles, isDarkMode && groupStylesDark)}
             >
               <div
@@ -140,8 +144,8 @@ export function SelectListWithGroups<T extends SelectItem>(
                 )}
               >
                 <Checkbox
-                  id={`select-list-group-${group.id}`}
-                  data-testid={`select-list-group-${group.id}-checkbox`}
+                  id={groupTestId}
+                  data-testid={`${groupTestId}-checkbox`}
                   aria-label={
                     typeof group.name === 'string'
                       ? `Select all in ${group.name}`
@@ -163,7 +167,7 @@ export function SelectListWithGroups<T extends SelectItem>(
                 </div>
                 <div
                   className={groupCountStyles}
-                  data-testid={`select-list-group-${group.id}-count`}
+                  data-testid={`${groupTestId}-count`}
                 >
                   {groupState.selectedCount} / {group.items.length}
                 </div>

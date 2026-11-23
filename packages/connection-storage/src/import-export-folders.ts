@@ -58,7 +58,10 @@ export function mergeImportedFolders(
     if (!importedFolder) {
       continue;
     }
-    let folder = folders.find(({ name }) => name === importedFolder.name);
+    let folder = folders.find(
+      ({ name }) =>
+        name.toLocaleLowerCase() === importedFolder.name.toLocaleLowerCase()
+    );
     if (!folder) {
       folder = { id: new UUID().toString(), name: importedFolder.name };
       folders.push(folder);

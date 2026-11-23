@@ -22,7 +22,6 @@ export function groupByFolder<T extends { id: string }>(
       items: items.filter((item) => folderAssignments[item.id] === folder.id),
     })),
     {
-      id: 'select-list-no-group',
       name: 'Uncategorized',
       items: items.filter((item) => !folderIds.has(folderAssignments[item.id])),
     },

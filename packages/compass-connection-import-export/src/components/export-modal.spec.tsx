@@ -40,7 +40,7 @@ function renderModal({
 function groupIds() {
   return Array.from(
     document.querySelectorAll<HTMLElement>(
-      '[data-testid^="select-list-group-"]:not([data-testid$="-checkbox"]):not([data-testid$="-count"])'
+      ':is([data-testid^="select-list-group-"], [data-testid="select-list-no-group"]):not([data-testid$="-checkbox"]):not([data-testid$="-count"])'
     ),
     (el) => el.dataset.testid
   );
@@ -54,7 +54,7 @@ describe('ExportConnectionsModal', function () {
     expect(groupIds()).to.deep.equal([
       'select-list-group-f-alpha',
       'select-list-group-f-zeta',
-      'select-list-group-select-list-no-group',
+      'select-list-no-group',
     ]);
     expect(
       within(screen.getByTestId('select-list-group-f-alpha')).getByTestId(
@@ -62,9 +62,9 @@ describe('ExportConnectionsModal', function () {
       )
     ).to.exist;
     expect(
-      within(
-        screen.getByTestId('select-list-group-select-list-no-group')
-      ).getByTestId('select-id3')
+      within(screen.getByTestId('select-list-no-group')).getByTestId(
+        'select-id3'
+      )
     ).to.exist;
   });
 
@@ -72,8 +72,6 @@ describe('ExportConnectionsModal', function () {
     renderModal({ enableConnectionFolders: false });
 
     expect(screen.getByTestId('select-id1')).to.exist;
-    expect(
-      screen.queryByTestId('select-list-group-select-list-no-group')
-    ).to.equal(null);
+    expect(screen.queryByTestId('select-list-no-group')).to.equal(null);
   });
 });
