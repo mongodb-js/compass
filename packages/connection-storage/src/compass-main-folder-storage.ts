@@ -81,7 +81,7 @@ class CompassMainFolderStorage implements FolderStorage {
     const danglingCount = Object.keys(danglingAssignments).length;
     if (danglingCount > 0) {
       log.warn(
-        mongoLogId(1_001_000_458),
+        mongoLogId(1_001_000_461),
         'Folder Storage',
         'Dropped assignments pointing at a folder that no longer exists',
         { count: danglingCount }
