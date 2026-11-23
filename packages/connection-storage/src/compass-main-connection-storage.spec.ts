@@ -699,6 +699,28 @@ describe('ConnectionStorage', function () {
       });
     });
 
+    it('overrides the folder assignment of an imported connection', async function () {
+      // The file leaves every connection uncategorized.
+      const exported = await connectionStorage.exportConnections();
+
+      const homeFolder = { id: new UUID().toString(), name: 'Home' };
+      const importingFolders = new InMemoryFolderStorage({
+        folders: [homeFolder],
+        assignments: { [CONNECTIONS[0].id]: homeFolder.id },
+      });
+      const importingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        () => importingFolders
+      );
+
+      await importingStorage.importConnections({ content: exported });
+
+      const { assignments } = await importingFolders.load();
+      expect({ ...assignments }).to.deep.equal({});
+    });
+
     it('keeps imported connections but reports the error when saving folders fails', async function () {
       const exported = await connectionStorage.exportConnections();
       await Promise.all(

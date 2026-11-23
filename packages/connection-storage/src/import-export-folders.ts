@@ -60,6 +60,7 @@ export function mergeImportedFolders(
       ({ id }) => id === imported.folderAssignments[connectionId]
     );
     if (!importedFolder) {
+      delete assignments[connectionId];
       continue;
     }
     let folder = folders.find(({ name }) =>

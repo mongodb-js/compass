@@ -47,6 +47,19 @@ describe('mergeImportedFolders', function () {
     expect({ ...merged.assignments }).to.deep.equal({ c1: 'local-work' });
   });
 
+  it('clears the local assignment when the file leaves the connection uncategorized', function () {
+    const merged = mergeImportedFolders(
+      {
+        folders: [{ id: 'local-home', name: 'Home' }],
+        assignments: { c3: 'local-home' },
+      },
+      imported,
+      ['c3']
+    );
+
+    expect({ ...merged.assignments }).to.deep.equal({});
+  });
+
   it('only assigns the imported connections', function () {
     const merged = mergeImportedFolders(
       { folders: [], assignments: {} },
