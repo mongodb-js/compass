@@ -27,14 +27,6 @@ const noWrapFixesStyles = css({
   whiteSpace: 'nowrap',
 });
 
-export function hasThinkingBlock(message?: AssistantMessage): boolean {
-  return (
-    !!message &&
-    !message.metadata?.confirmation &&
-    getReasoningSteps(message).length > 0
-  );
-}
-
 export type FeedbackState = { rating: string; feedback?: string } | undefined;
 
 interface AssistantChatMessageProps {

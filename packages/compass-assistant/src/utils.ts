@@ -182,6 +182,12 @@ export function getReasoningSteps(message?: AssistantMessage): string[] {
   );
 }
 
+export function hasThinkingBlock(message?: AssistantMessage): boolean {
+  return (
+    !message?.metadata?.confirmation && getReasoningSteps(message).length > 0
+  );
+}
+
 export function isAssistantThinking(
   status: ChatStatus,
   messages: AssistantMessage[]

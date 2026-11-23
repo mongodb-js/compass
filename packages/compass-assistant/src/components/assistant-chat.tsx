@@ -36,6 +36,7 @@ import { useChat } from '../@ai-sdk/react/use-chat';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import {
+  hasThinkingBlock,
   isAssistantThinking,
   partIsApprovalRequest,
   partIsToolUI,
@@ -48,7 +49,6 @@ import { AtlasConnectionStatus } from './atlas-connection-status';
 import {
   AssistantChatMessage,
   ThinkingIndicator,
-  hasThinkingBlock,
 } from './assistant-chat-message';
 import type { SkillsInput as SkillsInputType } from './skills-input';
 

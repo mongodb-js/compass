@@ -9,12 +9,41 @@ import type {
 import {
   isAssistantThinking,
   getReasoningSteps,
+  hasThinkingBlock,
   getToolState,
   partIsToolUI,
 } from './utils';
 import type { AssistantMessage } from './compass-assistant-provider';
 
 describe('utils', function () {
+  describe('hasThinkingBlock', function () {
+    const message = (extra: Record<string, unknown>) =>
+      ({
+        id: '1',
+        role: 'assistant',
+        parts: [{ type: 'reasoning', text: 'Calling a skill' }],
+        ...extra,
+      }) as unknown as AssistantMessage;
+
+    it('is true for an assistant message with reasoning', function () {
+      expect(hasThinkingBlock(message({}))).to.be.true;
+    });
+
+    it('is false without a message, without reasoning, or for confirmations', function () {
+      expect(hasThinkingBlock(undefined)).to.be.false;
+      expect(
+        hasThinkingBlock(message({ parts: [{ type: 'text', text: 'hi' }] }))
+      ).to.be.false;
+      expect(
+        hasThinkingBlock(
+          message({
+            metadata: { confirmation: { description: 'x', state: 'pending' } },
+          })
+        )
+      ).to.be.false;
+    });
+  });
+
   describe('getReasoningSteps', function () {
     const assistant = (parts: unknown[]) =>
       ({ id: '1', role: 'assistant', parts }) as unknown as AssistantMessage;

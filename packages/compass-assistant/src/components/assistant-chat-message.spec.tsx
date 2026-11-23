@@ -3,10 +3,7 @@ import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { AssistantMessage } from '../compass-assistant-provider';
-import {
-  AssistantChatMessage,
-  hasThinkingBlock,
-} from './assistant-chat-message';
+import { AssistantChatMessage } from './assistant-chat-message';
 
 describe('AssistantChatMessage reasoning steps', function () {
   const message = {
@@ -43,22 +40,5 @@ describe('AssistantChatMessage reasoning steps', function () {
 
     expect(screen.getByText('Plain answer')).to.exist;
     expect(screen.queryByText('Thought')).to.not.exist;
-  });
-
-  it('hasThinkingBlock is true only for a rendered message with reasoning', function () {
-    expect(hasThinkingBlock(message)).to.be.true;
-    expect(hasThinkingBlock(undefined)).to.be.false;
-    expect(
-      hasThinkingBlock({
-        ...message,
-        parts: [{ type: 'text', text: 'Plain answer' }],
-      } as unknown as AssistantMessage)
-    ).to.be.false;
-    expect(
-      hasThinkingBlock({
-        ...message,
-        metadata: { confirmation: { description: 'x', state: 'pending' } },
-      } as unknown as AssistantMessage)
-    ).to.be.false;
   });
 });
