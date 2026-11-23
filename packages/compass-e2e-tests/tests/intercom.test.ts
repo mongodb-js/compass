@@ -1,57 +1,131 @@
+import { createServer } from 'node:http';
+import type { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
+import { once } from 'node:events';
+import { expect } from 'chai';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  TEST_COMPASS_WEB,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 
+const INTEGRATIONS_PATH = '/api/v2/integrations';
+
+async function startIntegrationsServer(
+  integrations: unknown
+): Promise<Server> {
+  const server = createServer((req, res) => {
+    if (req.url === INTEGRATIONS_PATH) {
+      res.writeHead(200, {
+        'content-type': 'application/json',
+        'access-control-allow-origin': '*',
+      });
+      res.end(JSON.stringify(integrations));
+      return;
+    }
+    res.writeHead(204);
+    res.end();
+  }).listen(0);
+  await once(server, 'listening');
+  return server;
+}
+
 describe('Intercom integration', function () {
-  let compass: Compass;
+  let compass: Compass | undefined;
+  let server: Server | undefined;
 
-  before(async function () {
+  before(function () {
     skipForWeb(this, 'not available in compass-web yet');
-
-    compass = await init(this.test?.fullTitle());
   });
 
   afterEach(async function () {
-    await screenshotIfFailed(compass, this.currentTest);
-  });
-
-  after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
+    if (compass) {
+      await screenshotIfFailed(compass, this.currentTest);
     }
-
-    // clean up if it failed during the before hook
     await cleanup(compass);
+    compass = undefined;
+
+    delete process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE;
+    server?.close();
+    server = undefined;
   });
 
-  it('should load Intercom script', async function () {
-    const isIntercomAvailable = await compass.browser.execute(() => {
-      return !!process.env.HADRON_METRICS_INTERCOM_APP_ID;
-    });
-
-    // Skip the test if conditions for setting up intercom are not met (they
-    // should always be in CI, this is to make sure this test doesn't fail
-    // locally)
+  function skipWithoutIntercomAppId(
+    context: Mocha.Context,
+    isIntercomAvailable: boolean
+  ) {
+    // Intercom is not configured for local builds, but always is in CI
     if (!isIntercomAvailable && !(process.env.ci || process.env.CI)) {
-      this.skip();
+      context.skip();
     }
+  }
+
+  it('loads the Intercom script when the integrations endpoint enables it', async function () {
+    server = await startIntegrationsServer({ intercom: true });
+    process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${
+      (server.address() as AddressInfo).port
+    }`;
+
+    compass = await init(this.test?.fullTitle());
+
+    skipWithoutIntercomAppId(
+      this,
+      await compass.browser.execute(
+        () => !!process.env.HADRON_METRICS_INTERCOM_APP_ID
+      )
+    );
 
     await compass.browser.waitUntil(
-      () => {
-        return compass.browser.execute(() => {
+      () =>
+        compass!.browser.execute(
           // eslint-disable-next-line no-restricted-globals
-          return 'Intercom' in window && typeof window.Intercom === 'function';
-        });
-      },
+          () => 'Intercom' in window && typeof window.Intercom === 'function'
+        ),
       {
         timeoutMsg:
           'Expected Intercom SDK to load and be available in the global scope',
       }
     );
+  });
+
+  it('does not load the Intercom script when the integrations endpoint disables it', async function () {
+    server = await startIntegrationsServer({ intercom: false });
+    process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${
+      (server.address() as AddressInfo).port
+    }`;
+
+    compass = await init(this.test?.fullTitle());
+
+    skipWithoutIntercomAppId(
+      this,
+      await compass.browser.execute(
+        () => !!process.env.HADRON_METRICS_INTERCOM_APP_ID
+      )
+    );
+
+    await compass.browser.pause(2000);
+
+    expect(
+      await compass.browser.execute(
+        // eslint-disable-next-line no-restricted-globals
+        () => 'Intercom' in window
+      )
+    ).to.equal(false);
+  });
+
+  it('gets a boolean from the real integrations endpoint', async function () {
+    compass = await init(this.test?.fullTitle());
+
+    const result = await compass.browser.execute(async (path) => {
+      const response = await fetch(
+        `${process.env.HADRON_AUTO_UPDATE_ENDPOINT}${path}`
+      );
+      return { ok: response.ok, body: await response.json() };
+    }, INTEGRATIONS_PATH);
+
+    expect(result.ok).to.equal(true);
+    expect(result.body.intercom).to.be.a('boolean');
   });
 });
