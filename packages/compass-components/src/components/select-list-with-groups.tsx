@@ -34,8 +34,6 @@ const groupStylesDark = css({ borderColor: palette.gray.dark2 });
 const groupHeaderStyles = css({
   display: 'flex',
   alignItems: 'center',
-  // Matches the LG checkbox-to-label gap.
-  gap: spacing[200],
   padding: `${spacing[200]}px ${spacing[300]}px`,
   fontWeight: 700,
   backgroundColor: palette.gray.light3,

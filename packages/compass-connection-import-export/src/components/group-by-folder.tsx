@@ -7,7 +7,6 @@ export function groupByFolder<T extends { id: string }>(
   folders: Pick<Folder, 'id' | 'name'>[],
   folderAssignments: Record<string, string>
 ) {
-  // Same order as the sidebar.
   const sortedFolders = folders
     .slice()
     .sort((a, b) =>
