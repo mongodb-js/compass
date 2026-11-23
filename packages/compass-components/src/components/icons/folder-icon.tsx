@@ -1,7 +1,5 @@
 import React from 'react';
-import { palette } from '@leafygreen-ui/palette';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { useDarkMode } from '../../hooks/use-theme';
 
 const iconStyles = css({
   flex: 'none',
@@ -16,8 +14,7 @@ const FolderIcon = ({
   color?: string;
   className?: string;
 }) => {
-  const darkMode = useDarkMode();
-  const stroke = color || (darkMode ? palette.white : palette.gray.dark2);
+  const stroke = color || 'currentColor';
   return (
     <svg
       className={cx(iconStyles, className)}
