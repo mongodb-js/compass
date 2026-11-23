@@ -37,13 +37,11 @@ function sortFolders(folders: Folder[]): ConnectionFormFolderOption[] {
 }
 
 function mapState({
-  isEditingNewConnection,
   isEditingConnectionInfoModalOpen,
   editingConnectionInfoId,
   connections,
   folders,
 }: {
-  isEditingNewConnection: boolean;
   isEditingConnectionInfoModalOpen: boolean;
   editingConnectionInfoId?: ConnectionId;
   connections: {
@@ -69,7 +67,7 @@ function mapState({
     connectionErrorMessage: editingConnection?.error?.message,
     disableEditingConnectedConnection,
     editingConnectionInfoId,
-    isEditingNewConnection,
+    isEditingNewConnection: !!editingConnection?.isBeingCreated,
     folders: folders.ids.map((id) => folders.byId[id]),
   };
 }
