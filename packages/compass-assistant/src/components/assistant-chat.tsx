@@ -18,7 +18,6 @@ import {
   palette,
   useDarkMode,
   Icon,
-  usePersistedState,
 } from '@mongodb-js/compass-components';
 import {
   useTelemetry,
@@ -45,7 +44,6 @@ import {
 import { TOOL_DENIAL_REASONS } from '../prompts';
 import { SuggestedPrompts } from './suggested-prompts';
 import { ToolToggle } from './tool-toggle';
-import { ToolsIntroCard } from './tools-intro-card';
 import { AtlasConnectionStatus } from './atlas-connection-status';
 import {
   AssistantChatMessage,
@@ -247,9 +245,6 @@ const toolToggleContainerStyles = css({
   paddingRight: spacing[50],
 });
 
-const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
-  'mongodb_compass_dismissedAssistantToolsIntro' as const;
-
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -267,8 +262,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
   const areToolCallsEnabled =
     !!enableGenAIToolCallingAtlasProject && enableGenAIToolCalling;
-  const [dismissedAssistantToolsIntro, setDismissedAssistantToolsIntro] =
-    usePersistedState(DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY, false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -606,9 +599,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const handleStopButtonClick = useCallback(async () => {
     await stopChat(chat);
   }, [chat]);
-  const handleDismissIntroCard = useCallback(() => {
-    setDismissedAssistantToolsIntro(true);
-  }, [setDismissedAssistantToolsIntro]);
 
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
@@ -684,9 +674,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                     chat={chat}
                     onMessageSend={handleMessageSend}
                   />
-                  {!dismissedAssistantToolsIntro && (
-                    <ToolsIntroCard onDismiss={handleDismissIntroCard} />
-                  )}
                 </div>
               </>
             )}
