@@ -75,6 +75,20 @@ function truncateLines(str: string, lines = 3): string {
   return `${str.slice(0, index)}…`;
 }
 
+// Bidi control codepoints let a stored value render as different text (e.g.
+// 'user\u202Enimda' displays as "useradmin"), so we show them as escapes.
+// Only bidi controls are escaped: escaping all format chars (\p{Cf}) would
+// also break emoji ZWJ sequences.
+const BIDI_CONTROL_CHARS = /\p{Bidi_Control}/gu;
+
+function escapeBidiControlChars(str: string): string {
+  return str.replace(
+    BIDI_CONTROL_CHARS,
+    (char) =>
+      `\\u${char.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')}`
+  );
+}
+
 const bsonValue = css({
   display: `var(${bsonValueDisplayVar}, block)`,
   whiteSpace: 'nowrap',
@@ -424,7 +438,7 @@ const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
   value,
 }) => {
   const truncatedValue = useMemo(() => {
-    return truncateLines(truncate(value, 1000));
+    return escapeBidiControlChars(truncateLines(truncate(value, 1000)));
   }, [value]);
 
   return (

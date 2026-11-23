@@ -194,6 +194,26 @@ describe('BSONValue', function () {
     expect(title.length).to.equal(1001);
   });
 
+  it('escapes bidi control characters in string values and their title', function () {
+    const { container } = render(
+      <BSONValue type="String" value={'user\u202Enimda\u2066x\u200F'} />
+    );
+
+    const element = container.querySelector('.element-value');
+    const escaped = 'user\\u202Enimda\\u2066x\\u200F';
+    expect(element?.textContent).to.equal(`"${escaped}"`);
+    expect(element?.getAttribute('title')).to.equal(escaped);
+  });
+
+  it('keeps emoji zero-width joiner sequences intact in string values', function () {
+    const family = '\u{1F468}\u200D\u{1F469}\u200D\u{1F467}';
+    const { container } = render(<BSONValue type="String" value={family} />);
+
+    expect(container.querySelector('.element-value')?.textContent).to.equal(
+      `"${family}"`
+    );
+  });
+
   it('should render an info link for encrypted values', async function () {
     render(
       <BSONValue
