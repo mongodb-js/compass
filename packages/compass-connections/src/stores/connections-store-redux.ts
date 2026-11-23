@@ -9,6 +9,7 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
+import { isFolderNameEqual } from '@mongodb-js/connection-storage/provider';
 import type {
   ConnectionStorage,
   Folder,
@@ -2507,9 +2508,8 @@ export function validateFolderName(
   }
 
   if (
-    existingNames.some(
-      (existingName) =>
-        existingName.toLocaleLowerCase() === trimmedName.toLocaleLowerCase()
+    existingNames.some((existingName) =>
+      isFolderNameEqual(existingName, trimmedName)
     )
   ) {
     return 'A folder with this name already exists';

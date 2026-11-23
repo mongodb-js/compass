@@ -1,7 +1,11 @@
 import { UUID } from 'bson';
 import { z } from 'zod';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { Folder, FolderOrganization } from './folder';
+import {
+  isFolderNameEqual,
+  type Folder,
+  type FolderOrganization,
+} from './folder';
 
 export type ExportedFolders = {
   folders: Pick<Folder, 'id' | 'name'>[];
@@ -58,9 +62,8 @@ export function mergeImportedFolders(
     if (!importedFolder) {
       continue;
     }
-    let folder = folders.find(
-      ({ name }) =>
-        name.toLocaleLowerCase() === importedFolder.name.toLocaleLowerCase()
+    let folder = folders.find(({ name }) =>
+      isFolderNameEqual(name, importedFolder.name)
     );
     if (!folder) {
       folder = { id: new UUID().toString(), name: importedFolder.name };
