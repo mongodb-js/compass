@@ -22,11 +22,9 @@ export interface Folder {
  */
 export interface FolderOrganization {
   folders: Folder[];
-  /** connectionId -> folderId. A connection absent here is uncategorized. */
   assignments: Record<string, string>;
 }
 
-/** Folder names are unique case-insensitively, so comparisons ignore case. */
 export function isFolderNameEqual(a: string, b: string): boolean {
   return a.toLocaleLowerCase() === b.toLocaleLowerCase();
 }
