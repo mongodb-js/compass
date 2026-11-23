@@ -394,8 +394,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           );
           break;
         default:
-          void onCreateFolder(name);
-          request = onCreateFolder(name, 'sidebar_icon');
+          void onCreateFolder(name, 'sidebar_icon');
       }
     },
     [
