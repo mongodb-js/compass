@@ -6,21 +6,16 @@ import { flattenSchemaToObject } from './util';
 const MAX_TOTAL_PROMPT_LENGTH = 250_000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 
-function getCurrentTimeString() {
-  const dateTime = new Date();
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    timeZoneName: 'short',
-    hour12: false,
-  };
-  // e.g. Tue, Nov 25, 2025, 12:00:00 GMT+1
-  return dateTime.toLocaleString('en-US', options);
+// Shell syntax (not a localized string) so the model can reuse the value
+// verbatim and reason about relative dates in any prompt language.
+function getCurrentDateInstructions() {
+  return [
+    `- The current date and time is ISODate("${new Date().toISOString()}").`,
+    '- Always represent dates as ISODate("...") values, never as strings. ' +
+      'Resolve relative dates such as "since last week" against the current date. ' +
+      'For example, "orders created since last week" becomes ' +
+      '{ createdAt: { $gte: ISODate("<current date minus 7 days>") } }.',
+  ];
 }
 
 function buildInstructionsForFindQuery() {
@@ -38,7 +33,7 @@ function buildInstructionsForFindQuery() {
     '- Only use the aggregation field when the request cannot be represented with the other fields.',
     '- Do not use the aggregation field if a find query fulfills the objective.',
     '- If specifying latitude and longitude coordinates, list the longitude first, and then latitude.',
-    `- The current date is ${getCurrentTimeString()}`,
+    ...getCurrentDateInstructions(),
   ].join('\n');
 }
 
@@ -54,7 +49,7 @@ function buildInstructionsForAggregateQuery() {
     '- Do not use database-level aggregation stages ' +
       'such as $documents, $changeStream, $changeStreamSplitLargeEvent, $currentOp, $listLocalSessions, or $queryStats. ' +
       'This aggregation runs against a collection, not a database.',
-    `- The current date is ${getCurrentTimeString()}`,
+    ...getCurrentDateInstructions(),
   ].join('\n');
 }
 
