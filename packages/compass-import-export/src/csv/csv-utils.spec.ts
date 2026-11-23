@@ -591,6 +591,40 @@ describe('makeDocFromCSV', function () {
       })
     ).to.throw(Error, '"a" is not a number [Col 0]');
   });
+
+  // Regression test for COMPASS-10657
+  context('with prototype pollution header names', function () {
+    afterEach(function () {
+      delete (Object.prototype as Record<string, unknown>).polluted;
+    });
+
+    function makeDocWithHeader(name: string) {
+      const header = [name];
+      return makeDocFromCSV(
+        { [name]: 'yes' },
+        header,
+        parseHeader(header),
+        { [name]: 'string' },
+        { ignoreEmptyStrings: true }
+      );
+    }
+
+    it('does not pollute Object.prototype via __proto__', function () {
+      const doc = makeDocWithHeader('__proto__.polluted');
+
+      expect(({} as Record<string, unknown>).polluted).to.equal(undefined);
+      expect(doc['__proto__']).to.deep.equal({ polluted: 'yes' });
+    });
+
+    it('does not pollute Object.prototype via constructor.prototype', function () {
+      const doc = makeDocWithHeader('constructor.prototype.polluted');
+
+      expect(({} as Record<string, unknown>).polluted).to.equal(undefined);
+      expect(doc['constructor']).to.deep.equal({
+        prototype: { polluted: 'yes' },
+      });
+    });
+  });
 });
 
 describe('parseCSVValue', function () {
