@@ -85,6 +85,32 @@ function useBeforeUnloadConfirm(
 
     let removeBlockerFn: () => void = historyRef.current.block(blockerFn);
 
+    // When navigation happens outside of the history library (for example a
+    // regular `<a href="#/some/route">` link click), the new history entry
+    // doesn't have an index assigned by history and history package will
+    // silently ignore it if any blockers are registered: the url changes, but
+    // the app never renders the new route. We handle these navigations
+    // ourselves by either reloading the page for the new url, or restoring the
+    // previous location if user decided to stay
+    const onUntrackedPopState = () => {
+      if (typeof window.history.state?.idx === 'number') {
+        return;
+      }
+      const canNavigate =
+        checkFnRef.current() ||
+        window.confirm(
+          'The content of Data Explorer has been modified. You will lose your changes if you navigate away from it.'
+        );
+      removeBlockerFn();
+      if (canNavigate) {
+        window.location.reload();
+      } else {
+        history.replace(history.location, history.location.state);
+        removeBlockerFn = history.block(blockerFn);
+      }
+    };
+    window.addEventListener('popstate', onUntrackedPopState);
+
     // react-router history unconditionally blocks navigation on unload by
     // default when history.block is used, we add our own listener to be able to
     // unblock it before event handler in history has a chance to kick in and
@@ -97,6 +123,7 @@ function useBeforeUnloadConfirm(
     window.addEventListener('beforeunload', onBeforeUnload, true);
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload, true);
+      window.removeEventListener('popstate', onUntrackedPopState);
       removeBlockerFn();
     };
   }, [checkFnRef, historyRef, routePrefix]);
