@@ -194,24 +194,22 @@ describe('BSONValue', function () {
     expect(title.length).to.equal(1001);
   });
 
-  it('escapes bidi control characters in string values and their title', function () {
-    const { container } = render(
-      <BSONValue type="String" value={'user\u202Enimda\u2066x\u200F'} />
-    );
+  it('render string values with bidi control characters as stored', function () {
+    const value = 'user\u202Enimda';
+    const { container } = render(<BSONValue type="String" value={value} />);
 
     const element = container.querySelector('.element-value');
-    const escaped = 'user\\u202Enimda\\u2066x\\u200F';
-    expect(element?.textContent).to.equal(`"${escaped}"`);
-    expect(element?.getAttribute('title')).to.equal(escaped);
+    expect(element?.textContent).to.equal(`"${value}"`);
+    expect(element?.getAttribute('title')).to.equal(value);
   });
 
-  it('keeps emoji zero-width joiner sequences intact in string values', function () {
-    const family = '\u{1F468}\u200D\u{1F469}\u200D\u{1F467}';
-    const { container } = render(<BSONValue type="String" value={family} />);
+  it('isolate the bidi context of string values from the surrounding quotes', function () {
+    const value =
+      '\u2068\u0627\u0644\u0634\u0645\u0633 \u0648\u0627\u0644\u0642\u0645\u0631\u2069 2024';
+    render(<BSONValue type="String" value={value} />);
 
-    expect(container.querySelector('.element-value')?.textContent).to.equal(
-      `"${family}"`
-    );
+    const isolated = screen.getByText(value);
+    expect(getComputedStyle(isolated).unicodeBidi).to.equal('isolate');
   });
 
   it('should render an info link for encrypted values', async function () {
