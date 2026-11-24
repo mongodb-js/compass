@@ -175,6 +175,19 @@ function isToolRunning(messages: AssistantMessage[]): boolean {
   });
 }
 
+export function getReasoningSteps(message?: AssistantMessage): string[] {
+  if (message?.role !== 'assistant') return [];
+  return message.parts.flatMap((part) =>
+    part.type === 'reasoning' && part.text.trim() ? [part.text.trim()] : []
+  );
+}
+
+export function hasThinkingBlock(message?: AssistantMessage): boolean {
+  return (
+    !message?.metadata?.confirmation && getReasoningSteps(message).length > 0
+  );
+}
+
 export function isAssistantThinking(
   status: ChatStatus,
   messages: AssistantMessage[]
@@ -219,6 +232,13 @@ export function isAssistantThinking(
     if (part.type === 'text' && part.text.trim() === '') {
       // we got the start of the text response, but there's no text to display
       // yet, so keep waiting until something at least shows up
+      return true;
+    }
+
+    if (part.type === 'reasoning') {
+      // reasoning parts (including the "Calling … skill" step we create from the
+      // server's skill calls) are not rendered, and the server can stay silent
+      // for a while after one, so keep showing the thinking state
       return true;
     }
 

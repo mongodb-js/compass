@@ -5,7 +5,6 @@ import {
   Icon,
   LgChatMessage,
   palette,
-  spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { ToolState } from '../utils';
@@ -37,10 +36,6 @@ interface ActionCardMessageProps {
   // children must be a string (not a general ReactNode).
   children: string;
 }
-
-const actionCardMessageStyles = css({
-  paddingTop: spacing[400],
-});
 
 const expandableContentStyles = css({
   pre: {
@@ -91,45 +86,39 @@ export const ActionCardMessage: React.FunctionComponent<
   }, [showActions, focusPrimaryKey]);
 
   return (
-    <div className={actionCardMessageStyles}>
-      <Message.ActionCard
-        initialIsExpanded={initialIsExpanded}
-        showExpandButton={true}
-        state={state}
-        title={title}
-        description={description}
-        darkMode={darkMode}
-        chips={chips}
+    <Message.ActionCard
+      initialIsExpanded={initialIsExpanded}
+      showExpandButton={true}
+      state={state}
+      title={title}
+      description={description}
+      darkMode={darkMode}
+      chips={chips}
+    >
+      <Message.ActionCard.ExpandableContent
+        className={cx(
+          expandableContentStyles,
+          darkMode ? expandableContentStylesDark : expandableContentStylesLight,
+          contentClassName
+        )}
       >
-        <Message.ActionCard.ExpandableContent
-          className={cx(
-            expandableContentStyles,
-            darkMode
-              ? expandableContentStylesDark
-              : expandableContentStylesLight,
-            contentClassName
-          )}
-        >
-          {children}
-        </Message.ActionCard.ExpandableContent>
-        {showActions &&
-          buttons.map((button) => (
-            <Message.ActionCard.Button
-              className={
-                button.isPrimary ? primaryButtonStyle : secondaryButtonStyle
-              }
-              key={button.label}
-              onClick={button.onClick}
-              variant={button.variant}
-              rightGlyph={
-                button.isPrimary ? <Icon glyph="Return" /> : undefined
-              }
-              ref={button.isPrimary ? primaryButtonRef : undefined}
-            >
-              {button.label}
-            </Message.ActionCard.Button>
-          ))}
-      </Message.ActionCard>
-    </div>
+        {children}
+      </Message.ActionCard.ExpandableContent>
+      {showActions &&
+        buttons.map((button) => (
+          <Message.ActionCard.Button
+            className={
+              button.isPrimary ? primaryButtonStyle : secondaryButtonStyle
+            }
+            key={button.label}
+            onClick={button.onClick}
+            variant={button.variant}
+            rightGlyph={button.isPrimary ? <Icon glyph="Return" /> : undefined}
+            ref={button.isPrimary ? primaryButtonRef : undefined}
+          >
+            {button.label}
+          </Message.ActionCard.Button>
+        ))}
+    </Message.ActionCard>
   );
 };

@@ -31,7 +31,7 @@ import type {
   BraintrustConversationEvalCaseWithCustom,
 } from 'mongodb-assistant-eval/eval';
 import { buildContextPrompt } from '../src/prompts';
-import { createSkillsMiddleware } from '../src/docs-provider-transport';
+import { createStepsMiddleware } from '../src/docs-provider-transport';
 import {
   toolCallEvalCases,
   type CompassAssistantCustomInput,
@@ -349,7 +349,7 @@ function createToolCallAssistantTask(config: EvalTaskConfig) {
     const skillsByStep: string[][] = [];
     const model = wrapLanguageModel({
       model: openai.responses(EVAL_MODEL),
-      middleware: createSkillsMiddleware((skillName) =>
+      middleware: createStepsMiddleware((skillName) =>
         stepSkills.push(skillName)
       ),
     });

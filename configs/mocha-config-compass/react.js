@@ -11,6 +11,7 @@ module.exports = {
     path.resolve(__dirname, 'register', 'resolve-from-source-register.js'),
     path.resolve(__dirname, 'register', 'jsdom-extra-mocks-register.js'),
     path.resolve(__dirname, 'register', 'node-env-register.js'),
+    path.resolve(__dirname, 'register', 'via-register.js'),
   ],
   'node-option': [
     // TODO(COMPASS-10162): see ./index.js
