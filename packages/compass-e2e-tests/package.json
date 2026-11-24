@@ -56,7 +56,7 @@
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron": "^45.4.1",
-    "electron-to-chromium": "^1.5.492",
+    "electron-to-chromium": "^1.5.493",
     "glob": "^10.2.5",
     "globals": "^15.14.0",
     "jszip": "^3.10.1",
