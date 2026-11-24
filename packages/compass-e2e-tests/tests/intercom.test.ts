@@ -15,9 +15,11 @@ const INTEGRATIONS_PATH = '/api/v2/integrations';
 
 async function startIntegrationsServer(
   integrations: unknown
-): Promise<Server> {
+): Promise<{ server: Server; wasRequested: () => boolean }> {
+  let requested = false;
   const server = createServer((req, res) => {
     if (req.url === INTEGRATIONS_PATH) {
+      requested = true;
       res.writeHead(200, {
         'content-type': 'application/json',
         'access-control-allow-origin': '*',
@@ -29,7 +31,7 @@ async function startIntegrationsServer(
     res.end();
   }).listen(0);
   await once(server, 'listening');
-  return server;
+  return { server, wasRequested: () => requested };
 }
 
 describe('Intercom integration', function () {
@@ -56,14 +58,20 @@ describe('Intercom integration', function () {
     context: Mocha.Context,
     isIntercomAvailable: boolean
   ) {
-    // Intercom is not configured for local builds, but always is in CI
-    if (!isIntercomAvailable && !(process.env.ci || process.env.CI)) {
-      context.skip();
+    if (isIntercomAvailable) {
+      return;
     }
+    // Intercom is not configured for local builds, but always is in CI
+    if (process.env.ci || process.env.CI) {
+      throw new Error(
+        'Expected HADRON_METRICS_INTERCOM_APP_ID to be set in CI'
+      );
+    }
+    context.skip();
   }
 
   it('loads the Intercom script when the integrations endpoint enables it', async function () {
-    server = await startIntegrationsServer({ intercom: true });
+    ({ server } = await startIntegrationsServer({ intercom: true }));
     process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${
       (server.address() as AddressInfo).port
     }`;
@@ -91,7 +99,8 @@ describe('Intercom integration', function () {
   });
 
   it('does not load the Intercom script when the integrations endpoint disables it', async function () {
-    server = await startIntegrationsServer({ intercom: false });
+    const integrations = await startIntegrationsServer({ intercom: false });
+    server = integrations.server;
     process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE = `http://localhost:${
       (server.address() as AddressInfo).port
     }`;
@@ -105,7 +114,11 @@ describe('Intercom integration', function () {
       )
     );
 
-    await compass.browser.pause(2000);
+    await compass.browser.waitUntil(integrations.wasRequested, {
+      timeoutMsg: 'Expected the integrations endpoint to be requested',
+    });
+    // The script toggle runs right after the response is handled
+    await compass.browser.pause(500);
 
     expect(
       await compass.browser.execute(
