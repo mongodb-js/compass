@@ -14,7 +14,6 @@ import {
   saveEditedConnectionInfo,
   saveAndConnect,
   openSettingsModal,
-  moveConnectionsToFolder,
 } from '../stores/connections-store-redux';
 
 import { useConnectionFormPreferences } from '../hooks/use-connection-form-preferences';
@@ -79,7 +78,6 @@ const mapDispatch = {
   saveEditedConnectionInfo,
   saveAndConnect,
   openSettingsModal,
-  moveConnectionsToFolder,
 };
 
 type ConnectionModalProps = {
@@ -90,17 +88,21 @@ type ConnectionModalProps = {
   editingConnectionInfoId?: ConnectionId;
   isEditingNewConnection: boolean;
   folders: Folder[];
-  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  connect: (
+    connectionInfo: ConnectionInfo,
+    folderId?: string | null
+  ) => Promise<void>;
   disconnect: (id: string) => void;
   cancelEditConnection: (id: string) => void;
-  saveEditedConnectionInfo: (connectionInfo: ConnectionInfo) => Promise<void>;
-  saveAndConnect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  saveEditedConnectionInfo: (
+    connectionInfo: ConnectionInfo,
+    folderId?: string | null
+  ) => Promise<void>;
+  saveAndConnect: (
+    connectionInfo: ConnectionInfo,
+    folderId?: string | null
+  ) => Promise<void>;
   openSettingsModal: (tab?: string) => void;
-  moveConnectionsToFolder: (
-    connectionIds: ConnectionId[],
-    folderId: string | null,
-    source: 'connection_form'
-  ) => Promise<unknown>;
 };
 
 const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
@@ -124,12 +126,8 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
     cancelEditConnection,
     saveEditedConnectionInfo,
     saveAndConnect,
-    moveConnectionsToFolder,
   } = props;
 
-  // Filing a connection into a folder at creation time only makes sense for
-  // the New Connection modal: editing an existing connection's folder is
-  // handled by "Move to folder" in the sidebar.
   const folderOptions = useMemo(
     () =>
       isFoldersEnabled && isEditingNewConnection
@@ -137,19 +135,6 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
         : undefined,
     [isFoldersEnabled, isEditingNewConnection, folders]
   );
-
-  const assignFolderAfterSave = (
-    connectionInfo: ConnectionInfo,
-    folderId: string | null
-  ) => {
-    if (isEditingNewConnection && folderId) {
-      void moveConnectionsToFolder(
-        [connectionInfo.id],
-        folderId,
-        'connection_form'
-      );
-    }
-  };
 
   if (!(editingConnectionInfoId && initialConnectionInfo)) {
     return null;
@@ -172,24 +157,21 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
       onCancel={() => {
         cancelEditConnection(editingConnectionInfoId);
       }}
-      onSaveClicked={async (connectionInfo, folderId) => {
-        await saveEditedConnectionInfo(connectionInfo);
-        assignFolderAfterSave(connectionInfo, folderId);
-      }}
+      onSaveClicked={(connectionInfo, folderId) =>
+        saveEditedConnectionInfo(connectionInfo, folderId)
+      }
       onConnectClicked={
         isEditingNewConnection || disableEditingConnectedConnection
           ? undefined
-          : (connectionInfo) => {
-              void connect(connectionInfo);
+          : (connectionInfo, folderId) => {
+              void connect(connectionInfo, folderId);
             }
       }
       onSaveAndConnectClicked={
         disableEditingConnectedConnection
           ? undefined
           : (connectionInfo, folderId) => {
-              void saveAndConnect(connectionInfo).then(() => {
-                assignFolderAfterSave(connectionInfo, folderId);
-              });
+              void saveAndConnect(connectionInfo, folderId);
             }
       }
     />
