@@ -18,7 +18,6 @@ import {
   palette,
   useDarkMode,
   Icon,
-  usePersistedState,
 } from '@mongodb-js/compass-components';
 import {
   useTelemetry,
@@ -37,6 +36,7 @@ import { useChat } from '../@ai-sdk/react/use-chat';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import {
+  hasThinkingBlock,
   isAssistantThinking,
   partIsApprovalRequest,
   partIsToolUI,
@@ -45,30 +45,24 @@ import {
 import { TOOL_DENIAL_REASONS } from '../prompts';
 import { SuggestedPrompts } from './suggested-prompts';
 import { ToolToggle } from './tool-toggle';
-import { ToolsIntroCard } from './tools-intro-card';
 import { AtlasConnectionStatus } from './atlas-connection-status';
-import { AssistantChatMessage } from './assistant-chat-message';
-import type {
-  SkillsInput as SkillsInputType,
-  ThinkingIndicator as ThinkingIndicatorType,
-} from './skills-input';
+import {
+  AssistantChatMessage,
+  ThinkingIndicator,
+} from './assistant-chat-message';
+import type { SkillsInput as SkillsInputType } from './skills-input';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { InputBar } = LgChatInputBar;
 
-// TODO(COMPASS-11250): Remove lazy loading of SkillsInput and ThinkingIndicator once enabled by default
+// TODO(COMPASS-11250): Remove lazy loading of SkillsInput once enabled by default
 // Loaded on demand so Via's bundle and CSS only ship when skills are enabled.
 // webpack can't resolve the `.js` extension that tsc's nodenext resolution
 // demands for dynamic imports of a `.tsx` file, so we drop it and silence tsc.
 const SkillsInput = lazy((): Promise<{ default: typeof SkillsInputType }> =>
   // @ts-expect-error TS2835: extensionless dynamic import, see above
   import('./skills-input').then((m) => ({ default: m.SkillsInput }))
-);
-const ThinkingIndicator = lazy(
-  (): Promise<{ default: typeof ThinkingIndicatorType }> =>
-    // @ts-expect-error TS2835: extensionless dynamic import, see above
-    import('./skills-input').then((m) => ({ default: m.ThinkingIndicator }))
 );
 
 interface AssistantChatProps {
@@ -251,9 +245,6 @@ const toolToggleContainerStyles = css({
   paddingRight: spacing[50],
 });
 
-const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
-  'mongodb_compass_dismissedAssistantToolsIntro' as const;
-
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -271,8 +262,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
   const areToolCallsEnabled =
     !!enableGenAIToolCallingAtlasProject && enableGenAIToolCalling;
-  const [dismissedAssistantToolsIntro, setDismissedAssistantToolsIntro] =
-    usePersistedState(DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY, false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
   const { id: lastMessageId, role: lastMessageRole } =
@@ -610,9 +599,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const handleStopButtonClick = useCallback(async () => {
     await stopChat(chat);
   }, [chat]);
-  const handleDismissIntroCard = useCallback(() => {
-    setDismissedAssistantToolsIntro(true);
-  }, [setDismissedAssistantToolsIntro]);
 
   const visibleMessages = messages.filter(
     (message) => !message.metadata?.isSystemContext
@@ -653,14 +639,17 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                     isLastMessage={isLastMessage}
                     // Only the last message cares about if the response is complete.
                     isResponseComplete={isLastMessage && isResponseComplete}
+                    isThinking={isLastMessage && shouldDisplayThinking}
                   />
                 );
               })}
-              {enableSkills && shouldDisplayThinking && (
-                <Suspense fallback={null}>
-                  <ThinkingIndicator />
-                </Suspense>
-              )}
+              {enableSkills &&
+                shouldDisplayThinking &&
+                !hasThinkingBlock(messages[messages.length - 1]) && (
+                  <Suspense fallback={null}>
+                    <ThinkingIndicator />
+                  </Suspense>
+                )}
             </div>
             {messages.length === 0 && (
               <>
@@ -685,9 +674,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                     chat={chat}
                     onMessageSend={handleMessageSend}
                   />
-                  {!dismissedAssistantToolsIntro && (
-                    <ToolsIntroCard onDismiss={handleDismissIntroCard} />
-                  )}
                 </div>
               </>
             )}

@@ -6,10 +6,72 @@ import type {
   UIDataTypes,
   UITools,
 } from 'ai';
-import { isAssistantThinking, getToolState, partIsToolUI } from './utils';
+import {
+  isAssistantThinking,
+  getReasoningSteps,
+  hasThinkingBlock,
+  getToolState,
+  partIsToolUI,
+} from './utils';
 import type { AssistantMessage } from './compass-assistant-provider';
 
 describe('utils', function () {
+  describe('hasThinkingBlock', function () {
+    const message = (extra: Record<string, unknown>) =>
+      ({
+        id: '1',
+        role: 'assistant',
+        parts: [{ type: 'reasoning', text: 'Calling a skill' }],
+        ...extra,
+      }) as unknown as AssistantMessage;
+
+    it('is true for an assistant message with reasoning', function () {
+      expect(hasThinkingBlock(message({}))).to.be.true;
+    });
+
+    it('is false without a message, without reasoning, or for confirmations', function () {
+      expect(hasThinkingBlock(undefined)).to.be.false;
+      expect(
+        hasThinkingBlock(message({ parts: [{ type: 'text', text: 'hi' }] }))
+      ).to.be.false;
+      expect(
+        hasThinkingBlock(
+          message({
+            metadata: { confirmation: { description: 'x', state: 'pending' } },
+          })
+        )
+      ).to.be.false;
+    });
+  });
+
+  describe('getReasoningSteps', function () {
+    const assistant = (parts: unknown[]) =>
+      ({ id: '1', role: 'assistant', parts }) as unknown as AssistantMessage;
+
+    it('returns trimmed reasoning texts in order, skipping blanks and other parts', function () {
+      expect(
+        getReasoningSteps(
+          assistant([
+            { type: 'reasoning', text: ' Calling a skill ' },
+            { type: 'reasoning', text: '  ' },
+            { type: 'text', text: 'hello' },
+            { type: 'reasoning', text: 'Calling b skill' },
+          ])
+        )
+      ).to.deep.equal(['Calling a skill', 'Calling b skill']);
+    });
+
+    it('returns nothing for user messages and missing messages', function () {
+      const user = {
+        id: '2',
+        role: 'user',
+        parts: [{ type: 'reasoning', text: 'x' }],
+      } as unknown as AssistantMessage;
+      expect(getReasoningSteps(user)).to.deep.equal([]);
+      expect(getReasoningSteps(undefined)).to.deep.equal([]);
+    });
+  });
+
   describe('partIsToolUI', function () {
     it('should return true for tool-call parts', function () {
       const part = {
@@ -101,7 +163,7 @@ describe('utils', function () {
           {
             id: '1',
             role: 'assistant',
-            parts: [{ type: 'reasoning', text: 'Using skill: x' }],
+            parts: [{ type: 'reasoning', text: 'Calling x skill' }],
           },
         ];
         expect(isAssistantThinking('streaming', messages)).to.be.true;
@@ -113,7 +175,7 @@ describe('utils', function () {
             id: '1',
             role: 'assistant',
             parts: [
-              { type: 'reasoning', text: 'Using skill: x' },
+              { type: 'reasoning', text: 'Calling x skill' },
               { type: 'text', text: 'Here is the answer' },
             ],
           },

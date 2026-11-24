@@ -12,6 +12,7 @@ const {
 } = require('@mongodb-js/monorepo-tools');
 
 const UPDATE_CONFIGS = require('./update-dependencies-config');
+const { updateNodeJSVersion } = require('./update-node-js-version');
 
 const unsafeForce = process.argv.includes('--unsafe-force-install');
 
@@ -256,6 +257,14 @@ async function main() {
   }
 
   await hoistSharedDependencies(monorepoRoot, newVersions);
+
+  // Extra step for electron update: bump Node.js for the monorepo to the
+  // matching version. This is running after we actually did the bump so that
+  // the Node.js version can be requested from the newly installed electron
+  // binary directly
+  if (newVersionsObj['electron']) {
+    await updateNodeJSVersion();
+  }
 
   console.log();
   console.log('Successfully updated dependencies');

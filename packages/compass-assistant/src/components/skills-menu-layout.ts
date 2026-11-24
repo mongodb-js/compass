@@ -45,6 +45,7 @@ export function useMenuSizing(containerRef: RefObject<HTMLElement>) {
       const menu = element?.closest<HTMLElement>('[role="menu"]');
       const container = containerRef.current;
       if (!menu || !container) return;
+      menu.style.scrollbarWidth = 'none';
       const update = () => {
         menu.style.setProperty(
           MENU_WIDTH_VAR,
