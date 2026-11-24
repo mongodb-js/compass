@@ -134,7 +134,7 @@ describe('Instance sidebar', function () {
     const collectionElement = browser.$(collectionSelector);
     expect(await collectionElement.isDisplayed()).to.be.true;
 
-    await browser.setValueVisible(Selectors.SidebarFilterInput, '*');
+    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
 
     // wait for something that didn't match the previous search to show up to make sure that it reset
     // (otherwise future tests will fail because the new dbs/collections won't match the filter)

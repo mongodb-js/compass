@@ -19,6 +19,7 @@ import {
   BannerVariant,
   Body,
   Button,
+  Description,
   Icon,
   ButtonVariant,
   ConfirmationModalVariant,
@@ -69,6 +70,7 @@ import {
 import NavigationItemsFilter from '../navigation-items-filter';
 import { FolderModal } from '../folder-modal';
 import {
+  isConnectionsFilterActive,
   type ConnectionsFilter,
   useFilteredConnections,
 } from '../use-filtered-connections';
@@ -81,7 +83,6 @@ import type { RootState, SidebarThunkAction } from '../../modules';
 
 const connectionsContainerStyles = css({
   height: '100%',
-  paddingBottom: spacing[400],
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[200],
@@ -112,18 +113,17 @@ const connectionCountDisabledStyles = css({
   opacity: 0.6,
 });
 
+const noSearchResultsStyles = css({
+  padding: spacing[400],
+  textAlign: 'center',
+});
+
 const noDeploymentStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[200],
-});
-
-const noSearchResultsStyles = css({
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-  paddingTop: spacing[400],
 });
 
 const deleteFolderBannerStyles = css({
@@ -380,22 +380,21 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const onFolderModalSubmit = useCallback(
     (name: string) => {
-      let request: Promise<unknown>;
+      onCloseFolderModal();
       switch (folderModalTarget.mode) {
         case 'rename':
-          request = onRenameFolder(folderModalTarget.folderId, name);
+          void onRenameFolder(folderModalTarget.folderId, name);
           break;
         case 'create-and-move':
-          request = onMoveConnectionsToNewFolder(
+          void onMoveConnectionsToNewFolder(
             [folderModalTarget.connectionId],
             name,
             'connection_context_menu'
           );
           break;
         default:
-          request = onCreateFolder(name, 'sidebar_icon');
+          void onCreateFolder(name, 'sidebar_icon');
       }
-      void request.then(onCloseFolderModal);
     },
     [
       onCreateFolder,
@@ -440,7 +439,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   );
 
   const {
-    filtered,
+    filteredConnections,
+    filteredFolders,
     expanded,
     onCollapseAll,
     onConnectionToggle,
@@ -449,10 +449,17 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   } = useFilteredConnections({
     connections,
     folders: sidebarFolders,
+    folderAssignments: sidebarFolderAssignments,
     filter,
     fetchAllCollections,
     onDatabaseExpand,
   });
+
+  // Falls back to `connections` so the message doesn't flash before the hook's effect computes a result.
+  const isTreeEmpty =
+    isConnectionsFilterActive(filter) &&
+    (filteredConnections ?? connections).length === 0 &&
+    filteredFolders.length === 0;
 
   const connectionListTitleActions = useMemo((): {
     actions: ItemAction<ConnectionListTitleActions>[];
@@ -844,29 +851,29 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         }
         filter={filter}
         onFilterChange={onFilterChange}
+        folders={sidebarFolders}
         disabled={isInitialConnectionsLoad || connections.length === 0}
       />
       {isInitialConnectionsLoad ? (
         <ConnectionsPlaceholder></ConnectionsPlaceholder>
+      ) : isTreeEmpty ? (
+        <Description
+          className={noSearchResultsStyles}
+          data-testid="no-search-results"
+        >
+          No results found
+        </Description>
       ) : connections.length > 0 ? (
-        filtered && filtered.length === 0 ? (
-          <div
-            className={noSearchResultsStyles}
-            data-testid="no-search-results"
-          >
-            <Body>No results found.</Body>
-          </div>
-        ) : (
-          <ConnectionsNavigationTree
-            connections={filtered || connections}
-            folders={sidebarFolders}
-            folderAssignments={sidebarFolderAssignments}
-            activeWorkspace={activeWorkspace}
-            onItemAction={onItemAction}
-            onItemExpand={onItemExpand}
-            expanded={expanded}
-          />
-        )
+        <ConnectionsNavigationTree
+          connections={filteredConnections || connections}
+          folders={filteredFolders}
+          allFolders={sidebarFolders}
+          folderAssignments={sidebarFolderAssignments}
+          activeWorkspace={activeWorkspace}
+          onItemAction={onItemAction}
+          onItemExpand={onItemExpand}
+          expanded={expanded}
+        />
       ) : connections.length === 0 ? (
         <div className={noDeploymentStyles}>
           <Body data-testid="no-deployments-text">
