@@ -282,6 +282,87 @@ describe('ConnectionStorage', function () {
       ).to.be.equal('mongodb://localhost:27017/?authMechanism=FAKEAUTH');
     });
 
+    it('does not store the OIDC access token', async function () {
+      const id = new UUID().toString();
+      const serializedState = Buffer.from(
+        JSON.stringify({
+          oidcPluginStateVersion: 1,
+          state: [
+            [
+              'idp-key',
+              {
+                id: 'auth-state',
+                serverOIDCMetadata: { issuer: 'https://idp.example.com' },
+                currentTokenSet: {
+                  set: {
+                    access_token: 'access-token',
+                    id_token: 'id-token',
+                    refresh_token: 'refresh-token',
+                    token_type: 'Bearer',
+                    expiresAt: 1234567890,
+                  },
+                },
+              },
+            ],
+          ],
+        }),
+        'utf8'
+      ).toString('base64');
+
+      // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
+      // and can assert on what would have been written to disk.
+      const encryptSecretsStub = Sinon.stub(
+        connectionStorage,
+        'encryptSecrets' as any
+      ).returns('encrypted-data');
+
+      await connectionStorage.save({
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/',
+            oidc: { serializedState },
+          },
+        },
+      });
+
+      const storedSerializedState = (
+        encryptSecretsStub.firstCall.firstArg as any
+      ).oidcSerializedState;
+      const stored = JSON.parse(
+        Buffer.from(storedSerializedState, 'base64').toString('utf8')
+      );
+      const tokenSet = stored.state[0][1].currentTokenSet.set;
+      expect(tokenSet).to.not.have.property('access_token');
+      expect(tokenSet).to.have.property('expiresAt', 0);
+      expect(tokenSet).to.include({
+        id_token: 'id-token',
+        refresh_token: 'refresh-token',
+      });
+    });
+
+    it('does not store unreadable OIDC state', async function () {
+      const id = new UUID().toString();
+      const encryptSecretsStub = Sinon.stub(
+        connectionStorage,
+        'encryptSecrets' as any
+      ).returns(undefined);
+
+      await connectionStorage.save({
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/',
+            oidc: { serializedState: 'not-a-serialized-state' },
+          },
+        },
+      });
+
+      expect(encryptSecretsStub.firstCall.firstArg).to.not.have.property(
+        'oidcSerializedState'
+      );
+    });
+
     it('requires id to be set', async function () {
       try {
         await connectionStorage.save({

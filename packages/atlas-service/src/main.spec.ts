@@ -618,6 +618,63 @@ describe('CompassAuthServiceMain', function () {
     });
   });
 
+  describe('onExit', function () {
+    function makeSerializedState(accessToken: string): string {
+      return Buffer.from(
+        JSON.stringify({
+          oidcPluginStateVersion: 1,
+          state: [
+            [
+              'idp-key',
+              {
+                currentTokenSet: {
+                  set: {
+                    access_token: accessToken,
+                    id_token: 'id-token',
+                    refresh_token: 'refresh-token',
+                    expiresAt: 1234567890,
+                  },
+                },
+              },
+            ],
+          ],
+        }),
+        'utf8'
+      ).toString('base64');
+    }
+
+    it('does not persist the access token', async function () {
+      mockOidcPlugin.serialize.resolves(makeSerializedState(accessToken));
+      const setStateStub = sandbox
+        .stub(CompassAuthService['secretStore'], 'setState')
+        .resolves();
+
+      await CompassAuthService.onExit();
+
+      expect(setStateStub).to.have.been.calledOnce;
+      const persisted = JSON.parse(
+        Buffer.from(setStateStub.firstCall.firstArg, 'base64').toString('utf8')
+      );
+      const tokenSet = persisted.state[0][1].currentTokenSet.set;
+      expect(tokenSet).to.not.have.property('access_token');
+      expect(tokenSet).to.have.property('expiresAt', 0);
+      expect(tokenSet).to.include({
+        refresh_token: 'refresh-token',
+      });
+    });
+
+    it('clears the stored state when it cannot be sanitized', async function () {
+      mockOidcPlugin.serialize.resolves('not-a-serialized-state');
+      const setStateStub = sandbox
+        .stub(CompassAuthService['secretStore'], 'setState')
+        .resolves();
+
+      await CompassAuthService.onExit();
+
+      expect(setStateStub).to.have.been.calledOnceWith('');
+    });
+  });
+
   describe('signOut', function () {
     it('should reset service state, revoke tokens, and destroy plugin', async function () {
       const logger = new EventEmitter();

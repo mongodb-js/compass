@@ -8,7 +8,11 @@ import type {
   ConnectionSecrets,
 } from '@mongodb-js/connection-info';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
+import {
+  mergeSecrets,
+  extractSecrets,
+  stripAccessTokenFromOIDCSerializedState,
+} from '@mongodb-js/connection-info';
 import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import { deleteCompassAppNameParam } from './utils';
 import {
@@ -156,6 +160,17 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     try {
       const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
         extractSecrets(connectionInfo);
+
+      if (secrets.oidcSerializedState) {
+        const sanitizedState = stripAccessTokenFromOIDCSerializedState(
+          secrets.oidcSerializedState
+        );
+        if (sanitizedState) {
+          secrets.oidcSerializedState = sanitizedState;
+        } else {
+          delete secrets.oidcSerializedState;
+        }
+      }
 
       let connectionSecrets: string | undefined = undefined;
       try {

@@ -14,6 +14,7 @@ import {
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
+import { stripAccessTokenFromOIDCSerializedState } from '@mongodb-js/connection-info';
 import type { HadronIpcMain } from '@mongodb-js/hadron-ipc';
 import { ipcMain } from '@mongodb-js/hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
@@ -503,7 +504,13 @@ export class CompassAuthService {
       return;
     }
     try {
-      await this.secretStore.setState(await this.plugin.serialize());
+      const serializedState = await this.plugin.serialize();
+      // Keep the short-lived access token out of persistent storage; the
+      // refresh token is enough to get a new one on the next start. If the
+      // state can't be sanitized, don't keep a possibly token-bearing value.
+      await this.secretStore.setState(
+        stripAccessTokenFromOIDCSerializedState(serializedState) ?? ''
+      );
     } catch (err) {
       log.warn(
         mongoLogId(1_001_000_221),
