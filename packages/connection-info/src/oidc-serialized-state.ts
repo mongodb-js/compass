@@ -22,12 +22,20 @@ interface SerializedOIDCPluginState {
 export function stripAccessTokenFromOIDCSerializedState(
   serializedState: string
 ): string | undefined {
-  let state: SerializedOIDCPluginState;
+  let parsed: unknown;
   try {
-    state = JSON.parse(Buffer.from(serializedState, 'base64').toString('utf8'));
+    parsed = JSON.parse(
+      Buffer.from(serializedState, 'base64').toString('utf8')
+    );
   } catch {
     return undefined;
   }
+
+  if (!parsed || typeof parsed !== 'object') {
+    return undefined;
+  }
+
+  const state = parsed as SerializedOIDCPluginState;
 
   // The serialized format is an opaque, versioned plugin internal.
   if (
@@ -45,6 +53,10 @@ export function stripAccessTokenFromOIDCSerializedState(
       // The plugin trusts `expiresAt` and would skip refreshing if the missing
       // access token still looked valid; force the refresh-token grant instead.
       tokenSet.expiresAt = 0;
+      // Keep `id_token` and its `claims`: the plugin needs them for its
+      // ID-token consistency checks on deserialize, and in
+      // `passIdTokenAsAccessToken` mode the ID token is intentionally used as
+      // the credential, with expiry handled by the plugin itself.
     }
   } catch {
     return undefined;

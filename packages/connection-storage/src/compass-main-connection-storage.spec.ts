@@ -363,6 +363,30 @@ describe('ConnectionStorage', function () {
       );
     });
 
+    it('does not store a null OIDC state', async function () {
+      const id = new UUID().toString();
+      const encryptSecretsStub = Sinon.stub(
+        connectionStorage,
+        'encryptSecrets' as any
+      ).returns(undefined);
+
+      await connectionStorage.save({
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017/',
+            oidc: {
+              serializedState: Buffer.from('null').toString('base64'),
+            },
+          },
+        },
+      });
+
+      expect(encryptSecretsStub.firstCall.firstArg).to.not.have.property(
+        'oidcSerializedState'
+      );
+    });
+
     it('requires id to be set', async function () {
       try {
         await connectionStorage.save({

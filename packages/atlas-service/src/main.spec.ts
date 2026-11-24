@@ -673,6 +673,17 @@ describe('CompassAuthServiceMain', function () {
 
       expect(setStateStub).to.have.been.calledOnceWith('');
     });
+
+    it('clears the stored state when the OIDC state is null', async function () {
+      mockOidcPlugin.serialize.resolves(Buffer.from('null').toString('base64'));
+      const setStateStub = sandbox
+        .stub(CompassAuthService['secretStore'], 'setState')
+        .resolves();
+
+      await CompassAuthService.onExit();
+
+      expect(setStateStub).to.have.been.calledOnceWith('');
+    });
   });
 
   describe('signOut', function () {

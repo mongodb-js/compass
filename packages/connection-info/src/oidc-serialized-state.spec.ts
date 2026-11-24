@@ -73,6 +73,18 @@ describe('stripAccessTokenFromOIDCSerializedState', function () {
     );
   });
 
+  it('returns undefined for a null parsed state', function () {
+    expect(stripAccessTokenFromOIDCSerializedState(serialize(null))).to.equal(
+      undefined
+    );
+  });
+
+  it('returns undefined for a primitive parsed state', function () {
+    expect(stripAccessTokenFromOIDCSerializedState(serialize(42))).to.equal(
+      undefined
+    );
+  });
+
   it('returns undefined for an unknown state version', function () {
     expect(
       stripAccessTokenFromOIDCSerializedState(
