@@ -13,9 +13,6 @@ const FolderSchema = z
   .object({
     id: z.uuid(),
     name: z.string(),
-    // A date this version cannot make sense of, for example one written in a
-    // format a later version introduced, must not cost us the whole folder:
-    // falling back to no date only means the folder sorts as the oldest one.
     lastModifiedAt: z.coerce
       .date()
       .optional()
@@ -59,8 +56,6 @@ class CompassMainFolderStorage implements FolderStorage {
   async load(): Promise<FolderOrganization> {
     let folderOrganization: FolderOrganization;
     try {
-      // ignoreMissing: there being no folder organization yet is the normal
-      // state for a user who hasn't created a folder, not a read failure.
       folderOrganization =
         (await this.userData.readOne(FOLDER_ORGANIZATION_ID, {
           ignoreErrors: true,
