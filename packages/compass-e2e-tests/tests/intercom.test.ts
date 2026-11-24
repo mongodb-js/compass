@@ -29,7 +29,9 @@ describe('Intercom integration', function () {
     await cleanup(compass);
   });
 
-  it('should load Intercom script', async function () {
+  // TODO(COMPASS-11402): The update server only enables Intercom during
+  // survey periods, so this can't rely on the live integrations endpoint.
+  it.skip('should load Intercom script', async function () {
     const isIntercomAvailable = await compass.browser.execute(() => {
       return !!process.env.HADRON_METRICS_INTERCOM_APP_ID;
     });
