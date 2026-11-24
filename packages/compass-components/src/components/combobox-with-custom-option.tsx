@@ -28,7 +28,7 @@ export const ComboboxWithCustomOption = <
       renderOption(option, index, false)
     );
 
-    if (search && !allOptions.find((x) => x.value.includes(search))) {
+    if (search && !allOptions.some((x) => x.value === search)) {
       _opts.push(
         renderOption({ value: search } as K, allOptions.length + 1, true)
       );
