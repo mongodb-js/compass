@@ -598,10 +598,6 @@ export const INITIAL_CONNECTIONS_FILTER: ConnectionsFilter = {
 
 const NEVER_MATCHING_REGEX = /(?!)/;
 
-// Windows-reserved characters, excluding `| ? *` since those are regex
-// operators searches rely on (e.g. `Work|Personal`), not literal characters.
-const RESTRICTED_CHARACTERS_REGEX = /[/<>:"]/;
-
 function createRegExp(search: string): RegExp | null {
   try {
     return new RegExp(search, 'i');
@@ -614,9 +610,6 @@ function createRegExp(search: string): RegExp | null {
 const filteringRegex = (search: string): RegExp | null => {
   if (!search) {
     return null;
-  }
-  if (RESTRICTED_CHARACTERS_REGEX.test(search)) {
-    return NEVER_MATCHING_REGEX;
   }
   return createRegExp(search) ?? NEVER_MATCHING_REGEX;
 };

@@ -83,7 +83,6 @@ import type { RootState, SidebarThunkAction } from '../../modules';
 
 const connectionsContainerStyles = css({
   height: '100%',
-  paddingBottom: spacing[400],
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[200],
@@ -862,7 +861,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           className={noSearchResultsStyles}
           data-testid="no-search-results"
         >
-          No matching folders, connections, or databases
+          No results found
         </Description>
       ) : connections.length > 0 ? (
         <ConnectionsNavigationTree

@@ -500,9 +500,7 @@ describe('Multiple Connections Sidebar Component', function () {
           userEvent.type(searchInput, 'zzz_no_match_zzz');
 
           await waitFor(() => {
-            expect(
-              screen.getByText('No matching folders, connections, or databases')
-            ).to.be.visible;
+            expect(screen.getByText('No results found')).to.be.visible;
           });
           expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
 
@@ -1203,8 +1201,7 @@ describe('Multiple Connections Sidebar Component', function () {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
       expect(screen.queryByTestId(savedRecentConnection.id)).not.to.exist;
-      expect(screen.getByText('No matching folders, connections, or databases'))
-        .to.be.visible;
+      expect(screen.getByText('No results found')).to.be.visible;
     });
 
     it('should hide a folder when the active connections filter leaves it empty', async function () {
@@ -1221,8 +1218,7 @@ describe('Multiple Connections Sidebar Component', function () {
       await waitFor(() => {
         expect(screen.queryByTestId('folder_1')).not.to.exist;
       });
-      expect(screen.getByText('No matching folders, connections, or databases'))
-        .to.be.visible;
+      expect(screen.getByText('No results found')).to.be.visible;
     });
 
     it('should leave "All connections" unchecked rather than mixed while only some folders are shown', async function () {
@@ -1356,31 +1352,8 @@ describe('Multiple Connections Sidebar Component', function () {
 
       userEvent.type(searchInput, 'enron(');
 
-      expect(
-        await screen.findByText(
-          'No matching folders, connections, or databases'
-        )
-      ).to.be.visible;
+      expect(await screen.findByText('No results found')).to.be.visible;
       expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
-
-      userEvent.clear(searchInput);
-
-      await waitFor(() => {
-        expect(screen.getByTestId('folder_1')).to.be.visible;
-      });
-    });
-
-    it('should say nothing matched when the search holds a folder-name restricted character', async function () {
-      await renderWithFolders(true);
-      const searchInput = screen.getByRole('searchbox', { name: 'Search' });
-
-      userEvent.type(searchInput, 'happy/*<>');
-
-      expect(
-        await screen.findByText(
-          'No matching folders, connections, or databases'
-        )
-      ).to.be.visible;
 
       userEvent.clear(searchInput);
 

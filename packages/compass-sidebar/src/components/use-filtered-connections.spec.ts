@@ -1058,18 +1058,6 @@ describe('useFilteredConnections', function () {
         });
       });
 
-      it('should filter everything out when the search holds a folder-name restricted character', async function () {
-        const { result } = renderWithFolders({
-          search: 'happy/*<>',
-          excludeInactive: false,
-        });
-
-        await waitFor(() => {
-          expect(result.current.filteredConnections).to.deep.equal([]);
-          expect(result.current.filteredFolders).to.deep.equal([]);
-        });
-      });
-
       it('should collapse the folders the search opened once the search is cleared', async function () {
         const { result, rerender } = renderWithFolders({
           search: '',
