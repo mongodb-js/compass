@@ -17,7 +17,7 @@ import {
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Skill } from '../skills-service';
-import { SkillsInput } from './skills-input';
+import { SkillsInput, ThinkingIndicator } from './skills-input';
 
 const skills: Skill[] = [
   {
@@ -235,5 +235,40 @@ describe('SkillsInput', function () {
     userEvent.click(screen.getByLabelText('Send message'));
 
     await waitFor(() => expect(onSend).to.have.been.calledOnce);
+  });
+});
+
+describe('ThinkingIndicator', function () {
+  const steps = ['Calling schema-design skill', 'Calling query skill'];
+
+  it('pins the latest step as the label and lists only the earlier ones while thinking', function () {
+    render(<ThinkingIndicator steps={steps} />);
+
+    userEvent.click(screen.getByRole('button'));
+
+    expect(screen.getByText('Calling schema-design skill')).to.be.visible;
+    expect(screen.getAllByText('Calling query skill')).to.have.lengthOf(1);
+  });
+
+  it('has nothing to expand while the only step is the pinned label', function () {
+    render(<ThinkingIndicator steps={[steps[0]]} />);
+
+    expect(screen.getByText('Calling schema-design skill')).to.exist;
+    expect(screen.queryByRole('button')).to.not.exist;
+  });
+
+  it('shows "Thought" with every step once thinking is done', function () {
+    render(<ThinkingIndicator steps={steps} isThinking={false} />);
+
+    userEvent.click(screen.getByRole('button', { name: 'Thought' }));
+
+    expect(screen.getByText('Calling schema-design skill')).to.be.visible;
+    expect(screen.getByText('Calling query skill')).to.be.visible;
+  });
+
+  it('has no expandable content without steps', function () {
+    render(<ThinkingIndicator />);
+
+    expect(screen.queryByRole('button')).to.not.exist;
   });
 });

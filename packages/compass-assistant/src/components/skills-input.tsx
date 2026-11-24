@@ -213,11 +213,28 @@ export const SkillsInput: React.FunctionComponent<SkillsInputProps> = ({
   );
 };
 
-export const ThinkingIndicator: React.FunctionComponent = () => {
+export const ThinkingIndicator: React.FunctionComponent<{
+  steps?: string[];
+  isThinking?: boolean;
+}> = ({ steps = [], isThinking = true }) => {
   const darkMode = useDarkMode();
+  // While thinking, the latest step is the block's label, so listing it again
+  // would show it twice.
+  const listedSteps = isThinking ? steps.slice(0, -1) : steps;
   return (
     <ViaProvider colorScheme={darkMode ? 'dark' : 'light'}>
-      <ThinkingBlock status="in_progress" />
+      <ThinkingBlock
+        status={isThinking ? 'in_progress' : 'completed'}
+        items={isThinking ? steps[steps.length - 1] : undefined}
+      >
+        {listedSteps.length > 0 && (
+          <ul>
+            {listedSteps.map((step, i) => (
+              <li key={i}>{step}</li>
+            ))}
+          </ul>
+        )}
+      </ThinkingBlock>
     </ViaProvider>
   );
 };
