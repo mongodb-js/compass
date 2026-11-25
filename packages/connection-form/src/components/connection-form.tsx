@@ -355,7 +355,7 @@ function ConnectionPersonalizationForm({
           allowDeselect={false}
           onChange={onChangeFolder}
         >
-          <Option value={UNCATEGORIZED_FOLDER_VALUE}>Uncategorized</Option>
+          <Option value={UNCATEGORIZED_FOLDER_VALUE}>No Folder</Option>
           {folders?.map((folder) => (
             <Option key={folder.id} value={folder.id}>
               {folder.name}
