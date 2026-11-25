@@ -17,8 +17,8 @@
       "skills": ["./"]
     },
     {
-      "name": "evergreen-cli",
-      "source": "./.agents/skills/evergreen-cli",
+      "name": "evergreen",
+      "source": "./.agents/skills/evergreen",
       "version": "1.0.0",
       "description": "Work with Compass CI on Evergreen: patches, tasks, logs, artifacts, config validation",
       "skills": ["./"]

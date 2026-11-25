@@ -64,7 +64,7 @@ Then read the workflow named in the log (`Job defined at: .../<file>.yml`) and `
 
 Project `10gen-compass-main`, UI `https://spruce.corp.mongodb.com`. Version/patch page is `/version/<id>`, task page is `/task/<task_id>`; both IDs are in the Spruce URL. PRs run every task of every `run-on-pr` variant automatically (`github_pr_aliases` in `.evergreen.yml`). Config source is `.evergreen/buildvariants-and-tasks.in.yml` (never edit the generated `.yml`); see `.evergreen/AGENTS.md`.
 
-Use the DevProd MCP Gateway `evg_*`/`jira_*` tools. Detection, setup, the CLI fallback, and per-tool parameters (pagination, limits) live in the `evergreen-cli` skill ("Route"); page results until each total is covered. Never call Evergreen's HTTP/REST API directly (`curl` etc.).
+Use the DevProd MCP Gateway `evg_*`/`jira_*` tools. Detection, setup, the CLI fallback, and per-tool parameters (pagination, limits) live in the `evergreen` skill ("Route"); page results until each total is covered. Never call Evergreen's HTTP/REST API directly (`curl` etc.).
 
 Broad to narrow; skip ahead when a task URL or ID is already provided:
 

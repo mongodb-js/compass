@@ -1,5 +1,5 @@
 ---
-name: evergreen-cli
+name: evergreen
 description: Work with Compass CI on Evergreen. Use to look up patches, versions, tasks, logs or artifacts, submit/rerun/finalize/cancel a patch build, check the last green commit, or edit and validate .evergreen config. Uses the DevProd MCP Gateway when available and the evergreen CLI otherwise. Triggers on "evergreen", "evg", "patch build", "spruce", "fetch artifacts", "last green".
 ---
 
