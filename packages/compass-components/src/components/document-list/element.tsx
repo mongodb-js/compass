@@ -315,6 +315,11 @@ const elementExpand = css({
   userSelect: 'none',
 });
 
+// Keeps bidi control characters in a key from reordering the text around it.
+const bidiIsolate = css({
+  unicodeBidi: 'isolate',
+});
+
 const elementKey = css({
   flex: 'none',
   fontWeight: 'bold',
@@ -826,7 +831,7 @@ export const HadronElement: React.FunctionComponent<{
                 }}
               ></KeyEditor>
             ) : (
-              <span>{key.value}</span>
+              <span className={bidiIsolate}>{key.value}</span>
             )}
           </div>
           <div className={elementDivider} role="presentation">

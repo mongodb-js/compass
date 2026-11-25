@@ -57,6 +57,22 @@ describe('Document', function () {
     expect(screen.getByTitle('1970-01-01T00:00:00.000+00:00')).to.exist;
   });
 
+  it('isolate the bidi context of editable keys', function () {
+    render(<Document value={new HadronDocument({ name: 1 })}></Document>);
+
+    expect(getComputedStyle(screen.getByText('name')).unicodeBidi).to.equal(
+      'isolate'
+    );
+  });
+
+  it('isolate the bidi context of keys that cannot be edited', function () {
+    render(<Document value={new HadronDocument({ _id: 1 })}></Document>);
+
+    expect(getComputedStyle(screen.getByText('_id')).unicodeBidi).to.equal(
+      'isolate'
+    );
+  });
+
   it('renders a readonly document with no fields as an empty document', function () {
     render(<Document value={new HadronDocument({})}></Document>);
     const empty = screen.getByTestId('readonly-document-empty');
