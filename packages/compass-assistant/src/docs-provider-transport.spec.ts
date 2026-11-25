@@ -447,9 +447,9 @@ describe('DocsProviderTransport', function () {
             part.type === 'reasoning' ? [part.text] : []
           )
         ).to.deep.equal([
-          'Using skill: mongodb-schema-design',
-          'Using skill: mongodb-query-optimizer',
-          'Using skill: mongodb-schema-design',
+          'Calling schema-design skill',
+          'Calling query-optimizer skill',
+          'Calling schema-design skill',
         ]);
       });
 
@@ -467,9 +467,18 @@ describe('DocsProviderTransport', function () {
         expect(message?.parts.map((part) => part.type)).to.deep.equal([
           'step-start',
           'reasoning',
+          'reasoning',
           'tool-list-databases',
         ]);
-        expect(message?.parts[2]).to.include({
+        expect(
+          message?.parts.flatMap((part) =>
+            part.type === 'reasoning' ? [part.text] : []
+          )
+        ).to.deep.equal([
+          'Calling schema-design skill',
+          'Calling list-databases tool',
+        ]);
+        expect(message?.parts[3]).to.include({
           type: 'tool-list-databases',
           toolCallId: 'call_2',
           state: 'input-available',
@@ -581,7 +590,7 @@ describe('DocsProviderTransport', function () {
               parts: [
                 {
                   type: 'reasoning',
-                  text: 'Using skill: mongodb-schema-design',
+                  text: 'Calling schema-design skill',
                 },
                 {
                   type: 'reasoning',
@@ -593,7 +602,9 @@ describe('DocsProviderTransport', function () {
             },
           ]);
           const { input } = JSON.parse(requestBodies[0]);
-          expect(JSON.stringify(input)).to.not.include('Using skill:');
+          expect(JSON.stringify(input)).to.not.include(
+            'Calling schema-design skill'
+          );
           expect(JSON.stringify(input)).to.not.include('rs_1');
           expect(JSON.stringify(input)).to.not.include('Real reasoning');
           expect(JSON.stringify(input)).to.include('Listing databases');

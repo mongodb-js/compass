@@ -1,9 +1,27 @@
 import React, { useCallback, useState } from 'react';
-import { css, spacing, TextInput } from '@mongodb-js/compass-components';
-import type { ConnectionsFilter } from './use-filtered-connections';
+import {
+  css,
+  Disclaimer,
+  Link,
+  spacing,
+  TextInput,
+} from '@mongodb-js/compass-components';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
+import {
+  areConnectionsFiltersActive,
+  INITIAL_CONNECTIONS_FILTER,
+  type ConnectionsFilter,
+} from './use-filtered-connections';
 import ConnectionsFilterPopover from './connections-filter-popover';
 
-const filterContainerStyles = css({
+const containerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  // Matches the connections container's gap, so spacing holds whether or not the caption renders.
+  gap: spacing[200],
+});
+
+const filterRowStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -16,13 +34,15 @@ const textInputStyles = css({
   flexGrow: 1,
 });
 
-function createRegExp(input: string) {
-  try {
-    return input ? new RegExp(input, 'i') : null;
-  } catch {
-    return null;
-  }
-}
+const captionRowStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+});
+
+const EMPTY_FOLDERS: Folder[] = [];
 
 export default function NavigationItemsFilter({
   placeholder = 'Search',
@@ -30,6 +50,7 @@ export default function NavigationItemsFilter({
   title = 'Search',
   filter,
   onFilterChange,
+  folders = EMPTY_FOLDERS,
   disabled = false,
 }: {
   placeholder?: string;
@@ -39,17 +60,20 @@ export default function NavigationItemsFilter({
   onFilterChange(
     updater: (filter: ConnectionsFilter) => ConnectionsFilter
   ): void;
+  folders?: Folder[];
   disabled?: boolean;
 }): React.ReactElement {
   const onChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (event) => {
-      onFilterChange((filter) => ({
-        ...filter,
-        regex: createRegExp(event.target.value),
-      }));
+      const search = event.target.value;
+      onFilterChange((filter) => ({ ...filter, search }));
     },
     [onFilterChange]
   );
+
+  const onReset = useCallback(() => {
+    onFilterChange(() => INITIAL_CONNECTIONS_FILTER);
+  }, [onFilterChange]);
 
   const [isPopoverOpen, setPopoverOpen] = useState(false);
 
@@ -59,24 +83,36 @@ export default function NavigationItemsFilter({
   }, []);
 
   return (
-    <form noValidate className={filterContainerStyles} onSubmit={onSubmit}>
-      <TextInput
-        data-testid="sidebar-filter-input"
-        placeholder={placeholder}
-        type="search"
-        aria-label={ariaLabel}
-        title={title}
-        onChange={onChange}
-        className={textInputStyles}
-        disabled={disabled}
-      />
-      <ConnectionsFilterPopover
-        open={isPopoverOpen}
-        setOpen={setPopoverOpen}
-        filter={filter}
-        onFilterChange={onFilterChange}
-        disabled={disabled}
-      />
-    </form>
+    <div className={containerStyles}>
+      <form noValidate className={filterRowStyles} onSubmit={onSubmit}>
+        <TextInput
+          data-testid="sidebar-filter-input"
+          placeholder={placeholder}
+          type="search"
+          aria-label={ariaLabel}
+          title={title}
+          value={filter.search}
+          onChange={onChange}
+          className={textInputStyles}
+          disabled={disabled}
+        />
+        <ConnectionsFilterPopover
+          open={isPopoverOpen}
+          setOpen={setPopoverOpen}
+          filter={filter}
+          onFilterChange={onFilterChange}
+          folders={folders}
+          disabled={disabled}
+        />
+      </form>
+      {areConnectionsFiltersActive(filter) && (
+        <div className={captionRowStyles}>
+          <Disclaimer>Filter applied</Disclaimer>
+          <Link as="button" hideExternalIcon onClick={onReset}>
+            Reset
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
