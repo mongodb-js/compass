@@ -10,7 +10,6 @@ import {
   AI_INPUT_VISIBLE_STORAGE_KEY,
   THREAD_INACTIVITY_TIMEOUT_MS,
   cancelAIQuery,
-  resetAIThread,
   runAIQuery,
   submitAIThreadPrompt,
   showInput,
@@ -246,18 +245,6 @@ describe('aiQueryReducer', function () {
 
           expect(getThreadIds()).to.deep.equal([otherEntryPointThreadId]);
         });
-
-        it('starts a new thread for the query bar when another entry point resets it', async function () {
-          const { store, getThreadIds } = createStoreWithMocks();
-
-          await store.dispatch(runAIQuery('query bar prompt'));
-          store.dispatch(resetAIThread());
-          await store.dispatch(runAIQuery('prompt after signing in again'));
-
-          const [first, second] = getThreadIds();
-          expect(second).to.be.a('string').that.is.not.empty;
-          expect(second).to.not.equal(first);
-        });
       });
     });
 
@@ -311,7 +298,9 @@ describe('aiQueryReducer', function () {
           collection: mockCollectionModel,
         } as any);
         await store.dispatch(runAIQuery('testing prompt') as any);
-        const { threadId, ...restOfAiQuery } = store.getState().aiQuery;
+        const { threadId, threadLastActiveAt, ...restOfAiQuery } =
+          store.getState().aiQuery;
+        expect(threadLastActiveAt).to.be.a('number');
         expect(restOfAiQuery).to.deep.eq({
           status: 'ready',
           aiPromptText: '',
@@ -320,16 +309,13 @@ describe('aiQueryReducer', function () {
           isInputVisible: false,
           aiQueryRequestId: null,
           lastAIQueryRequestId: null,
-          threadLastActiveAt: null,
         });
 
-        // Signing back in starts a new session, so it gets a new thread.
         await store.dispatch(runAIQuery('testing prompt') as any);
         const [first, second] = mockAtlasAiService.getQueryFromUserInput
           .getCalls()
           .map((call) => call.args[0].threadId);
-        expect(threadId).to.be.a('string').that.is.not.empty;
-        expect(first).to.not.equal(threadId);
+        expect(first).to.equal(threadId);
         expect(second).to.equal(threadId);
       });
     });

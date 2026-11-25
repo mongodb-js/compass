@@ -25,7 +25,6 @@ describe('AIPipelineReducer', function () {
   let preferences: PreferencesAccess;
   let queryBar: {
     submitAIThreadPrompt: Sinon.SinonStub<[], string>;
-    resetAIThread: Sinon.SinonStub<[], void>;
   };
 
   beforeEach(async function () {
@@ -33,7 +32,6 @@ describe('AIPipelineReducer', function () {
       submitAIThreadPrompt: sandbox
         .stub<[], string>()
         .returns('query-bar-thread'),
-      resetAIThread: sandbox.stub<[], void>(),
     };
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
@@ -131,7 +129,6 @@ describe('AIPipelineReducer', function () {
         expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
           'ready'
         );
-        expect(queryBar.resetAIThread).to.not.have.been.called;
       });
 
       it('resets the store if errs was caused by user being unauthorized', async function () {
@@ -151,8 +148,6 @@ describe('AIPipelineReducer', function () {
           lastAIPipelineRequestId: null,
           isAggregationGeneratedFromQuery: false,
         });
-        // Signing back in starts a new session, so the shared thread resets.
-        expect(queryBar.resetAIThread).to.have.been.calledOnce;
       });
     });
 

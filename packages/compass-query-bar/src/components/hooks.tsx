@@ -4,10 +4,7 @@ import { cloneDeep } from 'lodash';
 import { useSelector, useStore } from '../stores/context';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { applyFilterChange } from '../stores/query-bar-reducer';
-import {
-  resetAIThread,
-  submitAIThreadPrompt,
-} from '../stores/ai-query-reducer';
+import { submitAIThreadPrompt } from '../stores/ai-query-reducer';
 import { mapFormFieldsToQuery } from '../utils/query';
 import type { RootState } from '../stores/query-bar-store';
 import { isQueryEqual } from '../utils';
@@ -108,9 +105,6 @@ export const queryBarServiceLocator = createServiceLocator(
       changeQuery,
       submitAIThreadPrompt() {
         return store.dispatch(submitAIThreadPrompt());
-      },
-      resetAIThread() {
-        store.dispatch(resetAIThread());
       },
     };
   },

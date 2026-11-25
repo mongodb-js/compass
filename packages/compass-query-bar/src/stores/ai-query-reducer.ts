@@ -66,7 +66,6 @@ export const AIQueryActionTypes = {
   HideInput: 'compass-query-bar/ai-query/HideInput',
   ChangeAIPromptText: 'compass-query-bar/ai-query/ChangeAIPromptText',
   AIThreadPromptSubmitted: 'compass-query-bar/ai-query/AIThreadPromptSubmitted',
-  AIThreadReset: 'compass-query-bar/ai-query/AIThreadReset',
 } as const;
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -121,11 +120,6 @@ type AIThreadPromptSubmittedAction = {
   submittedAt: number;
 };
 
-type AIThreadResetAction = {
-  type: typeof AIQueryActionTypes.AIThreadReset;
-  threadId: string;
-};
-
 function getThreadIdForPrompt(
   { threadId, threadLastActiveAt }: AIQueryState,
   submittedAt: number
@@ -155,11 +149,6 @@ export const submitAIThreadPrompt = (): QueryBarThunkAction<
     return threadId;
   };
 };
-
-export const resetAIThread = (): AIThreadResetAction => ({
-  type: AIQueryActionTypes.AIThreadReset,
-  threadId: new UUID().toString(),
-});
 
 type AIQueryFailedAction = {
   type: typeof AIQueryActionTypes.AIQueryFailed;
@@ -548,14 +537,6 @@ const aiQueryReducer: Reducer<AIQueryState, Action> = (
     };
   }
 
-  if (isAction<AIThreadResetAction>(action, AIQueryActionTypes.AIThreadReset)) {
-    return {
-      ...state,
-      threadId: action.threadId,
-      threadLastActiveAt: null,
-    };
-  }
-
   if (isAction<AIQueryFailedAction>(action, AIQueryActionTypes.AIQueryFailed)) {
     // If fetching query failed due to authentication error, reset the state to
     // hide the input and show the "Generate query" button again: this should start
@@ -563,6 +544,8 @@ const aiQueryReducer: Reducer<AIQueryState, Action> = (
     if (action.statusCode === 401) {
       return {
         ...getInitialState(),
+        threadId: state.threadId,
+        threadLastActiveAt: state.threadLastActiveAt,
         isInputVisible: false,
       };
     }

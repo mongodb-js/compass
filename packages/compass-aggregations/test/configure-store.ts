@@ -91,7 +91,6 @@ export class MockAtlasAiService {
 export function createMockQueryBar(): QueryBarService {
   return {
     submitAIThreadPrompt: () => 'mock-thread-id',
-    resetAIThread: () => {},
   } as Partial<QueryBarService> as QueryBarService;
 }
 
