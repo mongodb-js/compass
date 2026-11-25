@@ -507,15 +507,11 @@ const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
 const RegExpValue: React.FunctionComponent<PropsByValueType<'BSONRegExp'>> = ({
   value,
 }) => {
-  const stringifiedValue = useMemo(() => {
-    return `/${value.pattern}/${value.options}`;
+  const display = useMemo(() => {
+    return Inspectable.text`/${value.pattern}/${value.options}`;
   }, [value.pattern, value.options]);
 
-  return (
-    <BSONValueContainer type="BSONRegExp" title={stringifiedValue}>
-      {stringifiedValue}
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="BSONRegExp" value={display} />;
 };
 
 const TimestampValue: React.FunctionComponent<

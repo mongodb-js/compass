@@ -219,6 +219,15 @@ describe('BSONValue', function () {
       );
     }
 
+    it('isolate the pattern and options of regular expressions', function () {
+      render(
+        <BSONValue type="BSONRegExp" value={new BSONRegExp('abc', 'im')} />
+      );
+
+      expectIsolated('abc');
+      expectIsolated('im');
+    });
+
     it('isolate the code and scope of code values', function () {
       render(
         <BSONValue type="Code" value={new Code('var a = 1', { foo: 'bar' })} />
