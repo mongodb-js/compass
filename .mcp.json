@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "devprod-mcp": {
+      "type": "http",
+      "url": "https://devprod-mcp-gateway.corp.mongodb.com/mcp"
+    }
+  }
+}
