@@ -171,16 +171,18 @@ module.exports = (_env, args) => {
         ),
       ];
 
+  const plugins = [
+    new webpack.EnvironmentPlugin(hadronEnvConfig),
+    ...compileOnlyPlugins,
+  ];
+
   return [
     merge(mainConfig, {
       name: 'main',
       dependencies: ['utilities', 'preload'],
       cache,
       snapshot,
-      plugins: [
-        new webpack.EnvironmentPlugin(hadronEnvConfig),
-        ...compileOnlyPlugins,
-      ],
+      plugins,
     }),
     merge(utilitiesConfig, {
       name: 'utilities',
@@ -235,14 +237,14 @@ module.exports = (_env, args) => {
           },
         },
       },
-      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
+      plugins,
     }),
     merge(preloadConfig, {
       name: 'preload',
       target: 'electron-preload',
       cache,
       snapshot,
-      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
+      plugins,
     }),
     merge(rendererConfig, {
       cache,
@@ -250,10 +252,7 @@ module.exports = (_env, args) => {
       // Chunk splitting makes sense only for renderer processes where the
       // amount of dependencies is massive and can benefit from them more
       optimization,
-      plugins: [
-        new webpack.EnvironmentPlugin(hadronEnvConfig),
-        ...compileOnlyPlugins,
-      ],
+      plugins,
     }),
   ];
 };
