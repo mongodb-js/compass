@@ -236,6 +236,20 @@ describe('BSONValue', function () {
       expectIsolated('var a = 1');
       expectIsolated('{"foo":"bar"}');
     });
+
+    it('isolate the string parts of DBRef values', function () {
+      render(
+        <BSONValue
+          type="DBRef"
+          value={new DBRef('coll', 'some-id' as any, 'db', { a: 'b' })}
+        />
+      );
+
+      expectIsolated('coll');
+      expectIsolated('some-id');
+      expectIsolated('db');
+      expectIsolated('{"a":"b"}');
+    });
   });
 
   it('should render an info link for encrypted values', async function () {

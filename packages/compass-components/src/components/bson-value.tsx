@@ -560,26 +560,31 @@ function stringifyValue(value: unknown): string {
   return JSON.stringify(value);
 }
 
+// Any DBRef part can hold strings: $ref and $db are strings, $id and extra
+// fields can be any value.
+function dbRefArg(value: unknown): Inspectable {
+  return typeof value === 'string'
+    ? Inspectable.text`"${value}"`
+    : Inspectable.text`${stringifyValue(value)}`;
+}
+
 const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
-  const stringifiedValue = useMemo(() => {
-    const args = [JSON.stringify(value.collection), stringifyValue(value.oid)];
+  const display = useMemo(() => {
+    const args = [dbRefArg(value.collection), dbRefArg(value.oid)];
     const hasFields = Object.keys(value.fields ?? {}).length > 0;
     if (value.db || hasFields) {
-      args.push(stringifyValue(value.db));
+      args.push(dbRefArg(value.db));
     }
     if (hasFields) {
-      args.push(stringifyValue(value.fields));
+      args.push(dbRefArg(value.fields));
     }
-    return `DBRef(${args.join(', ')})`;
+    const joined = args.reduce((acc, arg) => Inspectable.text`${acc}, ${arg}`);
+    return Inspectable.text`DBRef(${joined})`;
   }, [value]);
 
-  return (
-    <BSONValueContainer type="DBRef" title={stringifiedValue}>
-      {stringifiedValue}
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="DBRef" value={display} />;
 };
 
 const SymbolValue: React.FunctionComponent<PropsByValueType<'BSONSymbol'>> = ({
