@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import { toJSString } from '@mongodb-js/shell-bson-parser';
 import { ObjectId } from 'bson';
 import { AiChatbotPromptTooLargeError } from '../chatbot-errors';
@@ -56,12 +57,37 @@ const expectedSchema = `
 `;
 
 describe('GenAI Prompts', function () {
+  describe('current date instructions', function () {
+    let clock: sinon.SinonFakeTimers;
+
+    beforeEach(function () {
+      clock = sinon.useFakeTimers(new Date('2026-11-23T15:04:05.000Z'));
+    });
+
+    afterEach(function () {
+      clock.restore();
+    });
+
+    for (const [name, build] of [
+      ['find', buildFindQueryPrompt],
+      ['aggregate', buildAggregateQueryPrompt],
+    ] as const) {
+      it(`formats the date as an ISODate for ${name} queries`, function () {
+        const { metadata } = build(OPTIONS);
+        expect(metadata.instructions).to.include(
+          'The current date and time is ISODate("2026-11-23T15:04:05.000Z")'
+        );
+        expect(metadata.instructions).to.include('since last week');
+      });
+    }
+  });
+
   it('buildFindQueryPrompt', function () {
     const { prompt, metadata } = buildFindQueryPrompt(OPTIONS);
 
     expect(metadata.instructions).to.be.a('string');
     expect(metadata.instructions).to.include(
-      'The current date is',
+      'The current date and time is ISODate("',
       'includes date instruction'
     );
     expect(metadata.analyticsId).to.equal(OPTIONS.analyticsId);
@@ -106,7 +132,7 @@ describe('GenAI Prompts', function () {
 
     expect(metadata.instructions).to.be.a('string');
     expect(metadata.instructions).to.include(
-      'The current date is',
+      'The current date and time is ISODate("',
       'includes date instruction'
     );
     expect(metadata.analyticsId).to.equal(OPTIONS.analyticsId);
