@@ -8,6 +8,7 @@ import {
   type ExperimentTestGroup,
   type ExperimentTestName,
 } from '@mongodb-js/compass-telemetry';
+import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import { CompassAggregationsPlugin } from '../src/index';
 import type {
   AggregationsPluginServices,
@@ -87,6 +88,13 @@ export class MockAtlasAiService {
   }
 }
 
+export function createMockQueryBar(): QueryBarService {
+  return {
+    submitAIThreadPrompt: () => 'mock-thread-id',
+    resetAIThread: () => {},
+  } as Partial<QueryBarService> as QueryBarService;
+}
+
 function getMockedPluginArgs(
   initialProps: Partial<ConfigureStoreOptions> = {},
   dataService: Partial<DataService> = mockDataService(),
@@ -96,6 +104,7 @@ function getMockedPluginArgs(
   return [
     CompassAggregationsPlugin.provider.withMockServices({
       atlasAiService,
+      queryBar: createMockQueryBar(),
       collection: {
         fetchMetadata: () => ({}),
         toJSON: () => ({}),

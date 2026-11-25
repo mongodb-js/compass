@@ -8,8 +8,11 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import {
   AIQueryActionTypes,
   AI_INPUT_VISIBLE_STORAGE_KEY,
+  THREAD_INACTIVITY_TIMEOUT_MS,
   cancelAIQuery,
+  resetAIThread,
   runAIQuery,
+  submitAIThreadPrompt,
   showInput,
   hideInput,
 } from './ai-query-reducer';
@@ -99,10 +102,162 @@ describe('aiQueryReducer', function () {
         expect(
           mockAtlasAiService.getQueryFromUserInput.getCall(0)
         ).to.not.have.nested.property('args[0].sampleDocuments');
+        expect(mockAtlasAiService.getQueryFromUserInput.getCall(0))
+          .to.have.nested.property('args[0].threadId')
+          .that.is.a('string').and.is.not.empty;
 
         expect(store.getState().aiQuery.aiQueryRequestId).to.equal(null);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         expect(store.getState().aiQuery.status).to.equal('success');
+      });
+    });
+
+    describe('threadId', function () {
+      function createStoreWithMocks() {
+        const mockAtlasAiService = {
+          getQueryFromUserInput: sandbox
+            .stub()
+            .resolves({ content: { query: { filter: '{_id: 1}' } } }),
+        };
+        const store = createStore({ namespace: 'database.collection' }, {
+          dataService: { sample: sandbox.stub().resolves([]) },
+          connectionInfoRef,
+          atlasAiService: mockAtlasAiService,
+          preferences,
+          logger: createNoopLogger(),
+          track: createNoopTrack(),
+          collection: mockCollectionModel,
+        } as any);
+        const getThreadIds = () =>
+          mockAtlasAiService.getQueryFromUserInput
+            .getCalls()
+            .map((call) => call.args[0].threadId);
+        return { store, getThreadIds };
+      }
+
+      it('keeps the same threadId across follow-up prompts on the same collection', async function () {
+        const { store, getThreadIds } = createStoreWithMocks();
+
+        await store.dispatch(runAIQuery('first prompt'));
+        await store.dispatch(runAIQuery('follow-up prompt'));
+
+        const [first, second] = getThreadIds();
+        expect(first).to.be.a('string').that.is.not.empty;
+        expect(second).to.equal(first);
+      });
+
+      it('uses a new threadId for a new query bar (switching collections or restarting)', async function () {
+        const first = createStoreWithMocks();
+        const second = createStoreWithMocks();
+
+        await first.store.dispatch(runAIQuery('prompt'));
+        await second.store.dispatch(runAIQuery('prompt'));
+
+        expect(second.getThreadIds()[0]).to.not.equal(first.getThreadIds()[0]);
+      });
+
+      describe('after a period of inactivity', function () {
+        let clock: Sinon.SinonFakeTimers;
+
+        beforeEach(function () {
+          // Only fake Date so the thunk's promises still resolve.
+          clock = Sinon.useFakeTimers({ toFake: ['Date'] });
+        });
+
+        afterEach(function () {
+          clock.restore();
+        });
+
+        it('keeps the threadId when the next prompt is within the timeout', async function () {
+          const { store, getThreadIds } = createStoreWithMocks();
+
+          await store.dispatch(runAIQuery('first prompt'));
+          clock.tick(THREAD_INACTIVITY_TIMEOUT_MS);
+          await store.dispatch(runAIQuery('follow-up prompt'));
+
+          const [first, second] = getThreadIds();
+          expect(second).to.equal(first);
+        });
+
+        it('starts a new threadId when the next prompt is after the timeout', async function () {
+          const { store, getThreadIds } = createStoreWithMocks();
+
+          await store.dispatch(runAIQuery('first prompt'));
+          clock.tick(THREAD_INACTIVITY_TIMEOUT_MS + 1);
+          await store.dispatch(runAIQuery('prompt after a break'));
+          await store.dispatch(runAIQuery('follow-up prompt'));
+
+          const [first, second, third] = getThreadIds();
+          expect(second).to.be.a('string').that.is.not.empty;
+          expect(second).to.not.equal(first);
+          expect(third).to.equal(second);
+        });
+
+        it('measures inactivity from the latest prompt, not the first', async function () {
+          const { store, getThreadIds } = createStoreWithMocks();
+
+          await store.dispatch(runAIQuery('first prompt'));
+          clock.tick(THREAD_INACTIVITY_TIMEOUT_MS - 1);
+          await store.dispatch(runAIQuery('second prompt'));
+          clock.tick(THREAD_INACTIVITY_TIMEOUT_MS - 1);
+          await store.dispatch(runAIQuery('third prompt'));
+
+          expect(new Set(getThreadIds()).size).to.equal(1);
+        });
+
+        it('counts prompts from other NLQ entry points as activity', async function () {
+          const { store, getThreadIds } = createStoreWithMocks();
+
+          await store.dispatch(runAIQuery('query bar prompt'));
+          clock.tick(THREAD_INACTIVITY_TIMEOUT_MS - 1);
+          store.dispatch(submitAIThreadPrompt());
+          clock.tick(THREAD_INACTIVITY_TIMEOUT_MS - 1);
+          await store.dispatch(runAIQuery('query bar follow-up'));
+
+          const [first, second] = getThreadIds();
+          expect(second).to.equal(first);
+        });
+      });
+
+      // Other NLQ entry points in the collection tab (the aggregation builder)
+      // use these through the query bar service.
+      describe('shared with other NLQ entry points', function () {
+        it('gives other entry points the same threadId as the query bar', async function () {
+          const { store, getThreadIds } = createStoreWithMocks();
+
+          await store.dispatch(runAIQuery('query bar prompt'));
+          const otherEntryPointThreadId = store.dispatch(
+            submitAIThreadPrompt()
+          );
+          await store.dispatch(runAIQuery('back in the query bar'));
+
+          const [first, second] = getThreadIds();
+          expect(otherEntryPointThreadId).to.equal(first);
+          expect(second).to.equal(first);
+        });
+
+        it('continues in the query bar a thread started by another entry point', async function () {
+          const { store, getThreadIds } = createStoreWithMocks();
+
+          const otherEntryPointThreadId = store.dispatch(
+            submitAIThreadPrompt()
+          );
+          await store.dispatch(runAIQuery('query bar follow-up'));
+
+          expect(getThreadIds()).to.deep.equal([otherEntryPointThreadId]);
+        });
+
+        it('starts a new thread for the query bar when another entry point resets it', async function () {
+          const { store, getThreadIds } = createStoreWithMocks();
+
+          await store.dispatch(runAIQuery('query bar prompt'));
+          store.dispatch(resetAIThread());
+          await store.dispatch(runAIQuery('prompt after signing in again'));
+
+          const [first, second] = getThreadIds();
+          expect(second).to.be.a('string').that.is.not.empty;
+          expect(second).to.not.equal(first);
+        });
       });
     });
 
@@ -156,7 +311,8 @@ describe('aiQueryReducer', function () {
           collection: mockCollectionModel,
         } as any);
         await store.dispatch(runAIQuery('testing prompt') as any);
-        expect(store.getState()).to.have.property('aiQuery').deep.eq({
+        const { threadId, ...restOfAiQuery } = store.getState().aiQuery;
+        expect(restOfAiQuery).to.deep.eq({
           status: 'ready',
           aiPromptText: '',
           errorMessage: undefined,
@@ -164,7 +320,17 @@ describe('aiQueryReducer', function () {
           isInputVisible: false,
           aiQueryRequestId: null,
           lastAIQueryRequestId: null,
+          threadLastActiveAt: null,
         });
+
+        // Signing back in starts a new session, so it gets a new thread.
+        await store.dispatch(runAIQuery('testing prompt') as any);
+        const [first, second] = mockAtlasAiService.getQueryFromUserInput
+          .getCalls()
+          .map((call) => call.args[0].threadId);
+        expect(threadId).to.be.a('string').that.is.not.empty;
+        expect(first).to.not.equal(threadId);
+        expect(second).to.equal(threadId);
       });
     });
 

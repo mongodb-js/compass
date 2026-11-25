@@ -7,7 +7,8 @@ import { type AiQueryPrompt } from './gen-ai-prompt';
 export async function getAiQueryResponse(
   model: LanguageModel,
   message: AiQueryPrompt,
-  abortSignal: AbortSignal
+  abortSignal: AbortSignal,
+  threadId: string
 ): Promise<string> {
   const { instructions, requestId, analyticsId, sensitiveStorage } =
     message.metadata;
@@ -27,6 +28,7 @@ export async function getAiQueryResponse(
     headers: {
       'X-Client-Request-Id': requestId,
       'X-Assistant-Entrypoint': 'natural-language-to-mql',
+      'X-Client-Thread-Id': threadId,
     },
     abortSignal,
   });

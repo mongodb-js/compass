@@ -19,6 +19,7 @@ import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provide
 import { preferencesLocator } from '@mongodb-js/compass-preferences-model/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
+import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
@@ -56,6 +57,7 @@ const CompassAggregationsPluginProvider = registerCompassPlugin(
     collection: collectionModelLocator,
     connectionScopedAppRegistry:
       connectionScopedAppRegistryLocator<'open-export'>,
+    queryBar: queryBarServiceLocator,
   }
 );
 

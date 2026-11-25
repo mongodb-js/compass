@@ -239,6 +239,7 @@ export const runAIPipelineGeneration = (
       track,
       connectionInfoRef,
       collection,
+      queryBar,
     }
   ) => {
     const {
@@ -281,6 +282,7 @@ export const runAIPipelineGeneration = (
       type: AIPipelineActionTypes.AIPipelineStarted,
       requestId,
     });
+    const threadId = queryBar.submitAIThreadPrompt();
 
     let jsonResponse;
     try {
@@ -319,6 +321,7 @@ export const runAIPipelineGeneration = (
             }
           : undefined),
         requestId,
+        threadId,
         enableStorage: !isFLE,
       });
     } catch (err: any) {
@@ -341,6 +344,7 @@ export const runAIPipelineGeneration = (
       // We're going to reset input state with this error, show the error in the
       // toast instead
       if ((err as AtlasServiceError).statusCode === 401) {
+        queryBar.resetAIThread();
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',

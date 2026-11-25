@@ -4,6 +4,7 @@ import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { DataService } from '@mongodb-js/mongodb-data-service';
+import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import configureReduxStore, {
   MockAtlasAiService,
 } from '../../../test/configure-store';
@@ -22,8 +23,18 @@ import { PipelineBuilder } from './pipeline-builder';
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();
   let preferences: PreferencesAccess;
+  let queryBar: {
+    submitAIThreadPrompt: Sinon.SinonStub<[], string>;
+    resetAIThread: Sinon.SinonStub<[], void>;
+  };
 
   beforeEach(async function () {
+    queryBar = {
+      submitAIThreadPrompt: sandbox
+        .stub<[], string>()
+        .returns('query-bar-thread'),
+      resetAIThread: sandbox.stub<[], void>(),
+    };
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableGenAIFeatures: true,
@@ -51,6 +62,7 @@ describe('AIPipelineReducer', function () {
       {
         atlasAiService: atlasAiService as any,
         preferences,
+        queryBar: queryBar as Partial<QueryBarService> as QueryBarService,
       }
     );
     return result.plugin.store;
@@ -83,6 +95,9 @@ describe('AIPipelineReducer', function () {
         expect(args).to.have.property('databaseName', 'database');
         // Sample documents are currently disabled.
         expect(args).to.not.have.property('sampleDocuments');
+        // Continues the NLQ thread owned by the query bar in this tab.
+        expect(queryBar.submitAIThreadPrompt).to.have.been.calledOnce;
+        expect(args).to.have.property('threadId', 'query-bar-thread');
 
         expect(
           store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
@@ -116,6 +131,7 @@ describe('AIPipelineReducer', function () {
         expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
           'ready'
         );
+        expect(queryBar.resetAIThread).to.not.have.been.called;
       });
 
       it('resets the store if errs was caused by user being unauthorized', async function () {
@@ -135,6 +151,8 @@ describe('AIPipelineReducer', function () {
           lastAIPipelineRequestId: null,
           isAggregationGeneratedFromQuery: false,
         });
+        // Signing back in starts a new session, so the shared thread resets.
+        expect(queryBar.resetAIThread).to.have.been.calledOnce;
       });
     });
 
