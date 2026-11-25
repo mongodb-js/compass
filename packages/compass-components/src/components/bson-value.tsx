@@ -590,15 +590,11 @@ const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
 const SymbolValue: React.FunctionComponent<PropsByValueType<'BSONSymbol'>> = ({
   value,
 }) => {
-  const stringifiedValue = useMemo(() => {
-    return `Symbol('${String(value)}')`;
+  const display = useMemo(() => {
+    return Inspectable.text`Symbol('${String(value)}')`;
   }, [value]);
 
-  return (
-    <BSONValueContainer type="BSONSymbol" title={stringifiedValue}>
-      {stringifiedValue}
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="BSONSymbol" value={display} />;
 };
 
 const UnknownValue: React.FunctionComponent<{

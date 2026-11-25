@@ -237,6 +237,12 @@ describe('BSONValue', function () {
       expectIsolated('{"foo":"bar"}');
     });
 
+    it('isolate symbol values', function () {
+      render(<BSONValue type="BSONSymbol" value={new BSONSymbol('sym')} />);
+
+      expectIsolated('sym');
+    });
+
     it('isolate the string parts of DBRef values', function () {
       render(
         <BSONValue
