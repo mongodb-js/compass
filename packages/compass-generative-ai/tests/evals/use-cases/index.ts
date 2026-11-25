@@ -14,6 +14,7 @@ import {
 } from '../../../src/utils/gen-ai-prompt';
 import { aggregateQueries } from './aggregate-query';
 import { findQueries } from './find-query';
+import { aggregateDateQueries, findDateQueries } from './date-queries';
 
 export type GenAiUsecase = {
   namespace: string;
@@ -44,7 +45,12 @@ export async function generateGenAiEvalCases() {
   const datasetSamples = await getDatasets();
   const usecases = [
     ...findQueries.map((x) => ({ ...x, type: 'find' as const })),
+    ...findDateQueries.map((x) => ({ ...x, type: 'find' as const })),
     ...aggregateQueries.map((x) => ({ ...x, type: 'aggregate' as const })),
+    ...aggregateDateQueries.map((x) => ({
+      ...x,
+      type: 'aggregate' as const,
+    })),
   ];
 
   return usecases.map(
