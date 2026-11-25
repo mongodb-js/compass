@@ -82,6 +82,79 @@ const bsonValue = css({
   textOverflow: 'ellipsis',
 });
 
+const bidiIsolate = css({
+  unicodeBidi: 'isolate',
+});
+
+/**
+ * Inspecting a BSON type is made up of the actual value
+ * and the bounding string that provides context for the value.
+ *
+ * @example
+ * ```ts
+ * {
+ *   string: "abc",
+ *   symbol: BSONSymbol('abc')
+ * }
+ * ```
+ *
+ * - The value of string is 'a', 'b', and 'c' while its bounding is double quotes.
+ * - The value of symbol is also 'abc' but the bounding is "Symbol('" and "')".
+ *
+ * This class provides the abstraction necessary to carefully represent value data
+ * without permitting it to effect the rendering of the bounding context.
+ */
+class Inspectable {
+  readonly title: string;
+  readonly children: React.ReactNode[];
+  constructor(title: string, children: React.ReactNode[]) {
+    this.title = title;
+    this.children = children;
+  }
+
+  /**
+   * A tagged template literal helper.
+   * This assumed that any literal strings that surround an interpolated value
+   * are the bounding context and the interpolated value is the value data.
+   *
+   * @example
+   * ```ts
+   * Inspect.text`Code('${codeString}')`
+   * ```
+   */
+  static text(
+    strings: TemplateStringsArray,
+    ...values: (string | Inspectable)[]
+  ): Inspectable {
+    let title = '';
+    const children: React.ReactNode[] = [];
+    for (const [index, literal] of strings.entries()) {
+      title += literal;
+      children.push(literal);
+      const value = values[index];
+      if (value instanceof Inspectable) {
+        title += value.title;
+        children.push(...value.children);
+      } else if (value) {
+        title += value;
+        children.push(<span className={bidiIsolate}>{value}</span>);
+      }
+    }
+    return new Inspectable(title, children);
+  }
+}
+
+const InspectableValue: React.FunctionComponent<{
+  type: ValueTypes;
+  value: Inspectable;
+}> = ({ type, value }) => {
+  return (
+    <BSONValueContainer type={type} title={value.title}>
+      {React.Children.toArray(value.children)}
+    </BSONValueContainer>
+  );
+};
+
 const bsonValuePrewrap = css({
   whiteSpace: 'pre',
 });
@@ -419,11 +492,6 @@ const NumberValue: React.FunctionComponent<
     </BSONValueContainer>
   );
 };
-
-// Stops bidi control characters from moving the closing quote
-const bidiIsolate = css({
-  unicodeBidi: 'isolate',
-});
 
 const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
   value,
