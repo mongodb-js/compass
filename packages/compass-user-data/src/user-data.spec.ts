@@ -206,41 +206,24 @@ describe('user-data', function () {
       }
     });
 
-    it('reports a missing record as a read error by default', async function () {
+    it('does not report a missing record as an error by default', async function () {
       const logged = captureLogMessages();
 
       try {
         expect(await getUserData().readOne('something')).to.be.undefined;
-        expect(logged.messages).to.deep.equal(['Error reading file']);
-      } finally {
-        logged.stop();
-      }
-    });
-
-    it('does not report a missing record as an error with ignoreMissing', async function () {
-      const logged = captureLogMessages();
-
-      try {
-        const result = await getUserData().readOne('something', {
-          ignoreErrors: true,
-          ignoreMissing: true,
-        });
-
-        expect(result).to.be.undefined;
         expect(logged.messages).to.deep.equal([]);
       } finally {
         logged.stop();
       }
     });
 
-    it('still reports a file that is there but cannot be parsed with ignoreMissing', async function () {
+    it('still reports a file that is there but cannot be parsed', async function () {
       await writeFileToStorage('data.json', '{a: b}');
       const logged = captureLogMessages();
 
       try {
         const result = await getUserData().readOne('data', {
           ignoreErrors: true,
-          ignoreMissing: true,
         });
 
         expect(result).to.be.undefined;

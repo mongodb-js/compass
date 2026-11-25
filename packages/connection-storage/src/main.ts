@@ -12,5 +12,3 @@ export {
   initCompassMainFolderStorage,
   getCompassMainFolderStorage,
 } from './compass-main-folder-storage';
-export { reconcileFolderOrganization } from './folder-recovery';
-export type { ReconcileFolderOrganizationResult } from './folder-recovery';

@@ -59,7 +59,6 @@ class CompassMainFolderStorage implements FolderStorage {
       folderOrganization =
         (await this.userData.readOne(FOLDER_ORGANIZATION_ID, {
           ignoreErrors: true,
-          ignoreMissing: true,
         })) ?? EMPTY_FOLDER_ORGANIZATION;
     } catch (err) {
       log.error(

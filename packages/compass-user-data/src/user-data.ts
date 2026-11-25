@@ -73,12 +73,6 @@ export type AtlasUserDataOptions<Type extends UserDataType, Input> = {
 
 type ReadOptions = {
   ignoreErrors: boolean;
-  /**
-   * Treat a record that is not there as a miss rather than a failure. Looking
-   * up a record that was never written is how a caller checks whether there is
-   * anything to update, and is not worth reporting as a read error.
-   */
-  ignoreMissing?: boolean;
 };
 
 export interface ReadAllResult<T extends z.ZodType> {
@@ -145,11 +139,7 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
     return `${id}.json`;
   }
 
-  // A record is only ever written under getFileName's '<id>.json' pattern.
-  // The directory can also hold files this store did not write: write-file-atomic
-  // creates a temporary file next to a record before renaming it into place,
-  // and a crash can leave one behind. Reading such a file as a record would
-  // load that record a second time, under its temporary name.
+  // The inverse of getFileName: matches only files this store would have written.
   private isRecordFileName(fileName: string): boolean {
     return fileName.endsWith('.json');
   }
@@ -253,19 +243,23 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
       release = await this.semaphore.waitForRelease();
       data = await fs.readFile(absolutePath, 'utf-8');
     } catch (error) {
-      if (
-        options.ignoreMissing &&
-        (error as NodeJS.ErrnoException).code === 'ENOENT'
-      ) {
+      if (options.ignoreErrors) {
+        // A missing record is the normal state for a record that was never
+        // written, not worth logging at all.
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+          log.warn(
+            mongoLogId(1_001_000_462),
+            'Filesystem',
+            'Error reading file',
+            { path: absolutePath, error: (error as Error).message }
+          );
+        }
         return undefined;
       }
       log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
         path: absolutePath,
         error: (error as Error).message,
       });
-      if (options.ignoreErrors) {
-        return undefined;
-      }
       throw error;
     } finally {
       release?.();
@@ -275,13 +269,22 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
       const content = this.deserialize(data);
       return this.validator.parse(content);
     } catch (error) {
+      if (options.ignoreErrors) {
+        log.warn(
+          mongoLogId(1_001_000_463),
+          'Filesystem',
+          'Error parsing data',
+          {
+            path: absolutePath,
+            error: (error as Error).message,
+          }
+        );
+        return undefined;
+      }
       log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
         path: absolutePath,
         error: (error as Error).message,
       });
-      if (options.ignoreErrors) {
-        return undefined;
-      }
       throw error;
     }
   }
@@ -366,11 +369,11 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
 
   async readOne(
     id: string,
-    options?: { ignoreErrors: false; ignoreMissing?: boolean }
+    options?: { ignoreErrors: false }
   ): Promise<z.output<T>>;
   async readOne(
     id: string,
-    options?: { ignoreErrors: true; ignoreMissing?: boolean }
+    options?: { ignoreErrors: true }
   ): Promise<z.output<T> | undefined>;
   async readOne(
     id: string,
