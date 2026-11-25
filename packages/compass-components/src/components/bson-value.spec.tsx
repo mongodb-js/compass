@@ -212,6 +212,23 @@ describe('BSONValue', function () {
     expect(getComputedStyle(isolated).unicodeBidi).to.equal('isolate');
   });
 
+  describe('bidi isolation of BSON strings', function () {
+    function expectIsolated(text: string) {
+      expect(getComputedStyle(screen.getByText(text)).unicodeBidi).to.equal(
+        'isolate'
+      );
+    }
+
+    it('isolate the code and scope of code values', function () {
+      render(
+        <BSONValue type="Code" value={new Code('var a = 1', { foo: 'bar' })} />
+      );
+
+      expectIsolated('var a = 1');
+      expectIsolated('{"foo":"bar"}');
+    });
+  });
+
   it('should render an info link for encrypted values', async function () {
     render(
       <BSONValue

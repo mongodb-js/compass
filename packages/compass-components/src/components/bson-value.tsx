@@ -444,17 +444,14 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
 const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   value,
 }) => {
-  const stringifiedValue = useMemo(() => {
-    return `Code('${String(value.code)}'${
-      value.scope ? `, ${JSON.stringify(value.scope)}` : ''
-    })`;
+  const display = useMemo(() => {
+    const scope = value.scope
+      ? Inspectable.text`, ${JSON.stringify(value.scope)}`
+      : '';
+    return Inspectable.text`Code('${String(value.code)}'${scope})`;
   }, [value.code, value.scope]);
 
-  return (
-    <BSONValueContainer type="Code" title={stringifiedValue}>
-      {stringifiedValue}
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="Code" value={display} />;
 };
 
 const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
