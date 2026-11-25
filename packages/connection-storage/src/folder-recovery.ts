@@ -6,7 +6,6 @@ export type ReconcileFolderOrganizationResult = {
   danglingAssignments: Record<string, string>;
 };
 
-// Keeps stored data from accumulating assignments to folders that no longer exist.
 export function reconcileFolderOrganization(
   folderOrganization: FolderOrganization
 ): ReconcileFolderOrganizationResult {

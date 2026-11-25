@@ -139,7 +139,6 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
     return `${id}.json`;
   }
 
-  // The inverse of getFileName: matches only files this store would have written.
   private isRecordFileName(fileName: string): boolean {
     return fileName.endsWith('.json');
   }
@@ -244,8 +243,7 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
       data = await fs.readFile(absolutePath, 'utf-8');
     } catch (error) {
       if (options.ignoreErrors) {
-        // A missing record is the normal state for a record that was never
-        // written, not worth logging at all.
+        // A missing record isn't worth logging; it's the normal state for one never written.
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
           log.warn(
             mongoLogId(1_001_000_462),
