@@ -493,15 +493,11 @@ const NumberValue: React.FunctionComponent<
 const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
   value,
 }) => {
-  const truncatedValue = useMemo(() => {
-    return truncateLines(truncate(value, 1000));
+  const display = useMemo(() => {
+    return Inspectable.text`"${truncateLines(truncate(value, 1000))}"`;
   }, [value]);
 
-  return (
-    <BSONValueContainer type="String" title={truncatedValue}>
-      &quot;<span className={bidiIsolate}>{truncatedValue}</span>&quot;
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="String" value={display} />;
 };
 
 const RegExpValue: React.FunctionComponent<PropsByValueType<'BSONRegExp'>> = ({

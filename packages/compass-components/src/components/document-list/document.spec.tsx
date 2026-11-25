@@ -48,7 +48,7 @@ describe('Document', function () {
   it('should render HadronDocument keys and values', function () {
     render(<Document value={doc}></Document>);
     expect(screen.getByText('str')).to.exist;
-    expect(screen.getByTitle('abc')).to.exist;
+    expect(screen.getByTitle('"abc"')).to.exist;
 
     expect(screen.getByText('num')).to.exist;
     expect(screen.getByTitle('123')).to.exist;

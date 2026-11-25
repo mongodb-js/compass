@@ -191,7 +191,8 @@ describe('BSONValue', function () {
     const element = container.querySelector('.element-value');
     const title = element?.getAttribute('title') ?? '';
     expect(title.length).to.be.lessThan(largeString.length);
-    expect(title.length).to.equal(1001);
+    // 1000 chars, the ellipsis and the two quotes.
+    expect(title.length).to.equal(1003);
   });
 
   it('render string values with bidi control characters as stored', function () {
@@ -200,7 +201,7 @@ describe('BSONValue', function () {
 
     const element = container.querySelector('.element-value');
     expect(element?.textContent).to.equal(`"${value}"`);
-    expect(element?.getAttribute('title')).to.equal(value);
+    expect(element?.getAttribute('title')).to.equal(`"${value}"`);
   });
 
   it('isolate the bidi context of string values from the surrounding quotes', function () {
