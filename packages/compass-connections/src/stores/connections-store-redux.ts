@@ -1617,28 +1617,49 @@ export const connectInNewWindow =
     globalAppRegistry.emit('connect-in-new-window', connectionInfo.id);
   };
 
+const assignConnectionToFolder = (
+  connectionInfo: ConnectionInfo,
+  folderId: string | null
+) => moveConnectionsToFolder([connectionInfo.id], folderId, 'connection_form');
+
 export const connect = (
-  connectionInfo: ConnectionInfo
+  connectionInfo: ConnectionInfo,
+  folderId: string | null = null
 ): ConnectionsThunkAction<
   Promise<void>,
   | ConnectionAttemptStartAction
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
+  | MoveConnectionsToFolderAction
 > => {
-  return ensureSingleConnection(connectionInfo, { forceSave: false });
+  return async (dispatch) => {
+    await dispatch(
+      ensureSingleConnection(connectionInfo, { forceSave: false })
+    );
+    if (folderId) {
+      await dispatch(assignConnectionToFolder(connectionInfo, folderId));
+    }
+  };
 };
 
 export const saveAndConnect = (
-  connectionInfo: ConnectionInfo
+  connectionInfo: ConnectionInfo,
+  folderId: string | null = null
 ): ConnectionsThunkAction<
   Promise<void>,
   | ConnectionAttemptStartAction
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
+  | MoveConnectionsToFolderAction
 > => {
-  return ensureSingleConnection(connectionInfo, { forceSave: true });
+  return async (dispatch) => {
+    await dispatch(ensureSingleConnection(connectionInfo, { forceSave: true }));
+    if (folderId) {
+      await dispatch(assignConnectionToFolder(connectionInfo, folderId));
+    }
+  };
 };
 
 type ConnectWithOptionsActions =
@@ -2135,14 +2156,21 @@ const saveConnectionInfo = (
 };
 
 export const saveEditedConnectionInfo = (
-  connectionInfo: ConnectionInfo
-): ConnectionsThunkAction<Promise<void>, SaveEditedConnectionAction> => {
+  connectionInfo: ConnectionInfo,
+  folderId: string | null = null
+): ConnectionsThunkAction<
+  Promise<void>,
+  SaveEditedConnectionAction | MoveConnectionsToFolderAction
+> => {
   return async (dispatch) => {
     await dispatch(saveConnectionInfo(connectionInfo));
     dispatch({
       type: ActionTypes.SaveEditedConnection,
       connectionId: connectionInfo.id,
     });
+    if (folderId) {
+      await dispatch(assignConnectionToFolder(connectionInfo, folderId));
+    }
   };
 };
 

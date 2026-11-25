@@ -2,11 +2,15 @@ import type {
   SidebarConnectedConnection,
   SidebarConnection,
 } from '@mongodb-js/compass-connections-navigation';
+import type { Folder } from '@mongodb-js/connection-storage/provider';
 import _ from 'lodash';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { renderHook, waitFor } from '@mongodb-js/testing-library-compass';
-import { useFilteredConnections } from './use-filtered-connections';
+import {
+  useFilteredConnections,
+  type ConnectionsFilter,
+} from './use-filtered-connections';
 
 const connectedConnection1 = {
   id: 'connected_connection_1',
@@ -153,6 +157,7 @@ describe('useFilteredConnections', function () {
   let mockSidebarConnections: SidebarConnection[];
   beforeEach(function () {
     mockSidebarConnections = _.cloneDeep(sidebarConnections);
+    fetchAllCollectionsStub.resetHistory();
   });
 
   context('when not filtering', function () {
@@ -160,14 +165,14 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filter: { regex: null, excludeInactive: false },
+          filter: { search: '', excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
       });
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.undefined;
+        expect(result.current.filteredConnections).to.be.undefined;
       });
     });
 
@@ -175,7 +180,7 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filter: { regex: null, excludeInactive: false },
+          filter: { search: '', excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -197,26 +202,26 @@ describe('useFilteredConnections', function () {
           {
             initialProps: {
               connections: mockSidebarConnections,
-              filter: { regex: null, excludeInactive: true },
+              filter: { search: '', excludeInactive: true },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
           }
         );
 
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           sidebarConnections[0],
           sidebarConnections[1],
         ]);
 
         rerender({
           connections: mockSidebarConnections,
-          filter: { regex: null, excludeInactive: false },
+          filter: { search: '', excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
 
-        expect(result.current.filtered).to.be.undefined;
+        expect(result.current.filteredConnections).to.be.undefined;
       });
     });
 
@@ -225,7 +230,7 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filter: { regex: null, excludeInactive: false },
+            filter: { search: '', excludeInactive: false },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -256,7 +261,7 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filter: { regex: null, excludeInactive: false },
+            filter: { search: '', excludeInactive: false },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -308,7 +313,7 @@ describe('useFilteredConnections', function () {
           const { result } = renderHookWithContext(useFilteredConnections, {
             initialProps: {
               connections: mockSidebarConnections,
-              filter: { regex: null, excludeInactive: false },
+              filter: { search: '', excludeInactive: false },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -344,7 +349,7 @@ describe('useFilteredConnections', function () {
           const { result } = renderHookWithContext(useFilteredConnections, {
             initialProps: {
               connections: mockSidebarConnections,
-              filter: { regex: null, excludeInactive: false },
+              filter: { search: '', excludeInactive: false },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -390,7 +395,7 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filter: { regex: null, excludeInactive: false },
+            filter: { search: '', excludeInactive: false },
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -423,7 +428,7 @@ describe('useFilteredConnections', function () {
           {
             initialProps: {
               connections: mockSidebarConnections,
-              filter: { regex: null, excludeInactive: false },
+              filter: { search: '', excludeInactive: false },
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -457,7 +462,7 @@ describe('useFilteredConnections', function () {
         ];
         rerender({
           connections: newConnections,
-          filter: { regex: null, excludeInactive: false },
+          filter: { search: '', excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
@@ -473,7 +478,7 @@ describe('useFilteredConnections', function () {
         // now pretend again that connection2 is connected
         rerender({
           connections: mockSidebarConnections,
-          filter: { regex: null, excludeInactive: false },
+          filter: { search: '', excludeInactive: false },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
@@ -496,7 +501,7 @@ describe('useFilteredConnections', function () {
           initialProps: {
             connections: mockSidebarConnections,
             filter: {
-              regex: new RegExp('_connection', 'i'), // match everything basically
+              search: '_connection', // match everything basically
               excludeInactive: false,
             },
             fetchAllCollections: fetchAllCollectionsStub,
@@ -506,7 +511,7 @@ describe('useFilteredConnections', function () {
       );
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.deep.equal(
+        expect(result.current.filteredConnections).to.be.deep.equal(
           mockSidebarConnections
         );
       });
@@ -514,14 +519,14 @@ describe('useFilteredConnections', function () {
       rerender({
         connections: mockSidebarConnections,
         filter: {
-          regex: new RegExp('disconnected_connection', 'i'), // match disconnected one
+          search: 'disconnected_connection', // match disconnected one
           excludeInactive: false,
         },
         fetchAllCollections: fetchAllCollectionsStub,
         onDatabaseExpand: onDatabaseExpandStub,
       });
       await waitFor(() => {
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           mockSidebarConnections[2], // this is the disconnected tree item
         ]);
       });
@@ -532,7 +537,7 @@ describe('useFilteredConnections', function () {
         initialProps: {
           connections: mockSidebarConnections,
           filter: {
-            regex: new RegExp('db_ready_1_1', 'i'), // match first database basically
+            search: 'db_ready_1_1', // match first database basically
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
@@ -543,7 +548,7 @@ describe('useFilteredConnections', function () {
       const matchedItem = sidebarConnections[0] as SidebarConnectedConnection;
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           {
             ...matchedItem,
             // will only match one database
@@ -575,7 +580,7 @@ describe('useFilteredConnections', function () {
             } as SidebarConnectedConnection,
           ],
           filter: {
-            regex: new RegExp('Matching', 'i'), // this matches connection as well as database
+            search: 'Matching', // this matches connection as well as database
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
@@ -585,7 +590,10 @@ describe('useFilteredConnections', function () {
 
       await waitFor(() => {
         expect(
-          (result.current.filtered?.[0] as SidebarConnectedConnection).databases
+          (
+            result.current
+              .filteredConnections?.[0] as SidebarConnectedConnection
+          ).databases
         ).to.have.length(2); // both databases are included
       });
     });
@@ -595,7 +603,7 @@ describe('useFilteredConnections', function () {
         initialProps: {
           connections: mockSidebarConnections,
           filter: {
-            regex: new RegExp('coll_ready_2_1', 'i'), // match second db's collection
+            search: 'coll_ready_2_1', // match second db's collection
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
@@ -606,7 +614,7 @@ describe('useFilteredConnections', function () {
       const matchedItem = sidebarConnections[1] as SidebarConnectedConnection;
 
       await waitFor(() => {
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           {
             ...matchedItem,
             // will only match the second database's collection
@@ -626,7 +634,7 @@ describe('useFilteredConnections', function () {
         initialProps: {
           connections: mockSidebarConnections,
           filter: {
-            regex: new RegExp('ready_2_1', 'i'), // this matches 1 database and 1 collection
+            search: 'ready_2_1', // this matches 1 database and 1 collection
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
@@ -636,8 +644,10 @@ describe('useFilteredConnections', function () {
 
       await waitFor(() => {
         expect(
-          (result.current.filtered?.[0] as SidebarConnectedConnection)
-            .databases[0].collections
+          (
+            result.current
+              .filteredConnections?.[0] as SidebarConnectedConnection
+          ).databases[0].collections
         ).to.have.length(2); // the result has 2 collections
       });
     });
@@ -647,7 +657,7 @@ describe('useFilteredConnections', function () {
         initialProps: {
           connections: mockSidebarConnections,
           filter: {
-            regex: new RegExp('ready_1_1\\.coll_ready_shared_name', 'i'), // this matches only coll_ready_shared_name collection in ready_1_1 database
+            search: 'ready_1_1\\.coll_ready_shared_name', // this matches only coll_ready_shared_name collection in ready_1_1 database
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
@@ -657,8 +667,10 @@ describe('useFilteredConnections', function () {
 
       await waitFor(() => {
         expect(
-          (result.current.filtered?.[0] as SidebarConnectedConnection)
-            .databases[0].collections
+          (
+            result.current
+              .filteredConnections?.[0] as SidebarConnectedConnection
+          ).databases[0].collections
         ).to.have.length(1); // the result has 1 collection
       });
     });
@@ -668,7 +680,7 @@ describe('useFilteredConnections', function () {
         initialProps: {
           connections: mockSidebarConnections,
           filter: {
-            regex: new RegExp('coll_ready_1_1', 'i'),
+            search: 'coll_ready_1_1',
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
@@ -695,7 +707,7 @@ describe('useFilteredConnections', function () {
             initialProps: {
               connections: mockSidebarConnections,
               filter: {
-                regex: new RegExp('connection_1'),
+                search: 'connection_1',
                 excludeInactive: true,
               },
               fetchAllCollections: fetchAllCollectionsStub,
@@ -704,21 +716,21 @@ describe('useFilteredConnections', function () {
           }
         );
 
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           sidebarConnections[0],
         ]);
 
         rerender({
           connections: mockSidebarConnections,
           filter: {
-            regex: new RegExp('connection_1'),
+            search: 'connection_1',
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
 
-        expect(result.current.filtered).to.be.deep.equal([
+        expect(result.current.filteredConnections).to.be.deep.equal([
           sidebarConnections[0],
           sidebarConnections[2],
         ]);
@@ -733,7 +745,7 @@ describe('useFilteredConnections', function () {
             initialProps: {
               connections: mockSidebarConnections,
               filter: {
-                regex: null as RegExp | null,
+                search: '',
                 excludeInactive: false,
               },
               fetchAllCollections: fetchAllCollectionsStub,
@@ -754,7 +766,7 @@ describe('useFilteredConnections', function () {
         rerender({
           connections: mockSidebarConnections,
           filter: {
-            regex: new RegExp('coll_ready_1_1', 'i'),
+            search: 'coll_ready_1_1',
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
@@ -774,13 +786,13 @@ describe('useFilteredConnections', function () {
 
     context('and filter is removed', function () {
       it('should revert the temporarily expanded state', async function () {
-        // Annotated so the `rerender` below can pass `null` for the regex
-        const mockFilterRegex = new RegExp('coll_ready_1_1', 'i');
+        // Annotated so the `rerender` below can pass `''` for the search
+        const mockFilterText = 'coll_ready_1_1';
         const { result, rerender } = renderHookWithContext<
           {
             connections: SidebarConnection[];
             filter: {
-              regex: RegExp | null;
+              search: string;
               excludeInactive: boolean;
             };
             fetchAllCollections: Sinon.SinonStub;
@@ -791,7 +803,7 @@ describe('useFilteredConnections', function () {
           initialProps: {
             connections: mockSidebarConnections,
             filter: {
-              regex: mockFilterRegex,
+              search: mockFilterText,
               excludeInactive: false,
             },
             fetchAllCollections: fetchAllCollectionsStub,
@@ -811,7 +823,7 @@ describe('useFilteredConnections', function () {
         rerender({
           connections: mockSidebarConnections,
           filter: {
-            regex: null,
+            search: '',
             excludeInactive: false,
           },
           fetchAllCollections: fetchAllCollectionsStub,
@@ -835,7 +847,7 @@ describe('useFilteredConnections', function () {
           initialProps: {
             connections: mockSidebarConnections,
             filter: {
-              regex: new RegExp('coll_ready_1_1', 'i'),
+              search: 'coll_ready_1_1',
               excludeInactive: false,
             },
             fetchAllCollections: fetchAllCollectionsStub,
@@ -870,7 +882,7 @@ describe('useFilteredConnections', function () {
           initialProps: {
             connections: mockSidebarConnections,
             filter: {
-              regex: new RegExp('coll_ready_1_1', 'i'),
+              search: 'coll_ready_1_1',
               excludeInactive: false,
             },
             fetchAllCollections: fetchAllCollectionsStub,
@@ -911,7 +923,7 @@ describe('useFilteredConnections', function () {
           initialProps: {
             connections: mockSidebarConnections,
             filter: {
-              regex: new RegExp('coll_ready_1_1', 'i'),
+              search: 'coll_ready_1_1',
               excludeInactive: false,
             },
             fetchAllCollections: fetchAllCollectionsStub,
@@ -936,6 +948,291 @@ describe('useFilteredConnections', function () {
             connected_connection_2: false,
             disconnected_connection_1: false,
           });
+        });
+      });
+    });
+  });
+
+  context('when connections are filed in folders', function () {
+    const folderWork: Folder = { id: 'folder_work', name: 'Work' };
+    const folderPersonal: Folder = { id: 'folder_personal', name: 'Personal' };
+    const mockFolders = [folderWork, folderPersonal];
+    // Only the first connection is filed; the other two are uncategorized.
+    const mockFolderAssignments = { [connectedConnection1.id]: folderWork.id };
+
+    const renderWithFolders = (filter: ConnectionsFilter) => {
+      return renderHookWithContext(useFilteredConnections, {
+        initialProps: {
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter,
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        },
+      });
+    };
+
+    it('should return the folders unchanged when not filtering', async function () {
+      const { result } = renderWithFolders({
+        search: '',
+        excludeInactive: false,
+      });
+
+      await waitFor(() => {
+        expect(result.current.filteredConnections).to.be.undefined;
+        expect(result.current.filteredFolders).to.deep.equal(mockFolders);
+        expect(result.current.expanded[folderWork.id]).to.equal(false);
+      });
+    });
+
+    context('when searching', function () {
+      it('should keep a folder collapsed when the search matches only the folder name', async function () {
+        const { result } = renderWithFolders({
+          search: 'work',
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          // The filed connection matches through its folder's name.
+          expect(result.current.filteredConnections).to.deep.equal([
+            sidebarConnections[0],
+          ]);
+          // The empty folder has no name match, so it is hidden.
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
+          expect(result.current.expanded[folderWork.id]).to.equal(false);
+        });
+      });
+
+      it('should keep and expand the parent folder of a matching connection', async function () {
+        const { result } = renderWithFolders({
+          search: '^connected_connection_1$',
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredConnections).to.deep.equal([
+            sidebarConnections[0],
+          ]);
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+      });
+
+      it('should expand the parent folder of a connection that matches through its databases', async function () {
+        const { result } = renderWithFolders({
+          search: 'db_ready_1_1',
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredConnections).to.have.lengthOf(1);
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+      });
+
+      it('should hide a folder that neither matches nor holds a matching connection', async function () {
+        const { result } = renderWithFolders({
+          search: '^connected_connection_2$',
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredConnections).to.deep.equal([
+            sidebarConnections[1],
+          ]);
+          expect(result.current.filteredFolders).to.deep.equal([]);
+        });
+      });
+
+      it('should filter everything out when the search is not a valid regular expression', async function () {
+        const { result } = renderWithFolders({
+          search: '(',
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredConnections).to.deep.equal([]);
+          expect(result.current.filteredFolders).to.deep.equal([]);
+        });
+      });
+
+      it('should collapse the folders the search opened once the search is cleared', async function () {
+        const { result, rerender } = renderWithFolders({
+          search: '',
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.equal(false);
+        });
+
+        rerender({
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter: {
+            search: '^connected_connection_1$',
+            excludeInactive: false,
+          },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+
+        rerender({
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter: { search: '', excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.equal(false);
+        });
+      });
+
+      it('should keep a folder the user expanded on their own expanded after the search is cleared', async function () {
+        const { result, rerender } = renderWithFolders({
+          search: '',
+          excludeInactive: false,
+        });
+
+        result.current.onFolderToggle(folderWork.id, true);
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+
+        rerender({
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter: { search: 'work', excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+
+        rerender({
+          connections: mockSidebarConnections,
+          folders: mockFolders,
+          folderAssignments: mockFolderAssignments,
+          filter: { search: '', excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        });
+        await waitFor(() => {
+          expect(result.current.expanded[folderWork.id]).to.deep.equal({});
+        });
+      });
+    });
+
+    context('when filtering the visible folders', function () {
+      it('should hide a folder and its connections', async function () {
+        const { result } = renderWithFolders({
+          search: '',
+          excludeInactive: false,
+          hiddenFolderIds: [folderWork.id],
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredFolders).to.deep.equal([
+            folderPersonal,
+          ]);
+          // Uncategorized connections stay; the filter never changes membership.
+          expect(result.current.filteredConnections).to.deep.equal([
+            sidebarConnections[1],
+            sidebarConnections[2],
+          ]);
+        });
+      });
+
+      it('should hide uncategorized connections when asked', async function () {
+        const { result } = renderWithFolders({
+          search: '',
+          excludeInactive: false,
+          hideUncategorizedConnections: true,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredFolders).to.deep.equal(mockFolders);
+          expect(result.current.filteredConnections).to.deep.equal([
+            sidebarConnections[0],
+          ]);
+        });
+      });
+
+      it('should not fetch collections for a folder-only filter change', async function () {
+        const { result } = renderWithFolders({
+          search: '',
+          excludeInactive: false,
+          hiddenFolderIds: [folderWork.id],
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredFolders).to.deep.equal([
+            folderPersonal,
+          ]);
+        });
+        expect(fetchAllCollectionsStub).not.to.have.been.called;
+      });
+
+      it('should fetch collections for a name search', async function () {
+        const { result } = renderWithFolders({
+          search: 'work',
+          excludeInactive: false,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
+        });
+        expect(fetchAllCollectionsStub).to.have.been.called;
+      });
+    });
+
+    context('when the active-only filter is on', function () {
+      it('should hide an empty folder', async function () {
+        const { result } = renderWithFolders({
+          search: '',
+          excludeInactive: true,
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredFolders).to.deep.equal([folderWork]);
+          expect(result.current.filteredConnections).to.deep.equal([
+            sidebarConnections[0],
+            sidebarConnections[1],
+          ]);
+        });
+      });
+
+      it('should hide a folder whose connections are all filtered out', async function () {
+        const { result } = renderHookWithContext(useFilteredConnections, {
+          initialProps: {
+            connections: mockSidebarConnections,
+            folders: mockFolders,
+            // The only connection filed in the folder is inactive.
+            folderAssignments: {
+              [disconnectedConnection.id]: folderPersonal.id,
+            },
+            filter: { search: '', excludeInactive: true },
+            fetchAllCollections: fetchAllCollectionsStub,
+            onDatabaseExpand: onDatabaseExpandStub,
+          },
+        });
+
+        await waitFor(() => {
+          expect(result.current.filteredFolders).to.deep.equal([]);
+          expect(result.current.filteredConnections).to.deep.equal([
+            sidebarConnections[0],
+            sidebarConnections[1],
+          ]);
         });
       });
     });

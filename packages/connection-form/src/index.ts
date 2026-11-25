@@ -8,6 +8,8 @@ export {
   ColorCircleGlyph,
 };
 
+export type { ConnectionFormFolderOption } from './components/connection-form';
+
 export {
   useConnectionColor,
   DefaultColorCode,
