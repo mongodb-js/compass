@@ -122,6 +122,8 @@ describe('Collection ai query (with mocked backend)', function () {
       expect(queryRequest.req.headers).to.have.property(
         'x-assistant-entrypoint'
       );
+      expect(queryRequest.req.headers['x-client-thread-id']).to.be.a('string')
+        .that.is.not.empty;
       expect(queryRequest.content.model).to.equal(AI_MODEL_SLIM_VERSION);
       expect(queryRequest.content.instructions).to.be.a('string');
       expect(queryRequest.content.store).to.equal(false);
@@ -139,6 +141,58 @@ describe('Collection ai query (with mocked backend)', function () {
       await browser.runFind('Documents', true);
       const modifiedResult = await browser.getFirstListDocument();
       expect(modifiedResult.i).to.be.equal('51');
+    });
+  });
+
+  describe('when the query bar hands off to the aggregation builder', function () {
+    // Both tabs render the same generative AI input, scope to the aggregations one.
+    const AggregationsGenAITextInput = `[data-testid="pipeline-toolbar"] ${Selectors.GenAITextInput}`;
+    const AggregationsGenAIGenerateButton = `[data-testid="pipeline-toolbar"] ${Selectors.GenAIGenerateQueryButton}`;
+
+    beforeEach(async function () {
+      await setup(browser, dbName, collName);
+      // An aggregation without a filter makes the query bar hand the prompt
+      // off to the aggregation builder.
+      mockAssistantServer.setResponse({
+        status: 200,
+        body: '<aggregation>[{$match: {i: 99}}]</aggregation>',
+      });
+    });
+
+    it('continues the same thread in the aggregation builder', async function () {
+      await browser.clickVisible(Selectors.GenAIEntryButton);
+      await browser.clickVisible(Selectors.GenAITextInput);
+      await browser.setValueVisible(
+        Selectors.GenAITextInput,
+        'count documents grouped by i'
+      );
+      await browser.clickVisible(Selectors.GenAIGenerateQueryButton);
+
+      await browser
+        .$(Selectors.collectionSubTab('Aggregations', true))
+        .waitForDisplayed();
+
+      await browser.clickVisible(AggregationsGenAITextInput);
+      await browser.setValueVisible(
+        AggregationsGenAITextInput,
+        'only documents where i is 99'
+      );
+      await browser.clickVisible(AggregationsGenAIGenerateButton);
+
+      await browser.waitUntil(() => {
+        return mockAssistantServer.getRequests().length === 2;
+      });
+
+      const [queryBarRequest, aggregationRequest] =
+        mockAssistantServer.getRequests();
+      const threadId = queryBarRequest.req.headers['x-client-thread-id'];
+      expect(threadId).to.be.a('string').that.is.not.empty;
+      expect(aggregationRequest.req.headers['x-client-thread-id']).to.equal(
+        threadId
+      );
+      expect(
+        aggregationRequest.req.headers['x-client-request-id']
+      ).to.not.equal(queryBarRequest.req.headers['x-client-request-id']);
     });
   });
 

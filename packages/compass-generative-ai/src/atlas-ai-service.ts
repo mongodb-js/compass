@@ -50,6 +50,7 @@ export type GenerativeAiInput = {
   sampleDocuments?: Document[];
   signal: AbortSignal;
   requestId: string;
+  threadId: string;
   enableStorage: boolean;
 };
 
@@ -300,7 +301,7 @@ export class AtlasAiService {
     return this.generateQueryUsingChatbot(
       message,
       validateAIAggregationResponse,
-      { signal: input.signal, type: 'aggregate' }
+      { signal: input.signal, type: 'aggregate', threadId: input.threadId }
     );
   }
 
@@ -312,6 +313,7 @@ export class AtlasAiService {
     return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
       signal: input.signal,
       type: 'find',
+      threadId: input.threadId,
     });
   }
 
@@ -481,13 +483,18 @@ export class AtlasAiService {
   private async generateQueryUsingChatbot<T>(
     message: AiQueryPrompt,
     validateFn: (res: any) => asserts res is T,
-    options: { signal: AbortSignal; type: 'find' | 'aggregate' }
+    options: {
+      signal: AbortSignal;
+      type: 'find' | 'aggregate';
+      threadId: string;
+    }
   ): Promise<T> {
     this.throwIfAINotEnabled();
     const response = await getAiQueryResponse(
       this.nlqAiModel,
       message,
-      options.signal
+      options.signal,
+      options.threadId
     );
     const parsedResponse = await parseXmlToJsonResponse(response, {
       logger: this.logger,

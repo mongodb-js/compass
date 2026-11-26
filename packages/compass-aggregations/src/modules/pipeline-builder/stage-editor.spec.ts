@@ -24,6 +24,7 @@ import { mockDataService } from '../../../test/mocks/data-service';
 import reducer from '../';
 import { collationStringChanged } from '../collation-string';
 import { toggleAutoPreview } from '../auto-preview';
+import { createMockQueryBar } from '../../../test/configure-store';
 import { getId } from './stage-ids';
 import type Stage from './stage';
 import { DEFAULT_PREVIEW_DEBOUNCE_MS } from './pipeline-preview-manager';
@@ -237,6 +238,7 @@ function createStore({
         pollingIntervalRef: {
           searchIndexes: null,
         },
+        queryBar: createMockQueryBar(),
       })
     )
   );

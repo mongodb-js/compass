@@ -7,6 +7,7 @@ import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { MongoDBInstance } from '@mongodb-js/mongodb-instance-model';
 import type {
   ConnectionInfoRef,
@@ -119,6 +120,7 @@ export type PipelineBuilderExtraArgs = {
   pollingIntervalRef: {
     searchIndexes: ReturnType<typeof setInterval> | null;
   };
+  queryBar: QueryBarService;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

@@ -28,6 +28,9 @@ export type AIQueryState = {
   aiPromptText: string;
   status: AIQueryStatus;
   aiQueryRequestId: string | null; // Maps to the AbortController of the current fetch (or null).
+  // Groups follow-up NLQ prompts in this collection tab; rotated after THREAD_INACTIVITY_TIMEOUT_MS.
+  threadId: string;
+  threadLastActiveAt: number | null;
   lastAIQueryRequestId: string | null; // We store the last request id so we can pass it when a user provides feedback.
 };
 
@@ -48,6 +51,8 @@ function getInitialState(): AIQueryState {
       localStorage.getItem(AI_INPUT_VISIBLE_STORAGE_KEY) === 'true',
     lastAIQueryRequestId: null,
     status: 'ready',
+    threadId: new UUID().toString(),
+    threadLastActiveAt: null,
   };
 }
 
@@ -60,9 +65,12 @@ export const AIQueryActionTypes = {
   ShowInput: 'compass-query-bar/ai-query/ShowInput',
   HideInput: 'compass-query-bar/ai-query/HideInput',
   ChangeAIPromptText: 'compass-query-bar/ai-query/ChangeAIPromptText',
+  AIThreadPromptSubmitted: 'compass-query-bar/ai-query/AIThreadPromptSubmitted',
 } as const;
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
+
+export const THREAD_INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
 
 const AIQueryAbortControllerMap = new Map<string, AbortController>();
 
@@ -104,6 +112,42 @@ export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
 type AIQueryStartedAction = {
   type: typeof AIQueryActionTypes.AIQueryStarted;
   requestId: string;
+};
+
+type AIThreadPromptSubmittedAction = {
+  type: typeof AIQueryActionTypes.AIThreadPromptSubmitted;
+  threadId: string;
+  submittedAt: number;
+};
+
+function getThreadIdForPrompt(
+  { threadId, threadLastActiveAt }: AIQueryState,
+  submittedAt: number
+): string {
+  const isThreadExpired =
+    threadLastActiveAt !== null &&
+    submittedAt - threadLastActiveAt > THREAD_INACTIVITY_TIMEOUT_MS;
+  return isThreadExpired ? new UUID().toString() : threadId;
+}
+
+/**
+ * Returns the thread id to send with a new NLQ prompt, starting a new thread
+ * if the current one has been inactive for too long.
+ */
+export const submitAIThreadPrompt = (): QueryBarThunkAction<
+  string,
+  AIThreadPromptSubmittedAction
+> => {
+  return (dispatch, getState) => {
+    const submittedAt = Date.now();
+    const threadId = getThreadIdForPrompt(getState().aiQuery, submittedAt);
+    dispatch({
+      type: AIQueryActionTypes.AIThreadPromptSubmitted,
+      threadId,
+      submittedAt,
+    });
+    return threadId;
+  };
 };
 
 type AIQueryFailedAction = {
@@ -212,6 +256,7 @@ export const runAIQuery = (
       type: AIQueryActionTypes.AIQueryStarted,
       requestId,
     });
+    const threadId = dispatch(submitAIThreadPrompt());
 
     let jsonResponse;
     try {
@@ -247,6 +292,7 @@ export const runAIQuery = (
             }
           : undefined),
         requestId,
+        threadId,
         enableStorage: !isFLE,
       });
     } catch (err: any) {
@@ -478,6 +524,19 @@ const aiQueryReducer: Reducer<AIQueryState, Action> = (
     };
   }
 
+  if (
+    isAction<AIThreadPromptSubmittedAction>(
+      action,
+      AIQueryActionTypes.AIThreadPromptSubmitted
+    )
+  ) {
+    return {
+      ...state,
+      threadId: action.threadId,
+      threadLastActiveAt: action.submittedAt,
+    };
+  }
+
   if (isAction<AIQueryFailedAction>(action, AIQueryActionTypes.AIQueryFailed)) {
     // If fetching query failed due to authentication error, reset the state to
     // hide the input and show the "Generate query" button again: this should start
@@ -485,6 +544,8 @@ const aiQueryReducer: Reducer<AIQueryState, Action> = (
     if (action.statusCode === 401) {
       return {
         ...getInitialState(),
+        threadId: state.threadId,
+        threadLastActiveAt: state.threadLastActiveAt,
         isInputVisible: false,
       };
     }

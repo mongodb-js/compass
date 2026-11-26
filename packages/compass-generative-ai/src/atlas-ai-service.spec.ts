@@ -872,6 +872,7 @@ describe('AtlasAiService', function () {
               { _id: new ObjectId('642d766b7300158b1f22e972') },
             ],
             requestId: 'abc',
+            threadId: 'thread-123',
             enableStorage: true,
           };
 
@@ -887,6 +888,7 @@ describe('AtlasAiService', function () {
           expect(requestHeaders['x-assistant-entrypoint']).to.equal(
             'natural-language-to-mql'
           );
+          expect(requestHeaders['x-client-thread-id']).to.equal(input.threadId);
           const requestBody = JSON.parse(args[1].body as string);
           const { analytics_id, ...restOfMetadata } = requestBody.metadata;
           expect(restOfMetadata).to.deep.equal({
@@ -924,6 +926,7 @@ describe('AtlasAiService', function () {
               collectionName: 'test',
               databaseName: 'peanut',
               requestId: 'abc',
+              threadId: 'thread-123',
               signal: new AbortController().signal,
               enableStorage: true,
             });

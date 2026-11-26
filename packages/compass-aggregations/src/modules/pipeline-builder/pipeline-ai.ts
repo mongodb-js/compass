@@ -239,6 +239,7 @@ export const runAIPipelineGeneration = (
       track,
       connectionInfoRef,
       collection,
+      queryBar,
     }
   ) => {
     const {
@@ -281,6 +282,7 @@ export const runAIPipelineGeneration = (
       type: AIPipelineActionTypes.AIPipelineStarted,
       requestId,
     });
+    const threadId = queryBar.submitAIThreadPrompt();
 
     let jsonResponse;
     try {
@@ -319,6 +321,7 @@ export const runAIPipelineGeneration = (
             }
           : undefined),
         requestId,
+        threadId,
         enableStorage: !isFLE,
       });
     } catch (err: any) {

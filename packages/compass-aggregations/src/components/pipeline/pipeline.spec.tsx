@@ -7,6 +7,7 @@ import {
 import sinon from 'sinon';
 import { CompassAggregationsPlugin } from '../../index';
 import { mockDataService } from '../../../test/mocks/data-service';
+import { createMockQueryBar } from '../../../test/configure-store';
 import Pipeline from './pipeline';
 import type { PipelineProps } from './pipeline';
 
@@ -25,6 +26,7 @@ class MockAtlasAiService {
 const { renderWithActiveConnection } = createPluginTestHelpers(
   CompassAggregationsPlugin.provider.withMockServices({
     atlasAiService: new MockAtlasAiService(),
+    queryBar: createMockQueryBar(),
     collection: {
       fetchMetadata: () => ({}),
       toJSON: () => ({}),

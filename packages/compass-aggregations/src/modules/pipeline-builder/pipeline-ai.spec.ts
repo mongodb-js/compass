@@ -4,6 +4,7 @@ import type { PreferencesAccess } from '@mongodb-js/compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from '@mongodb-js/compass-preferences-model';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { DataService } from '@mongodb-js/mongodb-data-service';
+import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import configureReduxStore, {
   MockAtlasAiService,
 } from '../../../test/configure-store';
@@ -22,8 +23,16 @@ import { PipelineBuilder } from './pipeline-builder';
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();
   let preferences: PreferencesAccess;
+  let queryBar: {
+    submitAIThreadPrompt: Sinon.SinonStub<[], string>;
+  };
 
   beforeEach(async function () {
+    queryBar = {
+      submitAIThreadPrompt: sandbox
+        .stub<[], string>()
+        .returns('query-bar-thread'),
+    };
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableGenAIFeatures: true,
@@ -51,6 +60,7 @@ describe('AIPipelineReducer', function () {
       {
         atlasAiService: atlasAiService as any,
         preferences,
+        queryBar: queryBar as Partial<QueryBarService> as QueryBarService,
       }
     );
     return result.plugin.store;
@@ -83,6 +93,9 @@ describe('AIPipelineReducer', function () {
         expect(args).to.have.property('databaseName', 'database');
         // Sample documents are currently disabled.
         expect(args).to.not.have.property('sampleDocuments');
+        // Continues the NLQ thread owned by the query bar in this tab.
+        expect(queryBar.submitAIThreadPrompt).to.have.been.calledOnce;
+        expect(args).to.have.property('threadId', 'query-bar-thread');
 
         expect(
           store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
