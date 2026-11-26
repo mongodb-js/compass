@@ -26,6 +26,24 @@ const renderCombobox = (
   );
 };
 
+const typeInCombobox = (value: string) => {
+  fireEvent.change(
+    screen.getByRole('textbox', {
+      name: /combo-box/i,
+    }),
+    {
+      target: { value },
+    }
+  );
+};
+
+const getOptionLabels = () => {
+  fireEvent.click(screen.getByRole('combobox'));
+  return within(screen.getByRole('listbox'))
+    .getAllByRole('option')
+    .map((option) => option.getAttribute('aria-label'));
+};
+
 describe('ComboboxWithCustomOption Component', function () {
   afterEach(cleanup);
 
@@ -42,18 +60,23 @@ describe('ComboboxWithCustomOption Component', function () {
   it('displays custom option options', function () {
     renderCombobox();
 
-    fireEvent.change(
-      screen.getByRole('textbox', {
-        name: /combo-box/i,
-      }),
-      {
-        target: { value: 'new_field' },
-      }
-    );
+    typeInCombobox('new_field');
 
     fireEvent.click(screen.getByRole('combobox'));
     const listbox = screen.getByRole('listbox');
 
     expect(within(listbox).getByText('new_field')).to.exist;
+  });
+
+  it('displays the custom option last when the search is a substring of an existing option', function () {
+    renderCombobox({
+      options: [{ value: 'one' }, { value: 'oneAndAHalf' }],
+    });
+
+    typeInCombobox('one');
+    expect(getOptionLabels()).to.deep.equal(['one', 'oneAndAHalf']);
+
+    typeInCombobox('oneAnd');
+    expect(getOptionLabels()).to.deep.equal(['oneAndAHalf', 'oneAnd']);
   });
 });
