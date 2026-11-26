@@ -57,10 +57,16 @@ const rowTextStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const sectionItemStyles = css({
+  '&&&': {
+    opacity: 1,
+  },
+});
+
 const sectionTitleStyles = css({
-  '&&': {
-    fontWeight: 600,
-    color: 'var(--via-color-text-secondary)',
+  '&&&': {
+    font: 'var(--via-typography-heading6)',
+    color: 'var(--via-color-text-primary)',
   },
 });
 
@@ -133,14 +139,21 @@ export const SkillsInput: React.FunctionComponent<SkillsInputProps> = ({
             id={command.id}
             textValue={command.label}
             isDisabled
+            className={title ? sectionItemStyles : undefined}
           >
-            <Text
-              ref={command.id === SKILLS_SECTION_ID ? menuRef : undefined}
-              className={title ? sectionTitleStyles : rowTextStyles}
-              style={rowStyle}
-            >
-              {title ?? getPlaceholderText(command.id, isLoading)}
-            </Text>
+            {title ? (
+              <Text
+                ref={command.id === SKILLS_SECTION_ID ? menuRef : undefined}
+                className={`${sectionTitleStyles} ${rowTextStyles}`}
+                style={rowStyle}
+              >
+                {title}
+              </Text>
+            ) : (
+              <Text className={rowTextStyles} style={rowStyle}>
+                {getPlaceholderText(command.id, isLoading)}
+              </Text>
+            )}
           </ComposerCommandItem>
         );
       }
@@ -195,7 +208,7 @@ export const SkillsInput: React.FunctionComponent<SkillsInputProps> = ({
             <InputBar
               className={inputBarStyles}
               aria-label="Ask a question"
-              placeholder="Ask a question"
+              placeholder="Use / to use a skill or a specific tool"
             />
             {actionSlot}
             <ComposerCommandMenu
