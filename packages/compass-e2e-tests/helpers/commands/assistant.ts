@@ -20,8 +20,7 @@ export async function typeInAssistantChat(
 ): Promise<void> {
   const chatInput = browser.$(Selectors.AssistantChatInputEditor);
   await chatInput.waitForDisplayed();
-  await chatInput.click();
-  await chatInput.addValue(text);
+  await chatInput.setValue(text);
 }
 
 export async function clearChat(browser: CompassBrowser): Promise<void> {
