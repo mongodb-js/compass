@@ -2,18 +2,11 @@ import path from 'node:path';
 import os from 'node:os';
 import { promises as fs } from 'node:fs';
 import { once, EventEmitter } from 'node:events';
-import type {
-  Server as HTTPServer,
-  IncomingMessage,
-  ServerResponse,
-} from 'node:http';
+import type { Server as HTTPServer, IncomingMessage } from 'node:http';
 import { createServer as createHTTPServer } from 'node:http';
 import type { Socket, AddressInfo } from 'node:net';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
-import type {
-  OIDCMockProviderConfig,
-  TokenMetadata,
-} from '@mongodb-js/oidc-mock-provider';
+import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { expect } from 'chai';
 import type { MongoCluster } from '@mongodb-js/compass-test-server';
 import { startTestServer } from '@mongodb-js/compass-test-server';
@@ -57,51 +50,6 @@ function deserializeOIDCState(serializedState: string): {
   state: [string, { currentTokenSet?: { set?: Record<string, unknown> } }][];
 } {
   return JSON.parse(Buffer.from(serializedState, 'base64').toString('utf8'));
-}
-
-/**
- * The mock identity provider does not implement the refresh_token grant, so
- * we answer it here using the provider's own signing keys. This lets the e2e
- * tests cover Compass obtaining a new access token from a stored refresh
- * token.
- *
- * TODO(COMPASS-7668): remove once @mongodb-js/oidc-mock-provider supports the
- * refresh token grant.
- */
-async function handleRefreshTokenGrant(
-  provider: OIDCMockProvider,
-  url: string,
-  res: ServerResponse
-): Promise<void> {
-  const { pathname, searchParams } = new URL(url);
-  if (
-    pathname !== '/token' ||
-    searchParams.get('grant_type') !== 'refresh_token'
-  ) {
-    return;
-  }
-
-  const mockProvider = provider as unknown as {
-    issueToken(metadata: TokenMetadata): Promise<{
-      access_token: string;
-      id_token?: string;
-      expires_in: number;
-    }>;
-  };
-  const { access_token, id_token, expires_in } = await mockProvider.issueToken({
-    client_id: searchParams.get('client_id') ?? '',
-    scope: searchParams.get('scope') ?? '',
-  });
-
-  res.end(
-    JSON.stringify({
-      access_token,
-      id_token,
-      refresh_token: searchParams.get('refresh_token') ?? undefined,
-      token_type: 'Bearer',
-      expires_in,
-    })
-  );
 }
 
 /**
@@ -510,9 +458,6 @@ describe('OIDC integration', function () {
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
-    overrideRequestHandler = (url, _req, res) =>
-      handleRefreshTokenGrant(oidcMockProvider, url, res);
-
     const favoriteName =
       await browser.saveConnectionStringAsFavorite(connectionString);
 
@@ -527,11 +472,12 @@ describe('OIDC integration', function () {
       expect.fail('Expected OIDC serialized state to be stored');
     }
 
-    // The access token is only kept in memory; only the refresh token is
-    // written to disk.
+    // The access token is cleared in the persisted state; only the refresh
+    // token is written to disk.
     for (const [, idpState] of deserializeOIDCState(serializedState).state) {
-      expect(idpState.currentTokenSet?.set).to.not.have.property(
-        'access_token'
+      expect(idpState.currentTokenSet?.set).to.have.property(
+        'access_token',
+        ''
       );
       expect(idpState.currentTokenSet?.set).to.have.property('refresh_token');
     }

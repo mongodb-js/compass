@@ -3265,9 +3265,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     if (!this._state) return {};
     return {
       oidc: {
-        serializedState: await this._state.oidcPlugin.serialize({
-          omitAccessToken: true,
-        }),
+        serializedState: await this._state.oidcPlugin.serialize(),
       },
     };
   }

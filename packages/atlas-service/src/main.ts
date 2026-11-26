@@ -503,9 +503,7 @@ export class CompassAuthService {
       return;
     }
     try {
-      await this.secretStore.setState(
-        await this.plugin.serialize({ omitAccessToken: true })
-      );
+      await this.secretStore.setState(await this.plugin.serialize());
     } catch (err) {
       log.warn(
         mongoLogId(1_001_000_221),
