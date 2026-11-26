@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  act,
   render,
   screen,
   userEvent,
@@ -8,15 +7,10 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  $getRoot,
-  $getSelection,
-  $isRangeSelection,
-  type LexicalEditor,
-} from 'lexical';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Skill } from '../skills-service';
+import { getComposerEditor, typeInComposer } from '../../test/utils';
 import { SkillsInput, ThinkingIndicator } from './skills-input';
 
 const skills: Skill[] = [
@@ -58,43 +52,23 @@ describe('SkillsInput', function () {
     );
   }
 
-  const getEditor = () =>
-    screen.getByRole('textbox', { name: 'Ask a question' });
-
-  // The composer is a Lexical editor, which ignores the key and input events
-  // user-event produces for contenteditable, so insert text through the editor
-  // instance Lexical attaches to its root element.
-  function typeText(text: string) {
-    const element = getEditor() as HTMLElement & {
-      __lexicalEditor: LexicalEditor;
-    };
-    act(() => {
-      // Lexical only mirrors its selection into the DOM while focused
-      element.focus();
-      element.__lexicalEditor.update(
-        () => {
-          if (!$isRangeSelection($getSelection())) {
-            $getRoot().selectEnd();
-          }
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            selection.insertText(text);
-          }
-        },
-        { discrete: true }
-      );
-    });
-  }
-
   async function pickFromMenu(label: string | RegExp) {
-    typeText('/');
+    typeInComposer('/');
     userEvent.click(await screen.findByRole('menuitem', { name: label }));
   }
+
+  it('hints at the slash command in the placeholder', function () {
+    renderInput();
+
+    expect(getComposerEditor().getAttribute('aria-placeholder')).to.equal(
+      'Use / to use a skill or a specific tool'
+    );
+  });
 
   it('sends plain text unchanged', async function () {
     renderInput();
 
-    typeText('how do I index?');
+    typeInComposer('how do I index?');
     userEvent.click(screen.getByLabelText('Send message'));
 
     await waitFor(() => expect(onSend).to.have.been.calledOnce);
@@ -108,7 +82,7 @@ describe('SkillsInput', function () {
     renderInput();
 
     await pickFromMenu(/^\/query/);
-    typeText('find my slow queries');
+    typeInComposer('find my slow queries');
     userEvent.click(screen.getByLabelText('Send message'));
 
     await waitFor(() => expect(onSend).to.have.been.calledOnce);
@@ -125,7 +99,7 @@ describe('SkillsInput', function () {
     renderInput({ withTools: true });
 
     await pickFromMenu(new RegExp(`^/${tool.name}`));
-    typeText('what is this?');
+    typeInComposer('what is this?');
     userEvent.click(screen.getByLabelText('Send message'));
 
     await waitFor(() => expect(onSend).to.have.been.calledOnce);
@@ -158,7 +132,7 @@ describe('SkillsInput', function () {
     });
     renderInput();
 
-    typeText('/');
+    typeInComposer('/');
 
     await screen.findByRole('menuitem', { name: /^\/query/ });
     expect(
@@ -173,7 +147,7 @@ describe('SkillsInput', function () {
     });
     renderInput({ withTools: true });
 
-    typeText('/');
+    typeInComposer('/');
 
     const skillItem = await screen.findByRole('menuitem', {
       name: /^\/query/,
@@ -191,9 +165,9 @@ describe('SkillsInput', function () {
   it('filters the menu by what is typed after the slash', async function () {
     renderInput();
 
-    typeText('/');
+    typeInComposer('/');
     await screen.findByRole('menuitem', { name: /^\/query/ });
-    typeText('schema');
+    typeInComposer('schema');
 
     await waitFor(() => {
       expect(screen.queryByRole('menuitem', { name: /^\/query/ })).to.not.exist;
@@ -204,9 +178,9 @@ describe('SkillsInput', function () {
   it('shows a placeholder when nothing matches the query', async function () {
     renderInput();
 
-    typeText('/');
+    typeInComposer('/');
     await screen.findByRole('menuitem', { name: /^\/query/ });
-    typeText('zzz');
+    typeInComposer('zzz');
 
     expect(await screen.findByText('No skills found')).to.exist;
     expect(screen.getByText('No tools available')).to.exist;
@@ -215,9 +189,9 @@ describe('SkillsInput', function () {
   it('does not let the section headers be inserted as tokens', async function () {
     renderInput();
 
-    typeText('/');
+    typeInComposer('/');
     userEvent.click(await screen.findByText('Skills'));
-    typeText('hello');
+    typeInComposer('hello');
     userEvent.click(screen.getByLabelText('Send message'));
 
     await waitFor(() => expect(onSend).to.have.been.calledOnce);
@@ -228,10 +202,10 @@ describe('SkillsInput', function () {
   it('still sends messages when fetching skills fails', async function () {
     renderInput({ fetchSkills: () => Promise.reject(new Error('nope')) });
 
-    typeText('/');
+    typeInComposer('/');
     expect(await screen.findByText('No skills found')).to.exist;
 
-    typeText('hello');
+    typeInComposer('hello');
     userEvent.click(screen.getByLabelText('Send message'));
 
     await waitFor(() => expect(onSend).to.have.been.calledOnce);

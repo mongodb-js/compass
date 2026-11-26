@@ -1468,9 +1468,7 @@ describe('CSFLE / QE', function () {
       await browser.clickVisible(Selectors.AssistantDrawerButton);
       await browser.$(Selectors.AssistantDrawerCloseButton).waitForDisplayed();
 
-      const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
-      await chatInput.waitForDisplayed();
-      await chatInput.setValue('What is mongodb?');
+      await browser.typeInAssistantChat('What is mongodb?');
       await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
       await browser.waitUntil(

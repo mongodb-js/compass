@@ -1,25 +1,19 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { LgChatMessage, css } from '@mongodb-js/compass-components';
 import { isAtlasTool } from '@mongodb-js/compass-generative-ai/provider';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { getToolDisplayName, getReasoningSteps, partIsToolUI } from '../utils';
-import type { ThinkingIndicator as ThinkingIndicatorType } from './skills-input';
+// TODO(COMPASS-11250): ThinkingIndicator used to be lazy loaded while the flag
+// was off, but mocha can't resolve the extensionless dynamic import it needed.
+import { ThinkingIndicator } from './skills-input';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
 
-const { Message } = LgChatMessage;
+export { ThinkingIndicator };
 
-// TODO(COMPASS-11250): Remove lazy loading once skills are enabled by default
-// Loaded on demand so Via's bundle and CSS only ship when skills are enabled.
-// webpack can't resolve the `.js` extension that tsc's nodenext resolution
-// demands for dynamic imports of a `.tsx` file, so we drop it and silence tsc.
-export const ThinkingIndicator = lazy(
-  (): Promise<{ default: typeof ThinkingIndicatorType }> =>
-    // @ts-expect-error TS2835: extensionless dynamic import, see above
-    import('./skills-input').then((m) => ({ default: m.ThinkingIndicator }))
-);
+const { Message } = LgChatMessage;
 
 // On small screens, many components end up breaking words which we don't want.
 // This is a general temporary fix for all components that we want to prevent from wrapping.

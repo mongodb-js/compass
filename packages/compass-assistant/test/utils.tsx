@@ -7,8 +7,15 @@ import {
   type AtlasAiService,
   type ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
-import { render } from '@mongodb-js/testing-library-compass';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import React from 'react';
+import { flushSync } from 'react-dom';
+import {
+  $getRoot,
+  $getSelection,
+  $isRangeSelection,
+  type LexicalEditor,
+} from 'lexical';
 import { UUID } from 'bson';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import {
@@ -258,4 +265,34 @@ export function renderWithProvider(
       },
     }
   );
+}
+
+export const getComposerEditor = () =>
+  screen.getByRole('textbox', { name: 'Ask a question' });
+
+// The composer is a Lexical editor, which ignores the key and input events
+// user-event produces for contenteditable, so insert text through the editor
+// instance Lexical attaches to its root element.
+export function typeInComposer(text: string) {
+  const element = getComposerEditor() as HTMLElement & {
+    __lexicalEditor: LexicalEditor;
+  };
+  // Lexical only mirrors its selection into the DOM while focused
+  element.focus();
+  // Lexical reports the change to React from a listener, so flush it here for
+  // the next assertion or click to see the updated state.
+  flushSync(() => {
+    element.__lexicalEditor.update(
+      () => {
+        if (!$isRangeSelection($getSelection())) {
+          $getRoot().selectEnd();
+        }
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          selection.insertText(text);
+        }
+      },
+      { discrete: true }
+    );
+  });
 }

@@ -1,6 +1,5 @@
 import React, {
   Suspense,
-  lazy,
   useCallback,
   useEffect,
   useContext,
@@ -50,20 +49,13 @@ import {
   AssistantChatMessage,
   ThinkingIndicator,
 } from './assistant-chat-message';
-import type { SkillsInput as SkillsInputType } from './skills-input';
+// TODO(COMPASS-11250): SkillsInput used to be lazy loaded while the flag was off,
+// but mocha can't resolve the extensionless dynamic import it needed.
+import { SkillsInput } from './skills-input';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { InputBar } = LgChatInputBar;
-
-// TODO(COMPASS-11250): Remove lazy loading of SkillsInput once enabled by default
-// Loaded on demand so Via's bundle and CSS only ship when skills are enabled.
-// webpack can't resolve the `.js` extension that tsc's nodenext resolution
-// demands for dynamic imports of a `.tsx` file, so we drop it and silence tsc.
-const SkillsInput = lazy((): Promise<{ default: typeof SkillsInputType }> =>
-  // @ts-expect-error TS2835: extensionless dynamic import, see above
-  import('./skills-input').then((m) => ({ default: m.SkillsInput }))
-);
 
 interface AssistantChatProps {
   chat: ThreadedChat;
