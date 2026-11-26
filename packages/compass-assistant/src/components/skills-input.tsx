@@ -57,6 +57,7 @@ const rowTextStyles = css({
   whiteSpace: 'nowrap',
 });
 
+// Overriding default style while component doesn't support Header or Menu Sections.
 const sectionItemStyles = css({
   '&&&': {
     opacity: 1,
