@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "compass-tools",
+  "owner": {
+    "name": "Compass"
+  },
+  "metadata": {
+    "description": "Agent skills for Compass development",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "debug-ci",
+      "source": "./.agents/skills/debug-ci",
+      "version": "1.0.0",
+      "description": "Diagnose failed Compass CI on GitHub Actions and Evergreen",
+      "skills": ["./"]
+    },
+    {
+      "name": "evergreen",
+      "source": "./.agents/skills/evergreen",
+      "version": "1.0.0",
+      "description": "Work with Compass CI on Evergreen: patches, tasks, logs, artifacts, config validation",
+      "skills": ["./"]
+    }
+  ]
+}

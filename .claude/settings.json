@@ -1,0 +1,82 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(sed -n:*)",
+      "Bash(cut:*)",
+      "Bash(echo:*)",
+      "Bash(jq:*)",
+      "Bash(wc:*)",
+
+      "Bash(npm test:*)",
+      "Bash(npm run:*)",
+
+      "Bash(gh auth status:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr list:*)",
+
+      "Bash(git log:*)",
+
+      "Bash(evergreen --version:*)",
+      "Bash(evergreen --help:*)",
+      "Bash(evergreen version:*)",
+      "Bash(evergreen help:*)",
+      "Bash(evergreen list:*)",
+      "Bash(evergreen list-patches:*)",
+      "Bash(evergreen last-green:*)",
+      "Bash(evergreen last-revision:*)",
+      "Bash(evergreen task:*)",
+      "Bash(evergreen fetch:*)",
+      "Bash(evergreen validate:*)",
+      "Bash(evergreen evaluate:*)",
+
+      "mcp__devprod-mcp__jira_get_issue",
+      "mcp__devprod-mcp__jira_get_issue_comments",
+      "mcp__devprod-mcp__jira_get_issue_transitions",
+      "mcp__devprod-mcp__jira_search_issues",
+      "mcp__devprod-mcp__jira_list_projects",
+      "mcp__devprod-mcp__jira_list_link_types",
+
+      "mcp__devprod-mcp__evg_list_user_recent_patches",
+      "mcp__devprod-mcp__evg_list_project_versions",
+      "mcp__devprod-mcp__evg_get_version",
+      "mcp__devprod-mcp__evg_get_patch_failed_jobs",
+      "mcp__devprod-mcp__evg_get_test_results_summary",
+      "mcp__devprod-mcp__evg_get_test_results_detailed",
+      "mcp__devprod-mcp__evg_get_task_log_summary",
+      "mcp__devprod-mcp__evg_get_raw_task_logs",
+      "mcp__devprod-mcp__evg_triage_task",
+      "mcp__devprod-mcp__evg_get_task_history",
+      "mcp__devprod-mcp__evg_get_task_reliability",
+      "mcp__devprod-mcp__evg_download_task_artifacts",
+      "mcp__devprod-mcp__evg_list_names",
+      "mcp__devprod-mcp__evg_get_inferred_project_ids",
+
+      "mcp__devprod-mcp__git_blame",
+      "mcp__devprod-mcp__git_diff",
+      "mcp__devprod-mcp__git_log",
+      "mcp__devprod-mcp__git_search",
+      "mcp__devprod-mcp__git_show"
+    ]
+  },
+  "extraKnownMarketplaces": {
+    "compass-tools": {
+      "source": {
+        "source": "directory",
+        "path": "."
+      }
+    }
+  },
+  "enabledPlugins": {
+    "debug-ci@compass-tools": true,
+    "evergreen-cli@compass-tools": true
+  }
+}
