@@ -16,6 +16,7 @@ import {
   type ConnectionWithLegacyProps,
   type ConnectionStorageIPCMain,
 } from './compass-main-connection-storage';
+import { InMemoryFolderStorage } from './in-memory-folder-storage';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
@@ -665,6 +666,107 @@ describe('ConnectionStorage', function () {
 
       const expectedConnections = await connectionStorage.loadAll();
       expect(expectedConnections).to.deep.equal([CONNECTIONS[1]]);
+    });
+
+    it('exports and imports folders', async function () {
+      const workFolder = { id: new UUID().toString(), name: 'Work' };
+      const exportingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        () =>
+          new InMemoryFolderStorage({
+            folders: [workFolder],
+            assignments: { [CONNECTIONS[0].id]: workFolder.id },
+          })
+      );
+      const exported = await exportingStorage.exportConnections();
+
+      const importingFolders = new InMemoryFolderStorage();
+      const importingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        () => importingFolders
+      );
+      await importingStorage.importConnections({ content: exported });
+
+      const { folders, assignments } = await importingFolders.load();
+      expect(folders.map(({ name }) => name)).to.deep.equal(['Work']);
+      expect(folders[0].id).to.not.equal(workFolder.id);
+      expect({ ...assignments }).to.deep.equal({
+        [CONNECTIONS[0].id]: folders[0].id,
+      });
+    });
+
+    it('overrides the folder assignment of an imported connection', async function () {
+      // The file leaves every connection uncategorized.
+      const exported = await connectionStorage.exportConnections();
+
+      const homeFolder = { id: new UUID().toString(), name: 'Home' };
+      const importingFolders = new InMemoryFolderStorage({
+        folders: [homeFolder],
+        assignments: { [CONNECTIONS[0].id]: homeFolder.id },
+      });
+      const importingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        () => importingFolders
+      );
+
+      await importingStorage.importConnections({ content: exported });
+
+      const { assignments } = await importingFolders.load();
+      expect({ ...assignments }).to.deep.equal({});
+    });
+
+    it('keeps imported connections but reports the error when saving folders fails', async function () {
+      const exported = await connectionStorage.exportConnections();
+      await Promise.all(
+        CONNECTIONS.map(({ id }) => connectionStorage.delete({ id }))
+      );
+      const folderStorage = new InMemoryFolderStorage();
+      Sinon.stub(folderStorage, 'save').rejects(new Error('disk full'));
+      const importingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        () => folderStorage
+      );
+
+      const error = await importingStorage
+        .importConnections({ content: exported })
+        .catch((err) => err);
+
+      expect(error.message).to.equal(
+        'Connections were imported, but their folders could not be saved: disk full'
+      );
+      expect(sortBy(await importingStorage.loadAll(), 'id')).to.deep.equal(
+        sortBy(CONNECTIONS, 'id')
+      );
+    });
+
+    it('aborts the import without saving connections when folders are invalid', async function () {
+      const exported = JSON.parse(await connectionStorage.exportConnections());
+      await Promise.all(
+        CONNECTIONS.map(({ id }) => connectionStorage.delete({ id }))
+      );
+      const importingStorage = initCompassMainConnectionStorage(
+        tmpDir,
+        ipcMain,
+        true,
+        () => new InMemoryFolderStorage()
+      );
+
+      const error = await importingStorage
+        .importConnections({
+          content: JSON.stringify({ ...exported, folders: [{ id: 'f1' }] }),
+        })
+        .catch((e) => e);
+
+      expect(error.message).to.equal('Input file contains invalid folders');
+      expect(await importingStorage.loadAll()).to.deep.equal([]);
     });
   });
 

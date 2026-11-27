@@ -9,6 +9,7 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
+import { isFolderNameEqual } from '@mongodb-js/connection-storage/provider';
 import type {
   ConnectionStorage,
   Folder,
@@ -2483,10 +2484,15 @@ export const importConnections = (options: {
     try {
       if (connectionStorage.importConnections) {
         await connectionStorage.importConnections(options);
-        connections = await connectionStorage.loadAll();
       }
     } catch (err) {
       error = err;
+    }
+    // Reload even on failure: connections may have been saved before the
+    // folder step threw, and the sidebar should show them.
+    if (connectionStorage.importConnections) {
+      connections = await connectionStorage.loadAll();
+      await dispatch(loadFolders());
     }
     dispatch({
       type: ActionTypes.ConnectionsImportFinish,
@@ -2534,9 +2540,8 @@ export function validateFolderName(
   }
 
   if (
-    existingNames.some(
-      (existingName) =>
-        existingName.toLocaleLowerCase() === trimmedName.toLocaleLowerCase()
+    existingNames.some((existingName) =>
+      isFolderNameEqual(existingName, trimmedName)
     )
   ) {
     return 'A folder with this name already exists';

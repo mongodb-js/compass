@@ -14,9 +14,12 @@ import {
 import { InMemoryFolderStorage } from './in-memory-folder-storage';
 
 export { InMemoryConnectionStorage, InMemoryFolderStorage };
+export { deserializeFolders } from './import-export-folders';
+export type { ExportedFolders } from './import-export-folders';
 
 export type { ConnectionStorage, ConnectionInfo, AtlasClusterMetadata };
 export type { Folder, FolderOrganization, FolderStorage };
+export { isFolderNameEqual } from './folder';
 
 export const ConnectionStorageContext = createContext<ConnectionStorage | null>(
   null

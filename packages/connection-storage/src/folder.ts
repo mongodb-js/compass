@@ -22,6 +22,9 @@ export interface Folder {
  */
 export interface FolderOrganization {
   folders: Folder[];
-  /** connectionId -> folderId. A connection absent here is uncategorized. */
   assignments: Record<string, string>;
+}
+
+export function isFolderNameEqual(a: string, b: string): boolean {
+  return a.toLocaleLowerCase() === b.toLocaleLowerCase();
 }

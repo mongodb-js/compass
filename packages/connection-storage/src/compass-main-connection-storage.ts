@@ -11,6 +11,11 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
 import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import { deleteCompassAppNameParam } from './utils';
+import type { FolderStorage } from './folder-storage';
+import {
+  deserializeFolders,
+  mergeImportedFolders,
+} from './import-export-folders';
 import {
   serializeConnections,
   deserializeConnections,
@@ -83,8 +88,14 @@ class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
   private readonly ipcMain: ConnectionStorageIPCMain;
-  constructor(ipcMain: ConnectionStorageIPCMain, basePath?: string) {
+  private readonly getFolderStorage: () => FolderStorage | undefined;
+  constructor(
+    ipcMain: ConnectionStorageIPCMain,
+    basePath?: string,
+    getFolderStorage: () => FolderStorage | undefined = () => undefined
+  ) {
     this.ipcMain = ipcMain;
+    this.getFolderStorage = getFolderStorage;
     this.userData = new FileUserData(ConnectionSchema, 'Connections', {
       basePath,
     });
@@ -355,9 +366,38 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       }
     );
 
+    const folderStorage = this.getFolderStorage();
+    const folderOrganization =
+      folderStorage &&
+      mergeImportedFolders(
+        await folderStorage.load(),
+        deserializeFolders(content),
+        connections.map(({ id }) => id)
+      );
+
     await Promise.all(
       connections.map((connectionInfo) => this.save({ connectionInfo, signal }))
     );
+
+    // Connections are already saved at this point, so the error has to say
+    // which part failed rather than reading as a failed import.
+    try {
+      if (folderOrganization) {
+        await folderStorage?.save({ folderOrganization });
+      }
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_460),
+        'Connection Import',
+        'Failed to save imported folders',
+        { message: (err as Error).message }
+      );
+      throw new Error(
+        `Connections were imported, but their folders could not be saved: ${
+          (err as Error).message
+        }`
+      );
+    }
 
     log.info(
       mongoLogId(1_001_000_150),
@@ -384,7 +424,10 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       ? connections.filter((x) => filterConnectionIds.includes(x.id))
       : connections.filter((x) => x.favorite?.name);
 
-    return serializeConnections(exportConnections, restOfOptions);
+    return serializeConnections(exportConnections, {
+      ...restOfOptions,
+      folderOrganization: await this.getFolderStorage()?.load(),
+    });
   }
 
   private async getConnections(): Promise<ConnectionWithLegacyProps[]> {
@@ -469,7 +512,8 @@ let mainConnectionStorage: CompassMainConnectionStorage | null = null;
 export const initCompassMainConnectionStorage = (
   basePath?: string,
   __TEST_IPC_MAIN?: ConnectionStorageIPCMain,
-  __TEST_IGNORE_SINGLETON?: boolean
+  __TEST_IGNORE_SINGLETON?: boolean,
+  getFolderStorage?: () => FolderStorage | undefined
 ): CompassMainConnectionStorage => {
   let ipcMainToBeUsed: ConnectionStorageIPCMain | undefined = ipcMain;
   if (process.env.NODE_ENV === 'test' && __TEST_IPC_MAIN) {
@@ -485,7 +529,8 @@ export const initCompassMainConnectionStorage = (
   if (!mainConnectionStorage || __TEST_IGNORE_SINGLETON) {
     mainConnectionStorage = new CompassMainConnectionStorage(
       ipcMainToBeUsed,
-      basePath
+      basePath,
+      getFolderStorage
     );
   }
 
