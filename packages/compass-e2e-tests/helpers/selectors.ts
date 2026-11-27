@@ -1603,7 +1603,7 @@ export const AssistantChat = '[data-testid="assistant-chat"]';
 export const AssistantChatMessages = '[data-testid="assistant-chat-messages"]';
 export const AssistantChatMessage = '[data-testid^="assistant-message-"]';
 export const AssistantChatInput = '[data-testid="assistant-chat-input"]';
-export const AssistantChatInputTextArea = `${AssistantChatInput} textarea`;
+export const AssistantChatInputEditor = `${AssistantChatInput} [role="textbox"]`;
 export const AssistantChatSubmitButton = `${AssistantChatInput} button[aria-label="Send message"]`;
 export const AssistantClearChatButton = '[data-testid="assistant-clear-chat"]';
 export const AssistantConfirmClearChatModal =

@@ -69,7 +69,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
 
   {
     name: 'enableSkillsInAssistant',
-    stage: 'development',
+    stage: 'released',
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable Skills in AI Assistant',

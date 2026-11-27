@@ -32,6 +32,8 @@ import {
   createMockChat,
   createSlowTool,
   createMockToolsTransport,
+  getComposerEditor,
+  typeInComposer,
 } from '../../test/utils';
 import { TOOL_DENIAL_REASONS } from '../prompts';
 import { containsText } from './test-helpers';
@@ -155,7 +157,7 @@ describe('AssistantChat', function () {
   it('renders input field and send button', function () {
     renderWithChat(createMockChat({ messages: [] }));
 
-    const inputField = screen.getByPlaceholderText('Ask a question');
+    const inputField = getComposerEditor();
     const sendButton = screen.getByLabelText('Send message');
 
     expect(inputField).to.exist;
@@ -165,17 +167,16 @@ describe('AssistantChat', function () {
   it('input field accepts text input', function () {
     renderWithChat(createMockChat({ messages: [] }));
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const inputField = screen.getByPlaceholderText(
-      'Ask a question'
-    ) as HTMLTextAreaElement;
+    const inputField = getComposerEditor();
 
-    userEvent.type(inputField, 'What is MongoDB?');
+    typeInComposer('What is MongoDB?');
 
-    expect(inputField.value).to.equal('What is MongoDB?');
+    expect(inputField.textContent).to.equal('What is MongoDB?');
   });
 
-  it('displays the disclaimer and welcome text', function () {
+  // TODO(COMPASS-11250): covers the legacy input, which can't render now that
+  // enableSkillsInAssistant is released. Re-enable if the flag is flipped back.
+  it.skip('displays the disclaimer and welcome text', function () {
     renderWithChat(createMockChat({ messages: [] }));
     expect(screen.getByText(/Review answers for accuracy/)).to.exist;
   });
@@ -191,7 +192,9 @@ describe('AssistantChat', function () {
       .exist;
   });
 
-  it('displays loading state when chat status is submitted', function () {
+  // TODO(COMPASS-11250): covers the legacy input, which can't render now that
+  // enableSkillsInAssistant is released. Re-enable if the flag is flipped back.
+  it.skip('displays loading state when chat status is submitted', function () {
     renderWithChat(createMockChat({ messages: [], status: 'submitted' }));
     expect(screen.getByText(/MongoDB Assistant is thinking/)).to.exist;
   });
@@ -211,19 +214,18 @@ describe('AssistantChat', function () {
       'Send message'
     ) as HTMLButtonElement;
 
-    expect(sendButton.getAttribute('aria-disabled')).to.equal('true');
+    expect(sendButton.disabled).to.equal(true);
   });
 
   it('send button is enabled when input has text', function () {
     renderWithChat(createMockChat({ messages: [] }));
 
-    const inputField = screen.getByPlaceholderText('Ask a question');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const sendButton = screen.getByLabelText(
       'Send message'
     ) as HTMLButtonElement;
 
-    userEvent.type(inputField, 'What is MongoDB?');
+    typeInComposer('What is MongoDB?');
 
     expect(sendButton.disabled).to.be.false;
   });
@@ -231,16 +233,15 @@ describe('AssistantChat', function () {
   it('send button is disabled for whitespace-only input', async function () {
     renderWithChat(createMockChat({ messages: [] }));
 
-    const inputField = screen.getByPlaceholderText('Ask a question');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const sendButton = screen.getByLabelText(
       'Send message'
     ) as HTMLButtonElement;
 
-    userEvent.type(inputField, '   ');
+    typeInComposer('   ');
 
     await waitFor(() => {
-      expect(sendButton.getAttribute('aria-disabled')).to.equal('true');
+      expect(sendButton.disabled).to.equal(true);
     });
   });
 
@@ -329,10 +330,9 @@ describe('AssistantChat', function () {
       { trackingOptions }
     );
     const { track } = result;
-    const inputField = screen.getByPlaceholderText('Ask a question');
     const sendButton = screen.getByLabelText('Send message');
 
-    userEvent.type(inputField, 'What is aggregation?');
+    typeInComposer('What is aggregation?');
     userEvent.click(sendButton);
 
     await waitFor(() => {
@@ -351,7 +351,7 @@ describe('AssistantChat', function () {
       { trackingOptions: { requestId: 'test-request-id' } }
     );
 
-    userEvent.type(screen.getByPlaceholderText('Ask a question'), 'Hello');
+    typeInComposer('Hello');
     userEvent.click(screen.getByLabelText('Send message'));
 
     await waitFor(() => {
@@ -365,16 +365,13 @@ describe('AssistantChat', function () {
   it('clears input field after successful submission', function () {
     renderWithChat(createMockChat({ messages: [] }));
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const inputField = screen.getByPlaceholderText(
-      'Ask a question'
-    ) as HTMLTextAreaElement;
+    const inputField = getComposerEditor();
 
-    userEvent.type(inputField, 'Test message');
-    expect(inputField.value).to.equal('Test message');
+    typeInComposer('Test message');
+    expect(inputField.textContent).to.equal('Test message');
 
     userEvent.click(screen.getByLabelText('Send message'));
-    expect(inputField.value).to.equal('');
+    expect(inputField.textContent).to.equal('');
   });
 
   it('trims whitespace from input before sending', async function () {
@@ -384,9 +381,7 @@ describe('AssistantChat', function () {
     );
     const { track } = result;
 
-    const inputField = screen.getByPlaceholderText('Ask a question');
-
-    userEvent.type(inputField, '  What is sharding?  ');
+    typeInComposer('  What is sharding?  ');
     userEvent.click(screen.getByLabelText('Send message'));
 
     await waitFor(() => {
@@ -404,7 +399,6 @@ describe('AssistantChat', function () {
       createMockChat({ messages: [] })
     );
 
-    const inputField = screen.getByPlaceholderText('Ask a question');
     const chatForm = screen.getByTestId('assistant-chat-input');
 
     // Test empty input
@@ -412,7 +406,7 @@ describe('AssistantChat', function () {
     expect(ensureOptInAndSendStub.notCalled).to.be.true;
 
     // Test whitespace-only input
-    userEvent.type(inputField, '   ');
+    typeInComposer('   ');
     userEvent.click(chatForm);
     expect(ensureOptInAndSendStub.notCalled).to.be.true;
   });
@@ -1165,10 +1159,9 @@ describe('AssistantChat', function () {
     it('displays error banner when error occurs', async function () {
       renderWithChat(createBrokenChat());
 
-      const inputField = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(inputField, 'What is MongoDB?');
+      typeInComposer('What is MongoDB?');
       userEvent.click(sendButton);
 
       await waitFor(() => {
@@ -1183,10 +1176,9 @@ describe('AssistantChat', function () {
 
       renderWithChat(brokenChat);
 
-      const inputField = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(inputField, 'What is MongoDB?');
+      typeInComposer('What is MongoDB?');
       userEvent.click(sendButton);
 
       await waitFor(() => {

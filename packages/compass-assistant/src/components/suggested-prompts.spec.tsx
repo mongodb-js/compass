@@ -341,7 +341,9 @@ describe('SuggestedPrompts', function () {
       });
     });
 
-    it('keeps the original prompt when skills are disabled', function () {
+    // TODO(COMPASS-11250): covers the legacy input, which can't render now that
+    // enableSkillsInAssistant is released. Re-enable if the flag is flipped back.
+    it.skip('keeps the original prompt when skills are disabled', function () {
       renderSuggestedPrompts({});
       expect(
         screen.getByText('How can I optimize performance in MongoDB Compass?')

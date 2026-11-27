@@ -37,6 +37,7 @@ import {
   createBrokenTransport,
   createChat,
   createMockChat,
+  typeInComposer,
 } from '../test/utils';
 import {
   AssistantGlobalStateProvider,
@@ -449,10 +450,9 @@ describe('CompassAssistantProvider', function () {
 
       await renderOpenAssistantDrawer({ chat: mockChat });
 
-      const input = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(input, 'Hello assistant');
+      typeInComposer('Hello assistant');
       userEvent.click(sendButton);
 
       await waitFor(() => {
@@ -478,10 +478,9 @@ describe('CompassAssistantProvider', function () {
 
       await renderOpenAssistantDrawer({ chat: mockChat });
 
-      const input = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(input, 'Hello assistant');
+      typeInComposer('Hello assistant');
       userEvent.click(sendButton);
 
       await waitFor(() => {
@@ -522,10 +521,7 @@ describe('CompassAssistantProvider', function () {
       await renderOpenAssistantDrawer({ chat: mockChat });
 
       for (let i = 0; i < 2; i++) {
-        userEvent.type(
-          screen.getByPlaceholderText('Ask a question'),
-          `Hello assistant! (${i})`
-        );
+        typeInComposer(`Hello assistant! (${i})`);
         userEvent.click(await screen.findByLabelText('Send message'));
 
         await waitFor(() => {
@@ -568,10 +564,7 @@ describe('CompassAssistantProvider', function () {
       sendMessageSpy.resetHistory();
       mockChat.messages = [];
 
-      userEvent.type(
-        screen.getByPlaceholderText('Ask a question'),
-        'How about now?'
-      );
+      typeInComposer('How about now?');
 
       userEvent.click(await screen.findByLabelText('Send message'));
 
@@ -621,10 +614,7 @@ describe('CompassAssistantProvider', function () {
 
       await renderOpenAssistantDrawer({ chat, atlastAiService });
 
-      userEvent.type(
-        screen.getByPlaceholderText('Ask a question'),
-        'Hello assistant!'
-      );
+      typeInComposer('Hello assistant!');
       userEvent.click(screen.getByLabelText('Send message'));
 
       await waitFor(() => {
@@ -669,10 +659,9 @@ describe('CompassAssistantProvider', function () {
         pipeline,
       });
 
-      const input = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(input, 'Hello assistant');
+      typeInComposer('Hello assistant');
       userEvent.click(sendButton);
 
       await waitFor(() => {
@@ -721,10 +710,7 @@ describe('CompassAssistantProvider', function () {
         trackUsageStatistics: false,
       });
 
-      userEvent.type(
-        screen.getByPlaceholderText('Ask a question'),
-        'Hello assistant'
-      );
+      typeInComposer('Hello assistant');
       userEvent.click(screen.getByLabelText('Send message'));
 
       await waitFor(() => {
@@ -771,10 +757,9 @@ describe('CompassAssistantProvider', function () {
         pipeline,
       });
 
-      const input = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(input, 'Hello assistant');
+      typeInComposer('Hello assistant');
       userEvent.click(sendButton);
 
       await waitFor(() => {
@@ -846,10 +831,9 @@ describe('CompassAssistantProvider', function () {
         currentTab: 'Aggregations',
       });
 
-      const input = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(input, 'Hello assistant');
+      typeInComposer('Hello assistant');
       userEvent.click(sendButton);
 
       await waitFor(() => {
@@ -932,10 +916,9 @@ describe('CompassAssistantProvider', function () {
         activeWorkspace,
       });
 
-      const input = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(input, 'Hello assistant');
+      typeInComposer('Hello assistant');
       userEvent.click(sendButton);
 
       await waitFor(() => {
@@ -1004,10 +987,9 @@ describe('CompassAssistantProvider', function () {
         maxTimeMS: 5000,
       });
 
-      const input = screen.getByPlaceholderText('Ask a question');
       const sendButton = screen.getByLabelText('Send message');
 
-      userEvent.type(input, 'Hello assistant');
+      typeInComposer('Hello assistant');
       userEvent.click(sendButton);
 
       await waitFor(() => {
@@ -1046,10 +1028,7 @@ describe('CompassAssistantProvider', function () {
         });
 
         // Send a message
-        userEvent.type(
-          screen.getByPlaceholderText('Ask a question'),
-          'Hello assistant!'
-        );
+        typeInComposer('Hello assistant!');
         userEvent.click(screen.getByLabelText('Send message'));
 
         await waitFor(() => {
@@ -1079,10 +1058,7 @@ describe('CompassAssistantProvider', function () {
         });
         const { track } = await renderOpenAssistantDrawer({ chat });
 
-        userEvent.type(
-          screen.getByPlaceholderText('Ask a question'),
-          'Hello assistant!'
-        );
+        typeInComposer('Hello assistant!');
         userEvent.click(screen.getByLabelText('Send message'));
 
         await waitFor(() => {
@@ -1142,10 +1118,7 @@ describe('CompassAssistantProvider', function () {
 
         expect(screen.queryByTestId('assistant-clear-chat')).to.not.exist;
 
-        userEvent.type(
-          screen.getByPlaceholderText('Ask a question'),
-          'Hello assistant'
-        );
+        typeInComposer('Hello assistant');
         userEvent.click(screen.getByLabelText('Send message'));
 
         await waitFor(() => {
@@ -1526,7 +1499,9 @@ describe('CompassAssistantProvider', function () {
       );
     });
 
-    it('uses the chat model when enableSkillsInAssistant is disabled', async function () {
+    // TODO(COMPASS-11250): covers the legacy input, which can't render now that
+    // enableSkillsInAssistant is released. Re-enable if the flag is flipped back.
+    it.skip('uses the chat model when enableSkillsInAssistant is disabled', async function () {
       expect(await sendMessageAndGetRequestedModel(false)).to.eq(
         AI_MODEL_CHAT_VERSION
       );

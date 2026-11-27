@@ -85,9 +85,7 @@ describe('MongoDB Assistant (with mocked backend)', function () {
         const existingMessages = await browser.getDisplayedMessages();
 
         mockAssistantServer.setResponse(response);
-        const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
-        await chatInput.waitForDisplayed();
-        await chatInput.setValue(text);
+        await browser.typeInAssistantChat(text);
         await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
         switch (expectedResult) {
@@ -233,8 +231,8 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
       await browser.waitForOpenModal(Selectors.AIOptInModal, { reverse: true });
 
-      const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
-      expect(await chatInput.getValue()).not.to.equal(testMessage);
+      const chatInput = browser.$(Selectors.AssistantChatInputEditor);
+      expect(await chatInput.getText()).not.to.equal(testMessage);
 
       expect(await browser.getDisplayedMessages()).to.deep.equal([]);
 
@@ -304,8 +302,8 @@ describe('MongoDB Assistant (with mocked backend)', function () {
       await browser.clickVisible(Selectors.AIOptInModalAcceptButton);
       await browser.waitForOpenModal(Selectors.AIOptInModal, { reverse: true });
 
-      const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
-      expect(await chatInput.getValue()).to.equal('');
+      const chatInput = browser.$(Selectors.AssistantChatInputEditor);
+      expect(await chatInput.getText()).to.equal('');
 
       await browser.waitForMessages([
         { text: testMessage, role: 'user' },

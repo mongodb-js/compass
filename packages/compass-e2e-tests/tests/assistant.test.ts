@@ -127,9 +127,7 @@ describe('MongoDB Assistant (with real backend)', function () {
     // instead of calling a tool, so the whole flow is retried.
     for (let attempt = 1; attempt <= 3; attempt++) {
       const message = `Use the list-collections tool to list all collections in the ${dbName} database`;
-      const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
-      await chatInput.waitForDisplayed();
-      await chatInput.setValue(message);
+      await browser.typeInAssistantChat(message);
       await browser.clickVisible(Selectors.AssistantChatSubmitButton);
 
       try {

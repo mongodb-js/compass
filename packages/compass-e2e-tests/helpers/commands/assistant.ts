@@ -14,6 +14,15 @@ export async function openAssistantDrawer(browser: CompassBrowser) {
   await browser.$(Selectors.AssistantDrawerCloseButton).waitForDisplayed();
 }
 
+export async function typeInAssistantChat(
+  browser: CompassBrowser,
+  text: string
+): Promise<void> {
+  const chatInput = browser.$(Selectors.AssistantChatInputEditor);
+  await chatInput.waitForDisplayed();
+  await chatInput.setValue(text);
+}
+
 export async function clearChat(browser: CompassBrowser): Promise<void> {
   if (!(await browser.$(Selectors.AssistantClearChatButton).isDisplayed())) {
     return;
