@@ -191,7 +191,72 @@ describe('BSONValue', function () {
     const element = container.querySelector('.element-value');
     const title = element?.getAttribute('title') ?? '';
     expect(title.length).to.be.lessThan(largeString.length);
-    expect(title.length).to.equal(1001);
+    // 1000 chars, the ellipsis and the two quotes.
+    expect(title.length).to.equal(1003);
+  });
+
+  it('render string values with bidi control characters as stored', function () {
+    const value = 'user\u202Enimda';
+    const { container } = render(<BSONValue type="String" value={value} />);
+
+    const element = container.querySelector('.element-value');
+    expect(element?.textContent).to.equal(`"${value}"`);
+    expect(element?.getAttribute('title')).to.equal(`"${value}"`);
+  });
+
+  it('isolate the bidi context of string values from the surrounding quotes', function () {
+    const value =
+      '\u2068\u0627\u0644\u0634\u0645\u0633 \u0648\u0627\u0644\u0642\u0645\u0631\u2069 2024';
+    render(<BSONValue type="String" value={value} />);
+
+    const isolated = screen.getByText(value);
+    expect(getComputedStyle(isolated).unicodeBidi).to.equal('isolate');
+  });
+
+  describe('bidi isolation of BSON strings', function () {
+    function expectIsolated(text: string) {
+      expect(getComputedStyle(screen.getByText(text)).unicodeBidi).to.equal(
+        'isolate'
+      );
+    }
+
+    it('isolate the pattern and options of regular expressions', function () {
+      render(
+        <BSONValue type="BSONRegExp" value={new BSONRegExp('abc', 'im')} />
+      );
+
+      expectIsolated('abc');
+      expectIsolated('im');
+    });
+
+    it('isolate the code and scope of code values', function () {
+      render(
+        <BSONValue type="Code" value={new Code('var a = 1', { foo: 'bar' })} />
+      );
+
+      expectIsolated('var a = 1');
+      expectIsolated('{"foo":"bar"}');
+    });
+
+    it('isolate symbol values', function () {
+      render(<BSONValue type="BSONSymbol" value={new BSONSymbol('sym')} />);
+
+      expectIsolated('sym');
+    });
+
+    it('isolate the string parts of DBRef values', function () {
+      render(
+        <BSONValue
+          type="DBRef"
+          value={new DBRef('coll', 'some-id' as any, 'db', { a: 'b' })}
+        />
+      );
+
+      expectIsolated('coll');
+      expectIsolated('some-id');
+      expectIsolated('db');
+      expectIsolated('{"a":"b"}');
+    });
   });
 
   it('should render an info link for encrypted values', async function () {

@@ -45,7 +45,7 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        expect(screen.getByText('"value"')).to.exist;
+        expect(screen.getByText('value')).to.exist;
       });
 
       it('does not render the undo button', function () {
@@ -90,7 +90,7 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        expect(screen.getByText('"value"')).to.exist;
+        expect(screen.getByText('value')).to.exist;
         expect(container.querySelector('.table-view-cell-is-added')).to.exist;
         // Undo button should be present for added elements
         expect(screen.getByLabelText('Undo change')).to.exist;
@@ -117,7 +117,7 @@ describe('<CellRenderer />', function () {
             context={context}
           />
         );
-        expect(screen.getByText('"a new value"')).to.exist;
+        expect(screen.getByText('a new value')).to.exist;
         expect(container.querySelector('.table-view-cell-is-edited')).to.exist;
         // Undo button should be present for modified elements
         expect(screen.getByLabelText('Undo change')).to.exist;
@@ -404,7 +404,7 @@ describe('<CellRenderer />', function () {
         // After undo, element should not be modified
         expect(value.isModified()).to.equal(false);
         // Renders the original element
-        expect(screen.getByText('"value"')).to.exist;
+        expect(screen.getByText('value')).to.exist;
       });
 
       it('clicking undo on an added element calls elementRemoved action', function () {
@@ -474,7 +474,7 @@ describe('<CellRenderer />', function () {
         notCalledExcept(actions, ['elementTypeChanged']);
         notCalledExcept(api, []);
         // Renders the original value
-        expect(screen.getByText('"value"')).to.exist;
+        expect(screen.getByText('value')).to.exist;
       });
 
       it('clicking undo on a removed element calls elementAdded action', function () {
@@ -507,7 +507,7 @@ describe('<CellRenderer />', function () {
         notCalledExcept(actions, ['elementAdded']);
         notCalledExcept(api, []);
         // Renders the original value
-        expect(screen.getByText('"value"')).to.exist;
+        expect(screen.getByText('value')).to.exist;
       });
     });
 

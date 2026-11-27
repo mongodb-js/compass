@@ -539,15 +539,15 @@ describe('MockDataGeneratorModal', () => {
     it('displays sample document when sample document passing is enabled', async () => {
       await renderModal({ enableGenAISampleDocumentPassing: true });
       // fragment from { "name": "John" }
-      expect(screen.getByText('"John"')).to.exist;
-      expect(screen.queryByText('"String"')).to.not.exist;
+      expect(screen.getByText('John')).to.exist;
+      expect(screen.queryByText('String')).to.not.exist;
     });
 
     it('displays schema when sample document passing is disabled', async () => {
       await renderModal();
       // fragment from { "name": "String" }
-      expect(screen.getByText('"String"')).to.exist;
-      expect(screen.queryByText('"John"')).to.not.exist;
+      expect(screen.getByText('String')).to.exist;
+      expect(screen.queryByText('John')).to.not.exist;
     });
 
     it('advances to Preview and Doc Count step when the confirm button is clicked and LLM succeeds', async () => {

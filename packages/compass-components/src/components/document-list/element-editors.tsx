@@ -46,6 +46,11 @@ const keyEditorSizer = css({
   },
 });
 
+// Keeps bidi control characters in a key from reordering the text around it.
+const bidiIsolate = css({
+  unicodeBidi: 'isolate',
+});
+
 export const KeyEditor: React.FunctionComponent<{
   editing?: boolean;
   onEditStart(): void;
@@ -124,6 +129,7 @@ export const KeyEditor: React.FunctionComponent<{
         // Double-click is not accessible so no reason for this to be a button
         <span
           data-testid="hadron-document-clickable-key"
+          className={bidiIsolate}
           onDoubleClick={onEditStart}
         >
           {value}

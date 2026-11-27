@@ -50,9 +50,9 @@ describe('VirtualizedDocumentListView', function () {
     );
 
     expect(screen.getByTitle('1')).to.be.visible;
-    expect(screen.getByTitle('Doc1')).to.be.visible;
+    expect(screen.getByTitle('"Doc1"')).to.be.visible;
     expect(screen.getByTitle('2')).to.be.visible;
-    expect(screen.getByTitle('Doc2')).to.be.visible;
+    expect(screen.getByTitle('"Doc2"')).to.be.visible;
   });
 
   it('renders the list of provided HadronDocuments', function () {
@@ -65,9 +65,9 @@ describe('VirtualizedDocumentListView', function () {
     );
 
     expect(screen.getByTitle('1')).to.be.visible;
-    expect(screen.getByTitle('Doc1')).to.be.visible;
+    expect(screen.getByTitle('"Doc1"')).to.be.visible;
     expect(screen.getByTitle('2')).to.be.visible;
-    expect(screen.getByTitle('Doc2')).to.be.visible;
+    expect(screen.getByTitle('"Doc2"')).to.be.visible;
   });
 
   it('renders a readonly list when isEditable is false', function () {

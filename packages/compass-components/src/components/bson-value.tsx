@@ -82,6 +82,79 @@ const bsonValue = css({
   textOverflow: 'ellipsis',
 });
 
+const bidiIsolate = css({
+  unicodeBidi: 'isolate',
+});
+
+/**
+ * Inspecting a BSON type is made up of the actual value
+ * and the bounding string that provides context for the value.
+ *
+ * @example
+ * ```ts
+ * {
+ *   string: "abc",
+ *   symbol: BSONSymbol('abc')
+ * }
+ * ```
+ *
+ * - The value of string is 'a', 'b', and 'c' while its bounding is double quotes.
+ * - The value of symbol is also 'abc' but the bounding is "Symbol('" and "')".
+ *
+ * This class provides the abstraction necessary to carefully represent value data
+ * without permitting it to effect the rendering of the bounding context.
+ */
+class Inspectable {
+  readonly title: string;
+  readonly children: React.ReactNode[];
+  constructor(title: string, children: React.ReactNode[]) {
+    this.title = title;
+    this.children = children;
+  }
+
+  /**
+   * A tagged template literal helper.
+   * This assumed that any literal strings that surround an interpolated value
+   * are the bounding context and the interpolated value is the value data.
+   *
+   * @example
+   * ```ts
+   * Inspect.text`Code('${codeString}')`
+   * ```
+   */
+  static text(
+    strings: TemplateStringsArray,
+    ...values: (string | Inspectable)[]
+  ): Inspectable {
+    let title = '';
+    const children: React.ReactNode[] = [];
+    for (const [index, literal] of strings.entries()) {
+      title += literal;
+      children.push(literal);
+      const value = values[index];
+      if (value instanceof Inspectable) {
+        title += value.title;
+        children.push(...value.children);
+      } else if (value) {
+        title += value;
+        children.push(<span className={bidiIsolate}>{value}</span>);
+      }
+    }
+    return new Inspectable(title, children);
+  }
+}
+
+const InspectableValue: React.FunctionComponent<{
+  type: ValueTypes;
+  value: Inspectable;
+}> = ({ type, value }) => {
+  return (
+    <BSONValueContainer type={type} title={value.title}>
+      {React.Children.toArray(value.children)}
+    </BSONValueContainer>
+  );
+};
+
 const bsonValuePrewrap = css({
   whiteSpace: 'pre',
 });
@@ -371,17 +444,14 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
 const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   value,
 }) => {
-  const stringifiedValue = useMemo(() => {
-    return `Code('${String(value.code)}'${
-      value.scope ? `, ${JSON.stringify(value.scope)}` : ''
-    })`;
+  const display = useMemo(() => {
+    const scope = value.scope
+      ? Inspectable.text`, ${JSON.stringify(value.scope)}`
+      : '';
+    return Inspectable.text`Code('${String(value.code)}'${scope})`;
   }, [value.code, value.scope]);
 
-  return (
-    <BSONValueContainer type="Code" title={stringifiedValue}>
-      {stringifiedValue}
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="Code" value={display} />;
 };
 
 const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
@@ -423,29 +493,21 @@ const NumberValue: React.FunctionComponent<
 const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
   value,
 }) => {
-  const truncatedValue = useMemo(() => {
-    return truncateLines(truncate(value, 1000));
+  const display = useMemo(() => {
+    return Inspectable.text`"${truncateLines(truncate(value, 1000))}"`;
   }, [value]);
 
-  return (
-    <BSONValueContainer type="String" title={truncatedValue}>
-      &quot;{truncatedValue}&quot;
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="String" value={display} />;
 };
 
 const RegExpValue: React.FunctionComponent<PropsByValueType<'BSONRegExp'>> = ({
   value,
 }) => {
-  const stringifiedValue = useMemo(() => {
-    return `/${value.pattern}/${value.options}`;
+  const display = useMemo(() => {
+    return Inspectable.text`/${value.pattern}/${value.options}`;
   }, [value.pattern, value.options]);
 
-  return (
-    <BSONValueContainer type="BSONRegExp" title={stringifiedValue}>
-      {stringifiedValue}
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="BSONRegExp" value={display} />;
 };
 
 const TimestampValue: React.FunctionComponent<
@@ -494,40 +556,41 @@ function stringifyValue(value: unknown): string {
   return JSON.stringify(value);
 }
 
+// Any DBRef part can hold strings: $ref and $db are strings, $id and extra
+// fields can be any value.
+function dbRefArg(value: unknown): Inspectable {
+  return typeof value === 'string'
+    ? Inspectable.text`"${value}"`
+    : Inspectable.text`${stringifyValue(value)}`;
+}
+
 const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
-  const stringifiedValue = useMemo(() => {
-    const args = [JSON.stringify(value.collection), stringifyValue(value.oid)];
+  const display = useMemo(() => {
+    const args = [dbRefArg(value.collection), dbRefArg(value.oid)];
     const hasFields = Object.keys(value.fields ?? {}).length > 0;
     if (value.db || hasFields) {
-      args.push(stringifyValue(value.db));
+      args.push(dbRefArg(value.db));
     }
     if (hasFields) {
-      args.push(stringifyValue(value.fields));
+      args.push(dbRefArg(value.fields));
     }
-    return `DBRef(${args.join(', ')})`;
+    const joined = args.reduce((acc, arg) => Inspectable.text`${acc}, ${arg}`);
+    return Inspectable.text`DBRef(${joined})`;
   }, [value]);
 
-  return (
-    <BSONValueContainer type="DBRef" title={stringifiedValue}>
-      {stringifiedValue}
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="DBRef" value={display} />;
 };
 
 const SymbolValue: React.FunctionComponent<PropsByValueType<'BSONSymbol'>> = ({
   value,
 }) => {
-  const stringifiedValue = useMemo(() => {
-    return `Symbol('${String(value)}')`;
+  const display = useMemo(() => {
+    return Inspectable.text`Symbol('${String(value)}')`;
   }, [value]);
 
-  return (
-    <BSONValueContainer type="BSONSymbol" title={stringifiedValue}>
-      {stringifiedValue}
-    </BSONValueContainer>
-  );
+  return <InspectableValue type="BSONSymbol" value={display} />;
 };
 
 const UnknownValue: React.FunctionComponent<{

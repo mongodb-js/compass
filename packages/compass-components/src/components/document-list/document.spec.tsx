@@ -48,13 +48,29 @@ describe('Document', function () {
   it('should render HadronDocument keys and values', function () {
     render(<Document value={doc}></Document>);
     expect(screen.getByText('str')).to.exist;
-    expect(screen.getByTitle('abc')).to.exist;
+    expect(screen.getByTitle('"abc"')).to.exist;
 
     expect(screen.getByText('num')).to.exist;
     expect(screen.getByTitle('123')).to.exist;
 
     expect(screen.getByText('date')).to.exist;
     expect(screen.getByTitle('1970-01-01T00:00:00.000+00:00')).to.exist;
+  });
+
+  it('isolate the bidi context of editable keys', function () {
+    render(<Document value={new HadronDocument({ name: 1 })}></Document>);
+
+    expect(getComputedStyle(screen.getByText('name')).unicodeBidi).to.equal(
+      'isolate'
+    );
+  });
+
+  it('isolate the bidi context of keys that cannot be edited', function () {
+    render(<Document value={new HadronDocument({ _id: 1 })}></Document>);
+
+    expect(getComputedStyle(screen.getByText('_id')).unicodeBidi).to.equal(
+      'isolate'
+    );
   });
 
   it('renders a readonly document with no fields as an empty document', function () {
@@ -325,17 +341,17 @@ describe('Document', function () {
 
   it('should render "Show more" toggle when number of fields are more than allowed visible fields', async function () {
     const hadronDoc = new HadronDocument({
-      prop1: 'prop1',
-      prop2: 'prop2',
-      prop3: 'prop3',
-      prop4: 'prop4',
+      prop1: 'value1',
+      prop2: 'value2',
+      prop3: 'value3',
+      prop4: 'value4',
     });
     hadronDoc.setMaxVisibleElementsCount(2);
     render(<Document value={hadronDoc}></Document>);
     expect(screen.getByText('prop1')).to.exist;
     expect(screen.getByText('prop2')).to.exist;
-    expect(() => screen.getByText('prop3')).to.throw();
-    expect(() => screen.getByText('prop4')).to.throw();
+    expect(screen.queryByText('prop3')).to.not.exist;
+    expect(screen.queryByText('prop4')).to.not.exist;
     expect(screen.getByText('Show 2 more fields')).to.exist;
 
     hadronDoc.setMaxVisibleElementsCount(25);
@@ -348,10 +364,10 @@ describe('Document', function () {
   it('should render "Show more" toggle on element when its nested fields are more than allowed visible fields', async function () {
     const hadronDoc = new HadronDocument({
       nested: {
-        prop1: 'prop1',
-        prop2: 'prop2',
-        prop3: 'prop3',
-        prop4: 'prop4',
+        prop1: 'value1',
+        prop2: 'value2',
+        prop3: 'value3',
+        prop4: 'value4',
       },
     });
     const [nestedElement] = [...hadronDoc.elements];
@@ -365,8 +381,8 @@ describe('Document', function () {
 
     nestedElement.setMaxVisibleElementsCount(2);
     await waitFor(() => {
-      expect(() => screen.getByText('prop3')).to.throw();
-      expect(() => screen.getByText('prop4')).to.throw();
+      expect(screen.queryByText('prop3')).to.not.exist;
+      expect(screen.queryByText('prop4')).to.not.exist;
     });
     expect(screen.getByText('Show 2 more fields in nested')).to.exist;
   });
