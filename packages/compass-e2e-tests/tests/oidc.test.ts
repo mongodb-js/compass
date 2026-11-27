@@ -46,6 +46,12 @@ function getTestBrowserShellCommand() {
   return `${process.execPath} ${path.resolve(FIXTURES_PATH, 'curl.js')}`;
 }
 
+function deserializeOIDCState(serializedState: string): {
+  state: [string, { currentTokenSet?: { set?: Record<string, unknown> } }][];
+} {
+  return JSON.parse(Buffer.from(serializedState, 'base64').toString('utf8'));
+}
+
 /**
  * @securityTest OIDC Authentication End-to-End Tests
  *
@@ -65,6 +71,7 @@ describe('OIDC integration', function () {
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
   let oidcMockProviderEndpointAccesses: Record<string, number>;
+  let oidcMockProviderTokenGrants: string[];
   let hostport: string;
 
   let i = 0;
@@ -96,6 +103,7 @@ describe('OIDC integration', function () {
 
     {
       oidcMockProviderEndpointAccesses = {};
+      oidcMockProviderTokenGrants = [];
       oidcMockProviderConfig = {
         hostname: process.env.OIDC_MOCK_HOSTNAME ?? undefined,
         port: process.env.OIDC_MOCK_PORT
@@ -106,9 +114,13 @@ describe('OIDC integration', function () {
           return getTokenPayload(metadata);
         },
         overrideRequestHandler(url, req, res) {
-          const { pathname } = new URL(url);
+          const { pathname, searchParams } = new URL(url);
           oidcMockProviderEndpointAccesses[pathname] ??= 0;
           oidcMockProviderEndpointAccesses[pathname]++;
+          const grantType = searchParams.get('grant_type');
+          if (pathname === '/token' && grantType) {
+            oidcMockProviderTokenGrants.push(grantType);
+          }
           return overrideRequestHandler?.(url, req, res);
         },
       };
@@ -186,6 +198,7 @@ describe('OIDC integration', function () {
 
   beforeEach(async function () {
     oidcMockProviderEndpointAccesses = {};
+    oidcMockProviderTokenGrants = [];
     getTokenPayload = () => {
       return DEFAULT_TOKEN_PAYLOAD;
     };
@@ -203,7 +216,6 @@ describe('OIDC integration', function () {
     try {
       await browser.setFeature('browserCommandForOIDCAuth', undefined);
       await browser.setFeature('persistOIDCTokens', undefined);
-      await browser.setFeature('enableShell', true);
     } catch (err) {
       // We don't want to completely fail if this failed for some reason, but
       // keel the error log around
@@ -308,12 +320,63 @@ describe('OIDC integration', function () {
     expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
   });
 
-  it('can successfully re-authenticate', async function () {
+  it('can silently re-authenticate using the refresh token', async function () {
+    let firstToken = true;
+    getTokenPayload = () => {
+      const payload = {
+        ...DEFAULT_TOKEN_PAYLOAD,
+        // Only the first token expires quickly, so the plugin has to use the
+        // refresh token when the shell connects. The refreshed token is
+        // long-lived so the shell command itself does not expire.
+        ...(firstToken ? { expires_in: 10 } : {}),
+      };
+      firstToken = false;
+      return payload;
+    };
+
+    await browser.removeConnection(connectionName);
+    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.waitForOpenModal(Selectors.ConnectionModal);
+    await browser.setValueVisible(
+      Selectors.ConnectionFormStringInput,
+      connectionString
+    );
+    await browser.clickVisible(Selectors.ConnectionFormConnectButton);
+
+    // wait for the token to expire (see expires_in above)
+    await browser.pause(10_000);
+
+    // Opening the shell fires commands that need a new token. The plugin should
+    // exchange the refresh token instead of asking the user to authenticate.
+    const result: any = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
+      true
+    );
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
+    expect(oidcMockProviderTokenGrants).to.deep.equal([
+      'authorization_code',
+      'refresh_token',
+    ]);
+    expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
+  });
+
+  it('can successfully re-authenticate if wanted when the refresh token fails', async function () {
     let afterReauth = false;
+    overrideRequestHandler = (url, _req, res) => {
+      const { pathname, searchParams } = new URL(url);
+      if (
+        pathname === '/token' &&
+        searchParams.get('grant_type') === 'refresh_token'
+      ) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: 'invalid_grant' }));
+      }
+    };
     getTokenPayload = () => {
       return {
         ...DEFAULT_TOKEN_PAYLOAD,
-        // make the token expire in less than a minute so it have time to be refreshed
+        // Expire quickly so the plugin attempts to use the refresh token.
         ...(afterReauth ? {} : { expires_in: 10 }),
       };
     };
@@ -353,12 +416,22 @@ describe('OIDC integration', function () {
     expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
   });
 
-  it('can decline re-authentication if wanted', async function () {
+  it('can decline re-authentication if wanted when the refresh token fails', async function () {
     let afterReauth = false;
+    overrideRequestHandler = (url, _req, res) => {
+      const { pathname, searchParams } = new URL(url);
+      if (
+        pathname === '/token' &&
+        searchParams.get('grant_type') === 'refresh_token'
+      ) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: 'invalid_grant' }));
+      }
+    };
     getTokenPayload = () => {
       return {
         ...DEFAULT_TOKEN_PAYLOAD,
-        // make the token expire in less than a minute so it have time to be refreshed
+        // Expire quickly so the plugin attempts to use the refresh token.
         ...(afterReauth ? {} : { expires_in: 10 }),
       };
     };
@@ -399,7 +472,6 @@ describe('OIDC integration', function () {
 
   it('saves tokens across connections for favorites if asked to do so', async function () {
     await browser.setFeature('persistOIDCTokens', true);
-    await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
     const favoriteName =
       await browser.saveConnectionStringAsFavorite(connectionString);
@@ -419,9 +491,33 @@ describe('OIDC integration', function () {
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
   });
 
+  it('refreshes the access token from the stored refresh token when reconnecting', async function () {
+    await browser.setFeature('persistOIDCTokens', true);
+
+    const favoriteName =
+      await browser.saveConnectionStringAsFavorite(connectionString);
+
+    await browser.selectConnection(favoriteName);
+    await browser.doConnect(favoriteName);
+    await browser.disconnectAll();
+
+    expect(oidcMockProviderTokenGrants).to.deep.equal(['authorization_code']);
+
+    // The persisted token set only has a refresh token, so reconnecting has to
+    // exchange it for a new access token instead of running a new auth flow.
+    await browser.selectConnection(favoriteName);
+    await browser.doConnect(favoriteName);
+    await browser.disconnectAll();
+
+    expect(oidcMockProviderTokenGrants).to.deep.equal([
+      'authorization_code',
+      'refresh_token',
+    ]);
+    expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
+  });
+
   it('does not save tokens across connections for favorites if asked to do so', async function () {
     await browser.setFeature('persistOIDCTokens', false);
-    await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
     const favoriteName =
       await browser.saveConnectionStringAsFavorite(connectionString);
@@ -450,7 +546,6 @@ describe('OIDC integration', function () {
 
   it('saves tokens across Compass sessions for favorites if asked to do so', async function () {
     await browser.setFeature('persistOIDCTokens', true);
-    await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
     const favoriteName =
       await browser.saveConnectionStringAsFavorite(connectionString);
@@ -460,9 +555,21 @@ describe('OIDC integration', function () {
     await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
-    expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
-      'string'
-    );
+    const serializedState =
+      connectionInfo?.connectionOptions?.oidc?.serializedState;
+    if (typeof serializedState !== 'string') {
+      expect.fail('Expected OIDC serialized state to be stored');
+    }
+
+    // The access token is cleared in the persisted state; only the refresh
+    // token is written to disk.
+    for (const [, idpState] of deserializeOIDCState(serializedState).state) {
+      expect(idpState.currentTokenSet?.set).to.have.property(
+        'access_token',
+        ''
+      );
+      expect(idpState.currentTokenSet?.set).to.have.property('refresh_token');
+    }
 
     {
       // Restart Compass
@@ -475,7 +582,9 @@ describe('OIDC integration', function () {
     await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
+    // The restart uses the stored refresh token instead of opening a browser.
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
+    expect(oidcMockProviderEndpointAccesses['/token']).to.equal(2);
   });
 
   context('when using a proxy', function () {
