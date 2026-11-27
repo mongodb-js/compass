@@ -3,6 +3,7 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import { FileUserData, z } from '@mongodb-js/compass-user-data';
 import type { IUserData } from '@mongodb-js/compass-user-data';
 import type { FolderOrganization, FolderStorage } from './folder-storage';
+import { reconcileFolderOrganization } from './folder-recovery';
 
 const { log, mongoLogId } = createLogger('FOLDER-STORAGE');
 
@@ -15,6 +16,7 @@ const FolderSchema = z
     lastModifiedAt: z.coerce
       .date()
       .optional()
+      .catch(undefined)
       .transform((x) => (x !== undefined ? new Date(x) : x)),
   })
   .loose();
@@ -52,11 +54,12 @@ class CompassMainFolderStorage implements FolderStorage {
   }
 
   async load(): Promise<FolderOrganization> {
+    let folderOrganization: FolderOrganization;
     try {
-      return (
-        (await this.userData.readOne(FOLDER_ORGANIZATION_ID)) ??
-        EMPTY_FOLDER_ORGANIZATION
-      );
+      folderOrganization =
+        (await this.userData.readOne(FOLDER_ORGANIZATION_ID, {
+          ignoreErrors: true,
+        })) ?? EMPTY_FOLDER_ORGANIZATION;
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_456),
@@ -66,6 +69,19 @@ class CompassMainFolderStorage implements FolderStorage {
       );
       return EMPTY_FOLDER_ORGANIZATION;
     }
+
+    const { folderOrganization: reconciled, danglingAssignments } =
+      reconcileFolderOrganization(folderOrganization);
+    const danglingCount = Object.keys(danglingAssignments).length;
+    if (danglingCount > 0) {
+      log.warn(
+        mongoLogId(1_001_000_461),
+        'Folder Storage',
+        'Dropped assignments pointing at a folder that no longer exists',
+        { count: danglingCount }
+      );
+    }
+    return reconciled;
   }
 
   async save({

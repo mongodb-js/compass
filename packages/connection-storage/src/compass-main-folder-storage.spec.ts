@@ -90,9 +90,10 @@ describe('FolderStorage', function () {
     });
 
     it('should return the saved folder organization', async function () {
+      const folder = getFolder();
       const folderOrganization: FolderOrganization = {
-        folders: [getFolder()],
-        assignments: { 'connection-1': 'folder-1' },
+        folders: [folder],
+        assignments: { 'connection-1': folder.id },
       };
       await folderStorage.save({ folderOrganization });
       expect(await folderStorage.load()).to.deep.equal(folderOrganization);
@@ -129,6 +130,20 @@ describe('FolderStorage', function () {
         'futureTopLevelField',
         'kept'
       );
+    });
+
+    it('should drop an assignment whose folder no longer exists', async function () {
+      await folderStorage.save({
+        folderOrganization: {
+          folders: [],
+          assignments: { 'connection-1': 'missing-folder' },
+        },
+      });
+
+      expect(await folderStorage.load()).to.deep.equal({
+        folders: [],
+        assignments: {},
+      });
     });
 
     it('should return an empty folder organization if the file is corrupt', async function () {
@@ -179,22 +194,24 @@ describe('FolderStorage', function () {
     it('should keep a connection mapped to at most one folder', async function () {
       // assignments is a plain map, so re-assigning a connection id
       // overwrites its previous folder rather than adding a second entry.
+      const folderA = getFolder();
+      const folderB = getFolder();
       await folderStorage.save({
         folderOrganization: {
-          folders: [],
-          assignments: { 'connection-1': 'folder-1' },
+          folders: [folderA, folderB],
+          assignments: { 'connection-1': folderA.id },
         },
       });
       await folderStorage.save({
         folderOrganization: {
-          folders: [],
-          assignments: { 'connection-1': 'folder-2' },
+          folders: [folderA, folderB],
+          assignments: { 'connection-1': folderB.id },
         },
       });
 
       expect(await folderStorage.load()).to.deep.equal({
-        folders: [],
-        assignments: { 'connection-1': 'folder-2' },
+        folders: [folderA, folderB],
+        assignments: { 'connection-1': folderB.id },
       });
     });
   });

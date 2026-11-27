@@ -139,6 +139,10 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
     return `${id}.json`;
   }
 
+  private isRecordFileName(fileName: string): boolean {
+    return fileName.endsWith('.json');
+  }
+
   private async getEnsuredBasePath(): Promise<string> {
     const basepath = this.basePath ? this.basePath : getStoragePath();
 
@@ -238,13 +242,22 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
       release = await this.semaphore.waitForRelease();
       data = await fs.readFile(absolutePath, 'utf-8');
     } catch (error) {
+      if (options.ignoreErrors) {
+        // A missing record isn't worth logging; it's the normal state for one never written.
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+          log.warn(
+            mongoLogId(1_001_000_462),
+            'Filesystem',
+            'Error reading file',
+            { path: absolutePath, error: (error as Error).message }
+          );
+        }
+        return undefined;
+      }
       log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
         path: absolutePath,
         error: (error as Error).message,
       });
-      if (options.ignoreErrors) {
-        return undefined;
-      }
       throw error;
     } finally {
       release?.();
@@ -254,13 +267,22 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
       const content = this.deserialize(data);
       return this.validator.parse(content);
     } catch (error) {
+      if (options.ignoreErrors) {
+        log.warn(
+          mongoLogId(1_001_000_463),
+          'Filesystem',
+          'Error parsing data',
+          {
+            path: absolutePath,
+            error: (error as Error).message,
+          }
+        );
+        return undefined;
+      }
       log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
         path: absolutePath,
         error: (error as Error).message,
       });
-      if (options.ignoreErrors) {
-        return undefined;
-      }
       throw error;
     }
   }
@@ -319,7 +341,9 @@ export class FileUserData<T extends z.ZodType> extends IUserData<T> {
     };
     try {
       const absolutePath = await this.getFileAbsolutePath();
-      const filePathList = await fs.readdir(absolutePath);
+      const filePathList = (await fs.readdir(absolutePath)).filter((x) =>
+        this.isRecordFileName(x)
+      );
       for (const settled of await Promise.allSettled(
         filePathList.map((x) => {
           return this.readAndParseFile(path.join(absolutePath, x), options);
