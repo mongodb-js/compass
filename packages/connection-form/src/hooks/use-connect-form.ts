@@ -91,6 +91,10 @@ export interface ConnectFormState {
   isDirty: boolean;
   allowEditingIfProtected: boolean;
   personalizationOptions: ConnectionPersonalizationOptions;
+  // Not part of ConnectionInfo: folder assignment is stored separately
+  // (see connection-storage/folder.ts), so it isn't carried by
+  // personalizationOptions and is applied by the caller after save.
+  folderId: string | null;
 }
 
 type Action =
@@ -105,6 +109,10 @@ type Action =
   | {
       type: 'set-form-errors';
       errors: ConnectionFormError[];
+    }
+  | {
+      type: 'set-connection-folder';
+      folderId: string | null;
     };
 
 function connectFormReducer(
@@ -126,6 +134,11 @@ function connectFormReducer(
       return {
         ...state,
         errors: action.errors,
+      };
+    case 'set-connection-folder':
+      return {
+        ...state,
+        folderId: action.folderId,
       };
   }
 }
@@ -239,7 +252,8 @@ function parseConnectionString(
 }
 
 function buildStateFromConnectionInfo(
-  initialConnectionInfo: ConnectionInfo
+  initialConnectionInfo: ConnectionInfo,
+  initialFolderId: string | null = null
 ): ConnectFormState {
   const [, errors] = parseConnectionString(
     initialConnectionInfo.connectionOptions.connectionString
@@ -275,6 +289,7 @@ function buildStateFromConnectionInfo(
     // is async) when saving or connecting
     connectionOptions: cloneDeep(initialConnectionInfo.connectionOptions),
     isDirty: false,
+    folderId: initialFolderId,
     personalizationOptions: {
       color: initialConnectionInfo.favorite?.color || undefined,
       name: initialConnectionInfo.favorite?.name || '',
@@ -724,16 +739,21 @@ export function handleConnectionFormFieldUpdate(
 
 export function useConnectForm(
   initialConnectionInfo: ConnectionInfo,
-  connectionErrorMessage?: string | null
+  connectionErrorMessage?: string | null,
+  initialFolderId: string | null = null
 ): [
   ConnectFormState,
   {
     updateConnectionFormField: UpdateConnectionFormField;
     setErrors: (errors: ConnectionFormError[]) => void;
     setEnableEditingConnectionString: (enableEditing: boolean) => void;
+    setFolderId: (folderId: string | null) => void;
   },
 ] {
-  const derivedFormState = buildStateFromConnectionInfo(initialConnectionInfo);
+  const derivedFormState = buildStateFromConnectionInfo(
+    initialConnectionInfo,
+    initialFolderId
+  );
   const initialFormState: ConnectFormState = {
     ...derivedFormState,
     enableEditingConnectionString:
@@ -759,6 +779,13 @@ export function useConnectForm(
     },
     []
   );
+
+  const setFolderId = useCallback((folderId: string | null) => {
+    dispatch({
+      type: 'set-connection-folder',
+      folderId,
+    });
+  }, []);
 
   const updateConnectionFormField = useCallback(
     (action: ConnectionFormFieldActions) => {
@@ -790,6 +817,7 @@ export function useConnectForm(
   setInitialState({
     connectionErrorMessage,
     initialConnectionInfo,
+    initialFolderId,
     setErrors,
     dispatch,
   });
@@ -800,6 +828,7 @@ export function useConnectForm(
       updateConnectionFormField,
       setEnableEditingConnectionString,
       setErrors,
+      setFolderId,
     },
   ];
 }
@@ -807,11 +836,13 @@ export function useConnectForm(
 function setInitialState({
   connectionErrorMessage,
   initialConnectionInfo,
+  initialFolderId,
   setErrors,
   dispatch,
 }: {
   connectionErrorMessage: string | null | undefined;
   initialConnectionInfo: ConnectionInfo;
+  initialFolderId: string | null;
   setErrors: (errors: ConnectionFormError[]) => void;
   dispatch: Dispatch<Action>;
 }) {
@@ -830,7 +861,8 @@ function setInitialState({
       allowEditingIfProtected,
       enableEditingConnectionString,
       personalizationOptions,
-    } = buildStateFromConnectionInfo(initialConnectionInfo);
+      folderId,
+    } = buildStateFromConnectionInfo(initialConnectionInfo, initialFolderId);
 
     dispatch({
       type: 'set-connection-form-state',
@@ -844,9 +876,14 @@ function setInitialState({
         isDirty: false,
         allowEditingIfProtected,
         personalizationOptions,
+        folderId,
       },
     });
-  }, [initialConnectionInfo, protectConnectionStringsForNewConnections]);
+  }, [
+    initialConnectionInfo,
+    initialFolderId,
+    protectConnectionStringsForNewConnections,
+  ]);
 
   useEffect(() => {
     if (connectionErrorMessage) {

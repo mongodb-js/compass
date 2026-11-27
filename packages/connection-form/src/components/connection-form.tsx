@@ -205,6 +205,18 @@ const personalizationSectionLayoutStyles = css({
   marginBottom: spacing[600],
 });
 
+const personalizationSectionWithFolderLayoutStyles = css({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr 1fr',
+  gridTemplateRows: 'auto',
+  gridTemplateAreas: `
+    'name-input color-input folder-input'
+    'favorite-marker favorite-marker favorite-marker'
+  `,
+  gap: spacing[600],
+  marginBottom: spacing[600],
+});
+
 const personalizationNameInputStyles = css({
   gridArea: 'name-input',
 });
@@ -213,18 +225,35 @@ const personalizationColorInputStyles = css({
   gridArea: 'color-input',
 });
 
+const personalizationFolderInputStyles = css({
+  gridArea: 'folder-input',
+});
+
 const personalizationFavoriteMarkerStyles = css({
   gridArea: 'favorite-marker',
 });
 
+const UNCATEGORIZED_FOLDER_VALUE = 'uncategorized';
+
+export type ConnectionFormFolderOption = {
+  id: string;
+  name: string;
+};
+
 type ConnectionPersonalizationFormProps = {
   personalizationOptions: ConnectionPersonalizationOptions;
   updateConnectionFormField: UpdateConnectionFormField;
+  folders?: ConnectionFormFolderOption[];
+  folderId: string | null;
+  onChangeFolderId: (folderId: string | null) => void;
 };
 
 function ConnectionPersonalizationForm({
   updateConnectionFormField,
   personalizationOptions,
+  folders,
+  folderId,
+  onChangeFolderId,
 }: ConnectionPersonalizationFormProps): React.ReactElement {
   const showFavoriteActions = useConnectionFormSetting('showFavoriteActions');
 
@@ -262,11 +291,28 @@ function ConnectionPersonalizationForm({
     [updateConnectionFormField, personalizationOptions]
   );
 
+  const onChangeFolder = useCallback(
+    (newValue: string) => {
+      onChangeFolderId(
+        newValue === UNCATEGORIZED_FOLDER_VALUE ? null : newValue
+      );
+    },
+    [onChangeFolderId]
+  );
+
   const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
     useConnectionColor();
 
+  const showFolderSelect = !!folders?.length;
+
   return (
-    <div className={personalizationSectionLayoutStyles}>
+    <div
+      className={
+        showFolderSelect
+          ? personalizationSectionWithFolderLayoutStyles
+          : personalizationSectionLayoutStyles
+      }
+    >
       <TextInput
         className={personalizationNameInputStyles}
         value={personalizationOptions.name}
@@ -300,6 +346,23 @@ function ConnectionPersonalizationForm({
           </Option>
         ))}
       </Select>
+      {showFolderSelect && (
+        <Select
+          className={personalizationFolderInputStyles}
+          data-testid="personalization-folder-input"
+          label="Folder"
+          value={folderId ?? UNCATEGORIZED_FOLDER_VALUE}
+          allowDeselect={false}
+          onChange={onChangeFolder}
+        >
+          <Option value={UNCATEGORIZED_FOLDER_VALUE}>No Folder</Option>
+          {folders?.map((folder) => (
+            <Option key={folder.id} value={folder.id}>
+              {folder.name}
+            </Option>
+          ))}
+        </Select>
+      )}
       {showFavoriteActions && (
         <Checkbox
           className={personalizationFavoriteMarkerStyles}
@@ -324,23 +387,38 @@ type ConnectionFormPropsWithoutSettings = {
   onAdvancedOptionsToggle?: (newState: boolean) => void;
   openSettingsModal?: (tab?: string) => void;
 
+  // The folders the connection can be filed into, in display order. Leave
+  // unset to hide the folder picker (e.g. when there are no folders, or the
+  // feature is disabled).
+  folders?: ConnectionFormFolderOption[];
+  initialFolderId?: string | null;
+
   // form action buttons:
 
   onCancel?: () => void;
 
   // If onSaveClicked is specified, a Save button will show up. It will be the
   // primary button if there is no onSaveAndConnectClick.
-  onSaveClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
+  onSaveClicked?: (
+    connectionInfo: ConnectionInfo,
+    folderId: string | null
+  ) => Promise<void>;
 
   // If onConnectClicked is specified, a Connect button will show up.
-  onConnectClicked?: (connectionInfo: ConnectionInfo) => void;
+  onConnectClicked?: (
+    connectionInfo: ConnectionInfo,
+    folderId: string | null
+  ) => void;
 
   // If onSaveAndConnectClicked is specified, a button will show up with
   // its label set to the value of the setting saveAndConnectLabel. It will be
   // the primary button if specified. If onConnectClicked is specified, the test
   // id will be save-and-connect-button, otherwise it will be connect-button.
   // For historical/backwards compatible reasons.
-  onSaveAndConnectClicked?: (connectionInfo: ConnectionInfo) => void;
+  onSaveAndConnectClicked?: (
+    connectionInfo: ConnectionInfo,
+    folderId: string | null
+  ) => void;
 };
 
 export type ConnectionFormProps = ConnectionFormPropsWithoutSettings &
@@ -350,6 +428,8 @@ function ConnectionForm({
   initialConnectionInfo,
   connectionErrorMessage,
   disableEditingConnectedConnection = false,
+  folders,
+  initialFolderId,
   onSaveAndConnectClicked,
   onSaveClicked,
   onConnectClicked,
@@ -378,9 +458,19 @@ function ConnectionForm({
       connectionOptions,
       allowEditingIfProtected,
       personalizationOptions,
+      folderId,
     },
-    { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
-  ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
+    {
+      setEnableEditingConnectionString,
+      updateConnectionFormField,
+      setErrors,
+      setFolderId,
+    },
+  ] = useConnectForm(
+    initialConnectionInfo,
+    connectionErrorMessage,
+    initialFolderId
+  );
 
   const protectConnectionStrings =
     !!useConnectionFormSetting('protectConnectionStrings') &&
@@ -436,7 +526,7 @@ function ConnectionForm({
   const callOnSaveConnectionClickedAndStoreErrors = useCallback(
     async (connectionInfo: ConnectionInfo): Promise<void> => {
       try {
-        await onSaveClicked?.(connectionInfo);
+        await onSaveClicked?.(connectionInfo, folderId);
       } catch (err) {
         // save errors are already handled as toast notifications,
         // keeping so we don't rely too much on far-away code and leave errors
@@ -448,7 +538,7 @@ function ConnectionForm({
         ]);
       }
     },
-    [onSaveClicked, setErrors]
+    [onSaveClicked, setErrors, folderId]
   );
   const onSubmitForm = useCallback(
     async (intendedAction?: 'connect' | 'save-and-connect') => {
@@ -467,17 +557,23 @@ function ConnectionForm({
       }
       if (intendedAction === 'connect') {
         // The user explicitly clicked connect, so we use that.
-        onConnectClicked?.({
-          ...initialConnectionInfo,
-          ...connectionInfoToSave,
-        });
+        onConnectClicked?.(
+          {
+            ...initialConnectionInfo,
+            ...connectionInfoToSave,
+          },
+          folderId
+        );
       } else {
         if (onSaveAndConnectClicked) {
           // If there is a save&connect button, we use that action by default.
-          onSaveAndConnectClicked?.({
-            ...initialConnectionInfo,
-            ...connectionInfoToSave,
-          });
+          onSaveAndConnectClicked?.(
+            {
+              ...initialConnectionInfo,
+              ...connectionInfoToSave,
+            },
+            folderId
+          );
         } else {
           // If there isn't a save&connect button then the next default action
           // should be to save.
@@ -494,6 +590,7 @@ function ConnectionForm({
       getConnectionInfoToSave,
       callOnSaveConnectionClickedAndStoreErrors,
       onSaveAndConnectClicked,
+      folderId,
       isAtlas,
     ]
   );
@@ -616,6 +713,9 @@ function ConnectionForm({
                   <ConnectionPersonalizationForm
                     personalizationOptions={personalizationOptions}
                     updateConnectionFormField={updateConnectionFormField}
+                    folders={folders}
+                    folderId={folderId}
+                    onChangeFolderId={setFolderId}
                   />
                 )}
                 {!(

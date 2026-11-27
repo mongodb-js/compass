@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { type MapStateToProps, connect } from 'react-redux';
 import {
   ConnectionStatus,
   useConnectionActions,
   useConnectionsWithStatus,
+  useFolders,
 } from '@mongodb-js/compass-connections/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
@@ -20,7 +21,10 @@ import { type RootState, type SidebarThunkAction } from '../../modules';
 import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,
 } from '../csfle-connection-modal';
-import type { ConnectionsFilter } from '../use-filtered-connections';
+import {
+  INITIAL_CONNECTIONS_FILTER,
+  type ConnectionsFilter,
+} from '../use-filtered-connections';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
 import ConnectionsNavigation from './connections-navigation';
 import { Navigation } from './navigation/navigation';
@@ -99,7 +103,7 @@ export function MultipleConnectionSidebar({
     string | undefined
   >(undefined);
   const [connectionsFilter, setConnectionsFilter] = useState<ConnectionsFilter>(
-    { regex: null, excludeInactive: false }
+    INITIAL_CONNECTIONS_FILTER
   );
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
@@ -122,6 +126,7 @@ export function MultipleConnectionSidebar({
     moveConnectionsToFolder,
     moveConnectionsToNewFolder,
   } = useConnectionActions();
+  const { folders } = useFolders();
 
   const findActiveConnection = (id: string) => {
     return connectionsWithStatus.find(
@@ -161,6 +166,21 @@ export function MultipleConnectionSidebar({
     setCsfleModalConnectionId(undefined);
   }, []);
 
+  // Folders can be deleted while the filter hides them. We remove those
+  // ids so the filter doesn't show as active while hiding nothing.
+  const effectiveConnectionsFilter = useMemo<ConnectionsFilter>(() => {
+    if (!connectionsFilter.hiddenFolderIds?.length) {
+      return connectionsFilter;
+    }
+    const folderIds = new Set(folders.map(({ id }) => id));
+    const hiddenFolderIds = connectionsFilter.hiddenFolderIds.filter((id) =>
+      folderIds.has(id)
+    );
+    return hiddenFolderIds.length === connectionsFilter.hiddenFolderIds.length
+      ? connectionsFilter
+      : { ...connectionsFilter, hiddenFolderIds };
+  }, [connectionsFilter, folders]);
+
   const onCsfleChanged = useCallback(
     (isEnabled: boolean) => {
       if (csfleModalConnectionId) {
@@ -184,7 +204,7 @@ export function MultipleConnectionSidebar({
         <ConnectionsNavigation
           connectionsWithStatus={connectionsWithStatus}
           activeWorkspace={activeWorkspace}
-          filter={connectionsFilter}
+          filter={effectiveConnectionsFilter}
           onFilterChange={setConnectionsFilter}
           onConnect={(connectionInfo) => {
             void connect(connectionInfo);

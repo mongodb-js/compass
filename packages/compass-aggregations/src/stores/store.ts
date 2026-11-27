@@ -22,6 +22,7 @@ import type {
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
+import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -93,6 +94,7 @@ export type AggregationsPluginServices = {
   connectionInfoRef: ConnectionInfoRef;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<'open-export'>;
   collection: Collection;
+  queryBar: QueryBarService;
 };
 
 export function activateAggregationsPlugin(
@@ -112,6 +114,7 @@ export function activateAggregationsPlugin(
     connectionInfoRef,
     connectionScopedAppRegistry,
     collection: collectionModel,
+    queryBar,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -205,6 +208,7 @@ export function activateAggregationsPlugin(
         dataService,
         collection: collectionModel,
         pollingIntervalRef,
+        queryBar,
       })
     )
   );

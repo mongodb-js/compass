@@ -23,6 +23,10 @@ type ExpandedConnections = Record<
     databases: ExpandedDatabases;
   }
 >;
+type ExpandedFolders = Record<
+  Folder['id'],
+  'expanded' | 'tempExpanded' | undefined
+>;
 
 interface Match {
   isMatch?: boolean;
@@ -41,42 +45,147 @@ type FilteredConnection = (
 ) &
   Match;
 
-const filterConnections = (
-  connections: SidebarConnection[],
+const isConnectionInactive = (connection: SidebarConnection): boolean =>
+  connection.connectionStatus !== 'connected' &&
+  connection.connectionStatus !== 'connecting';
+
+/** `includeAll` keeps a connection with no match of its own — what a folder matched by name needs. */
+const filterConnection = (
+  connection: SidebarConnection,
   regex: RegExp | null,
-  excludeInactive: boolean
-): FilteredConnection[] => {
-  const results: FilteredConnection[] = [];
+  includeAll: boolean
+): FilteredConnection | null => {
+  const isMatch = !regex || regex.test(connection.name);
+  let childMatches: FilteredDatabase[] = [];
+  if (connection.connectionStatus === 'connected') {
+    childMatches = filterDatabases(connection.databases, regex);
+  }
+
+  if (!isMatch && !childMatches.length && !includeAll) {
+    return null;
+  }
+
+  return {
+    ...connection,
+    isMatch,
+    ...(connection.connectionStatus === 'connected'
+      ? {
+          databases:
+            isMatch || includeAll ? connection.databases : childMatches,
+        }
+      : {}),
+  };
+};
+
+interface FilteredTree {
+  connections: FilteredConnection[];
+  filteredFolders: Folder[];
+  temporarilyExpandedFolderIds: string[];
+}
+
+interface FilterConnectionsParams {
+  connections: SidebarConnection[];
+  folders: Folder[];
+  /** Read, never written. */
+  folderAssignments: Record<string, string>;
+  regex: RegExp | null;
+  excludeInactive: boolean;
+  hiddenFolderIds: string[];
+  hideUncategorizedConnections: boolean;
+}
+
+const filterConnections = ({
+  connections,
+  folders,
+  folderAssignments,
+  regex,
+  excludeInactive,
+  hiddenFolderIds,
+  hideUncategorizedConnections,
+}: FilterConnectionsParams): FilteredTree => {
+  const hiddenFolders = new Set(hiddenFolderIds);
+  const foldersById = new Map(folders.map((folder) => [folder.id, folder]));
+
+  // An assignment pointing at a missing folder is uncategorized, as in the tree.
+  const resolveFolderId = (connection: SidebarConnection) => {
+    const folderId = folderAssignments[connection.connectionInfo.id];
+    return folderId && foldersById.has(folderId) ? folderId : undefined;
+  };
+
+  const connectionsByFolderId = new Map<string, SidebarConnection[]>();
+  const uncategorized: SidebarConnection[] = [];
   for (const connection of connections) {
-    // Conditionally skip connections that aren't considered active
-    const inactive =
-      connection.connectionStatus !== 'connected' &&
-      connection.connectionStatus !== 'connecting';
-    if (excludeInactive && inactive) {
+    if (excludeInactive && isConnectionInactive(connection)) {
       continue;
     }
-    const isMatch = !regex || regex.test(connection.name);
-    let childMatches: FilteredDatabase[] = [];
-    if (connection.connectionStatus === 'connected') {
-      childMatches = filterDatabases(connection.databases, regex);
+    const folderId = resolveFolderId(connection);
+    if (!folderId) {
+      uncategorized.push(connection);
+      continue;
     }
-
-    if (isMatch || childMatches.length) {
-      results.push({
-        ...connection,
-        isMatch,
-        ...(connection.connectionStatus === 'connected'
-          ? {
-              databases:
-                !isMatch && childMatches.length
-                  ? childMatches
-                  : connection.databases,
-            }
-          : {}),
-      });
+    const siblings = connectionsByFolderId.get(folderId);
+    if (siblings) {
+      siblings.push(connection);
+    } else {
+      connectionsByFolderId.set(folderId, [connection]);
     }
   }
-  return results;
+
+  const filteredConnections: FilteredConnection[] = [];
+  const filteredFolders: Folder[] = [];
+  const temporarilyExpandedFolderIds: string[] = [];
+
+  for (const folder of folders) {
+    if (hiddenFolders.has(folder.id)) {
+      continue;
+    }
+
+    const folderConnections = connectionsByFolderId.get(folder.id) ?? [];
+    const nameMatches = !!regex && regex.test(folder.name);
+    const connectionsToShow = folderConnections
+      .map((connection) => filterConnection(connection, regex, nameMatches))
+      .filter((connection): connection is FilteredConnection => !!connection);
+
+    // Empty folders hide only under a narrowing filter, so a newly created one stays visible.
+    if (
+      !nameMatches &&
+      !connectionsToShow.length &&
+      (regex || excludeInactive)
+    ) {
+      continue;
+    }
+
+    filteredFolders.push(folder);
+    filteredConnections.push(...connectionsToShow);
+
+    // Mirrors connections/databases: a name match on the folder itself doesn't expand it, only a match in its subtree does.
+    if (
+      regex &&
+      !nameMatches &&
+      connectionsToShow.some(
+        (c) =>
+          c.isMatch ||
+          (c.connectionStatus === 'connected' && c.databases.length > 0)
+      )
+    ) {
+      temporarilyExpandedFolderIds.push(folder.id);
+    }
+  }
+
+  if (!hideUncategorizedConnections) {
+    for (const connection of uncategorized) {
+      const filteredConnection = filterConnection(connection, regex, false);
+      if (filteredConnection) {
+        filteredConnections.push(filteredConnection);
+      }
+    }
+  }
+
+  return {
+    connections: filteredConnections,
+    filteredFolders,
+    temporarilyExpandedFolderIds,
+  };
 };
 
 const filterDatabases = (
@@ -195,6 +304,30 @@ const revertTemporaryExpanded = (
   return cleared;
 };
 
+/** Expands folders holding a search match, leaving the user's own choices alone. */
+const temporarilyExpandFolders = (
+  expandedFolders: ExpandedFolders,
+  folderIds: string[]
+): ExpandedFolders => {
+  const newExpanded = { ...expandedFolders };
+  for (const folderId of folderIds) {
+    if (!newExpanded[folderId]) {
+      newExpanded[folderId] = 'tempExpanded';
+    }
+  }
+  return newExpanded;
+};
+
+const revertTemporaryExpandedFolders = (
+  expandedFolders: ExpandedFolders
+): ExpandedFolders => {
+  const cleared: ExpandedFolders = {};
+  for (const [folderId, state] of Object.entries(expandedFolders)) {
+    cleared[folderId] = state === 'tempExpanded' ? undefined : state;
+  }
+  return cleared;
+};
+
 const collapseAll = (
   activeConnections: ConnectionInfo[]
 ): ExpandedConnections => {
@@ -210,8 +343,9 @@ const collapseAll = (
 
 interface ConnectionsState {
   expanded: ExpandedConnections;
-  expandedFolders: Record<string, boolean>;
-  filtered: SidebarConnection[] | undefined;
+  expandedFolders: ExpandedFolders;
+  filteredConnections: SidebarConnection[] | undefined;
+  filteredFolders: Folder[] | undefined;
 }
 
 const FILTER_CONNECTIONS =
@@ -219,8 +353,12 @@ const FILTER_CONNECTIONS =
 interface FilterConnectionsAction {
   type: typeof FILTER_CONNECTIONS;
   connections: SidebarConnection[];
+  folders: Folder[];
+  folderAssignments: Record<string, string>;
   filterRegex: RegExp | null;
   excludeInactive: boolean;
+  hiddenFolderIds: string[];
+  hideUncategorizedConnections: boolean;
 }
 
 const CLEAR_FILTER = 'sidebar/active-connections/CLEAR_FILTER' as const;
@@ -293,28 +431,55 @@ const connectionsReducer = (
         ...state,
         expandedFolders: {
           ...state.expandedFolders,
-          [folderId]: expand,
+          [folderId]: expand ? 'expanded' : undefined,
         },
       };
     }
     case FILTER_CONNECTIONS: {
-      const filtered = filterConnections(
-        action.connections,
-        action.filterRegex,
-        action.excludeInactive
-      );
+      const {
+        connections,
+        folders,
+        folderAssignments,
+        filterRegex,
+        excludeInactive,
+        hiddenFolderIds,
+        hideUncategorizedConnections,
+      } = action;
+      const {
+        connections: filteredConnections,
+        filteredFolders,
+        temporarilyExpandedFolderIds,
+      } = filterConnections({
+        connections,
+        folders,
+        folderAssignments,
+        regex: filterRegex,
+        excludeInactive,
+        hiddenFolderIds,
+        hideUncategorizedConnections,
+      });
       const persistingExpanded = revertTemporaryExpanded(state.expanded);
+      const persistingFolders = revertTemporaryExpandedFolders(
+        state.expandedFolders
+      );
       return {
         ...state,
-        filtered,
-        expanded: temporarilyExpand(persistingExpanded, filtered),
+        filteredConnections,
+        filteredFolders,
+        expanded: temporarilyExpand(persistingExpanded, filteredConnections),
+        expandedFolders: temporarilyExpandFolders(
+          persistingFolders,
+          temporarilyExpandedFolderIds
+        ),
       };
     }
     case CLEAR_FILTER:
       return {
         ...state,
-        filtered: undefined,
+        filteredConnections: undefined,
+        filteredFolders: undefined,
         expanded: revertTemporaryExpanded(state.expanded),
+        expandedFolders: revertTemporaryExpandedFolders(state.expandedFolders),
       };
     case CONNECTION_TOGGLE: {
       const { connectionId, expand } = action;
@@ -372,7 +537,8 @@ const connectionsReducer = (
 };
 
 type UseFilteredConnectionsHookResult = {
-  filtered: SidebarConnection[] | undefined;
+  filteredConnections: SidebarConnection[] | undefined;
+  filteredFolders: Folder[];
   expanded: ConnectionsNavigationTreeProps['expanded'];
   onCollapseAll(this: void): void;
   onConnectionToggle(
@@ -416,31 +582,81 @@ function filteredConnectionsToSidebarConnection(
 }
 
 export type ConnectionsFilter = {
-  regex: RegExp | null;
+  /** The search text as typed; compiled to a regex for the tree. */
+  search: string;
   excludeInactive: boolean;
+  /** Folder ids hidden from the tree; a folder not listed stays visible, so a new one defaults to shown. */
+  hiddenFolderIds?: string[];
+  hideUncategorizedConnections?: boolean;
 };
+
+/** The one default for the filter: the store starts with it, Reset returns to it. */
+export const INITIAL_CONNECTIONS_FILTER: ConnectionsFilter = {
+  search: '',
+  excludeInactive: false,
+};
+
+const NEVER_MATCHING_REGEX = /(?!)/;
+
+function createRegExp(search: string): RegExp | null {
+  try {
+    return new RegExp(search, 'i');
+  } catch {
+    return null;
+  }
+}
+
+/** Null when there is no search, never-matching when it can not match. */
+const filteringRegex = (search: string): RegExp | null => {
+  if (!search) {
+    return null;
+  }
+  return createRegExp(search) ?? NEVER_MATCHING_REGEX;
+};
+
+const EMPTY_FOLDERS: Folder[] = [];
+const EMPTY_FOLDER_ASSIGNMENTS: Record<string, string> = Object.create(null);
+const EMPTY_HIDDEN_FOLDER_IDS: string[] = [];
+
+/** The popover's filters, which are the ones that show the caption and dot. */
+export const areConnectionsFiltersActive = (
+  filter: ConnectionsFilter
+): boolean =>
+  filter.excludeInactive ||
+  (filter.hiddenFolderIds?.length ?? 0) > 0 ||
+  !!filter.hideUncategorizedConnections;
+
+export const isConnectionsFilterActive = (filter: ConnectionsFilter): boolean =>
+  !!filter.search || areConnectionsFiltersActive(filter);
 
 export const useFilteredConnections = ({
   connections,
-  folders = [],
+  folders = EMPTY_FOLDERS,
+  folderAssignments = EMPTY_FOLDER_ASSIGNMENTS,
   filter,
   fetchAllCollections,
   onDatabaseExpand,
 }: {
   connections: SidebarConnection[];
   folders?: Folder[];
+  folderAssignments?: Record<string, string>;
   filter: ConnectionsFilter;
   fetchAllCollections: () => void;
   onDatabaseExpand: (connectionId: string, databaseId: string) => void;
 }): UseFilteredConnectionsHookResult => {
-  const [{ filtered, expanded, expandedFolders }, dispatch] = useReducer(
-    connectionsReducer,
-    {
-      filtered: undefined,
-      expanded: {},
-      expandedFolders: {},
-    }
-  );
+  const [
+    { filteredConnections, filteredFolders, expanded, expandedFolders },
+    dispatch,
+  ] = useReducer(connectionsReducer, {
+    filteredConnections: undefined,
+    filteredFolders: undefined,
+    expanded: {},
+    expandedFolders: {},
+  });
+
+  const hiddenFolderIds = filter.hiddenFolderIds ?? EMPTY_HIDDEN_FOLDER_IDS;
+  const hideUncategorizedConnections = !!filter.hideUncategorizedConnections;
+  const isFilterActive = isConnectionsFilterActive(filter);
 
   const activeConnections = useMemo(() => {
     return connections
@@ -458,30 +674,43 @@ export const useFilteredConnections = ({
   // filter updates
   // connections change often, but the effect only uses connections if the filter is active
   // so we use this conditional dependency to avoid too many calls
-  const connectionsWhenFiltering =
-    (filter.regex || filter.excludeInactive) && connections;
+  const connectionsWhenFiltering = isFilterActive && connections;
+  // A folder-only change filters by assignment, not by collection, so it shouldn't pay to fetch every one.
+  const shouldFetchCollections = !!filter.search || filter.excludeInactive;
   useEffect(() => {
-    if (!filter.regex && !filter.excludeInactive) {
+    if (!isFilterActive) {
       dispatch({ type: CLEAR_FILTER });
     } else if (connectionsWhenFiltering) {
       // the above check is extra just to please TS
 
-      // When filtering, emit an event so that we can fetch all collections. This
-      // is required as a workaround for the synchronous nature of the current
-      // filtering feature
-      fetchAllCollections();
+      if (shouldFetchCollections) {
+        // When filtering, emit an event so that we can fetch all collections. This
+        // is required as a workaround for the synchronous nature of the current
+        // filtering feature
+        fetchAllCollections();
+      }
 
       dispatch({
         type: FILTER_CONNECTIONS,
         connections: connectionsWhenFiltering,
-        filterRegex: filter.regex,
+        folders,
+        folderAssignments,
+        filterRegex: filteringRegex(filter.search),
         excludeInactive: filter.excludeInactive,
+        hiddenFolderIds,
+        hideUncategorizedConnections,
       });
     }
   }, [
-    filter.regex,
+    isFilterActive,
+    shouldFetchCollections,
+    filter.search,
     filter.excludeInactive,
+    hiddenFolderIds,
+    hideUncategorizedConnections,
     connectionsWhenFiltering,
+    folders,
+    folderAssignments,
     fetchAllCollections,
   ]);
 
@@ -523,6 +752,8 @@ export const useFilteredConnections = ({
     []
   );
 
+  const foldersToRender = filteredFolders ?? folders;
+
   const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
     useMemo(() => {
       const result: Record<string, false | Record<string, boolean>> =
@@ -546,22 +777,23 @@ export const useFilteredConnections = ({
         result[connectionInfo.id] =
           expandedState !== 'collapsed' ? expandedItemsInConnection : false;
       }
-      for (const { id } of folders) {
+      for (const { id } of foldersToRender) {
         result[id] = expandedFolders[id] ? Object.create(null) : false;
       }
       return result;
-    }, [expanded, connections, folders, expandedFolders]);
+    }, [expanded, connections, foldersToRender, expandedFolders]);
 
   // This is done to strip the isMatch that we attach on filtered items
   const filteredMemo = useMemo(() => {
-    if (!filtered) {
+    if (!filteredConnections) {
       return undefined;
     }
-    return filteredConnectionsToSidebarConnection(filtered);
-  }, [filtered]);
+    return filteredConnectionsToSidebarConnection(filteredConnections);
+  }, [filteredConnections]);
 
   return {
-    filtered: filteredMemo,
+    filteredConnections: filteredMemo,
+    filteredFolders: foldersToRender,
     expanded: expandedMemo,
     onCollapseAll,
     onConnectionToggle,
